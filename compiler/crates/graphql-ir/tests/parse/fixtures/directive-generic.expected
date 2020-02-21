@@ -6,8 +6,8 @@ fragment TestFragment on User {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:22,
+            name: WithLocation {
+                location: "directive-generic.graphql":9:22,
                 item: "TestFragment",
             },
             variable_definitions: [],
@@ -17,8 +17,8 @@ fragment TestFragment on User {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 31:37,
+                    definition: WithLocation {
+                        location: "directive-generic.graphql":31:37,
                         item: FieldID(
                             446,
                         ),
@@ -26,18 +26,18 @@ fragment TestFragment on User {
                     arguments: [],
                     directives: [
                         Directive {
-                            name: Spanned {
-                                span: 38:53,
+                            name: WithLocation {
+                                location: "directive-generic.graphql":38:53,
                                 item: "customDirective",
                             },
                             arguments: [
                                 Argument {
-                                    name: Spanned {
-                                        span: 54:59,
+                                    name: WithLocation {
+                                        location: "directive-generic.graphql":54:59,
                                         item: "level",
                                     },
-                                    value: Spanned {
-                                        span: 61:63,
+                                    value: WithLocation {
+                                        location: "directive-generic.graphql":61:63,
                                         item: Constant(
                                             Int(
                                                 11,

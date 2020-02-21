@@ -11,8 +11,8 @@ query EnumValueQuery {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:21,
+            name: WithLocation {
+                location: "enum-values.graphql":6:21,
                 item: "EnumValueQuery",
             },
             type_: Object(0),
@@ -21,8 +21,8 @@ query EnumValueQuery {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 22:28,
+                    definition: WithLocation {
+                        location: "enum-values.graphql":22:28,
                         item: FieldID(
                             8,
                         ),
@@ -32,20 +32,20 @@ query EnumValueQuery {
                     selections: [
                         LinkedField {
                             alias: None,
-                            definition: Spanned {
-                                span: 29:48,
+                            definition: WithLocation {
+                                location: "enum-values.graphql":29:48,
                                 item: FieldID(
                                     459,
                                 ),
                             },
                             arguments: [
                                 Argument {
-                                    name: Spanned {
-                                        span: 49:55,
+                                    name: WithLocation {
+                                        location: "enum-values.graphql":49:55,
                                         item: "preset",
                                     },
-                                    value: Spanned {
-                                        span: 57:62,
+                                    value: WithLocation {
+                                        location: "enum-values.graphql":57:62,
                                         item: Constant(
                                             Enum(
                                                 "LARGE",
@@ -58,8 +58,8 @@ query EnumValueQuery {
                             selections: [
                                 ScalarField {
                                     alias: None,
-                                    definition: Spanned {
-                                        span: 65:75,
+                                    definition: WithLocation {
+                                        location: "enum-values.graphql":65:75,
                                         item: FieldID(
                                             172,
                                         ),

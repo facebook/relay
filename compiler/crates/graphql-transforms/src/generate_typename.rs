@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Spanned;
+use common::WithLocation;
 use graphql_ir::{
     FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,
@@ -61,7 +61,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
             let mut next_selections = Vec::with_capacity(field.selections.len() + 1);
             next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
                 alias: None,
-                definition: Spanned::new(field.definition.span, schema.typename_field()),
+                definition: WithLocation::new(field.definition.location, schema.typename_field()),
                 arguments: Default::default(),
                 directives: Default::default(),
             })));

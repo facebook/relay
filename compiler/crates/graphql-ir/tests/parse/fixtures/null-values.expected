@@ -9,8 +9,8 @@ query NullValuesQuery {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:22,
+            name: WithLocation {
+                location: "null-values.graphql":6:22,
                 item: "NullValuesQuery",
             },
             type_: Object(0),
@@ -19,30 +19,30 @@ query NullValuesQuery {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 23:31,
+                    definition: WithLocation {
+                        location: "null-values.graphql":23:31,
                         item: FieldID(
                             3,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 32:38,
+                            name: WithLocation {
+                                location: "null-values.graphql":32:38,
                                 item: "filter",
                             },
-                            value: Spanned {
-                                span: 40:52,
+                            value: WithLocation {
+                                location: "null-values.graphql":40:52,
                                 item: Constant(
                                     Object(
                                         [
                                             ConstantArgument {
-                                                name: Spanned {
-                                                    span: 41:45,
+                                                name: WithLocation {
+                                                    location: "null-values.graphql":41:45,
                                                     item: "date",
                                                 },
-                                                value: Spanned {
-                                                    span: 47:51,
+                                                value: WithLocation {
+                                                    location: "null-values.graphql":47:51,
                                                     item: Null,
                                                 },
                                             },
@@ -56,8 +56,8 @@ query NullValuesQuery {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 55:64,
+                            definition: WithLocation {
+                                location: "null-values.graphql":55:64,
                                 item: FieldID(
                                     474,
                                 ),

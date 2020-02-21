@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Spanned;
+use common::WithLocation;
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
 use schema::{FieldID, Type, TypeReference};
@@ -24,7 +24,7 @@ pub enum ExecutableDefinition {
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct OperationDefinition {
     pub kind: OperationKind,
-    pub name: Spanned<StringKey>,
+    pub name: WithLocation<StringKey>,
     pub type_: Type,
     pub variable_definitions: Vec<VariableDefinition>,
     pub directives: Vec<Directive>,
@@ -34,7 +34,7 @@ pub struct OperationDefinition {
 /// A fully-typed fragment definition
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FragmentDefinition {
-    pub name: Spanned<StringKey>,
+    pub name: WithLocation<StringKey>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub used_global_variables: Vec<VariableDefinition>,
     pub type_condition: Type,
@@ -45,7 +45,7 @@ pub struct FragmentDefinition {
 /// A variable definition of an operation or fragment
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct VariableDefinition {
-    pub name: Spanned<StringKey>,
+    pub name: WithLocation<StringKey>,
     pub type_: TypeReference,
     pub default_value: Option<ConstantValue>,
     pub directives: Vec<Directive>,
@@ -121,7 +121,7 @@ impl fmt::Debug for Selection {
 /// ... Name
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FragmentSpread {
-    pub fragment: Spanned<StringKey>,
+    pub fragment: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
 }
@@ -138,8 +138,8 @@ pub struct InlineFragment {
 /// Name Arguments? SelectionSet
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct LinkedField {
-    pub alias: Option<Spanned<StringKey>>,
-    pub definition: Spanned<FieldID>,
+    pub alias: Option<WithLocation<StringKey>>,
+    pub definition: WithLocation<FieldID>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
@@ -148,8 +148,8 @@ pub struct LinkedField {
 /// Name Arguments?
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ScalarField {
-    pub alias: Option<Spanned<StringKey>>,
-    pub definition: Spanned<FieldID>,
+    pub alias: Option<WithLocation<StringKey>>,
+    pub definition: WithLocation<FieldID>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
 }
@@ -167,15 +167,15 @@ pub struct Condition {
 /// @ Name Arguments?
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Directive {
-    pub name: Spanned<StringKey>,
+    pub name: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
 }
 
 /// Name : Value
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
-    pub name: Spanned<StringKey>,
-    pub value: Spanned<Value>,
+    pub name: WithLocation<StringKey>,
+    pub value: WithLocation<Value>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -188,15 +188,15 @@ pub enum Value {
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Variable {
-    pub name: Spanned<StringKey>,
+    pub name: WithLocation<StringKey>,
     pub type_: TypeReference,
 }
 
 /// Name : Value[Const]
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ConstantArgument {
-    pub name: Spanned<StringKey>,
-    pub value: Spanned<ConstantValue>,
+    pub name: WithLocation<StringKey>,
+    pub value: WithLocation<ConstantValue>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

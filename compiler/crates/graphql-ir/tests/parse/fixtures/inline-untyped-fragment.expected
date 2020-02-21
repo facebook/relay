@@ -8,8 +8,8 @@ fragment InlineUntypedFragment on User {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:31,
+            name: WithLocation {
+                location: "inline-untyped-fragment.graphql":9:31,
                 item: "InlineUntypedFragment",
             },
             variable_definitions: [],
@@ -23,8 +23,8 @@ fragment InlineUntypedFragment on User {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 48:57,
+                            definition: WithLocation {
+                                location: "inline-untyped-fragment.graphql":48:57,
                                 item: FieldID(
                                     452,
                                 ),

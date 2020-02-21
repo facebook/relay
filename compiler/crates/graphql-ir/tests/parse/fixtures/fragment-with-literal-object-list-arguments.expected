@@ -16,8 +16,8 @@ fragment ChildFragment on Query
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:24,
+            name: WithLocation {
+                location: "fragment-with-literal-object-list-arguments.graphql":9:24,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -27,35 +27,35 @@ fragment ChildFragment on Query
             selections: [
                 LinkedField {
                     alias: Some(
-                        Spanned {
-                            span: 34:52,
+                        WithLocation {
+                            location: "fragment-with-literal-object-list-arguments.graphql":34:52,
                             item: "mobile_checkins",
                         },
                     ),
-                    definition: Spanned {
-                        span: 54:72,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-object-list-arguments.graphql":54:72,
                         item: FieldID(
                             0,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 73:78,
+                            name: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":73:78,
                                 item: "query",
                             },
-                            value: Spanned {
-                                span: 80:97,
+                            value: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":80:97,
                                 item: Constant(
                                     Object(
                                         [
                                             ConstantArgument {
-                                                name: Spanned {
-                                                    span: 81:86,
+                                                name: WithLocation {
+                                                    location: "fragment-with-literal-object-list-arguments.graphql":81:86,
                                                     item: "query",
                                                 },
-                                                value: Spanned {
-                                                    span: 88:96,
+                                                value: WithLocation {
+                                                    location: "fragment-with-literal-object-list-arguments.graphql":88:96,
                                                     item: String(
                                                         "mobile",
                                                     ),
@@ -71,8 +71,8 @@ fragment ChildFragment on Query
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 100:110,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":100:110,
                                 item: FieldID(
                                     53,
                                 ),
@@ -83,30 +83,30 @@ fragment ChildFragment on Query
                     ],
                 },
                 FragmentSpread {
-                    fragment: Spanned {
-                        span: 120:134,
+                    fragment: WithLocation {
+                        location: "fragment-with-literal-object-list-arguments.graphql":120:134,
                         item: "ChildFragment",
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 145:151,
+                            name: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":145:151,
                                 item: "inputs",
                             },
-                            value: Spanned {
-                                span: 153:169,
+                            value: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":153:169,
                                 item: Constant(
                                     List(
                                         [
                                             Object(
                                                 [
                                                     ConstantArgument {
-                                                        name: Spanned {
-                                                            span: 155:160,
+                                                        name: WithLocation {
+                                                            location: "fragment-with-literal-object-list-arguments.graphql":155:160,
                                                             item: "query",
                                                         },
-                                                        value: Spanned {
-                                                            span: 162:167,
+                                                        value: WithLocation {
+                                                            location: "fragment-with-literal-object-list-arguments.graphql":162:167,
                                                             item: String(
                                                                 "web",
                                                             ),
@@ -127,14 +127,14 @@ fragment ChildFragment on Query
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 183:197,
+            name: WithLocation {
+                location: "fragment-with-literal-object-list-arguments.graphql":183:197,
                 item: "ChildFragment",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 229:235,
+                    name: WithLocation {
+                        location: "fragment-with-literal-object-list-arguments.graphql":229:235,
                         item: "inputs",
                     },
                     type_: NonNull(
@@ -156,29 +156,29 @@ fragment ChildFragment on Query
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 272:293,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-object-list-arguments.graphql":272:293,
                         item: FieldID(
                             0,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 294:299,
+                            name: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":294:299,
                                 item: "query",
                             },
-                            value: Spanned {
-                                span: 301:332,
+                            value: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":301:332,
                                 item: Object(
                                     [
                                         Argument {
-                                            name: Spanned {
-                                                span: 302:307,
+                                            name: WithLocation {
+                                                location: "fragment-with-literal-object-list-arguments.graphql":302:307,
                                                 item: "query",
                                             },
-                                            value: Spanned {
-                                                span: 309:316,
+                                            value: WithLocation {
+                                                location: "fragment-with-literal-object-list-arguments.graphql":309:316,
                                                 item: Constant(
                                                     String(
                                                         "foo",
@@ -187,16 +187,16 @@ fragment ChildFragment on Query
                                             },
                                         },
                                         Argument {
-                                            name: Spanned {
-                                                span: 316:322,
+                                            name: WithLocation {
+                                                location: "fragment-with-literal-object-list-arguments.graphql":316:322,
                                                 item: "inputs",
                                             },
-                                            value: Spanned {
-                                                span: 324:331,
+                                            value: WithLocation {
+                                                location: "fragment-with-literal-object-list-arguments.graphql":324:331,
                                                 item: Variable(
                                                     Variable {
-                                                        name: Spanned {
-                                                            span: 324:331,
+                                                        name: WithLocation {
+                                                            location: "fragment-with-literal-object-list-arguments.graphql":324:331,
                                                             item: "inputs",
                                                         },
                                                         type_: List(
@@ -217,8 +217,8 @@ fragment ChildFragment on Query
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 335:345,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-object-list-arguments.graphql":335:345,
                                 item: FieldID(
                                     53,
                                 ),

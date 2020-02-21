@@ -9,8 +9,8 @@ query LiteralObjectArgument {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:28,
+            name: WithLocation {
+                location: "literal-object-argument.graphql":6:28,
                 item: "LiteralObjectArgument",
             },
             type_: Object(0),
@@ -19,30 +19,30 @@ query LiteralObjectArgument {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 29:50,
+                    definition: WithLocation {
+                        location: "literal-object-argument.graphql":29:50,
                         item: FieldID(
                             0,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 51:56,
+                            name: WithLocation {
+                                location: "literal-object-argument.graphql":51:56,
                                 item: "query",
                             },
-                            value: Spanned {
-                                span: 58:77,
+                            value: WithLocation {
+                                location: "literal-object-argument.graphql":58:77,
                                 item: Constant(
                                     Object(
                                         [
                                             ConstantArgument {
-                                                name: Spanned {
-                                                    span: 59:64,
+                                                name: WithLocation {
+                                                    location: "literal-object-argument.graphql":59:64,
                                                     item: "query",
                                                 },
-                                                value: Spanned {
-                                                    span: 66:76,
+                                                value: WithLocation {
+                                                    location: "literal-object-argument.graphql":66:76,
                                                     item: String(
                                                         "Facebook",
                                                     ),
@@ -58,8 +58,8 @@ query LiteralObjectArgument {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 80:90,
+                            definition: WithLocation {
+                                location: "literal-object-argument.graphql":80:90,
                                 item: FieldID(
                                     53,
                                 ),

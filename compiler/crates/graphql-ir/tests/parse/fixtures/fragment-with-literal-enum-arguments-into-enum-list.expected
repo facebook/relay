@@ -16,8 +16,8 @@ fragment ChildFragment on User
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:24,
+            name: WithLocation {
+                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":9:24,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -27,25 +27,25 @@ fragment ChildFragment on User
             selections: [
                 LinkedField {
                     alias: Some(
-                        Spanned {
-                            span: 33:51,
+                        WithLocation {
+                            location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":33:51,
                             item: "mobile_checkins",
                         },
                     ),
-                    definition: Spanned {
-                        span: 53:61,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":53:61,
                         item: FieldID(
                             437,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 62:74,
+                            name: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":62:74,
                                 item: "environments",
                             },
-                            value: Spanned {
-                                span: 76:84,
+                            value: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":76:84,
                                 item: Constant(
                                     List(
                                         [
@@ -62,8 +62,8 @@ fragment ChildFragment on User
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 87:97,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":87:97,
                                 item: FieldID(
                                     53,
                                 ),
@@ -74,18 +74,18 @@ fragment ChildFragment on User
                     ],
                 },
                 FragmentSpread {
-                    fragment: Spanned {
-                        span: 107:121,
+                    fragment: WithLocation {
+                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":107:121,
                         item: "ChildFragment",
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 132:144,
+                            name: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":132:144,
                                 item: "environments",
                             },
-                            value: Spanned {
-                                span: 146:149,
+                            value: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":146:149,
                                 item: Constant(
                                     Enum(
                                         "WEB",
@@ -101,14 +101,14 @@ fragment ChildFragment on User
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 163:177,
+            name: WithLocation {
+                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":163:177,
                 item: "ChildFragment",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 208:220,
+                    name: WithLocation {
+                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":208:220,
                         item: "environments",
                     },
                     type_: NonNull(
@@ -130,24 +130,24 @@ fragment ChildFragment on User
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 250:261,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":250:261,
                         item: FieldID(
                             437,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 262:274,
+                            name: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":262:274,
                                 item: "environments",
                             },
-                            value: Spanned {
-                                span: 276:289,
+                            value: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":276:289,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 276:289,
+                                        name: WithLocation {
+                                            location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":276:289,
                                             item: "environments",
                                         },
                                         type_: NonNull(
@@ -168,8 +168,8 @@ fragment ChildFragment on User
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 292:302,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":292:302,
                                 item: FieldID(
                                     53,
                                 ),

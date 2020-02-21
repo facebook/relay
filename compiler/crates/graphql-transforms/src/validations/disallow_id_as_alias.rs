@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Spanned;
+use common::WithLocation;
 use graphql_ir::{LinkedField, Program, ScalarField, ValidationError, ValidationMessage, Visitor};
 use interner::{Intern, StringKey};
 use schema::{FieldID, Schema};
@@ -67,13 +67,13 @@ impl<'s> Visitor for DisallowIdAsAlias<'s> {
 fn validate_field_alias<'s>(
     schema: &'s Schema,
     id_key: StringKey,
-    alias: &Spanned<StringKey>,
+    alias: &WithLocation<StringKey>,
     field: FieldID,
 ) -> Option<ValidationError> {
     if alias.item == id_key && schema.field(field).name != id_key {
         Some(ValidationError::new(
             ValidationMessage::DisallowIdAsAliasError(),
-            vec![], // TODO (T62615093) Figure out how to get location here?
+            vec![alias.location],
         ))
     } else {
         None

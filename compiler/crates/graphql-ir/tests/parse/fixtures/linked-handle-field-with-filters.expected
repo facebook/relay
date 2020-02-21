@@ -9,15 +9,15 @@ fragment LinkedHandleField on User {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:27,
+            name: WithLocation {
+                location: "linked-handle-field-with-filters.graphql":9:27,
                 item: "LinkedHandleField",
             },
             variable_definitions: [],
             used_global_variables: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 67:75,
+                    name: WithLocation {
+                        location: "linked-handle-field-with-filters.graphql":67:75,
                         item: "orderby",
                     },
                     type_: List(
@@ -34,20 +34,20 @@ fragment LinkedHandleField on User {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 36:46,
+                    definition: WithLocation {
+                        location: "linked-handle-field-with-filters.graphql":36:46,
                         item: FieldID(
                             444,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 47:52,
+                            name: WithLocation {
+                                location: "linked-handle-field-with-filters.graphql":47:52,
                                 item: "first",
                             },
-                            value: Spanned {
-                                span: 54:58,
+                            value: WithLocation {
+                                location: "linked-handle-field-with-filters.graphql":54:58,
                                 item: Constant(
                                     Int(
                                         10,
@@ -56,16 +56,16 @@ fragment LinkedHandleField on User {
                             },
                         },
                         Argument {
-                            name: Spanned {
-                                span: 58:65,
+                            name: WithLocation {
+                                location: "linked-handle-field-with-filters.graphql":58:65,
                                 item: "orderby",
                             },
-                            value: Spanned {
-                                span: 67:75,
+                            value: WithLocation {
+                                location: "linked-handle-field-with-filters.graphql":67:75,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 67:75,
+                                        name: WithLocation {
+                                            location: "linked-handle-field-with-filters.graphql":67:75,
                                             item: "orderby",
                                         },
                                         type_: List(
@@ -80,18 +80,18 @@ fragment LinkedHandleField on User {
                     ],
                     directives: [
                         Directive {
-                            name: Spanned {
-                                span: 82:95,
+                            name: WithLocation {
+                                location: "linked-handle-field-with-filters.graphql":82:95,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
-                                    name: Spanned {
-                                        span: 96:102,
+                                    name: WithLocation {
+                                        location: "linked-handle-field-with-filters.graphql":96:102,
                                         item: "handle",
                                     },
-                                    value: Spanned {
-                                        span: 104:121,
+                                    value: WithLocation {
+                                        location: "linked-handle-field-with-filters.graphql":104:121,
                                         item: Constant(
                                             String(
                                                 "clientFriends",
@@ -100,12 +100,12 @@ fragment LinkedHandleField on User {
                                     },
                                 },
                                 Argument {
-                                    name: Spanned {
-                                        span: 121:128,
+                                    name: WithLocation {
+                                        location: "linked-handle-field-with-filters.graphql":121:128,
                                         item: "filters",
                                     },
-                                    value: Spanned {
-                                        span: 130:150,
+                                    value: WithLocation {
+                                        location: "linked-handle-field-with-filters.graphql":130:150,
                                         item: Constant(
                                             List(
                                                 [
@@ -126,8 +126,8 @@ fragment LinkedHandleField on User {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 153:163,
+                            definition: WithLocation {
+                                location: "linked-handle-field-with-filters.graphql":153:163,
                                 item: FieldID(
                                     166,
                                 ),

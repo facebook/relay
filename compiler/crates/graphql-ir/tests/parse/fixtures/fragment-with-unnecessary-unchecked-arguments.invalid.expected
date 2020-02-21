@@ -21,14 +21,14 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 29:42,
+            name: WithLocation {
+                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":29:42,
                 item: "TestFragment",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 73:80,
+                    name: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":73:80,
                         item: "id",
                     },
                     type_: NonNull(
@@ -40,8 +40,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     directives: [],
                 },
                 VariableDefinition {
-                    name: Spanned {
-                        span: 95:104,
+                    name: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":95:104,
                         item: "size",
                     },
                     type_: List(
@@ -63,8 +63,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             ],
             used_global_variables: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 172:184,
+                    name: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":172:184,
                         item: "PictureSize",
                     },
                     type_: List(
@@ -81,24 +81,24 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 148:165,
+                    definition: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":148:165,
                         item: FieldID(
                             459,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 166:170,
+                            name: WithLocation {
+                                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":166:170,
                                 item: "size",
                             },
-                            value: Spanned {
-                                span: 172:184,
+                            value: WithLocation {
+                                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":172:184,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 172:184,
+                                        name: WithLocation {
+                                            location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":172:184,
                                             item: "PictureSize",
                                         },
                                         type_: List(
@@ -115,8 +115,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 187:195,
+                            definition: WithLocation {
+                                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":187:195,
                                 item: FieldID(
                                     172,
                                 ),
@@ -128,29 +128,29 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 },
                 LinkedField {
                     alias: Some(
-                        Spanned {
-                            span: 199:216,
+                        WithLocation {
+                            location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":199:216,
                             item: "withDefaultArg",
                         },
                     ),
-                    definition: Spanned {
-                        span: 218:232,
+                    definition: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":218:232,
                         item: FieldID(
                             459,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 233:237,
+                            name: WithLocation {
+                                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":233:237,
                                 item: "size",
                             },
-                            value: Spanned {
-                                span: 239:244,
+                            value: WithLocation {
+                                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":239:244,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 239:244,
+                                        name: WithLocation {
+                                            location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":239:244,
                                             item: "size",
                                         },
                                         type_: List(
@@ -167,8 +167,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 247:255,
+                            definition: WithLocation {
+                                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":247:255,
                                 item: FieldID(
                                     172,
                                 ),
@@ -179,8 +179,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     ],
                 },
                 FragmentSpread {
-                    fragment: Spanned {
-                        span: 265:269,
+                    fragment: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":265:269,
                         item: "Foo",
                     },
                     arguments: [],
@@ -191,14 +191,14 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 326:330,
+            name: WithLocation {
+                location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":326:330,
                 item: "Foo",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 359:366,
+                    name: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":359:366,
                         item: "localId",
                     },
                     type_: NonNull(
@@ -216,8 +216,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 384:389,
+                    definition: WithLocation {
+                        location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":384:389,
                         item: FieldID(
                             446,
                         ),

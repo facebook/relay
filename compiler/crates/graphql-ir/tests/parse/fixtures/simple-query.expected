@@ -9,15 +9,15 @@ query TestQuery($id: ID!) {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:15,
+            name: WithLocation {
+                location: "simple-query.graphql":6:15,
                 item: "TestQuery",
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 16:19,
+                    name: WithLocation {
+                        location: "simple-query.graphql":16:19,
                         item: "id",
                     },
                     type_: NonNull(
@@ -33,29 +33,29 @@ query TestQuery($id: ID!) {
             selections: [
                 LinkedField {
                     alias: Some(
-                        Spanned {
-                            span: 27:33,
+                        WithLocation {
+                            location: "simple-query.graphql":27:33,
                             item: "foo",
                         },
                     ),
-                    definition: Spanned {
-                        span: 35:39,
+                    definition: WithLocation {
+                        location: "simple-query.graphql":35:39,
                         item: FieldID(
                             9,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 40:42,
+                            name: WithLocation {
+                                location: "simple-query.graphql":40:42,
                                 item: "id",
                             },
-                            value: Spanned {
-                                span: 44:47,
+                            value: WithLocation {
+                                location: "simple-query.graphql":44:47,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 44:47,
+                                        name: WithLocation {
+                                            location: "simple-query.graphql":44:47,
                                             item: "id",
                                         },
                                         type_: Named(
@@ -70,8 +70,8 @@ query TestQuery($id: ID!) {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 50:57,
+                            definition: WithLocation {
+                                location: "simple-query.graphql":50:57,
                                 item: FieldID(
                                     207,
                                 ),

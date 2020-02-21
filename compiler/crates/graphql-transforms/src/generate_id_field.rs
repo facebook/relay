@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Span, Spanned};
+use common::{Location, WithLocation};
 use graphql_ir::{
     FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,
@@ -59,7 +59,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                         let mut next_selections =
                             selections.unwrap_or_else(|| field.selections.clone());
                         next_selections.push(Selection::ScalarField(
-                            self.create_id_field(field.definition.span, id_field_id),
+                            self.create_id_field(field.definition.location, id_field_id),
                         ));
                         Some(next_selections)
                     } else {
@@ -72,12 +72,12 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                         let mut next_selections =
                             selections.unwrap_or_else(|| field.selections.clone());
                         next_selections.push(Selection::ScalarField(
-                            self.create_id_field(field.definition.span, id_field_id),
+                            self.create_id_field(field.definition.location, id_field_id),
                         ));
                         Some(next_selections)
                     } else {
                         let mut inline_fragments = self.create_id_inline_fragments(
-                            field.definition.span,
+                            field.definition.location,
                             &interface.implementors,
                         );
                         if inline_fragments.is_empty() {
@@ -95,7 +95,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                 Type::Union(id) => {
                     let union = schema.union(id);
                     let mut inline_fragments =
-                        self.create_id_inline_fragments(field.definition.span, &union.members);
+                        self.create_id_inline_fragments(field.definition.location, &union.members);
 
                     if inline_fragments.is_empty() {
                         selections
@@ -194,7 +194,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
     /// implement `Node`
     fn create_id_inline_fragments(
         &mut self,
-        span: Span,
+        location: Location,
         concrete_ids: &[ObjectID],
     ) -> Vec<Selection> {
         let mut next_selections = vec![];
@@ -212,7 +212,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
                 self.get_id_field_id(Type::Object(*object_id), &object.fields)
             {
                 next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
-                    span,
+                    location,
                     Type::Object(*object_id),
                     id_field_id,
                 )));
@@ -221,7 +221,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
 
         if should_generate_node {
             next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
-                span,
+                location,
                 Type::Interface(self.node_interface_id),
                 self.node_id_field_id,
             )));
@@ -230,10 +230,10 @@ impl<'s> GenerateIDFieldTransform<'s> {
         next_selections
     }
 
-    fn create_id_field(&self, span: Span, id_field_id: FieldID) -> Arc<ScalarField> {
+    fn create_id_field(&self, location: Location, id_field_id: FieldID) -> Arc<ScalarField> {
         Arc::new(ScalarField {
             alias: None,
-            definition: Spanned::new(span, id_field_id),
+            definition: WithLocation::new(location, id_field_id),
             arguments: Default::default(),
             directives: Default::default(),
         })
@@ -241,7 +241,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
 
     fn create_inline_id_fragment(
         &self,
-        span: Span,
+        location: Location,
         type_: Type,
         id_field_id: FieldID,
     ) -> Arc<InlineFragment> {
@@ -249,7 +249,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
             type_condition: Some(type_),
             directives: Default::default(),
             selections: vec![Selection::ScalarField(
-                self.create_id_field(span, id_field_id),
+                self.create_id_field(location, id_field_id),
             )],
         })
     }

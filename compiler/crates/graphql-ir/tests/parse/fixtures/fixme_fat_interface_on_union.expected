@@ -10,8 +10,8 @@ query Test {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:11,
+            name: WithLocation {
+                location: "fixme_fat_interface_on_union.graphql":6:11,
                 item: "Test",
             },
             type_: Object(0),
@@ -20,8 +20,8 @@ query Test {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 12:45,
+                    definition: WithLocation {
+                        location: "fixme_fat_interface_on_union.graphql":12:45,
                         item: FieldID(
                             5,
                         ),
@@ -31,8 +31,8 @@ query Test {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 46:54,
+                            definition: WithLocation {
+                                location: "fixme_fat_interface_on_union.graphql":46:54,
                                 item: FieldID(
                                     366,
                                 ),
@@ -40,8 +40,8 @@ query Test {
                             arguments: [],
                             directives: [
                                 Directive {
-                                    name: Spanned {
-                                        span: 55:74,
+                                    name: WithLocation {
+                                        location: "fixme_fat_interface_on_union.graphql":55:74,
                                         item: "fixme_fat_interface",
                                     },
                                     arguments: [],

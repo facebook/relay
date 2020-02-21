@@ -14,7 +14,7 @@ mod murmurhash;
 mod span;
 mod timer;
 
-pub use location::{FileKey, Location};
+pub use location::{FileKey, Location, WithLocation};
 pub use murmurhash::murmurhash;
 pub use span::{Span, Spanned};
 pub use timer::Timer;

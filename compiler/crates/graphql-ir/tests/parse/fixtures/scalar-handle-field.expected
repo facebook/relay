@@ -8,8 +8,8 @@ fragment ScalarHandleField on User {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:27,
+            name: WithLocation {
+                location: "scalar-handle-field.graphql":9:27,
                 item: "ScalarHandleField",
             },
             variable_definitions: [],
@@ -19,8 +19,8 @@ fragment ScalarHandleField on User {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 36:43,
+                    definition: WithLocation {
+                        location: "scalar-handle-field.graphql":36:43,
                         item: FieldID(
                             452,
                         ),
@@ -28,18 +28,18 @@ fragment ScalarHandleField on User {
                     arguments: [],
                     directives: [
                         Directive {
-                            name: Spanned {
-                                span: 49:62,
+                            name: WithLocation {
+                                location: "scalar-handle-field.graphql":49:62,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
-                                    name: Spanned {
-                                        span: 63:69,
+                                    name: WithLocation {
+                                        location: "scalar-handle-field.graphql":63:69,
                                         item: "handle",
                                     },
-                                    value: Spanned {
-                                        span: 71:83,
+                                    value: WithLocation {
+                                        location: "scalar-handle-field.graphql":71:83,
                                         item: Constant(
                                             String(
                                                 "clientName",
@@ -50,18 +50,18 @@ fragment ScalarHandleField on User {
                             ],
                         },
                         Directive {
-                            name: Spanned {
-                                span: 90:103,
+                            name: WithLocation {
+                                location: "scalar-handle-field.graphql":90:103,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
-                                    name: Spanned {
-                                        span: 104:110,
+                                    name: WithLocation {
+                                        location: "scalar-handle-field.graphql":104:110,
                                         item: "handle",
                                     },
-                                    value: Spanned {
-                                        span: 112:125,
+                                    value: WithLocation {
+                                        location: "scalar-handle-field.graphql":112:125,
                                         item: Constant(
                                             String(
                                                 "clientName2",

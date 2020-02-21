@@ -7,7 +7,7 @@
 
 use crate::ir::*;
 use crate::program::Program;
-use common::Spanned;
+use common::WithLocation;
 use std::sync::Arc;
 
 pub trait Transformer {
@@ -335,7 +335,7 @@ pub trait Transformer {
             Transformed::Delete => Transformed::Delete,
             Transformed::Keep => Transformed::Keep,
             Transformed::Replace(replacement) => Transformed::Replace(Argument {
-                value: Spanned::new(argument.value.span, replacement),
+                value: WithLocation::new(argument.value.location, replacement),
                 ..argument.clone()
             }),
         }

@@ -8,7 +8,7 @@
 use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Location, Spanned};
+use common::{Location, WithLocation};
 use errors::{try2, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax;
@@ -37,8 +37,7 @@ pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
 /// and using these to type check fragment spreads in selections.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FragmentSignature {
-    pub location: Location,
-    pub name: Spanned<StringKey>,
+    pub name: WithLocation<StringKey>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
 }
@@ -62,10 +61,7 @@ pub fn build_signatures(
             if let Some(previous_signature) = previous_signature {
                 errors.push(ValidationError::new(
                     ValidationMessage::DuplicateDefinition(signature.name.item),
-                    vec![
-                        signature.location.clone(),
-                        previous_signature.location.clone(),
-                    ],
+                    vec![signature.name.location, previous_signature.name.location],
                 ));
                 continue;
             }
@@ -124,8 +120,7 @@ fn build_fragment_signature(
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
     Ok(FragmentSignature {
-        location: fragment.location.clone(),
-        name: fragment.name.spanned_name(),
+        name: fragment.name.name_with_location(fragment.location.file()),
         type_condition,
         variable_definitions,
     })
@@ -165,7 +160,7 @@ fn build_fragment_variable_definitions(
                     }
 
                     // Convert variable type, validate that it's an input type
-                    let type_ = get_argument_type(schema, fragment.location.clone(), &object)?;
+                    let type_ = get_argument_type(schema, fragment.location, &object)?;
                     if !type_.inner().is_input_type() {
                         return Err(ValidationError::new(
                             ValidationMessage::ExpectedFragmentArgumentToHaveInputType(
@@ -177,9 +172,11 @@ fn build_fragment_variable_definitions(
                     }
 
                     let default_value =
-                        get_default_value(schema, fragment.location.clone(), &object, &type_)?;
+                        get_default_value(schema, fragment.location, &object, &type_)?;
                     Ok(VariableDefinition {
-                        name: variable_arg.name.spanned_name(),
+                        name: variable_arg
+                            .name
+                            .name_with_location(fragment.location.file()),
                         type_,
                         directives: Default::default(),
                         default_value,
@@ -251,15 +248,7 @@ fn get_default_value(
         .items
         .iter()
         .find(|x| x.name.value.lookup() == "defaultValue")
-        .map(|x| {
-            build_constant_value(
-                schema,
-                &x.value,
-                &type_,
-                location.clone(),
-                ValidationLevel::Loose,
-            )
-        })
+        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Loose))
         .transpose()?)
 }
 

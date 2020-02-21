@@ -16,8 +16,8 @@ fragment ChildFragment on Query
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:24,
+            name: WithLocation {
+                location: "fragment-with-literal-enum-arguments.graphql":9:24,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -27,25 +27,25 @@ fragment ChildFragment on Query
             selections: [
                 LinkedField {
                     alias: Some(
-                        Spanned {
-                            span: 34:52,
+                        WithLocation {
+                            location: "fragment-with-literal-enum-arguments.graphql":34:52,
                             item: "mobile_settings",
                         },
                     ),
-                    definition: Spanned {
-                        span: 54:62,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-enum-arguments.graphql":54:62,
                         item: FieldID(
                             12,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 63:74,
+                            name: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":63:74,
                                 item: "environment",
                             },
-                            value: Spanned {
-                                span: 76:82,
+                            value: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":76:82,
                                 item: Constant(
                                     Enum(
                                         "MOBILE",
@@ -58,8 +58,8 @@ fragment ChildFragment on Query
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 85:98,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":85:98,
                                 item: FieldID(
                                     492,
                                 ),
@@ -70,18 +70,18 @@ fragment ChildFragment on Query
                     ],
                 },
                 FragmentSpread {
-                    fragment: Spanned {
-                        span: 108:122,
+                    fragment: WithLocation {
+                        location: "fragment-with-literal-enum-arguments.graphql":108:122,
                         item: "ChildFragment",
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 133:144,
+                            name: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":133:144,
                                 item: "environment",
                             },
-                            value: Spanned {
-                                span: 146:149,
+                            value: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":146:149,
                                 item: Constant(
                                     Enum(
                                         "WEB",
@@ -97,14 +97,14 @@ fragment ChildFragment on Query
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 163:177,
+            name: WithLocation {
+                location: "fragment-with-literal-enum-arguments.graphql":163:177,
                 item: "ChildFragment",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 209:220,
+                    name: WithLocation {
+                        location: "fragment-with-literal-enum-arguments.graphql":209:220,
                         item: "environment",
                     },
                     type_: NonNull(
@@ -122,24 +122,24 @@ fragment ChildFragment on Query
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 247:258,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-enum-arguments.graphql":247:258,
                         item: FieldID(
                             12,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 259:270,
+                            name: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":259:270,
                                 item: "environment",
                             },
-                            value: Spanned {
-                                span: 272:284,
+                            value: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":272:284,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 272:284,
+                                        name: WithLocation {
+                                            location: "fragment-with-literal-enum-arguments.graphql":272:284,
                                             item: "environment",
                                         },
                                         type_: Named(
@@ -154,8 +154,8 @@ fragment ChildFragment on Query
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 287:300,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-enum-arguments.graphql":287:300,
                                 item: FieldID(
                                     492,
                                 ),

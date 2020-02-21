@@ -12,6 +12,12 @@ fragment Page_fragment on Node {
 }
 ==================================== OUTPUT ===================================
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
+id-alias-with-errors.graphql:5:15:
+
+    id: author {
 
 
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
+id-alias-with-errors.graphql:0:32:
+
+  id: name

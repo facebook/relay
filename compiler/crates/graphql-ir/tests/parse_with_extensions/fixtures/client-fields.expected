@@ -50,15 +50,15 @@ type Foo {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:22,
+            name: WithLocation {
+                location: "client-fields.graphql":6:22,
                 item: "BestFriendsQuery",
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 23:26,
+                    name: WithLocation {
+                        location: "client-fields.graphql":23:26,
                         item: "id",
                     },
                     type_: NonNull(
@@ -74,24 +74,24 @@ type Foo {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 34:41,
+                    definition: WithLocation {
+                        location: "client-fields.graphql":34:41,
                         item: FieldID(
                             9,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 42:44,
+                            name: WithLocation {
+                                location: "client-fields.graphql":42:44,
                                 item: "id",
                             },
-                            value: Spanned {
-                                span: 46:49,
+                            value: WithLocation {
+                                location: "client-fields.graphql":46:49,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 46:49,
+                                        name: WithLocation {
+                                            location: "client-fields.graphql":46:49,
                                             item: "id",
                                         },
                                         type_: Named(
@@ -105,8 +105,8 @@ type Foo {
                     directives: [],
                     selections: [
                         FragmentSpread {
-                            fragment: Spanned {
-                                span: 60:71,
+                            fragment: WithLocation {
+                                location: "client-fields.graphql":60:71,
                                 item: "BestFriends",
                             },
                             arguments: [],
@@ -119,8 +119,8 @@ type Foo {
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 88:100,
+            name: WithLocation {
+                location: "client-fields.graphql":88:100,
                 item: "BestFriends",
             },
             variable_definitions: [],
@@ -130,8 +130,8 @@ type Foo {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 109:173,
+                    definition: WithLocation {
+                        location: "client-fields.graphql":109:173,
                         item: FieldID(
                             446,
                         ),
@@ -141,8 +141,8 @@ type Foo {
                 },
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 173:239,
+                    definition: WithLocation {
+                        location: "client-fields.graphql":173:239,
                         item: FieldID(
                             495,
                         ),
@@ -152,8 +152,8 @@ type Foo {
                     selections: [
                         LinkedField {
                             alias: None,
-                            definition: Spanned {
-                                span: 240:251,
+                            definition: WithLocation {
+                                location: "client-fields.graphql":240:251,
                                 item: FieldID(
                                     167,
                                 ),
@@ -163,8 +163,8 @@ type Foo {
                             selections: [
                                 ScalarField {
                                     alias: None,
-                                    definition: Spanned {
-                                        span: 252:265,
+                                    definition: WithLocation {
+                                        location: "client-fields.graphql":252:265,
                                         item: FieldID(
                                             169,
                                         ),
@@ -174,8 +174,8 @@ type Foo {
                                 },
                                 LinkedField {
                                     alias: None,
-                                    definition: Spanned {
-                                        span: 265:277,
+                                    definition: WithLocation {
+                                        location: "client-fields.graphql":265:277,
                                         item: FieldID(
                                             170,
                                         ),
@@ -185,8 +185,8 @@ type Foo {
                                     selections: [
                                         ScalarField {
                                             alias: None,
-                                            definition: Spanned {
-                                                span: 278:289,
+                                            definition: WithLocation {
+                                                location: "client-fields.graphql":278:289,
                                                 item: FieldID(
                                                     446,
                                                 ),
@@ -200,8 +200,8 @@ type Foo {
                         },
                         LinkedField {
                             alias: None,
-                            definition: Spanned {
-                                span: 303:317,
+                            definition: WithLocation {
+                                location: "client-fields.graphql":303:317,
                                 item: FieldID(
                                     168,
                                 ),
@@ -211,8 +211,8 @@ type Foo {
                             selections: [
                                 ScalarField {
                                     alias: None,
-                                    definition: Spanned {
-                                        span: 318:336,
+                                    definition: WithLocation {
+                                        location: "client-fields.graphql":318:336,
                                         item: FieldID(
                                             284,
                                         ),
@@ -232,8 +232,8 @@ type Foo {
                     selections: [
                         LinkedField {
                             alias: None,
-                            definition: Spanned {
-                                span: 362:371,
+                            definition: WithLocation {
+                                location: "client-fields.graphql":362:371,
                                 item: FieldID(
                                     496,
                                 ),
@@ -242,8 +242,8 @@ type Foo {
                             directives: [],
                             selections: [
                                 FragmentSpread {
-                                    fragment: Spanned {
-                                        span: 431:442,
+                                    fragment: WithLocation {
+                                        location: "client-fields.graphql":431:442,
                                         item: "FooFragment",
                                     },
                                     arguments: [],
@@ -257,8 +257,8 @@ type Foo {
                                     selections: [
                                         ScalarField {
                                             alias: None,
-                                            definition: Spanned {
-                                                span: 461:472,
+                                            definition: WithLocation {
+                                                location: "client-fields.graphql":461:472,
                                                 item: FieldID(
                                                     497,
                                                 ),
@@ -277,8 +277,8 @@ type Foo {
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 503:515,
+            name: WithLocation {
+                location: "client-fields.graphql":503:515,
                 item: "FooFragment",
             },
             variable_definitions: [],
@@ -288,8 +288,8 @@ type Foo {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 523:528,
+                    definition: WithLocation {
+                        location: "client-fields.graphql":523:528,
                         item: FieldID(
                             497,
                         ),

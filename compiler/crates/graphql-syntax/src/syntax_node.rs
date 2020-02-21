@@ -7,7 +7,7 @@
 
 use crate::syntax_error::SyntaxError;
 use crate::token_kind::TokenKind;
-use common::{Location, Span, Spanned};
+use common::{FileKey, Location, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;
 
@@ -29,8 +29,8 @@ pub enum ExecutableDefinition {
 impl ExecutableDefinition {
     pub fn location(&self) -> Location {
         match self {
-            ExecutableDefinition::Operation(node) => node.location.clone(),
-            ExecutableDefinition::Fragment(node) => node.location.clone(),
+            ExecutableDefinition::Operation(node) => node.location,
+            ExecutableDefinition::Fragment(node) => node.location,
         }
     }
 }
@@ -160,8 +160,8 @@ pub struct VariableIdentifier {
 }
 
 impl VariableIdentifier {
-    pub fn spanned_name(&self) -> Spanned<StringKey> {
-        Spanned::new(self.span, self.name)
+    pub fn name_with_location(&self, file: FileKey) -> WithLocation<StringKey> {
+        WithLocation::from_span(file, self.span, self.name)
     }
 }
 
@@ -173,8 +173,8 @@ pub struct Identifier {
 }
 
 impl Identifier {
-    pub fn spanned_name(&self) -> Spanned<StringKey> {
-        Spanned::new(self.span, self.value)
+    pub fn name_with_location(&self, file: FileKey) -> WithLocation<StringKey> {
+        WithLocation::from_span(file, self.span, self.value)
     }
 }
 

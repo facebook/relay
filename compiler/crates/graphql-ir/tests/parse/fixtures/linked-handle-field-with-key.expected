@@ -9,8 +9,8 @@ fragment LinkedHandleField on User {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:27,
+            name: WithLocation {
+                location: "linked-handle-field-with-key.graphql":9:27,
                 item: "LinkedHandleField",
             },
             variable_definitions: [],
@@ -20,20 +20,20 @@ fragment LinkedHandleField on User {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 36:46,
+                    definition: WithLocation {
+                        location: "linked-handle-field-with-key.graphql":36:46,
                         item: FieldID(
                             444,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 47:52,
+                            name: WithLocation {
+                                location: "linked-handle-field-with-key.graphql":47:52,
                                 item: "first",
                             },
-                            value: Spanned {
-                                span: 54:56,
+                            value: WithLocation {
+                                location: "linked-handle-field-with-key.graphql":54:56,
                                 item: Constant(
                                     Int(
                                         10,
@@ -44,18 +44,18 @@ fragment LinkedHandleField on User {
                     ],
                     directives: [
                         Directive {
-                            name: Spanned {
-                                span: 63:76,
+                            name: WithLocation {
+                                location: "linked-handle-field-with-key.graphql":63:76,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
-                                    name: Spanned {
-                                        span: 77:83,
+                                    name: WithLocation {
+                                        location: "linked-handle-field-with-key.graphql":77:83,
                                         item: "handle",
                                     },
-                                    value: Spanned {
-                                        span: 85:102,
+                                    value: WithLocation {
+                                        location: "linked-handle-field-with-key.graphql":85:102,
                                         item: Constant(
                                             String(
                                                 "clientFriends",
@@ -64,12 +64,12 @@ fragment LinkedHandleField on User {
                                     },
                                 },
                                 Argument {
-                                    name: Spanned {
-                                        span: 102:105,
+                                    name: WithLocation {
+                                        location: "linked-handle-field-with-key.graphql":102:105,
                                         item: "key",
                                     },
-                                    value: Spanned {
-                                        span: 107:134,
+                                    value: WithLocation {
+                                        location: "linked-handle-field-with-key.graphql":107:134,
                                         item: Constant(
                                             String(
                                                 "LinkedHandleField_friends",
@@ -83,8 +83,8 @@ fragment LinkedHandleField on User {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 137:147,
+                            definition: WithLocation {
+                                location: "linked-handle-field-with-key.graphql":137:147,
                                 item: FieldID(
                                     166,
                                 ),

@@ -14,15 +14,15 @@ fragment Foo on User {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:22,
+            name: WithLocation {
+                location: "directive-include.graphql":9:22,
                 item: "TestFragment",
             },
             variable_definitions: [],
             used_global_variables: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 133:138,
+                    name: WithLocation {
+                        location: "directive-include.graphql":133:138,
                         item: "Cond",
                     },
                     type_: NonNull(
@@ -40,8 +40,8 @@ fragment Foo on User {
                 Condition {
                     value: Variable(
                         Variable {
-                            name: Spanned {
-                                span: 50:55,
+                            name: WithLocation {
+                                location: "directive-include.graphql":50:55,
                                 item: "Cond",
                             },
                             type_: NonNull(
@@ -55,8 +55,8 @@ fragment Foo on User {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 31:37,
+                            definition: WithLocation {
+                                location: "directive-include.graphql":31:37,
                                 item: FieldID(
                                     446,
                                 ),
@@ -69,8 +69,8 @@ fragment Foo on User {
                 Condition {
                     value: Variable(
                         Variable {
-                            name: Spanned {
-                                span: 84:89,
+                            name: WithLocation {
+                                location: "directive-include.graphql":84:89,
                                 item: "Cond",
                             },
                             type_: NonNull(
@@ -90,8 +90,8 @@ fragment Foo on User {
                             selections: [
                                 ScalarField {
                                     alias: None,
-                                    definition: Spanned {
-                                        span: 92:106,
+                                    definition: WithLocation {
+                                        location: "directive-include.graphql":92:106,
                                         item: FieldID(
                                             443,
                                         ),
@@ -106,8 +106,8 @@ fragment Foo on User {
                 Condition {
                     value: Variable(
                         Variable {
-                            name: Spanned {
-                                span: 133:138,
+                            name: WithLocation {
+                                location: "directive-include.graphql":133:138,
                                 item: "Cond",
                             },
                             type_: NonNull(
@@ -120,8 +120,8 @@ fragment Foo on User {
                     passing_value: true,
                     selections: [
                         FragmentSpread {
-                            fragment: Spanned {
-                                span: 116:120,
+                            fragment: WithLocation {
+                                location: "directive-include.graphql":116:120,
                                 item: "Foo",
                             },
                             arguments: [],
@@ -134,8 +134,8 @@ fragment Foo on User {
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 152:156,
+            name: WithLocation {
+                location: "directive-include.graphql":152:156,
                 item: "Foo",
             },
             variable_definitions: [],
@@ -145,8 +145,8 @@ fragment Foo on User {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 165:170,
+                    definition: WithLocation {
+                        location: "directive-include.graphql":165:170,
                         item: FieldID(
                             446,
                         ),

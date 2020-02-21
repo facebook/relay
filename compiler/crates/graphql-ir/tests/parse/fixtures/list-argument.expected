@@ -11,8 +11,8 @@ query ListArgumentQuery {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:24,
+            name: WithLocation {
+                location: "list-argument.graphql":6:24,
                 item: "ListArgumentQuery",
             },
             type_: Object(0),
@@ -21,44 +21,44 @@ query ListArgumentQuery {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 25:33,
+                    definition: WithLocation {
+                        location: "list-argument.graphql":25:33,
                         item: FieldID(
                             2,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 34:43,
+                            name: WithLocation {
+                                location: "list-argument.graphql":34:43,
                                 item: "waypoints",
                             },
-                            value: Spanned {
-                                span: 45:71,
+                            value: WithLocation {
+                                location: "list-argument.graphql":45:71,
                                 item: Constant(
                                     List(
                                         [
                                             Object(
                                                 [
                                                     ConstantArgument {
-                                                        name: Spanned {
-                                                            span: 47:50,
+                                                        name: WithLocation {
+                                                            location: "list-argument.graphql":47:50,
                                                             item: "lat",
                                                         },
-                                                        value: Spanned {
-                                                            span: 52:59,
+                                                        value: WithLocation {
+                                                            location: "list-argument.graphql":52:59,
                                                             item: String(
                                                                 "0.0",
                                                             ),
                                                         },
                                                     },
                                                     ConstantArgument {
-                                                        name: Spanned {
-                                                            span: 59:62,
+                                                        name: WithLocation {
+                                                            location: "list-argument.graphql":59:62,
                                                             item: "lon",
                                                         },
-                                                        value: Spanned {
-                                                            span: 64:69,
+                                                        value: WithLocation {
+                                                            location: "list-argument.graphql":64:69,
                                                             item: String(
                                                                 "0.0",
                                                             ),
@@ -76,8 +76,8 @@ query ListArgumentQuery {
                     selections: [
                         LinkedField {
                             alias: None,
-                            definition: Spanned {
-                                span: 74:85,
+                            definition: WithLocation {
+                                location: "list-argument.graphql":74:85,
                                 item: FieldID(
                                     27,
                                 ),
@@ -87,8 +87,8 @@ query ListArgumentQuery {
                             selections: [
                                 ScalarField {
                                     alias: None,
-                                    definition: Spanned {
-                                        span: 86:97,
+                                    definition: WithLocation {
+                                        location: "list-argument.graphql":86:97,
                                         item: FieldID(
                                             30,
                                         ),

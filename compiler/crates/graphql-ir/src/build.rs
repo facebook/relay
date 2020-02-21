@@ -8,7 +8,7 @@
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignatures};
-use common::{Location, Span, Spanned};
+use common::{Location, Span, WithLocation};
 use errors::{try2, try3, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::OperationKind;
@@ -133,7 +133,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .used_variabales
             .iter()
             .map(|(name, usage)| VariableDefinition {
-                name: Spanned::new(usage.span, *name),
+                name: WithLocation::new(self.location.with_span(usage.span), *name),
                 type_: usage.type_.clone(),
                 directives: Default::default(),
                 default_value: None,
@@ -159,7 +159,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 return Err(self
                     .record_error(ValidationError::new(
                         ValidationMessage::ExpectedOperationName(),
-                        vec![operation.location.clone()],
+                        vec![operation.location],
                     ))
                     .into())
             }
@@ -180,7 +180,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 return Err(self
                     .record_error(ValidationError::new(
                         ValidationMessage::UnsupportedOperation(kind),
-                        vec![operation.location.clone()],
+                        vec![operation.location],
                     ))
                     .into())
             }
@@ -222,7 +222,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         } else {
             Ok(OperationDefinition {
                 kind,
-                name: name.spanned_name(),
+                name: name.name_with_location(self.location.file()),
                 type_: operation_type,
                 variable_definitions,
                 directives,
@@ -268,7 +268,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             DirectiveLocation::VariableDefinition,
         )?;
         Ok(VariableDefinition {
-            name: definition.name.spanned_name(),
+            name: definition.name.name_with_location(self.location.file()),
             type_,
             default_value,
             directives,
@@ -475,7 +475,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let directives = self.build_directives(other_directives, DirectiveLocation::FragmentSpread);
         let (arguments, directives) = try2(arguments, directives)?;
         Ok(FragmentSpread {
-            fragment: spread.name.spanned_name(),
+            fragment: spread.name.name_with_location(self.location.file()),
             arguments,
             directives,
         })
@@ -603,7 +603,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
             alias,
-            definition: Spanned::new(span, field_id),
+            definition: WithLocation::from_span(self.location.file(), span, field_id),
             arguments,
             directives,
             selections,
@@ -661,7 +661,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
         Ok(ScalarField {
             alias,
-            definition: Spanned::new(span, field_id),
+            definition: WithLocation::from_span(self.location.file(), span, field_id),
             arguments,
             directives,
         })
@@ -683,7 +683,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {
             alias,
-            definition: Spanned::new(field.name.span, field_id),
+            definition: WithLocation::from_span(self.location.file(), field.name.span, field_id),
             arguments: Default::default(),
             directives,
         })
@@ -705,14 +705,19 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {
             alias,
-            definition: Spanned::new(field.name.span, field_id),
+            definition: WithLocation::from_span(self.location.file(), field.name.span, field_id),
             arguments: Default::default(),
             directives,
         })
     }
 
-    fn build_alias(&mut self, alias: &Option<graphql_syntax::Alias>) -> Option<Spanned<StringKey>> {
-        alias.as_ref().map(|alias| alias.alias.spanned_name())
+    fn build_alias(
+        &mut self,
+        alias: &Option<graphql_syntax::Alias>,
+    ) -> Option<WithLocation<StringKey>> {
+        alias
+            .as_ref()
+            .map(|alias| alias.alias.name_with_location(self.location.file()))
     }
 
     fn build_arguments(
@@ -780,7 +785,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let arguments =
             self.build_arguments(&directive.arguments, &directive_definition.arguments)?;
         Ok(Directive {
-            name: directive.name.spanned_name(),
+            name: directive.name.name_with_location(self.location.file()),
             arguments,
         })
     }
@@ -794,8 +799,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let value_span = argument.value.span();
         let value = self.build_value(&argument.value, type_, validation)?;
         Ok(Argument {
-            name: argument.name.spanned_name(),
-            value: Spanned::new(value_span, value),
+            name: argument.name.name_with_location(self.location.file()),
+            value: WithLocation::from_span(self.location.file(), value_span, value),
         })
     }
 
@@ -876,7 +881,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             );
         }
         Ok(Variable {
-            name: variable.spanned_name(),
+            name: variable.name_with_location(self.location.file()),
             type_: used_as_type.clone(),
         })
     }
@@ -999,8 +1004,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationLevel::Strict,
                     )?;
                     Ok(Argument {
-                        name: x.name.spanned_name(),
-                        value: Spanned::new(value_span, value),
+                        name: x.name.name_with_location(self.location.file()),
+                        value: WithLocation::from_span(self.location.file(), value_span, value),
                     })
                 }
                 None => Err(self
@@ -1134,8 +1139,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     let value =
                         self.build_constant_value(&x.value, &field_definition.type_, validation)?;
                     Ok(ConstantArgument {
-                        name: x.name.spanned_name(),
-                        value: Spanned::new(value_span, value),
+                        name: x.name.name_with_location(self.location.file()),
+                        value: WithLocation::from_span(self.location.file(), value_span, value),
                     })
                 }
                 None => Err(self

@@ -13,8 +13,8 @@ fragment ChildFragment on User
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:24,
+            name: WithLocation {
+                location: "fragment-with-literal-arguments.graphql":9:24,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -23,18 +23,18 @@ fragment ChildFragment on User
             directives: [],
             selections: [
                 FragmentSpread {
-                    fragment: Spanned {
-                        span: 39:53,
+                    fragment: WithLocation {
+                        location: "fragment-with-literal-arguments.graphql":39:53,
                         item: "ChildFragment",
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 64:75,
+                            name: WithLocation {
+                                location: "fragment-with-literal-arguments.graphql":64:75,
                                 item: "pictureSize",
                             },
-                            value: Spanned {
-                                span: 77:81,
+                            value: WithLocation {
+                                location: "fragment-with-literal-arguments.graphql":77:81,
                                 item: Constant(
                                     List(
                                         [
@@ -54,14 +54,14 @@ fragment ChildFragment on User
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 95:109,
+            name: WithLocation {
+                location: "fragment-with-literal-arguments.graphql":95:109,
                 item: "ChildFragment",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 140:151,
+                    name: WithLocation {
+                        location: "fragment-with-literal-arguments.graphql":140:151,
                         item: "pictureSize",
                     },
                     type_: List(
@@ -79,24 +79,24 @@ fragment ChildFragment on User
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 171:188,
+                    definition: WithLocation {
+                        location: "fragment-with-literal-arguments.graphql":171:188,
                         item: FieldID(
                             459,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 189:193,
+                            name: WithLocation {
+                                location: "fragment-with-literal-arguments.graphql":189:193,
                                 item: "size",
                             },
-                            value: Spanned {
-                                span: 195:207,
+                            value: WithLocation {
+                                location: "fragment-with-literal-arguments.graphql":195:207,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 195:207,
+                                        name: WithLocation {
+                                            location: "fragment-with-literal-arguments.graphql":195:207,
                                             item: "pictureSize",
                                         },
                                         type_: List(
@@ -113,8 +113,8 @@ fragment ChildFragment on User
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 210:218,
+                            definition: WithLocation {
+                                location: "fragment-with-literal-arguments.graphql":210:218,
                                 item: FieldID(
                                     172,
                                 ),

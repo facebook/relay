@@ -20,14 +20,14 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
 [
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 9:22,
+            name: WithLocation {
+                location: "fragment-with-arguments.graphql":9:22,
                 item: "TestFragment",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 53:60,
+                    name: WithLocation {
+                        location: "fragment-with-arguments.graphql":53:60,
                         item: "id",
                     },
                     type_: NonNull(
@@ -39,8 +39,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     directives: [],
                 },
                 VariableDefinition {
-                    name: Spanned {
-                        span: 75:84,
+                    name: WithLocation {
+                        location: "fragment-with-arguments.graphql":75:84,
                         item: "size",
                     },
                     type_: List(
@@ -62,8 +62,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             ],
             used_global_variables: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 152:164,
+                    name: WithLocation {
+                        location: "fragment-with-arguments.graphql":152:164,
                         item: "PictureSize",
                     },
                     type_: List(
@@ -80,24 +80,24 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 128:145,
+                    definition: WithLocation {
+                        location: "fragment-with-arguments.graphql":128:145,
                         item: FieldID(
                             459,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 146:150,
+                            name: WithLocation {
+                                location: "fragment-with-arguments.graphql":146:150,
                                 item: "size",
                             },
-                            value: Spanned {
-                                span: 152:164,
+                            value: WithLocation {
+                                location: "fragment-with-arguments.graphql":152:164,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 152:164,
+                                        name: WithLocation {
+                                            location: "fragment-with-arguments.graphql":152:164,
                                             item: "PictureSize",
                                         },
                                         type_: List(
@@ -114,8 +114,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 167:175,
+                            definition: WithLocation {
+                                location: "fragment-with-arguments.graphql":167:175,
                                 item: FieldID(
                                     172,
                                 ),
@@ -127,29 +127,29 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 },
                 LinkedField {
                     alias: Some(
-                        Spanned {
-                            span: 179:196,
+                        WithLocation {
+                            location: "fragment-with-arguments.graphql":179:196,
                             item: "withDefaultArg",
                         },
                     ),
-                    definition: Spanned {
-                        span: 198:212,
+                    definition: WithLocation {
+                        location: "fragment-with-arguments.graphql":198:212,
                         item: FieldID(
                             459,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 213:217,
+                            name: WithLocation {
+                                location: "fragment-with-arguments.graphql":213:217,
                                 item: "size",
                             },
-                            value: Spanned {
-                                span: 219:224,
+                            value: WithLocation {
+                                location: "fragment-with-arguments.graphql":219:224,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 219:224,
+                                        name: WithLocation {
+                                            location: "fragment-with-arguments.graphql":219:224,
                                             item: "size",
                                         },
                                         type_: List(
@@ -166,8 +166,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 227:235,
+                            definition: WithLocation {
+                                location: "fragment-with-arguments.graphql":227:235,
                                 item: FieldID(
                                     172,
                                 ),
@@ -178,22 +178,22 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     ],
                 },
                 FragmentSpread {
-                    fragment: Spanned {
-                        span: 245:249,
+                    fragment: WithLocation {
+                        location: "fragment-with-arguments.graphql":245:249,
                         item: "Foo",
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 260:267,
+                            name: WithLocation {
+                                location: "fragment-with-arguments.graphql":260:267,
                                 item: "localId",
                             },
-                            value: Spanned {
-                                span: 269:272,
+                            value: WithLocation {
+                                location: "fragment-with-arguments.graphql":269:272,
                                 item: Variable(
                                     Variable {
-                                        name: Spanned {
-                                            span: 269:272,
+                                        name: WithLocation {
+                                            location: "fragment-with-arguments.graphql":269:272,
                                             item: "id",
                                         },
                                         type_: NonNull(
@@ -213,14 +213,14 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     ),
     Fragment(
         FragmentDefinition {
-            name: Spanned {
-                span: 286:290,
+            name: WithLocation {
+                location: "fragment-with-arguments.graphql":286:290,
                 item: "Foo",
             },
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 319:326,
+                    name: WithLocation {
+                        location: "fragment-with-arguments.graphql":319:326,
                         item: "localId",
                     },
                     type_: NonNull(
@@ -238,8 +238,8 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             selections: [
                 ScalarField {
                     alias: None,
-                    definition: Spanned {
-                        span: 344:349,
+                    definition: WithLocation {
+                        location: "fragment-with-arguments.graphql":344:349,
                         item: FieldID(
                             446,
                         ),

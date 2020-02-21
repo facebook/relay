@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Spanned;
+use common::WithLocation;
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
     FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
@@ -460,7 +460,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         }
     }
 
-    fn print_alias(&mut self, alias: &Option<Spanned<StringKey>>) -> Result {
+    fn print_alias(&mut self, alias: &Option<WithLocation<StringKey>>) -> Result {
         match alias {
             Some(value) => write!(self.writer, "{}: ", value.item),
             None => Ok(()),

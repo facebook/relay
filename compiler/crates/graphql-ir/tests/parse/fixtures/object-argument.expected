@@ -9,15 +9,15 @@ query ObjectArgument($text: String!) {
     Operation(
         OperationDefinition {
             kind: Query,
-            name: Spanned {
-                span: 6:20,
+            name: WithLocation {
+                location: "object-argument.graphql":6:20,
                 item: "ObjectArgument",
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
-                    name: Spanned {
-                        span: 21:26,
+                    name: WithLocation {
+                        location: "object-argument.graphql":21:26,
                         item: "text",
                     },
                     type_: NonNull(
@@ -33,33 +33,33 @@ query ObjectArgument($text: String!) {
             selections: [
                 LinkedField {
                     alias: None,
-                    definition: Spanned {
-                        span: 38:59,
+                    definition: WithLocation {
+                        location: "object-argument.graphql":38:59,
                         item: FieldID(
                             0,
                         ),
                     },
                     arguments: [
                         Argument {
-                            name: Spanned {
-                                span: 60:65,
+                            name: WithLocation {
+                                location: "object-argument.graphql":60:65,
                                 item: "query",
                             },
-                            value: Spanned {
-                                span: 67:81,
+                            value: WithLocation {
+                                location: "object-argument.graphql":67:81,
                                 item: Object(
                                     [
                                         Argument {
-                                            name: Spanned {
-                                                span: 68:73,
+                                            name: WithLocation {
+                                                location: "object-argument.graphql":68:73,
                                                 item: "query",
                                             },
-                                            value: Spanned {
-                                                span: 75:80,
+                                            value: WithLocation {
+                                                location: "object-argument.graphql":75:80,
                                                 item: Variable(
                                                     Variable {
-                                                        name: Spanned {
-                                                            span: 75:80,
+                                                        name: WithLocation {
+                                                            location: "object-argument.graphql":75:80,
                                                             item: "text",
                                                         },
                                                         type_: Named(
@@ -78,8 +78,8 @@ query ObjectArgument($text: String!) {
                     selections: [
                         ScalarField {
                             alias: None,
-                            definition: Spanned {
-                                span: 84:94,
+                            definition: WithLocation {
+                                location: "object-argument.graphql":84:94,
                                 item: FieldID(
                                     53,
                                 ),

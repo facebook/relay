@@ -26,7 +26,7 @@ impl FileKey {
 
 /// An absolute source location describing both the file and position (span)
 /// with that file.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Location {
     /// The (interned) path of the file containing this location
     file: FileKey,
@@ -68,5 +68,23 @@ impl Location {
 
     pub fn print(&self, source: &str) -> String {
         format!("{}:{}", self.file.lookup(), self.span.print(source))
+    }
+}
+
+#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
+pub struct WithLocation<T> {
+    pub location: Location,
+    pub item: T,
+}
+
+impl<T> WithLocation<T> {
+    pub fn from_span(file: FileKey, span: Span, item: T) -> Self {
+        Self {
+            location: Location::new(file, span),
+            item,
+        }
+    }
+    pub fn new(location: Location, item: T) -> Self {
+        Self { location, item }
     }
 }

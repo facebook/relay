@@ -5,6 +5,7 @@ edition = "2018"
 
 [dependencies]
 common = { path = "../common" }
+dependency-analyzer = { path = "../dependency-analyzer" }
 extract-graphql = { path = "../extract-graphql" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }

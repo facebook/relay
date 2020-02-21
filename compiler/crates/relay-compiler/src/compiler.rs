@@ -8,6 +8,8 @@
 use crate::config::Config;
 use crate::watchman::GraphQLFinder;
 use common::Timer;
+use dependency_analyzer::get_reachable_ast;
+use graphql_syntax::ExecutableDefinition;
 use std::collections::HashMap;
 
 pub struct Compiler {
@@ -66,9 +68,21 @@ impl Compiler {
             .collect();
         ast_sets_timer.stop();
 
-        for project_name in self.config.projects.keys() {
+        for (project_name, project_config) in &self.config.projects {
             println!("\n# Compiling {}", project_name);
-            let project_document_asts = &ast_sets[&project_name.as_source_set_name()];
+
+            // TODO avoid cloned() here
+            let project_document_asts = ast_sets[&project_name.as_source_set_name()]
+                .iter()
+                .cloned()
+                .collect();
+
+            // TODO avoid cloned() here
+            let base_document_asts: Vec<ExecutableDefinition> = project_config
+                .base
+                .iter()
+                .flat_map(|base_name| ast_sets[base_name].clone())
+                .collect();
 
             let empty_extensions = Vec::new();
             let extensions = compiler_state
@@ -88,7 +102,10 @@ impl Compiler {
             build_schema_timer.stop();
 
             let build_ir_timer = Timer::new("build_ir");
-            let _ir: Vec<_> = match graphql_ir::build(&schema, project_document_asts) {
+            let reachable_ast = get_reachable_ast(project_document_asts, vec![base_document_asts])
+                .unwrap()
+                .0;
+            let ir: Vec<_> = match graphql_ir::build(&schema, &reachable_ast) {
                 Ok(ir) => ir,
                 Err(errors) => {
                     println!("IR errors: {:#?}", errors);
@@ -96,8 +113,7 @@ impl Compiler {
                 }
             };
             build_ir_timer.stop();
-
-            println!("{:?}", project_document_asts.len());
+            println!("ir nodes: {}", ir.len());
         }
     }
 }

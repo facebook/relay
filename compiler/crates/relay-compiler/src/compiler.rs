@@ -39,7 +39,7 @@ impl Compiler {
             );
         }
 
-        let ast_sets_timer = Timer::new("ast_sets");
+        let ast_sets_timer = Timer::start("ast_sets");
         let ast_sets: HashMap<_, _> = compiler_state
             .source_sets
             .iter()
@@ -69,8 +69,6 @@ impl Compiler {
         ast_sets_timer.stop();
 
         for (project_name, project_config) in &self.config.projects {
-            println!("\n# Compiling {}", project_name);
-
             // TODO avoid cloned() here
             let project_document_asts = ast_sets[&project_name.as_source_set_name()]
                 .iter()
@@ -90,7 +88,7 @@ impl Compiler {
                 .get(&project_name)
                 .unwrap_or_else(|| &empty_extensions);
 
-            let build_schema_timer = Timer::new("build_schema");
+            let build_schema_timer = Timer::start(format!("build_schema {}", project_name));
             let mut schema_sources = vec![schema::RELAY_EXTENSIONS];
             schema_sources.extend(
                 compiler_state.schemas[&project_name]
@@ -101,7 +99,7 @@ impl Compiler {
                 schema::build_schema_with_extensions(&schema_sources, &extensions).unwrap();
             build_schema_timer.stop();
 
-            let build_ir_timer = Timer::new("build_ir");
+            let build_ir_timer = Timer::start(format!("build_ir {}", project_name));
             let reachable_ast = get_reachable_ast(project_document_asts, vec![base_document_asts])
                 .unwrap()
                 .0;
@@ -113,7 +111,7 @@ impl Compiler {
                 }
             };
             build_ir_timer.stop();
-            println!("ir nodes: {}", ir.len());
+            println!("[{}] IR node count {}", project_name, ir.len());
         }
     }
 }

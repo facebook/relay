@@ -11,26 +11,32 @@ use std::time::Instant;
 /// A simple utility to log wall time spent in a section of code.
 /// A Timer is started with `new` and runs until it is `stop()`ed.
 /// When it is stopped, it prints the time to stdout.
-pub struct Timer<'a> {
-    name: &'a str,
+pub struct Timer {
     instant: Instant,
+    name: String,
 }
-
-impl<'a> Timer<'a> {
+impl Timer {
     /// Create a new timer with the given name used when printing.
-    pub fn new(name: &'a str) -> Timer<'a> {
+    pub fn start(name: impl Into<String>) -> Timer {
         Self {
-            name,
             instant: Instant::now(),
+            name: name.into(),
         }
     }
 
     /// Stops the timer and prints the time since construction.
     pub fn stop(self) {
-        println!(
-            "{} took {}",
-            self.name,
-            format!("{:.2?}", self.instant.elapsed()).bold()
-        );
+        let elapsed_ms = self.instant.elapsed().as_millis();
+        let elapsed_str = format!("{:4}ms", elapsed_ms);
+        let elapsed_color = if elapsed_ms < 10 {
+            elapsed_str.dimmed()
+        } else if elapsed_ms < 100 {
+            elapsed_str.blue()
+        } else if elapsed_ms < 1000 {
+            elapsed_str.bold()
+        } else {
+            elapsed_str.red()
+        };
+        println!("{} {}", elapsed_color, self.name.dimmed());
     }
 }

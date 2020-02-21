@@ -26,7 +26,7 @@ pub struct GraphQLFinder<'config> {
 }
 impl<'config> GraphQLFinder<'config> {
     pub async fn connect(config: &'config Config) -> Result<GraphQLFinder<'config>> {
-        let connect_timer = Timer::new("connect");
+        let connect_timer = Timer::start("connect");
         let client = Connector::new().connect().await?;
         let canonical_root = CanonicalPath::canonicalize(&config.root_dir).map_err(|err| {
             Error::CanonicalizeRoot {
@@ -53,7 +53,7 @@ impl<'config> GraphQLFinder<'config> {
         let roots = get_all_roots(&self.config);
         let expression = get_watchman_expr(&self.config);
 
-        let query_timer = Timer::new("query");
+        let query_timer = Timer::start("query");
         let query_result = self
             .client
             .query::<WatchmanFile>(
@@ -85,8 +85,7 @@ impl<'config> GraphQLFinder<'config> {
         for (category, files) in categorized {
             match category {
                 FileGroup::Source { source_set } => {
-                    let extract_timer_label = format!("extract {}", source_set.0);
-                    let extract_timer = Timer::new(&extract_timer_label);
+                    let extract_timer = Timer::start(format!("extract {}", source_set.0));
                     let definitions = files
                         .into_par_iter()
                         .filter_map(|file| match self.extract_from_file(&file) {
@@ -132,7 +131,7 @@ impl<'config> GraphQLFinder<'config> {
     ///
     /// See `FileGroup` for all groups of files.
     fn categorize_files(&self, files: Vec<WatchmanFile>) -> HashMap<FileGroup, Vec<WatchmanFile>> {
-        let categorize_timer = Timer::new("categorize");
+        let categorize_timer = Timer::start("categorize");
         let mut categorized = HashMap::new();
         for file in files {
             categorized

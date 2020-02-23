@@ -9,7 +9,6 @@ use crate::config::Config;
 use crate::watchman::GraphQLFinder;
 use common::Timer;
 use dependency_analyzer::get_reachable_ast;
-use graphql_syntax::ExecutableDefinition;
 use std::collections::HashMap;
 
 pub struct Compiler {
@@ -75,18 +74,29 @@ impl Compiler {
                 .cloned()
                 .collect();
 
-            // TODO avoid cloned() here
-            let base_document_asts: Vec<ExecutableDefinition> = project_config
-                .base
-                .iter()
-                .flat_map(|base_name| ast_sets[base_name].clone())
-                .collect();
+            let mut extensions = Vec::new();
+            if let Some(project_extensions) = compiler_state.extensions.get(&project_name) {
+                extensions.extend(project_extensions);
+            }
 
-            let empty_extensions = Vec::new();
-            let extensions = compiler_state
-                .extensions
-                .get(&project_name)
-                .unwrap_or_else(|| &empty_extensions);
+            let mut base_document_asts = Vec::new();
+
+            // if we have base project, add their asts and extensions.
+            // TODO: this should probably work recursively
+            if let Some(base_project_name) = project_config.base {
+                // TODO avoid cloned() here
+                base_document_asts.extend(
+                    ast_sets[&base_project_name.as_source_set_name()]
+                        .iter()
+                        .cloned(),
+                );
+
+                if let Some(base_project_extensions) =
+                    compiler_state.extensions.get(&base_project_name)
+                {
+                    extensions.extend(base_project_extensions);
+                }
+            }
 
             let build_schema_timer = Timer::start(format!("build_schema {}", project_name));
             let mut schema_sources = vec![schema::RELAY_EXTENSIONS];

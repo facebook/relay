@@ -116,12 +116,12 @@ impl Config {
                 errors.push(ConfigValidationError::ProjectSourceMissing { project_name });
             }
 
-            // every base of the project should exist
-            for base_name in &project_config.base {
-                if !source_set_names.contains(base_name) {
+            // If a base of the project is set, it should exist
+            if let Some(base_name) = project_config.base {
+                if self.projects.get(&base_name).is_none() {
                     errors.push(ConfigValidationError::ProjectBaseMissing {
                         project_name,
-                        base_name: *base_name,
+                        base_project_name: base_name,
                     })
                 }
             }
@@ -189,7 +189,7 @@ impl Config {
 
 #[derive(Debug)]
 pub struct ConfigProject {
-    pub base: Vec<SourceSetName>,
+    pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
@@ -222,11 +222,12 @@ struct ConfigFile {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ConfigFileProject {
-    /// Additional source sets that can be referenced from this project, but
-    /// are not producing outputs. Another project should be setup to produce
-    /// them.
+    /// If a base project is set, the documents of that project can be
+    /// referenced, but won't produce output artifacts.
+    /// Extensions from the base project will be added as well and the schema
+    /// of the base project should be a subset of the schema of this project.
     #[serde(default)]
-    base: Vec<SourceSetName>,
+    base: Option<ProjectName>,
 
     /// A project without an output directory will put the generated files in
     /// a __generated__ directory next to the input file.

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::compiler_state::ProjectName;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -53,10 +53,10 @@ pub enum ConfigValidationError {
     #[error("There is no source for the project `{project_name}`, the `sources` map should contain at least one path mapping to this project name.")]
     ProjectSourceMissing { project_name: ProjectName },
 
-    #[error("The project `{project_name}` defines a base `{base_name}`, but no source directory with this name exist in the `sources` key.")]
+    #[error("The project `{project_name}` defines the base project `{base_project_name}`, but no such project exists.")]
     ProjectBaseMissing {
         project_name: ProjectName,
-        base_name: SourceSetName,
+        base_project_name: ProjectName,
     },
 
     #[error("Project `{project_name}` needs to define exactly one of `schema` or `schema_dir`.")]

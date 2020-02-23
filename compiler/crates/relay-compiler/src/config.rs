@@ -100,7 +100,7 @@ impl Config {
             Ok(config)
         } else {
             Err(Error::ConfigFileValidation {
-                config_path: config_path.clone(),
+                config_path,
                 validation_errors,
             })
         }

@@ -27,7 +27,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let changed_names = first_line[1..]
         .trim()
-        .split(",")
+        .split(',')
         .map(|name| name.trim())
         .filter(|name| !name.is_empty())
         .map(|name| name.intern())
@@ -53,7 +53,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut texts = result
         .into_iter()
-        .map(|x| format_definition(x))
+        .map(format_definition)
         .collect::<Vec<_>>();
     texts.sort();
     Ok(texts.join("\n\n"))

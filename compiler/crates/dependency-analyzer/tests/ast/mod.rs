@@ -31,7 +31,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut texts = result
         .into_iter()
-        .map(|x| format_definition(x))
+        .map(format_definition)
         .collect::<Vec<_>>();
     texts.sort_unstable();
     texts.push("========== Base definitions ==========".to_string());

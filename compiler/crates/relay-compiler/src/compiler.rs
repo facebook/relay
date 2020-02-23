@@ -69,10 +69,7 @@ impl Compiler {
 
         for (project_name, project_config) in &self.config.projects {
             // TODO avoid cloned() here
-            let project_document_asts = ast_sets[&project_name.as_source_set_name()]
-                .iter()
-                .cloned()
-                .collect();
+            let project_document_asts = ast_sets[&project_name.as_source_set_name()].to_vec();
 
             let mut extensions = Vec::new();
             if let Some(project_extensions) = compiler_state.extensions.get(&project_name) {

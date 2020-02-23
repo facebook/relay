@@ -34,11 +34,11 @@ impl Span {
         }
     }
 
-    pub fn as_usize(&self) -> (usize, usize) {
+    pub fn as_usize(self) -> (usize, usize) {
         (self.start as usize, self.length as usize)
     }
 
-    pub fn print(&self, source: &str) -> String {
+    pub fn print(self, source: &str) -> String {
         let start = self.start as usize;
         let end = start + self.length as usize;
 

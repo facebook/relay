@@ -396,3 +396,9 @@
     grid-gap: 2em;
   }
 }
+
+@media only screen and (max-width: 734px) {
+  .logosHomepage {
+    grid-template-columns: 1fr;
+  }
+}

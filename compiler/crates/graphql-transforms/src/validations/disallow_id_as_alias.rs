@@ -48,6 +48,7 @@ impl<'s> Visitor for DisallowIdAsAlias<'s> {
                 self.errors.push(error);
             }
         }
+        self.visit_selections(&field.selections);
     }
 
     fn visit_scalar_field(&mut self, field: &ScalarField) {

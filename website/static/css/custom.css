@@ -82,6 +82,7 @@
 .exampleSection .wrapperInner > div {
   background: #fff;
   padding: 0 1em;
+  overflow: auto;
 }
 .exampleSection .radiusRight {
   border-radius: 0 60px 0 0;

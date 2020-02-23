@@ -21,10 +21,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
-    let messages: Vec<String> = errors
+    let mut messages: Vec<String> = errors
         .iter()
         .map(|error| error.print(&sources))
         .collect::<Vec<_>>();
+
+    // Ensure snapshots are stable; order of errors is not guaranteed
+    // since the order in which fragment definitions are visited is not guaranteed
+    messages.sort_unstable();
 
     Ok(messages.join("\n\n"))
 }

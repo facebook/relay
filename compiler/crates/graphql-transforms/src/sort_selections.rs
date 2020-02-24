@@ -80,7 +80,8 @@ impl Transformer for SortSelectionsTransform {
                 self.seen.insert(key, transformed.clone());
                 transformed
             }
-            _ => Transformed::Keep,
+            Selection::ScalarField(_) => Transformed::Keep,
+            Selection::FragmentSpread(_) => Transformed::Keep,
         }
     }
 }

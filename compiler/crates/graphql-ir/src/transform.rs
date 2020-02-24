@@ -271,11 +271,7 @@ pub trait Transformer {
         condition_value: &ConditionValue,
     ) -> Option<ConditionValue> {
         if Self::VISIT_ARGUMENTS {
-            match self.default_transform_condition_value(condition_value) {
-                Transformed::Delete => None,
-                Transformed::Keep => Some(condition_value.clone()),
-                Transformed::Replace(next_condition_value) => Some(next_condition_value),
-            }
+            self.default_transform_condition_value(condition_value)
         } else {
             None
         }
@@ -284,12 +280,18 @@ pub trait Transformer {
     fn default_transform_condition_value(
         &mut self,
         condition_value: &ConditionValue,
-    ) -> Transformed<ConditionValue> {
+    ) -> Option<ConditionValue> {
         match condition_value {
-            ConditionValue::Variable(variable) => self
-                .transform_variable(variable)
-                .map(ConditionValue::Variable),
-            ConditionValue::Constant(_) => Transformed::Keep,
+            ConditionValue::Variable(variable) => match self.transform_variable(variable) {
+                Transformed::Keep => None,
+                Transformed::Delete => unreachable!(
+                    "default_transform_condition_value: Unexpected `Delete` from transfrom_variable."
+                ),
+                Transformed::Replace(next_variable) => {
+                    Some(ConditionValue::Variable(next_variable))
+                }
+            },
+            ConditionValue::Constant(_) => None,
         }
     }
 

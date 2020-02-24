@@ -69,6 +69,17 @@ impl Transformer for SortSelectionsTransform {
                 self.seen.insert(key, transformed.clone());
                 transformed
             }
+            Selection::Condition(selection) => {
+                let key = PointerAddress::new(selection);
+                if let Some(prev) = self.seen.get(&key) {
+                    return prev.clone();
+                }
+                let transformed = self
+                    .transform_condition(selection)
+                    .map(Selection::Condition);
+                self.seen.insert(key, transformed.clone());
+                transformed
+            }
             _ => Transformed::Keep,
         }
     }

@@ -283,13 +283,8 @@ pub trait Transformer {
     ) -> Option<ConditionValue> {
         match condition_value {
             ConditionValue::Variable(variable) => match self.transform_variable(variable) {
-                Transformed::Keep => None,
-                Transformed::Delete => unreachable!(
-                    "default_transform_condition_value: Unexpected `Delete` from transfrom_variable."
-                ),
-                Transformed::Replace(next_variable) => {
-                    Some(ConditionValue::Variable(next_variable))
-                }
+                None => None,
+                Some(next_variable) => Some(ConditionValue::Variable(next_variable)),
             },
             ConditionValue::Constant(_) => None,
         }
@@ -350,7 +345,10 @@ pub trait Transformer {
 
     fn default_transform_value(&mut self, value: &Value) -> Transformed<Value> {
         match value {
-            Value::Variable(variable) => self.transform_variable(variable).map(Value::Variable),
+            Value::Variable(variable) => match self.transform_variable(variable) {
+                None => Transformed::Keep,
+                Some(replacement) => Transformed::Replace(Value::Variable(replacement)),
+            },
             Value::Constant(_) => Transformed::Keep,
             Value::List(items) => match self.transform_list(items, Self::transform_value) {
                 None => Transformed::Keep,
@@ -363,9 +361,8 @@ pub trait Transformer {
         }
     }
 
-    fn transform_variable(&mut self, value: &Variable) -> Transformed<Variable> {
-        let _ = value;
-        Transformed::Keep
+    fn transform_variable(&mut self, _variable: &Variable) -> Option<Variable> {
+        None
     }
 
     // Helpers

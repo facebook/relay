@@ -6,30 +6,30 @@
  */
 
 use crate::token_kind::TokenKind;
-use common::Span;
+use common::Location;
 use std::fmt;
 use thiserror::Error;
 
 #[derive(Clone, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[error("Syntax error: {kind} at {span:?}")]
+#[error("Syntax error: {kind} at {location:?}")]
 pub struct SyntaxError {
     pub kind: SyntaxErrorKind,
-    pub span: Span,
+    pub location: Location,
 }
 
 impl SyntaxError {
-    pub fn new(kind: SyntaxErrorKind, span: Span) -> Self {
-        Self { kind, span }
+    pub fn new(kind: SyntaxErrorKind, location: Location) -> Self {
+        Self { kind, location }
     }
 
     pub fn print(&self, source: &str) -> String {
-        format!("Error: {} at {}", self.kind, self.span.print(source))
+        format!("Error: {} at {}", self.kind, self.location.print(source))
     }
 }
 
 impl fmt::Debug for SyntaxError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("Error: {} at {:?}", self.kind, self.span))
+        f.write_fmt(format_args!("Error: {} at {:?}", self.kind, self.location))
     }
 }
 

@@ -119,7 +119,10 @@ impl<'a> Parser<'a> {
                 self.parse_fragment_definition()?,
             )),
             _ => {
-                let error = SyntaxError::new(SyntaxErrorKind::ExpectedDefinition, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::ExpectedDefinition,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
@@ -178,7 +181,7 @@ impl<'a> Parser<'a> {
             _ => {
                 let error = SyntaxError::new(
                     SyntaxErrorKind::ExpectedOperationKind,
-                    maybe_operation_token.span,
+                    Location::new(self.file, maybe_operation_token.span),
                 );
                 self.record_error(error.clone());
                 return Err(error);
@@ -264,7 +267,10 @@ impl<'a> Parser<'a> {
                 }))
             }
             _ => {
-                let error = SyntaxError::new(SyntaxErrorKind::ExpectedTypeAnnotation, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::ExpectedTypeAnnotation,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 return Err(error);
             }
@@ -337,12 +343,18 @@ impl<'a> Parser<'a> {
             TokenKind::Identifier => self.parse_field(),
             // hint for invalid spreads
             TokenKind::Period | TokenKind::PeriodPeriod => {
-                let error = SyntaxError::new(SyntaxErrorKind::ExpectedSpread, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::ExpectedSpread,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
             _ => {
-                let error = SyntaxError::new(SyntaxErrorKind::ExpectedSelection, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::ExpectedSelection,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
@@ -530,7 +542,10 @@ impl<'a> Parser<'a> {
             }
             TokenKind::VariableIdentifier => Ok(Value::Variable(self.parse_variable_identifier()?)),
             TokenKind::ErrorInvalidVariableIdentifier => {
-                let error = SyntaxError::new(SyntaxErrorKind::ExpectedVariable, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::ExpectedVariable,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
@@ -602,7 +617,10 @@ impl<'a> Parser<'a> {
                 match value {
                     Ok(value) => Ok(ConstantValue::Int(IntNode { token, value })),
                     Err(_) => {
-                        let error = SyntaxError::new(SyntaxErrorKind::InvalidInteger, token.span);
+                        let error = SyntaxError::new(
+                            SyntaxErrorKind::InvalidInteger,
+                            Location::new(self.file, token.span),
+                        );
                         self.record_error(error.clone());
                         Err(error)
                     }
@@ -616,7 +634,10 @@ impl<'a> Parser<'a> {
                         value: FloatValue::new(value),
                     })),
                     Err(_) => {
-                        let error = SyntaxError::new(SyntaxErrorKind::InvalidFloat, token.span);
+                        let error = SyntaxError::new(
+                            SyntaxErrorKind::InvalidFloat,
+                            Location::new(self.file, token.span),
+                        );
                         self.record_error(error.clone());
                         Err(error)
                     }
@@ -635,12 +656,18 @@ impl<'a> Parser<'a> {
                 }),
             }),
             TokenKind::ErrorUnsupportedNumberLiteral => {
-                let error = SyntaxError::new(SyntaxErrorKind::InvalidNumberLiteral, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::InvalidNumberLiteral,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
             _ => {
-                let error = SyntaxError::new(SyntaxErrorKind::ExpectedConstantValue, token.span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::ExpectedConstantValue,
+                    Location::new(self.file, token.span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
@@ -662,7 +689,7 @@ impl<'a> Parser<'a> {
         } else {
             let error = SyntaxError::new(
                 SyntaxErrorKind::Expected(TokenKind::VariableIdentifier),
-                span,
+                Location::new(self.file, span),
             );
             self.record_error(error.clone());
             Err(error)
@@ -681,8 +708,10 @@ impl<'a> Parser<'a> {
                 value: source.intern(),
             }),
             _ => {
-                let error =
-                    SyntaxError::new(SyntaxErrorKind::Expected(TokenKind::Identifier), span);
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::Expected(TokenKind::Identifier),
+                    Location::new(self.file, span),
+                );
                 self.record_error(error.clone());
                 Err(error)
             }
@@ -803,7 +832,7 @@ impl<'a> Parser<'a> {
             let length = self.index() - start;
             let error = SyntaxError::new(
                 SyntaxErrorKind::Expected(expected),
-                Span::new(start, length),
+                Location::new(self.file, Span::new(start, length)),
             );
             self.record_error(error.clone());
             Err(error)
@@ -824,7 +853,7 @@ impl<'a> Parser<'a> {
         } else {
             Err(SyntaxError::new(
                 SyntaxErrorKind::ExpectedKeyword(expected),
-                token.inner_span,
+                Location::new(self.file, token.inner_span),
             ))
         }
     }
@@ -841,11 +870,17 @@ impl<'a> Parser<'a> {
             let next = self.lexer.next();
             match next.kind {
                 TokenKind::ErrorUnsupportedCharacterSequence => {
-                    let error = SyntaxError::new(SyntaxErrorKind::UnsupportedCharacter, next.span);
+                    let error = SyntaxError::new(
+                        SyntaxErrorKind::UnsupportedCharacter,
+                        Location::new(self.file, next.span),
+                    );
                     self.record_error(error);
                 }
                 TokenKind::ErrorUnterminatedStringLiteral => {
-                    let error = SyntaxError::new(SyntaxErrorKind::UnterminatedString, next.span);
+                    let error = SyntaxError::new(
+                        SyntaxErrorKind::UnterminatedString,
+                        Location::new(self.file, next.span),
+                    );
                     self.record_error(error);
                     return std::mem::replace(
                         &mut self.current,

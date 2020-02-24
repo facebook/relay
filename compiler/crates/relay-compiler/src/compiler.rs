@@ -43,6 +43,7 @@ impl Compiler {
         let ast_sets_timer = Timer::start("ast_sets");
         let mut ast_sets: HashMap<_, Vec<ExecutableDefinition>> = HashMap::new();
         let mut sources: FnvHashMap<FileKey, &str> = FnvHashMap::default();
+        let mut errors = Vec::new();
         for (source_set_name, source_set) in compiler_state.source_sets.iter() {
             let asts = ast_sets
                 .entry(source_set_name)
@@ -50,13 +51,24 @@ impl Compiler {
             for (file_name, file_sources) in source_set.0.iter() {
                 for (index, file_source) in file_sources.iter().enumerate() {
                     let source = format!("{}:{}", file_name.to_string_lossy(), index);
-                    let definitions = graphql_syntax::parse(&file_source, &source)
-                        .unwrap()
-                        .definitions;
-                    asts.extend(definitions);
+                    match graphql_syntax::parse(&file_source, &source) {
+                        Ok(document) => {
+                            asts.extend(document.definitions);
+                        }
+                        Err(ast_errors) => errors.extend(
+                            ast_errors
+                                .into_iter()
+                                .map(|error| error.print(&file_source)),
+                        ),
+                    }
                     sources.insert(FileKey::new(&source), &file_source);
                 }
             }
+        }
+        if !errors.is_empty() {
+            println!("Failed with parse errors:");
+            println!("{}", errors.join("\n\n"));
+            return;
         }
         ast_sets_timer.stop();
 

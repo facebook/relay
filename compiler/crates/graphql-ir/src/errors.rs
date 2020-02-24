@@ -72,7 +72,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("Unknown field {type_}.{field}")]
+    #[error("Unknown field '{type_}.{field}'")]
     UnknownField { type_: StringKey, field: StringKey },
     #[error("Expected no selections on scalar field '{0:?}.{1}'")]
     InvalidSelectionsOnScalarField(Type, StringKey),
@@ -84,7 +84,7 @@ pub enum ValidationMessage {
     UnknownDirective(StringKey),
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
-    #[error("The schema does not support {0} operations")]
+    #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
     #[error("Nested lists ('[[T]]' etc) are not supported")]
     UnsupportedNestListType(),
@@ -102,7 +102,7 @@ pub enum ValidationMessage {
     ExpectedOneArgumentDefinitionsDirective(),
     #[error("{0}")]
     SyntaxError(graphql_syntax::SyntaxError),
-    #[error("Expected @argumentDefinitions value to have a 'type' with a literal string value (e.g. 'type: \"Int!\"')")]
+    #[error("Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')")]
     ExpectedArgumentDefinitionLiteralType(),
     #[error("Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties")]
     ExpectedArgumentDefinitionToBeObject(),

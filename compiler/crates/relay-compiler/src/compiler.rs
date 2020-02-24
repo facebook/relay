@@ -7,8 +7,10 @@
 
 use crate::config::Config;
 use crate::watchman::GraphQLFinder;
-use common::Timer;
+use common::{FileKey, Timer};
 use dependency_analyzer::get_reachable_ast;
+use fnv::FnvHashMap;
+use graphql_syntax::ExecutableDefinition;
 use std::collections::HashMap;
 
 pub struct Compiler {
@@ -39,32 +41,23 @@ impl Compiler {
         }
 
         let ast_sets_timer = Timer::start("ast_sets");
-        let ast_sets: HashMap<_, _> = compiler_state
-            .source_sets
-            .iter()
-            .map(|(source_set_name, source_set)| {
-                (
-                    source_set_name,
-                    source_set
-                        .0
-                        .iter()
-                        .flat_map(|(file_name, file_sources)| {
-                            file_sources
-                                .iter()
-                                .enumerate()
-                                .flat_map(move |(index, file_source)| {
-                                    graphql_syntax::parse(
-                                        &file_source,
-                                        &format!("{}:{}", file_name.to_string_lossy(), index),
-                                    )
-                                    .unwrap()
-                                    .definitions
-                                })
-                        })
-                        .collect::<Vec<_>>(),
-                )
-            })
-            .collect();
+        let mut ast_sets: HashMap<_, Vec<ExecutableDefinition>> = HashMap::new();
+        let mut sources: FnvHashMap<FileKey, &str> = FnvHashMap::default();
+        for (source_set_name, source_set) in compiler_state.source_sets.iter() {
+            let asts = ast_sets
+                .entry(source_set_name)
+                .or_insert_with(|| Vec::new());
+            for (file_name, file_sources) in source_set.0.iter() {
+                for (index, file_source) in file_sources.iter().enumerate() {
+                    let source = format!("{}:{}", file_name.to_string_lossy(), index);
+                    let definitions = graphql_syntax::parse(&file_source, &source)
+                        .unwrap()
+                        .definitions;
+                    asts.extend(definitions);
+                    sources.insert(FileKey::new(&source), &file_source);
+                }
+            }
+        }
         ast_sets_timer.stop();
 
         for (project_name, project_config) in &self.config.projects {
@@ -113,7 +106,19 @@ impl Compiler {
             let ir: Vec<_> = match graphql_ir::build(&schema, &reachable_ast) {
                 Ok(ir) => ir,
                 Err(errors) => {
-                    println!("IR errors: {:#?}", errors);
+                    println!(
+                        "[{}] Failed with {} validation errors:",
+                        project_name,
+                        errors.len()
+                    );
+                    println!(
+                        "{}",
+                        errors
+                            .iter()
+                            .map(|error| error.print(&sources))
+                            .collect::<Vec<_>>()
+                            .join("\n\n")
+                    );
                     continue;
                 }
             };

@@ -258,7 +258,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         parent_conditions: Option<&[Condition]>,
         indent_count: usize,
     ) -> Result {
-        for selection in condition.selections.iter() {
+        let len = condition.selections.len();
+        for (i, selection) in condition.selections.iter().enumerate() {
             let next_conditions: Vec<Condition> = match parent_conditions {
                 Some(parent_conditions) => {
                     let mut next_conditions: Vec<Condition> = vec![condition.clone()];
@@ -267,7 +268,12 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 }
                 None => vec![condition.clone()],
             };
+
             self.print_selection(&selection, Some(&next_conditions), indent_count)?;
+            if i != len - 1 {
+                writeln!(self.writer)?;
+                self.print_indentation(indent_count)?;
+            }
         }
 
         Ok(())

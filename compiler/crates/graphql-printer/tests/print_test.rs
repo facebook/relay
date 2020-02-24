@@ -1,4 +1,4 @@
-// @generated SignedSource<<ea9ab3118ab2f979bd99b3064d97b8f6>>
+// @generated SignedSource<<78ae8c483103e57098cda40d8f3d6e8a>>
 
 mod print;
 
@@ -55,10 +55,10 @@ fn basic_var_defs() {
 }
 
 #[test]
-fn condition() {
-    let input = include_str!("print/fixtures/condition.graphql");
-    let expected = include_str!("print/fixtures/condition.expected");
-    test_fixture(transform_fixture, "condition.graphql", "print/fixtures/condition.expected", input, expected);
+fn conditions() {
+    let input = include_str!("print/fixtures/conditions.graphql");
+    let expected = include_str!("print/fixtures/conditions.expected");
+    test_fixture(transform_fixture, "conditions.graphql", "print/fixtures/conditions.expected", input, expected);
 }
 
 #[test]

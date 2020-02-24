@@ -1,9 +1,16 @@
-// @generated SignedSource<<cf3fce8e023099de5e87ffebc1c4e233>>
+// @generated SignedSource<<3acb692b5c94529d3174ca042df66b4a>>
 
 mod flatten;
 
 use flatten::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn flatten_same_conditions() {
+    let input = include_str!("flatten/fixtures/flatten-same-conditions.graphql");
+    let expected = include_str!("flatten/fixtures/flatten-same-conditions.expected");
+    test_fixture(transform_fixture, "flatten-same-conditions.graphql", "flatten/fixtures/flatten-same-conditions.expected", input, expected);
+}
 
 #[test]
 fn flatten_transform() {

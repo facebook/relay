@@ -10,6 +10,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 
 [dev-dependencies]
+common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
-test-schema = { path = "../test-schema" }
 schema = { path = "../schema" }
+test-schema = { path = "../test-schema" }

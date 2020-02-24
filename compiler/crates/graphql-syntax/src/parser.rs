@@ -24,7 +24,7 @@ pub struct Parser<'a> {
 /// Parser for the *executable* subset of the GraphQL specification:
 /// https://github.com/graphql/graphql-spec/blob/master/spec/Appendix%20B%20--%20Grammar%20Summary.md
 impl<'a> Parser<'a> {
-    pub fn new(source: &'a str, file: &'a str) -> Self {
+    pub fn new(source: &'a str, file: FileKey) -> Self {
         // To enable fast lookahead the parser needs to store at least the 'kind' (TokenKind)
         // of the next token: the simplest option is to store the full current token, but
         // the Parser requires an initial value. Rather than incur runtime/code overhead
@@ -41,7 +41,7 @@ impl<'a> Parser<'a> {
             current: dummy,
             lexer,
             errors: Vec::new(),
-            file: FileKey::new(file),
+            file,
             source,
         };
         // Advance to the first real token before doing any work

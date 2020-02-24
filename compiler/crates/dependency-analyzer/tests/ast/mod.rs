@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FileKey;
 use dependency_analyzer::get_reachable_ast;
 use fixture_tests::Fixture;
 use graphql_syntax::*;
@@ -21,11 +22,12 @@ fn format_definition(def: ExecutableDefinition) -> String {
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts: Vec<&str> = fixture.content.split("%definitions%").collect();
 
-    let definitions = parse(parts[0], fixture.file_name).unwrap();
+    let file_key = FileKey::new(fixture.file_name);
+    let definitions = parse(parts[0], file_key).unwrap();
     let base_definitions = parts
         .iter()
         .skip(1)
-        .map(|part| parse(part, fixture.file_name).unwrap().definitions)
+        .map(|part| parse(part, file_key).unwrap().definitions)
         .collect();
     let (result, base_definitions) = get_reachable_ast(definitions.definitions, base_definitions)?;
 

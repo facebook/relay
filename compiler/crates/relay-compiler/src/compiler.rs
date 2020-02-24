@@ -51,7 +51,8 @@ impl Compiler {
             for (file_name, file_sources) in source_set.0.iter() {
                 for (index, file_source) in file_sources.iter().enumerate() {
                     let source = format!("{}:{}", file_name.to_string_lossy(), index);
-                    match graphql_syntax::parse(&file_source, &source) {
+                    let file_key = FileKey::new(&source);
+                    match graphql_syntax::parse(&file_source, file_key) {
                         Ok(document) => {
                             asts.extend(document.definitions);
                         }
@@ -61,7 +62,7 @@ impl Compiler {
                                 .map(|error| error.print(&file_source)),
                         ),
                     }
-                    sources.insert(FileKey::new(&source), &file_source);
+                    sources.insert(file_key, &file_source);
                 }
             }
         }

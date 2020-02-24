@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FileKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_printer::{print_fragment, print_operation};
@@ -15,7 +16,8 @@ use test_schema::test_schema_with_extensions;
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
-        let ast = parse(base, fixture.file_name).unwrap();
+        let file_key = FileKey::new(fixture.file_name);
+        let ast = parse(base, file_key).unwrap();
         let schema = test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let context = Program::from_definitions(&schema, ir);

@@ -18,7 +18,8 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
-        let ast = parse(base, fixture.file_name).unwrap();
+        let file_key = FileKey::new(fixture.file_name);
+        let ast = parse(base, file_key).unwrap();
         let schema = test_schema_with_extensions(extensions);
         build(&schema, &ast.definitions)
             .map(|x| format!("{:#?}", x))

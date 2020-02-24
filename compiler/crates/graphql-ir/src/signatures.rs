@@ -216,17 +216,18 @@ fn get_argument_type(
         _ => None,
     };
     if let Some(type_name) = type_name {
-        let type_ast = graphql_syntax::parse_type(type_name, "TODO").map_err(|errors| {
-            errors
-                .into_iter()
-                .map(|x| {
-                    ValidationError::new(
-                        ValidationMessage::SyntaxError(x),
-                        vec![/* TODO: preserve location of error */],
-                    )
-                })
-                .collect::<Vec<_>>()
-        })?;
+        let type_ast =
+            graphql_syntax::parse_type(type_name, location.file()).map_err(|errors| {
+                errors
+                    .into_iter()
+                    .map(|x| {
+                        ValidationError::new(
+                            ValidationMessage::SyntaxError(x),
+                            vec![/* TODO: preserve location of error */],
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            })?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {

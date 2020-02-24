@@ -22,13 +22,14 @@ pub use syntax_error::{SyntaxError, SyntaxErrorKind};
 pub use syntax_node::*;
 
 use crate::parser::Parser;
+use common::FileKey;
 
-pub fn parse(source: &str, file: &str) -> SyntaxResult<Document> {
+pub fn parse(source: &str, file: FileKey) -> SyntaxResult<Document> {
     let parser = Parser::new(source, file);
     parser.parse_document()
 }
 
-pub fn parse_type(source: &str, file: &str) -> SyntaxResult<TypeAnnotation> {
+pub fn parse_type(source: &str, file: FileKey) -> SyntaxResult<TypeAnnotation> {
     let parser = Parser::new(source, file);
     parser.parse_type()
 }

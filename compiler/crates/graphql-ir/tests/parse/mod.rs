@@ -13,9 +13,10 @@ use graphql_syntax::parse;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let ast = parse(fixture.content, fixture.file_name).unwrap();
+    let file_key = FileKey::new(fixture.file_name);
+    let ast = parse(fixture.content, file_key).unwrap();
     let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
+    sources.insert(file_key, fixture.content);
 
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|x| format!("{:#?}", x))

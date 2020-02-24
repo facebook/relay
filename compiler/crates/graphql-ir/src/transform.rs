@@ -15,11 +15,14 @@ pub trait Transformer {
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
 
-    fn transform_program<'s>(&mut self, program: &Program<'s>) -> Option<Program<'s>> {
+    fn transform_program<'s>(&mut self, program: &Program<'s>) -> TransformedValue<Program<'s>> {
         self.default_transform_program(program)
     }
 
-    fn default_transform_program<'s>(&mut self, program: &Program<'s>) -> Option<Program<'s>> {
+    fn default_transform_program<'s>(
+        &mut self,
+        program: &Program<'s>,
+    ) -> TransformedValue<Program<'s>> {
         let mut next_program = Program::new(program.schema());
         let mut has_changes = false;
         for operation in program.operations() {
@@ -43,9 +46,9 @@ pub trait Transformer {
             }
         }
         if has_changes {
-            Some(next_program)
+            TransformedValue::Replace(next_program)
         } else {
-            None
+            TransformedValue::Keep
         }
     }
 
@@ -63,18 +66,18 @@ pub trait Transformer {
     ) -> Transformed<FragmentDefinition> {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
-        if let Some(selections) = &selections {
+        if let TransformedValue::Replace(selections) = &selections {
             if selections.is_empty() {
                 return Transformed::Delete;
             }
         }
         let directives = self.transform_directives(&fragment.directives);
-        if selections.is_none() && directives.is_none() {
+        if selections.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
         Transformed::Replace(FragmentDefinition {
-            directives: directives.unwrap_or_else(|| fragment.directives.clone()),
-            selections: selections.unwrap_or_else(|| fragment.selections.clone()),
+            directives: directives.replace_or_else(|| fragment.directives.clone()),
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
             ..fragment.clone()
         })
     }
@@ -93,24 +96,27 @@ pub trait Transformer {
     ) -> Transformed<OperationDefinition> {
         let selections = self.transform_selections(&operation.selections);
         // Special-case for empty selections
-        if let Some(selections) = &selections {
+        if let TransformedValue::Replace(selections) = &selections {
             if selections.is_empty() {
                 return Transformed::Delete;
             }
         }
         let directives = self.transform_directives(&operation.directives);
-        if selections.is_none() && directives.is_none() {
+        if selections.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
         Transformed::Replace(OperationDefinition {
-            directives: directives.unwrap_or_else(|| operation.directives.clone()),
-            selections: selections.unwrap_or_else(|| operation.selections.clone()),
+            directives: directives.replace_or_else(|| operation.directives.clone()),
+            selections: selections.replace_or_else(|| operation.selections.clone()),
             ..operation.clone()
         })
     }
 
     // Selection
-    fn transform_selections(&mut self, selections: &[Selection]) -> Option<Vec<Selection>> {
+    fn transform_selections(
+        &mut self,
+        selections: &[Selection],
+    ) -> TransformedValue<Vec<Selection>> {
         self.transform_list(selections, Self::transform_selection)
     }
 
@@ -149,12 +155,12 @@ pub trait Transformer {
     ) -> Transformed<Arc<ScalarField>> {
         let arguments = self.transform_arguments(&field.arguments);
         let directives = self.transform_directives(&field.directives);
-        if arguments.is_none() && directives.is_none() {
+        if arguments.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
         Transformed::Replace(Arc::new(ScalarField {
-            arguments: arguments.unwrap_or_else(|| field.arguments.clone()),
-            directives: directives.unwrap_or_else(|| field.directives.clone()),
+            arguments: arguments.replace_or_else(|| field.arguments.clone()),
+            directives: directives.replace_or_else(|| field.directives.clone()),
             ..field.clone()
         }))
     }
@@ -169,20 +175,20 @@ pub trait Transformer {
     ) -> Transformed<Arc<LinkedField>> {
         // Special-case for empty selections
         let selections = self.transform_selections(&field.selections);
-        if let Some(selections) = &selections {
+        if let TransformedValue::Replace(selections) = &selections {
             if selections.is_empty() {
                 return Transformed::Delete;
             }
         }
         let arguments = self.transform_arguments(&field.arguments);
         let directives = self.transform_directives(&field.directives);
-        if selections.is_none() && arguments.is_none() && directives.is_none() {
+        if selections.should_keep() && arguments.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
         Transformed::Replace(Arc::new(LinkedField {
-            arguments: arguments.unwrap_or_else(|| field.arguments.clone()),
-            directives: directives.unwrap_or_else(|| field.directives.clone()),
-            selections: selections.unwrap_or_else(|| field.selections.clone()),
+            arguments: arguments.replace_or_else(|| field.arguments.clone()),
+            directives: directives.replace_or_else(|| field.directives.clone()),
+            selections: selections.replace_or_else(|| field.selections.clone()),
             ..field.clone()
         }))
     }
@@ -200,18 +206,18 @@ pub trait Transformer {
     ) -> Transformed<Arc<InlineFragment>> {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
-        if let Some(selections) = &selections {
+        if let TransformedValue::Replace(selections) = &selections {
             if selections.is_empty() {
                 return Transformed::Delete;
             }
         }
         let directives = self.transform_directives(&fragment.directives);
-        if selections.is_none() && directives.is_none() {
+        if selections.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
         Transformed::Replace(Arc::new(InlineFragment {
-            directives: directives.unwrap_or_else(|| fragment.directives.clone()),
-            selections: selections.unwrap_or_else(|| fragment.selections.clone()),
+            directives: directives.replace_or_else(|| fragment.directives.clone()),
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
             ..fragment.clone()
         }))
     }
@@ -228,12 +234,12 @@ pub trait Transformer {
     ) -> Transformed<Arc<FragmentSpread>> {
         let arguments = self.transform_arguments(&spread.arguments);
         let directives = self.transform_directives(&spread.directives);
-        if arguments.is_none() && directives.is_none() {
+        if arguments.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
         Transformed::Replace(Arc::new(FragmentSpread {
-            arguments: arguments.unwrap_or_else(|| spread.arguments.clone()),
-            directives: directives.unwrap_or_else(|| spread.directives.clone()),
+            arguments: arguments.replace_or_else(|| spread.arguments.clone()),
+            directives: directives.replace_or_else(|| spread.directives.clone()),
             ..spread.clone()
         }))
     }
@@ -249,18 +255,18 @@ pub trait Transformer {
     ) -> Transformed<Arc<Condition>> {
         // Special-case for empty selections
         let selections = self.transform_selections(&condition.selections);
-        if let Some(selections) = &selections {
+        if let TransformedValue::Replace(selections) = &selections {
             if selections.is_empty() {
                 return Transformed::Delete;
             }
         }
         let condition_value = self.transform_condition_value(&condition.value);
-        if selections.is_none() && condition_value.is_none() {
+        if selections.should_keep() && condition_value.should_keep() {
             Transformed::Keep
         } else {
             Transformed::Replace(Arc::new(Condition {
-                value: condition_value.unwrap_or_else(|| condition.value.clone()),
-                selections: selections.unwrap_or_else(|| condition.selections.clone()),
+                value: condition_value.replace_or_else(|| condition.value.clone()),
+                selections: selections.replace_or_else(|| condition.selections.clone()),
                 ..condition.clone()
             }))
         }
@@ -269,33 +275,38 @@ pub trait Transformer {
     fn transform_condition_value(
         &mut self,
         condition_value: &ConditionValue,
-    ) -> Option<ConditionValue> {
+    ) -> TransformedValue<ConditionValue> {
         if Self::VISIT_ARGUMENTS {
             self.default_transform_condition_value(condition_value)
         } else {
-            None
+            TransformedValue::Keep
         }
     }
 
     fn default_transform_condition_value(
         &mut self,
         condition_value: &ConditionValue,
-    ) -> Option<ConditionValue> {
+    ) -> TransformedValue<ConditionValue> {
         match condition_value {
             ConditionValue::Variable(variable) => match self.transform_variable(variable) {
-                None => None,
-                Some(next_variable) => Some(ConditionValue::Variable(next_variable)),
+                TransformedValue::Replace(next_variable) => {
+                    TransformedValue::Replace(ConditionValue::Variable(next_variable))
+                }
+                TransformedValue::Keep => TransformedValue::Keep,
             },
-            ConditionValue::Constant(_) => None,
+            ConditionValue::Constant(_) => TransformedValue::Keep,
         }
     }
 
     // Directives
-    fn transform_directives(&mut self, directives: &[Directive]) -> Option<Vec<Directive>> {
+    fn transform_directives(
+        &mut self,
+        directives: &[Directive],
+    ) -> TransformedValue<Vec<Directive>> {
         if Self::VISIT_DIRECTIVES {
             self.transform_list(directives, Self::transform_directive)
         } else {
-            None
+            TransformedValue::Keep
         }
     }
 
@@ -306,8 +317,8 @@ pub trait Transformer {
     fn default_transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
         let arguments = self.transform_arguments(&directive.arguments);
         match arguments {
-            None => Transformed::Keep,
-            Some(replacement) => Transformed::Replace(Directive {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(replacement) => Transformed::Replace(Directive {
                 arguments: replacement,
                 ..directive.clone()
             }),
@@ -315,11 +326,11 @@ pub trait Transformer {
     }
 
     // Arguments
-    fn transform_arguments(&mut self, arguments: &[Argument]) -> Option<Vec<Argument>> {
+    fn transform_arguments(&mut self, arguments: &[Argument]) -> TransformedValue<Vec<Argument>> {
         if Self::VISIT_ARGUMENTS {
             self.transform_list(arguments, Self::transform_argument)
         } else {
-            None
+            TransformedValue::Keep
         }
     }
 
@@ -346,33 +357,39 @@ pub trait Transformer {
     fn default_transform_value(&mut self, value: &Value) -> Transformed<Value> {
         match value {
             Value::Variable(variable) => match self.transform_variable(variable) {
-                None => Transformed::Keep,
-                Some(replacement) => Transformed::Replace(Value::Variable(replacement)),
+                TransformedValue::Keep => Transformed::Keep,
+                TransformedValue::Replace(replacement) => {
+                    Transformed::Replace(Value::Variable(replacement))
+                }
             },
             Value::Constant(_) => Transformed::Keep,
             Value::List(items) => match self.transform_list(items, Self::transform_value) {
-                None => Transformed::Keep,
-                Some(replacement) => Transformed::Replace(Value::List(replacement)),
+                TransformedValue::Keep => Transformed::Keep,
+                TransformedValue::Replace(replacement) => {
+                    Transformed::Replace(Value::List(replacement))
+                }
             },
             Value::Object(arguments) => match self.transform_arguments(arguments) {
-                None => Transformed::Keep,
-                Some(replacement) => Transformed::Replace(Value::Object(replacement)),
+                TransformedValue::Keep => Transformed::Keep,
+                TransformedValue::Replace(replacement) => {
+                    Transformed::Replace(Value::Object(replacement))
+                }
             },
         }
     }
 
-    fn transform_variable(&mut self, _variable: &Variable) -> Option<Variable> {
-        None
+    fn transform_variable(&mut self, _variable: &Variable) -> TransformedValue<Variable> {
+        TransformedValue::Keep
     }
 
     // Helpers
-    fn transform_list<F, T>(&mut self, list: &[T], f: F) -> Option<Vec<T>>
+    fn transform_list<F, T>(&mut self, list: &[T], f: F) -> TransformedValue<Vec<T>>
     where
         F: Fn(&mut Self, &T) -> Transformed<T>,
         T: Clone,
     {
         if list.is_empty() {
-            return None;
+            return TransformedValue::Keep;
         }
         let mut result = Vec::new();
         let mut has_changes = false;
@@ -407,9 +424,9 @@ pub trait Transformer {
         }
         if has_changes {
             // Note that result can be empty if the input was empty and all items were skipped
-            Some(result)
+            TransformedValue::Replace(result)
         } else {
-            None
+            TransformedValue::Keep
         }
     }
 }
@@ -430,6 +447,31 @@ impl<T> Transformed<T> {
             Transformed::Delete => Transformed::Delete,
             Transformed::Keep => Transformed::Keep,
             Transformed::Replace(replacement) => Transformed::Replace(f(replacement)),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub enum TransformedValue<T> {
+    Keep,
+    Replace(T),
+}
+
+impl<T> TransformedValue<T> {
+    pub fn should_keep(&self) -> bool {
+        match self {
+            TransformedValue::Keep => true,
+            TransformedValue::Replace(_) => false,
+        }
+    }
+
+    pub fn replace_or_else<F>(self, f: F) -> T
+    where
+        F: FnOnce() -> T,
+    {
+        match self {
+            TransformedValue::Keep => f(),
+            TransformedValue::Replace(next_value) => next_value,
         }
     }
 }

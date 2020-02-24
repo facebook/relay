@@ -17,7 +17,7 @@ pub fn inline_fragments<'s>(program: &'s Program<'s>) -> Program<'s> {
     let mut transform = InlineFragmentsTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 type Seen = HashMap<StringKey, Arc<InlineFragment>>;
@@ -57,7 +57,7 @@ impl<'s> InlineFragmentsTransform<'s> {
         let result = Arc::new(InlineFragment {
             type_condition: Some(fragment.type_condition),
             directives: fragment.directives.clone(),
-            selections: selections.unwrap_or_else(|| fragment.selections.clone()),
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
         });
         self.seen.insert(spread.fragment.item, Arc::clone(&result));
         result

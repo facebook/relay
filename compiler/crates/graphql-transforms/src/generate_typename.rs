@@ -8,7 +8,7 @@
 use common::WithLocation;
 use graphql_ir::{
     FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
+    TransformedValue, Transformer,
 };
 use schema::{Schema, Type};
 use std::collections::HashMap;
@@ -20,7 +20,7 @@ pub fn generate_typename<'s>(program: &'s Program<'s>) -> Program<'s> {
     let mut transform = GenerateTypenameTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 // Note on correctness: the PointerAddress here is calculated from addresses of the input
@@ -65,18 +65,18 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                 arguments: Default::default(),
                 directives: Default::default(),
             })));
-            if let Some(selections) = selections {
+            if let TransformedValue::Replace(selections) = selections {
                 next_selections.extend(selections.into_iter())
             } else {
                 next_selections.extend(field.selections.iter().cloned());
             }
-            Some(next_selections)
+            TransformedValue::Replace(next_selections)
         } else {
             selections
         };
         match selections {
-            None => Transformed::Keep,
-            Some(selections) => Transformed::Replace(Arc::new(LinkedField {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(selections) => Transformed::Replace(Arc::new(LinkedField {
                 alias: field.alias,
                 definition: field.definition,
                 arguments: field.arguments.clone(),
@@ -97,12 +97,14 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         self.seen.insert(key, Transformed::Delete);
         let selections = self.transform_selections(&fragment.selections);
         let result = match selections {
-            None => Transformed::Keep,
-            Some(selections) => Transformed::Replace(Arc::new(InlineFragment {
-                type_condition: fragment.type_condition,
-                directives: fragment.directives.clone(),
-                selections,
-            })),
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(selections) => {
+                Transformed::Replace(Arc::new(InlineFragment {
+                    type_condition: fragment.type_condition,
+                    directives: fragment.directives.clone(),
+                    selections,
+                }))
+            }
         };
         self.seen.insert(key, result.clone());
         result

@@ -22,5 +22,5 @@ pub use crate::errors::{ValidationError, ValidationMessage};
 pub use build::build_ir as build;
 pub use ir::*;
 pub use program::Program;
-pub use transform::{Transformed, Transformer};
+pub use transform::{Transformed, TransformedValue, Transformer};
 pub use visitor::Visitor;

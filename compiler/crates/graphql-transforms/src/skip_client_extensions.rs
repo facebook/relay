@@ -16,7 +16,7 @@ pub fn skip_client_extensions<'s>(program: &'s Program<'s>) -> Program<'s> {
     let mut transform = SkipClientExtensionsTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 struct SkipClientExtensionsTransform<'s> {

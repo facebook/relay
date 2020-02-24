@@ -6,7 +6,7 @@
  */
 
 use crate::util::PointerAddress;
-use graphql_ir::{Program, Selection, Transformed, Transformer};
+use graphql_ir::{Program, Selection, Transformed, TransformedValue, Transformer};
 use std::collections::HashMap;
 
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
@@ -18,7 +18,7 @@ pub fn sort_selections<'s>(program: &'s Program<'s>) -> Program<'s> {
     let mut transform = SortSelectionsTransform::new();
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 #[derive(Default)]
@@ -37,12 +37,15 @@ impl Transformer for SortSelectionsTransform {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
-    fn transform_selections(&mut self, selections: &[Selection]) -> Option<Vec<Selection>> {
+    fn transform_selections(
+        &mut self,
+        selections: &[Selection],
+    ) -> TransformedValue<Vec<Selection>> {
         let mut next_selections = self
             .transform_list(selections, Self::transform_selection)
-            .unwrap_or_else(|| selections.to_vec());
+            .replace_or_else(|| selections.to_vec());
         next_selections.sort_unstable();
-        Some(next_selections)
+        TransformedValue::Replace(next_selections)
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {

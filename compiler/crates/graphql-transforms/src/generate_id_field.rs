@@ -8,7 +8,7 @@
 use common::{Location, WithLocation};
 use graphql_ir::{
     FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
+    TransformedValue, Transformer,
 };
 
 use interner::{Intern, StringKey};
@@ -23,7 +23,7 @@ pub fn generate_id_field<'s>(program: &'s Program<'s>) -> Program<'s> {
     let mut transform = GenerateIDFieldTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 struct GenerateIDFieldTransform<'s> {
@@ -57,11 +57,11 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                     let object = schema.object(id);
                     if let Some(id_field_id) = self.get_id_field_id(type_, &object.fields) {
                         let mut next_selections =
-                            selections.unwrap_or_else(|| field.selections.clone());
+                            selections.replace_or_else(|| field.selections.clone());
                         next_selections.push(Selection::ScalarField(
                             self.create_id_field(field.definition.location, id_field_id),
                         ));
-                        Some(next_selections)
+                        TransformedValue::Replace(next_selections)
                     } else {
                         selections
                     }
@@ -70,11 +70,11 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                     let interface = schema.interface(id);
                     if let Some(id_field_id) = self.get_id_field_id(type_, &interface.fields) {
                         let mut next_selections =
-                            selections.unwrap_or_else(|| field.selections.clone());
+                            selections.replace_or_else(|| field.selections.clone());
                         next_selections.push(Selection::ScalarField(
                             self.create_id_field(field.definition.location, id_field_id),
                         ));
-                        Some(next_selections)
+                        TransformedValue::Replace(next_selections)
                     } else {
                         let mut inline_fragments = self.create_id_inline_fragments(
                             field.definition.location,
@@ -83,12 +83,12 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                         if inline_fragments.is_empty() {
                             selections
                         } else {
-                            if let Some(selections) = selections {
+                            if let TransformedValue::Replace(selections) = selections {
                                 inline_fragments.extend(selections.into_iter())
                             } else {
                                 inline_fragments.extend(field.selections.iter().cloned());
                             }
-                            Some(inline_fragments)
+                            TransformedValue::Replace(inline_fragments)
                         }
                     }
                 }
@@ -100,20 +100,20 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                     if inline_fragments.is_empty() {
                         selections
                     } else {
-                        if let Some(selections) = selections {
+                        if let TransformedValue::Replace(selections) = selections {
                             inline_fragments.extend(selections.into_iter())
                         } else {
                             inline_fragments.extend(field.selections.iter().cloned());
                         }
-                        Some(inline_fragments)
+                        TransformedValue::Replace(inline_fragments)
                     }
                 }
                 _ => selections,
             }
         };
         match next_selections {
-            None => Transformed::Keep,
-            Some(selections) => Transformed::Replace(Arc::new(LinkedField {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(selections) => Transformed::Replace(Arc::new(LinkedField {
                 alias: field.alias,
                 definition: field.definition,
                 arguments: field.arguments.clone(),

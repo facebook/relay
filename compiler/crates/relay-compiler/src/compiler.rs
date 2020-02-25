@@ -31,19 +31,6 @@ impl Compiler {
 
         let compiler_state = finder.query().await.unwrap();
 
-        for (source_set_name, source_set) in &compiler_state.source_sets {
-            let definition_count: usize = source_set
-                .0
-                .values()
-                .map(|file_definitions| file_definitions.len())
-                .sum();
-            let file_count = source_set.0.len();
-            println!(
-                "{} has {} definitions from {} files",
-                source_set_name.0, definition_count, file_count
-            );
-        }
-
         let ast_sets_timer = Timer::start("ast_sets");
         let mut ast_sets: AstSets = HashMap::new();
         let mut sources: Sources<'_> = FnvHashMap::default();

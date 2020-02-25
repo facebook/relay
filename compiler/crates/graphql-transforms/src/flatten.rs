@@ -10,7 +10,7 @@ use graphql_ir::{
     Condition, ConditionValue, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection,
 };
-use graphql_printer::{write_arguments, write_directives};
+use graphql_text_printer::{write_arguments, write_directives};
 use schema::{Schema, Type, TypeReference};
 use std::fmt::Write;
 

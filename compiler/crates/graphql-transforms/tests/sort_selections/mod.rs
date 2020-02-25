@@ -8,8 +8,8 @@
 use common::FileKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
-use graphql_printer::print_fragment;
 use graphql_syntax::parse;
+use graphql_text_printer::print_fragment;
 use graphql_transforms::sort_selections;
 use test_schema::TEST_SCHEMA;
 

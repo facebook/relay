@@ -8,8 +8,8 @@ errors = { path = "../errors" }
 common = { path = "../common" }
 interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }
+graphql-text-printer = { path = "../graphql-text-printer" }
 schema = { path = "../schema" }
-graphql-printer = { path = "../graphql-printer" }
 fnv = "1.0.6"
 
 [dev-dependencies]

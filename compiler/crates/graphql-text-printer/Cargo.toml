@@ -1,5 +1,5 @@
 [project]
-name = "graphql-printer"
+name = "graphql-text-printer"
 version = "0.0.0"
 edition = "2018"
 

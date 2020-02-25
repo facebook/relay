@@ -76,6 +76,7 @@ impl Config {
                     }?;
 
                 let config_project = ConfigProject {
+                    name: project_name,
                     base: config_file_project.base,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
@@ -189,6 +190,7 @@ impl Config {
 
 #[derive(Debug)]
 pub struct ConfigProject {
+    pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
     pub extensions: Vec<PathBuf>,

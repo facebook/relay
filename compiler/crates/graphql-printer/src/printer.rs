@@ -127,7 +127,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
         self.print_directives(&operation.directives, None)?;
-        self.print_selections(&operation.selections, None, 0)
+        self.print_selections(&operation.selections, 0)
     }
 
     fn print_fragment(mut self, fragment: &FragmentDefinition) -> Result {
@@ -141,7 +141,29 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         .unwrap();
         self.print_argument_definitions(&fragment.variable_definitions)?;
         self.print_directives(&fragment.directives, None)?;
-        self.print_selections(&fragment.selections, None, 0)
+        self.print_selections(&fragment.selections, 0)
+    }
+
+    fn print_selections(&mut self, selections: &[Selection], indent_count: usize) -> Result {
+        let len = selections.len();
+        if len > 0 {
+            let next_indent_count = indent_count + TAB_SIZE;
+            writeln!(self.writer, " {{")?;
+            self.print_indentation(next_indent_count)?;
+
+            for (i, selection) in selections.iter().enumerate() {
+                self.print_selection(selection, None, next_indent_count)?;
+                if i != len - 1 {
+                    writeln!(self.writer)?;
+                    self.print_indentation(next_indent_count)?;
+                }
+            }
+
+            writeln!(self.writer)?;
+            self.print_indentation(indent_count)?;
+            write!(self.writer, "}}")?;
+        }
+        Ok(())
     }
 
     fn print_selection(
@@ -164,35 +186,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 self.print_inline_fragment(field, conditions, indent_count)?;
             }
             Selection::Condition(field) => {
-                self.print_condition(field, conditions, indent_count)?;
+                self.print_condition(field, indent_count)?;
             }
-        }
-        Ok(())
-    }
-
-    fn print_selections(
-        &mut self,
-        selections: &[Selection],
-        conditions: Option<&[Condition]>,
-        indent_count: usize,
-    ) -> Result {
-        let len = selections.len();
-        if len > 0 {
-            let next_indent_count = indent_count + TAB_SIZE;
-            writeln!(self.writer, " {{")?;
-            self.print_indentation(next_indent_count)?;
-
-            for (i, selection) in selections.iter().enumerate() {
-                self.print_selection(selection, conditions, next_indent_count)?;
-                if i != len - 1 {
-                    writeln!(self.writer)?;
-                    self.print_indentation(next_indent_count)?;
-                }
-            }
-
-            writeln!(self.writer)?;
-            self.print_indentation(indent_count)?;
-            write!(self.writer, "}}")?;
         }
         Ok(())
     }
@@ -220,7 +215,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "{}", schema_field.name)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions)?;
-        self.print_selections(&field.selections, None, indent_count)?;
+        self.print_selections(&field.selections, indent_count)?;
         Ok(())
     }
 
@@ -249,27 +244,47 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             )?;
         };
         self.print_directives(&field.directives, conditions)?;
-        self.print_selections(&field.selections, None, indent_count)
+        self.print_selections(&field.selections, indent_count)
     }
 
-    fn print_condition(
-        &mut self,
-        condition: &Condition,
-        parent_conditions: Option<&[Condition]>,
-        indent_count: usize,
-    ) -> Result {
-        let len = condition.selections.len();
-        for (i, selection) in condition.selections.iter().enumerate() {
-            let next_conditions: Vec<Condition> = match parent_conditions {
-                Some(parent_conditions) => {
-                    let mut next_conditions: Vec<Condition> = vec![condition.clone()];
-                    next_conditions.extend(parent_conditions.iter().cloned());
-                    next_conditions
-                }
-                None => vec![condition.clone()],
-            };
+    fn print_condition(&mut self, condition: &Condition, indent_count: usize) -> Result {
+        let mut maybe_current_condition = Some(condition);
+        let mut accum_conditions: Vec<Condition> = vec![];
+        let mut selections: Vec<&Selection> = vec![];
 
-            self.print_selection(&selection, Some(&next_conditions), indent_count)?;
+        // Extract all nested conditions into a flattened list of conditions, and
+        // extract the selections from the "leaf" condition
+        while let Some(current_condition) = maybe_current_condition {
+            accum_conditions.push(current_condition.clone());
+
+            if current_condition.selections.len() == 1 {
+                let selection = &current_condition.selections[0];
+                if let Selection::Condition(nested_cond) = selection {
+                    maybe_current_condition = Some(&nested_cond);
+                } else {
+                    selections.push(&selection);
+                    maybe_current_condition = None;
+                }
+            } else {
+                for selection in current_condition.selections.iter() {
+                    if let Selection::Condition(_) = selection {
+                        unreachable!("Expected for a Condition to contain either a single Condition node, or non-Condition selections.");
+                    }
+                    selections.push(selection);
+                }
+                maybe_current_condition = None;
+            }
+        }
+        accum_conditions.reverse();
+
+        // We don't call print_selections here because the selections for a condition (or set of conditions)
+        // aren't printed in the same way. Specifically, we don't need to print curly braces around them
+        // and we don't need to increase the indentation. Instead, the output of printing a condition node will
+        // expand into printing selections as children of the current parent, with all the relevant
+        // condition directives included in each selection.
+        let len = selections.len();
+        for (i, selection) in selections.iter().enumerate() {
+            self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
             if i != len - 1 {
                 writeln!(self.writer)?;
                 self.print_indentation(indent_count)?;
@@ -289,12 +304,12 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             self.print_arguments(&directive.arguments)?;
         }
         if let Some(conditions) = conditions {
-            self.print_conditions(conditions)?;
+            self.print_condition_directives(conditions)?;
         }
         Ok(())
     }
 
-    fn print_conditions(&mut self, conditions: &[Condition]) -> Result {
+    fn print_condition_directives(&mut self, conditions: &[Condition]) -> Result {
         for condition in conditions {
             write!(
                 self.writer,

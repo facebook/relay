@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2018"
 
 [dependencies]
+errors = { path = "../errors" }
 common = { path = "../common" }
 interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }

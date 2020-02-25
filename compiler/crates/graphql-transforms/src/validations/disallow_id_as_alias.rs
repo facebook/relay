@@ -6,19 +6,23 @@
  */
 
 use common::WithLocation;
-use graphql_ir::{LinkedField, Program, ScalarField, ValidationError, ValidationMessage, Visitor};
+use errors::try2;
+use graphql_ir::{
+    LinkedField, Program, ScalarField, ValidationError, ValidationMessage, Validator,
+};
 use interner::{Intern, StringKey};
 use schema::{FieldID, Schema};
 
 pub fn disallow_id_as_alias<'s>(program: &'s Program<'s>) -> Vec<ValidationError> {
-    let mut visitor = DisallowIdAsAlias::new(program);
-    visitor.visit_program(program);
-    visitor.errors
+    let mut validator = DisallowIdAsAlias::new(program);
+    match validator.validate_program(program) {
+        Err(e) => e,
+        Ok(_) => Default::default(),
+    }
 }
 
 struct DisallowIdAsAlias<'s> {
     program: &'s Program<'s>,
-    errors: Vec<ValidationError>,
     id_key: StringKey,
 }
 
@@ -26,41 +30,43 @@ impl<'s> DisallowIdAsAlias<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
             program,
-            errors: Default::default(),
             id_key: "id".intern(),
         }
     }
 }
 
-impl<'s> Visitor for DisallowIdAsAlias<'s> {
+impl<'s> Validator for DisallowIdAsAlias<'s> {
     const NAME: &'static str = "DisallowIdAsAlias";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
+    const VALIDATE_ARGUMENTS: bool = false;
+    const VALIDATE_DIRECTIVES: bool = false;
 
-    fn visit_linked_field(&mut self, field: &LinkedField) {
+    fn validate_linked_field(&mut self, field: &LinkedField) -> Result<(), Vec<ValidationError>> {
         if let Some(alias) = field.alias {
-            if let Some(error) = validate_field_alias(
-                self.program.schema(),
-                self.id_key,
-                &alias,
-                field.definition.item,
-            ) {
-                self.errors.push(error);
-            }
+            try2(
+                validate_field_alias(
+                    self.program.schema(),
+                    self.id_key,
+                    &alias,
+                    field.definition.item,
+                ),
+                self.validate_selections(&field.selections),
+            )?;
+            Ok(())
+        } else {
+            self.validate_selections(&field.selections)
         }
-        self.visit_selections(&field.selections);
     }
 
-    fn visit_scalar_field(&mut self, field: &ScalarField) {
+    fn validate_scalar_field(&mut self, field: &ScalarField) -> Result<(), Vec<ValidationError>> {
         if let Some(alias) = field.alias {
-            if let Some(error) = validate_field_alias(
+            validate_field_alias(
                 self.program.schema(),
                 self.id_key,
                 &alias,
                 field.definition.item,
-            ) {
-                self.errors.push(error);
-            }
+            )
+        } else {
+            Ok(())
         }
     }
 }
@@ -70,13 +76,13 @@ fn validate_field_alias<'s>(
     id_key: StringKey,
     alias: &WithLocation<StringKey>,
     field: FieldID,
-) -> Option<ValidationError> {
+) -> Result<(), Vec<ValidationError>> {
     if alias.item == id_key && schema.field(field).name != id_key {
-        Some(ValidationError::new(
+        Err(vec![ValidationError::new(
             ValidationMessage::DisallowIdAsAliasError(),
             vec![alias.location],
-        ))
+        )])
     } else {
-        None
+        Ok(())
     }
 }

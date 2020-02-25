@@ -144,4 +144,7 @@ pub enum ValidationMessage {
 
     #[error("Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.")]
     DisallowIdAsAliasError(),
+
+    #[error("Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.")]
+    InvalidServerOnlyDirectiveInClientFields(StringKey),
 }

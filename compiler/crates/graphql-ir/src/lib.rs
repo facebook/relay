@@ -16,6 +16,7 @@ mod ir;
 mod program;
 mod signatures;
 mod transform;
+mod validator;
 mod visitor;
 
 pub use crate::errors::{ValidationError, ValidationMessage};
@@ -23,4 +24,5 @@ pub use build::build_ir as build;
 pub use ir::*;
 pub use program::Program;
 pub use transform::{Transformed, TransformedValue, Transformer};
+pub use validator::Validator;
 pub use visitor::Visitor;

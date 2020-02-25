@@ -25,4 +25,4 @@ pub use generate_typename::generate_typename;
 pub use inline_fragments::inline_fragments;
 pub use skip_client_extensions::skip_client_extensions;
 pub use sort_selections::sort_selections;
-pub use validations::disallow_id_as_alias;
+pub use validations::*;

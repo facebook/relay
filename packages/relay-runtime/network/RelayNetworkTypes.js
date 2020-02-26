@@ -107,5 +107,4 @@ export type SubscribeFunction = (
 
 // $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
-// $FlowFixMe(site=mobile,www)
 export type UploadableMap = {[key: string]: Uploadable, ...};

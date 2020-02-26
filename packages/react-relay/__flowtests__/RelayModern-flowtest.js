@@ -113,6 +113,7 @@ class PluralTest extends React.Component<{
 }> {
   render(): React.Node {
     const names = this.props.users.map(user => user.name).filter(Boolean);
+    // $FlowExpectedError
     (names: Array<string>);
     // $FlowExpectedError
     (names: Array<number>);
@@ -175,11 +176,12 @@ function cb(): void {}
   optionalUser={aUserRef}
 />;
 
-// $FlowExpectedError - optional, not nullable!
+// $FlowExpectedError - onClick is required
 <SingularTest
   string="x"
   user={aUserRef}
   nullableUser={null}
+  // $FlowExpectedError - optional, not nullable!
   optionalUser={null}
 />;
 

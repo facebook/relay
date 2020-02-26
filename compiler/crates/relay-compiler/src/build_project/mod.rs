@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod build_ir;
 mod build_schema;
 
+pub use build_ir::build_ir;
 pub use build_schema::build_schema;

@@ -51,8 +51,8 @@ impl<'a> Parser<'a> {
 
     pub fn parse_document(mut self) -> SyntaxResult<Document> {
         let document = self.parse_document_impl();
-        let _ = self.parse_kind(TokenKind::EndOfFile);
         if self.errors.is_empty() {
+            self.parse_eof()?;
             Ok(document.unwrap())
         } else {
             Err(self.errors)
@@ -61,12 +61,18 @@ impl<'a> Parser<'a> {
 
     pub fn parse_type(mut self) -> SyntaxResult<TypeAnnotation> {
         let type_annotation = self.parse_type_annotation();
-        let _ = self.parse_kind(TokenKind::EndOfFile);
         if self.errors.is_empty() {
+            self.parse_eof()?;
             Ok(type_annotation.unwrap())
         } else {
             Err(self.errors)
         }
+    }
+
+    fn parse_eof(mut self) -> SyntaxResult<()> {
+        self.parse_kind(TokenKind::EndOfFile)
+            .map(|_| ())
+            .map_err(|_| self.errors)
     }
 
     // Document / Definitions
@@ -123,8 +129,8 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::ExpectedDefinition,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
         }
     }
@@ -183,8 +189,8 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::ExpectedOperationKind,
                     Location::new(self.file, maybe_operation_token.span),
                 );
-                self.record_error(error.clone());
-                return Err(error);
+                self.record_error(error);
+                return Err(());
             }
         };
         let name = if self.peek_token_kind() == TokenKind::Identifier {
@@ -271,8 +277,8 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::ExpectedTypeAnnotation,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                return Err(error);
+                self.record_error(error);
+                return Err(());
             }
         };
         if self.peek_token_kind() == TokenKind::Exclamation {
@@ -288,7 +294,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Directives[Const] : Directive[?Const]+
-    fn parse_directives(&mut self) -> Result<Vec<Directive>, SyntaxError> {
+    fn parse_directives(&mut self) -> ParseResult<Vec<Directive>> {
         if self.peek_token_kind() == TokenKind::At {
             self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive())
         } else {
@@ -347,16 +353,16 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::ExpectedSpread,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
             _ => {
                 let error = SyntaxError::new(
                     SyntaxErrorKind::ExpectedSelection,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
         }
     }
@@ -546,8 +552,8 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::ExpectedVariable,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
             _ => Ok(Value::Constant(self.parse_literal_value()?)),
         }
@@ -621,8 +627,8 @@ impl<'a> Parser<'a> {
                             SyntaxErrorKind::InvalidInteger,
                             Location::new(self.file, token.span),
                         );
-                        self.record_error(error.clone());
-                        Err(error)
+                        self.record_error(error);
+                        Err(())
                     }
                 }
             }
@@ -638,8 +644,8 @@ impl<'a> Parser<'a> {
                             SyntaxErrorKind::InvalidFloat,
                             Location::new(self.file, token.span),
                         );
-                        self.record_error(error.clone());
-                        Err(error)
+                        self.record_error(error);
+                        Err(())
                     }
                 }
             }
@@ -660,16 +666,16 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::InvalidNumberLiteral,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
             _ => {
                 let error = SyntaxError::new(
                     SyntaxErrorKind::ExpectedConstantValue,
                     Location::new(self.file, token.span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
         }
     }
@@ -691,8 +697,8 @@ impl<'a> Parser<'a> {
                 SyntaxErrorKind::Expected(TokenKind::VariableIdentifier),
                 Location::new(self.file, span),
             );
-            self.record_error(error.clone());
-            Err(error)
+            self.record_error(error);
+            Err(())
         }
     }
 
@@ -712,8 +718,8 @@ impl<'a> Parser<'a> {
                     SyntaxErrorKind::Expected(TokenKind::Identifier),
                     Location::new(self.file, span),
                 );
-                self.record_error(error.clone());
-                Err(error)
+                self.record_error(error);
+                Err(())
             }
         }
     }
@@ -721,7 +727,7 @@ impl<'a> Parser<'a> {
     // Helpers
 
     /// <item>*
-    fn parse_list<T, F1, F2>(&mut self, peek: F1, parse: F2) -> Result<Vec<T>, SyntaxError>
+    fn parse_list<T, F1, F2>(&mut self, peek: F1, parse: F2) -> ParseResult<Vec<T>>
     where
         F1: Fn(&mut Self) -> bool,
         F2: Fn(&mut Self) -> ParseResult<T>,
@@ -834,8 +840,8 @@ impl<'a> Parser<'a> {
                 SyntaxErrorKind::Expected(expected),
                 Location::new(self.file, Span::new(start, length)),
             );
-            self.record_error(error.clone());
-            Err(error)
+            self.record_error(error);
+            Err(())
         }
     }
 
@@ -851,10 +857,12 @@ impl<'a> Parser<'a> {
         if self.source(&token) == expected {
             Ok(token)
         } else {
-            Err(SyntaxError::new(
+            let error = SyntaxError::new(
                 SyntaxErrorKind::ExpectedKeyword(expected),
                 Location::new(self.file, token.inner_span),
-            ))
+            );
+            self.record_error(error);
+            Err(())
         }
     }
 

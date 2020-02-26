@@ -20,14 +20,12 @@ use common::Span;
 #[derive(Clone, Debug)]
 pub struct Lexer<'a> {
     position: LexerPosition<'a>,
-    source: &'a str,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(source: &'a str) -> Self {
         Lexer {
             position: LexerPosition::new(source),
-            source,
         }
     }
 

@@ -33,6 +33,12 @@ impl fmt::Debug for SyntaxError {
     }
 }
 
+impl From<SyntaxError> for Vec<SyntaxError> {
+    fn from(error: SyntaxError) -> Self {
+        vec![error]
+    }
+}
+
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SyntaxErrorKind {
     #[error("Expected a {0}")]
@@ -43,7 +49,7 @@ pub enum SyntaxErrorKind {
     ExpectedDefinition,
     #[error("Expected a 'mutation', 'query', or 'subscription' keyword")]
     ExpectedOperationKind,
-    #[error("Expected the keyword {0}")]
+    #[error("Expected the keyword '{0}'")]
     ExpectedKeyword(&'static str),
     #[error("Expected a constant value (boolean, integer, float, string, null, list, or object")]
     ExpectedConstantValue,

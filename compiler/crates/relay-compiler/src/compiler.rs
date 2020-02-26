@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::build_schema;
 use crate::compiler_state::{CompilerState, SourceSetName};
 use crate::config::{Config, ConfigProject};
 use crate::errors::{Error, Result};
@@ -84,36 +85,13 @@ impl Compiler {
     ) -> std::result::Result<(), Vec<ValidationError>> {
         let project_document_asts = ast_sets[&project_config.name.as_source_set_name()].to_vec();
 
-        let mut extensions = Vec::new();
-        if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
-            extensions.extend(project_extensions);
-        }
-
-        let mut base_document_asts = Vec::new();
-
-        // if we have base project, add their asts and extensions.
-        // TODO: this should probably work recursively
-        if let Some(base_project_name) = project_config.base {
-            base_document_asts.extend(
-                ast_sets[&base_project_name.as_source_set_name()]
-                    .iter()
-                    .cloned(),
-            );
-
-            if let Some(base_project_extensions) = compiler_state.extensions.get(&base_project_name)
-            {
-                extensions.extend(base_project_extensions);
-            }
-        }
+        let base_document_asts = match project_config.base {
+            Some(base_project_name) => ast_sets[&base_project_name.as_source_set_name()].clone(),
+            None => Vec::new(),
+        };
 
         let build_schema_timer = Timer::start(format!("build_schema {}", project_config.name));
-        let mut schema_sources = vec![schema::RELAY_EXTENSIONS];
-        schema_sources.extend(
-            compiler_state.schemas[&project_config.name]
-                .iter()
-                .map(String::as_str),
-        );
-        let schema = schema::build_schema_with_extensions(&schema_sources, &extensions).unwrap();
+        let schema = build_schema(compiler_state, project_config);
         build_schema_timer.stop();
 
         let build_ir_timer = Timer::start(format!("build_ir {}", project_config.name));

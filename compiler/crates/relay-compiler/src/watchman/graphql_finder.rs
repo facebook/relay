@@ -131,16 +131,16 @@ impl<'config> GraphQLFinder<'config> {
     ///
     /// See `FileGroup` for all groups of files.
     fn categorize_files(&self, files: Vec<WatchmanFile>) -> HashMap<FileGroup, Vec<WatchmanFile>> {
-        let categorize_timer = Timer::start("categorize");
-        let mut categorized = HashMap::new();
-        for file in files {
+        Timer::time("categorize", || {
+            let mut categorized = HashMap::new();
+            for file in files {
+                categorized
+                    .entry(self.categorizer.categorize(&file.name))
+                    .or_insert_with(Vec::new)
+                    .push(file);
+            }
             categorized
-                .entry(self.categorizer.categorize(&file.name))
-                .or_insert_with(Vec::new)
-                .push(file);
-        }
-        categorize_timer.stop();
-        categorized
+        })
     }
 
     /// Reads and extracts `graphql` tagged literals from a file.

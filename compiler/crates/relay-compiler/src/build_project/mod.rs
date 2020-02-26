@@ -27,17 +27,17 @@ pub fn build_project(
     let schema = build_schema::build_schema(compiler_state, project_config);
     build_schema_timer.stop();
 
-    let build_ir_timer = Timer::start(format!("build_ir {}", project_config.name));
-    let ir = build_ir::build_ir(project_config, &schema, ast_sets)?;
-    build_ir_timer.stop();
+    let ir = Timer::time(format!("build_ir {}", project_config.name), || {
+        build_ir::build_ir(project_config, &schema, ast_sets)
+    })?;
 
-    let build_program_timer = Timer::start(format!("build_program {}", project_config.name));
-    let program = Program::from_definitions(&schema, ir);
-    build_program_timer.stop();
+    let program = Timer::time(format!("build_program {}", project_config.name), || {
+        Program::from_definitions(&schema, ir)
+    });
 
-    let apply_transforms_timer = Timer::start(format!("apply_transforms {}", project_config.name));
-    let programs = apply_transforms::apply_transforms(&program);
-    apply_transforms_timer.stop();
+    let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
+        apply_transforms::apply_transforms(&program)
+    });
 
     println!(
         "[{}] documents: {} reader, {} normalization, {} operation",

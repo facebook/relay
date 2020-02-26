@@ -12,7 +12,7 @@ use graphql_ir::{
 use std::sync::Arc;
 
 /// Transform to skip IR nodes if they are extensions
-pub fn skip_client_extensions<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn skip_client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = SkipClientExtensionsTransform::new(program);
     transform
         .transform_program(program)

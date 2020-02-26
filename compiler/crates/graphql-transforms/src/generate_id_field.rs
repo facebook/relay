@@ -19,7 +19,7 @@ use std::sync::Arc;
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.
 ///
-pub fn generate_id_field<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn generate_id_field<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = GenerateIDFieldTransform::new(program);
     transform
         .transform_program(program)

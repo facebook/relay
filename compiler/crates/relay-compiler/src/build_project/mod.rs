@@ -8,13 +8,14 @@
 //! This module is responsible to build a single project. It does not handle
 //! watch mode or other state.
 
+mod apply_transforms;
 mod build_ir;
 mod build_schema;
 
 use crate::compiler_state::{CompilerState, SourceSetName};
 use crate::config::ConfigProject;
 use common::Timer;
-use graphql_ir::ValidationError;
+use graphql_ir::{Program, ValidationError};
 use std::collections::HashMap;
 
 pub fn build_project(
@@ -30,7 +31,21 @@ pub fn build_project(
     let ir = build_ir::build_ir(project_config, &schema, ast_sets)?;
     build_ir_timer.stop();
 
-    println!("[{}] IR node count {}", project_config.name, ir.len());
+    let build_program_timer = Timer::start(format!("build_program {}", project_config.name));
+    let program = Program::from_definitions(&schema, ir);
+    build_program_timer.stop();
+
+    let apply_transforms_timer = Timer::start(format!("apply_transforms {}", project_config.name));
+    let programs = apply_transforms::apply_transforms(&program);
+    apply_transforms_timer.stop();
+
+    println!(
+        "[{}] documents: {} reader, {} normalization, {} operation",
+        project_config.name,
+        programs.reader.document_count(),
+        programs.normalization.document_count(),
+        programs.operation_text.document_count()
+    );
 
     Ok(())
 }

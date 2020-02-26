@@ -13,7 +13,7 @@ use interner::StringKey;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub fn inline_fragments<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn inline_fragments<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = InlineFragmentsTransform::new(program);
     transform
         .transform_program(program)

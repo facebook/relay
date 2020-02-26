@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an
 /// abstract type and b) does not already directly query `__typename`.
-pub fn generate_typename<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn generate_typename<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = GenerateTypenameTransform::new(program);
     transform
         .transform_program(program)

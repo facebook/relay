@@ -5,16 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::build_ir;
-use crate::build_project::build_schema;
-use crate::compiler_state::{CompilerState, SourceSetName};
-use crate::config::{Config, ConfigProject};
+use crate::build_project::build_project;
+use crate::compiler_state::SourceSetName;
+use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::GraphQLFinder;
 use common::{FileKey, Timer};
 use errors::try_map;
 use fnv::FnvHashMap;
-use graphql_ir::ValidationError;
 use graphql_syntax::ExecutableDefinition;
 use std::collections::HashMap;
 
@@ -65,7 +63,7 @@ impl Compiler {
         ast_sets_timer.stop();
 
         try_map(self.config.projects.values(), |project_config| {
-            self.build_project(&compiler_state, project_config, &ast_sets)
+            build_project(&compiler_state, project_config, &ast_sets)
         })
         .map_err(|errors| Error::ValidationErrors {
             errors: errors
@@ -73,25 +71,6 @@ impl Compiler {
                 .map(|error| error.with_sources(&sources))
                 .collect(),
         })?;
-
-        Ok(())
-    }
-
-    fn build_project(
-        &self,
-        compiler_state: &CompilerState,
-        project_config: &ConfigProject,
-        ast_sets: &AstSets,
-    ) -> std::result::Result<(), Vec<ValidationError>> {
-        let build_schema_timer = Timer::start(format!("build_schema {}", project_config.name));
-        let schema = build_schema(compiler_state, project_config);
-        build_schema_timer.stop();
-
-        let build_ir_timer = Timer::start(format!("build_ir {}", project_config.name));
-        let ir = build_ir(project_config, &schema, ast_sets)?;
-        build_ir_timer.stop();
-
-        println!("[{}] IR node count {}", project_config.name, ir.len());
 
         Ok(())
     }

@@ -73,6 +73,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
     }
 
     // Traverse into a fragment from the program or a fragment spread
+    #[allow(clippy::map_entry)]
     fn validate_fragment_impl(
         &mut self,
         fragment: &FragmentDefinition,
@@ -140,7 +141,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
                 self.validate_fragment(fragment)
             }),
         )?;
-        Ok(Default::default())
+        Ok(())
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidatorResult {

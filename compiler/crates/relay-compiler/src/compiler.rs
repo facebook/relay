@@ -36,9 +36,7 @@ impl Compiler {
         let mut sources: Sources<'_> = FnvHashMap::default();
         let mut errors = Vec::new();
         for (source_set_name, source_set) in compiler_state.source_sets.iter() {
-            let asts = ast_sets
-                .entry(*source_set_name)
-                .or_insert_with(|| Vec::new());
+            let asts = ast_sets.entry(*source_set_name).or_insert_with(Vec::new);
             for (file_name, file_sources) in source_set.0.iter() {
                 for (index, file_source) in file_sources.iter().enumerate() {
                     let source = format!("{}:{}", file_name.to_string_lossy(), index);

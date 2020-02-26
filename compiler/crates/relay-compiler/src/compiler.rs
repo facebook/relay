@@ -7,10 +7,13 @@
 
 use crate::compiler_state::{CompilerState, SourceSetName};
 use crate::config::{Config, ConfigProject};
+use crate::errors::{Error, Result};
 use crate::watchman::GraphQLFinder;
 use common::{FileKey, Timer};
 use dependency_analyzer::get_reachable_ast;
+use errors::try_map;
 use fnv::FnvHashMap;
+use graphql_ir::ValidationError;
 use graphql_syntax::ExecutableDefinition;
 use std::collections::HashMap;
 
@@ -26,7 +29,7 @@ impl Compiler {
         Self { config }
     }
 
-    pub async fn compile(&self) {
+    pub async fn compile(&self) -> Result<()> {
         let finder = GraphQLFinder::connect(&self.config).await.unwrap();
 
         let compiler_state = finder.query().await.unwrap();
@@ -48,7 +51,7 @@ impl Compiler {
                         Err(ast_errors) => errors.extend(
                             ast_errors
                                 .into_iter()
-                                .map(|error| error.print(&file_source)),
+                                .map(|error| error.with_source(file_source.into())),
                         ),
                     }
                     sources.insert(file_key, &file_source);
@@ -56,24 +59,29 @@ impl Compiler {
             }
         }
         if !errors.is_empty() {
-            println!("Failed with parse errors:");
-            println!("{}", errors.join("\n\n"));
-            return;
+            return Err(Error::SyntaxErrors { errors });
         }
         ast_sets_timer.stop();
 
-        for project_config in self.config.projects.values() {
-            self.build_project(&compiler_state, project_config, &sources, &ast_sets);
-        }
+        try_map(self.config.projects.values(), |project_config| {
+            self.build_project(&compiler_state, project_config, &ast_sets)
+        })
+        .map_err(|errors| Error::ValidationErrors {
+            errors: errors
+                .into_iter()
+                .map(|error| error.with_sources(&sources))
+                .collect(),
+        })?;
+
+        Ok(())
     }
 
     fn build_project(
         &self,
         compiler_state: &CompilerState,
         project_config: &ConfigProject,
-        sources: &Sources<'_>,
         ast_sets: &AstSets,
-    ) {
+    ) -> std::result::Result<(), Vec<ValidationError>> {
         let project_document_asts = ast_sets[&project_config.name.as_source_set_name()].to_vec();
 
         let mut extensions = Vec::new();
@@ -112,26 +120,10 @@ impl Compiler {
         let reachable_ast = get_reachable_ast(project_document_asts, vec![base_document_asts])
             .unwrap()
             .0;
-        let ir: Vec<_> = match graphql_ir::build(&schema, &reachable_ast) {
-            Ok(ir) => ir,
-            Err(errors) => {
-                println!(
-                    "[{}] Failed with {} validation errors:",
-                    project_config.name,
-                    errors.len()
-                );
-                println!(
-                    "{}",
-                    errors
-                        .iter()
-                        .map(|error| error.print(sources))
-                        .collect::<Vec<_>>()
-                        .join("\n\n")
-                );
-                return;
-            }
-        };
+        let ir = graphql_ir::build(&schema, &reachable_ast)?;
         build_ir_timer.stop();
         println!("[{}] IR node count {}", project_config.name, ir.len());
+
+        Ok(())
     }
 }

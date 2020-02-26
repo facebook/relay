@@ -20,8 +20,6 @@ impl From<ValidationError> for Vec<ValidationError> {
     }
 }
 
-// TODO: printing of error messages
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ValidationError {
     /// One of a fixed set of validation errors
@@ -40,6 +38,24 @@ impl ValidationError {
         Self { message, locations }
     }
 
+    /// Attaches sources to the error to allow it to be printed with a code
+    /// listing without requring additional context.
+    pub fn with_sources(self, sources: &FnvHashMap<FileKey, &str>) -> ValidationErrorWithSources {
+        let sources = self
+            .locations
+            .iter()
+            .map(|location| {
+                sources
+                    .get(&location.file())
+                    .map(|source| source.to_string())
+            })
+            .collect();
+        ValidationErrorWithSources {
+            error: self,
+            sources,
+        }
+    }
+
     pub fn print(&self, sources: &FnvHashMap<FileKey, &str>) -> String {
         format!(
             "{}:\n{}",
@@ -52,6 +68,30 @@ impl ValidationError {
                         None => "<source not found>",
                     };
                     location.print(source)
+                })
+                .collect::<Vec<_>>()
+                .join("\n\n")
+        )
+    }
+}
+
+#[derive(Debug)]
+pub struct ValidationErrorWithSources {
+    error: ValidationError,
+    sources: Vec<Option<String>>,
+}
+impl ValidationErrorWithSources {
+    pub fn print(&self) -> String {
+        format!(
+            "{}:\n{}",
+            self.error.message,
+            self.error
+                .locations
+                .iter()
+                .zip(&self.sources)
+                .map(|(location, source)| match source {
+                    Some(source) => location.print(&source),
+                    None => "<source not found>".to_string(),
                 })
                 .collect::<Vec<_>>()
                 .join("\n\n")

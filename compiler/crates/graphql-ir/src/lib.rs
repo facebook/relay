@@ -19,7 +19,7 @@ mod transform;
 mod validator;
 mod visitor;
 
-pub use crate::errors::{ValidationError, ValidationMessage};
+pub use crate::errors::{ValidationError, ValidationErrorWithSources, ValidationMessage};
 pub use build::build_ir as build;
 pub use ir::*;
 pub use program::Program;

@@ -25,6 +25,15 @@ impl SyntaxError {
     pub fn print(&self, source: &str) -> String {
         format!("Error: {} at {}", self.kind, self.location.print(source))
     }
+
+    /// Attaches a source string to the error to allow it to be printed with a
+    /// code listing without requring additional context.
+    pub fn with_source(self, source: String) -> SyntaxErrorWithSource {
+        SyntaxErrorWithSource {
+            error: self,
+            source,
+        }
+    }
 }
 
 impl fmt::Debug for SyntaxError {
@@ -36,6 +45,17 @@ impl fmt::Debug for SyntaxError {
 impl From<SyntaxError> for Vec<SyntaxError> {
     fn from(error: SyntaxError) -> Self {
         vec![error]
+    }
+}
+
+#[derive(Debug)]
+pub struct SyntaxErrorWithSource {
+    error: SyntaxError,
+    source: String,
+}
+impl SyntaxErrorWithSource {
+    pub fn print(&self) -> String {
+        self.error.print(&self.source)
     }
 }
 

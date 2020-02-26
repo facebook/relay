@@ -6,6 +6,8 @@
  */
 
 use crate::compiler_state::ProjectName;
+use graphql_ir::ValidationErrorWithSources;
+use graphql_syntax::SyntaxErrorWithSource;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -36,6 +38,28 @@ pub enum Error {
     ConfigFileValidation {
         config_path: PathBuf,
         validation_errors: Vec<ConfigValidationError>,
+    },
+
+    #[error(
+        "Failed parsing GraphQL:{}",
+        errors
+            .iter()
+            .map(|err| format!("\n - {}", err.print()))
+            .collect::<Vec<_>>()
+            .join("")
+    )]
+    SyntaxErrors { errors: Vec<SyntaxErrorWithSource> },
+
+    #[error(
+        "GraphQL validation errors:{}",
+        errors
+            .iter()
+            .map(|err| format!("\n - {}", err.print()))
+            .collect::<Vec<_>>()
+            .join("")
+    )]
+    ValidationErrors {
+        errors: Vec<ValidationErrorWithSources>,
     },
 }
 

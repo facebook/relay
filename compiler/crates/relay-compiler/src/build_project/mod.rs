@@ -23,9 +23,9 @@ pub fn build_project(
     project_config: &ConfigProject,
     ast_sets: &HashMap<SourceSetName, Vec<graphql_syntax::ExecutableDefinition>>,
 ) -> std::result::Result<(), Vec<ValidationError>> {
-    let build_schema_timer = Timer::start(format!("build_schema {}", project_config.name));
-    let schema = build_schema::build_schema(compiler_state, project_config);
-    build_schema_timer.stop();
+    let schema = Timer::time(format!("build_schema {}", project_config.name), || {
+        build_schema::build_schema(compiler_state, project_config)
+    });
 
     let ir = Timer::time(format!("build_ir {}", project_config.name), || {
         build_ir::build_ir(project_config, &schema, ast_sets)

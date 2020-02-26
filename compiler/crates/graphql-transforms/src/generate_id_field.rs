@@ -58,9 +58,8 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                     if let Some(id_field_id) = self.get_id_field_id(type_, &object.fields) {
                         let mut next_selections =
                             selections.replace_or_else(|| field.selections.clone());
-                        next_selections.push(Selection::ScalarField(
-                            self.create_id_field(field.definition.location, id_field_id),
-                        ));
+                        next_selections
+                            .push(self.create_id_selection(field.definition.location, id_field_id));
                         TransformedValue::Replace(next_selections)
                     } else {
                         selections
@@ -71,9 +70,8 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                     if let Some(id_field_id) = self.get_id_field_id(type_, &interface.fields) {
                         let mut next_selections =
                             selections.replace_or_else(|| field.selections.clone());
-                        next_selections.push(Selection::ScalarField(
-                            self.create_id_field(field.definition.location, id_field_id),
-                        ));
+                        next_selections
+                            .push(self.create_id_selection(field.definition.location, id_field_id));
                         TransformedValue::Replace(next_selections)
                     } else {
                         let mut inline_fragments = self.create_id_inline_fragments(
@@ -230,13 +228,13 @@ impl<'s> GenerateIDFieldTransform<'s> {
         next_selections
     }
 
-    fn create_id_field(&self, location: Location, id_field_id: FieldID) -> Arc<ScalarField> {
-        Arc::new(ScalarField {
+    fn create_id_selection(&self, location: Location, id_field_id: FieldID) -> Selection {
+        Selection::ScalarField(Arc::new(ScalarField {
             alias: None,
             definition: WithLocation::new(location, id_field_id),
             arguments: Default::default(),
             directives: Default::default(),
-        })
+        }))
     }
 
     fn create_inline_id_fragment(
@@ -248,9 +246,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         Arc::new(InlineFragment {
             type_condition: Some(type_),
             directives: Default::default(),
-            selections: vec![Selection::ScalarField(
-                self.create_id_field(location, id_field_id),
-            )],
+            selections: vec![self.create_id_selection(location, id_field_id)],
         })
     }
 }

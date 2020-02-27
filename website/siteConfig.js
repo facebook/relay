@@ -161,6 +161,12 @@ const users = [
     infoLink: 'https://mindworking.eu/',
     pinned: false,
   },
+  {
+    caption: 'domonda',
+    image: '/img/logos/domonda.png',
+    infoLink: 'https://domonda.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

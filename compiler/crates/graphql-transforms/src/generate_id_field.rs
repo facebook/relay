@@ -15,10 +15,9 @@ use interner::{Intern, StringKey};
 use schema::{FieldID, InterfaceID, ObjectID, Type};
 use std::collections::HashMap;
 use std::sync::Arc;
-///
+
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.
-///
 pub fn generate_id_field<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = GenerateIDFieldTransform::new(program);
     transform
@@ -29,9 +28,14 @@ pub fn generate_id_field<'s>(program: &Program<'s>) -> Program<'s> {
 struct GenerateIDFieldTransform<'s> {
     program: &'s Program<'s>,
     id_name: StringKey,
-    node_interface_id: InterfaceID,
+    node_interface: Option<NodeInterface>,
     cache: HashMap<Type, Option<FieldID>>,
-    node_id_field_id: FieldID,
+}
+
+/// If the schema defines a `Node` interface, this contains information on that interface.
+struct NodeInterface {
+    id: InterfaceID,
+    id_field: FieldID,
 }
 
 impl<'s> Transformer for GenerateIDFieldTransform<'s> {
@@ -135,24 +139,31 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
 
 impl<'s> GenerateIDFieldTransform<'s> {
     fn new(program: &'s Program<'s>) -> Self {
+        let id_name = "id".intern();
+
         let schema = program.schema();
-        let node_interface_id = match schema.get_type("Node".intern()) {
-            Some(Type::Interface(id)) => id,
-            _ => panic!("Expected the schema to contain an interface named `Node`."),
+        let node_interface = match schema.get_type("Node".intern()) {
+            Some(Type::Interface(node_interface_id)) => {
+                let node_interface = schema.interface(node_interface_id);
+                let id_field = *node_interface
+                    .fields
+                    .iter()
+                    .find(|&&id| schema.field(id).name == id_name)
+                    .expect("Expected `Node` to contain a field named `id`.");
+
+                Some(NodeInterface {
+                    id: node_interface_id,
+                    id_field,
+                })
+            }
+            _ => None,
         };
-        let node_interface = schema.interface(node_interface_id);
-        let id_key = "id".intern();
-        let node_id_field_id = *node_interface
-            .fields
-            .iter()
-            .find(|&&id| schema.field(id).name == id_key)
-            .expect("Expected `Node` to contain a field named `id`.");
+
         Self {
             program,
-            id_name: schema.field(node_id_field_id).name,
-            node_interface_id,
+            id_name,
+            node_interface,
             cache: Default::default(),
-            node_id_field_id,
         }
     }
 
@@ -200,10 +211,14 @@ impl<'s> GenerateIDFieldTransform<'s> {
 
         for object_id in concrete_ids {
             let object = self.program.schema().object(*object_id);
-            let implements_node = object
-                .interfaces
-                .iter()
-                .any(|interface_id| interface_id == &self.node_interface_id);
+            let implements_node = if let Some(ref node_interface) = self.node_interface {
+                object
+                    .interfaces
+                    .iter()
+                    .any(|&interface_id| interface_id == node_interface.id)
+            } else {
+                false
+            };
             if implements_node {
                 should_generate_node = true;
             } else if let Some(id_field_id) =
@@ -218,10 +233,13 @@ impl<'s> GenerateIDFieldTransform<'s> {
         }
 
         if should_generate_node {
+            // This should not happen because we can only set
+            // `should_generate_node` to true, if this is Some.
+            let node_interface = self.node_interface.as_ref().unwrap();
             next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
                 location,
-                Type::Interface(self.node_interface_id),
-                self.node_id_field_id,
+                Type::Interface(node_interface.id),
+                node_interface.id_field,
             )));
         }
 

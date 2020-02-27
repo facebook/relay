@@ -52,6 +52,7 @@ function generate(text, options: TypeGeneratorOptions, context?) {
           // $FlowFixMe - `SplitOperation` is incompatible with union type.
           {
             ...options,
+            // $FlowFixMe - `SplitOperation` is incompatible with union type.
             normalizationIR: context ? context.get(doc.name) : undefined,
           },
         )}`,

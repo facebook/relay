@@ -5,12 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+#![deny(warnings)]
+#![deny(rust_2018_idioms)]
+#![deny(clippy::all)]
+
 use std::collections::hash_map::HashMap;
 use std::fmt;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
+#[derive(Default)]
 pub struct BufferedFileSystem {
     files: HashMap<PathBuf, Option<String>>,
 }

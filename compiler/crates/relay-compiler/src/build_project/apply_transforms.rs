@@ -47,9 +47,7 @@ fn apply_common_transforms<'schema>(program: &Program<'schema>) -> Program<'sche
     // - DeferStreamTransform
 
     // TODO remove this clone once some transform is applied
-    let program = program.clone();
-
-    program
+    program.clone()
 }
 
 /// Applies transforms only for generated reader code.
@@ -62,9 +60,7 @@ fn apply_reader_transforms<'schema>(program: &Program<'schema>) -> Program<'sche
     // - FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
 
-    let program = flatten(&program, true);
-
-    program
+    flatten(&program, true)
 }
 
 /// Applies transforms that apply to all operation artifacts.
@@ -77,9 +73,7 @@ fn apply_operation_transforms<'schema>(program: &Program<'schema>) -> Program<'s
     // - GenerateIDFieldTransform
     // - TestOperationTransform
 
-    let program = generate_id_field(&program);
-
-    program
+    generate_id_field(&program)
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -99,9 +93,7 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
 
     let program = inline_fragments(&program);
     let program = flatten(&program, true);
-    let program = generate_typename(&program);
-
-    program
+    generate_typename(&program)
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -122,7 +114,5 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
 
     let program = skip_client_extensions(&program);
     let program = flatten(&program, false);
-    let program = generate_typename(&program);
-
-    program
+    generate_typename(&program)
 }

@@ -47,7 +47,7 @@ impl ValidationError {
             .map(|location| {
                 sources
                     .get(&location.file())
-                    .map(|source| source.to_string())
+                    .map(|source| (*source).to_string())
             })
             .collect();
         ValidationErrorWithSources {

@@ -31,6 +31,7 @@ const usePreloadedQuery = require('./usePreloadedQuery');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationState');
+const useSubscription = require('./useSubscription');
 
 const {loadQuery} = require('./loadQuery');
 
@@ -67,4 +68,5 @@ module.exports = {
   useRefetchableFragment: useRefetchableFragment,
   useRelayEnvironment: useRelayEnvironment,
   useSubscribeToInvalidationState: useSubscribeToInvalidationState,
+  useSubscription: useSubscription,
 };

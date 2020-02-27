@@ -281,7 +281,6 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
   const state = {
     customScalars: options.customScalars,
     enumsHasteModule: options.enumsHasteModule,
-    existingFragmentNames: options.existingFragmentNames,
     generatedFragments: new Set(),
     generatedInputObjectTypes: {},
     optionalInputFields: options.optionalInputFields,
@@ -877,16 +876,13 @@ function getFragmentImports(state: State) {
     for (const usedFragment of usedFragments) {
       const fragmentTypeName = getOldFragmentTypeName(usedFragment);
       if (!state.generatedFragments.has(usedFragment)) {
-        if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
+        if (state.useHaste) {
           // TODO(T22653277) support non-haste environments when importing
           // fragments
           imports.push(
             importTypes([fragmentTypeName], usedFragment + '.graphql'),
           );
-        } else if (
-          state.useSingleArtifactDirectory &&
-          state.existingFragmentNames.has(usedFragment)
-        ) {
+        } else if (state.useSingleArtifactDirectory) {
           imports.push(
             importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
           );

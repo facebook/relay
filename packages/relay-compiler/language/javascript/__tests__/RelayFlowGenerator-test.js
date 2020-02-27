@@ -83,7 +83,6 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: true,
             useSingleArtifactDirectory: false,
@@ -103,7 +102,6 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: false,
             useSingleArtifactDirectory: true,
@@ -123,7 +121,6 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: false,
             useSingleArtifactDirectory: false,
@@ -144,7 +141,6 @@ it('does not add `%future added values` when the noFutureProofEnums option is se
   `;
   const types = generate(text, {
     customScalars: {},
-    existingFragmentNames: new Set(['PhotoFragment']),
     optionalInputFields: [],
     useHaste: true,
     useSingleArtifactDirectory: false,
@@ -166,7 +162,6 @@ test('import enum definitions from single module', () => {
   const types = generate(text, {
     customScalars: {},
     enumsHasteModule: 'MyGraphQLEnums',
-    existingFragmentNames: new Set([]),
     optionalInputFields: [],
     useHaste: true,
     noFutureProofEnums: false,
@@ -186,7 +181,6 @@ test('import enum definitions from enum specific module', () => {
   const types = generate(text, {
     customScalars: {},
     enumsHasteModule: (enumName: string) => `${enumName}.graphqlenum`,
-    existingFragmentNames: new Set([]),
     optionalInputFields: [],
     useHaste: true,
     noFutureProofEnums: false,
@@ -206,7 +200,6 @@ describe('custom scalars', () => {
   `;
   const generateWithMapping = mapping =>
     generate(text, {
-      existingFragmentNames: new Set([]),
       optionalInputFields: [],
       useHaste: false,
       customScalars: mapping,
@@ -253,7 +246,6 @@ it('imports fragment refs from siblings in a single artifact dir', () => {
   `;
   const types = generate(text, {
     customScalars: {},
-    existingFragmentNames: new Set(['PhotoFragment']),
     optionalInputFields: [],
     // This is what's different from the tests above.
     useHaste: false,

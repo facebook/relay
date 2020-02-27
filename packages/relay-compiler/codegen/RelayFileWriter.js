@@ -192,10 +192,6 @@ function writeAll({
       ]),
     );
 
-    const existingFragmentNames = new Set(
-      definitions.map(definition => definition.name),
-    );
-
     const definitionsMeta = new Map();
     const getDefinitionMeta = (definitionName: string) => {
       const artifact = nullthrows(artifactMap.get(definitionName));
@@ -217,12 +213,6 @@ function writeAll({
           });
         }
       });
-    });
-
-    // TODO(T22651734): improve this to correctly account for fragments that
-    // have generated flow types.
-    baseDefinitionNames.forEach(baseDefinitionName => {
-      existingFragmentNames.delete(baseDefinitionName);
     });
 
     const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
@@ -289,7 +279,6 @@ function writeAll({
                 {
                   customScalars: writerConfig.customScalars,
                   enumsHasteModule: writerConfig.enumsHasteModule,
-                  existingFragmentNames,
                   optionalInputFields: writerConfig.optionalInputFieldsForFlow,
                   useHaste: writerConfig.useHaste,
                   useSingleArtifactDirectory: !!writerConfig.outputDir,

@@ -11,32 +11,53 @@
 mod apply_transforms;
 mod build_ir;
 mod build_schema;
+mod generate_artifacts;
+mod write_artifacts;
 
 use crate::compiler_state::{CompilerState, SourceSetName};
-use crate::config::ConfigProject;
+use crate::config::{Config, ConfigProject};
 use common::Timer;
 use graphql_ir::{Program, ValidationError};
 use std::collections::HashMap;
 
 pub fn build_project(
     compiler_state: &CompilerState,
+    config: &Config,
     project_config: &ConfigProject,
     ast_sets: &HashMap<SourceSetName, Vec<graphql_syntax::ExecutableDefinition>>,
 ) -> std::result::Result<(), Vec<ValidationError>> {
+    // Construct a schema instance including project specific extensions.
     let schema = Timer::time(format!("build_schema {}", project_config.name), || {
         build_schema::build_schema(compiler_state, project_config)
     });
 
+    // Build a type aware IR
     let ir = Timer::time(format!("build_ir {}", project_config.name), || {
         build_ir::build_ir(project_config, &schema, ast_sets)
     })?;
 
+    // Turn the IR into a base Program
     let program = Timer::time(format!("build_program {}", project_config.name), || {
         Program::from_definitions(&schema, ir)
     });
 
+    // Apply various chains of transforms to create a set of output programs.
     let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
         apply_transforms::apply_transforms(&program)
+    });
+
+    // Generate code and persist text to produce output artifacts in memory
+    let artifacts = Timer::time(
+        format!("generate_artifacts {}", project_config.name),
+        || generate_artifacts::generate_artifacts(&programs),
+    );
+
+    // Write the generated artifacts to disk. This step is separte from
+    // generating artifacts to avoid partial writes in case of errors as
+    // much as possible.
+    Timer::time(format!("write_artifacts {}", project_config.name), || {
+        write_artifacts::write_artifacts(config, project_config, &artifacts)
+            .expect("TODO: create Error type for build_project");
     });
 
     println!(

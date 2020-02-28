@@ -11,6 +11,8 @@ extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0.6"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
+signedsource = { path = "../signedsource" }
+graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 rayon = "1.3.0"

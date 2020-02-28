@@ -63,7 +63,7 @@ impl Compiler {
         ast_sets_timer.stop();
 
         try_map(self.config.projects.values(), |project_config| {
-            build_project(&compiler_state, project_config, &ast_sets)
+            build_project(&compiler_state, &self.config, project_config, &ast_sets)
         })
         .map_err(|errors| Error::ValidationErrors {
             errors: errors

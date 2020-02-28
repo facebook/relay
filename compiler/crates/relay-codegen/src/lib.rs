@@ -13,4 +13,4 @@ mod build_codegen_ast;
 mod codegen_ast;
 mod print_to_json;
 
-pub use print_to_json::{print_deduped_json, print_json};
+pub use print_to_json::{print_deduped_json, print_fragment, print_json, print_operation};

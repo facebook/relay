@@ -1,0 +1,19 @@
+[project]
+name = "relay-codegen"
+version = "0.0.0"
+edition = "2018"
+
+[dependencies]
+common = { path = "../common" }
+fnv = "1.0.6"
+interner = { path = "../interner" }
+graphql-ir = { path = "../graphql-ir" }
+graphql-syntax = { path = "../graphql-syntax" }
+graphql-text-printer = { path = "../graphql-text-printer" }
+schema = {path = "../schema"}
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.44"
+
+[dev-dependencies]
+fixture-tests = {path = "../fixture-tests"}
+test-schema = { path = "../test-schema" }

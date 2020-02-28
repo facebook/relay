@@ -844,6 +844,13 @@ impl TypeReference {
             _ => false,
         }
     }
+
+    pub fn is_list(&self) -> bool {
+        match self.nullable_type() {
+            TypeReference::List(_) => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug)]

@@ -402,6 +402,8 @@ export type LogEvent =
   | {|
       +name: 'queryresource.fetch',
       +operation: OperationDescriptor,
+      // value from ProfilerContext
+      +profilerContext: mixed,
       // FetchPolicy from relay-experimental
       +fetchPolicy: string,
       // RenderPolicy from relay-experimental

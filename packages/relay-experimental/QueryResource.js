@@ -248,8 +248,9 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     maybeFetchPolicy: ?FetchPolicy,
     maybeRenderPolicy: ?RenderPolicy,
-    observer?: Observer<Snapshot>,
+    observer: ?Observer<Snapshot>,
     cacheKeyBuster: ?string | ?number,
+    profilerContext: mixed,
   ): QueryResult {
     const environment = this._environment;
     const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
@@ -274,6 +275,7 @@ class QueryResourceImpl {
         fetchObservable,
         fetchPolicy,
         renderPolicy,
+        profilerContext,
         {
           ...observer,
           unsubscribe(subscription) {
@@ -373,7 +375,8 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     fetchPolicy: FetchPolicy,
     renderPolicy: RenderPolicy,
-    observer?: Observer<Snapshot>,
+    profilerContext: mixed,
+    observer: Observer<Snapshot>,
   ): QueryResourceCacheEntry {
     const environment = this._environment;
 
@@ -433,6 +436,7 @@ class QueryResourceImpl {
     environment.__log({
       name: 'queryresource.fetch',
       operation,
+      profilerContext,
       fetchPolicy,
       renderPolicy,
       queryAvailability,

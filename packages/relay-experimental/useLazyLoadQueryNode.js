@@ -72,6 +72,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
       renderPolicy,
       {start: startFetch, complete: completeFetch, error: completeFetch},
       fetchKey,
+      profilerContext,
     );
   });
 

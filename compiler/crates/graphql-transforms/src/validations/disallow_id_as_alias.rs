@@ -8,17 +8,15 @@
 use common::WithLocation;
 use errors::try2;
 use graphql_ir::{
-    LinkedField, Program, ScalarField, ValidationError, ValidationMessage, Validator,
+    LinkedField, Program, ScalarField, ValidationError, ValidationMessage, ValidationResult,
+    Validator,
 };
 use interner::{Intern, StringKey};
 use schema::{FieldID, Schema};
 
-pub fn disallow_id_as_alias<'s>(program: &'s Program<'s>) -> Vec<ValidationError> {
+pub fn disallow_id_as_alias<'s>(program: &'s Program<'s>) -> ValidationResult<()> {
     let mut validator = DisallowIdAsAlias::new(program);
-    match validator.validate_program(program) {
-        Err(e) => e,
-        Ok(_) => Default::default(),
-    }
+    validator.validate_program(program)
 }
 
 struct DisallowIdAsAlias<'s> {
@@ -40,7 +38,7 @@ impl<'s> Validator for DisallowIdAsAlias<'s> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_linked_field(&mut self, field: &LinkedField) -> Result<(), Vec<ValidationError>> {
+    fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
         if let Some(alias) = field.alias {
             try2(
                 validate_field_alias(
@@ -57,7 +55,7 @@ impl<'s> Validator for DisallowIdAsAlias<'s> {
         }
     }
 
-    fn validate_scalar_field(&mut self, field: &ScalarField) -> Result<(), Vec<ValidationError>> {
+    fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {
         if let Some(alias) = field.alias {
             validate_field_alias(
                 self.program.schema(),
@@ -76,7 +74,7 @@ fn validate_field_alias<'s>(
     id_key: StringKey,
     alias: &WithLocation<StringKey>,
     field: FieldID,
-) -> Result<(), Vec<ValidationError>> {
+) -> ValidationResult<()> {
     if alias.item == id_key && schema.field(field).name != id_key {
         Err(vec![ValidationError::new(
             ValidationMessage::DisallowIdAsAliasError(),

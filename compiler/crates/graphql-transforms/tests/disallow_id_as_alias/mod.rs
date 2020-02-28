@@ -18,11 +18,13 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, file_key).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let errors = disallow_id_as_alias(&program);
+    let validation_result = disallow_id_as_alias(&program);
 
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
-    let mut messages: Vec<String> = errors
+    let mut messages: Vec<String> = validation_result
+        .err()
+        .unwrap_or_default()
         .iter()
         .map(|error| error.print(&sources))
         .collect::<Vec<_>>();

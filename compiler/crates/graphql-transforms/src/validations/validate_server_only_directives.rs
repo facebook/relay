@@ -10,13 +10,12 @@ use errors::{try2, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
-    ValidationError, ValidationMessage, Validator,
+    ValidationError, ValidationMessage, ValidationResult, Validator,
 };
 use interner::{Intern, StringKey};
 use std::iter::FromIterator;
 
-type ValidatorResult = Result<(), Vec<ValidationError>>;
-pub fn validate_server_only_directives<'s>(program: &'s Program<'s>) -> ValidatorResult {
+pub fn validate_server_only_directives<'s>(program: &'s Program<'s>) -> ValidationResult<()> {
     let mut validator = ServerOnlyDirectivesValidation::new(program);
     validator.validate_program(program)
 }
@@ -56,7 +55,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
         }
     }
 
-    fn validate_visited_fragment(&self, state: &FragmentState) -> ValidatorResult {
+    fn validate_visited_fragment(&self, state: &FragmentState) -> ValidationResult<()> {
         if let Some(location) = self.current_root_client_selection {
             return Err(state
                 .client_invalid_directives
@@ -126,7 +125,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;
 
-    fn validate_program<'ss>(&mut self, program: &Program<'ss>) -> ValidatorResult {
+    fn validate_program<'ss>(&mut self, program: &Program<'ss>) -> ValidationResult<()> {
         try2(
             try_map(program.operations(), |operation| {
                 self.current_client_invalid_directives = vec![];
@@ -144,12 +143,12 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         Ok(())
     }
 
-    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidatorResult {
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {
         self.validate_fragment_impl(fragment)?;
         Ok(())
     }
 
-    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidatorResult {
+    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         let state = self.validate_fragment_impl(fragment)?.clone();
         let FragmentState {
@@ -170,7 +169,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         Ok(())
     }
 
-    fn validate_linked_field(&mut self, field: &LinkedField) -> ValidatorResult {
+    fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
         if self.current_root_client_selection.is_none()
             && self
                 .program
@@ -192,7 +191,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         self.default_validate_linked_field(field)
     }
 
-    fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidatorResult {
+    fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {
         if self.is_current_fragment_client_only
             && !self
                 .program
@@ -205,7 +204,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         self.default_validate_scalar_field(field)
     }
 
-    fn validate_directive(&mut self, directive: &Directive) -> ValidatorResult {
+    fn validate_directive(&mut self, directive: &Directive) -> ValidationResult<()> {
         if self
             .client_invalid_directive_names
             .contains(&directive.name.item)

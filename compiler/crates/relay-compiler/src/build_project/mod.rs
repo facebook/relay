@@ -12,6 +12,7 @@ mod apply_transforms;
 mod build_ir;
 mod build_schema;
 mod generate_artifacts;
+mod validate;
 mod write_artifacts;
 
 use crate::compiler_state::{CompilerState, SourceSetName};
@@ -31,22 +32,27 @@ pub fn build_project(
         build_schema::build_schema(compiler_state, project_config)
     });
 
-    // Build a type aware IR
+    // Build a type aware IR.
     let ir = Timer::time(format!("build_ir {}", project_config.name), || {
         build_ir::build_ir(project_config, &schema, ast_sets)
     })?;
 
-    // Turn the IR into a base Program
+    // Turn the IR into a base Program.
     let program = Timer::time(format!("build_program {}", project_config.name), || {
         Program::from_definitions(&schema, ir)
     });
+
+    // Call validation rules that go beyond type checking.
+    Timer::time(format!("validate {}", project_config.name), || {
+        validate::validate(&program)
+    })?;
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
         apply_transforms::apply_transforms(&program)
     });
 
-    // Generate code and persist text to produce output artifacts in memory
+    // Generate code and persist text to produce output artifacts in memory.
     let artifacts = Timer::time(
         format!("generate_artifacts {}", project_config.name),
         || generate_artifacts::generate_artifacts(&programs),

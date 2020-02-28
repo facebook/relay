@@ -10,6 +10,7 @@ use errors::{try2, try3, try_map};
 
 use crate::ir::*;
 use crate::program::Program;
+
 pub trait Validator {
     const NAME: &'static str;
     const VALIDATE_ARGUMENTS: bool;

@@ -14,7 +14,7 @@ type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 ///
 /// Sorts selections in the fragments and queries (and their selections)
 ///
-pub fn sort_selections<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn sort_selections<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = SortSelectionsTransform::new();
     transform
         .transform_program(program)

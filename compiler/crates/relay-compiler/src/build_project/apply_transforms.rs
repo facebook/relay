@@ -8,6 +8,7 @@
 use graphql_ir::Program;
 use graphql_transforms::{
     flatten, generate_id_field, generate_typename, inline_fragments, skip_client_extensions,
+    sort_selections,
 };
 
 pub struct Programs<'schema> {
@@ -60,7 +61,9 @@ fn apply_reader_transforms<'schema>(program: &Program<'schema>) -> Program<'sche
     // - FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
 
-    flatten(&program, true)
+    let program = flatten(&program, true);
+
+    sort_selections(&program)
 }
 
 /// Applies transforms that apply to all operation artifacts.
@@ -93,7 +96,8 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
 
     let program = inline_fragments(&program);
     let program = flatten(&program, true);
-    generate_typename(&program)
+    let program = generate_typename(&program);
+    sort_selections(&program)
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -114,5 +118,6 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
 
     let program = skip_client_extensions(&program);
     let program = flatten(&program, false);
-    generate_typename(&program)
+    let program = generate_typename(&program);
+    sort_selections(&program)
 }

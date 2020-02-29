@@ -13,5 +13,5 @@
 mod ast;
 mod ir;
 
-pub use ast::get_reachable_ast;
+pub use ast::{get_reachable_ast, ReachableAst};
 pub use ir::get_reachable_ir;

@@ -6,7 +6,7 @@
  */
 
 use common::FileKey;
-use dependency_analyzer::get_reachable_ast;
+use dependency_analyzer::{get_reachable_ast, ReachableAst};
 use fixture_tests::Fixture;
 use graphql_syntax::*;
 
@@ -27,9 +27,12 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let base_definitions = parts
         .iter()
         .skip(1)
-        .map(|part| parse(part, file_key).unwrap().definitions)
+        .flat_map(|part| parse(part, file_key).unwrap().definitions)
         .collect();
-    let (result, base_definitions) = get_reachable_ast(definitions.definitions, base_definitions)?;
+    let ReachableAst {
+        definitions: result,
+        base_fragment_names,
+    } = get_reachable_ast(definitions.definitions, base_definitions)?;
 
     let mut texts = result
         .into_iter()
@@ -37,7 +40,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .collect::<Vec<_>>();
     texts.sort_unstable();
     texts.push("========== Base definitions ==========".to_string());
-    let mut defs = base_definitions
+    let mut defs = base_fragment_names
         .iter()
         .map(|key| key.lookup())
         .collect::<Vec<_>>();

@@ -7,7 +7,7 @@
 
 use crate::compiler_state::SourceSetName;
 use crate::config::ConfigProject;
-use dependency_analyzer::get_reachable_ast;
+use dependency_analyzer::{get_reachable_ast, ReachableAst};
 use graphql_ir::ValidationError;
 use schema::Schema;
 use std::collections::HashMap;
@@ -22,8 +22,9 @@ pub fn build_ir(
         Some(base_project_name) => ast_sets[&base_project_name.as_source_set_name()].clone(),
         None => Vec::new(),
     };
-    let reachable_ast = get_reachable_ast(project_document_asts, vec![base_document_asts])
-        .unwrap()
-        .0;
+    let ReachableAst {
+        definitions: reachable_ast,
+        ..
+    } = get_reachable_ast(project_document_asts, base_document_asts).unwrap();
     graphql_ir::build(&schema, &reachable_ast)
 }

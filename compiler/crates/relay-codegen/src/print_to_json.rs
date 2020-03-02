@@ -275,7 +275,7 @@ impl<'json> DedupedJSONPrinter<'json> {
                     for (i, (key, val)) in object.iter().enumerate() {
                         let next_depth = depth + 1;
                         self.print_indentation(dest_buffer, next_depth)?;
-                        write!(dest_buffer, "{}: ", key)?;
+                        write!(dest_buffer, "{}: ", serde_json::to_string(key).unwrap())?;
                         self.print_js_json(dest_buffer, val, next_depth, is_var_def)?;
 
                         if i != len - 1 {

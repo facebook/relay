@@ -16,59 +16,59 @@ query StableLiteralsTest {
 Operation:
 v0 = [
   {
-    kind: "Literal",
-    name: "query",
-    value: {
-      limit: 2,
-      offset: 10,
-      text: "foo"
+    "kind": "Literal",
+    "name": "query",
+    "value": {
+      "limit": 2,
+      "offset": 10,
+      "text": "foo"
     }
   }
 ]
 v1 = [
   {
-    alias: null,
-    args: null,
-    kind: "ScalarField",
-    name: "id",
-    storageKey: null
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "id",
+    "storageKey": null
   }
 ]
 {
-  argumentDefinitions: [],
-  kind: "Operation",
-  name: "StableLiteralsTest",
-  selections: [
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "StableLiteralsTest",
+  "selections": [
     {
-      alias: null,
-      args: null,
-      concreteType: null,
-      kind: "LinkedField",
-      name: "me",
-      plural: false,
-      selections: [
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
         {
-          alias: null,
-          args: (v0/*: any*/),
-          concreteType: null,
-          kind: "LinkedField",
-          name: "storyCommentSearch",
-          plural: true,
-          selections: (v1/*: any*/),
-          storageKey: null
+          "alias": null,
+          "args": (v0/*: any*/),
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "storyCommentSearch",
+          "plural": true,
+          "selections": (v1/*: any*/),
+          "storageKey": null
         },
         {
-          alias: "aliased",
-          args: (v0/*: any*/),
-          concreteType: null,
-          kind: "LinkedField",
-          name: "storyCommentSearch",
-          plural: true,
-          selections: (v1/*: any*/),
-          storageKey: null
+          "alias": "aliased",
+          "args": (v0/*: any*/),
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "storyCommentSearch",
+          "plural": true,
+          "selections": (v1/*: any*/),
+          "storageKey": null
         }
       ],
-      storageKey: null
+      "storageKey": null
     }
   ]
 }

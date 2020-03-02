@@ -147,17 +147,16 @@ pub enum ConnectionDirection {
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "kind")]
-#[allow(dead_code)]
 pub enum ConcreteSelection {
     Condition(ConcreteCondition),
     FragmentSpread(ConcreteFragmentSpread),
     InlineFragment(ConcreteInlineFragment),
     LinkedField(ConcreteLinkedField),
     ScalarField(ConcreteScalarField),
-    ClientExtension(ConcreteClientExtension),
-    ScalarHandle(ConcreteNormalizationScalarHandle),
-    LinkedHandle(ConcreteNormalizationLinkedHandle),
     // TODO other selection types
+    // ClientExtension(ConcreteClientExtension),
+    // ScalarHandle(ConcreteNormalizationScalarHandle),
+    // LinkedHandle(ConcreteNormalizationLinkedHandle),
 }
 
 #[derive(Debug, Serialize)]

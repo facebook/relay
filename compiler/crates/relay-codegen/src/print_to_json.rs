@@ -26,7 +26,7 @@ pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String 
 }
 
 pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
-    // TODO build a concrete request instead of just a normalization ast
+    // TODO(T63303755) build a concrete request instead of just a normalization ast
     let ast = build_operation(schema, operation);
     serde_json::to_string_pretty(&ast).unwrap()
 }
@@ -34,7 +34,7 @@ pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> Stri
 pub fn print_json_deduped(schema: &Schema, definition: &ExecutableDefinition) -> String {
     let json_value = match definition {
         ExecutableDefinition::Operation(operation) => {
-            // TODO build a concrete request instead of just a normalization ast
+            // TODO(T63303755) build a concrete request instead of just a normalization ast
             build_operation(schema, operation)
         }
         ExecutableDefinition::Fragment(fragment) => build_fragment(schema, fragment),

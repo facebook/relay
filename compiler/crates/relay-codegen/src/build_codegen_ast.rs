@@ -40,7 +40,7 @@ pub fn build_request_params(schema: &Schema, operation: &OperationDefinition) ->
             OperationKind::Subscription => ConcreteOperationKind::Subscription,
         },
         metadata: Default::default(),
-        // TODO add persisted query id
+        // TODO(T63303793) add persisted query id
         id: None,
         text: Some(print_operation(schema, operation)),
     }
@@ -89,7 +89,7 @@ impl<'schema> CodegenBuilder<'schema> {
                 &fragment.used_global_variables,
             ),
             selections: self.build_selections(&fragment.selections),
-            // TODO include correct fragment metadata
+            // TODO(T63303840) include correct fragment metadata
             metadata: Some(FragmentMetadata {
                 connection: None,
                 mask: None,
@@ -108,7 +108,8 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_selection(&self, selection: &Selection) -> ConcreteSelection {
         match selection {
-            // TODO Normalization handles, Client extension
+            // TODO(T63303873) Normalization handles
+            // TODO(T62107593) Client extension
             Selection::Condition(cond) => ConcreteSelection::Condition(self.build_condition(&cond)),
             Selection::FragmentSpread(frag_spread) => {
                 ConcreteSelection::FragmentSpread(self.build_fragment_spread(&frag_spread))
@@ -127,7 +128,7 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_scalar_field(&self, field: &ScalarField) -> ConcreteScalarField {
         if let CodegenVariant::Normalization = self.variant {
-            // TODO check for skipNormalizationNode metadata
+            // TODO(T63303873) check for skipNormalizationNode metadata
         }
 
         let field_name = self.schema.field(field.definition.item).name.lookup();
@@ -178,7 +179,6 @@ impl<'schema> CodegenBuilder<'schema> {
         ConcreteInlineFragment {
             type_: self
                 .schema
-                // TODO figure out what to do about non present type condition
                 .get_type_name(inline_frag.type_condition.unwrap())
                 .lookup(),
             selections: self.build_selections(&inline_frag.selections),
@@ -223,7 +223,7 @@ impl<'schema> CodegenBuilder<'schema> {
         local_variable_definitions: &[VariableDefinition],
         global_variable_definitions: &[VariableDefinition],
     ) -> Vec<ConcreteVariableDefinition> {
-        // TODO this will produce argument_definitions in a different order than our JS codegen
+        // TODO(T63164787) this will produce argument_definitions in a different order than our JS codegen
         let local_vars_iter = local_variable_definitions.iter().map(|def| {
             ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
                 name: def.name.item.lookup(),
@@ -274,7 +274,7 @@ impl<'schema> CodegenBuilder<'schema> {
             Value::Variable(variable) => {
                 Some(ConcreteArgument::Variable(ConcreteVariableArgument {
                     name: arg_name,
-                    // TODO this is always skipped in JS compiler
+                    // TODO(T63303966) this is always skipped in JS compiler
                     type_: None,
                     variable_name: variable.name.item.lookup(),
                 }))
@@ -367,6 +367,6 @@ fn get_static_storage_key(
     _field_name: &'static str,
     _arguments: &[Argument], /*_metadata: ?*/
 ) -> Option<String> {
-    // TODO implementation + properly using metadata
+    // TODO(T63303994) implementation + properly using metadata
     None
 }

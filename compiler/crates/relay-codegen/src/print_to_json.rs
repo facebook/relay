@@ -96,7 +96,6 @@ impl DedupedJSONPrinter {
     }
 
     fn print<W: Write>(&mut self, dest_buffer: &mut W, json_value: &SerdeValue) -> FmtResult {
-        // self.collect_value_identities(json_value)?;
         let deduped_value_key = self.build_deduped_value(json_value);
         self.collect_value_duplicates(deduped_value_key);
         self.dupes_count = self.get_dupes_count();

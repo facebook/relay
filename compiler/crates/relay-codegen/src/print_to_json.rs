@@ -47,142 +47,132 @@ pub fn print_json_deduped(schema: &Schema, definition: &ExecutableDefinition) ->
     result
 }
 
-#[derive(Debug)]
-struct SerdeValueRefEquality<'json>(&'json SerdeValue);
-
-impl<'json> std::hash::Hash for SerdeValueRefEquality<'json> {
-    fn hash<H>(&self, state: &mut H)
-    where
-        H: std::hash::Hasher,
-    {
-        (self.0 as *const SerdeValue).hash(state)
-    }
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Copy)]
+struct DedupedValueKey(usize);
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+enum DedupedValue {
+    Null(String),
+    Bool(String),
+    Number(String),
+    String(String),
+    Object(Vec<(String, DedupedValueKey)>),
+    Array(Vec<DedupedValueKey>),
 }
-
-impl<'json> Eq for SerdeValueRefEquality<'json> {}
-
-impl<'json> PartialEq<SerdeValueRefEquality<'json>> for SerdeValueRefEquality<'json> {
-    fn eq(&self, other: &SerdeValueRefEquality<'json>) -> bool {
-        self.0 as *const SerdeValue == other.0 as *const SerdeValue
-    }
-}
-
-struct DedupedJSONPrinter<'json> {
-    var_defs_count: usize,
-    value_states_by_hash: std::collections::HashMap<String, (usize, Option<String>)>,
-    value_hashes_by_value: std::collections::HashMap<SerdeValueRefEquality<'json>, String>,
-}
-
 enum VarDefPrintResult {
     Printed,
     Skipped,
     None,
 }
 
-#[allow(dead_code)]
-impl<'json> DedupedJSONPrinter<'json> {
+struct DedupedJSONPrinter {
+    var_defs_count: usize,
+    keys_by_value: fnv::FnvHashMap<DedupedValue, DedupedValueKey>,
+    values: Vec<DedupedValue>,
+    value_states: fnv::FnvHashMap<DedupedValueKey, (usize, Option<String>)>,
+}
+
+impl DedupedJSONPrinter {
     fn new() -> Self {
         Self {
             var_defs_count: 0,
-            value_states_by_hash: Default::default(),
-            value_hashes_by_value: Default::default(),
+            keys_by_value: fnv::FnvHashMap::default(),
+            value_states: Default::default(),
+            values: Vec::new(),
         }
     }
 
-    fn print<W: Write>(&mut self, dest_buffer: &mut W, json_value: &'json SerdeValue) -> FmtResult {
-        self.collect_value_identities(json_value)?;
-        self.collect_value_duplicates(json_value);
+    fn print<W: Write>(&mut self, dest_buffer: &mut W, json_value: &SerdeValue) -> FmtResult {
+        // self.collect_value_identities(json_value)?;
+        let deduped_value_key = self.build_deduped_value(json_value);
+        self.collect_value_duplicates(deduped_value_key);
 
         // TODO print properly formatted var defs
-        self.print_js_vars(dest_buffer, json_value, true)?;
-        self.print_js_json(dest_buffer, json_value, 0, false)?;
+        self.print_js_vars(dest_buffer, deduped_value_key, true)?;
+        self.print_js_json(dest_buffer, deduped_value_key, 0, false)?;
 
         Ok(())
     }
 
-    fn collect_value_identities(
-        &mut self,
-        json_value: &'json SerdeValue,
-    ) -> Result<String, FmtError> {
-        Ok(match json_value {
-            SerdeValue::Array(array) => {
-                if array.is_empty() {
-                    return Ok(serde_json::to_string(json_value).unwrap());
-                }
-                let mut hash = String::from("[");
-                for val in array.iter() {
-                    write!(hash, "{},", self.collect_value_identities(val)?)?;
-                }
-                write!(hash, "]")?;
-                self.value_hashes_by_value
-                    .insert(SerdeValueRefEquality(json_value), hash.clone());
-                hash
-            }
-            SerdeValue::Object(object) => {
-                if object.is_empty() {
-                    return Ok(serde_json::to_string(json_value).unwrap());
-                }
-                let mut hash = String::from("{");
-                for (key, val) in object.iter() {
-                    write!(hash, "{}: {},", key, self.collect_value_identities(val)?)?;
-                }
-                write!(hash, "}}")?;
-
-                self.value_hashes_by_value
-                    .insert(SerdeValueRefEquality(json_value), hash.clone());
-                hash
-            }
-            SerdeValue::Bool(_) => serde_json::to_string(json_value).unwrap(),
-            SerdeValue::Number(_) => serde_json::to_string(json_value).unwrap(),
-            SerdeValue::String(_) => serde_json::to_string(json_value).unwrap(),
-            SerdeValue::Null => serde_json::to_string(json_value).unwrap(),
-        })
+    fn intern(&mut self, deduped_value: DedupedValue) -> DedupedValueKey {
+        if let Some(key) = self.keys_by_value.get(&deduped_value) {
+            return *key;
+        }
+        let ix = self.values.len();
+        let key = DedupedValueKey(ix);
+        self.values.push(deduped_value.clone());
+        self.keys_by_value.insert(deduped_value, key);
+        key
     }
 
-    fn collect_value_duplicates(&mut self, json_value: &'json SerdeValue) {
-        match json_value {
+    fn build_deduped_value(&mut self, json_value: &SerdeValue) -> DedupedValueKey {
+        let deduped = match json_value {
             SerdeValue::Array(array) => {
+                let values = array
+                    .iter()
+                    .map(|val| self.build_deduped_value(val))
+                    .collect();
+                DedupedValue::Array(values)
+            }
+            SerdeValue::Object(object) => {
+                let values = object
+                    .iter()
+                    .map(|(key, val)| {
+                        (
+                            serde_json::to_string(key).unwrap(),
+                            self.build_deduped_value(val),
+                        )
+                    })
+                    .collect::<Vec<_>>();
+                DedupedValue::Object(values)
+            }
+            SerdeValue::Bool(_) => DedupedValue::Bool(serde_json::to_string(json_value).unwrap()),
+            SerdeValue::Number(_) => {
+                DedupedValue::Number(serde_json::to_string(json_value).unwrap())
+            }
+            SerdeValue::String(_) => {
+                DedupedValue::String(serde_json::to_string(json_value).unwrap())
+            }
+            SerdeValue::Null => DedupedValue::Null(serde_json::to_string(json_value).unwrap()),
+        };
+        self.intern(deduped)
+    }
+
+    fn collect_value_duplicates(&mut self, json_value_key: DedupedValueKey) {
+        let json_value = self.lookup_value(json_value_key);
+        match json_value {
+            DedupedValue::Array(array) => {
                 if array.is_empty() {
                     return;
                 }
-                if let Some(hash) = self
-                    .value_hashes_by_value
-                    .get(&SerdeValueRefEquality(json_value))
-                {
-                    let state = self
-                        .value_states_by_hash
-                        .entry(hash.clone())
-                        .and_modify(|state| state.0 += 1)
-                        .or_insert((1, None));
+                let state = self
+                    .value_states
+                    .entry(json_value_key)
+                    .and_modify(|state| state.0 += 1)
+                    .or_insert((1, None));
 
-                    if state.0 > 1 {
-                        return;
-                    }
-                    for val in array.iter() {
-                        self.collect_value_duplicates(val);
-                    }
+                if state.0 > 1 {
+                    return;
+                }
+                for val in array.iter() {
+                    self.collect_value_duplicates(*val);
                 }
             }
-            SerdeValue::Object(object) => {
+            DedupedValue::Object(object) => {
                 if object.is_empty() {
                     return;
                 }
-                if let Some(hash) = self
-                    .value_hashes_by_value
-                    .get(&SerdeValueRefEquality(json_value))
-                {
-                    let state = self
-                        .value_states_by_hash
-                        .entry(hash.clone())
-                        .and_modify(|state| state.0 += 1)
-                        .or_insert((1, None));
 
-                    if state.0 > 1 {
-                        return;
-                    }
-                    for (_, val) in object.iter() {
-                        self.collect_value_duplicates(val);
-                    }
+                let state = self
+                    .value_states
+                    .entry(json_value_key)
+                    .and_modify(|state| state.0 += 1)
+                    .or_insert((1, None));
+
+                if state.0 > 1 {
+                    return;
+                }
+                for (_, val) in object.iter() {
+                    self.collect_value_duplicates(*val);
                 }
             }
             _ => {}
@@ -192,29 +182,36 @@ impl<'json> DedupedJSONPrinter<'json> {
     fn print_js_vars<W: Write>(
         &mut self,
         dest_buffer: &mut W,
-        json_value: &'json SerdeValue,
+        json_value_key: DedupedValueKey,
         is_root: bool,
     ) -> FmtResult {
+        let json_value = self.lookup_value(json_value_key);
         match json_value {
-            SerdeValue::Array(array) => {
-                match self.maybe_print_var_def(dest_buffer, json_value, is_root)? {
+            DedupedValue::Array(array) => {
+                if array.is_empty() {
+                    return Ok(());
+                }
+                match self.maybe_print_var_def(dest_buffer, json_value_key, is_root)? {
                     VarDefPrintResult::Printed => writeln!(dest_buffer, ","),
                     VarDefPrintResult::Skipped => Ok(()),
                     VarDefPrintResult::None => {
                         for val in array.iter() {
-                            self.print_js_vars(dest_buffer, val, false)?;
+                            self.print_js_vars(dest_buffer, *val, false)?;
                         }
                         Ok(())
                     }
                 }
             }
-            SerdeValue::Object(object) => {
-                match self.maybe_print_var_def(dest_buffer, json_value, is_root)? {
+            DedupedValue::Object(object) => {
+                if object.is_empty() {
+                    return Ok(());
+                }
+                match self.maybe_print_var_def(dest_buffer, json_value_key, is_root)? {
                     VarDefPrintResult::Printed => writeln!(dest_buffer, ","),
                     VarDefPrintResult::Skipped => Ok(()),
                     VarDefPrintResult::None => {
                         for (_key, val) in object.iter() {
-                            self.print_js_vars(dest_buffer, val, false)?;
+                            self.print_js_vars(dest_buffer, *val, false)?;
                         }
                         Ok(())
                     }
@@ -227,7 +224,7 @@ impl<'json> DedupedJSONPrinter<'json> {
     fn maybe_print_var_def<W: Write>(
         &mut self,
         dest_buffer: &mut W,
-        json_value: &'json SerdeValue,
+        json_value_key: DedupedValueKey,
         is_root: bool,
     ) -> Result<VarDefPrintResult, FmtError> {
         if is_root {
@@ -235,46 +232,40 @@ impl<'json> DedupedJSONPrinter<'json> {
             return Ok(VarDefPrintResult::None);
         }
 
-        if let Some(hash) = self
-            .value_hashes_by_value
-            .get(&SerdeValueRefEquality(json_value))
-        {
-            // A value is only considered duplicate if it has been
-            // referenced more than once in the value tree
-            let hash = hash.clone();
-            let (ref_count, var_name) = self.lookup_value_state(&hash);
-            if ref_count > 1 {
-                if var_name.is_some() {
-                    // Return a result indicating that we've already printed this variable definition
-                    return Ok(VarDefPrintResult::Skipped);
-                }
-
-                // Recursively extract any var defs within the contents for the current variable definition.
-                self.print_js_vars(dest_buffer, json_value, true)?;
-
-                // Print the contents of the variable definition
-                let var_name = format!("v{}", self.var_defs_count);
-                write!(
-                    dest_buffer,
-                    "{}{} = ",
-                    if self.var_defs_count == 0 { "var " } else { "" },
-                    var_name.clone()
-                )?;
-                self.print_js_json(dest_buffer, json_value, 0, true)?;
-
-                // Construct the var name and set it on the value state for json values to refer to
-                // this var during actual json printing.
-                self.var_defs_count += 1;
-                self.value_states_by_hash
-                    .entry(hash)
-                    .and_modify(|state| state.1 = Some(var_name.clone()))
-                    .or_insert_with(|| {
-                        unreachable!("Expected deduplication state to exist for JSON value.")
-                    });
-
-                // Return a result indicating that we printed the variable definition
-                return Ok(VarDefPrintResult::Printed);
+        // A value is only considered duplicate if it has been
+        // referenced more than once in the value tree
+        let (ref_count, var_name) = self.lookup_value_state(json_value_key);
+        if ref_count > 1 {
+            if var_name.is_some() {
+                // Return a result indicating that we've already printed this variable definition
+                return Ok(VarDefPrintResult::Skipped);
             }
+
+            // Recursively extract any var defs within the contents for the current variable definition.
+            self.print_js_vars(dest_buffer, json_value_key, true)?;
+
+            // Print the contents of the variable definition
+            let var_name = format!("v{}", self.var_defs_count);
+            write!(
+                dest_buffer,
+                "{}{} = ",
+                if self.var_defs_count == 0 { "var " } else { "" },
+                var_name.clone()
+            )?;
+            self.print_js_json(dest_buffer, json_value_key, 0, true)?;
+
+            // Construct the var name and set it on the value state for json values to refer to
+            // this var during actual json printing.
+            self.var_defs_count += 1;
+            self.value_states
+                .entry(json_value_key)
+                .and_modify(|state| state.1 = Some(var_name.clone()))
+                .or_insert_with(|| {
+                    unreachable!("Expected deduplication state to exist for JSON value.")
+                });
+
+            // Return a result indicating that we printed the variable definition
+            return Ok(VarDefPrintResult::Printed);
         }
 
         // Otherwise, return a result indicating that we did not
@@ -285,18 +276,14 @@ impl<'json> DedupedJSONPrinter<'json> {
     fn print_js_json<W: Write>(
         &mut self,
         dest_buffer: &mut W,
-        json_value: &'json SerdeValue,
+        json_value_key: DedupedValueKey,
         depth: usize,
         is_var_def: bool,
     ) -> FmtResult {
+        let json_value = self.lookup_value(json_value_key);
         match json_value {
-            SerdeValue::Array(array) => {
-                if self
-                    .maybe_print_dupe_value(dest_buffer, json_value, depth, is_var_def)?
-                    .is_some()
-                {
-                    Ok(())
-                } else if array.is_empty() {
+            DedupedValue::Array(array) => {
+                if array.is_empty() {
                     if is_var_def {
                         // Empty arrays can only have one inferred flow type and then conflict if
                         // used in different places, this is unsound if we would write to them but
@@ -305,109 +292,90 @@ impl<'json> DedupedJSONPrinter<'json> {
                     } else {
                         write!(dest_buffer, "[]")
                     }
+                } else if self
+                    .maybe_print_dupe_value(dest_buffer, json_value_key, depth)?
+                    .is_some()
+                {
+                    Ok(())
                 } else {
                     writeln!(dest_buffer, "[")?;
                     let len = array.len();
                     for (i, val) in array.iter().enumerate() {
                         let next_depth = depth + 1;
-                        self.print_indentation(dest_buffer, next_depth)?;
-                        self.print_js_json(dest_buffer, val, next_depth, is_var_def)?;
+                        print_indentation(dest_buffer, next_depth)?;
+                        self.print_js_json(dest_buffer, *val, next_depth, is_var_def)?;
 
                         if i != len - 1 {
                             write!(dest_buffer, ",")?;
                         }
                         writeln!(dest_buffer)?;
                     }
-                    self.print_indentation(dest_buffer, depth)?;
+                    print_indentation(dest_buffer, depth)?;
                     write!(dest_buffer, "]")
                 }
             }
-            SerdeValue::Object(object) => {
-                if self
-                    .maybe_print_dupe_value(dest_buffer, json_value, depth, is_var_def)?
+            DedupedValue::Object(object) => {
+                if object.is_empty() {
+                    write!(dest_buffer, "{{}}")
+                } else if self
+                    .maybe_print_dupe_value(dest_buffer, json_value_key, depth)?
                     .is_some()
                 {
                     Ok(())
-                } else if object.is_empty() {
-                    write!(dest_buffer, "{{}}")
                 } else {
                     writeln!(dest_buffer, "{{")?;
                     let len = object.len();
                     for (i, (key, val)) in object.iter().enumerate() {
                         let next_depth = depth + 1;
-                        self.print_indentation(dest_buffer, next_depth)?;
-                        write!(dest_buffer, "{}: ", serde_json::to_string(key).unwrap())?;
-                        self.print_js_json(dest_buffer, val, next_depth, is_var_def)?;
+                        print_indentation(dest_buffer, next_depth)?;
+                        write!(dest_buffer, "{}: ", key)?;
+                        self.print_js_json(dest_buffer, *val, next_depth, is_var_def)?;
 
                         if i != len - 1 {
                             write!(dest_buffer, ",")?;
                         }
                         writeln!(dest_buffer)?;
                     }
-                    self.print_indentation(dest_buffer, depth)?;
+                    print_indentation(dest_buffer, depth)?;
                     write!(dest_buffer, "}}")
                 }
             }
-            SerdeValue::Bool(_) => write!(
-                dest_buffer,
-                "{}",
-                serde_json::to_string(json_value).unwrap()
-            ),
-            SerdeValue::Number(_) => write!(
-                dest_buffer,
-                "{}",
-                serde_json::to_string(json_value).unwrap()
-            ),
-            SerdeValue::String(_) => write!(
-                dest_buffer,
-                "{}",
-                serde_json::to_string(json_value).unwrap()
-            ),
-            SerdeValue::Null => write!(
-                dest_buffer,
-                "{}",
-                serde_json::to_string(json_value).unwrap()
-            ),
+            DedupedValue::Bool(val) => write!(dest_buffer, "{}", val),
+            DedupedValue::Number(val) => write!(dest_buffer, "{}", val),
+            DedupedValue::String(val) => write!(dest_buffer, "{}", val),
+            DedupedValue::Null(val) => write!(dest_buffer, "{}", val),
         }
     }
 
     fn maybe_print_dupe_value<W: Write>(
         &mut self,
         dest_buffer: &mut W,
-        json_value: &'json SerdeValue,
+        json_value_key: DedupedValueKey,
         depth: usize,
-        _is_var_def: bool,
     ) -> Result<Option<()>, FmtError> {
         if depth == 0 {
             // Do not consider duplicates at the top level
             return Ok(None);
         }
 
-        if let Some(hash) = self
-            .value_hashes_by_value
-            .get(&SerdeValueRefEquality(json_value))
-        {
-            // A value is only considered duplicate if it has been
-            // referenced more than once in the value tree
-            let hash = hash.clone();
-            let (ref_count, var_name) = self.lookup_value_state(&hash);
-            if ref_count > 1 {
-                if let Some(var_name) = var_name {
-                    // We expect a variable definition to already be associated with the
-                    // duplicate value, so we only need to  print a reference to the var def
-                    // instead of printing actual json.
-                    write!(dest_buffer, "({}/*: any*/)", var_name)?;
-                } else {
-                    unreachable!(
-                        "Expected to have previously defined var def for duplicate JSON value {}.",
-                        hash
-                    );
-                }
-
-                // Return a result indicating that we printed
-                // the value as a duplicate
-                return Ok(Some(()));
+        // A value is only considered duplicate if it has been
+        // referenced more than once in the value tree
+        let (ref_count, var_name) = self.lookup_value_state(json_value_key);
+        if ref_count > 1 {
+            if let Some(var_name) = var_name {
+                // We expect a variable definition to already be associated with the
+                // duplicate value, so we only need to  print a reference to the var def
+                // instead of printing actual json.
+                write!(dest_buffer, "({}/*: any*/)", var_name)?;
+            } else {
+                unreachable!(
+                    "Expected to have previously defined var def for duplicate JSON value.",
+                );
             }
+
+            // Return a result indicating that we printed
+            // the value as a duplicate
+            return Ok(Some(()));
         }
 
         // Otherwise, return a result indicating that we did not
@@ -415,20 +383,24 @@ impl<'json> DedupedJSONPrinter<'json> {
         Ok(None)
     }
 
-    fn lookup_value_state(&self, hash: &str) -> (usize, Option<String>) {
-        match self.value_states_by_hash.get(hash) {
+    fn lookup_value(&self, key: DedupedValueKey) -> DedupedValue {
+        self.values[key.0].clone()
+    }
+
+    fn lookup_value_state(&self, key: DedupedValueKey) -> (usize, Option<String>) {
+        match self.value_states.get(&key) {
             Some((ref_count, var_name)) => (*ref_count, var_name.clone()),
             None => unreachable!("Expected ref count to exist"),
         }
     }
+}
 
-    fn print_indentation<W: Write>(&mut self, dest_buffer: &mut W, depth: usize) -> FmtResult {
-        let indent_count = depth * TAB_SIZE;
-        for _ in 0..indent_count {
-            write!(dest_buffer, " ")?;
-        }
-        Ok(())
+fn print_indentation<W: Write>(dest_buffer: &mut W, depth: usize) -> FmtResult {
+    let indent_count = depth * TAB_SIZE;
+    for _ in 0..indent_count {
+        write!(dest_buffer, " ")?;
     }
+    Ok(())
 }
 
 #[cfg(test)]

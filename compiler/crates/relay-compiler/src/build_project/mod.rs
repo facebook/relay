@@ -17,6 +17,7 @@ mod write_artifacts;
 
 use crate::compiler_state::{CompilerState, SourceSetName};
 use crate::config::{Config, ConfigProject};
+use build_ir::BuildIRResult;
 use common::Timer;
 use graphql_ir::{Program, ValidationError};
 use std::collections::HashMap;
@@ -33,7 +34,10 @@ pub fn build_project(
     });
 
     // Build a type aware IR.
-    let ir = Timer::time(format!("build_ir {}", project_config.name), || {
+    let BuildIRResult {
+        ir,
+        base_fragment_names,
+    } = Timer::time(format!("build_ir {}", project_config.name), || {
         build_ir::build_ir(project_config, &schema, ast_sets)
     })?;
 
@@ -49,7 +53,7 @@ pub fn build_project(
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
-        apply_transforms::apply_transforms(&program)
+        apply_transforms::apply_transforms(&program, &base_fragment_names)
     });
 
     // Generate code and persist text to produce output artifacts in memory.

@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use fnv::FnvHashSet;
 use graphql_ir::Program;
 use graphql_transforms::{
-    flatten, generate_id_field, generate_typename, inline_fragments, skip_client_extensions,
-    sort_selections,
+    flatten, generate_id_field, generate_typename, inline_fragments, remove_base_fragments,
+    skip_client_extensions, sort_selections,
 };
+use interner::StringKey;
 
 pub struct Programs<'schema> {
     pub reader: Program<'schema>,
@@ -17,14 +19,17 @@ pub struct Programs<'schema> {
     pub operation_text: Program<'schema>,
 }
 
-pub fn apply_transforms<'schema>(program: &Program<'schema>) -> Programs<'schema> {
+pub fn apply_transforms<'schema>(
+    program: &Program<'schema>,
+    base_fragment_names: &FnvHashSet<StringKey>,
+) -> Programs<'schema> {
     // common
     //  |- reader
     //  |- query
     //     |- normalization
     //     |- operation_text
     let common_program = apply_common_transforms(&program);
-    let reader_program = apply_reader_transforms(&common_program);
+    let reader_program = apply_reader_transforms(&common_program, base_fragment_names);
     let query_program = apply_operation_transforms(&common_program);
     let normalization_program = apply_normalization_transforms(&query_program);
     let operation_text_program = apply_operation_text_transforms(&query_program);
@@ -53,7 +58,10 @@ fn apply_common_transforms<'schema>(program: &Program<'schema>) -> Program<'sche
 
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
-fn apply_reader_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
+fn apply_reader_transforms<'schema>(
+    program: &Program<'schema>,
+    base_fragment_names: &FnvHashSet<StringKey>,
+) -> Program<'schema> {
     // JS compiler
     // - ClientExtensionsTransform
     // - FieldHandleTransform
@@ -61,6 +69,7 @@ fn apply_reader_transforms<'schema>(program: &Program<'schema>) -> Program<'sche
     // - FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
 
+    let program = remove_base_fragments(&program, base_fragment_names);
     let program = flatten(&program, true);
 
     sort_selections(&program)

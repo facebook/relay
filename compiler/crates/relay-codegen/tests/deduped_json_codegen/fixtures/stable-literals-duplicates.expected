@@ -14,7 +14,7 @@ query StableLiteralsTest {
 }
 ==================================== OUTPUT ===================================
 Operation:
-v0 = [
+var v0 = [
   {
     "kind": "Literal",
     "name": "query",
@@ -24,7 +24,7 @@ v0 = [
       "text": "foo"
     }
   }
-]
+],
 v1 = [
   {
     "alias": null,
@@ -33,7 +33,7 @@ v1 = [
     "name": "id",
     "storageKey": null
   }
-]
+],
 {
   "argumentDefinitions": [],
   "kind": "Operation",

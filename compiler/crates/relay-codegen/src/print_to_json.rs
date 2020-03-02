@@ -67,7 +67,6 @@ impl<'json> PartialEq<SerdeValueRefEquality<'json>> for SerdeValueRefEquality<'j
     }
 }
 
-#[allow(dead_code)]
 struct DedupedJSONPrinter<'json> {
     var_defs_count: usize,
     value_states_by_hash: std::collections::HashMap<String, (usize, Option<String>)>,
@@ -154,7 +153,7 @@ impl<'json> DedupedJSONPrinter<'json> {
     ) -> FmtResult {
         match json_value {
             SerdeValue::Array(array) => match self.maybe_print_var_def(dest_buffer, json_value)? {
-                VarDefPrintResult::Printed => writeln!(dest_buffer),
+                VarDefPrintResult::Printed => writeln!(dest_buffer, ","),
                 VarDefPrintResult::Skipped => Ok(()),
                 VarDefPrintResult::None => {
                     for val in array.iter() {
@@ -165,7 +164,7 @@ impl<'json> DedupedJSONPrinter<'json> {
             },
             SerdeValue::Object(object) => {
                 match self.maybe_print_var_def(dest_buffer, json_value)? {
-                    VarDefPrintResult::Printed => writeln!(dest_buffer),
+                    VarDefPrintResult::Printed => writeln!(dest_buffer, ","),
                     VarDefPrintResult::Skipped => Ok(()),
                     VarDefPrintResult::None => {
                         for (_key, val) in object.iter() {
@@ -197,7 +196,12 @@ impl<'json> DedupedJSONPrinter<'json> {
                 }
                 // Construct the contents of the variable definition
                 let var_name = format!("v{}", self.var_defs_count);
-                write!(dest_buffer, "{} = ", var_name.clone())?;
+                write!(
+                    dest_buffer,
+                    "{}{} = ",
+                    if self.var_defs_count == 0 { "var " } else { "" },
+                    var_name.clone()
+                )?;
                 self.print_js_json(dest_buffer, json_value, 0, true)?;
 
                 // Construct the var name and set it on the value state
@@ -365,5 +369,122 @@ impl<'json> DedupedJSONPrinter<'json> {
             write!(dest_buffer, " ")?;
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    mod print_json_deduped_tests {
+        use super::*;
+        use serde_json::json;
+
+        fn print_test_json(json_value: SerdeValue) -> String {
+            let mut result = String::new();
+            let mut printer = DedupedJSONPrinter::new();
+            printer
+                .print(&mut result, &serde_json::to_value(&json_value).unwrap())
+                .unwrap();
+            result
+        }
+
+        #[test]
+        fn test_scalars() {
+            assert_eq!(r#"false"#, print_test_json(json!(false)));
+            assert_eq!(r#"null"#, print_test_json(json!(null)));
+            assert_eq!(r#"1"#, print_test_json(json!(1)));
+            assert_eq!(r#""string""#, print_test_json(json!("string")));
+        }
+
+        #[test]
+        fn test_object_without_duplicates() {
+            let data = json!({
+                "key1": "val2",
+                "key2": "val2",
+            });
+            let expected = r#"
+{
+  "key1": "val2",
+  "key2": "val2"
+}
+            "#
+            .trim();
+            assert_eq!(expected, print_test_json(data));
+        }
+
+        #[test]
+        fn test_arrays_without_duplicates() {
+            let data = json!([1, 2, "x", null]);
+            let expected = r#"
+[
+  1,
+  2,
+  "x",
+  null
+]
+            "#
+            .trim();
+            assert_eq!(expected, print_test_json(data));
+        }
+
+        #[test]
+        fn test_empty_arrays() {
+            let data = json!(
+              {"args": [], "values": [], "dupe1": {"key": []}, "dupe2": {"key": []}}
+            );
+            let expected = r#"
+var v0 = {
+  "key": ([]/*: any*/)
+},
+{
+  "args": [],
+  "dupe1": (v0/*: any*/),
+  "dupe2": (v0/*: any*/),
+  "values": []
+}
+            "#
+            .trim();
+            assert_eq!(expected, print_test_json(data));
+        }
+
+        #[test]
+        fn test_extract_duplicates() {
+            let data = json!(
+              [1, {"name": "id"}, {"friend": [{"name": "id"}]}]
+            );
+            let expected = r#"
+var v0 = {
+  "name": "id"
+},
+[
+  1,
+  (v0/*: any*/),
+  {
+    "friend": [
+      (v0/*: any*/)
+    ]
+  }
+]
+            "#
+            .trim();
+            assert_eq!(expected, print_test_json(data));
+        }
+
+        #[test]
+        fn test_extract_identical_references() {
+            let obj = json!({"name": "id"});
+            let data = json!([obj, obj]);
+            let expected = r#"
+var v0 = {
+  "name": "id"
+},
+[
+  (v0/*: any*/),
+  (v0/*: any*/)
+]
+            "#
+            .trim();
+            assert_eq!(expected, print_test_json(data));
+        }
     }
 }

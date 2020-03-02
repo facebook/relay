@@ -135,7 +135,7 @@ Operation:
 
 
 Fragment:
-v0 = [
+var v0 = [
   {
     "alias": null,
     "args": null,
@@ -157,7 +157,7 @@ v0 = [
     "name": "uri",
     "storageKey": null
   }
-]
+],
 {
   "argumentDefinitions": [
     {

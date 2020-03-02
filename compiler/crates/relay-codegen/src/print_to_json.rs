@@ -32,17 +32,29 @@ pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> Stri
 }
 
 pub fn print_json_deduped(schema: &Schema, definition: &ExecutableDefinition) -> String {
-    let json_value = match definition {
-        ExecutableDefinition::Operation(operation) => {
-            // TODO(T63303755) build a concrete request instead of just a normalization ast
-            build_operation(schema, operation)
-        }
-        ExecutableDefinition::Fragment(fragment) => build_fragment(schema, fragment),
-    };
+    match definition {
+        ExecutableDefinition::Operation(operation) => print_operation_deduped(schema, operation),
+        ExecutableDefinition::Fragment(fragment) => print_fragment_deduped(schema, fragment),
+    }
+}
+
+pub fn print_fragment_deduped(schema: &Schema, fragment: &FragmentDefinition) -> String {
+    let ast = build_fragment(schema, fragment);
     let mut result = String::new();
     let mut printer = DedupedJSONPrinter::new();
     printer
-        .print(&mut result, &serde_json::to_value(&json_value).unwrap())
+        .print(&mut result, &serde_json::to_value(&ast).unwrap())
+        .unwrap();
+    result
+}
+
+pub fn print_operation_deduped(schema: &Schema, operation: &OperationDefinition) -> String {
+    // TODO(T63303755) build a concrete request instead of just a normalization ast
+    let ast = build_operation(schema, operation);
+    let mut result = String::new();
+    let mut printer = DedupedJSONPrinter::new();
+    printer
+        .print(&mut result, &serde_json::to_value(&ast).unwrap())
         .unwrap();
     result
 }

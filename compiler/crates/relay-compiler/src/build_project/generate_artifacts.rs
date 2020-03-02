@@ -37,12 +37,9 @@ pub fn generate_artifacts(programs: &Programs<'_>) -> Vec<Artifact> {
             content: sign_file(&format!(
                 "// {}\n\nconst operation = {};\n\nconst fragment = {};\n\nconst text = `{}`;\n",
                 SIGNING_TOKEN,
-                relay_codegen::print_operation(
-                    programs.normalization.schema(),
-                    node,
-                ),
-                // TODO: we need to turn this into a fragment first
-                relay_codegen::print_operation(
+                relay_codegen::print_operation_deduped(programs.normalization.schema(), node,),
+                // TODO(T63303755) we need to turn this into a fragment first
+                relay_codegen::print_operation_deduped(
                     programs.normalization.schema(),
                     operation_fragment,
                 ),
@@ -56,7 +53,7 @@ pub fn generate_artifacts(programs: &Programs<'_>) -> Vec<Artifact> {
             content: sign_file(&format!(
                 "// {}\n\nconst fragment = {};\n",
                 SIGNING_TOKEN,
-                relay_codegen::print_fragment(programs.normalization.schema(), node),
+                relay_codegen::print_fragment_deduped(programs.normalization.schema(), node),
             )),
         });
     }

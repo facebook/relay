@@ -135,6 +135,7 @@ Operation:
 
 
 Fragment:
+(function(){
 var v0 = [
   {
     "alias": null,
@@ -157,8 +158,8 @@ var v0 = [
     "name": "uri",
     "storageKey": null
   }
-],
-{
+];
+return {
   "argumentDefinitions": [
     {
       "defaultValue": null,
@@ -331,4 +332,5 @@ var v0 = [
     }
   ],
   "type": "User"
-}
+};
+})()

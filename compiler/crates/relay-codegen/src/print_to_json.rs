@@ -65,6 +65,7 @@ enum VarDefPrintResult {
 }
 
 struct DedupedJSONPrinter {
+    dupes_count: usize,
     var_defs_count: usize,
     keys_by_value: fnv::FnvHashMap<DedupedValue, DedupedValueKey>,
     values: Vec<DedupedValue>,
@@ -74,6 +75,7 @@ struct DedupedJSONPrinter {
 impl DedupedJSONPrinter {
     fn new() -> Self {
         Self {
+            dupes_count: 0,
             var_defs_count: 0,
             keys_by_value: fnv::FnvHashMap::default(),
             value_states: Default::default(),
@@ -85,10 +87,18 @@ impl DedupedJSONPrinter {
         // self.collect_value_identities(json_value)?;
         let deduped_value_key = self.build_deduped_value(json_value);
         self.collect_value_duplicates(deduped_value_key);
+        self.dupes_count = self.get_dupes_count();
 
-        // TODO print properly formatted var defs
-        self.print_js_vars(dest_buffer, deduped_value_key, true)?;
+        if self.dupes_count > 0 {
+            writeln!(dest_buffer, "(function(){{")?;
+            self.print_js_vars(dest_buffer, deduped_value_key, true)?;
+            write!(dest_buffer, "return ")?;
+        }
         self.print_js_json(dest_buffer, deduped_value_key, 0, false)?;
+        if self.dupes_count > 0 {
+            writeln!(dest_buffer, ";")?;
+            write!(dest_buffer, "}})()")?;
+        }
 
         Ok(())
     }
@@ -192,7 +202,15 @@ impl DedupedJSONPrinter {
                     return Ok(());
                 }
                 match self.maybe_print_var_def(dest_buffer, json_value_key, is_root)? {
-                    VarDefPrintResult::Printed => writeln!(dest_buffer, ","),
+                    VarDefPrintResult::Printed => writeln!(
+                        dest_buffer,
+                        "{}",
+                        if self.var_defs_count == self.dupes_count {
+                            ";"
+                        } else {
+                            ","
+                        }
+                    ),
                     VarDefPrintResult::Skipped => Ok(()),
                     VarDefPrintResult::None => {
                         for val in array.iter() {
@@ -207,7 +225,15 @@ impl DedupedJSONPrinter {
                     return Ok(());
                 }
                 match self.maybe_print_var_def(dest_buffer, json_value_key, is_root)? {
-                    VarDefPrintResult::Printed => writeln!(dest_buffer, ","),
+                    VarDefPrintResult::Printed => writeln!(
+                        dest_buffer,
+                        "{}",
+                        if self.var_defs_count == self.dupes_count {
+                            ";"
+                        } else {
+                            ","
+                        }
+                    ),
                     VarDefPrintResult::Skipped => Ok(()),
                     VarDefPrintResult::None => {
                         for (_key, val) in object.iter() {
@@ -393,6 +419,16 @@ impl DedupedJSONPrinter {
             None => unreachable!("Expected ref count to exist"),
         }
     }
+
+    fn get_dupes_count(&self) -> usize {
+        let mut count: usize = 0;
+        for state in self.value_states.values() {
+            if state.0 > 1 {
+                count += 1;
+            }
+        }
+        count
+    }
 }
 
 fn print_indentation<W: Write>(dest_buffer: &mut W, depth: usize) -> FmtResult {
@@ -464,15 +500,17 @@ mod tests {
               {"args": [], "values": [], "dupe1": {"key": []}, "dupe2": {"key": []}}
             );
             let expected = r#"
+(function(){
 var v0 = {
   "key": ([]/*: any*/)
-},
-{
+};
+return {
   "args": [],
   "dupe1": (v0/*: any*/),
   "dupe2": (v0/*: any*/),
   "values": []
-}
+};
+})()
             "#
             .trim();
             assert_eq!(expected, print_test_json(data));
@@ -484,10 +522,11 @@ var v0 = {
               [1, {"name": "id"}, {"friend": [{"name": "id"}]}]
             );
             let expected = r#"
+(function(){
 var v0 = {
   "name": "id"
-},
-[
+};
+return [
   1,
   (v0/*: any*/),
   {
@@ -495,7 +534,8 @@ var v0 = {
       (v0/*: any*/)
     ]
   }
-]
+];
+})()
             "#
             .trim();
             assert_eq!(expected, print_test_json(data));
@@ -506,13 +546,15 @@ var v0 = {
             let obj = json!({"name": "id"});
             let data = json!([obj, obj]);
             let expected = r#"
+(function(){
 var v0 = {
   "name": "id"
-},
-[
+};
+return [
   (v0/*: any*/),
   (v0/*: any*/)
-]
+];
+})()
             "#
             .trim();
             assert_eq!(expected, print_test_json(data));
@@ -528,6 +570,7 @@ var v0 = {
               [{"name": "id", "alias": "other"}],
             ]);
             let expected = r#"
+(function(){
 var v0 = {
   "alias": null,
   "name": "id"
@@ -541,8 +584,8 @@ v2 = [
     "name": "id"
   },
   (v1/*: any*/)
-],
-[
+];
+return [
   (v0/*: any*/),
   (v0/*: any*/),
   (v2/*: any*/),
@@ -550,7 +593,8 @@ v2 = [
   [
     (v1/*: any*/)
   ]
-]
+];
+})()
             "#
             .trim();
             assert_eq!(expected, print_test_json(data));

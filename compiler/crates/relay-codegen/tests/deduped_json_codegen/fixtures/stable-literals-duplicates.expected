@@ -14,6 +14,7 @@ query StableLiteralsTest {
 }
 ==================================== OUTPUT ===================================
 Operation:
+(function(){
 var v0 = [
   {
     "kind": "Literal",
@@ -33,8 +34,8 @@ v1 = [
     "name": "id",
     "storageKey": null
   }
-],
-{
+];
+return {
   "argumentDefinitions": [],
   "kind": "Operation",
   "name": "StableLiteralsTest",
@@ -71,4 +72,5 @@ v1 = [
       "storageKey": null
     }
   ]
-}
+};
+})()

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_codegen_ast::{build_fragment, build_operation};
+use crate::build_codegen_ast::{build_fragment, build_operation, build_request};
 use graphql_ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use schema::Schema;
 use serde_json::Value as SerdeValue;
@@ -26,16 +26,8 @@ pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String 
 }
 
 pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
-    // TODO(T63303755) build a concrete request instead of just a normalization ast
     let ast = build_operation(schema, operation);
     serde_json::to_string_pretty(&ast).unwrap()
-}
-
-pub fn print_json_deduped(schema: &Schema, definition: &ExecutableDefinition) -> String {
-    match definition {
-        ExecutableDefinition::Operation(operation) => print_operation_deduped(schema, operation),
-        ExecutableDefinition::Fragment(fragment) => print_fragment_deduped(schema, fragment),
-    }
 }
 
 pub fn print_fragment_deduped(schema: &Schema, fragment: &FragmentDefinition) -> String {
@@ -49,8 +41,21 @@ pub fn print_fragment_deduped(schema: &Schema, fragment: &FragmentDefinition) ->
 }
 
 pub fn print_operation_deduped(schema: &Schema, operation: &OperationDefinition) -> String {
-    // TODO(T63303755) build a concrete request instead of just a normalization ast
     let ast = build_operation(schema, operation);
+    let mut result = String::new();
+    let mut printer = DedupedJSONPrinter::new();
+    printer
+        .print(&mut result, &serde_json::to_value(&ast).unwrap())
+        .unwrap();
+    result
+}
+
+pub fn print_request_deduped(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    fragment: &FragmentDefinition,
+) -> String {
+    let ast = build_request(schema, operation, fragment);
     let mut result = String::new();
     let mut printer = DedupedJSONPrinter::new();
     printer

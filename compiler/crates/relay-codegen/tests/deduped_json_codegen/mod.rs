@@ -9,7 +9,7 @@ use common::FileKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_syntax::parse;
-use relay_codegen::print_json_deduped;
+use relay_codegen::{print_fragment_deduped, print_operation_deduped};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -18,16 +18,15 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map(|definitions| {
             definitions
                 .iter()
-                .map(|def| {
-                    let operation_kind = match def {
-                        graphql_ir::ExecutableDefinition::Operation(_) => "Operation",
-                        graphql_ir::ExecutableDefinition::Fragment(_) => "Fragment",
-                    };
-                    format!(
-                        "{}:\n{}\n",
-                        operation_kind,
-                        print_json_deduped(&TEST_SCHEMA, def)
-                    )
+                .map(|def| match def {
+                    graphql_ir::ExecutableDefinition::Operation(operation) => format!(
+                        "Operation:\n{}\n",
+                        print_operation_deduped(&TEST_SCHEMA, operation)
+                    ),
+                    graphql_ir::ExecutableDefinition::Fragment(fragment) => format!(
+                        "Fragment:\n{}\n",
+                        print_fragment_deduped(&TEST_SCHEMA, fragment)
+                    ),
                 })
                 .collect::<Vec<_>>()
                 .join("\n\n")

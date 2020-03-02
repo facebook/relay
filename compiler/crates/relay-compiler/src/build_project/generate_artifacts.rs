@@ -6,9 +6,9 @@
  */
 
 use super::apply_transforms::Programs;
+use graphql_ir::FragmentDefinition;
 use graphql_text_printer::OperationPrinter;
 use interner::StringKey;
-
 use signedsource::{sign_file, SIGNING_TOKEN};
 
 /// Represents a generated output artifact.
@@ -28,20 +28,27 @@ pub fn generate_artifacts(programs: &Programs<'_>) -> Vec<Artifact> {
             .operation(name)
             .expect("a query text operation should be generated for this operation");
         let text = printer.print(print_operation_node);
-        let operation_fragment = programs
+        let reader_operation = programs
             .reader
             .operation(name)
             .expect("a reader fragment should be generated for this operation");
+        let operation_fragment = FragmentDefinition {
+            name: reader_operation.name,
+            variable_definitions: reader_operation.variable_definitions.clone(),
+            selections: reader_operation.selections.clone(),
+            used_global_variables: Default::default(),
+            directives: reader_operation.directives.clone(),
+            type_condition: reader_operation.type_,
+        };
         artifacts.push(Artifact {
             name,
             content: sign_file(&format!(
-                "// {}\n\nconst operation = {};\n\nconst fragment = {};\n\nconst text = `{}`;\n",
+                "// {}\n\nconst request = {};\n\nconst text = `{}`;\n",
                 SIGNING_TOKEN,
-                relay_codegen::print_operation_deduped(programs.normalization.schema(), node,),
-                // TODO(T63303755) we need to turn this into a fragment first
-                relay_codegen::print_operation_deduped(
+                relay_codegen::print_request_deduped(
                     programs.normalization.schema(),
-                    operation_fragment,
+                    node,
+                    &operation_fragment,
                 ),
                 text
             )),

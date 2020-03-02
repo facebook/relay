@@ -14,6 +14,6 @@ mod codegen_ast;
 mod print_to_json;
 
 pub use print_to_json::{
-    print_fragment, print_fragment_deduped, print_json, print_json_deduped, print_operation,
-    print_operation_deduped,
+    print_fragment, print_fragment_deduped, print_json, print_operation, print_operation_deduped,
+    print_request_deduped,
 };

@@ -17,7 +17,6 @@ use interner::Intern;
 use schema::Schema;
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
 
-#[allow(dead_code)]
 pub fn build_request(
     schema: &Schema,
     operation: &OperationDefinition,

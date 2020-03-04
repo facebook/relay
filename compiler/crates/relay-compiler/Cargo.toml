@@ -11,14 +11,15 @@ extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0.6"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-signedsource = { path = "../signedsource" }
-relay-codegen = { path = "../relay-codegen" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
+persist-query = { path = "../persist-query" }
 rayon = "1.3.0"
+relay-codegen = { path = "../relay-codegen" }
 schema = { path = "../schema" }
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.45"
+signedsource = { path = "../signedsource" }
 thiserror = "1.0.9"
 watchman_client = "0.5.0"

@@ -22,7 +22,7 @@ use common::Timer;
 use graphql_ir::{Program, ValidationError};
 use std::collections::HashMap;
 
-pub fn build_project(
+pub async fn build_project(
     compiler_state: &CompilerState,
     config: &Config,
     project_config: &ConfigProject,
@@ -57,10 +57,9 @@ pub fn build_project(
     });
 
     // Generate code and persist text to produce output artifacts in memory.
-    let artifacts = Timer::time(
-        format!("generate_artifacts {}", project_config.name),
-        || generate_artifacts::generate_artifacts(&programs),
-    );
+    let artifacts_timer = Timer::start(format!("generate_artifacts {}", project_config.name));
+    let artifacts = generate_artifacts::generate_artifacts(project_config, &programs).await;
+    artifacts_timer.stop();
 
     // Write the generated artifacts to disk. This step is separte from
     // generating artifacts to avoid partial writes in case of errors as

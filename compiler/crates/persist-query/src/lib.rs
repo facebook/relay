@@ -43,9 +43,9 @@ impl Response {
 }
 
 pub async fn persist(
-    document: String,
+    document: &str,
     uri: &str,
-    params: impl IntoIterator<Item = (String, String)>,
+    params: impl IntoIterator<Item = (&String, &String)>,
 ) -> Result<String, Box<dyn Error>> {
     let mut request_body = form_urlencoded::Serializer::new(String::new());
     for param in params {

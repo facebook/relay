@@ -11,7 +11,6 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::GraphQLFinder;
 use common::{FileKey, Timer};
-use errors::try_map;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use std::collections::HashMap;
@@ -62,15 +61,21 @@ impl Compiler {
         }
         ast_sets_timer.stop();
 
-        try_map(self.config.projects.values(), |project_config| {
-            build_project(&compiler_state, &self.config, project_config, &ast_sets)
-        })
-        .map_err(|errors| Error::ValidationErrors {
-            errors: errors
-                .into_iter()
-                .map(|error| error.with_sources(&sources))
-                .collect(),
-        })?;
+        let mut validation_errors = vec![];
+        for project_config in self.config.projects.values() {
+            match build_project(&compiler_state, &self.config, project_config, &ast_sets).await {
+                Ok(()) => {}
+                Err(err) => validation_errors.extend(err),
+            }
+        }
+        if !validation_errors.is_empty() {
+            return Err(Error::ValidationErrors {
+                errors: validation_errors
+                    .into_iter()
+                    .map(|error| error.with_sources(&sources))
+                    .collect(),
+            });
+        }
 
         Ok(())
     }

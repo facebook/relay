@@ -6,9 +6,11 @@
  */
 
 use super::apply_transforms::Programs;
+use crate::config::ConfigProject;
 use graphql_ir::FragmentDefinition;
 use graphql_text_printer::OperationPrinter;
 use interner::StringKey;
+use persist_query::persist;
 use signedsource::{sign_file, SIGNING_TOKEN};
 
 /// Represents a generated output artifact.
@@ -17,7 +19,10 @@ pub struct Artifact {
     pub content: String,
 }
 
-pub fn generate_artifacts(programs: &Programs<'_>) -> Vec<Artifact> {
+pub async fn generate_artifacts(
+    project_config: &ConfigProject,
+    programs: &Programs<'_>,
+) -> Vec<Artifact> {
     let mut printer = OperationPrinter::new(&programs.operation_text);
 
     let mut artifacts = Vec::new();
@@ -28,6 +33,13 @@ pub fn generate_artifacts(programs: &Programs<'_>) -> Vec<Artifact> {
             .operation(name)
             .expect("a query text operation should be generated for this operation");
         let text = printer.print(print_operation_node);
+        let id = if let Some(ref persist_config) = project_config.persist {
+            persist(&text, &persist_config.url, &persist_config.params)
+                .await
+                .expect("TODO: error type for persist failures")
+        } else {
+            "null".to_string()
+        };
         let reader_operation = programs
             .reader
             .operation(name)
@@ -43,14 +55,15 @@ pub fn generate_artifacts(programs: &Programs<'_>) -> Vec<Artifact> {
         artifacts.push(Artifact {
             name,
             content: sign_file(&format!(
-                "// {}\n\nconst request = {};\n\nconst text = `{}`;\n",
+                "// {}\n\nconst request = {};\n\nconst text = `{}`;\n\nconst id = '{}';\n",
                 SIGNING_TOKEN,
                 relay_codegen::print_request_deduped(
                     programs.normalization.schema(),
                     node,
                     &operation_fragment,
                 ),
-                text
+                text,
+                id,
             )),
         });
     }

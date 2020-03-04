@@ -81,6 +81,7 @@ impl Config {
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
                     schema_location,
+                    persist: config_file_project.persist,
                 };
                 Ok((project_name, config_project))
             })
@@ -195,6 +196,7 @@ pub struct ConfigProject {
     pub output: Option<PathBuf>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
+    pub persist: Option<PersistConfig>,
 }
 
 #[derive(Clone, Debug)]
@@ -247,4 +249,18 @@ struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+
+    /// If this option is set, the compiler will persist queries using this
+    /// config.
+    persist: Option<PersistConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PersistConfig {
+    /// URL to send a POST request to to persist.
+    pub url: String,
+    /// The document will be in a POST parameter `text`. This map can contain
+    /// additional parameters to send.
+    pub params: HashMap<String, String>,
 }

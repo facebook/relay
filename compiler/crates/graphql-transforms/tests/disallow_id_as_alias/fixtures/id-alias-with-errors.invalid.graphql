@@ -1,3 +1,4 @@
+# expected-to-throw
 fragment User_fragment on User {
   id: name
 }

@@ -15,7 +15,7 @@ use graphql_ir::{
 use interner::{Intern, StringKey};
 use std::iter::FromIterator;
 
-pub fn validate_server_only_directives<'s>(program: &'s Program<'s>) -> ValidationResult<()> {
+pub fn validate_server_only_directives<'s>(program: &Program<'s>) -> ValidationResult<()> {
     let mut validator = ServerOnlyDirectivesValidation::new(program);
     validator.validate_program(program)
 }

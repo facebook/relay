@@ -1,4 +1,5 @@
 ==================================== INPUT ====================================
+# expected-to-throw
 fragment User_fragment on User {
   id: name
 }
@@ -11,20 +12,20 @@ fragment Page_fragment on Node {
     }
   }
 }
-==================================== OUTPUT ===================================
+==================================== ERROR ====================================
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-alias-with-errors.graphql:0:32:
+id-alias-with-errors.invalid.graphql:1:32:
 
   id: name
 
 
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-alias-with-errors.graphql:5:15:
+id-alias-with-errors.invalid.graphql:6:15:
 
     id: author {
 
 
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-alias-with-errors.graphql:7:10:
+id-alias-with-errors.invalid.graphql:8:10:
 
       id: canViewerComment

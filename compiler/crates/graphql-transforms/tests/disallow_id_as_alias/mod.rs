@@ -22,16 +22,16 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
-    let mut messages: Vec<String> = validation_result
-        .err()
-        .unwrap_or_default()
-        .iter()
-        .map(|error| error.print(&sources))
-        .collect::<Vec<_>>();
 
-    // Ensure snapshots are stable; order of errors is not guaranteed
-    // since the order in which fragment definitions are visited is not guaranteed
-    messages.sort_unstable();
-
-    Ok(messages.join("\n\n"))
+    match validation_result {
+        Ok(_) => Ok("OK".to_owned()),
+        Err(errors) => {
+            let mut errs = errors
+                .into_iter()
+                .map(|err| err.print(&sources))
+                .collect::<Vec<_>>();
+            errs.sort();
+            Err(errs.join("\n\n"))
+        }
+    }
 }

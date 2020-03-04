@@ -1,4 +1,4 @@
-// @generated SignedSource<<b0fcfc8f773dbaf3e6afad8bbec696a0>>
+// @generated SignedSource<<09ce32bf8f551c480c47ddacefe16cdb>>
 
 mod disallow_id_as_alias;
 
@@ -13,8 +13,8 @@ fn id_alias() {
 }
 
 #[test]
-fn id_alias_with_errors() {
-    let input = include_str!("disallow_id_as_alias/fixtures/id-alias-with-errors.graphql");
-    let expected = include_str!("disallow_id_as_alias/fixtures/id-alias-with-errors.expected");
-    test_fixture(transform_fixture, "id-alias-with-errors.graphql", "disallow_id_as_alias/fixtures/id-alias-with-errors.expected", input, expected);
+fn id_alias_with_errors_invalid() {
+    let input = include_str!("disallow_id_as_alias/fixtures/id-alias-with-errors.invalid.graphql");
+    let expected = include_str!("disallow_id_as_alias/fixtures/id-alias-with-errors.invalid.expected");
+    test_fixture(transform_fixture, "id-alias-with-errors.invalid.graphql", "disallow_id_as_alias/fixtures/id-alias-with-errors.invalid.expected", input, expected);
 }

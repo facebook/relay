@@ -14,7 +14,7 @@ use graphql_ir::{
 use interner::{Intern, StringKey};
 use schema::{FieldID, Schema};
 
-pub fn disallow_id_as_alias<'s>(program: &'s Program<'s>) -> ValidationResult<()> {
+pub fn disallow_id_as_alias<'s>(program: &Program<'s>) -> ValidationResult<()> {
     let mut validator = DisallowIdAsAlias::new(program);
     validator.validate_program(program)
 }

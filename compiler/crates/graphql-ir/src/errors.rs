@@ -14,6 +14,8 @@ use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
 
+pub type Sources<'a> = FnvHashMap<FileKey, &'a str>;
+
 impl From<ValidationError> for Vec<ValidationError> {
     fn from(error: ValidationError) -> Self {
         vec![error]
@@ -40,7 +42,7 @@ impl ValidationError {
 
     /// Attaches sources to the error to allow it to be printed with a code
     /// listing without requring additional context.
-    pub fn with_sources(self, sources: &FnvHashMap<FileKey, &str>) -> ValidationErrorWithSources {
+    pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
         let sources = self
             .locations
             .iter()

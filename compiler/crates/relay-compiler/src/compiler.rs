@@ -20,7 +20,7 @@ pub struct Compiler {
     config: Config,
 }
 
-type AstSets = HashMap<SourceSetName, Vec<ExecutableDefinition>>;
+pub type AstSets = HashMap<SourceSetName, Vec<ExecutableDefinition>>;
 
 impl Compiler {
     pub fn new(config: Config) -> Self {

@@ -153,7 +153,7 @@ pub enum ConcreteSelection {
     InlineFragment(ConcreteInlineFragment),
     LinkedField(ConcreteLinkedField),
     ScalarField(ConcreteScalarField),
-    // TODO(T62107593) ClientExtension(ConcreteClientExtension),
+    ClientExtension(ConcreteClientExtension),
     // TODO(T63303873) ScalarHandle(ConcreteNormalizationScalarHandle),
     // TODO(T63303873) LinkedHandle(ConcreteNormalizationLinkedHandle),
 }

@@ -84,6 +84,7 @@ impl<T> WithLocation<T> {
             item,
         }
     }
+
     pub fn new(location: Location, item: T) -> Self {
         Self { location, item }
     }

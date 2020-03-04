@@ -17,3 +17,4 @@ serde_json = "1.0.44"
 [dev-dependencies]
 fixture-tests = {path = "../fixture-tests"}
 test-schema = { path = "../test-schema" }
+graphql-transforms = { path = "../graphql-transforms" }

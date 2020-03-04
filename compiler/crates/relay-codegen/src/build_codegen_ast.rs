@@ -108,14 +108,11 @@ impl<'schema> CodegenBuilder<'schema> {
     fn build_selection(&self, selection: &Selection) -> ConcreteSelection {
         match selection {
             // TODO(T63303873) Normalization handles
-            // TODO(T62107593) Client extension
             Selection::Condition(cond) => ConcreteSelection::Condition(self.build_condition(&cond)),
             Selection::FragmentSpread(frag_spread) => {
                 ConcreteSelection::FragmentSpread(self.build_fragment_spread(&frag_spread))
             }
-            Selection::InlineFragment(inline_frag) => {
-                ConcreteSelection::InlineFragment(self.build_inline_fragment(&inline_frag))
-            }
+            Selection::InlineFragment(inline_frag) => self.build_inline_fragment(&inline_frag),
             Selection::LinkedField(field) => {
                 ConcreteSelection::LinkedField(self.build_linked_field(&field))
             }
@@ -174,13 +171,27 @@ impl<'schema> CodegenBuilder<'schema> {
         }
     }
 
-    fn build_inline_fragment(&self, inline_frag: &InlineFragment) -> ConcreteInlineFragment {
-        ConcreteInlineFragment {
-            type_: self
-                .schema
-                .get_type_name(inline_frag.type_condition.unwrap())
-                .lookup(),
-            selections: self.build_selections(&inline_frag.selections),
+    fn build_inline_fragment(&self, inline_frag: &InlineFragment) -> ConcreteSelection {
+        match inline_frag.type_condition {
+            None => {
+                // TODO(T63388023): Use typed custom directives
+                if inline_frag.directives.len() == 1
+                    && inline_frag.directives[0].name.item == "__clientExtension".intern()
+                {
+                    ConcreteSelection::ClientExtension(ConcreteClientExtension {
+                        selections: self.build_selections(&inline_frag.selections),
+                    })
+                } else {
+                    panic!(
+                        "Unexpected custom directives: {:#?}",
+                        inline_frag.directives
+                    );
+                }
+            }
+            Some(type_condition) => ConcreteSelection::InlineFragment(ConcreteInlineFragment {
+                type_: self.schema.get_type_name(type_condition).lookup(),
+                selections: self.build_selections(&inline_frag.selections),
+            }),
         }
     }
 

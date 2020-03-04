@@ -108,6 +108,10 @@ if (__DEV__) {
         });
         return;
       case 'ClientExtension':
+        selection.selections.forEach(subselection => {
+          validateSelection(optimisticResponse, subselection, context);
+        });
+        return;
       case 'ModuleImport':
       case 'LinkedHandle':
       case 'ScalarHandle':

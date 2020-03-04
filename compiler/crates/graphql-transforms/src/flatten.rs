@@ -7,18 +7,17 @@
 
 use crate::util::PointerAddress;
 use graphql_ir::{
-    Condition, ConditionValue, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection,
+    Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
+    Selection,
 };
-use graphql_text_printer::{write_arguments, write_directives};
 use schema::{Schema, Type, TypeReference};
-use std::fmt::Write;
 
-use std::collections::HashMap;
+use crate::util::{get_identifier_for_selection, NodeIdentifier};
+use fnv::FnvHashMap;
 use std::sync::Arc;
 
-type FlattenedSelectionMap = HashMap<String, Selection>;
-type SeenLinkedFields = HashMap<PointerAddress, Arc<LinkedField>>;
+type FlattenedSelectionMap = FnvHashMap<NodeIdentifier, Selection>;
+type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 
 ///
 /// Transform that flattens inline fragments, fragment spreads, merges linked fields selections.
@@ -268,88 +267,6 @@ impl<'s> FlattenTransform<'s> {
         self.flatten_selections(&mut flattened_selections_map, selections_b, parent_type);
         flattened_selections_map.values().cloned().collect()
     }
-}
-
-fn get_identifier_for_selection<'s>(schema: &'s Schema, selection: &Selection) -> String {
-    let mut writer = String::new();
-    match selection {
-        Selection::InlineFragment(node) => {
-            write!(writer, "InlineFragment:").unwrap();
-            if let Some(type_condition) = node.type_condition {
-                write!(writer, "{}", schema.get_type_name(type_condition).lookup()).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::LinkedField(node) => {
-            write!(writer, "LinkedField:").unwrap();
-            match node.alias {
-                Some(alias) => write!(writer, "{}", alias.item.lookup()),
-                None => write!(
-                    writer,
-                    "{}",
-                    schema.field(node.definition.item).name.lookup()
-                ),
-            }
-            .unwrap();
-            if !node.arguments.is_empty() {
-                write_arguments(schema, &node.arguments, &mut writer).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::ScalarField(node) => {
-            write!(writer, "ScalarField:").unwrap();
-            match node.alias {
-                Some(alias) => write!(writer, "{}", alias.item.lookup()),
-                None => write!(
-                    writer,
-                    "{}",
-                    schema.field(node.definition.item).name.lookup()
-                ),
-            }
-            .unwrap();
-            if !node.arguments.is_empty() {
-                write_arguments(schema, &node.arguments, &mut writer).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::FragmentSpread(node) => {
-            write!(writer, "FragmentSpread: {}", node.fragment.item.lookup()).unwrap();
-            if !node.arguments.is_empty() {
-                write_arguments(schema, &node.arguments, &mut writer).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::Condition(node) => {
-            write!(writer, "Condition:",).unwrap();
-            match &node.value {
-                ConditionValue::Constant(value) => {
-                    write!(writer, "{}", if *value { "true" } else { "false" }).unwrap();
-                }
-                ConditionValue::Variable(variable) => {
-                    write!(writer, "${}", variable.name.item.lookup()).unwrap();
-                }
-            };
-            write!(
-                writer,
-                "{}",
-                if node.passing_value {
-                    "include"
-                } else {
-                    "skip"
-                }
-            )
-            .unwrap();
-        }
-    };
-    writer
 }
 
 fn should_flatten_inline_fragment<'s>(

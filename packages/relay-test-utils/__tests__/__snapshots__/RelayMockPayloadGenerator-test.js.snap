@@ -1034,9 +1034,7 @@ query TestQuery @relay_test_operation {
   "data": {
     "node": {
       "__typename": "User",
-      "id": "<Node-mock-id-1>",
-      "client_name": "<mock-value-for-field-\\"client_name\\">",
-      "client_code": 42
+      "id": "<Node-mock-id-1>"
     }
   }
 }

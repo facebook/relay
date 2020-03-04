@@ -292,7 +292,6 @@ class RelayMockPayloadGenerator {
           }
           break;
 
-        case CLIENT_EXTENSION:
         case DEFER:
         case STREAM: {
           mockData = this._traverseSelections(
@@ -450,6 +449,10 @@ class RelayMockPayloadGenerator {
               ),
             };
           }
+          break;
+        case CLIENT_EXTENSION:
+          // We do not expect to receive data for the client extensions
+          // from the server. MockPayloadGenerator should not generate it too.
           break;
         case SCALAR_HANDLE:
         case LINKED_HANDLE:

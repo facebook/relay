@@ -10,6 +10,7 @@ use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Type, TypeReference};
+use std::fmt;
 use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
@@ -82,9 +83,10 @@ pub struct ValidationErrorWithSources {
     error: ValidationError,
     sources: Vec<Option<String>>,
 }
-impl ValidationErrorWithSources {
-    pub fn print(&self) -> String {
-        format!(
+impl fmt::Display for ValidationErrorWithSources {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
             "{}:\n{}",
             self.error.message,
             self.error

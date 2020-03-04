@@ -54,7 +54,7 @@ pub enum Error {
         "GraphQL validation errors:{}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err.print()))
+            .map(|err| format!("\n - {}", err))
             .collect::<Vec<_>>()
             .join("")
     )]

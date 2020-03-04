@@ -30,6 +30,9 @@ pub struct Schema {
     clientid_field: FieldID,
     typename_field: FieldID,
 
+    clientid_field_name: StringKey,
+    typename_field_name: StringKey,
+
     directives: Vec<Directive>,
 
     enums: Vec<Enum>,
@@ -151,6 +154,14 @@ impl Schema {
         type_.is_abstract_type()
     }
 
+    pub fn is_object(&self, type_: Type) -> bool {
+        type_.is_object()
+    }
+
+    pub fn is_interface(&self, type_: Type) -> bool {
+        type_.is_interface()
+    }
+
     pub fn get_type_string(&self, type_: &TypeReference) -> String {
         match type_ {
             TypeReference::Named(inner) => self.get_type_name(inner.clone()).lookup().to_string(),
@@ -186,6 +197,18 @@ impl Schema {
     }
 
     pub fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
+        // Special case for __typename and __id fields, which should not be in the list of type fields
+        // but should be fine to select.
+        let can_have_typename = parent_type.is_object() || parent_type.is_abstract_type();
+        if can_have_typename {
+            if name == self.typename_field_name {
+                return Some(self.typename_field);
+            }
+            if name == self.clientid_field_name {
+                return Some(self.clientid_field);
+            }
+        }
+
         let fields = match parent_type {
             Type::Object(id) => {
                 let object = &self.objects[id.as_usize()];
@@ -314,6 +337,8 @@ impl Schema {
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
+            clientid_field_name: "__id".intern(),
+            typename_field_name: "__typename".intern(),
             directives: Vec::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
             fields: Vec::with_capacity(field_count),
@@ -378,7 +403,7 @@ impl Schema {
         let typename_field_id = schema.fields.len();
         schema.typename_field = FieldID(typename_field_id.try_into().unwrap());
         schema.fields.push(Field {
-            name: "__typename".intern(),
+            name: schema.typename_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(*schema.type_map.get(&"String".intern()).unwrap()),
@@ -387,7 +412,7 @@ impl Schema {
         let clientid_field_id = schema.fields.len();
         schema.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         schema.fields.push(Field {
-            name: "__id".intern(),
+            name: schema.clientid_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(*schema.type_map.get(&"ID".intern()).unwrap()),
@@ -687,6 +712,8 @@ impl Schema {
             directives,
             clientid_field: _clientid_field,
             typename_field: _typename_field,
+            clientid_field_name: _clientid_field_name,
+            typename_field_name: _typename_field_name,
             type_map,
             enums,
             fields,
@@ -788,6 +815,20 @@ impl Type {
     pub fn is_abstract_type(self) -> bool {
         match self {
             Type::Union(_) | Type::Interface(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_object(self) -> bool {
+        match self {
+            Type::Object(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_interface(self) -> bool {
+        match self {
+            Type::Interface(_) => true,
             _ => false,
         }
     }

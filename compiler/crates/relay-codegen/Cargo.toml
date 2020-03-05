@@ -1,20 +1,42 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/relay-codegen:[relay-codegen,relay-codegen-client-extensions,relay-codegen-deduped_json_codegen_test,relay-codegen-json_codegen_test]
+# Signature<<c55ca02ea261bc4f08d59c5fd8cd638c0ba8ebf0>>
+[package]
 name = "relay-codegen"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "relay_codegen_client_extensions"
+path = "tests/client_extensions_test.rs"
+
+[[test]]
+name = "relay_codegen_deduped_json_codegen_test"
+path = "tests/deduped_json_codegen_test.rs"
+
+[[test]]
+name = "relay_codegen_json_codegen_test"
+path = "tests/json_codegen_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-fnv = "1.0.6"
-interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-schema = {path = "../schema"}
-serde = { version = "1.0.104", features = ["derive"] }
-serde_json = "1.0.44"
+interner = { path = "../interner" }
+schema = { path = "../schema" }
+fnv = "1.0"
+serde = { version = "1.0", features = ["derive", "rc"] }
+serde_json = "1.0"
 
 [dev-dependencies]
-fixture-tests = {path = "../fixture-tests"}
-test-schema = { path = "../test-schema" }
+fixture-tests = { path = "../fixture-tests" }
 graphql-transforms = { path = "../graphql-transforms" }
+test-schema = { path = "../test-schema" }
+# @end of Signature<<c55ca02ea261bc4f08d59c5fd8cd638c0ba8ebf0>>

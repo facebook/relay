@@ -1,7 +1,14 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/errors:errors
+# Signature<<cd325776ff6db021eb30677a9b89b1de04730a74>>
+[package]
 name = "errors"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs"]
 
 [dependencies]
-rayon = "1.3.0"
+rayon = "1.2"
+# @end of Signature<<cd325776ff6db021eb30677a9b89b1de04730a74>>

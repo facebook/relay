@@ -1,7 +1,24 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/extract-graphql:[extract-graphql,extract-graphql-test]
+# Signature<<7ddc6565ed425b64f7e6c1478cffe6f617a2a59e>>
+[package]
 name = "extract-graphql"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "extract_graphql_test"
+path = "tests/extract_test.rs"
+
+[dependencies]
+interner = { path = "../interner" }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+# @end of Signature<<7ddc6565ed425b64f7e6c1478cffe6f617a2a59e>>

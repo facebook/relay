@@ -1,9 +1,16 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/signedsource:signedsource
+# Signature<<73291092f00da3d5676ec7664fc01392c25f64ae>>
+[package]
 name = "signedsource"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs"]
 
 [dependencies]
-lazy_static = "1.4.0"
-rust-crypto = "0.2.36"
-regex = "1"
+lazy_static = "1.0"
+regex = "1.0"
+rust-crypto = "0.2"
+# @end of Signature<<73291092f00da3d5676ec7664fc01392c25f64ae>>

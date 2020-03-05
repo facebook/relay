@@ -1,18 +1,36 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/graphql-ir:[graphql-ir,graphql-ir_test,graphql-ir_test_with_extensions]
+# Signature<<f5c1dff945fe20da606d84a09a4f34e6b4fa7b50>>
+[package]
 name = "graphql-ir"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "graphql_ir_test"
+path = "tests/parse_test.rs"
+
+[[test]]
+name = "graphql_ir_test_with_extensions"
+path = "tests/parse_with_extensions_test.rs"
 
 [dependencies]
 common = { path = "../common" }
 errors = { path = "../errors" }
-fnv = "1.0.6"
 graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
-lazy_static = "1.4.0"
 schema = { path = "../schema" }
-thiserror = "1.0.9"
+fnv = "1.0"
+lazy_static = "1.0"
+thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 test-schema = { path = "../test-schema" }
+# @end of Signature<<f5c1dff945fe20da606d84a09a4f34e6b4fa7b50>>

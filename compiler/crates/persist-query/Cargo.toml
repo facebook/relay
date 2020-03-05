@@ -1,12 +1,19 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/persist-query:persist-query
+# Signature<<272efe92a9eedb624a1e6ecaa25d3c59e6274d8f>>
+[package]
 name = "persist-query"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs"]
 
 [dependencies]
 hyper = "0.13"
 hyper-tls = "0.4"
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
-thiserror = "1.0.9"
-url = "2.1"
+thiserror = "1.0"
+url = "2.1.0"
+# @end of Signature<<272efe92a9eedb624a1e6ecaa25d3c59e6274d8f>>

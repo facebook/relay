@@ -1,12 +1,26 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/fixture-tests:[fixture-tests,fixture-tests-tests]
+# Signature<<32473e35f65d9c296ae350609fdca927b74c2b51>>
+[package]
 name = "fixture-tests"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "fixture_tests_tests"
+path = "tests/uppercase_test.rs"
 
 [dependencies]
-colored = "1.9.1"
-diff = "0.1.12"
-lazy_static = "1.4.0"
-parking_lot = "0.10.0"
 signedsource = { path = "../signedsource" }
+colored = "1.9"
+diff = "0.1"
+lazy_static = "1.0"
+parking_lot = "0.10.0"
 structopt = "0.3.7"
+# @end of Signature<<32473e35f65d9c296ae350609fdca927b74c2b51>>

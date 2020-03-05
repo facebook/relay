@@ -1,16 +1,34 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/graphql-text-printer:[graphql-text-printer,graphql-text-printer-operation-printer_test,graphql-text-printer_test]
+# Signature<<4447610872c28e0a0c27a19f157711e7c502895d>>
+[package]
 name = "graphql-text-printer"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "graphql_text_printer_operation_printer_test"
+path = "tests/operation_printer_test.rs"
+
+[[test]]
+name = "graphql_text_printer_test"
+path = "tests/print_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-schema = {path = "../schema"}
-fnv = "1.0.6"
+interner = { path = "../interner" }
+schema = { path = "../schema" }
+fnv = "1.0"
 
 [dev-dependencies]
-fixture-tests = {path = "../fixture-tests"}
+fixture-tests = { path = "../fixture-tests" }
 test-schema = { path = "../test-schema" }
+# @end of Signature<<4447610872c28e0a0c27a19f157711e7c502895d>>

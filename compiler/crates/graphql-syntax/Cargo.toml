@@ -1,12 +1,26 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/graphql-syntax:[graphql-syntax,graphql-syntax_test]
+# Signature<<3eb9ed913ae4b38a1a8d494f1d7880fec2cccc37>>
+[package]
 name = "graphql-syntax"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "graphql_syntax_test"
+path = "tests/parse_test.rs"
 
 [dependencies]
 common = { path = "../common" }
 interner = { path = "../interner" }
-thiserror = "1.0.9"
+thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+# @end of Signature<<3eb9ed913ae4b38a1a8d494f1d7880fec2cccc37>>

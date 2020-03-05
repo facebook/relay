@@ -1,10 +1,17 @@
+# @generated
+# @autocargo from //relay/oss/crates/schema-diff:schema-diff
+# Signature<<a31d123fdd6fbe37c52f9907293e0209578bd0de>>
 [package]
 name = "schema-diff"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs"]
 
 [dependencies]
-schema = { path = "../schema" }
-fnv = "1.0.6"
 interner = { path = "../interner" }
-lazy_static = "1.4.0"
+schema = { path = "../schema" }
+fnv = "1.0"
+lazy_static = "1.0"
+# @end of Signature<<a31d123fdd6fbe37c52f9907293e0209578bd0de>>

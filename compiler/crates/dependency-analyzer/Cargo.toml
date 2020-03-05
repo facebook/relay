@@ -1,16 +1,33 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/dependency-analyzer:[dependency-analyzer,dependency-analyzer-ast,dependency-analyzer-ir]
+# Signature<<20f288199806b1f790ab0ddc0bb0725d6b60ef34>>
+[package]
 name = "dependency-analyzer"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "dependency_analyzer_ast"
+path = "tests/ast_test.rs"
+
+[[test]]
+name = "dependency_analyzer_ir"
+path = "tests/ir_test.rs"
 
 [dependencies]
-fnv = "1.0.6"
-interner = { path = "../interner" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
+interner = { path = "../interner" }
+fnv = "1.0"
 
 [dev-dependencies]
 common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
-schema = { path = "../schema" }
 test-schema = { path = "../test-schema" }
+# @end of Signature<<20f288199806b1f790ab0ddc0bb0725d6b60ef34>>

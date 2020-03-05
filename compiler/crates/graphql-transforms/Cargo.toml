@@ -1,23 +1,65 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-skip_client_extensions-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
+# Signature<<43a621e180e37508fa14d35f36e770f3ebe85f7d>>
+[package]
 name = "graphql-transforms"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["benches/**/*.rs", "src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "graphql_transforms_benchmark"
+path = "benches/transforms.rs"
+
+[[test]]
+name = "graphql_disallow_id_as_alias_test"
+path = "tests/disallow_id_as_alias_test.rs"
+
+[[test]]
+name = "graphql_flatten_test"
+path = "tests/flatten_test.rs"
+
+[[test]]
+name = "graphql_generate_id_field_test"
+path = "tests/generate_id_field_test.rs"
+
+[[test]]
+name = "graphql_generate_typename_test"
+path = "tests/generate_typename_test.rs"
+
+[[test]]
+name = "graphql_inline_fragments_test"
+path = "tests/inline_fragments_test.rs"
+
+[[test]]
+name = "graphql_skip_client_extensions_test"
+path = "tests/skip_client_extensions_test.rs"
+
+[[test]]
+name = "graphql_sort_selections_test"
+path = "tests/sort_selections_test.rs"
+
+[[test]]
+name = "graphql_validate_server_only_directives_test"
+path = "tests/validate_server_only_directives_test.rs"
 
 [dependencies]
-errors = { path = "../errors" }
 common = { path = "../common" }
-interner = { path = "../interner" }
+errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
+graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
+interner = { path = "../interner" }
 schema = { path = "../schema" }
-fnv = "1.0.6"
+test-schema = { path = "../test-schema" }
+criterion = "0.3"
+fnv = "1.0"
 
 [dev-dependencies]
-criterion = "0.3"
 fixture-tests = { path = "../fixture-tests" }
-graphql-syntax = { path = "../graphql-syntax" }
-test-schema = { path = "../test-schema" }
-
-[[bench]]
-name = "transforms"
-harness = false
+# @end of Signature<<43a621e180e37508fa14d35f36e770f3ebe85f7d>>

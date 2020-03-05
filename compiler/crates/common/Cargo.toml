@@ -1,8 +1,15 @@
-[project]
+# @generated
+# @autocargo from //relay/oss/crates/common:common
+# Signature<<f5db4438c4379d2796c17cb8edccd9e4208450fb>>
+[package]
 name = "common"
-version = "0.0.0"
 edition = "2018"
+version = "0.0.0"
+authors = ['Facebook']
+license = "Apache 2.0"
+include = ["src/**/*.rs"]
 
 [dependencies]
-colored = "1.9.1"
 interner = { path = "../interner" }
+colored = "1.9"
+# @end of Signature<<f5db4438c4379d2796c17cb8edccd9e4208450fb>>

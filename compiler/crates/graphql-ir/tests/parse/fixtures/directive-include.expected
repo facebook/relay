@@ -38,6 +38,19 @@ fragment Foo on User {
             directives: [],
             selections: [
                 Condition {
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: "directive-include.graphql":31:37,
+                                item: FieldID(
+                                    446,
+                                ),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
                     value: Variable(
                         Variable {
                             name: WithLocation {
@@ -52,35 +65,8 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
-                    selections: [
-                        ScalarField {
-                            alias: None,
-                            definition: WithLocation {
-                                location: "directive-include.graphql":31:37,
-                                item: FieldID(
-                                    446,
-                                ),
-                            },
-                            arguments: [],
-                            directives: [],
-                        },
-                    ],
                 },
                 Condition {
-                    value: Variable(
-                        Variable {
-                            name: WithLocation {
-                                location: "directive-include.graphql":84:89,
-                                item: "Cond",
-                            },
-                            type_: NonNull(
-                                Named(
-                                    Scalar(3),
-                                ),
-                            ),
-                        },
-                    ),
-                    passing_value: true,
                     selections: [
                         InlineFragment {
                             type_condition: Some(
@@ -102,8 +88,32 @@ fragment Foo on User {
                             ],
                         },
                     ],
+                    value: Variable(
+                        Variable {
+                            name: WithLocation {
+                                location: "directive-include.graphql":84:89,
+                                item: "Cond",
+                            },
+                            type_: NonNull(
+                                Named(
+                                    Scalar(3),
+                                ),
+                            ),
+                        },
+                    ),
+                    passing_value: true,
                 },
                 Condition {
+                    selections: [
+                        FragmentSpread {
+                            fragment: WithLocation {
+                                location: "directive-include.graphql":116:120,
+                                item: "Foo",
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
                     value: Variable(
                         Variable {
                             name: WithLocation {
@@ -118,16 +128,6 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
-                    selections: [
-                        FragmentSpread {
-                            fragment: WithLocation {
-                                location: "directive-include.graphql":116:120,
-                                item: "Foo",
-                            },
-                            arguments: [],
-                            directives: [],
-                        },
-                    ],
                 },
             ],
         },

@@ -6,6 +6,7 @@
  */
 
 use crate::span::Span;
+use core::cmp::Ordering;
 use interner::{Intern, StringKey};
 use std::fmt;
 use std::path::PathBuf;
@@ -71,10 +72,22 @@ impl Location {
     }
 }
 
-#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct WithLocation<T> {
     pub location: Location,
     pub item: T,
+}
+
+impl<T: Ord> Ord for WithLocation<T> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.item.cmp(&other.item)
+    }
+}
+
+impl<T: PartialOrd> PartialOrd for WithLocation<T> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.item.partial_cmp(&other.item)
+    }
 }
 
 impl<T> WithLocation<T> {

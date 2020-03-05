@@ -6,6 +6,7 @@
  */
 
 use crate::types::{Intern, RawInternKey};
+use core::cmp::Ordering;
 use fnv::FnvHashMap;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
@@ -60,8 +61,20 @@ impl fmt::Debug for BytesKey {
 }
 
 /// An interned string
-#[derive(Copy, Clone, Eq, Ord, Hash, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq)]
 pub struct StringKey(RawInternKey);
+
+impl Ord for StringKey {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.lookup().cmp(&other.lookup())
+    }
+}
+
+impl PartialOrd for StringKey {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.lookup().partial_cmp(&other.lookup())
+    }
+}
 
 impl StringKey {
     /// Get a reference to the original str.

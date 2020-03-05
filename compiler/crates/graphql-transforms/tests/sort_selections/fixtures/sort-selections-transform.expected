@@ -10,7 +10,9 @@ fragment UserFragment on User {
     address {
       street
     }
+    ...NestedFragment4
     ...NestedFragment2
+    ...NestedFragment3
   }
 }
 
@@ -24,7 +26,17 @@ fragment NestedFragment on User {
   }
 }
 
+fragment NestedFragment4 on User {
+  name
+  canViewerLike
+}
+
 fragment NestedFragment2 on User {
+  name
+  canViewerLike
+}
+
+fragment NestedFragment3 on User {
   name
   canViewerLike
 }
@@ -40,14 +52,26 @@ fragment NestedFragment on User {
 }
 
 fragment NestedFragment2 on User {
-  name
   canViewerLike
+  name
+}
+
+fragment NestedFragment3 on User {
+  canViewerLike
+  name
+}
+
+fragment NestedFragment4 on User {
+  canViewerLike
+  name
 }
 
 fragment UserFragment on User {
   ...NestedFragment
   ... on User {
     ...NestedFragment2
+    ...NestedFragment3
+    ...NestedFragment4
     address {
       street
     }

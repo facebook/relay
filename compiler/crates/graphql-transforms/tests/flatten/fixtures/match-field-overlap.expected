@@ -45,8 +45,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 fragment NameRendererFragment on User {
   nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   }
   id
 }

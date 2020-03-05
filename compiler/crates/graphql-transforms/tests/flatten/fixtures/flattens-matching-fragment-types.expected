@@ -54,8 +54,8 @@ query TestQuery(
       friends(first: 10) {
         edges {
           node {
-            id
             firstName
+            id
             lastName
           }
           cursor
@@ -63,10 +63,10 @@ query TestQuery(
       }
       id
       firstName
-      lastName @customDirective(level: 3)
-      lastName
       firstName @customDirective(level: 1)
       firstName @customDirective(level: 2)
+      lastName
+      lastName @customDirective(level: 3)
       surname: lastName
     }
     id

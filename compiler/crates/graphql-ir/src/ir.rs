@@ -63,7 +63,7 @@ impl VariableDefinition {
 // Selections
 
 /// A selection within an operation or fragment
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Selection {
     FragmentSpread(Arc<FragmentSpread>),
     InlineFragment(Arc<InlineFragment>),
@@ -157,9 +157,9 @@ pub struct ScalarField {
 /// https://spec.graphql.org/June2018/#sec--skip
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Condition {
+    pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
-    pub selections: Vec<Selection>,
 }
 
 // Associated Types

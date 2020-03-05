@@ -415,6 +415,7 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
                 </ContextProvider>
               </React.Suspense>
             </ErrorBoundary>,
+            // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: isConcurrent},
           );
         });
@@ -517,6 +518,7 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
         renderSpy.mockClear();
 
         // $FlowFixMe(site=www) batchedUpdats is not part of the public Flow types
+        // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
         TestRenderer.unstable_batchedUpdates(() => {
           runScheduledCallback();
           jest.runAllImmediates();

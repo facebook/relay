@@ -486,6 +486,7 @@ describe('usePaginationFragment', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
+          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });

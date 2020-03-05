@@ -301,6 +301,7 @@ beforeEach(() => {
           <SingularContainer owner={singularQuery} {...props} />
         </ContextProvider>
       </React.Suspense>,
+      // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
       {unstable_isConcurrent: isConcurrent},
     );
   };
@@ -320,6 +321,7 @@ beforeEach(() => {
           <PluralContainer owner={pluralQuery} {...props} />
         </ContextProvider>
       </React.Suspense>,
+      // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
       {unstable_isConcurrent: isConcurrent},
     );
   };

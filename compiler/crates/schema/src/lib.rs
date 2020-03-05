@@ -23,8 +23,8 @@ pub use ast::{
     Definition, DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
 };
 pub use definitions::{
-    Argument, ArgumentDefinitions, Enum, EnumID, FieldID, InputObject, InputObjectID, InterfaceID,
-    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, UnionID,
+    Argument, ArgumentDefinitions, Enum, EnumID, Field, FieldID, InputObject, InputObjectID,
+    InterfaceID, ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, UnionID,
 };
 pub use errors::{Result, SchemaError};
 use lexer::Lexer;

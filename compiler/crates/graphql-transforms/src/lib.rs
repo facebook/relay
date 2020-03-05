@@ -11,6 +11,7 @@
 #![deny(clippy::clone_on_ref_ptr)]
 
 mod client_extensions;
+mod connections;
 mod flatten;
 mod generate_id_field;
 mod generate_typename;
@@ -22,6 +23,7 @@ mod util;
 mod validations;
 
 pub use client_extensions::client_extensions;
+pub use connections::{ConnectionInterface, OSSConnectionInterface};
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;

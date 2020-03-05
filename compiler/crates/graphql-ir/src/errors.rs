@@ -191,4 +191,67 @@ pub enum ValidationMessage {
 
     #[error("Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.")]
     InvalidServerOnlyDirectiveInClientFields(StringKey),
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the return type to be a non-plural interface or object, got '{connection_type_string}'.")]
+    InvalidConnectionFieldType {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_string: String,
+    },
+
+    #[error("Expected field '{connection_field_name}' to have a '{first_arg}' or '{last_arg}' argument.")]
+    ExpectedConnectionToHaveCountArgs {
+        connection_field_name: StringKey,
+        first_arg: StringKey,
+        last_arg: StringKey,
+    },
+
+    #[error("Expected '{connection_field_name}' to have a '{edges_selection_name}' selection.")]
+    ExpectedConnectionToHaveEdgesSelection {
+        connection_field_name: StringKey,
+        edges_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name}' field that returns a list of objects.")]
+    ExpectedConnectionToExposeValidEdgesField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        edges_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {node_selection_name} }}' field that returns an object, interface or union.")]
+    ExpectedConnectionToExposeValidNodeField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        edges_selection_name: StringKey,
+        node_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {cursor_selection_name} }}' field that returns a scalar.")]
+    ExpectedConnectionToExposeValidCursorField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        cursor_selection_name: StringKey,
+        edges_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name}' field that returns an object.")]
+    ExpectedConnectionToExposeValidPageInfoField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        page_info_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name} {{ {page_info_sub_field_name} }}' field that returns a scalar.")]
+    ExpectedConnectionToExposeValidPageInfoSubField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        page_info_selection_name: StringKey,
+        page_info_sub_field_name: StringKey,
+    },
 }

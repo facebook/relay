@@ -46,3 +46,9 @@ type BadConnectionPageInfo {
 connection-invalid-no-page-info.invalid.graphql:4:17:
 
       badConnection(first: $first, after: $after) @connection {
+
+
+Expected the key argument to @connection to be a string literal for field 'badConnection'.:
+connection-invalid-no-page-info.invalid.graphql:4:17:
+
+      badConnection(first: $first, after: $after) @connection {

@@ -15,12 +15,26 @@ use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let file_key = FileKey::new(fixture.file_name);
-    let ast = parse(fixture.content, file_key).unwrap();
-    let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let validation_result = validate_connections(&program, OSSConnectionInterface::default());
+
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
+
+    let ast = parse(fixture.content, file_key).unwrap();
+    let ir_result = build(&TEST_SCHEMA, &ast.definitions);
+    let ir = match ir_result {
+        Ok(res) => res,
+        Err(errors) => {
+            let mut errs = errors
+                .into_iter()
+                .map(|err| err.print(&sources))
+                .collect::<Vec<_>>();
+            errs.sort();
+            return Err(errs.join("\n\n"));
+        }
+    };
+
+    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let validation_result = validate_connections(&program, OSSConnectionInterface::default());
 
     match validation_result {
         Ok(_) => Ok("OK".to_owned()),

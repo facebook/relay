@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $last: Int, $first: Int) {
+  node(id: $id) {
+    id
+    ... on Story {
+      forwardComments: comments(first: 1)
+        @connection(key: "NodeQuery_forwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      backwardComments: comments(last: 2)
+        @connection(key: "NodeQuery_backwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      mixedDirectionComments: comments(last: $last, first: $first)
+        @connection(key: "NodeQuery_mixedDirectionComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

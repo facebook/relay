@@ -63,3 +63,9 @@ connection-invalid-edge-type.invalid.graphql:4:17:
 connection-invalid-edge-type.invalid.graphql:5:63:
 
         edges {
+
+
+Expected the key argument to @connection to be a string literal for field 'badConnection'.:
+connection-invalid-edge-type.invalid.graphql:4:17:
+
+      badConnection(first: $first, after: $after) @connection {

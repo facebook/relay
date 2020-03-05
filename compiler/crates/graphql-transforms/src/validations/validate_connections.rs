@@ -6,10 +6,10 @@
  */
 
 use crate::connections::ConnectionInterface;
-use errors::{try2, try3, try_map};
+use errors::{try2, try3, try4, try_map};
 use graphql_ir::{
-    Argument, Directive, LinkedField, Program, Selection, ValidationError, ValidationMessage,
-    ValidationResult, Validator,
+    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
+    ValidationMessage, ValidationResult, Validator, Value,
 };
 use interner::{Intern, StringKey};
 use schema::{Field, Type, TypeReference};
@@ -24,13 +24,16 @@ pub fn validate_connections<'s, TConnectionInterface: ConnectionInterface>(
 struct ConnectionValidation<'s, TConnectionInterface: ConnectionInterface> {
     connection_interface: TConnectionInterface,
     program: &'s Program<'s>,
-    connection_key: StringKey,
-    stream_connection_key: StringKey,
-    _after_key: StringKey,
-    _before_key: StringKey,
-    first_key: StringKey,
-    _key_key: StringKey,
-    last_key: StringKey,
+    connection_directive_name: StringKey,
+    stream_connection_directive_name: StringKey,
+    hander_arg_name: StringKey,
+    filters_arg_name: StringKey,
+    key_arg_name: StringKey,
+    dynamic_key_arg_name: StringKey,
+    _after_arg_name: StringKey,
+    _before_arg_name: StringKey,
+    first_arg_name: StringKey,
+    last_arg_name: StringKey,
 }
 
 impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TConnectionInterface> {
@@ -38,35 +41,38 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         Self {
             connection_interface,
             program,
-            connection_key: "connection".intern(),
-            stream_connection_key: "stream_connection".intern(),
-            _after_key: "after".intern(),
-            _before_key: "before".intern(),
-            first_key: "first".intern(),
-            _key_key: "key".intern(),
-            last_key: "last".intern(),
+            connection_directive_name: "connection".intern(),
+            stream_connection_directive_name: "stream_connection".intern(),
+            hander_arg_name: "handler".intern(),
+            filters_arg_name: "filters".intern(),
+            key_arg_name: "key".intern(),
+            dynamic_key_arg_name: "dynamicKey_UNSTABLE".intern(),
+            _after_arg_name: "after".intern(),
+            _before_arg_name: "before".intern(),
+            first_arg_name: "first".intern(),
+            last_arg_name: "last".intern(),
         }
     }
 
     /// Validates that the connnection field is a non-plural, object or interface type.
     fn validate_connection_field_type(
         &self,
-        field: &LinkedField,
-        schema_field: &Field,
-        directive: &Directive,
+        connection_field: &LinkedField,
+        connection_schema_field: &Field,
+        connection_directive: &Directive,
     ) -> ValidationResult<Type> {
         let schema = self.program.schema();
-        let field_type = schema_field.type_.nullable_type();
+        let field_type = connection_schema_field.type_.nullable_type();
         if field_type.is_list()
             || (!schema.is_object(field_type.inner()) && !schema.is_interface(field_type.inner()))
         {
             return Err(vec![ValidationError::new(
                 ValidationMessage::InvalidConnectionFieldType {
-                    connection_directive_name: directive.name.item,
-                    connection_field_name: schema_field.name,
+                    connection_directive_name: connection_directive.name.item,
+                    connection_field_name: connection_schema_field.name,
                     connection_type_string: schema.get_type_string(field_type),
                 },
-                vec![field.definition.location],
+                vec![connection_field.definition.location],
             )]);
         }
         Ok(field_type.inner())
@@ -83,31 +89,32 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
     /// common/necessary.
     fn validate_connection_selection(
         &self,
-        field: &'s LinkedField,
-        schema_field: &'s Field,
+        connection_field: &'s LinkedField,
+        connection_schema_field: &'s Field,
     ) -> ValidationResult<&'s LinkedField> {
         let schema = self.program.schema();
 
-        let first_arg = find_argument(&field.arguments, self.first_key);
-        let last_arg = find_argument(&field.arguments, self.last_key);
+        let first_arg = find_argument(&connection_field.arguments, self.first_arg_name);
+        let last_arg = find_argument(&connection_field.arguments, self.last_arg_name);
         if first_arg.is_none() && last_arg.is_none() {
             return Err(vec![ValidationError::new(
                 ValidationMessage::ExpectedConnectionToHaveCountArgs {
-                    connection_field_name: schema_field.name,
-                    first_arg: self.first_key,
-                    last_arg: self.last_key,
+                    connection_field_name: connection_schema_field.name,
+                    first_arg: self.first_arg_name,
+                    last_arg: self.last_arg_name,
                 },
-                vec![field.definition.location],
+                vec![connection_field.definition.location],
             )]);
         }
 
         let edges_selection_name = self.connection_interface.edges_selection_name();
-        let edges_selection: Option<&Selection> = field.selections.iter().find(|sel| match sel {
-            Selection::LinkedField(field) => {
-                schema.field(field.definition.item).name == edges_selection_name
-            }
-            _ => false,
-        });
+        let edges_selection: Option<&Selection> =
+            connection_field.selections.iter().find(|sel| match sel {
+                Selection::LinkedField(field) => {
+                    schema.field(field.definition.item).name == edges_selection_name
+                }
+                _ => false,
+            });
 
         if let Some(edges_selection) = edges_selection {
             if let Selection::LinkedField(edges_field) = edges_selection {
@@ -118,10 +125,10 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         } else {
             Err(vec![ValidationError::new(
                 ValidationMessage::ExpectedConnectionToHaveEdgesSelection {
-                    connection_field_name: schema_field.name,
+                    connection_field_name: connection_schema_field.name,
                     edges_selection_name,
                 },
-                vec![field.definition.location],
+                vec![connection_field.definition.location],
             )])
         }
     }
@@ -342,16 +349,214 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
 
     fn validate_connection_arguments(
         &self,
-        _connection_field: &LinkedField,
+        connection_field: &LinkedField,
+        connection_schema_field: &Field,
+        connection_directive: &Directive,
     ) -> ValidationResult<()> {
-        // TODO
+        let literal_arguments = connection_directive
+            .arguments
+            .iter()
+            .filter_map(|arg| match &arg.value.item {
+                Value::Constant(constant_val) => Some((arg, constant_val)),
+                _ => None,
+            })
+            .collect::<Vec<(&Argument, &ConstantValue)>>();
+
+        let literal_handler_arg = literal_arguments
+            .iter()
+            .find(|(arg, _)| arg.name.item == self.hander_arg_name);
+
+        let literal_key_arg = literal_arguments
+            .iter()
+            .find(|(arg, _)| arg.name.item == self.key_arg_name);
+
+        let literal_filters_arg = literal_arguments
+            .iter()
+            .find(|(arg, _)| arg.name.item == self.filters_arg_name);
+
+        try4(
+            self.validate_handler_arg(
+                connection_field,
+                connection_schema_field,
+                connection_directive,
+                literal_handler_arg,
+            ),
+            self.validate_key_arg(
+                connection_field,
+                connection_schema_field,
+                connection_directive,
+                literal_key_arg,
+            ),
+            self.validate_filters_arg(
+                connection_field,
+                connection_schema_field,
+                connection_directive,
+                literal_filters_arg,
+            ),
+            self.validate_dynamic_key_arg(
+                connection_field,
+                connection_schema_field,
+                connection_directive,
+            ),
+        )?;
+
+        Ok(())
+    }
+
+    fn validate_handler_arg(
+        &self,
+        connection_field: &LinkedField,
+        connection_schema_field: &Field,
+        connection_directive: &Directive,
+        literal_handler_arg: Option<&(&Argument, &ConstantValue)>,
+    ) -> ValidationResult<()> {
+        if let Some((arg, handler_val)) = literal_handler_arg {
+            match handler_val {
+                ConstantValue::String(_) => {}
+                _ => {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::InvalidConnectionHandlerArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name,
+                            handler_arg_name: self.hander_arg_name,
+                        },
+                        vec![arg.value.location, connection_field.definition.location],
+                    )]);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn validate_key_arg(
+        &self,
+        connection_field: &LinkedField,
+        connection_schema_field: &Field,
+        connection_directive: &Directive,
+        literal_key_arg: Option<&(&Argument, &ConstantValue)>,
+    ) -> ValidationResult<()> {
+        match literal_key_arg {
+            Some((arg, key_val)) => match key_val {
+                ConstantValue::String(string_val) => {
+                    let field_alias_or_name = match connection_field.alias {
+                        Some(alias) => alias.item.lookup(),
+                        None => connection_schema_field.name.lookup(),
+                    };
+                    let postfix = format!("_{}", field_alias_or_name);
+                    if !string_val.lookup().ends_with(postfix.as_str()) {
+                        return Err(vec![ValidationError::new(
+                            ValidationMessage::InvalidConnectionKeyArgPostfix {
+                                connection_directive_name: connection_directive.name.item,
+                                connection_field_name: connection_schema_field.name,
+                                key_arg_name: self.key_arg_name,
+                                key_arg_value: *string_val,
+                                postfix,
+                            },
+                            vec![arg.value.location, connection_field.definition.location],
+                        )]);
+                    }
+                }
+                _ => {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::InvalidConnectionKeyArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name,
+                            key_arg_name: self.key_arg_name,
+                        },
+                        vec![arg.value.location, connection_field.definition.location],
+                    )]);
+                }
+            },
+            None => {
+                return Err(vec![ValidationError::new(
+                    ValidationMessage::InvalidConnectionKeyArg {
+                        connection_directive_name: connection_directive.name.item,
+                        connection_field_name: connection_schema_field.name,
+                        key_arg_name: self.key_arg_name,
+                    },
+                    vec![connection_field.definition.location],
+                )])
+            }
+        }
+        Ok(())
+    }
+
+    fn validate_filters_arg(
+        &self,
+        connection_field: &LinkedField,
+        connection_schema_field: &Field,
+        connection_directive: &Directive,
+        literal_filters_arg: Option<&(&Argument, &ConstantValue)>,
+    ) -> ValidationResult<()> {
+        if let Some((arg, filters_val)) = literal_filters_arg {
+            match filters_val {
+                ConstantValue::List(list_val) => {
+                    let non_string_value = list_val.iter().find(|val| match val {
+                        ConstantValue::String(_) => false,
+                        _ => true,
+                    });
+
+                    if non_string_value.is_some() {
+                        return Err(vec![ValidationError::new(
+                            ValidationMessage::InvalidConnectionFiltersArg {
+                                connection_directive_name: connection_directive.name.item,
+                                connection_field_name: connection_schema_field.name,
+                                filters_arg_name: self.filters_arg_name,
+                            },
+                            vec![arg.value.location, connection_field.definition.location],
+                        )]);
+                    }
+                }
+                _ => {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::InvalidConnectionFiltersArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name,
+                            filters_arg_name: self.filters_arg_name,
+                        },
+                        vec![arg.value.location, connection_field.definition.location],
+                    )]);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn validate_dynamic_key_arg(
+        &self,
+        connection_field: &LinkedField,
+        connection_schema_field: &Field,
+        connection_directive: &Directive,
+    ) -> ValidationResult<()> {
+        let dynamic_key_arg = connection_directive
+            .arguments
+            .iter()
+            .find(|arg| arg.name.item == self.dynamic_key_arg_name);
+        if let Some(dynamic_key_arg) = dynamic_key_arg {
+            match dynamic_key_arg.value.item {
+                Value::Variable(_) => {}
+                _ => {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::InvalidConnectionDynamicKeyArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name,
+                            dynamic_key_arg_name: self.dynamic_key_arg_name,
+                        },
+                        vec![
+                            dynamic_key_arg.value.location,
+                            connection_field.definition.location,
+                        ],
+                    )]);
+                }
+            }
+        }
         Ok(())
     }
 
     fn get_connection_directive(&self, directives: &'s [Directive]) -> Option<&Directive> {
         directives.iter().find(|directive| {
-            directive.name.item == self.connection_key
-                || directive.name.item == self.stream_connection_key
+            directive.name.item == self.connection_directive_name
+                || directive.name.item == self.stream_connection_directive_name
         })
     }
 }
@@ -383,7 +588,11 @@ impl<'s, TConnectionInterface: ConnectionInterface> Validator
                     connection_directive,
                     edges_field,
                 ),
-                self.validate_connection_arguments(field),
+                self.validate_connection_arguments(
+                    field,
+                    connection_schema_field,
+                    connection_directive,
+                ),
                 self.default_validate_linked_field(field),
             )?;
             Ok(())

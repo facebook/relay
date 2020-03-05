@@ -254,4 +254,41 @@ pub enum ValidationMessage {
         page_info_selection_name: StringKey,
         page_info_sub_field_name: StringKey,
     },
+
+    #[error("Expected the {handler_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'.")]
+    InvalidConnectionHandlerArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        handler_arg_name: StringKey,
+    },
+
+    #[error("Expected the {key_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'.")]
+    InvalidConnectionKeyArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        key_arg_name: StringKey,
+    },
+
+    #[error("Expected the {dynamic_key_arg_name} argument to @{connection_directive_name} to be a variable for field '{connection_field_name}'.")]
+    InvalidConnectionDynamicKeyArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        dynamic_key_arg_name: StringKey,
+    },
+
+    #[error("Expected the {key_arg_name} argument to @{connection_directive_name} to be of form '<SomeName>_{postfix}', got '{key_arg_value}'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection")]
+    InvalidConnectionKeyArgPostfix {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        key_arg_name: StringKey,
+        key_arg_value: StringKey,
+        postfix: String,
+    },
+
+    #[error("Expected the {filters_arg_name} argument to @{connection_directive_name} to be a list of string literals for field '{connection_field_name}'.")]
+    InvalidConnectionFiltersArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        filters_arg_name: StringKey,
+    },
 }

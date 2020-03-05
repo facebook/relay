@@ -23,7 +23,7 @@ mod util;
 mod validations;
 
 pub use client_extensions::client_extensions;
-pub use connections::{ConnectionInterface, OSSConnectionInterface};
+pub use connections::{ConnectionInterface, FBConnectionInterface, OSSConnectionInterface};
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;

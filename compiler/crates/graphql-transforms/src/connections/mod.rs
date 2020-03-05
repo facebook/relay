@@ -7,4 +7,6 @@
 
 mod connection_interface;
 
-pub use connection_interface::{ConnectionInterface, OSSConnectionInterface};
+pub use connection_interface::{
+    ConnectionInterface, FBConnectionInterface, OSSConnectionInterface,
+};

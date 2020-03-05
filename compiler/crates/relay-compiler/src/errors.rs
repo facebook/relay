@@ -6,8 +6,9 @@
  */
 
 use crate::compiler_state::ProjectName;
-use graphql_ir::ValidationErrorWithSources;
 use graphql_syntax::SyntaxErrorWithSource;
+use persist_query::PersistError;
+use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -51,16 +52,14 @@ pub enum Error {
     SyntaxErrors { errors: Vec<SyntaxErrorWithSource> },
 
     #[error(
-        "GraphQL validation errors:{}",
+        "Failed to build:{}",
         errors
             .iter()
             .map(|err| format!("\n - {}", err))
             .collect::<Vec<_>>()
             .join("")
     )]
-    ValidationErrors {
-        errors: Vec<ValidationErrorWithSources>,
-    },
+    BuildProjectsErrors { errors: Vec<BuildProjectError> },
 }
 
 #[derive(Debug, Error)]
@@ -117,4 +116,25 @@ pub enum ConfigValidationError {
         project_name: ProjectName,
         schema_dir: PathBuf,
     },
+}
+
+#[derive(Debug, Error)]
+pub enum BuildProjectError {
+    #[error(
+        "Validation errors:{}",
+        errors
+            .iter()
+            .map(|err| format!("\n - {}", err))
+            .collect::<Vec<_>>()
+            .join("")
+    )]
+    ValidationErrors {
+        errors: Vec<graphql_ir::ValidationErrorWithSources>,
+    },
+
+    #[error("Persisting operation failed: {0}")]
+    PersistError(PersistError),
+
+    #[error("Failed to write file `{file}`: {source}")]
+    WriteFileError { file: PathBuf, source: io::Error },
 }

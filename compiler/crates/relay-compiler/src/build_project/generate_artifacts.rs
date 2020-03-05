@@ -7,6 +7,7 @@
 
 use super::apply_transforms::Programs;
 use crate::config::ConfigProject;
+use crate::errors::BuildProjectError;
 use graphql_ir::FragmentDefinition;
 use graphql_text_printer::OperationPrinter;
 use interner::StringKey;
@@ -22,7 +23,7 @@ pub struct Artifact {
 pub async fn generate_artifacts(
     project_config: &ConfigProject,
     programs: &Programs<'_>,
-) -> Vec<Artifact> {
+) -> Result<Vec<Artifact>, BuildProjectError> {
     let mut printer = OperationPrinter::new(&programs.operation_text);
 
     let mut artifacts = Vec::new();
@@ -36,7 +37,7 @@ pub async fn generate_artifacts(
         let id = if let Some(ref persist_config) = project_config.persist {
             persist(&text, &persist_config.url, &persist_config.params)
                 .await
-                .expect("TODO: error type for persist failures")
+                .map_err(BuildProjectError::PersistError)?
         } else {
             "null".to_string()
         };
@@ -77,5 +78,6 @@ pub async fn generate_artifacts(
             )),
         });
     }
-    artifacts
+
+    Ok(artifacts)
 }

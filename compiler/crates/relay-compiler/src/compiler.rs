@@ -84,22 +84,27 @@ impl Compiler {
         ast_sets: &AstSets,
         sources: &Sources<'_>,
     ) -> Result<()> {
-        let mut validation_errors = vec![];
+        let mut build_project_errors = vec![];
         for project_config in self.config.projects.values() {
             // TODO: consider running all projects in parallel
-            match build_project(compiler_state, &self.config, project_config, ast_sets).await {
+            match build_project(
+                compiler_state,
+                &self.config,
+                project_config,
+                ast_sets,
+                &sources,
+            )
+            .await
+            {
                 Ok(()) => {}
-                Err(err) => validation_errors.extend(err),
+                Err(err) => build_project_errors.push(err),
             }
         }
-        if validation_errors.is_empty() {
+        if build_project_errors.is_empty() {
             Ok(())
         } else {
-            Err(Error::ValidationErrors {
-                errors: validation_errors
-                    .into_iter()
-                    .map(|error| error.with_sources(sources))
-                    .collect(),
+            Err(Error::BuildProjectsErrors {
+                errors: build_project_errors,
             })
         }
     }

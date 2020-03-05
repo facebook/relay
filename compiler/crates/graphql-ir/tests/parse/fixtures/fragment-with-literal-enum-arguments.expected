@@ -61,7 +61,7 @@ fragment ChildFragment on Query
                             definition: WithLocation {
                                 location: "fragment-with-literal-enum-arguments.graphql":85:98,
                                 item: FieldID(
-                                    492,
+                                    494,
                                 ),
                             },
                             arguments: [],
@@ -157,7 +157,7 @@ fragment ChildFragment on Query
                             definition: WithLocation {
                                 location: "fragment-with-literal-enum-arguments.graphql":287:300,
                                 item: FieldID(
-                                    492,
+                                    494,
                                 ),
                             },
                             arguments: [],

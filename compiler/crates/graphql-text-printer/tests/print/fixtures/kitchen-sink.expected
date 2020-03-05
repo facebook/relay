@@ -62,6 +62,13 @@ fragment UserFragment on User
   storySearch(query: {type: DIRECTED}) {
     id
   }
+  ... @include(if: $cond) @skip(if: $foo) {
+    address {
+      city
+    }
+    alternate_name
+  }
+
   ... @include(if: $cond) {
     address {
       city
@@ -114,13 +121,19 @@ fragment UserFragment on User @argumentDefinitions(
     width
     src: uri
   }
-  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+  profilePicture(size: $size) @skip(if: $foo) @include(if: $cond) {
     height
     width
     src: uri
   }
   storySearch(query: {type: DIRECTED}) {
     id
+  }
+  ... @skip(if: $foo) @include(if: $cond) {
+    address {
+      city
+    }
+    alternate_name
   }
   ... @include(if: $cond) {
     address {

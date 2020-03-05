@@ -93,7 +93,7 @@ query TestQuery {
                             definition: WithLocation {
                                 location: "field-arguments.graphql":84:107,
                                 item: FieldID(
-                                    493,
+                                    495,
                                 ),
                             },
                             arguments: [],

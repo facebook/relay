@@ -1,4 +1,4 @@
-// @generated SignedSource<<78ae8c483103e57098cda40d8f3d6e8a>>
+// @generated SignedSource<<dbdb56d1a934b72ce2bc8ecad80e26b1>>
 
 mod print;
 
@@ -73,6 +73,13 @@ fn lowercase_enum_fragment_arg() {
     let input = include_str!("print/fixtures/lowercase-enum-fragment-arg.graphql");
     let expected = include_str!("print/fixtures/lowercase-enum-fragment-arg.expected");
     test_fixture(transform_fixture, "lowercase-enum-fragment-arg.graphql", "print/fixtures/lowercase-enum-fragment-arg.expected", input, expected);
+}
+
+#[test]
+fn nested_conditions() {
+    let input = include_str!("print/fixtures/nested_conditions.graphql");
+    let expected = include_str!("print/fixtures/nested_conditions.expected");
+    test_fixture(transform_fixture, "nested_conditions.graphql", "print/fixtures/nested_conditions.expected", input, expected);
 }
 
 #[test]

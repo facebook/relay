@@ -62,7 +62,7 @@ fragment UserFragment on User {
     width
     src: uri
   }
-  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+  profilePicture(size: $size) @skip(if: $foo) @include(if: $cond) {
     height
     width
     src: uri

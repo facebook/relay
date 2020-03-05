@@ -325,7 +325,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             // Now, let's look into selection directives, and split them into two
             // categories: conditions and other directives
             let (conditions, directives) =
-                split_conditions_and_directivs(&next_selection.directives());
+                split_conditions_and_directives(&next_selection.directives());
 
             // If conditions are empty -> return the original selection
             if conditions.is_empty() {
@@ -1351,7 +1351,7 @@ pub enum ValidationLevel {
     Loose,
 }
 
-fn split_conditions_and_directivs(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
+fn split_conditions_and_directives(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
     directives.iter().cloned().partition(|directive| {
         directive.name.item.lookup() == "skip" || directive.name.item.lookup() == "include"
     })

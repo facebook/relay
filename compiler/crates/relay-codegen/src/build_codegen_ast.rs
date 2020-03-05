@@ -11,8 +11,10 @@ use graphql_ir::{
     InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection, Value,
     VariableDefinition,
 };
+
 use graphql_syntax::OperationKind;
 use graphql_text_printer::print_operation;
+
 use interner::Intern;
 use schema::Schema;
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
@@ -39,7 +41,7 @@ pub fn build_request_params(schema: &Schema, operation: &OperationDefinition) ->
             OperationKind::Subscription => ConcreteOperationKind::Subscription,
         },
         metadata: Default::default(),
-        // TODO(T63303793) add persisted query id
+        // TODO(T63303793) add persisted query id / text
         id: None,
         text: Some(print_operation(schema, operation)),
     }
@@ -182,6 +184,7 @@ impl<'schema> CodegenBuilder<'schema> {
                         selections: self.build_selections(&inline_frag.selections),
                     })
                 } else {
+                    // TODO(T63559346): Handle anonymous inline fragments with no directives
                     panic!(
                         "Unexpected custom directives: {:#?}",
                         inline_frag.directives

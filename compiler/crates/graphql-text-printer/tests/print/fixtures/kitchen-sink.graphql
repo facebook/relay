@@ -61,6 +61,13 @@ fragment UserFragment on User
   storySearch(query: {type: DIRECTED}) {
     id
   }
+  ... @include(if: $cond) @skip(if: $foo) {
+    address {
+      city
+    }
+    alternate_name
+  }
+
   ... @include(if: $cond) {
     address {
       city

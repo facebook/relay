@@ -250,47 +250,18 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_condition(&mut self, condition: &Condition, indent_count: usize) -> Result {
         let mut maybe_current_condition = Some(condition);
         let mut accum_conditions: Vec<Condition> = vec![];
-        let mut selections: Vec<&Selection> = vec![];
-
-        // Extract all nested conditions into a flattened list of conditions, and
-        // extract the selections from the "leaf" condition
         while let Some(current_condition) = maybe_current_condition {
             accum_conditions.push(current_condition.clone());
 
-            if current_condition.selections.len() == 1 {
-                let selection = &current_condition.selections[0];
+            for selection in current_condition.selections.iter() {
                 if let Selection::Condition(nested_cond) = selection {
                     maybe_current_condition = Some(&nested_cond);
                 } else {
-                    selections.push(&selection);
+                    self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
                     maybe_current_condition = None;
                 }
-            } else {
-                for selection in current_condition.selections.iter() {
-                    if let Selection::Condition(_) = selection {
-                        unreachable!("Expected for a Condition to contain either a single Condition node, or non-Condition selections.");
-                    }
-                    selections.push(selection);
-                }
-                maybe_current_condition = None;
             }
         }
-        accum_conditions.reverse();
-
-        // We don't call print_selections here because the selections for a condition (or set of conditions)
-        // aren't printed in the same way. Specifically, we don't need to print curly braces around them
-        // and we don't need to increase the indentation. Instead, the output of printing a condition node will
-        // expand into printing selections as children of the current parent, with all the relevant
-        // condition directives included in each selection.
-        let len = selections.len();
-        for (i, selection) in selections.iter().enumerate() {
-            self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
-            if i != len - 1 {
-                writeln!(self.writer)?;
-                self.print_indentation(indent_count)?;
-            }
-        }
-
         Ok(())
     }
 

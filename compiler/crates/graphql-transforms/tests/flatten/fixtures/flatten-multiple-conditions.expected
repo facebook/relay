@@ -36,7 +36,7 @@ fragment NestedFragment3 on User {
 
 fragment UserFragment on User {
   name
-  ...NestedFragment @include(if: $conditional1) @skip(if: $conditional2)
-  ...NestedFragment2 @include(if: $conditional1) @skip(if: $conditional3)
-  ...NestedFragment3 @include(if: $conditional1) @skip(if: $conditional2)
+  ...NestedFragment @skip(if: $conditional2) @include(if: $conditional1)
+  ...NestedFragment2 @skip(if: $conditional3) @include(if: $conditional1)
+  ...NestedFragment3 @skip(if: $conditional2) @include(if: $conditional1)
 }

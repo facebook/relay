@@ -960,6 +960,7 @@ type User implements Named & Node & Actor & HasJsField {
   likeSentence: Text
   message: Text
   name: String
+  alternate_name: String
   nameRenderable(supported: [String!]): UserNameRenderable
   nameRenderer(supported: [String!]): UserNameRenderer
   nameRendererForContext(
@@ -1022,6 +1023,7 @@ input ItemFilterInput {
 type Viewer {
   configs(named: [String]): ConfigsConnection
   actor: Actor
+  account_user: User
   allTimezones: [TimezoneInfo]
   isFbEmployee: Boolean
   newsFeed(after: ID, first: Int, find: ID): NewsFeedConnection

@@ -8156,6 +8156,205 @@ Source: GraphQL request (13:7)
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: nested_conditions.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment QueryFragment2 on Query {
+  viewer {
+    ... @include(if: $sentinel) @skip(if: $foo) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Fragment {
+  name: "QueryFragment",
+  type: "Query",
+  metadata: null,
+  argumentDefinitions: [
+    RootArgument {
+      name: "sentinel",
+      type: "Boolean!",
+    },
+    RootArgument {
+      name: "bar",
+      type: "Boolean!",
+    },
+    RootArgument {
+      name: "foo",
+      type: "Boolean!",
+    },
+  ],
+  selections: [
+    LinkedField {
+      alias: null,
+      name: "viewer",
+      storageKey: null,
+      args: null,
+      concreteType: "Viewer",
+      plural: false,
+      selections: [
+        Condition {
+          passingValue: true,
+          condition: "sentinel",
+          selections: [
+            LinkedField {
+              alias: null,
+              name: "account_user",
+              storageKey: null,
+              args: null,
+              concreteType: "User",
+              plural: false,
+              selections: [
+                ScalarField {
+                  alias: null,
+                  name: "name",
+                  args: null,
+                  storageKey: null,
+                },
+                Condition {
+                  passingValue: true,
+                  condition: "foo",
+                  selections: [
+                    Condition {
+                      passingValue: false,
+                      condition: "bar",
+                      selections: [
+                        ScalarField {
+                          alias: null,
+                          name: "alternate_name",
+                          args: null,
+                          storageKey: null,
+                        },
+                        ScalarField {
+                          alias: null,
+                          name: "canViewerComment",
+                          args: null,
+                          storageKey: null,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            Condition {
+              passingValue: false,
+              condition: "foo",
+              selections: [
+                LinkedField {
+                  alias: null,
+                  name: "actor",
+                  storageKey: null,
+                  args: null,
+                  concreteType: null,
+                  plural: false,
+                  selections: [
+                    ScalarField {
+                      alias: null,
+                      name: "name",
+                      args: null,
+                      storageKey: null,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
+Fragment {
+  name: "QueryFragment2",
+  type: "Query",
+  metadata: null,
+  argumentDefinitions: [
+    RootArgument {
+      name: "sentinel",
+      type: "Boolean!",
+    },
+    RootArgument {
+      name: "foo",
+      type: "Boolean!",
+    },
+    RootArgument {
+      name: "bar",
+      type: "Boolean!",
+    },
+  ],
+  selections: [
+    LinkedField {
+      alias: null,
+      name: "viewer",
+      storageKey: null,
+      args: null,
+      concreteType: "Viewer",
+      plural: false,
+      selections: [
+        Condition {
+          passingValue: true,
+          condition: "sentinel",
+          selections: [
+            Condition {
+              passingValue: false,
+              condition: "foo",
+              selections: [
+                Condition {
+                  passingValue: true,
+                  condition: "bar",
+                  selections: [
+                    LinkedField {
+                      alias: null,
+                      name: "account_user",
+                      storageKey: null,
+                      args: null,
+                      concreteType: "User",
+                      plural: false,
+                      selections: [
+                        ScalarField {
+                          alias: null,
+                          name: "name",
+                          args: null,
+                          storageKey: null,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: original-client-fields-test.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query BestFriendsQuery($id: ID!) {

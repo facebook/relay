@@ -1,6 +1,6 @@
 # @generated
 # @autocargo from //relay/oss/crates/persist-query:persist-query
-# Signature<<272efe92a9eedb624a1e6ecaa25d3c59e6274d8f>>
+# Signature<<9540e3c976d2587fccbcb33ed0d3ceb463c59bd5>>
 [package]
 name = "persist-query"
 edition = "2018"
@@ -16,4 +16,4 @@ serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
 thiserror = "1.0"
 url = "2.1.0"
-# @end of Signature<<272efe92a9eedb624a1e6ecaa25d3c59e6274d8f>>
+# @end of Signature<<9540e3c976d2587fccbcb33ed0d3ceb463c59bd5>>

@@ -68,6 +68,43 @@ query DontSkipNestedFieldsAcrossFragments {
 
 `;
 
+exports[`SkipRedundantNodesTransform matches expected output: dont-skip-with-inline-on-diffent-types.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query DontSkipWithInlineFragmentOnDifferentTypes {
+  viewer {
+    actor {
+      ... on Actor {
+        id
+      }
+      ... on User {
+        id # we currently don't skip this
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query DontSkipWithInlineFragmentOnDifferentTypes {
+  viewer {
+    actor {
+      ... on Actor {
+        id
+      }
+      ... on User {
+        id
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}
+
+`;
+
 exports[`SkipRedundantNodesTransform matches expected output: skip-nested-linked-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SkipNestedLinkedFields {
@@ -140,6 +177,48 @@ query SkipNestedFields {
         name
         ... on User {
           lastName
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-client-extensions.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SkipWithClientExtensions {
+  viewer {
+    actor {
+      ... on Actor {
+        clientName
+        clientUser {
+          name
+        }
+        clientName
+        clientUser {
+          ... on User {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+extend interface Actor {
+  clientName: String
+  clientUser: User
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SkipWithClientExtensions {
+  viewer {
+    actor {
+      ... on Actor {
+        clientName
+        clientUser {
+          name
         }
       }
     }

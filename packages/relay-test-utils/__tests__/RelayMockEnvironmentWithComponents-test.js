@@ -14,7 +14,6 @@
 'use strict';
 
 const React = require('react');
-// $FlowFixMe - untyped import
 const ReactTestRenderer = require('react-test-renderer');
 
 const {MockPayloadGenerator, createMockEnvironment} = require('../');

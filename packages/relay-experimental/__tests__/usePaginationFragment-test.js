@@ -80,7 +80,6 @@ describe('usePaginationFragment', () => {
   function usePaginationFragment(fragmentNode, fragmentRef) {
     const {data, ...result} = usePaginationFragmentOriginal(
       fragmentNode,
-      // $FlowFixMe
       fragmentRef,
     );
     loadNext = result.loadNext;

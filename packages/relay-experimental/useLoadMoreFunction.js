@@ -195,6 +195,9 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
+        /* $FlowFixMe(>=0.120.0) This comment suppresses an error found when
+         * Flow v0.120 was deployed. To see the error, delete this comment and
+         * run Flow. */
         ...extraVariables,
       };
       const paginationVariables = getPaginationVariables(

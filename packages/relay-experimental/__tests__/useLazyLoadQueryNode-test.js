@@ -416,7 +416,6 @@ describe('useLazyLoadQueryNode', () => {
 
     expect(instance.toJSON()).toEqual('Bob');
     renderFn.mockClear();
-    environment.retain.mockClear();
     environment.execute.mockClear();
 
     // Suspend on the first query
@@ -427,11 +426,10 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
-    expect(environment.retain).toHaveBeenCalledTimes(1);
+    expect(environment.retain).toHaveBeenCalledTimes(2);
     renderFn.mockClear();
     environment.retain.mockClear();
     environment.execute.mockClear();
-    release.mockClear();
 
     ReactTestRenderer.act(() => {
       instance.unmount();

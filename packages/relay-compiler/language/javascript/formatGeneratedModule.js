@@ -12,6 +12,8 @@
 
 'use strict';
 
+const deepMergeAssignments = require('./deepMergeAssignments');
+
 import type {FormatModule} from '../RelayLanguagePluginInterface';
 
 const formatGeneratedModule: FormatModule = ({
@@ -22,6 +24,7 @@ const formatGeneratedModule: FormatModule = ({
   typeText,
   hash,
   sourceHash,
+  nodeDevOnlyProperties,
 }) => {
   const documentTypeImport = documentType
     ? `import type { ${documentType} } from 'relay-runtime';`
@@ -29,6 +32,14 @@ const formatGeneratedModule: FormatModule = ({
   const docTextComment =
     docText != null ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash != null ? `\n * ${hash}` : '';
+  const devOnlyAssignments = deepMergeAssignments(
+    '(node/*: any*/)',
+    nodeDevOnlyProperties,
+  );
+  const devOnlyAssignmentsText =
+    devOnlyAssignments.length > 0
+      ? `\nif (__DEV__) {\n  ${devOnlyAssignments}\n}`
+      : '';
   return `/**
  * ${'@'}flow${hashText}
  */
@@ -43,7 +54,8 @@ ${typeText || ''}
 */
 
 ${docTextComment}
-const node/*: ${documentType || 'empty'}*/ = ${concreteText};
+const node/*: ${documentType ||
+    'empty'}*/ = ${concreteText};${devOnlyAssignmentsText}
 // prettier-ignore
 (node/*: any*/).hash = '${sourceHash}';
 `;

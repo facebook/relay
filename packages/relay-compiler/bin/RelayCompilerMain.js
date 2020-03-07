@@ -64,6 +64,7 @@ export type Config = {|
   repersist: boolean,
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
+  includePersistedQueryTextInDev?: boolean,
 |};
 
 function buildWatchExpression(config: {
@@ -355,6 +356,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
         config.customScalars,
         persistQueryFunction,
         config.repersist,
+        config.includePersistedQueryTextInDev,
       ),
       isGeneratedFile: languagePlugin.isGeneratedFile
         ? languagePlugin.isGeneratedFile
@@ -390,6 +392,7 @@ function getRelayFileWriter(
   customScalars?: ScalarTypeMapping,
   persistFunction?: ?(text: string) => Promise<string>,
   repersist?: boolean,
+  includePersistedQueryTextInDev?: boolean,
 ) {
   return async ({
     onlyValidate,
@@ -439,6 +442,7 @@ function getRelayFileWriter(
         outputDir,
         persistQuery,
         repersist,
+        includePersistedQueryTextInDev,
       },
       onlyValidate,
       schema,

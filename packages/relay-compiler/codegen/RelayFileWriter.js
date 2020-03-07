@@ -81,6 +81,7 @@ export type WriterConfig = {
     moduleName: string,
     requestParams: RequestParameters,
   ) => void,
+  includePersistedQueryTextInDev?: boolean,
   ...
 };
 
@@ -306,6 +307,7 @@ function writeAll({
             writerConfig.repersist ?? false,
             writerConfig.writeQueryParameters ?? function noop() {},
             languagePlugin,
+            writerConfig.includePersistedQueryTextInDev ?? false,
           );
         }),
       );

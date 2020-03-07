@@ -60,6 +60,7 @@ export type Config = {|
   eagerESModules?: boolean,
   language: string | PluginInitializer,
   persistFunction?: ?string | ?((text: string) => Promise<string>),
+  repersist: boolean,
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
 |};
@@ -346,6 +347,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
         config.persistOutput,
         config.customScalars,
         persistQueryFunction,
+        config.repersist,
       ),
       isGeneratedFile: languagePlugin.isGeneratedFile
         ? languagePlugin.isGeneratedFile
@@ -380,6 +382,7 @@ function getRelayFileWriter(
   persistedQueryPath?: ?string,
   customScalars?: ScalarTypeMapping,
   persistFunction?: ?(text: string) => Promise<string>,
+  repersist?: boolean,
 ) {
   return async ({
     onlyValidate,
@@ -428,6 +431,7 @@ function getRelayFileWriter(
         typeGenerator: languagePlugin.typeGenerator,
         outputDir,
         persistQuery,
+        repersist,
       },
       onlyValidate,
       schema,

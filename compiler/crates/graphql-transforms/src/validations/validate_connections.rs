@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::ConnectionInterface;
+use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
+use crate::handle_fields::{extract_handle_field_directive_args, HandleFieldConstants};
+use crate::util::find_argument;
 use errors::{try2, try3, try4, try_map};
 use graphql_ir::{
     Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
     ValidationMessage, ValidationResult, Validator, Value,
 };
-use interner::{Intern, StringKey};
+use interner::StringKey;
 use schema::{Field, Type, TypeReference};
 
 pub fn validate_connections<'s, TConnectionInterface: ConnectionInterface>(
@@ -22,35 +24,19 @@ pub fn validate_connections<'s, TConnectionInterface: ConnectionInterface>(
     validator.validate_program(program)
 }
 struct ConnectionValidation<'s, TConnectionInterface: ConnectionInterface> {
+    connection_constants: ConnectionConstants,
     connection_interface: TConnectionInterface,
+    handle_field_constants: HandleFieldConstants,
     program: &'s Program<'s>,
-    connection_directive_name: StringKey,
-    stream_connection_directive_name: StringKey,
-    hander_arg_name: StringKey,
-    filters_arg_name: StringKey,
-    key_arg_name: StringKey,
-    dynamic_key_arg_name: StringKey,
-    _after_arg_name: StringKey,
-    _before_arg_name: StringKey,
-    first_arg_name: StringKey,
-    last_arg_name: StringKey,
 }
 
 impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TConnectionInterface> {
     fn new(program: &'s Program<'s>, connection_interface: TConnectionInterface) -> Self {
         Self {
+            connection_constants: ConnectionConstants::default(),
             connection_interface,
+            handle_field_constants: HandleFieldConstants::default(),
             program,
-            connection_directive_name: "connection".intern(),
-            stream_connection_directive_name: "stream_connection".intern(),
-            hander_arg_name: "handler".intern(),
-            filters_arg_name: "filters".intern(),
-            key_arg_name: "key".intern(),
-            dynamic_key_arg_name: "dynamicKey_UNSTABLE".intern(),
-            _after_arg_name: "after".intern(),
-            _before_arg_name: "before".intern(),
-            first_arg_name: "first".intern(),
-            last_arg_name: "last".intern(),
         }
     }
 
@@ -94,14 +80,20 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
     ) -> ValidationResult<&'s LinkedField> {
         let schema = self.program.schema();
 
-        let first_arg = find_argument(&connection_field.arguments, self.first_arg_name);
-        let last_arg = find_argument(&connection_field.arguments, self.last_arg_name);
+        let first_arg = find_argument(
+            &connection_field.arguments,
+            self.connection_constants.first_arg_name,
+        );
+        let last_arg = find_argument(
+            &connection_field.arguments,
+            self.connection_constants.last_arg_name,
+        );
         if first_arg.is_none() && last_arg.is_none() {
             return Err(vec![ValidationError::new(
                 ValidationMessage::ExpectedConnectionToHaveCountArgs {
                     connection_field_name: connection_schema_field.name,
-                    first_arg: self.first_arg_name,
-                    last_arg: self.last_arg_name,
+                    first_arg: self.connection_constants.first_arg_name,
+                    last_arg: self.connection_constants.last_arg_name,
                 },
                 vec![connection_field.definition.location],
             )]);
@@ -353,50 +345,33 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         connection_schema_field: &Field,
         connection_directive: &Directive,
     ) -> ValidationResult<()> {
-        let literal_arguments = connection_directive
-            .arguments
-            .iter()
-            .filter_map(|arg| match &arg.value.item {
-                Value::Constant(constant_val) => Some((arg, constant_val)),
-                _ => None,
-            })
-            .collect::<Vec<(&Argument, &ConstantValue)>>();
-
-        let literal_handler_arg = literal_arguments
-            .iter()
-            .find(|(arg, _)| arg.name.item == self.hander_arg_name);
-
-        let literal_key_arg = literal_arguments
-            .iter()
-            .find(|(arg, _)| arg.name.item == self.key_arg_name);
-
-        let literal_filters_arg = literal_arguments
-            .iter()
-            .find(|(arg, _)| arg.name.item == self.filters_arg_name);
+        let connection_directive_args =
+            extract_handle_field_directive_args(connection_directive, self.handle_field_constants);
 
         try4(
             self.validate_handler_arg(
                 connection_field,
                 connection_schema_field,
                 connection_directive,
-                literal_handler_arg,
+                connection_directive_args.handler_arg,
             ),
             self.validate_key_arg(
                 connection_field,
                 connection_schema_field,
                 connection_directive,
-                literal_key_arg,
+                connection_directive_args.key_arg,
             ),
             self.validate_filters_arg(
                 connection_field,
                 connection_schema_field,
                 connection_directive,
-                literal_filters_arg,
+                connection_directive_args.filters_arg,
             ),
             self.validate_dynamic_key_arg(
                 connection_field,
                 connection_schema_field,
                 connection_directive,
+                connection_directive_args.dynamic_key_arg,
             ),
         )?;
 
@@ -408,9 +383,9 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         connection_field: &LinkedField,
         connection_schema_field: &Field,
         connection_directive: &Directive,
-        literal_handler_arg: Option<&(&Argument, &ConstantValue)>,
+        constant_handler_arg: Option<(&Argument, &ConstantValue)>,
     ) -> ValidationResult<()> {
-        if let Some((arg, handler_val)) = literal_handler_arg {
+        if let Some((arg, handler_val)) = constant_handler_arg {
             match handler_val {
                 ConstantValue::String(_) => {}
                 _ => {
@@ -418,7 +393,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                         ValidationMessage::InvalidConnectionHandlerArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            handler_arg_name: self.hander_arg_name,
+                            handler_arg_name: self.handle_field_constants.handler_arg_name,
                         },
                         vec![arg.value.location, connection_field.definition.location],
                     )]);
@@ -433,9 +408,9 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         connection_field: &LinkedField,
         connection_schema_field: &Field,
         connection_directive: &Directive,
-        literal_key_arg: Option<&(&Argument, &ConstantValue)>,
+        constant_key_arg: Option<(&Argument, &ConstantValue)>,
     ) -> ValidationResult<()> {
-        match literal_key_arg {
+        match constant_key_arg {
             Some((arg, key_val)) => match key_val {
                 ConstantValue::String(string_val) => {
                     let field_alias_or_name = match connection_field.alias {
@@ -448,7 +423,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                             ValidationMessage::InvalidConnectionKeyArgPostfix {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name,
-                                key_arg_name: self.key_arg_name,
+                                key_arg_name: self.handle_field_constants.key_arg_name,
                                 key_arg_value: *string_val,
                                 postfix,
                             },
@@ -461,7 +436,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                         ValidationMessage::InvalidConnectionKeyArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            key_arg_name: self.key_arg_name,
+                            key_arg_name: self.handle_field_constants.key_arg_name,
                         },
                         vec![arg.value.location, connection_field.definition.location],
                     )]);
@@ -472,7 +447,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                     ValidationMessage::InvalidConnectionKeyArg {
                         connection_directive_name: connection_directive.name.item,
                         connection_field_name: connection_schema_field.name,
-                        key_arg_name: self.key_arg_name,
+                        key_arg_name: self.handle_field_constants.key_arg_name,
                     },
                     vec![connection_field.definition.location],
                 )])
@@ -486,9 +461,9 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         connection_field: &LinkedField,
         connection_schema_field: &Field,
         connection_directive: &Directive,
-        literal_filters_arg: Option<&(&Argument, &ConstantValue)>,
+        constant_filters_arg: Option<(&Argument, &ConstantValue)>,
     ) -> ValidationResult<()> {
-        if let Some((arg, filters_val)) = literal_filters_arg {
+        if let Some((arg, filters_val)) = constant_filters_arg {
             match filters_val {
                 ConstantValue::List(list_val) => {
                     let non_string_value = list_val.iter().find(|val| match val {
@@ -501,7 +476,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                             ValidationMessage::InvalidConnectionFiltersArg {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name,
-                                filters_arg_name: self.filters_arg_name,
+                                filters_arg_name: self.handle_field_constants.filters_arg_name,
                             },
                             vec![arg.value.location, connection_field.definition.location],
                         )]);
@@ -512,7 +487,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                         ValidationMessage::InvalidConnectionFiltersArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            filters_arg_name: self.filters_arg_name,
+                            filters_arg_name: self.handle_field_constants.filters_arg_name,
                         },
                         vec![arg.value.location, connection_field.definition.location],
                     )]);
@@ -527,20 +502,17 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         connection_field: &LinkedField,
         connection_schema_field: &Field,
         connection_directive: &Directive,
+        dynamic_key_arg: Option<(&Argument, &Value)>,
     ) -> ValidationResult<()> {
-        let dynamic_key_arg = connection_directive
-            .arguments
-            .iter()
-            .find(|arg| arg.name.item == self.dynamic_key_arg_name);
-        if let Some(dynamic_key_arg) = dynamic_key_arg {
-            match dynamic_key_arg.value.item {
+        if let Some((dynamic_key_arg, value)) = dynamic_key_arg {
+            match value {
                 Value::Variable(_) => {}
                 _ => {
                     return Err(vec![ValidationError::new(
                         ValidationMessage::InvalidConnectionDynamicKeyArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            dynamic_key_arg_name: self.dynamic_key_arg_name,
+                            dynamic_key_arg_name: self.handle_field_constants.dynamic_key_arg_name,
                         },
                         vec![
                             dynamic_key_arg.value.location,
@@ -552,13 +524,6 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         }
         Ok(())
     }
-
-    fn get_connection_directive(&self, directives: &'s [Directive]) -> Option<&Directive> {
-        directives.iter().find(|directive| {
-            directive.name.item == self.connection_directive_name
-                || directive.name.item == self.stream_connection_directive_name
-        })
-    }
 }
 
 impl<'s, TConnectionInterface: ConnectionInterface> Validator
@@ -569,7 +534,9 @@ impl<'s, TConnectionInterface: ConnectionInterface> Validator
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
-        if let Some(connection_directive) = self.get_connection_directive(&field.directives) {
+        if let Some(connection_directive) =
+            extract_connection_directive(&field.directives, self.connection_constants)
+        {
             let schema = self.program.schema();
             let connection_schema_field = schema.field(field.definition.item);
 
@@ -600,8 +567,4 @@ impl<'s, TConnectionInterface: ConnectionInterface> Validator
             self.default_validate_linked_field(field)
         }
     }
-}
-
-fn find_argument(arguments: &[Argument], arg_name: StringKey) -> Option<&Argument> {
-    arguments.iter().find(|arg| arg.name.item == arg_name)
 }

@@ -28,7 +28,7 @@ type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 struct ClientExtensionsTransform<'s> {
     program: &'s Program<'s>,
-    client_extension_name: StringKey,
+    client_extension_directive_name: StringKey,
     empty_location: Location,
     seen: Seen,
 }
@@ -38,7 +38,7 @@ impl<'s> ClientExtensionsTransform<'s> {
         Self {
             program,
             seen: Default::default(),
-            client_extension_name: "__clientExtension".intern(),
+            client_extension_directive_name: "__clientExtension".intern(),
             empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
         }
     }
@@ -49,7 +49,7 @@ impl<'s> ClientExtensionsTransform<'s> {
             name: WithLocation::new(
                 // The directive is only used at codegen step, location is not necessary
                 self.empty_location,
-                self.client_extension_name,
+                self.client_extension_directive_name,
             ),
             arguments: Default::default(),
         }

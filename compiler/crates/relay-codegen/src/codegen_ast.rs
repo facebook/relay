@@ -74,7 +74,7 @@ pub struct FragmentMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub plural: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub refetch: Option<RefetchMetadata>,
+    pub refetch: Option<RefetchableMetadata>,
 }
 
 #[derive(Debug, Serialize)]
@@ -82,19 +82,12 @@ pub struct FragmentMetadata {
 pub struct RefetchableFragmentMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connection: Option<(ConnectionMetadata,)>,
-    pub refetch: RefetchMetadata,
+    pub refetch: RefetchableMetadata,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PaginationFragmentMetadata {
-    pub connection: (ConnectionMetadata,),
-    pub refetch: RefetchPaginationMetadata,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RefetchMetadata {
+pub struct RefetchableMetadata {
     pub connection: Option<PaginationMetadata>,
     pub operation: Box<ConcreteRequest>,
     pub fragment_path_in_result: Vec<String>,
@@ -102,7 +95,14 @@ pub struct RefetchMetadata {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RefetchPaginationMetadata {
+pub struct RefetchablePaginationFragmentMetadata {
+    pub connection: (ConnectionMetadata,),
+    pub refetch: RefetchablePaginationMetadata,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RefetchablePaginationMetadata {
     pub connection: PaginationMetadata,
     pub operation: Box<ConcreteRequest>,
     pub fragment_path_in_result: Vec<String>,

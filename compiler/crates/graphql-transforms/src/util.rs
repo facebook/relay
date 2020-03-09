@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{Condition, Selection};
+use graphql_ir::{Argument, Condition, Selection};
 use graphql_text_printer::write_arguments;
 use graphql_text_printer::write_directives;
 use interner::StringKey;
@@ -129,4 +129,8 @@ pub fn get_identifier_for_selection<'s>(
             NodeIdentifier::Condition(ConditionIdentifier(Arc::clone(node)))
         }
     }
+}
+
+pub fn find_argument(arguments: &[Argument], arg_name: StringKey) -> Option<&Argument> {
+    arguments.iter().find(|arg| arg.name.item == arg_name)
 }

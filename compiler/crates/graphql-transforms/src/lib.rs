@@ -15,10 +15,12 @@ mod connections;
 mod flatten;
 mod generate_id_field;
 mod generate_typename;
+mod handle_fields;
 mod inline_fragments;
 mod remove_base_fragments;
 mod skip_client_extensions;
 mod sort_selections;
+mod transform_connections;
 mod util;
 mod validations;
 
@@ -31,4 +33,5 @@ pub use inline_fragments::inline_fragments;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;
 pub use sort_selections::sort_selections;
+pub use transform_connections::transform_connections;
 pub use validations::*;

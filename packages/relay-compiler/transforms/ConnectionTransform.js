@@ -235,7 +235,9 @@ function buildConnectionArguments(
     filters: literalFilters,
   } = getLiteralArgumentValues(connectionDirective.args);
   if (handler != null && typeof handler !== 'string') {
-    const handleArg = connectionDirective.args.find(arg => arg.name === 'key');
+    const handleArg = connectionDirective.args.find(
+      arg => arg.name === 'handler',
+    );
     throw createUserError(
       `Expected the ${HANDLER} argument to @${connectionDirective.name} to ` +
         `be a string literal for field ${field.name}.`,

@@ -1,6 +1,6 @@
 # @generated
-# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-skip_client_extensions-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
-# Signature<<43a621e180e37508fa14d35f36e770f3ebe85f7d>>
+# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
+# Signature<<72ad59f61863ae948cd96eb950cb62df8025bd5d>>
 [package]
 name = "graphql-transforms"
 edition = "2018"
@@ -37,6 +37,10 @@ name = "graphql_inline_fragments_test"
 path = "tests/inline_fragments_test.rs"
 
 [[test]]
+name = "graphql_node_identifier_test"
+path = "tests/node_identifier_test.rs"
+
+[[test]]
 name = "graphql_skip_client_extensions_test"
 path = "tests/skip_client_extensions_test.rs"
 
@@ -62,4 +66,4 @@ fnv = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<43a621e180e37508fa14d35f36e770f3ebe85f7d>>
+# @end of Signature<<72ad59f61863ae948cd96eb950cb62df8025bd5d>>

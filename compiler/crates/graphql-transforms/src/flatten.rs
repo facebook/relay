@@ -12,7 +12,7 @@ use graphql_ir::{
 };
 use schema::{Schema, Type, TypeReference};
 
-use crate::util::{get_identifier_for_selection, NodeIdentifier};
+use crate::node_identifier::NodeIdentifier;
 use fnv::FnvHashMap;
 use std::sync::Arc;
 
@@ -174,7 +174,7 @@ impl<'s> FlattenTransform<'s> {
                 }
             }
 
-            let node_identifier = get_identifier_for_selection(self.program.schema(), &selection);
+            let node_identifier = NodeIdentifier::from_selection(self.program.schema(), &selection);
             let flattened_selection_value = flattened_selections_map.get(&node_identifier);
 
             match flattened_selection_value {

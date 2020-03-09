@@ -1,6 +1,6 @@
 # @generated
-# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
-# Signature<<72ad59f61863ae948cd96eb950cb62df8025bd5d>>
+# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
+# Signature<<c5fe9ac0b70dc5a12a451391cf6eb10c58c4f55a>>
 [package]
 name = "graphql-transforms"
 edition = "2018"
@@ -45,6 +45,10 @@ name = "graphql_skip_client_extensions_test"
 path = "tests/skip_client_extensions_test.rs"
 
 [[test]]
+name = "graphql_skip_redundant_nodes_test"
+path = "tests/skip_redundant_nodes_test.rs"
+
+[[test]]
 name = "graphql_sort_selections_test"
 path = "tests/sort_selections_test.rs"
 
@@ -63,7 +67,8 @@ schema = { path = "../schema" }
 test-schema = { path = "../test-schema" }
 criterion = "0.3"
 fnv = "1.0"
+im = { version = "14.2", features = ["rayon", "serde"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<72ad59f61863ae948cd96eb950cb62df8025bd5d>>
+# @end of Signature<<c5fe9ac0b70dc5a12a451391cf6eb10c58c4f55a>>

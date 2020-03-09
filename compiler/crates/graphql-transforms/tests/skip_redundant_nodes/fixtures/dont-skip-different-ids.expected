@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+query DontSkipDifferentIds {
+  viewer {
+    actor {
+      id
+      hometown {
+        id # id of a different parent field, can't skip
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query DontSkipDifferentIds {
+  viewer {
+    actor {
+      id
+      hometown {
+        id
+      }
+    }
+  }
+}

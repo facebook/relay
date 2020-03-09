@@ -451,7 +451,7 @@ impl<T> Transformed<T> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum TransformedValue<T> {
     Keep,
     Replace(T),

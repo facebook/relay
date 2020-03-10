@@ -25,14 +25,14 @@ pub fn apply_transforms<'schema>(
 ) -> Programs<'schema> {
     // common
     //  |- reader
-    //  |- query
+    //  |- operation
     //     |- normalization
     //     |- operation_text
     let common_program = apply_common_transforms(&program);
     let reader_program = apply_reader_transforms(&common_program, base_fragment_names);
-    let query_program = apply_operation_transforms(&common_program);
-    let normalization_program = apply_normalization_transforms(&query_program);
-    let operation_text_program = apply_operation_text_transforms(&query_program);
+    let operation_program = apply_operation_transforms(&common_program);
+    let normalization_program = apply_normalization_transforms(&operation_program);
+    let operation_text_program = apply_operation_text_transforms(&operation_program);
 
     Programs {
         reader: reader_program,

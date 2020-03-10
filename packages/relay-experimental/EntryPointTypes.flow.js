@@ -172,7 +172,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   queries: $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
 |}>;
 
-type ThinQueryParams<
+export type ThinQueryParams<
   TQuery: OperationType,
   TEnvironmentProviderOptions,
 > = $ReadOnly<{|

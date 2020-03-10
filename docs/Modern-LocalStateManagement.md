@@ -8,7 +8,7 @@ The Relay Compiler fully supports client-side extensions of the schema, which al
 
 Table of Contents:
 
-- [Extending the client schema](#extending-the-client-schema)
+- [Extending the server schema](#extending-the-server-schema)
 - [Querying local state](#querying-local-state)
 - [Mutating local state](#mutating-local-state)
 - [Initial local state](#initial-local-state)

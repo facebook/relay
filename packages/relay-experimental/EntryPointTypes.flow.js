@@ -54,6 +54,7 @@ export type PreloadedQuery<
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: ?string | ?number,
   +fetchPolicy: PreloadFetchPolicy,
+  +id: ?string,
   +name: string,
   +source: ?Observable<GraphQLResponse>,
   +variables: $ElementType<TQuery, 'variables'>,

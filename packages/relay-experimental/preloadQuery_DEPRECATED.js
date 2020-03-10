@@ -41,6 +41,7 @@ import type {
   IEnvironment,
   OperationType,
   Subscription,
+  RequestParameters,
 } from 'relay-runtime';
 
 // Expire results by this delay after they resolve.
@@ -59,6 +60,7 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'network',
+      id: ?string,
       name: string,
       status: PreloadQueryStatus,
       subject: ReplaySubject<GraphQLResponse>,
@@ -69,6 +71,7 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'cache',
+      id: ?string,
       name: string,
       status: PreloadQueryStatus,
     |}>;
@@ -112,6 +115,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
     fetchPolicy: queryEntry.fetchPolicy,
+    id: queryEntry.id,
     name: queryEntry.name,
     source,
     variables,
@@ -139,7 +143,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
     (preloadableRequest: $FlowFixMe).queryResource != null
   ) {
     const preloadableConcreteRequest = (preloadableRequest: $FlowFixMe);
-    params = preloadableConcreteRequest.params;
+    params = (preloadableConcreteRequest.params: RequestParameters);
     query = preloadableConcreteRequest.queryResource.getModuleIfRequired();
   } else {
     query = getRequest((preloadableRequest: $FlowFixMe));
@@ -162,7 +166,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       ? environment.check(createOperationDescriptor(query, variables))
       : {status: 'missing'};
 
-  let nextQueryEntry;
+  let nextQueryEntry: ?PendingQueryEntry;
   if (availability.status === 'available' && query != null) {
     nextQueryEntry =
       prevQueryEntry && prevQueryEntry.kind === 'cache'
@@ -172,6 +176,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
             fetchKey,
             fetchPolicy,
             kind: 'cache',
+            id: params.id,
             name: params.name,
             status: {
               cacheConfig: networkCacheConfig,
@@ -207,6 +212,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       fetchKey,
       fetchPolicy,
       kind: 'network',
+      id: params.id,
       name: params.name,
       status: {
         cacheConfig: networkCacheConfig,

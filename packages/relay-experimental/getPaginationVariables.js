@@ -24,6 +24,7 @@ function getPaginationVariables(
   count: number,
   cursor: ?string,
   baseVariables: Variables,
+  extraVariables: ?Variables,
   paginationMetadata: ReaderPaginationMetadata,
 ): {[string]: mixed, ...} {
   const {
@@ -39,20 +40,24 @@ function getPaginationVariables(
       'Relay: Expected backward pagination metadata to be available. ' +
         "If you're seeing this, this is likely a bug in Relay.",
     );
-    warning(
-      !baseVariables.hasOwnProperty(backwardMetadata.cursor),
-      'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
-        'contain cursor variable `%s`. This variable is automatically ' +
-        'determined by Relay.',
-      backwardMetadata.cursor,
-    );
-    warning(
-      !baseVariables.hasOwnProperty(backwardMetadata.count),
-      'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
-        'contain count variable `%s`. This variable is automatically ' +
-        'determined by Relay.',
-      backwardMetadata.count,
-    );
+
+    if (extraVariables) {
+      warning(
+        !extraVariables.hasOwnProperty(backwardMetadata.cursor),
+        'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
+          'contain cursor variable `%s`. This variable is automatically ' +
+          'determined by Relay.',
+        backwardMetadata.cursor,
+      );
+      warning(
+        !extraVariables.hasOwnProperty(backwardMetadata.count),
+        'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
+          'contain count variable `%s`. This variable is automatically ' +
+          'determined by Relay.',
+        backwardMetadata.count,
+      );
+    }
+
     const paginationVariables = {
       ...baseVariables,
       [backwardMetadata.cursor]: cursor,
@@ -74,20 +79,24 @@ function getPaginationVariables(
     'Relay: Expected forward pagination metadata to be available. ' +
       "If you're seeing this, this is likely a bug in Relay.",
   );
-  warning(
-    !baseVariables.hasOwnProperty(forwardMetadata.cursor),
-    'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
-      'contain cursor variable `%s`. This variable is automatically ' +
-      'determined by Relay.',
-    forwardMetadata.cursor,
-  );
-  warning(
-    !baseVariables.hasOwnProperty(forwardMetadata.count),
-    'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
-      'contain count variable `%s`. This variable is automatically ' +
-      'determined by Relay.',
-    forwardMetadata.count,
-  );
+
+  if (extraVariables) {
+    warning(
+      !extraVariables.hasOwnProperty(forwardMetadata.cursor),
+      'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
+        'contain cursor variable `%s`. This variable is automatically ' +
+        'determined by Relay.',
+      forwardMetadata.cursor,
+    );
+    warning(
+      !extraVariables.hasOwnProperty(forwardMetadata.count),
+      'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
+        'contain count variable `%s`. This variable is automatically ' +
+        'determined by Relay.',
+      forwardMetadata.count,
+    );
+  }
+
   const paginationVariables = {
     ...baseVariables,
     [forwardMetadata.cursor]: cursor,

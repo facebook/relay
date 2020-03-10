@@ -205,6 +205,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
         count,
         cursor,
         baseVariables,
+        extraVariables,
         paginationMetadata,
       );
 

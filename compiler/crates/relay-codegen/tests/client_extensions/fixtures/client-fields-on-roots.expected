@@ -5,6 +5,14 @@ query FooQuery($id: ID!, $arg: String) {
   node(id: $id) {
     id
   }
+
+  client_user {
+    ...ClientFragment
+  }
+}
+
+fragment ClientFragment on ClientUser {
+  name
 }
 
 mutation FooMutation {
@@ -18,6 +26,7 @@ subscription FooSubscription {
 # %extensions%
 extend type Query {
   client_root_field: String
+  client_user: ClientUser
 }
 
 extend type Mutation {
@@ -27,4 +36,142 @@ extend type Mutation {
 extend type Subscription {
   client_root_field: String
 }
+
+type ClientUser {
+  name: String
+}
 ==================================== OUTPUT ===================================
+{
+  "kind": "Fragment",
+  "name": "ClientFragment",
+  "type": "ClientUser",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Operation",
+  "name": "FooMutation",
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_root_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Operation",
+  "name": "FooQuery",
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "id",
+      "type": "ID",
+      "defaultValue": null
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "arg",
+      "type": "String",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "client_user",
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ClientFragment",
+              "args": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_root_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "node",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": "Node",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "id",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Operation",
+  "name": "FooSubscription",
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_root_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}

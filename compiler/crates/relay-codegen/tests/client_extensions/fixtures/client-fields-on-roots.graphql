@@ -4,6 +4,14 @@ query FooQuery($id: ID!, $arg: String) {
   node(id: $id) {
     id
   }
+
+  client_user {
+    ...ClientFragment
+  }
+}
+
+fragment ClientFragment on ClientUser {
+  name
 }
 
 mutation FooMutation {
@@ -17,6 +25,7 @@ subscription FooSubscription {
 # %extensions%
 extend type Query {
   client_root_field: String
+  client_user: ClientUser
 }
 
 extend type Mutation {
@@ -25,4 +34,8 @@ extend type Mutation {
 
 extend type Subscription {
   client_root_field: String
+}
+
+type ClientUser {
+  name: String
 }

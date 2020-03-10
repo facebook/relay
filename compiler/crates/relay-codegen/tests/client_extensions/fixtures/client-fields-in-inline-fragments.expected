@@ -48,16 +48,21 @@ extend type Page {
   ],
   "selections": [
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
-    {
       "kind": "InlineFragment",
       "type": "Actor",
       "selections": [
+        {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_actor_field",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        },
         {
           "kind": "LinkedField",
           "alias": null,
@@ -66,13 +71,6 @@ extend type Page {
           "concreteType": null,
           "plural": false,
           "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "city",
-              "args": null,
-              "storageKey": null
-            },
             {
               "kind": "ClientExtension",
               "selections": [
@@ -90,23 +88,49 @@ extend type Page {
                   "storageKey": null
                 }
               ]
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "ClientExtension",
-          "selections": [
+            },
             {
               "kind": "ScalarField",
               "alias": null,
-              "name": "client_actor_field",
+              "name": "city",
               "args": null,
               "storageKey": null
             }
-          ]
+          ],
+          "storageKey": null
         }
       ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Operation",
+  "name": "Foo",
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "me",
+      "args": null,
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "name": "Foo_user",
+          "args": null
+        }
+      ],
+      "storageKey": null
     }
   ]
 }

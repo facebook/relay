@@ -66,6 +66,7 @@ pub fn build_handle_field_directive(
     // TODO(T63626569): Add support for derived locations
     empty_location: &Location,
     default_handler: Option<StringKey>,
+    default_filters: Option<Vec<StringKey>>,
 ) -> Directive {
     let HandleFieldDirectiveArgs {
         handler_arg,
@@ -88,10 +89,7 @@ pub fn build_handle_field_directive(
             ConstantValue::String(_) => value.clone(),
             _ => unreachable!("Expected handler_arg to have been previously validated."),
         },
-        None => match default_handler {
-            Some(def) => ConstantValue::String(def),
-            None => unreachable!("Expected handler_arg to have been previously validated or a default to have been provided."), 
-        },
+        None => ConstantValue::String(default_handler.expect("Expected handler_arg to have been previously validated or a default to have been provided.")),
     };
     let filters_val = match filters_arg {
         Some((_, value)) => match value {
@@ -108,7 +106,15 @@ pub fn build_handle_field_directive(
             }
             _ => unreachable!("Expected filters_arg to have been previously validated."),
         },
-        None => ConstantValue::Null(),
+        None => match default_filters {
+            Some(default_filters) => ConstantValue::List(
+                default_filters
+                    .iter()
+                    .map(|filter| ConstantValue::String(*filter))
+                    .collect(),
+            ),
+            None => ConstantValue::Null(),
+        },
     };
     let dynamic_key_val = match dynamic_key_arg {
         Some((_, value)) => match value {

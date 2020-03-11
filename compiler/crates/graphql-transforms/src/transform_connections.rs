@@ -8,7 +8,8 @@
 use crate::connections::{
     assert_connection_selections, build_connection_metadata,
     build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,
-    extract_connection_directive, ConnectionConstants, ConnectionInterface, ConnectionMetadata,
+    extract_connection_directive, get_default_filters, ConnectionConstants, ConnectionInterface,
+    ConnectionMetadata,
 };
 use crate::handle_fields::{build_handle_field_directive, HandleFieldConstants};
 use common::{FileKey, Location, Span, WithLocation};
@@ -211,6 +212,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
             self.handle_field_constants,
             &self.empty_location,
             Some(self.connection_constants.connection_directive_name),
+            get_default_filters(connection_field, self.connection_constants),
         );
         let stripped_connection_directive = Directive {
             name: connection_directive.name,

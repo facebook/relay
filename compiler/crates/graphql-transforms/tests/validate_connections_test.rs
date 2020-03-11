@@ -1,4 +1,4 @@
-// @generated SignedSource<<ade84506d12f516f77c11d371980024c>>
+// @generated SignedSource<<269940b9c8a188ba8dc28ae30703de73>>
 
 mod validate_connections;
 
@@ -31,6 +31,13 @@ fn connection_filters() {
     let input = include_str!("validate_connections/fixtures/connection-filters.graphql");
     let expected = include_str!("validate_connections/fixtures/connection-filters.expected");
     test_fixture(transform_fixture, "connection-filters.graphql", "validate_connections/fixtures/connection-filters.expected", input, expected);
+}
+
+#[test]
+fn connection_filters_null_invalid() {
+    let input = include_str!("validate_connections/fixtures/connection-filters-null.invalid.graphql");
+    let expected = include_str!("validate_connections/fixtures/connection-filters-null.invalid.expected");
+    test_fixture(transform_fixture, "connection-filters-null.invalid.graphql", "validate_connections/fixtures/connection-filters-null.invalid.expected", input, expected);
 }
 
 #[test]

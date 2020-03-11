@@ -350,3 +350,24 @@ pub fn extract_connection_directive(
             || directive.name.item == connection_constants.stream_connection_directive_name
     })
 }
+
+pub fn get_default_filters(
+    connection_field: &LinkedField,
+    connection_constants: ConnectionConstants,
+) -> Option<Vec<StringKey>> {
+    let filtered_args = connection_field
+        .arguments
+        .iter()
+        .filter_map(|arg| {
+            if connection_constants.is_connection_argument(arg.name.item) {
+                None
+            } else {
+                Some(arg.name.item)
+            }
+        })
+        .collect::<Vec<_>>();
+    if filtered_args.is_empty() {
+        return None;
+    }
+    Some(filtered_args)
+}

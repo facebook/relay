@@ -288,12 +288,9 @@ pub trait Transformer {
         condition_value: &ConditionValue,
     ) -> TransformedValue<ConditionValue> {
         match condition_value {
-            ConditionValue::Variable(variable) => match self.transform_variable(variable) {
-                TransformedValue::Replace(next_variable) => {
-                    TransformedValue::Replace(ConditionValue::Variable(next_variable))
-                }
-                TransformedValue::Keep => TransformedValue::Keep,
-            },
+            ConditionValue::Variable(variable) => self
+                .transform_variable(variable)
+                .map(ConditionValue::Variable),
             ConditionValue::Constant(_) => TransformedValue::Keep,
         }
     }
@@ -340,9 +337,8 @@ pub trait Transformer {
 
     fn default_transform_argument(&mut self, argument: &Argument) -> Transformed<Argument> {
         match self.transform_value(&argument.value.item) {
-            Transformed::Delete => Transformed::Delete,
-            Transformed::Keep => Transformed::Keep,
-            Transformed::Replace(replacement) => Transformed::Replace(Argument {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(replacement) => Transformed::Replace(Argument {
                 value: WithLocation::new(argument.value.location, replacement),
                 ..argument.clone()
             }),
@@ -350,31 +346,18 @@ pub trait Transformer {
     }
 
     // Values
-    fn transform_value(&mut self, value: &Value) -> Transformed<Value> {
+    fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
         self.default_transform_value(value)
     }
 
-    fn default_transform_value(&mut self, value: &Value) -> Transformed<Value> {
+    fn default_transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
         match value {
-            Value::Variable(variable) => match self.transform_variable(variable) {
-                TransformedValue::Keep => Transformed::Keep,
-                TransformedValue::Replace(replacement) => {
-                    Transformed::Replace(Value::Variable(replacement))
-                }
-            },
-            Value::Constant(_) => Transformed::Keep,
-            Value::List(items) => match self.transform_list(items, Self::transform_value) {
-                TransformedValue::Keep => Transformed::Keep,
-                TransformedValue::Replace(replacement) => {
-                    Transformed::Replace(Value::List(replacement))
-                }
-            },
-            Value::Object(arguments) => match self.transform_arguments(arguments) {
-                TransformedValue::Keep => Transformed::Keep,
-                TransformedValue::Replace(replacement) => {
-                    Transformed::Replace(Value::Object(replacement))
-                }
-            },
+            Value::Variable(variable) => self.transform_variable(variable).map(Value::Variable),
+            Value::Constant(_) => TransformedValue::Keep,
+            Value::List(items) => self
+                .transform_list(items, Self::transform_value)
+                .map(Value::List),
+            Value::Object(arguments) => self.transform_arguments(arguments).map(Value::Object),
         }
     }
 
@@ -383,18 +366,16 @@ pub trait Transformer {
     }
 
     // Helpers
-    fn transform_list<F, T>(&mut self, list: &[T], f: F) -> TransformedValue<Vec<T>>
+    fn transform_list<T, F, R>(&mut self, list: &[T], f: F) -> TransformedValue<Vec<T>>
     where
-        F: Fn(&mut Self, &T) -> Transformed<T>,
         T: Clone,
+        F: Fn(&mut Self, &T) -> R,
+        R: Into<Transformed<T>>,
     {
-        if list.is_empty() {
-            return TransformedValue::Keep;
-        }
         let mut result = Vec::new();
         let mut has_changes = false;
         for (index, prev_item) in list.iter().enumerate() {
-            let next_item = f(self, prev_item);
+            let next_item: Transformed<_> = f(self, prev_item).into();
             match next_item {
                 Transformed::Keep => {
                     if has_changes {
@@ -472,6 +453,25 @@ impl<T> TransformedValue<T> {
         match self {
             TransformedValue::Keep => f(),
             TransformedValue::Replace(next_value) => next_value,
+        }
+    }
+
+    pub fn map<F, U>(self, f: F) -> TransformedValue<U>
+    where
+        F: FnOnce(T) -> U,
+    {
+        match self {
+            TransformedValue::Keep => TransformedValue::Keep,
+            TransformedValue::Replace(replacement) => TransformedValue::Replace(f(replacement)),
+        }
+    }
+}
+
+impl<T> Into<Transformed<T>> for TransformedValue<T> {
+    fn into(self) -> Transformed<T> {
+        match self {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(replacement) => Transformed::Replace(replacement),
         }
     }
 }

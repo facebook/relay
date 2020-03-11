@@ -772,12 +772,12 @@ macro_rules! type_id {
     };
 }
 
-type_id!(EnumID, u16);
-type_id!(InputObjectID, u16);
-type_id!(InterfaceID, u16);
-type_id!(ObjectID, u16);
-type_id!(ScalarID, u16);
-type_id!(UnionID, u16);
+type_id!(EnumID, u32);
+type_id!(InputObjectID, u32);
+type_id!(InterfaceID, u32);
+type_id!(ObjectID, u32);
+type_id!(ScalarID, u32);
+type_id!(UnionID, u32);
 type_id!(FieldID, u32);
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

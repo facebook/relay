@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/schema:[schema,schema_test]
-# Signature<<265e14ce7fd1227d18b8b07631226436cc7b415d>>
+# Signature<<c0064c0bdc9742f2099a1ce7c7a01612cda72453>>
 [package]
 name = "schema"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.graphql", "src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -22,4 +22,4 @@ thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<265e14ce7fd1227d18b8b07631226436cc7b415d>>
+# @end of Signature<<c0064c0bdc9742f2099a1ce7c7a01612cda72453>>

@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
-# Signature<<c5fe9ac0b70dc5a12a451391cf6eb10c58c4f55a>>
+# Signature<<b48bb000007a5aeb3cb4d13fe07c561672c73328>>
 [package]
 name = "graphql-transforms"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["benches/**/*.rs", "src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -71,4 +71,4 @@ im = { version = "14.2", features = ["rayon", "serde"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<c5fe9ac0b70dc5a12a451391cf6eb10c58c4f55a>>
+# @end of Signature<<b48bb000007a5aeb3cb4d13fe07c561672c73328>>

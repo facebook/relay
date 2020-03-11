@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/graphql-ir:[graphql-ir,graphql-ir_test,graphql-ir_test_with_extensions]
-# Signature<<f5c1dff945fe20da606d84a09a4f34e6b4fa7b50>>
+# Signature<<70bf085846b9140eda6341f096f640893d159175>>
 [package]
 name = "graphql-ir"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -33,4 +33,4 @@ thiserror = "1.0"
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 test-schema = { path = "../test-schema" }
-# @end of Signature<<f5c1dff945fe20da606d84a09a4f34e6b4fa7b50>>
+# @end of Signature<<70bf085846b9140eda6341f096f640893d159175>>

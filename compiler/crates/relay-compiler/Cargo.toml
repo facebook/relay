@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/relay-compiler:relay-compiler
-# Signature<<c9667907a0c641fa10fe3b7d32477956f1b2f13e>>
+# Signature<<561ea975622085e39b9036bd02ae622d4ef06037>>
 [package]
 name = "relay-compiler"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs"]
 
 [dependencies]
@@ -29,4 +29,4 @@ rayon = "1.2"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
 thiserror = "1.0"
-# @end of Signature<<c9667907a0c641fa10fe3b7d32477956f1b2f13e>>
+# @end of Signature<<561ea975622085e39b9036bd02ae622d4ef06037>>

@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/graphql-syntax:[graphql-syntax,graphql-syntax_test]
-# Signature<<3eb9ed913ae4b38a1a8d494f1d7880fec2cccc37>>
+# Signature<<f2eed0506590937c32a1c7b564384a3eed11f91c>>
 [package]
 name = "graphql-syntax"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -23,4 +23,4 @@ thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<3eb9ed913ae4b38a1a8d494f1d7880fec2cccc37>>
+# @end of Signature<<f2eed0506590937c32a1c7b564384a3eed11f91c>>

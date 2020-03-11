@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/interner:interner
-# Signature<<db7b7275e0ce66d9e91fe08b0b1c537efdb95a42>>
+# Signature<<016ab4722924a546121e2cd15382c38aed30a60f>>
 [package]
 name = "interner"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs"]
 
 [dependencies]
@@ -14,4 +14,4 @@ fnv = "1.0"
 lazy_static = "1.0"
 parking_lot = "0.10.0"
 serde = { version = "1.0", features = ["derive", "rc"] }
-# @end of Signature<<db7b7275e0ce66d9e91fe08b0b1c537efdb95a42>>
+# @end of Signature<<016ab4722924a546121e2cd15382c38aed30a60f>>

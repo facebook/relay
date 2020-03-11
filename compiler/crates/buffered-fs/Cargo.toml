@@ -1,11 +1,11 @@
 # @generated
 # @autocargo from //relay/oss/crates/buffered-fs:buffered-fs
-# Signature<<a47d726d717fc31233998ec4103ceb29fce5a6a2>>
+# Signature<<95b51f9ed6c7e34be10e46be27685fd677aa5738>>
 [package]
 name = "buffered-fs"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs"]
-# @end of Signature<<a47d726d717fc31233998ec4103ceb29fce5a6a2>>
+# @end of Signature<<95b51f9ed6c7e34be10e46be27685fd677aa5738>>

@@ -1,15 +1,15 @@
 # @generated
 # @autocargo from //relay/oss/crates/test-schema:test-schema
-# Signature<<fac84467431da40fa3523c96504b9626573910ce>>
+# Signature<<f4c30e3356bf94b39d8642e3912c6a4952244944>>
 [package]
 name = "test-schema"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.graphql", "src/**/*.rs"]
 
 [dependencies]
 schema = { path = "../schema" }
 lazy_static = "1.0"
-# @end of Signature<<fac84467431da40fa3523c96504b9626573910ce>>
+# @end of Signature<<f4c30e3356bf94b39d8642e3912c6a4952244944>>

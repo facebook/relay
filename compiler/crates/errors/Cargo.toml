@@ -1,14 +1,14 @@
 # @generated
 # @autocargo from //relay/oss/crates/errors:errors
-# Signature<<cd325776ff6db021eb30677a9b89b1de04730a74>>
+# Signature<<290f110b5ce6da93b479dfe2ec29643c4be89414>>
 [package]
 name = "errors"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs"]
 
 [dependencies]
 rayon = "1.2"
-# @end of Signature<<cd325776ff6db021eb30677a9b89b1de04730a74>>
+# @end of Signature<<290f110b5ce6da93b479dfe2ec29643c4be89414>>

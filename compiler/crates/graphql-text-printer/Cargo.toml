@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/graphql-text-printer:[graphql-text-printer,graphql-text-printer-operation-printer_test,graphql-text-printer_test]
-# Signature<<4447610872c28e0a0c27a19f157711e7c502895d>>
+# Signature<<d740cb994b1b7575c871cfa357545f0061bafcee>>
 [package]
 name = "graphql-text-printer"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -31,4 +31,4 @@ fnv = "1.0"
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 test-schema = { path = "../test-schema" }
-# @end of Signature<<4447610872c28e0a0c27a19f157711e7c502895d>>
+# @end of Signature<<d740cb994b1b7575c871cfa357545f0061bafcee>>

@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/relay-codegen:[relay-codegen,relay-codegen-client-extensions,relay-codegen-deduped_json_codegen_test,relay-codegen-json_codegen_test]
-# Signature<<c55ca02ea261bc4f08d59c5fd8cd638c0ba8ebf0>>
+# Signature<<6b0f401b19c1260a5b097bd4babd946440eb5b83>>
 [package]
 name = "relay-codegen"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -39,4 +39,4 @@ serde_json = "1.0"
 fixture-tests = { path = "../fixture-tests" }
 graphql-transforms = { path = "../graphql-transforms" }
 test-schema = { path = "../test-schema" }
-# @end of Signature<<c55ca02ea261bc4f08d59c5fd8cd638c0ba8ebf0>>
+# @end of Signature<<6b0f401b19c1260a5b097bd4babd946440eb5b83>>

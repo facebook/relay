@@ -1,12 +1,12 @@
 # @generated
 # @autocargo from //relay/oss/crates/dependency-analyzer:[dependency-analyzer,dependency-analyzer-ast,dependency-analyzer-ir]
-# Signature<<20f288199806b1f790ab0ddc0bb0725d6b60ef34>>
+# Signature<<a50c9aec63e9baf7730aee8ef188f6fc094832ff>>
 [package]
 name = "dependency-analyzer"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
-license = "Apache 2.0"
+license = "MIT"
 include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
 
 [lib]
@@ -30,4 +30,4 @@ fnv = "1.0"
 common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
 test-schema = { path = "../test-schema" }
-# @end of Signature<<20f288199806b1f790ab0ddc0bb0725d6b60ef34>>
+# @end of Signature<<a50c9aec63e9baf7730aee8ef188f6fc094832ff>>

@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::Selection;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program, ScalarField,
     Transformed, Transformer,
 };
-use std::sync::Arc;
 
 /// Transform to skip IR nodes if they are extensions
 pub fn skip_client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
@@ -49,10 +49,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         }
     }
 
-    fn transform_fragment_spread(
-        &mut self,
-        spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if self
             .program
@@ -65,10 +62,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         }
     }
 
-    fn transform_inline_fragment(
-        &mut self,
-        fragment: &InlineFragment,
-    ) -> Transformed<Arc<InlineFragment>> {
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(type_condition) = fragment.type_condition {
             if self.program.schema().is_extension_type(type_condition) {
                 return Transformed::Delete;
@@ -77,7 +71,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         self.default_transform_inline_fragment(fragment)
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         if self
             .program
             .schema()
@@ -90,7 +84,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         }
     }
 
-    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         if self
             .program
             .schema()

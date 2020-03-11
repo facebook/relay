@@ -126,53 +126,37 @@ pub trait Transformer {
 
     fn default_transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
         match selection {
-            Selection::FragmentSpread(selection) => self
-                .transform_fragment_spread(selection)
-                .map(Selection::FragmentSpread),
-            Selection::InlineFragment(selection) => self
-                .transform_inline_fragment(selection)
-                .map(Selection::InlineFragment),
-            Selection::LinkedField(selection) => self
-                .transform_linked_field(selection)
-                .map(Selection::LinkedField),
-            Selection::ScalarField(selection) => self
-                .transform_scalar_field(selection)
-                .map(Selection::ScalarField),
-            Selection::Condition(selection) => self
-                .transform_condition(selection)
-                .map(Selection::Condition),
+            Selection::FragmentSpread(selection) => self.transform_fragment_spread(selection),
+            Selection::InlineFragment(selection) => self.transform_inline_fragment(selection),
+            Selection::LinkedField(selection) => self.transform_linked_field(selection),
+            Selection::ScalarField(selection) => self.transform_scalar_field(selection),
+            Selection::Condition(selection) => self.transform_condition(selection),
         }
     }
 
     // Selection Kinds
-    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         self.default_transform_scalar_field(field)
     }
 
-    fn default_transform_scalar_field(
-        &mut self,
-        field: &ScalarField,
-    ) -> Transformed<Arc<ScalarField>> {
+    fn default_transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let arguments = self.transform_arguments(&field.arguments);
         let directives = self.transform_directives(&field.directives);
         if arguments.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
-        Transformed::Replace(Arc::new(ScalarField {
+        Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
             arguments: arguments.replace_or_else(|| field.arguments.clone()),
             directives: directives.replace_or_else(|| field.directives.clone()),
             ..field.clone()
-        }))
+        })))
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         self.default_transform_linked_field(field)
     }
 
-    fn default_transform_linked_field(
-        &mut self,
-        field: &LinkedField,
-    ) -> Transformed<Arc<LinkedField>> {
+    fn default_transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&field.selections);
         if let TransformedValue::Replace(selections) = &selections {
@@ -185,25 +169,22 @@ pub trait Transformer {
         if selections.should_keep() && arguments.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
-        Transformed::Replace(Arc::new(LinkedField {
+        Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
             arguments: arguments.replace_or_else(|| field.arguments.clone()),
             directives: directives.replace_or_else(|| field.directives.clone()),
             selections: selections.replace_or_else(|| field.selections.clone()),
             ..field.clone()
-        }))
+        })))
     }
 
-    fn transform_inline_fragment(
-        &mut self,
-        fragment: &InlineFragment,
-    ) -> Transformed<Arc<InlineFragment>> {
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         self.default_transform_inline_fragment(fragment)
     }
 
     fn default_transform_inline_fragment(
         &mut self,
         fragment: &InlineFragment,
-    ) -> Transformed<Arc<InlineFragment>> {
+    ) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
         if let TransformedValue::Replace(selections) = &selections {
@@ -215,44 +196,38 @@ pub trait Transformer {
         if selections.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
-        Transformed::Replace(Arc::new(InlineFragment {
+        Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
             directives: directives.replace_or_else(|| fragment.directives.clone()),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
             ..fragment.clone()
-        }))
+        })))
     }
 
-    fn transform_fragment_spread(
-        &mut self,
-        spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         self.default_transform_fragment_spread(spread)
     }
     fn default_transform_fragment_spread(
         &mut self,
         spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    ) -> Transformed<Selection> {
         let arguments = self.transform_arguments(&spread.arguments);
         let directives = self.transform_directives(&spread.directives);
         if arguments.should_keep() && directives.should_keep() {
             return Transformed::Keep;
         }
-        Transformed::Replace(Arc::new(FragmentSpread {
+        Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
             arguments: arguments.replace_or_else(|| spread.arguments.clone()),
             directives: directives.replace_or_else(|| spread.directives.clone()),
             ..spread.clone()
-        }))
+        })))
     }
 
     // Conditions
-    fn transform_condition(&mut self, condition: &Condition) -> Transformed<Arc<Condition>> {
+    fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
         self.default_transform_condition(condition)
     }
 
-    fn default_transform_condition(
-        &mut self,
-        condition: &Condition,
-    ) -> Transformed<Arc<Condition>> {
+    fn default_transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&condition.selections);
         if let TransformedValue::Replace(selections) = &selections {
@@ -264,11 +239,11 @@ pub trait Transformer {
         if selections.should_keep() && condition_value.should_keep() {
             Transformed::Keep
         } else {
-            Transformed::Replace(Arc::new(Condition {
+            Transformed::Replace(Selection::Condition(Arc::new(Condition {
                 value: condition_value.replace_or_else(|| condition.value.clone()),
                 selections: selections.replace_or_else(|| condition.selections.clone()),
                 ..condition.clone()
-            }))
+            })))
         }
     }
 

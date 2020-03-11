@@ -236,7 +236,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
         &mut self,
         connection_field: &LinkedField,
         connection_directive: &Directive,
-    ) -> Transformed<Arc<LinkedField>> {
+    ) -> Transformed<Selection> {
         let connection_metadata = build_connection_metadata(
             &connection_field,
             self.connection_constants,
@@ -253,11 +253,11 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
         // attach to the current root document (fragment or operation)
         self.current_connection_metadata.push(connection_metadata);
 
-        Transformed::Replace(From::from(LinkedField {
+        Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
             selections: next_connection_selections,
             directives: next_connection_directives,
             ..connection_field.clone()
-        }))
+        })))
     }
 }
 
@@ -332,7 +332,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> Transformer
         Transformed::Replace(transformed_fragment)
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = self.program.schema();
         let connection_schema_field = schema.field(field.definition.item);
 

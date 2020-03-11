@@ -55,9 +55,7 @@ impl Transformer for SortSelectionsTransform {
                 if let Some(prev) = self.seen.get(&key) {
                     return prev.clone();
                 }
-                let transformed = self
-                    .transform_inline_fragment(selection)
-                    .map(Selection::InlineFragment);
+                let transformed = self.transform_inline_fragment(selection);
                 self.seen.insert(key, transformed.clone());
                 transformed
             }
@@ -66,9 +64,7 @@ impl Transformer for SortSelectionsTransform {
                 if let Some(prev) = self.seen.get(&key) {
                     return prev.clone();
                 }
-                let transformed = self
-                    .transform_linked_field(selection)
-                    .map(Selection::LinkedField);
+                let transformed = self.transform_linked_field(selection);
                 self.seen.insert(key, transformed.clone());
                 transformed
             }
@@ -77,9 +73,7 @@ impl Transformer for SortSelectionsTransform {
                 if let Some(prev) = self.seen.get(&key) {
                     return prev.clone();
                 }
-                let transformed = self
-                    .transform_condition(selection)
-                    .map(Selection::Condition);
+                let transformed = self.transform_condition(selection);
                 self.seen.insert(key, transformed.clone());
                 transformed
             }

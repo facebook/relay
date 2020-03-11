@@ -85,7 +85,7 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
         }
     }
 
-    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Selection> {
         Transformed::Keep
     }
 }

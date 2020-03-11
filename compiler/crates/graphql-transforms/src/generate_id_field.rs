@@ -43,7 +43,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let selections = self.transform_selections(&field.selections);
 
         let next_selections = if self.has_unaliased_id_field(&field.selections) {
@@ -115,24 +115,23 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
         };
         match next_selections {
             TransformedValue::Keep => Transformed::Keep,
-            TransformedValue::Replace(selections) => Transformed::Replace(Arc::new(LinkedField {
-                alias: field.alias,
-                definition: field.definition,
-                arguments: field.arguments.clone(),
-                directives: field.directives.clone(),
-                selections,
-            })),
+            TransformedValue::Replace(selections) => {
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    alias: field.alias,
+                    definition: field.definition,
+                    arguments: field.arguments.clone(),
+                    directives: field.directives.clone(),
+                    selections,
+                })))
+            }
         }
     }
 
-    fn transform_fragment_spread(
-        &mut self,
-        _spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    fn transform_fragment_spread(&mut self, _spread: &FragmentSpread) -> Transformed<Selection> {
         Transformed::Keep
     }
 
-    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Selection> {
         Transformed::Keep
     }
 }

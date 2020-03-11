@@ -27,7 +27,7 @@ pub fn generate_typename<'s>(program: &Program<'s>) -> Program<'s> {
 // Note on correctness: the PointerAddress here is calculated from addresses of the input
 // context. Because those value are still referenced, that memory cannot be freed/
 // reused for the lifetime of the transform.
-type Seen = HashMap<PointerAddress, Transformed<Arc<InlineFragment>>>;
+type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
 struct GenerateTypenameTransform<'s> {
     program: &'s Program<'s>,
@@ -48,7 +48,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = self.program.schema();
         let selections = self.transform_selections(&field.selections);
         let field_definition = schema.field(field.definition.item);
@@ -77,20 +77,19 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         };
         match selections {
             TransformedValue::Keep => Transformed::Keep,
-            TransformedValue::Replace(selections) => Transformed::Replace(Arc::new(LinkedField {
-                alias: field.alias,
-                definition: field.definition,
-                arguments: field.arguments.clone(),
-                directives: field.directives.clone(),
-                selections,
-            })),
+            TransformedValue::Replace(selections) => {
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    alias: field.alias,
+                    definition: field.definition,
+                    arguments: field.arguments.clone(),
+                    directives: field.directives.clone(),
+                    selections,
+                })))
+            }
         }
     }
 
-    fn transform_inline_fragment(
-        &mut self,
-        fragment: &InlineFragment,
-    ) -> Transformed<Arc<InlineFragment>> {
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let key = PointerAddress::new(fragment);
         if let Some(prev) = self.seen.get(&key) {
             return prev.clone();
@@ -100,25 +99,22 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         let result = match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
-                Transformed::Replace(Arc::new(InlineFragment {
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: fragment.type_condition,
                     directives: fragment.directives.clone(),
                     selections,
-                }))
+                })))
             }
         };
         self.seen.insert(key, result.clone());
         result
     }
 
-    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Selection> {
         Transformed::Keep
     }
 
-    fn transform_fragment_spread(
-        &mut self,
-        _spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    fn transform_fragment_spread(&mut self, _spread: &FragmentSpread) -> Transformed<Selection> {
         Transformed::Keep
     }
 }

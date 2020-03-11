@@ -18,20 +18,20 @@ use schema::{Field, Type, TypeReference};
 
 pub fn validate_connections<'s, TConnectionInterface: ConnectionInterface>(
     program: &Program<'s>,
-    connection_interface: TConnectionInterface,
+    connection_interface: &TConnectionInterface,
 ) -> ValidationResult<()> {
     let mut validator = ConnectionValidation::new(program, connection_interface);
     validator.validate_program(program)
 }
 struct ConnectionValidation<'s, TConnectionInterface: ConnectionInterface> {
     connection_constants: ConnectionConstants,
-    connection_interface: TConnectionInterface,
+    connection_interface: &'s TConnectionInterface,
     handle_field_constants: HandleFieldConstants,
     program: &'s Program<'s>,
 }
 
 impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TConnectionInterface> {
-    fn new(program: &'s Program<'s>, connection_interface: TConnectionInterface) -> Self {
+    fn new(program: &'s Program<'s>, connection_interface: &'s TConnectionInterface) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,

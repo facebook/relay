@@ -22,7 +22,7 @@ use std::sync::Arc;
 
 pub fn transform_connections<'s, TConnectionInterface: ConnectionInterface>(
     program: &Program<'s>,
-    connection_interface: TConnectionInterface,
+    connection_interface: &TConnectionInterface,
 ) -> Program<'s> {
     let mut transform = ConnectionTransform::new(program, connection_interface);
     transform
@@ -31,7 +31,7 @@ pub fn transform_connections<'s, TConnectionInterface: ConnectionInterface>(
 }
 
 struct ConnectionTransform<'s, TConnectionInterface: ConnectionInterface> {
-    connection_interface: TConnectionInterface,
+    connection_interface: &'s TConnectionInterface,
     connection_constants: ConnectionConstants,
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
@@ -41,7 +41,7 @@ struct ConnectionTransform<'s, TConnectionInterface: ConnectionInterface> {
 }
 
 impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TConnectionInterface> {
-    fn new(program: &'s Program<'s>, connection_interface: TConnectionInterface) -> Self {
+    fn new(program: &'s Program<'s>, connection_interface: &'s TConnectionInterface) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
@@ -67,7 +67,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
         let ((edges_ix, edges_field), page_info_selection) = assert_connection_selections(
             schema,
             &transformed_selections,
-            &self.connection_interface,
+            self.connection_interface,
         );
         let connection_field_type = schema.field(connection_field.definition.item).type_.inner();
 
@@ -109,7 +109,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
             .push(build_edge_selections(
                 schema,
                 edge_type,
-                &self.connection_interface,
+                self.connection_interface,
                 &self.empty_location,
             ));
 
@@ -169,7 +169,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
                 page_info_type,
                 &connection_metadata,
                 self.connection_constants,
-                &self.connection_interface,
+                self.connection_interface,
                 &self.empty_location,
             ));
 

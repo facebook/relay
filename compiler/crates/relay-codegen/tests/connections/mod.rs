@@ -36,7 +36,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
 
-    let validation_result = validate_connections(&program, OSSConnectionInterface::default());
+    let validation_result = validate_connections(&program, &OSSConnectionInterface::default());
     match validation_result {
         Ok(_) => {}
         Err(errors) => {
@@ -49,7 +49,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         }
     }
 
-    let next_program = transform_connections(&program, OSSConnectionInterface::default());
+    let next_program = transform_connections(&program, &OSSConnectionInterface::default());
 
     let mut printed = next_program
         .operations()

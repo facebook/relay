@@ -34,7 +34,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     };
 
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let validation_result = validate_connections(&program, OSSConnectionInterface::default());
+    let validation_result = validate_connections(&program, &OSSConnectionInterface::default());
 
     match validation_result {
         Ok(_) => Ok("OK".to_owned()),

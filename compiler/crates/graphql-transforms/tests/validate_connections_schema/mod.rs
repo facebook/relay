@@ -25,7 +25,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(&schema, ir);
-        let result = validate_connections(&program, OSSConnectionInterface::default());
+        let result = validate_connections(&program, &OSSConnectionInterface::default());
 
         match result {
             Ok(_) => Ok("OK".to_owned()),

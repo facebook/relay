@@ -155,8 +155,8 @@ pub enum ConcreteSelection {
     LinkedField(ConcreteLinkedField),
     ScalarField(ConcreteScalarField),
     ClientExtension(ConcreteClientExtension),
-    // TODO(T63303873) ScalarHandle(ConcreteNormalizationScalarHandle),
-    // TODO(T63303873) LinkedHandle(ConcreteNormalizationLinkedHandle),
+    ScalarHandle(ConcreteNormalizationScalarHandle),
+    LinkedHandle(ConcreteNormalizationLinkedHandle),
 }
 
 #[derive(Debug, Serialize)]
@@ -217,9 +217,7 @@ pub struct ConcreteNormalizationScalarHandle {
     pub args: Option<Vec<ConcreteArgument>>,
     pub handle: StringKey,
     pub key: StringKey,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dynamic_key: Option<ConcreteArgument>,
-    pub filters: Option<Vec<String>>,
+    pub filters: Option<Vec<StringKey>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -232,8 +230,9 @@ pub struct ConcreteNormalizationLinkedHandle {
     pub key: StringKey,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dynamic_key: Option<ConcreteArgument>,
-    pub filters: Option<Vec<String>>,
+    pub filters: Option<Vec<StringKey>>,
 }
+
 #[derive(Debug, Serialize)]
 #[serde(tag = "kind")]
 pub enum ConcreteVariableDefinition {

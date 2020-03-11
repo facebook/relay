@@ -11,9 +11,14 @@ use graphql_ir::{
     InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection, Value,
     VariableDefinition,
 };
+use std::iter;
 
 use graphql_syntax::OperationKind;
 use graphql_text_printer::print_operation;
+use graphql_transforms::{
+    extract_handle_field_directives, extract_values_from_handle_field_directive,
+    HandleFieldConstants,
+};
 
 use interner::{Intern, StringKey};
 use schema::Schema;
@@ -58,6 +63,7 @@ pub fn build_fragment(schema: &Schema, fragment: &FragmentDefinition) -> Concret
 }
 
 struct CodegenBuilder<'schema> {
+    handle_field_constants: HandleFieldConstants,
     schema: &'schema Schema,
     variant: CodegenVariant,
 }
@@ -69,7 +75,11 @@ enum CodegenVariant {
 
 impl<'schema> CodegenBuilder<'schema> {
     fn new(schema: &'schema Schema, variant: CodegenVariant) -> Self {
-        Self { schema, variant }
+        Self {
+            handle_field_constants: Default::default(),
+            schema,
+            variant,
+        }
     }
 
     fn build_operation(&self, operation: &OperationDefinition) -> ConcreteDefinition {
@@ -103,34 +113,41 @@ impl<'schema> CodegenBuilder<'schema> {
     fn build_selections(&self, selections: &[Selection]) -> Vec<ConcreteSelection> {
         selections
             .iter()
-            .map(|selection| self.build_selection(selection))
+            .flat_map(|selection| self.build_selections_from_selection(selection))
             .collect()
     }
 
-    fn build_selection(&self, selection: &Selection) -> ConcreteSelection {
+    fn build_selections_from_selection(&self, selection: &Selection) -> Vec<ConcreteSelection> {
         match selection {
             // TODO(T63303873) Normalization handles
-            Selection::Condition(cond) => ConcreteSelection::Condition(self.build_condition(&cond)),
-            Selection::FragmentSpread(frag_spread) => {
-                ConcreteSelection::FragmentSpread(self.build_fragment_spread(&frag_spread))
+            Selection::Condition(cond) => {
+                vec![ConcreteSelection::Condition(self.build_condition(&cond))]
             }
-            Selection::InlineFragment(inline_frag) => self.build_inline_fragment(&inline_frag),
-            Selection::LinkedField(field) => {
-                ConcreteSelection::LinkedField(self.build_linked_field(&field))
+            Selection::FragmentSpread(frag_spread) => vec![ConcreteSelection::FragmentSpread(
+                self.build_fragment_spread(&frag_spread),
+            )],
+            Selection::InlineFragment(inline_frag) => {
+                vec![self.build_inline_fragment(&inline_frag)]
             }
-            Selection::ScalarField(field) => {
-                ConcreteSelection::ScalarField(self.build_scalar_field(&field))
-            }
+            Selection::LinkedField(field) => self.build_linked_field_and_handles(field),
+            Selection::ScalarField(field) => self.build_scalar_field_and_handles(field),
         }
     }
 
-    fn build_scalar_field(&self, field: &ScalarField) -> ConcreteScalarField {
+    fn build_scalar_field_and_handles(&self, field: &ScalarField) -> Vec<ConcreteSelection> {
         if let CodegenVariant::Normalization = self.variant {
             // TODO(T63303873) check for skipNormalizationNode metadata
+            return vec![self.build_scalar_field(field)];
         }
 
+        iter::once(self.build_scalar_field(field))
+            .chain(self.build_scalar_handles(field))
+            .collect::<Vec<_>>()
+    }
+
+    fn build_scalar_field(&self, field: &ScalarField) -> ConcreteSelection {
         let field_name = self.schema.field(field.definition.item).name;
-        ConcreteScalarField {
+        ConcreteSelection::ScalarField(ConcreteScalarField {
             alias: match field.alias {
                 Some(alias) => Some(alias.item),
                 None => None,
@@ -138,13 +155,57 @@ impl<'schema> CodegenBuilder<'schema> {
             name: field_name,
             args: self.build_arguments(&field.arguments),
             storage_key: get_static_storage_key(field_name, &field.arguments),
-        }
+        })
     }
 
-    fn build_linked_field(&self, field: &LinkedField) -> ConcreteLinkedField {
+    fn build_scalar_handles(
+        &self,
+        field: &'schema ScalarField,
+    ) -> impl IntoIterator<Item = ConcreteSelection> + '_ {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
-        ConcreteLinkedField {
+        let handle_field_directives =
+            extract_handle_field_directives(&field.directives, self.handle_field_constants);
+
+        handle_field_directives.map(move |directive| {
+            let values = extract_values_from_handle_field_directive(
+                &directive,
+                self.handle_field_constants,
+                None,
+                None,
+            );
+
+            ConcreteSelection::ScalarHandle(ConcreteNormalizationScalarHandle {
+                alias: match field.alias {
+                    Some(alias) => Some(alias.item),
+                    None => None,
+                },
+                name: field_name,
+                args: self.build_arguments(&field.arguments),
+                handle: values.handle,
+                key: values.key,
+                filters: values.filters,
+            })
+        })
+    }
+
+    fn build_linked_field_and_handles(
+        &self,
+        field: &'schema LinkedField,
+    ) -> Vec<ConcreteSelection> {
+        if let CodegenVariant::Normalization = self.variant {
+            return vec![self.build_linked_field(field)];
+        }
+
+        iter::once(self.build_linked_field(field))
+            .chain(self.build_linked_handles(field))
+            .collect::<Vec<_>>()
+    }
+
+    fn build_linked_field(&self, field: &LinkedField) -> ConcreteSelection {
+        let schema_field = self.schema.field(field.definition.item);
+        let field_name = schema_field.name;
+        ConcreteSelection::LinkedField(ConcreteLinkedField {
             alias: match field.alias {
                 Some(alias) => Some(alias.item),
                 None => None,
@@ -159,7 +220,42 @@ impl<'schema> CodegenBuilder<'schema> {
             },
             storage_key: get_static_storage_key(field_name, &field.arguments),
             plural: schema_field.type_.is_list(),
-        }
+        })
+    }
+
+    fn build_linked_handles(
+        &self,
+        field: &'schema LinkedField,
+    ) -> impl IntoIterator<Item = ConcreteSelection> + '_ {
+        let schema_field = self.schema.field(field.definition.item);
+        let field_name = schema_field.name;
+        let handle_field_directives =
+            extract_handle_field_directives(&field.directives, self.handle_field_constants);
+
+        handle_field_directives.map(move |directive| {
+            let values = extract_values_from_handle_field_directive(
+                &directive,
+                self.handle_field_constants,
+                None,
+                None,
+            );
+
+            ConcreteSelection::LinkedHandle(ConcreteNormalizationLinkedHandle {
+                alias: match field.alias {
+                    Some(alias) => Some(alias.item),
+                    None => None,
+                },
+                name: field_name,
+                args: self.build_arguments(&field.arguments),
+                handle: values.handle,
+                key: values.key,
+                filters: values.filters,
+                dynamic_key: match &values.dynamic_key {
+                    Some(val) => self.build_argument("__dynamicKey".intern(), val),
+                    None => None,
+                },
+            })
+        })
     }
 
     fn build_fragment_spread(&self, frag_spread: &FragmentSpread) -> ConcreteFragmentSpread {

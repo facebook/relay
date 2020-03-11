@@ -27,10 +27,16 @@ mod util;
 mod validations;
 
 pub use client_extensions::client_extensions;
-pub use connections::{ConnectionInterface, FBConnectionInterface, OSSConnectionInterface};
+pub use connections::{
+    ConnectionConstants, ConnectionInterface, FBConnectionInterface, OSSConnectionInterface,
+};
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;
+pub use handle_fields::{
+    extract_handle_field_directives, extract_values_from_handle_field_directive,
+    HandleFieldConstants,
+};
 pub use inline_fragments::inline_fragments;
 pub use node_identifier::NodeIdentifier;
 pub use remove_base_fragments::remove_base_fragments;

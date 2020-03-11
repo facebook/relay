@@ -13,6 +13,6 @@ query NodeQuery($id: ID!, $first: Int, $after: ID) {
 }
 ==================================== ERROR ====================================
 Expected 'comments' to have a 'edges' selection.:
-connection-missing-edges-selection.graphql:4:18:
+connection-missing-edges-selection.invalid.graphql:4:18:
 
       comments(first: $first, after: $after)

@@ -1,4 +1,4 @@
-// @generated SignedSource<<269940b9c8a188ba8dc28ae30703de73>>
+// @generated SignedSource<<94ec84ab3ecffa45a9cef6a392d5524f>>
 
 mod validate_connections;
 
@@ -69,10 +69,10 @@ fn connection_invalid_type_invalid() {
 }
 
 #[test]
-fn connection_missing_edges_selection() {
-    let input = include_str!("validate_connections/fixtures/connection-missing-edges-selection.graphql");
-    let expected = include_str!("validate_connections/fixtures/connection-missing-edges-selection.expected");
-    test_fixture(transform_fixture, "connection-missing-edges-selection.graphql", "validate_connections/fixtures/connection-missing-edges-selection.expected", input, expected);
+fn connection_missing_edges_selection_invalid() {
+    let input = include_str!("validate_connections/fixtures/connection-missing-edges-selection.invalid.graphql");
+    let expected = include_str!("validate_connections/fixtures/connection-missing-edges-selection.invalid.expected");
+    test_fixture(transform_fixture, "connection-missing-edges-selection.invalid.graphql", "validate_connections/fixtures/connection-missing-edges-selection.invalid.expected", input, expected);
 }
 
 #[test]

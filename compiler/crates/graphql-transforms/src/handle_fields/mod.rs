@@ -9,4 +9,7 @@ mod handle_field_constants;
 mod handle_field_util;
 
 pub use handle_field_constants::HandleFieldConstants;
-pub use handle_field_util::{build_handle_field_directive, extract_handle_field_directive_args};
+pub use handle_field_util::{
+    build_handle_field_directive, extract_handle_field_directive_args,
+    extract_handle_field_directives, extract_values_from_handle_field_directive,
+};

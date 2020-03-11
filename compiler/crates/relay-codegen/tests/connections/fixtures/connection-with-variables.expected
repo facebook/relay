@@ -1,0 +1,181 @@
+==================================== INPUT ====================================
+fragment Example on User {
+  friends(first: $friendsFirst, after: $friendsAfter)
+    @connection(key: "Example_friends") {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+(function(){
+var v0 = [
+  {
+    "kind": "Variable",
+    "name": "after",
+    "variableName": "friendsAfter"
+  },
+  {
+    "kind": "Variable",
+    "name": "first",
+    "variableName": "friendsFirst"
+  }
+];
+return {
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "friendsFirst",
+      "type": "Int"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "friendsAfter",
+      "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "preset",
+      "type": "PhotoSize"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {},
+  "name": "Example",
+  "selections": [
+    {
+      "alias": null,
+      "args": (v0/*: any*/),
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "friends",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": null,
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "preset",
+                      "variableName": "preset"
+                    }
+                  ],
+                  "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "profilePicture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "cursor",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "node",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__typename",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "FriendsEdge"
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "pageInfo",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "endCursor",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "hasNextPage",
+                  "storageKey": null
+                }
+              ],
+              "type": "PageInfo"
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": (v0/*: any*/),
+      "filters": null,
+      "handle": "connection",
+      "key": "Example_friends",
+      "kind": "LinkedHandle",
+      "name": "friends"
+    }
+  ],
+  "type": "User"
+};
+})()

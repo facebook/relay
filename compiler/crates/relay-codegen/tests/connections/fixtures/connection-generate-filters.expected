@@ -1,0 +1,265 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10, isViewerFriend: true, traits: $traits)
+                @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+(function(){
+var v0 = {
+  "kind": "Literal",
+  "name": "first",
+  "value": 10
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v2 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "cursor",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": null,
+    "kind": "LinkedField",
+    "name": "node",
+    "plural": false,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "__typename",
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
+  }
+],
+v3 = {
+  "alias": null,
+  "args": null,
+  "concreteType": null,
+  "kind": "LinkedField",
+  "name": "pageInfo",
+  "plural": false,
+  "selections": [
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "endCursor",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "hasNextPage",
+          "storageKey": null
+        }
+      ],
+      "type": "PageInfo"
+    }
+  ],
+  "storageKey": null
+};
+return {
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "id",
+      "type": "ID"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "orderBy",
+      "type": "String"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "traits",
+      "type": "PersonalityTraits"
+    }
+  ],
+  "kind": "Operation",
+  "name": "NodeQuery",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": "Node",
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": [
+                (v0/*: any*/),
+                {
+                  "kind": "Variable",
+                  "name": "orderby",
+                  "variableName": "orderBy"
+                }
+              ],
+              "concreteType": null,
+              "kind": "LinkedField",
+              "name": "comments",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "edges",
+                  "plural": true,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": null,
+                      "kind": "LinkedField",
+                      "name": "node",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": "Actor",
+                          "kind": "LinkedField",
+                          "name": "actor",
+                          "plural": false,
+                          "selections": [
+                            (v1/*: any*/),
+                            {
+                              "alias": null,
+                              "args": [
+                                (v0/*: any*/),
+                                {
+                                  "kind": "Literal",
+                                  "name": "isViewerFriend",
+                                  "value": true
+                                },
+                                {
+                                  "kind": "Variable",
+                                  "name": "traits",
+                                  "variableName": "traits"
+                                }
+                              ],
+                              "concreteType": null,
+                              "kind": "LinkedField",
+                              "name": "friends",
+                              "plural": false,
+                              "selections": [
+                                {
+                                  "alias": null,
+                                  "args": null,
+                                  "concreteType": null,
+                                  "kind": "LinkedField",
+                                  "name": "edges",
+                                  "plural": true,
+                                  "selections": [
+                                    {
+                                      "alias": null,
+                                      "args": null,
+                                      "concreteType": null,
+                                      "kind": "LinkedField",
+                                      "name": "node",
+                                      "plural": false,
+                                      "selections": [
+                                        (v1/*: any*/)
+                                      ],
+                                      "storageKey": null
+                                    },
+                                    {
+                                      "kind": "InlineFragment",
+                                      "selections": (v2/*: any*/),
+                                      "type": "FriendsEdge"
+                                    }
+                                  ],
+                                  "storageKey": null
+                                },
+                                (v3/*: any*/)
+                              ],
+                              "storageKey": null
+                            }
+                          ],
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    },
+                    {
+                      "kind": "InlineFragment",
+                      "selections": (v2/*: any*/),
+                      "type": "CommentsEdge"
+                    }
+                  ],
+                  "storageKey": null
+                },
+                (v3/*: any*/)
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Story"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+};
+})()

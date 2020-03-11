@@ -1,6 +1,6 @@
 # @generated
 # @autocargo from //relay/oss/crates/relay-codegen:[relay-codegen,relay-codegen-client-extensions,relay-codegen-deduped_json_codegen_test,relay-codegen-json_codegen_test]
-# Signature<<6b0f401b19c1260a5b097bd4babd946440eb5b83>>
+# Signature<<6265b0866495a32521fb867f13ed34b8402ef6f0>>
 [package]
 name = "relay-codegen"
 edition = "2018"
@@ -29,6 +29,7 @@ common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
+graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 schema = { path = "../schema" }
 fnv = "1.0"
@@ -37,6 +38,5 @@ serde_json = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-graphql-transforms = { path = "../graphql-transforms" }
 test-schema = { path = "../test-schema" }
-# @end of Signature<<6b0f401b19c1260a5b097bd4babd946440eb5b83>>
+# @end of Signature<<6265b0866495a32521fb867f13ed34b8402ef6f0>>

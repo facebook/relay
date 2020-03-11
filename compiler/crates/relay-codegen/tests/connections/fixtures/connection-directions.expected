@@ -126,6 +126,12 @@ return {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
+      "name": "first",
+      "type": "Int"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
       "name": "id",
       "type": "ID"
     },
@@ -133,12 +139,6 @@ return {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "last",
-      "type": "Int"
-    },
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "first",
       "type": "Int"
     }
   ],

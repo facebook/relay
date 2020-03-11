@@ -89,14 +89,14 @@ type ClientUser {
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID",
+      "name": "arg",
+      "type": "String",
       "defaultValue": null
     },
     {
       "kind": "LocalArgument",
-      "name": "arg",
-      "type": "String",
+      "name": "id",
+      "type": "ID",
       "defaultValue": null
     }
   ],

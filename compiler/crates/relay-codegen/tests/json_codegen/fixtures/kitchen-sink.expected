@@ -49,8 +49,8 @@ fragment UserFragment on User
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID",
+      "name": "PictureSize",
+      "type": "Int",
       "defaultValue": null
     },
     {
@@ -61,8 +61,8 @@ fragment UserFragment on User
     },
     {
       "kind": "LocalArgument",
-      "name": "PictureSize",
-      "type": "Int",
+      "name": "id",
+      "type": "ID",
       "defaultValue": null
     }
   ],
@@ -139,6 +139,11 @@ fragment UserFragment on User
   "metadata": {},
   "argumentDefinitions": [
     {
+      "kind": "RootArgument",
+      "name": "PictureSize",
+      "type": "Int"
+    },
+    {
       "kind": "LocalArgument",
       "name": "after",
       "type": "ID",
@@ -158,20 +163,15 @@ fragment UserFragment on User
     },
     {
       "kind": "LocalArgument",
-      "name": "size",
-      "type": "Int",
-      "defaultValue": null
-    },
-    {
-      "kind": "LocalArgument",
       "name": "scale",
       "type": "Float",
       "defaultValue": 2.0
     },
     {
-      "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "Int"
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "Int",
+      "defaultValue": null
     }
   ],
   "selections": [

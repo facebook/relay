@@ -60,13 +60,13 @@ interface ClientNamed {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "shouldInclude",
-      "type": "Boolean"
+      "name": "arg",
+      "type": "String"
     },
     {
       "kind": "RootArgument",
-      "name": "arg",
-      "type": "String"
+      "name": "shouldInclude",
+      "type": "Boolean"
     }
   ],
   "selections": [

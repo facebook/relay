@@ -28,7 +28,8 @@ mod validations;
 
 pub use client_extensions::client_extensions;
 pub use connections::{
-    ConnectionConstants, ConnectionInterface, FBConnectionInterface, OSSConnectionInterface,
+    extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
+    FBConnectionInterface, OSSConnectionInterface,
 };
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;

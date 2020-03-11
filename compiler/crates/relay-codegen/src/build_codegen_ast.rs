@@ -16,8 +16,8 @@ use std::iter;
 use graphql_syntax::OperationKind;
 use graphql_text_printer::print_operation;
 use graphql_transforms::{
-    extract_handle_field_directives, extract_values_from_handle_field_directive,
-    HandleFieldConstants,
+    extract_connection_metadata_from_directive, extract_handle_field_directives,
+    extract_values_from_handle_field_directive, ConnectionConstants, HandleFieldConstants,
 };
 
 use interner::{Intern, StringKey};
@@ -63,6 +63,7 @@ pub fn build_fragment(schema: &Schema, fragment: &FragmentDefinition) -> Concret
 }
 
 struct CodegenBuilder<'schema> {
+    connection_constants: ConnectionConstants,
     handle_field_constants: HandleFieldConstants,
     schema: &'schema Schema,
     variant: CodegenVariant,
@@ -76,6 +77,7 @@ enum CodegenVariant {
 impl<'schema> CodegenBuilder<'schema> {
     fn new(schema: &'schema Schema, variant: CodegenVariant) -> Self {
         Self {
+            connection_constants: Default::default(),
             handle_field_constants: Default::default(),
             schema,
             variant,
@@ -92,6 +94,31 @@ impl<'schema> CodegenBuilder<'schema> {
     }
 
     fn build_fragment(&self, fragment: &FragmentDefinition) -> ConcreteDefinition {
+        let connection_metadata = if let Some(metadata_values) =
+            extract_connection_metadata_from_directive(
+                &fragment.directives,
+                self.connection_constants,
+            ) {
+            Some(
+                metadata_values
+                    .iter()
+                    .map(|metadata| ConnectionMetadata {
+                        path: metadata.path.clone(),
+                        direction: Some(metadata.direction),
+                        cursor: metadata.cursor,
+                        count: metadata.count,
+                        stream: if metadata.is_stream_connection {
+                            Some(metadata.is_stream_connection)
+                        } else {
+                            None
+                        },
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        } else {
+            None
+        };
+
         ConcreteDefinition::Fragment(ConcreteFragment {
             name: fragment.name.item,
             type_: self.schema.get_type_name(fragment.type_condition),
@@ -102,7 +129,7 @@ impl<'schema> CodegenBuilder<'schema> {
             selections: self.build_selections(&fragment.selections),
             // TODO(T63303840) include correct fragment metadata
             metadata: Some(FragmentMetadata {
-                connection: None,
+                connection: connection_metadata,
                 mask: None,
                 plural: None,
                 refetch: None,

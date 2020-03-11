@@ -8,10 +8,10 @@
 use common::FileKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
-use graphql_ir::{build, Program};
+use graphql_ir::{build, FragmentDefinition, Program};
 use graphql_syntax::parse;
 use graphql_transforms::{transform_connections, validate_connections, OSSConnectionInterface};
-use relay_codegen::{print_fragment_deduped, print_operation_deduped};
+use relay_codegen::{print_fragment_deduped, print_request_deduped};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -53,7 +53,17 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut printed = next_program
         .operations()
-        .map(|def| print_operation_deduped(&TEST_SCHEMA, def))
+        .map(|def| {
+            let operation_fragment = FragmentDefinition {
+                name: def.name,
+                variable_definitions: def.variable_definitions.clone(),
+                selections: def.selections.clone(),
+                used_global_variables: Default::default(),
+                directives: def.directives.clone(),
+                type_condition: def.type_,
+            };
+            print_request_deduped(&TEST_SCHEMA, def, &operation_fragment)
+        })
         .chain(
             next_program
                 .fragments()

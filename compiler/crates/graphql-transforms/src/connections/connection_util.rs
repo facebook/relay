@@ -51,16 +51,10 @@ pub fn assert_connection_selections<'s, TConnectionInterface: ConnectionInterfac
 
 pub struct ConnectionMetadata {
     pub path: Option<Vec<StringKey>>,
-    pub direction: ConnectionDirection,
+    pub direction: StringKey,
     pub cursor: Option<StringKey>,
     pub count: Option<StringKey>,
     pub is_stream_connection: bool,
-}
-
-pub enum ConnectionDirection {
-    Forward,
-    Backward,
-    Bidirectional,
 }
 
 /// Builds the connection metadata that will be attached
@@ -82,9 +76,9 @@ pub fn build_connection_metadata(
 
     let (direction, count_variable, cursor_variable) = match first_arg {
         Some(first_arg) => match last_arg {
-            Some(_last_arg) => (ConnectionDirection::Bidirectional, None, None),
+            Some(_last_arg) => (connection_constants.direction_bidirectional, None, None),
             None => (
-                ConnectionDirection::Forward,
+                connection_constants.direction_forward,
                 extract_variable_name(Some(first_arg)),
                 extract_variable_name(find_argument(
                     &connection_field.arguments,
@@ -94,7 +88,7 @@ pub fn build_connection_metadata(
         },
         None => match last_arg {
             Some(last_arg) => (
-                ConnectionDirection::Backward,
+                connection_constants.direction_backward,
                 extract_variable_name(Some(last_arg)),
                 extract_variable_name(find_argument(
                     &connection_field.arguments,
@@ -134,7 +128,7 @@ pub fn build_connection_metadata_as_directive(
 ) -> Directive {
     let connection_metadata_values = connection_metadata
         .iter()
-        .map(|metadata| build_connection_metadata_value(metadata, connection_constants))
+        .map(|metadata| build_connection_metadata_value(metadata))
         .collect::<Vec<ConstantValue>>();
     let metadata_argument = Argument {
         name: WithLocation::new(
@@ -156,10 +150,7 @@ pub fn build_connection_metadata_as_directive(
     }
 }
 
-fn build_connection_metadata_value(
-    connection_metadata: &ConnectionMetadata,
-    connection_constants: ConnectionConstants,
-) -> ConstantValue {
+fn build_connection_metadata_value(connection_metadata: &ConnectionMetadata) -> ConstantValue {
     ConstantValue::List(vec![
         match &connection_metadata.path {
             Some(path) => ConstantValue::List(
@@ -169,11 +160,7 @@ fn build_connection_metadata_value(
             ),
             None => ConstantValue::Null(),
         },
-        ConstantValue::String(match connection_metadata.direction {
-            ConnectionDirection::Forward => connection_constants.direction_forward,
-            ConnectionDirection::Backward => connection_constants.direction_backward,
-            ConnectionDirection::Bidirectional => connection_constants.direction_bidirectional,
-        }),
+        ConstantValue::String(connection_metadata.direction),
         match connection_metadata.cursor {
             Some(cursor) => ConstantValue::String(cursor),
             None => ConstantValue::Null(),
@@ -184,6 +171,98 @@ fn build_connection_metadata_value(
         },
         ConstantValue::Boolean(connection_metadata.is_stream_connection),
     ])
+}
+
+pub fn extract_connection_metadata_from_directive(
+    directives: &[Directive],
+    connection_constants: ConnectionConstants,
+) -> Option<Vec<ConnectionMetadata>> {
+    let connection_metadata_directive = directives.iter().find(|directive| {
+        directive.name.item == connection_constants.connection_metadata_directive_name
+    });
+
+    if let Some(connection_metadata_directive) = connection_metadata_directive {
+        debug_assert!(
+            connection_metadata_directive.arguments.len() == 1,
+            "Expected the connection metadata directive to have a single argument."
+        );
+        let metadata_arg = connection_metadata_directive
+            .arguments
+            .iter()
+            .find(|arg| arg.name.item == connection_constants.connection_metadata_argument_name);
+
+        if let Some(metadata_arg) = metadata_arg {
+            let metadata_values = match &metadata_arg.value.item {
+                Value::Constant(value) => match value {
+                    ConstantValue::List(list) => list,
+                    _ => unreachable!(
+                        "Expected connection metadata to be a list of metadata objects."
+                    ),
+                },
+                _ => unreachable!("Expected connection metadata to be a list of metadata objects."),
+            };
+
+            let built_metadata_values = metadata_values
+                .iter()
+                .map(|metadata_value| {
+                    let metadata_value = match &metadata_value {
+                        ConstantValue::List(list) => list,
+                        _ => unreachable!("Expected connection metadata value to be a list."),
+                    };
+
+                    debug_assert!(
+                        metadata_value.len() == 5,
+                        "Expected metadata value to be a list with 5 elements"
+                    );
+
+                    let path = match &metadata_value[0] {
+                        ConstantValue::List(list) => Some(
+                            list.iter()
+                                .map(|item| match item {
+                                    ConstantValue::String(string_val) => *string_val,
+                                    _ => unreachable!("Expected connection metadata path to be a list of strings."),
+                                })
+                                .collect::<Vec<StringKey>>(),
+                        ),
+                        ConstantValue::Null() => None,
+                        _ => unreachable!("Expected connection metadata path to be a nullable list of strings."),
+                    };
+                    let direction = match &metadata_value[1] {
+                        ConstantValue::String(string_val) => *string_val,
+                        _ => unreachable!("Expected connection metadata direction to be a string."),
+                    };
+                    let cursor = match &metadata_value[2] {
+                        ConstantValue::String(string_val) => Some(*string_val),
+                        ConstantValue::Null() => None,
+                        _ => unreachable!("Expected connection metadata cursor to be a nullable string."),
+                    };
+                    let count = match &metadata_value[3] {
+                        ConstantValue::String(string_val) => Some(*string_val),
+                        ConstantValue::Null() => None,
+                        _ => unreachable!("Expected connection metadata count to be a nullable string."),
+                    };
+                    let is_stream_connection = match &metadata_value[4] {
+                        ConstantValue::Boolean(bool_val) => *bool_val,
+                        _ => unreachable!("Expected connection metadata is_stream_connection to be a boolean."),
+                    };
+
+                    ConnectionMetadata {
+                        path,
+                        direction,
+                        cursor,
+                        count,
+                        is_stream_connection,
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            Some(built_metadata_values)
+        } else {
+            unreachable!("Expected the connection metadata directive to have a single argument containing the connection metadata.")
+        }
+    } else {
+        None
+    }
 }
 
 /// Builds the selections that will be added to the edges selection
@@ -237,7 +316,8 @@ pub fn build_edge_selections<TConnectionInterface: ConnectionInterface>(
 pub fn build_page_info_selections<TConnectionInterface: ConnectionInterface>(
     schema: &Schema,
     page_info_type: Type,
-    direction: &ConnectionDirection,
+    connection_metadata: &ConnectionMetadata,
+    connection_constants: ConnectionConstants,
     connection_interface: &TConnectionInterface,
     // TODO(T63626569): Add support for derived locations
     empty_location: &Location,
@@ -267,8 +347,8 @@ pub fn build_page_info_selections<TConnectionInterface: ConnectionInterface>(
         )
         .expect("Expected presence of start_cursor field to have been previously validated.");
 
-    match direction {
-        ConnectionDirection::Forward => Selection::InlineFragment(From::from(InlineFragment {
+    if connection_metadata.direction == connection_constants.direction_forward {
+        Selection::InlineFragment(From::from(InlineFragment {
             type_condition: Some(page_info_type),
             directives: Vec::new(),
             selections: vec![
@@ -285,8 +365,9 @@ pub fn build_page_info_selections<TConnectionInterface: ConnectionInterface>(
                     directives: Vec::new(),
                 })),
             ],
-        })),
-        ConnectionDirection::Backward => Selection::InlineFragment(From::from(InlineFragment {
+        }))
+    } else if connection_metadata.direction == connection_constants.direction_backward {
+        Selection::InlineFragment(From::from(InlineFragment {
             type_condition: Some(page_info_type),
             directives: Vec::new(),
             selections: vec![
@@ -303,39 +384,40 @@ pub fn build_page_info_selections<TConnectionInterface: ConnectionInterface>(
                     directives: Vec::new(),
                 })),
             ],
-        })),
-        ConnectionDirection::Bidirectional => {
-            Selection::InlineFragment(From::from(InlineFragment {
-                type_condition: Some(page_info_type),
-                directives: Vec::new(),
-                selections: vec![
-                    Selection::ScalarField(From::from(ScalarField {
-                        alias: None,
-                        definition: WithLocation::new(*empty_location, end_cursor_field_id),
-                        arguments: Vec::new(),
-                        directives: Vec::new(),
-                    })),
-                    Selection::ScalarField(From::from(ScalarField {
-                        alias: None,
-                        definition: WithLocation::new(*empty_location, has_next_page_field_id),
-                        arguments: Vec::new(),
-                        directives: Vec::new(),
-                    })),
-                    Selection::ScalarField(From::from(ScalarField {
-                        alias: None,
-                        definition: WithLocation::new(*empty_location, has_prev_page_field_id),
-                        arguments: Vec::new(),
-                        directives: Vec::new(),
-                    })),
-                    Selection::ScalarField(From::from(ScalarField {
-                        alias: None,
-                        definition: WithLocation::new(*empty_location, start_cursor_field_id),
-                        arguments: Vec::new(),
-                        directives: Vec::new(),
-                    })),
-                ],
-            }))
-        }
+        }))
+    } else if connection_metadata.direction == connection_constants.direction_bidirectional {
+        Selection::InlineFragment(From::from(InlineFragment {
+            type_condition: Some(page_info_type),
+            directives: Vec::new(),
+            selections: vec![
+                Selection::ScalarField(From::from(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(*empty_location, end_cursor_field_id),
+                    arguments: Vec::new(),
+                    directives: Vec::new(),
+                })),
+                Selection::ScalarField(From::from(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(*empty_location, has_next_page_field_id),
+                    arguments: Vec::new(),
+                    directives: Vec::new(),
+                })),
+                Selection::ScalarField(From::from(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(*empty_location, has_prev_page_field_id),
+                    arguments: Vec::new(),
+                    directives: Vec::new(),
+                })),
+                Selection::ScalarField(From::from(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(*empty_location, start_cursor_field_id),
+                    arguments: Vec::new(),
+                    directives: Vec::new(),
+                })),
+            ],
+        }))
+    } else {
+        unreachable!()
     }
 }
 
@@ -351,6 +433,10 @@ pub fn extract_connection_directive(
     })
 }
 
+/// Helper to get the default set of filters to be used for an @connection handle
+/// field when no filters are explictly specified in the input graphql.
+/// By default, we will use all arguments that don't belong to the
+/// connection spec as part of the filters.
 pub fn get_default_filters(
     connection_field: &LinkedField,
     connection_constants: ConnectionConstants,

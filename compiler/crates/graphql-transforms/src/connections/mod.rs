@@ -16,5 +16,6 @@ pub use connection_interface::{
 pub use connection_util::{
     assert_connection_selections, build_connection_metadata,
     build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,
-    extract_connection_directive, get_default_filters, ConnectionMetadata,
+    extract_connection_directive, extract_connection_metadata_from_directive, get_default_filters,
+    ConnectionMetadata,
 };

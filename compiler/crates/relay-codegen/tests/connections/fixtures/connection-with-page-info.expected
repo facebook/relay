@@ -54,7 +54,18 @@ return {
     }
   ],
   "kind": "Fragment",
-  "metadata": {},
+  "metadata": {
+    "connection": [
+      {
+        "count": "friendsFirst",
+        "cursor": "friendsAfter",
+        "direction": "forward",
+        "path": [
+          "friends"
+        ]
+      }
+    ]
+  },
   "name": "Example",
   "selections": [
     {

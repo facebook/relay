@@ -167,7 +167,8 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
             .push(build_page_info_selections(
                 schema,
                 page_info_type,
-                &connection_metadata.direction,
+                &connection_metadata,
+                self.connection_constants,
                 &self.connection_interface,
                 &self.empty_location,
             ));

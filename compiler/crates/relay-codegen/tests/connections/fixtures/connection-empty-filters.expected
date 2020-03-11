@@ -17,43 +17,90 @@ query NodeQuery($id: ID!, $orderBy: String) {
   }
 }
 ==================================== OUTPUT ===================================
-{
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID"
-    },
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "orderBy",
-      "type": "String"
-    }
-  ],
-  "kind": "Operation",
-  "name": "NodeQuery",
+(function(){
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "id",
+    "type": "ID"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "orderBy",
+    "type": "String"
+  }
+],
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "id",
+    "variableName": "id"
+  }
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v3 = [
+  {
+    "kind": "Literal",
+    "name": "first",
+    "value": 10
+  },
+  {
+    "kind": "Variable",
+    "name": "orderby",
+    "variableName": "orderBy"
+  }
+],
+v4 = {
+  "alias": null,
+  "args": (v3/*: any*/),
+  "concreteType": null,
+  "kind": "LinkedField",
+  "name": "comments",
+  "plural": false,
   "selections": [
     {
       "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "id",
-          "variableName": "id"
-        }
-      ],
-      "concreteType": "Node",
+      "args": null,
+      "concreteType": null,
       "kind": "LinkedField",
-      "name": "node",
-      "plural": false,
+      "name": "edges",
+      "plural": true,
       "selections": [
         {
           "alias": null,
           "args": null,
-          "kind": "ScalarField",
-          "name": "id",
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "node",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Actor",
+              "kind": "LinkedField",
+              "name": "actor",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         },
         {
@@ -61,133 +108,152 @@ query NodeQuery($id: ID!, $orderBy: String) {
           "selections": [
             {
               "alias": null,
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "first",
-                  "value": 10
-                },
-                {
-                  "kind": "Variable",
-                  "name": "orderby",
-                  "variableName": "orderBy"
-                }
-              ],
+              "args": null,
+              "kind": "ScalarField",
+              "name": "cursor",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
               "concreteType": null,
               "kind": "LinkedField",
-              "name": "comments",
+              "name": "node",
               "plural": false,
               "selections": [
                 {
                   "alias": null,
                   "args": null,
-                  "concreteType": null,
-                  "kind": "LinkedField",
-                  "name": "edges",
-                  "plural": true,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "concreteType": null,
-                      "kind": "LinkedField",
-                      "name": "node",
-                      "plural": false,
-                      "selections": [
-                        {
-                          "alias": null,
-                          "args": null,
-                          "concreteType": "Actor",
-                          "kind": "LinkedField",
-                          "name": "actor",
-                          "plural": false,
-                          "selections": [
-                            {
-                              "alias": null,
-                              "args": null,
-                              "kind": "ScalarField",
-                              "name": "name",
-                              "storageKey": null
-                            }
-                          ],
-                          "storageKey": null
-                        }
-                      ],
-                      "storageKey": null
-                    },
-                    {
-                      "kind": "InlineFragment",
-                      "selections": [
-                        {
-                          "alias": null,
-                          "args": null,
-                          "kind": "ScalarField",
-                          "name": "cursor",
-                          "storageKey": null
-                        },
-                        {
-                          "alias": null,
-                          "args": null,
-                          "concreteType": null,
-                          "kind": "LinkedField",
-                          "name": "node",
-                          "plural": false,
-                          "selections": [
-                            {
-                              "alias": null,
-                              "args": null,
-                              "kind": "ScalarField",
-                              "name": "__typename",
-                              "storageKey": null
-                            }
-                          ],
-                          "storageKey": null
-                        }
-                      ],
-                      "type": "CommentsEdge"
-                    }
-                  ],
-                  "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "concreteType": null,
-                  "kind": "LinkedField",
-                  "name": "pageInfo",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "kind": "InlineFragment",
-                      "selections": [
-                        {
-                          "alias": null,
-                          "args": null,
-                          "kind": "ScalarField",
-                          "name": "endCursor",
-                          "storageKey": null
-                        },
-                        {
-                          "alias": null,
-                          "args": null,
-                          "kind": "ScalarField",
-                          "name": "hasNextPage",
-                          "storageKey": null
-                        }
-                      ],
-                      "type": "PageInfo"
-                    }
-                  ],
+                  "kind": "ScalarField",
+                  "name": "__typename",
                   "storageKey": null
                 }
               ],
               "storageKey": null
             }
           ],
-          "type": "Story"
+          "type": "CommentsEdge"
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "pageInfo",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "endCursor",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
+              "storageKey": null
+            }
+          ],
+          "type": "PageInfo"
         }
       ],
       "storageKey": null
     }
-  ]
-}
+  ],
+  "storageKey": null
+};
+return {
+  "fragment": {
+    "argumentDefinitions": (v0/*: any*/),
+    "kind": "Fragment",
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ]
+        }
+      ]
+    },
+    "name": "NodeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": "Node",
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              (v4/*: any*/),
+              {
+                "alias": null,
+                "args": (v3/*: any*/),
+                "filters": [],
+                "handle": "connection",
+                "key": "NodeQuery_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              }
+            ],
+            "type": "Story"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query"
+  },
+  "kind": "ConcreteRequest",
+  "operation": {
+    "argumentDefinitions": (v0/*: any*/),
+    "kind": "Operation",
+    "name": "NodeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": "Node",
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              (v4/*: any*/)
+            ],
+            "type": "Story"
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "NodeQuery",
+    "operationKind": "query",
+    "text": "query NodeQuery(\n  $id: ID!\n  $orderBy: String\n) @__connectionMetadata(__connectionMetadataArgument: [[[\"node\", \"comments\"], \"forward\", null, null, false]]) {\n  node(id: $id) {\n    id\n    ... on Story {\n      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: \"NodeQuery_comments\", handler: \"connection\", filters: , dynamicKey_UNSTABLE: null) {\n        edges {\n          node {\n            actor {\n              name\n            }\n          }\n          ... on CommentsEdge {\n            cursor\n            node {\n              __typename\n            }\n          }\n        }\n        pageInfo {\n          ... on PageInfo {\n            endCursor\n            hasNextPage\n          }\n        }\n      }\n    }\n  }\n}"
+  }
+};
+})()

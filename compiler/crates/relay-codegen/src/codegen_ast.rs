@@ -127,23 +127,12 @@ pub struct PageInfoMetadata {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConnectionMetadata {
-    pub path: Option<Vec<String>>,
-    pub direction: Option<ConnectionDirection>,
-    pub cursor: Option<String>,
-    pub count: Option<String>,
+    pub path: Option<Vec<StringKey>>,
+    pub direction: Option<StringKey>,
+    pub cursor: Option<StringKey>,
+    pub count: Option<StringKey>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
-#[allow(dead_code)]
-pub enum ConnectionDirection {
-    #[serde(rename(serialize = "forward"))]
-    Forward,
-    #[serde(rename(serialize = "backward"))]
-    Backward,
-    #[serde(rename(serialize = "bidirectional"))]
-    Bidirectional,
+    pub stream: Option<bool>,
 }
 
 #[derive(Debug, Serialize)]

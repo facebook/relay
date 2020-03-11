@@ -6,6 +6,7 @@
  */
 
 use fnv::FnvHashMap;
+use interner::StringKey;
 use serde::Serialize;
 use serde_json::Value as SerdeValue;
 
@@ -21,7 +22,7 @@ pub struct ConcreteRequest {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RequestParameters {
-    pub name: &'static str,
+    pub name: StringKey,
     pub operation_kind: ConcreteOperationKind,
     pub metadata: FnvHashMap<String, String>,
     pub id: Option<String>,
@@ -48,7 +49,7 @@ pub enum ConcreteDefinition {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteOperation {
-    pub name: &'static str,
+    pub name: StringKey,
     pub argument_definitions: Vec<ConcreteVariableDefinition>,
     pub selections: Vec<ConcreteSelection>,
 }
@@ -56,9 +57,9 @@ pub struct ConcreteOperation {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteFragment {
-    pub name: &'static str,
+    pub name: StringKey,
     #[serde(rename(serialize = "type"))]
-    pub type_: &'static str,
+    pub type_: StringKey,
     pub metadata: Option<FragmentMetadata>,
     pub argument_definitions: Vec<ConcreteVariableDefinition>,
     pub selections: Vec<ConcreteSelection>,
@@ -162,14 +163,14 @@ pub enum ConcreteSelection {
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteCondition {
     pub passing_value: bool,
-    pub condition: &'static str,
+    pub condition: StringKey,
     pub selections: Vec<ConcreteSelection>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteFragmentSpread {
-    pub name: &'static str,
+    pub name: StringKey,
     pub args: Option<Vec<ConcreteArgument>>,
 }
 
@@ -177,17 +178,17 @@ pub struct ConcreteFragmentSpread {
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteInlineFragment {
     #[serde(rename(serialize = "type"))]
-    pub type_: &'static str,
+    pub type_: StringKey,
     pub selections: Vec<ConcreteSelection>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteLinkedField {
-    pub alias: Option<&'static str>,
-    pub name: &'static str,
+    pub alias: Option<StringKey>,
+    pub name: StringKey,
     pub args: Option<Vec<ConcreteArgument>>,
-    pub concrete_type: Option<&'static str>,
+    pub concrete_type: Option<StringKey>,
     pub plural: bool,
     pub selections: Vec<ConcreteSelection>,
     pub storage_key: Option<String>,
@@ -196,8 +197,8 @@ pub struct ConcreteLinkedField {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteScalarField {
-    pub alias: Option<&'static str>,
-    pub name: &'static str,
+    pub alias: Option<StringKey>,
+    pub name: StringKey,
     pub args: Option<Vec<ConcreteArgument>>,
     pub storage_key: Option<String>,
 }
@@ -211,11 +212,11 @@ pub struct ConcreteClientExtension {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteNormalizationScalarHandle {
-    pub alias: Option<&'static str>,
-    pub name: &'static str,
+    pub alias: Option<StringKey>,
+    pub name: StringKey,
     pub args: Option<Vec<ConcreteArgument>>,
-    pub handle: &'static str,
-    pub key: &'static str,
+    pub handle: StringKey,
+    pub key: StringKey,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dynamic_key: Option<ConcreteArgument>,
     pub filters: Option<Vec<String>>,
@@ -224,11 +225,11 @@ pub struct ConcreteNormalizationScalarHandle {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteNormalizationLinkedHandle {
-    pub alias: Option<&'static str>,
-    pub name: &'static str,
+    pub alias: Option<StringKey>,
+    pub name: StringKey,
     pub args: Option<Vec<ConcreteArgument>>,
-    pub handle: &'static str,
-    pub key: &'static str,
+    pub handle: StringKey,
+    pub key: StringKey,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dynamic_key: Option<ConcreteArgument>,
     pub filters: Option<Vec<String>>,
@@ -242,17 +243,17 @@ pub enum ConcreteVariableDefinition {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteGlobalVariableDefinition {
-    pub name: &'static str,
+    pub name: StringKey,
     #[serde(rename(serialize = "type"))]
-    pub type_: &'static str,
+    pub type_: StringKey,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteLocalVariableDefinition {
-    pub name: &'static str,
+    pub name: StringKey,
     #[serde(rename(serialize = "type"))]
-    pub type_: &'static str,
+    pub type_: StringKey,
     pub default_value: SerdeValue,
 }
 
@@ -266,12 +267,12 @@ pub enum ConcreteArgument {
 }
 
 impl ConcreteArgument {
-    pub fn name(&self) -> &'static str {
+    pub fn name(&self) -> StringKey {
         match self {
-            ConcreteArgument::Literal(arg) => &arg.name,
-            ConcreteArgument::Variable(arg) => &arg.name,
-            ConcreteArgument::ObjectValue(arg) => &arg.name,
-            ConcreteArgument::ListValue(arg) => &arg.name,
+            ConcreteArgument::Literal(arg) => arg.name,
+            ConcreteArgument::Variable(arg) => arg.name,
+            ConcreteArgument::ObjectValue(arg) => arg.name,
+            ConcreteArgument::ListValue(arg) => arg.name,
         }
     }
 }
@@ -279,7 +280,7 @@ impl ConcreteArgument {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteLiteralArgument {
-    pub name: &'static str,
+    pub name: StringKey,
     #[serde(rename(serialize = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<String>,
@@ -289,23 +290,23 @@ pub struct ConcreteLiteralArgument {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteListArgument {
-    pub name: &'static str,
+    pub name: StringKey,
     pub items: Vec<Option<ConcreteArgument>>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteObjectArgument {
-    pub name: &'static str,
+    pub name: StringKey,
     pub fields: Vec<ConcreteArgument>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteVariableArgument {
-    pub name: &'static str,
+    pub name: StringKey,
     #[serde(rename(serialize = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<String>,
-    pub variable_name: &'static str,
+    pub variable_name: StringKey,
 }

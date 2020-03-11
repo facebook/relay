@@ -10,7 +10,7 @@ use core::cmp::Ordering;
 use fnv::FnvHashMap;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::sync::Arc;
 
@@ -107,6 +107,15 @@ impl fmt::Display for StringKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let str_value = self.lookup();
         write!(f, "{}", str_value)
+    }
+}
+
+impl Serialize for StringKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.lookup())
     }
 }
 

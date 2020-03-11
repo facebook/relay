@@ -15,7 +15,7 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use graphql_text_printer::print_operation;
 
-use interner::Intern;
+use interner::{Intern, StringKey};
 use schema::Schema;
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
 
@@ -34,7 +34,7 @@ pub fn build_request(
 
 pub fn build_request_params(schema: &Schema, operation: &OperationDefinition) -> RequestParameters {
     RequestParameters {
-        name: operation.name.item.lookup(),
+        name: operation.name.item,
         operation_kind: match operation.kind {
             OperationKind::Query => ConcreteOperationKind::Query,
             OperationKind::Mutation => ConcreteOperationKind::Mutation,
@@ -74,7 +74,7 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_operation(&self, operation: &OperationDefinition) -> ConcreteDefinition {
         ConcreteDefinition::Operation(ConcreteOperation {
-            name: operation.name.item.lookup(),
+            name: operation.name.item,
             argument_definitions: self
                 .build_operation_variable_definitions(&operation.variable_definitions),
             selections: self.build_selections(&operation.selections),
@@ -83,8 +83,8 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_fragment(&self, fragment: &FragmentDefinition) -> ConcreteDefinition {
         ConcreteDefinition::Fragment(ConcreteFragment {
-            name: fragment.name.item.lookup(),
-            type_: self.schema.get_type_name(fragment.type_condition).lookup(),
+            name: fragment.name.item,
+            type_: self.schema.get_type_name(fragment.type_condition),
             argument_definitions: self.build_fragment_variable_definitions(
                 &fragment.variable_definitions,
                 &fragment.used_global_variables,
@@ -129,10 +129,10 @@ impl<'schema> CodegenBuilder<'schema> {
             // TODO(T63303873) check for skipNormalizationNode metadata
         }
 
-        let field_name = self.schema.field(field.definition.item).name.lookup();
+        let field_name = self.schema.field(field.definition.item).name;
         ConcreteScalarField {
             alias: match field.alias {
-                Some(alias) => Some(alias.item.lookup()),
+                Some(alias) => Some(alias.item),
                 None => None,
             },
             name: field_name,
@@ -143,21 +143,17 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_linked_field(&self, field: &LinkedField) -> ConcreteLinkedField {
         let schema_field = self.schema.field(field.definition.item);
-        let field_name = schema_field.name.lookup();
+        let field_name = schema_field.name;
         ConcreteLinkedField {
             alias: match field.alias {
-                Some(alias) => Some(alias.item.lookup()),
+                Some(alias) => Some(alias.item),
                 None => None,
             },
             name: field_name,
             args: self.build_arguments(&field.arguments),
             selections: self.build_selections(&field.selections),
             concrete_type: if self.schema.is_abstract_type(schema_field.type_.inner()) {
-                Some(
-                    self.schema
-                        .get_type_name(schema_field.type_.inner())
-                        .lookup(),
-                )
+                Some(self.schema.get_type_name(schema_field.type_.inner()))
             } else {
                 None
             },
@@ -168,7 +164,7 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_fragment_spread(&self, frag_spread: &FragmentSpread) -> ConcreteFragmentSpread {
         ConcreteFragmentSpread {
-            name: frag_spread.fragment.item.lookup(),
+            name: frag_spread.fragment.item,
             args: self.build_arguments(&frag_spread.arguments),
         }
     }
@@ -192,7 +188,7 @@ impl<'schema> CodegenBuilder<'schema> {
                 }
             }
             Some(type_condition) => ConcreteSelection::InlineFragment(ConcreteInlineFragment {
-                type_: self.schema.get_type_name(type_condition).lookup(),
+                type_: self.schema.get_type_name(type_condition),
                 selections: self.build_selections(&inline_frag.selections),
             }),
         }
@@ -202,7 +198,7 @@ impl<'schema> CodegenBuilder<'schema> {
         ConcreteCondition {
             passing_value: condition.passing_value,
             condition: match &condition.value {
-                ConditionValue::Variable(variable) => variable.name.item.lookup(),
+                ConditionValue::Variable(variable) => variable.name.item,
                 ConditionValue::Constant(_) => {
                     panic!("Expected Condition with static value to have been pruned or inlined.")
                 }
@@ -219,8 +215,8 @@ impl<'schema> CodegenBuilder<'schema> {
             .iter()
             .map(|def| {
                 ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
-                    name: def.name.item.lookup(),
-                    type_: self.schema.get_type_name(def.type_.inner()).lookup(),
+                    name: def.name.item,
+                    type_: self.schema.get_type_name(def.type_.inner()),
                     default_value: if let Some(const_val) = &def.default_value {
                         self.build_constant_value(&const_val)
                     } else {
@@ -239,8 +235,8 @@ impl<'schema> CodegenBuilder<'schema> {
         // TODO(T63164787) this will produce argument_definitions in a different order than our JS codegen
         let local_vars_iter = local_variable_definitions.iter().map(|def| {
             ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
-                name: def.name.item.lookup(),
-                type_: self.schema.get_type_name(def.type_.inner()).lookup(),
+                name: def.name.item,
+                type_: self.schema.get_type_name(def.type_.inner()),
                 default_value: if let Some(const_val) = &def.default_value {
                     self.build_constant_value(&const_val)
                 } else {
@@ -250,8 +246,8 @@ impl<'schema> CodegenBuilder<'schema> {
         });
         let global_vars_iter = global_variable_definitions.iter().map(|def| {
             ConcreteVariableDefinition::RootArgument(ConcreteGlobalVariableDefinition {
-                name: def.name.item.lookup(),
-                type_: self.schema.get_type_name(def.type_.inner()).lookup(),
+                name: def.name.item,
+                type_: self.schema.get_type_name(def.type_.inner()),
             })
         });
         local_vars_iter.chain(global_vars_iter).collect()
@@ -261,20 +257,16 @@ impl<'schema> CodegenBuilder<'schema> {
         let mut args = arguments
             .iter()
             // We are filtering out "null" arguments matching JS behavior
-            .filter_map(|arg| self.build_argument(arg.name.item.lookup(), &arg.value.item))
+            .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
             .collect::<Vec<_>>();
-        args.sort_by_key(|arg| arg.name());
+        args.sort_by_key(|arg| arg.name().lookup());
         match args.len() {
             0 => None,
             _ => Some(args),
         }
     }
 
-    fn build_argument(
-        &self,
-        arg_name: &'static str,
-        arg_value: &Value,
-    ) -> Option<ConcreteArgument> {
+    fn build_argument(&self, arg_name: StringKey, arg_value: &Value) -> Option<ConcreteArgument> {
         match arg_value {
             Value::Constant(const_val) => {
                 if let Some(concrete_const_val) = self.build_constant_argument(arg_name, &const_val)
@@ -289,7 +281,7 @@ impl<'schema> CodegenBuilder<'schema> {
                     name: arg_name,
                     // TODO(T63303966) this is always skipped in JS compiler
                     type_: None,
-                    variable_name: variable.name.item.lookup(),
+                    variable_name: variable.name.item,
                 }))
             }
             Value::List(list) => Some(ConcreteArgument::ListValue(ConcreteListArgument {
@@ -298,7 +290,7 @@ impl<'schema> CodegenBuilder<'schema> {
                     .iter()
                     .enumerate()
                     .map(|(i, val)| {
-                        let item_name = format!("{}.{}", arg_name, i).as_str().intern().lookup();
+                        let item_name = format!("{}.{}", arg_name, i).as_str().intern();
                         self.build_argument(item_name, val)
                     })
                     .collect::<Vec<_>>(),
@@ -311,7 +303,7 @@ impl<'schema> CodegenBuilder<'schema> {
                     fields: sorted_object
                         .iter()
                         .map(|arg| {
-                            let field_name = arg.name.item.lookup();
+                            let field_name = arg.name.item;
                             if let Some(concrete_arg) =
                                 self.build_argument(field_name, &arg.value.item)
                             {
@@ -334,7 +326,7 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_constant_argument(
         &self,
-        arg_name: &'static str,
+        arg_name: StringKey,
         arg_value: &ConstantValue,
     ) -> Option<ConcreteLiteralArgument> {
         match arg_value {
@@ -352,10 +344,10 @@ impl<'schema> CodegenBuilder<'schema> {
         match value {
             ConstantValue::Int(val) => json!(val),
             ConstantValue::Float(val) => json!(val.as_float()),
-            ConstantValue::String(val) => json!(val.lookup()),
+            ConstantValue::String(val) => json!(val),
             ConstantValue::Boolean(val) => json!(val),
             ConstantValue::Null() => json!(null),
-            ConstantValue::Enum(val) => json!(val.lookup()),
+            ConstantValue::Enum(val) => json!(val),
             ConstantValue::List(val_list) => {
                 let json_values = val_list
                     .iter()
@@ -377,7 +369,7 @@ impl<'schema> CodegenBuilder<'schema> {
 }
 
 fn get_static_storage_key(
-    _field_name: &'static str,
+    _field_name: StringKey,
     _arguments: &[Argument], /*_metadata: ?*/
 ) -> Option<String> {
     // TODO(T63303994) implementation + properly using metadata

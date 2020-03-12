@@ -156,6 +156,68 @@ fragment Profile_17y1Ti on User {
 
 `;
 
+exports[`ApplyFragmentArgumentTransform matches expected output: literal-null-overrides-default-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128])
+    ...ProfileFriends @arguments(pictureSize: null) # should be equivalent to passing the default value
+  }
+}
+
+fragment ProfileFriends on User
+  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_17y1Ti
+    ...ProfileFriends_48REbJ
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  profilePicture(size: [128]) {
+    uri
+  }
+}
+
+fragment ProfileFriends_48REbJ on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_48REbJ
+      }
+    }
+  }
+}
+
+fragment Profile_48REbJ on User {
+  profilePicture {
+    uri
+  }
+}
+
+`;
+
 exports[`ApplyFragmentArgumentTransform matches expected output: merges-identical-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
@@ -362,60 +424,4 @@ GraphQL request:10:61
 10 |       @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends2)
    |                                                             ^
 11 |   }
-`;
-
-exports[`ApplyFragmentArgumentTransform matches expected output: uses-defaults-for-literal-null-arguments.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($id: ID!) {
-  node(id: $id) {
-    id
-    ...Profile @arguments(pictureSize: [128])
-    ...ProfileFriends @arguments(pictureSize: null) # should be equivalent to passing the default value
-  }
-}
-
-fragment ProfileFriends on User
-  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
-  friends(first: 10) {
-    edges {
-      node {
-        ...Profile @arguments(pictureSize: $pictureSize)
-      }
-    }
-  }
-}
-
-fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
-  profilePicture(size: $pictureSize) {
-    uri
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-query TestQuery(
-  $id: ID!
-) {
-  node(id: $id) {
-    id
-    ...Profile_17y1Ti
-    ...ProfileFriends_48REbJ
-  }
-}
-
-fragment Profile_17y1Ti on User {
-  profilePicture(size: [128]) {
-    uri
-  }
-}
-
-fragment ProfileFriends_48REbJ on User {
-  friends(first: 10) {
-    edges {
-      node {
-        ...Profile_17y1Ti
-      }
-    }
-  }
-}
-
 `;

@@ -168,9 +168,8 @@ function getFragmentScope(
       }: Variable);
     } else {
       const arg = argMap.get(definition.name);
-      if (arg == null || (arg.kind === 'Literal' && arg.value == null)) {
-        // No variable or literal null was passed, fall back to default
-        // value.
+      if (arg == null) {
+        // No variable was passed, fall back to default value.
         if (
           definition.defaultValue == null &&
           schema.isNonNull(definition.type)
@@ -190,7 +189,7 @@ function getFragmentScope(
           value: definition.defaultValue,
         };
       } else {
-        // Variable or non-null literal.
+        // Variable or literal.
         fragmentScope[definition.name] = arg;
       }
     }

@@ -385,6 +385,65 @@ pub trait Transformer {
             TransformedValue::Keep
         }
     }
+
+    /// Similar to `transform_list`, but replaces the return value of the item
+    /// callback with `TransformedMulti<T>` which allows more than one item to
+    /// be returned and grow the list. This helper is unused by the default
+    /// implementations and one has to override `transform_selections` or a
+    /// similar list transform function.
+    fn transform_list_multi<T, F>(&mut self, list: &[T], f: F) -> TransformedValue<Vec<T>>
+    where
+        T: Clone,
+        F: Fn(&mut Self, &T) -> TransformedMulti<T>,
+    {
+        let mut result = Vec::new();
+        let mut has_changes = false;
+        for (index, prev_item) in list.iter().enumerate() {
+            let next_item = f(self, prev_item);
+            match next_item {
+                TransformedMulti::Keep => {
+                    if has_changes {
+                        result.push(prev_item.clone());
+                    }
+                }
+                TransformedMulti::Delete => {
+                    if !has_changes {
+                        debug_assert!(result.capacity() == 0);
+                        // assume most items won't be skipped and allocate space for all items
+                        result.reserve(list.len());
+                        result.extend(list.iter().take(index).cloned());
+                    }
+                    has_changes = true;
+                }
+                TransformedMulti::Replace(next_item) => {
+                    if !has_changes {
+                        debug_assert!(result.capacity() == 0);
+                        // assume most items won't be skipped and allocate space for all items
+                        result.reserve(list.len());
+                        result.extend(list.iter().take(index).cloned());
+                    }
+                    result.push(next_item);
+                    has_changes = true;
+                }
+                TransformedMulti::ReplaceMultiple(next_items) => {
+                    if !has_changes {
+                        debug_assert!(result.capacity() == 0);
+                        // assume most items won't be skipped and allocate space for all items
+                        result.reserve(list.len() + next_items.len() - 1);
+                        result.extend(list.iter().take(index).cloned());
+                    }
+                    result.extend(next_items);
+                    has_changes = true;
+                }
+            }
+        }
+        if has_changes {
+            // Note that result can be empty if the input was empty and all items were skipped
+            TransformedValue::Replace(result)
+        } else {
+            TransformedValue::Keep
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -403,6 +462,26 @@ impl<T> Transformed<T> {
             Transformed::Delete => Transformed::Delete,
             Transformed::Keep => Transformed::Keep,
             Transformed::Replace(replacement) => Transformed::Replace(f(replacement)),
+        }
+    }
+}
+
+/// An extension of Transformed that has the additional value `ReplaceMultiple`
+/// which allows more then one item to be returned.
+#[derive(Clone)]
+pub enum TransformedMulti<T> {
+    Delete,
+    Keep,
+    Replace(T),
+    ReplaceMultiple(Vec<T>),
+}
+
+impl<T> Into<TransformedMulti<T>> for Transformed<T> {
+    fn into(self) -> TransformedMulti<T> {
+        match self {
+            Transformed::Delete => TransformedMulti::Delete,
+            Transformed::Keep => TransformedMulti::Keep,
+            Transformed::Replace(replacement) => TransformedMulti::Replace(replacement),
         }
     }
 }

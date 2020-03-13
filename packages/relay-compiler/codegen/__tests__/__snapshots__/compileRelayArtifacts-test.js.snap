@@ -3859,6 +3859,7 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: explicit-null-argument.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query Test {
+  # The compiler currently strips this null which isn't right.
   node(id: null) {
     __typename
   }

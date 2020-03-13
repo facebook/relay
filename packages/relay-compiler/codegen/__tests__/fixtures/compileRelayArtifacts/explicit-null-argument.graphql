@@ -1,0 +1,5 @@
+query Test {
+  node(id: null) {
+    __typename
+  }
+}

@@ -8,7 +8,7 @@
 use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
 use crate::handle_fields::{extract_handle_field_directive_args, HandleFieldConstants};
 use crate::util::find_argument;
-use errors::{try2, try3, try4, try_map};
+use errors::{validate, validate_map};
 use graphql_ir::{
     Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
     ValidationMessage, ValidationResult, Validator, Value,
@@ -139,7 +139,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         connection_directive: &Directive,
         edges_field: &LinkedField,
     ) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_edges_spec(
                 connection_field,
                 connection_schema_field,
@@ -152,9 +152,8 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                 connection_schema_field,
                 connection_field_type,
                 connection_directive,
-            ),
-        )?;
-        Ok(())
+            )
+        )
     }
 
     /// Validates that the Connection type has a valid `edges` field, which returns a list objects
@@ -203,7 +202,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         let edge_type = edges_type.inner();
         let node_selection_name = self.connection_interface.node_selection_name();
         let cursor_selection_name = self.connection_interface.cursor_selection_name();
-        try2(
+        validate!(
             // Validate edges.node selection
             self.validate_selection(
                 edge_type,
@@ -248,9 +247,8 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                         ],
                     )]
                 },
-            ),
-        )?;
-        Ok(())
+            )
+        )
     }
 
     /// Validates that the Connection type has a valid `page_info` field,
@@ -296,7 +294,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
             self.connection_interface.start_cursor_selection_name(),
         ];
 
-        try_map(page_info_sub_fields.iter(), |page_info_sub_field_name| {
+        validate_map(page_info_sub_fields.iter(), |page_info_sub_field_name| {
             self.validate_selection(
                 page_info_type,
                 *page_info_sub_field_name,
@@ -314,8 +312,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                     )]
                 },
             )
-        })?;
-        Ok(())
+        })
     }
 
     fn validate_selection(
@@ -348,7 +345,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         let connection_directive_args =
             extract_handle_field_directive_args(connection_directive, self.handle_field_constants);
 
-        try4(
+        validate!(
             self.validate_handler_arg(
                 connection_field,
                 connection_schema_field,
@@ -372,10 +369,8 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
                 connection_schema_field,
                 connection_directive,
                 connection_directive_args.dynamic_key_arg,
-            ),
-        )?;
-
-        Ok(())
+            )
+        )
     }
 
     fn validate_handler_arg(
@@ -547,7 +542,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> Validator
             )?;
             let edges_field = self.validate_connection_selection(field, connection_schema_field)?;
 
-            try3(
+            validate!(
                 self.validate_connection_spec(
                     field,
                     connection_schema_field,
@@ -560,9 +555,8 @@ impl<'s, TConnectionInterface: ConnectionInterface> Validator
                     connection_schema_field,
                     connection_directive,
                 ),
-                self.default_validate_linked_field(field),
-            )?;
-            Ok(())
+                self.default_validate_linked_field(field)
+            )
         } else {
             self.default_validate_linked_field(field)
         }

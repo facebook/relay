@@ -6,7 +6,7 @@
  */
 
 use common::WithLocation;
-use errors::try2;
+use errors::validate;
 use graphql_ir::{
     LinkedField, Program, ScalarField, ValidationError, ValidationMessage, ValidationResult,
     Validator,
@@ -39,20 +39,19 @@ impl<'s> Validator for DisallowIdAsAlias<'s> {
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
-        if let Some(alias) = field.alias {
-            try2(
+        validate!(
+            if let Some(alias) = field.alias {
                 validate_field_alias(
                     self.program.schema(),
                     self.id_key,
                     &alias,
                     field.definition.item,
-                ),
-                self.validate_selections(&field.selections),
-            )?;
-            Ok(())
-        } else {
+                )
+            } else {
+                Ok(())
+            },
             self.validate_selections(&field.selections)
-        }
+        )
     }
 
     fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {

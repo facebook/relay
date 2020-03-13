@@ -6,7 +6,7 @@
  */
 
 use common::{Location, WithLocation};
-use errors::{try2, try_map};
+use errors::{validate, validate_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
@@ -126,21 +126,20 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_program<'ss>(&mut self, program: &Program<'ss>) -> ValidationResult<()> {
-        try2(
-            try_map(program.operations(), |operation| {
+        validate!(
+            validate_map(program.operations(), |operation| {
                 self.current_client_invalid_directives = vec![];
                 self.current_root_client_selection = None;
                 self.is_current_fragment_client_only = true;
                 self.validate_operation(operation)
             }),
-            try_map(program.fragments(), |fragment| {
+            validate_map(program.fragments(), |fragment| {
                 self.current_client_invalid_directives = vec![];
                 self.current_root_client_selection = None;
                 self.is_current_fragment_client_only = true;
                 self.validate_fragment(fragment)
-            }),
-        )?;
-        Ok(())
+            })
+        )
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {

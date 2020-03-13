@@ -6,7 +6,7 @@
  */
 
 use crate::errors::ValidationResult;
-use errors::{try2, try3, try_map};
+use errors::{validate, validate_map};
 
 use crate::ir::*;
 use crate::program::Program;
@@ -21,15 +21,14 @@ pub trait Validator {
     }
 
     fn default_validate_program<'s>(&mut self, program: &Program<'s>) -> ValidationResult<()> {
-        try2(
-            try_map(program.operations(), |operation| {
+        validate!(
+            validate_map(program.operations(), |operation| {
                 self.validate_operation(operation)
             }),
-            try_map(program.fragments(), |fragment| {
+            validate_map(program.fragments(), |fragment| {
                 self.validate_fragment(fragment)
-            }),
-        )?;
-        Ok(())
+            })
+        )
     }
 
     // Fragment Definition
@@ -38,11 +37,10 @@ pub trait Validator {
     }
 
     fn default_validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_selections(&fragment.selections),
-            self.validate_directives(&fragment.directives),
-        )?;
-        Ok(())
+            self.validate_directives(&fragment.directives)
+        )
     }
 
     // Operation Definition
@@ -54,11 +52,10 @@ pub trait Validator {
         &mut self,
         operation: &OperationDefinition,
     ) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_directives(&operation.directives),
-            self.validate_selections(&operation.selections),
-        )?;
-        Ok(())
+            self.validate_selections(&operation.selections)
+        )
     }
 
     // Selection
@@ -86,11 +83,10 @@ pub trait Validator {
     }
 
     fn default_validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_arguments(&field.arguments),
-            self.validate_directives(&field.directives),
-        )?;
-        Ok(())
+            self.validate_directives(&field.directives)
+        )
     }
 
     fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
@@ -98,12 +94,11 @@ pub trait Validator {
     }
 
     fn default_validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
-        try3(
+        validate!(
             self.validate_selections(&field.selections),
             self.validate_arguments(&field.arguments),
-            self.validate_directives(&field.directives),
-        )?;
-        Ok(())
+            self.validate_directives(&field.directives)
+        )
     }
 
     fn validate_inline_fragment(&mut self, fragment: &InlineFragment) -> ValidationResult<()> {
@@ -114,11 +109,10 @@ pub trait Validator {
         &mut self,
         fragment: &InlineFragment,
     ) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_selections(&fragment.selections),
-            self.validate_directives(&fragment.directives),
-        )?;
-        Ok(())
+            self.validate_directives(&fragment.directives)
+        )
     }
 
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
@@ -129,11 +123,10 @@ pub trait Validator {
         &mut self,
         spread: &FragmentSpread,
     ) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_arguments(&spread.arguments),
-            self.validate_directives(&spread.directives),
-        )?;
-        Ok(())
+            self.validate_directives(&spread.directives)
+        )
     }
 
     fn validate_condition(&mut self, condition: &Condition) -> ValidationResult<()> {
@@ -141,11 +134,10 @@ pub trait Validator {
     }
 
     fn default_validate_condition(&mut self, condition: &Condition) -> ValidationResult<()> {
-        try2(
+        validate!(
             self.validate_condition_value(&condition.value),
-            self.validate_selections(&condition.selections),
-        )?;
-        Ok(())
+            self.validate_selections(&condition.selections)
+        )
     }
 
     fn validate_condition_value(
@@ -227,7 +219,14 @@ pub trait Validator {
         F: Fn(&mut Self, &T) -> ValidationResult<()>,
         T: Clone,
     {
-        try_map(list, |item| f(self, item))?;
-        Ok(())
+        Self::validate_map(list, |item| f(self, item))
+    }
+
+    fn validate_map<T, E, U, I, F>(items: I, f: F) -> Result<(), Vec<E>>
+    where
+        I: IntoIterator<Item = U>,
+        F: FnMut(U) -> Result<T, Vec<E>>,
+    {
+        validate_map(items, f)
     }
 }

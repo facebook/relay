@@ -154,3 +154,32 @@ where
         Err(errors)
     }
 }
+
+#[macro_export]
+macro_rules! validate {
+    ($($args:expr),*) => {{
+        let mut errors = Vec::new();
+        $(
+            match $args {
+                Ok(_) => {},
+                Err(e) => {
+                    errors.extend(e);
+                }
+            }
+        )*
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
+    }}
+}
+
+pub fn validate_map<T, E, U, I, F>(items: I, f: F) -> Result<(), Vec<E>>
+where
+    I: IntoIterator<Item = U>,
+    F: FnMut(U) -> Result<T, Vec<E>>,
+{
+    try_map(items, f)?;
+    Ok(())
+}

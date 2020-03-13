@@ -60,6 +60,7 @@ directives: [
             FragmentSpread,
             InlineFragment,
         ],
+        is_extension: false,
     },
     Directive {
         name: "skip",
@@ -79,6 +80,7 @@ directives: [
             FragmentSpread,
             InlineFragment,
         ],
+        is_extension: false,
     },
 ]
 type_map: {

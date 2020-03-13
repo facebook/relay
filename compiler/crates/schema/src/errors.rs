@@ -17,6 +17,9 @@ pub enum SchemaError {
     #[error("Duplicate {0:?} type definition, got '{1}' and '{2}'.")]
     DuplicateOperationDefinition(OperationType, StringKey, StringKey),
 
+    #[error("Duplicate directive definition '{0}'.")]
+    DuplicateDirectiveDefinition(StringKey),
+
     #[error("Cannot extend type '{0}', the type is not defined on the server schema.")]
     ExtendUndefinedType(StringKey),
 

@@ -33,7 +33,7 @@ pub struct Schema {
     clientid_field_name: StringKey,
     typename_field_name: StringKey,
 
-    directives: Vec<Directive>,
+    directives: HashMap<StringKey, Directive>,
 
     enums: Vec<Enum>,
     fields: Vec<Field>,
@@ -193,7 +193,15 @@ impl Schema {
     }
 
     pub fn get_directive(&self, name: StringKey) -> Option<&Directive> {
-        self.directives.iter().find(|x| x.name == name)
+        self.directives.get(&name)
+    }
+
+    pub fn is_extension_directive(&self, name: StringKey) -> bool {
+        if let Some(directive) = self.get_directive(name) {
+            directive.is_extension
+        } else {
+            panic!("Unknown directive {}.", name.lookup())
+        }
     }
 
     pub fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
@@ -339,7 +347,7 @@ impl Schema {
             typename_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             typename_field_name: "__typename".intern(),
-            directives: Vec::with_capacity(directive_count),
+            directives: HashMap::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
             fields: Vec::with_capacity(field_count),
             input_objects: Vec::with_capacity(next_input_object_id.try_into().unwrap()),
@@ -472,12 +480,23 @@ impl Schema {
                 repeatable: _repeatable,
                 locations,
             } => {
+                if self.directives.contains_key(name) {
+                    let str_name = name.lookup();
+                    if str_name != "skip" && str_name != "include" {
+                        // TODO(T63941319) @skip and @include directives are duplicated in our schema
+                        return Err(SchemaError::DuplicateDirectiveDefinition(*name));
+                    }
+                }
                 let arguments = self.build_arguments(arguments)?;
-                self.directives.push(Directive {
-                    name: *name,
-                    arguments,
-                    locations: locations.clone(),
-                });
+                self.directives.insert(
+                    *name,
+                    Directive {
+                        name: *name,
+                        arguments,
+                        locations: locations.clone(),
+                        is_extension,
+                    },
+                );
             }
             ast::Definition::ObjectTypeDefinition {
                 name,
@@ -728,6 +747,9 @@ impl Schema {
             .map(|(key, value)| (key.lookup().to_owned(), value))
             .collect();
 
+        let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
+        ordered_directives.sort_by_key(|dir| dir.name.lookup());
+
         format!(
             r#"Schema {{
 query_type: {:#?}
@@ -746,7 +768,7 @@ unions: {:#?}
             query_type,
             mutation_type,
             subscription_type,
-            directives,
+            ordered_directives,
             ordered_type_map,
             enums,
             fields,
@@ -899,6 +921,7 @@ pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
+    pub is_extension: bool,
 }
 
 #[derive(Debug)]

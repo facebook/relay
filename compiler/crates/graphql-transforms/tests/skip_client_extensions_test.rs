@@ -1,4 +1,4 @@
-// @generated SignedSource<<4d06216195b5cec13c9b7269bf63ff75>>
+// @generated SignedSource<<6a8d9c1935896c5e5b2769f50ba08d60>>
 
 mod skip_client_extensions;
 
@@ -10,6 +10,13 @@ fn client_conditions() {
     let input = include_str!("skip_client_extensions/fixtures/client-conditions.graphql");
     let expected = include_str!("skip_client_extensions/fixtures/client-conditions.expected");
     test_fixture(transform_fixture, "client-conditions.graphql", "skip_client_extensions/fixtures/client-conditions.expected", input, expected);
+}
+
+#[test]
+fn client_directives() {
+    let input = include_str!("skip_client_extensions/fixtures/client-directives.graphql");
+    let expected = include_str!("skip_client_extensions/fixtures/client-directives.expected");
+    test_fixture(transform_fixture, "client-directives.graphql", "skip_client_extensions/fixtures/client-directives.expected", input, expected);
 }
 
 #[test]

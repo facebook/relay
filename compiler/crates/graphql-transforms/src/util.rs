@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::client_extensions::ClientExtensionConstants;
+use crate::connections::ConnectionConstants;
+use crate::handle_fields::HandleFieldConstants;
 use graphql_ir::Argument;
 use interner::StringKey;
 
@@ -26,4 +29,30 @@ impl PointerAddress {
 
 pub fn find_argument(arguments: &[Argument], arg_name: StringKey) -> Option<&Argument> {
     arguments.iter().find(|arg| arg.name.item == arg_name)
+}
+
+pub struct CustomMetadataDirectives {
+    client_extension_constants: ClientExtensionConstants,
+    connection_constants: ConnectionConstants,
+    handle_field_constants: HandleFieldConstants,
+}
+
+impl Default for CustomMetadataDirectives {
+    fn default() -> Self {
+        Self {
+            client_extension_constants: ClientExtensionConstants::default(),
+            connection_constants: ConnectionConstants::default(),
+            handle_field_constants: HandleFieldConstants::default(),
+        }
+    }
+}
+
+impl CustomMetadataDirectives {
+    pub fn is_custom_metadata_directive(&self, name: StringKey) -> bool {
+        name == self
+            .client_extension_constants
+            .client_extension_directive_name
+            || name == self.connection_constants.connection_metadata_directive_name
+            || name == self.handle_field_constants.handle_field_directive_name
+    }
 }

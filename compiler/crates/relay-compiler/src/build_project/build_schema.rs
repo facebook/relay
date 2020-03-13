@@ -10,7 +10,8 @@ use crate::config::ConfigProject;
 use schema::Schema;
 
 pub fn build_schema(compiler_state: &CompilerState, project_config: &ConfigProject) -> Schema {
-    let mut extensions = Vec::new();
+    let relay_extensions = String::from(schema::RELAY_EXTENSIONS);
+    let mut extensions = vec![&relay_extensions];
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
         extensions.extend(project_extensions);
     }
@@ -19,7 +20,7 @@ pub fn build_schema(compiler_state: &CompilerState, project_config: &ConfigProje
             extensions.extend(base_project_extensions);
         }
     }
-    let mut schema_sources = vec![schema::RELAY_EXTENSIONS];
+    let mut schema_sources = Vec::new();
     schema_sources.extend(
         compiler_state.schemas[&project_config.name]
             .iter()

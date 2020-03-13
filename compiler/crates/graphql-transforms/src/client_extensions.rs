@@ -26,9 +26,21 @@ pub fn client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
 
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
+pub struct ClientExtensionConstants {
+    pub client_extension_directive_name: StringKey,
+}
+
+impl Default for ClientExtensionConstants {
+    fn default() -> Self {
+        Self {
+            client_extension_directive_name: "__clientExtension".intern(),
+        }
+    }
+}
+
 struct ClientExtensionsTransform<'s> {
+    client_extension_constants: ClientExtensionConstants,
     program: &'s Program<'s>,
-    client_extension_directive_name: StringKey,
     empty_location: Location,
     seen: Seen,
 }
@@ -36,9 +48,9 @@ struct ClientExtensionsTransform<'s> {
 impl<'s> ClientExtensionsTransform<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
+            client_extension_constants: Default::default(),
             program,
             seen: Default::default(),
-            client_extension_directive_name: "__clientExtension".intern(),
             empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
         }
     }
@@ -49,7 +61,8 @@ impl<'s> ClientExtensionsTransform<'s> {
             name: WithLocation::new(
                 // The directive is only used at codegen step, location is not necessary
                 self.empty_location,
-                self.client_extension_directive_name,
+                self.client_extension_constants
+                    .client_extension_directive_name,
             ),
             arguments: Default::default(),
         }

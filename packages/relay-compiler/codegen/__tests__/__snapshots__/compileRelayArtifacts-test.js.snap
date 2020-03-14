@@ -3856,6 +3856,82 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: explicit-null-argument.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query Test {
+  # The compiler currently strips this null which isn't right.
+  node(id: null) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    name: "Test",
+    type: "Query",
+    metadata: null,
+    argumentDefinitions: [],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "node",
+        storageKey: null,
+        args: null,
+        concreteType: null,
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "__typename",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+  operation: Operation {
+    name: "Test",
+    argumentDefinitions: [],
+    selections: [
+      LinkedField {
+        alias: null,
+        name: "node",
+        storageKey: null,
+        args: null,
+        concreteType: null,
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            name: "__typename",
+            args: null,
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            name: "id",
+            args: null,
+            storageKey: null,
+          },
+        ],
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query Test {
+  node {
+    __typename
+    id
+  }
+}
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: false-positive-circular-fragment-reference-regression.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery {

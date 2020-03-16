@@ -23,6 +23,15 @@ pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> Stri
     serde_json::to_string_pretty(&ast).unwrap()
 }
 
+pub fn print_request(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    fragment: &FragmentDefinition,
+) -> String {
+    let ast = build_request(schema, operation, fragment);
+    serde_json::to_string_pretty(&ast).unwrap()
+}
+
 pub fn print_fragment_deduped(schema: &Schema, fragment: &FragmentDefinition) -> String {
     let ast = build_fragment(schema, fragment);
     let mut result = String::new();

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# %TODO%
+
+# expected-to-throw
+
+query TestQuery {
+  me {
+    ...User_user @relay(mask: false)
+  }
+}
+
+fragment User_user on User
+  @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+  url(relative: $isRelative)
+}
+==================================== ERROR ====================================
+TODO

@@ -15,3 +15,6 @@ pub mod compiler_state;
 pub mod config;
 pub mod errors;
 mod watchman;
+
+pub use build_project::apply_transforms;
+pub use build_project::validate;

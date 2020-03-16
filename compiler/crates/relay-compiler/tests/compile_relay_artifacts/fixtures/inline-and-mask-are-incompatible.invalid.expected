@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# %TODO%
+
+# expected-to-throw
+
+fragment ParentFragment on Query {
+  me {
+    ...Profile @relay(mask: false)
+  }
+}
+
+fragment Profile on User @inline {
+  id
+}
+==================================== ERROR ====================================
+TODO

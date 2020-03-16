@@ -1,13 +1,20 @@
 # @generated
-# @autocargo from //relay/oss/crates/relay-compiler:relay-compiler
-# Signature<<561ea975622085e39b9036bd02ae622d4ef06037>>
+# @autocargo from //relay/oss/crates/relay-compiler:[relay-compiler,relay-compiler-compile_relay_artifacts_test]
+# Signature<<620cbd5642cc9e90139e446f9c57ecced2641bed>>
 [package]
 name = "relay-compiler"
 edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
 license = "MIT"
-include = ["src/**/*.rs"]
+include = ["src/**/*.rs", "tests/**/*.rs", "tests/**/fixtures/*"]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "relay_compiler_compile_relay_artifacts_test"
+path = "tests/compile_relay_artifacts_test.rs"
 
 [dependencies]
 common = { path = "../common" }
@@ -29,4 +36,8 @@ rayon = "1.2"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
 thiserror = "1.0"
-# @end of Signature<<561ea975622085e39b9036bd02ae622d4ef06037>>
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }
+test-schema = { path = "../test-schema" }
+# @end of Signature<<620cbd5642cc9e90139e446f9c57ecced2641bed>>

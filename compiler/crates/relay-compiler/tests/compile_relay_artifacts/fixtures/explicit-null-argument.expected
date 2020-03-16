@@ -1,0 +1,86 @@
+==================================== INPUT ====================================
+query Test {
+  # The compiler currently strips this null which isn't right.
+  node(id: null) {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "Test",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": null,
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "Test",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": null,
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "Test",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query Test {
+  node(id: null) {
+    id
+    __typename
+  }
+}

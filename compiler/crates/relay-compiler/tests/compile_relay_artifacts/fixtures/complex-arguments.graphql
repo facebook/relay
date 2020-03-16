@@ -1,0 +1,5 @@
+query TestQuery($date: String) {
+  items(filter: {date: $date}) {
+    date
+  }
+}

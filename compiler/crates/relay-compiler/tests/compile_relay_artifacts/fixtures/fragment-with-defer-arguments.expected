@@ -1,0 +1,244 @@
+==================================== INPUT ====================================
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment
+    @defer(label: "DeferredFragmentLabel")
+    @arguments(scale: 1.5)
+}
+
+fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithFragmentWithDefer",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "UserFragment",
+            "args": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithFragmentWithDefer",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "profile_picture",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "scale",
+                "variableName": "scale"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "uri",
+                "args": null,
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "emailAddresses",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "name",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "QueryWithFragmentWithDefer",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query QueryWithFragmentWithDefer {
+  me {
+    ...UserFragment
+    id
+  }
+}
+
+fragment DeferredFragment on User @argumentDefinitions(
+  scale: {type: "Float"}
+) {
+  profile_picture(scale: $scale) {
+    uri
+  }
+  id
+  name
+}
+
+fragment UserFragment on User {
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  emailAddresses
+  id
+}
+
+{
+  "kind": "Fragment",
+  "name": "DeferredFragment",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "scale",
+      "type": "Float",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profile_picture",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "scale"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserFragment",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "DeferredFragment",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 1.5
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "emailAddresses",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}

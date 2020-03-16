@@ -1,0 +1,307 @@
+==================================== INPUT ====================================
+query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
+  node(id: $id) {
+    ...Profile
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  ...ProfilePhotoWrapper @arguments(size: $size)
+}
+
+fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+  __typename
+  ...ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
+}
+
+fragment ProfilePhoto on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "Profile",
+            "args": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profilePicture",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "size",
+                    "value": [
+                      100
+                    ]
+                  }
+                ],
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query QueryWithUnusedFragmentArgumentDefinition(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...Profile
+    id
+    __typename
+  }
+}
+
+fragment Profile on User {
+  ...ProfilePhotoWrapper
+  id
+  name
+}
+
+fragment ProfilePhoto on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+
+fragment ProfilePhotoWrapper on User @argumentDefinitions(
+  size: {type: "Int"}
+) {
+  ...ProfilePhoto
+  __typename
+}
+
+{
+  "kind": "Fragment",
+  "name": "Profile",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "Int"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePhotoWrapper",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "ProfilePhoto",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": [
+            100
+          ]
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "ProfilePhotoWrapper",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "Int",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePhoto",
+      "args": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "__typename",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}

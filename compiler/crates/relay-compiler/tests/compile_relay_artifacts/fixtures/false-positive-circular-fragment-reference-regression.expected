@@ -1,0 +1,235 @@
+==================================== INPUT ====================================
+query TestQuery {
+  viewer {
+    ...MyViewer
+    ...MyOtherViewer
+    actor {
+      name
+    }
+  }
+}
+
+fragment MyViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyOtherViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyNestedViewer on Viewer
+  @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
+  primaryEmail @include(if: $includeEmail)
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "TestQuery",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "viewer",
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "MyOtherViewer",
+            "args": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "MyViewer",
+            "args": null
+          },
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "actor",
+            "args": null,
+            "concreteType": "Actor",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "viewer",
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "actor",
+            "args": null,
+            "concreteType": "Actor",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "kind": "Condition",
+            "passingValue": true,
+            "condition": "includeEmail",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "primaryEmail",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "TestQuery",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query TestQuery {
+  viewer {
+    ...MyOtherViewer
+    ...MyViewer
+    actor {
+      id
+      name
+      __typename
+    }
+  }
+}
+
+fragment MyNestedViewer on Viewer @argumentDefinitions(
+  includeEmail: {type: "Boolean!", defaultValue: false}
+) {
+  primaryEmail @include(if: $includeEmail)
+}
+
+fragment MyOtherViewer on Viewer {
+  ...MyNestedViewer
+}
+
+fragment MyViewer on Viewer {
+  ...MyNestedViewer
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyNestedViewer",
+  "type": "Viewer",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "includeEmail",
+      "type": "Boolean",
+      "defaultValue": false
+    }
+  ],
+  "selections": [
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "includeEmail",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "primaryEmail",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyOtherViewer",
+  "type": "Viewer",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "MyNestedViewer",
+      "args": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyViewer",
+  "type": "Viewer",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "MyNestedViewer",
+      "args": null
+    }
+  ]
+}

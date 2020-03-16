@@ -1,0 +1,425 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize)
+    ...ProfileFriends @include(if: $cond)
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "TestQuery",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "cond",
+        "type": "Boolean",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "pictureSize",
+        "type": "Int",
+        "defaultValue": [
+          128
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "Profile",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "pictureSize",
+                "variableName": "pictureSize"
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "Condition",
+            "passingValue": true,
+            "condition": "cond",
+            "selections": [
+              {
+                "kind": "FragmentSpread",
+                "name": "ProfileFriends",
+                "args": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "cond",
+        "type": "Boolean",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "pictureSize",
+        "type": "Int",
+        "defaultValue": [
+          128
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "profilePicture",
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "pictureSize"
+                  }
+                ],
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "uri",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "Condition",
+            "passingValue": true,
+            "condition": "cond",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "type": "User",
+                "selections": [
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "friends",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
+                      }
+                    ],
+                    "concreteType": null,
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "edges",
+                        "args": null,
+                        "concreteType": null,
+                        "plural": true,
+                        "selections": [
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "name": "node",
+                            "args": null,
+                            "concreteType": null,
+                            "plural": false,
+                            "selections": [
+                              {
+                                "kind": "LinkedField",
+                                "alias": null,
+                                "name": "profilePicture",
+                                "args": [
+                                  {
+                                    "kind": "Variable",
+                                    "name": "size",
+                                    "variableName": "pictureSize"
+                                  }
+                                ],
+                                "concreteType": null,
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "kind": "ScalarField",
+                                    "alias": null,
+                                    "name": "uri",
+                                    "args": null,
+                                    "storageKey": null
+                                  }
+                                ],
+                                "storageKey": null
+                              },
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "name": "id",
+                                "args": null,
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "TestQuery",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query TestQuery(
+  $id: ID!
+  $cond: Boolean!
+  $pictureSize: [Int] = [128]
+) {
+  node(id: $id) {
+    ...Profile
+    id
+    __typename
+    ...ProfileFriends @include(if: $cond)
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile
+        id
+      }
+    }
+  }
+}
+
+{
+  "kind": "Fragment",
+  "name": "Profile",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "Int",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "pictureSize"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "ProfileFriends",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "pictureSize",
+      "type": "Int"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "friends",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "edges",
+          "args": null,
+          "concreteType": null,
+          "plural": true,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "node",
+              "args": null,
+              "concreteType": null,
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "FragmentSpread",
+                  "name": "Profile",
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "pictureSize",
+                      "variableName": "pictureSize"
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

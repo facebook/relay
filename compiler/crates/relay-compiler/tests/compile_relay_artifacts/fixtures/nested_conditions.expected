@@ -1,0 +1,220 @@
+==================================== INPUT ====================================
+fragment QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment QueryFragment2 on Query {
+  viewer {
+    ... @include(if: $sentinel) @skip(if: $foo) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "Fragment",
+  "name": "QueryFragment",
+  "type": "Query",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "bar",
+      "type": "Boolean"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "foo",
+      "type": "Boolean"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "sentinel",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "viewer",
+      "args": null,
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Condition",
+          "passingValue": true,
+          "condition": "sentinel",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "account_user",
+              "args": null,
+              "concreteType": null,
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "name",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "Condition",
+                  "passingValue": true,
+                  "condition": "foo",
+                  "selections": [
+                    {
+                      "kind": "Condition",
+                      "passingValue": false,
+                      "condition": "bar",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "canViewerComment",
+                          "args": null,
+                          "storageKey": null
+                        },
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "alternate_name",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            },
+            {
+              "kind": "Condition",
+              "passingValue": false,
+              "condition": "foo",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "actor",
+                  "args": null,
+                  "concreteType": "Actor",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "name",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "QueryFragment2",
+  "type": "Query",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "bar",
+      "type": "Boolean"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "foo",
+      "type": "Boolean"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "sentinel",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "viewer",
+      "args": null,
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Condition",
+          "passingValue": false,
+          "condition": "foo",
+          "selections": [
+            {
+              "kind": "Condition",
+              "passingValue": true,
+              "condition": "sentinel",
+              "selections": [
+                {
+                  "kind": "Condition",
+                  "passingValue": true,
+                  "condition": "bar",
+                  "selections": [
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "account_user",
+                      "args": null,
+                      "concreteType": null,
+                      "plural": false,
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "name": "name",
+                          "args": null,
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+query QueryWithMultipeDeferredFragmentsOnSameParent($id: ID!) {
+  feedback: node(id: $id) {
+    id
+    ...FeedbackComments_feedback @defer
+    ...FeedbackText_feedback @defer
+  }
+}
+
+fragment FeedbackComments_feedback on Feedback {
+  comments(first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+fragment FeedbackText_feedback on Feedback {
+  body {
+    text
+  }
+}

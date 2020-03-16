@@ -1,0 +1,185 @@
+==================================== INPUT ====================================
+query QueryWithFragmentWithDefer {
+  node(id: "my-id") {
+    ...NodeFragment @defer(label: "node")
+  }
+}
+
+fragment NodeFragment on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "QueryWithFragmentWithDefer",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "my-id"
+          }
+        ],
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "NodeFragment",
+            "args": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "QueryWithFragmentWithDefer",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "my-id"
+          }
+        ],
+        "concreteType": "Node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "type": "Page",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "websites",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "QueryWithFragmentWithDefer",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query QueryWithFragmentWithDefer {
+  node(id: "my-id") {
+    ...NodeFragment @defer(label: "node")
+    id
+    __typename
+  }
+}
+
+fragment NodeFragment on Node {
+  ... on Page {
+    websites
+  }
+  ... on User {
+    name
+  }
+  id
+}
+
+{
+  "kind": "Fragment",
+  "name": "NodeFragment",
+  "type": "Node",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "InlineFragment",
+      "type": "Page",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "websites",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "User",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}

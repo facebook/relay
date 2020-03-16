@@ -1,0 +1,166 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  id
+  name @include(if: $shouldInclude)
+
+  client_nickname @include(if: $shouldInclude)
+
+  foo {
+    ... on ClientNamed @include(if: $shouldInclude) {
+      client_name
+      client_name_2
+    }
+  }
+
+  ... on Actor @include(if: $shouldInclude) {
+    client_actor_field
+    address {
+      city
+      client_street_address_field(arg: $arg) # nested client field
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_nickname: String
+  client_actor_field: String
+  foo: ClientNamed
+}
+
+extend type StreetAddress {
+  client_street_address_field(arg: String): String
+}
+
+extend interface Actor {
+  client_actor_field: String
+}
+
+extend type Page {
+  client_actor_field: String
+}
+
+interface ClientNamed {
+  client_name: String
+  client_name_2: String
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "Fragment",
+  "name": "Foo_user",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "arg",
+      "type": "String"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "shouldInclude",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "foo",
+      "args": null,
+      "concreteType": "ClientNamed",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Condition",
+          "passingValue": true,
+          "condition": "shouldInclude",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_name",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_name_2",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "shouldInclude",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "address",
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "city",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_street_address_field",
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "arg",
+                  "variableName": "arg"
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_nickname",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_actor_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  id
+
+  client_foo {
+    client_name
+    profile_picture(scale: 2) {
+      uri
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_foo: Foo
+}
+
+type Foo {
+  client_name: String
+  profile_picture(scale: Float): Image
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "Fragment",
+  "name": "Foo_user",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "client_foo",
+      "args": null,
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "profile_picture",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 2.0
+            }
+          ],
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "uri",
+              "args": null,
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_name",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}

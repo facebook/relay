@@ -1,0 +1,254 @@
+==================================== INPUT ====================================
+query TestQuery($ProfilePicture_SIZE: [Int], $isRelative: Boolean) {
+  me {
+    ...UserProfile_user
+  }
+}
+
+fragment UserProfile_user on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    width
+    height
+  }
+  ...UserUtil_user @relay(mask: false)
+}
+
+fragment UserUtil_user on User {
+  url(relative: $isRelative)
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "TestQuery",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "ProfilePicture_SIZE",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "isRelative",
+        "type": "Boolean",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "UserProfile_user",
+            "args": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "ProfilePicture_SIZE",
+        "type": "Int",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "isRelative",
+        "type": "Boolean",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "profilePicture",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "size",
+                "variableName": "ProfilePicture_SIZE"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "width",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "height",
+                "args": null,
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "url",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative"
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "TestQuery",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query TestQuery(
+  $ProfilePicture_SIZE: [Int]
+  $isRelative: Boolean
+) {
+  me {
+    ...UserProfile_user
+    id
+  }
+}
+
+fragment UserProfile_user on User {
+  ...UserUtil_user @relay(mask: false)
+  profilePicture(size: $ProfilePicture_SIZE) {
+    width
+    height
+  }
+}
+
+fragment UserUtil_user on User {
+  url(relative: $isRelative)
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserProfile_user",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "ProfilePicture_SIZE",
+      "type": "Int"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "UserUtil_user",
+      "args": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "ProfilePicture_SIZE"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "width",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "height",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserUtil_user",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

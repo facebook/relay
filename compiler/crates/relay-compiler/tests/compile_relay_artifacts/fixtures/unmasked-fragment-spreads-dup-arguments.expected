@@ -1,0 +1,139 @@
+==================================== INPUT ====================================
+fragment UserUtil_user on User
+  # it should not strip exisiting local variable
+  @argumentDefinitions(
+    localIsRelative: {type: "Boolean", defaultValue: false}
+  ) {
+  # it should not strip existing global variable
+  profilePicture(size: $PictureSize) {
+    width
+    height
+  }
+  ...UserUtil2_user @relay(mask: false)
+
+  # it should merge with the same existing global variable
+  url(relative: $globalIsRelative)
+  anotherUrl: url(relative: $localIsRelative)
+}
+
+fragment UserUtil2_user on User {
+  url(relative: $globalIsRelative)
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "Fragment",
+  "name": "UserUtil2_user",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserUtil_user",
+  "type": "User",
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "PictureSize",
+      "type": "Int"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "localIsRelative",
+      "type": "Boolean",
+      "defaultValue": false
+    }
+  ],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "UserUtil2_user",
+      "args": null
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "PictureSize"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "width",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "height",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": "anotherUrl",
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "localIsRelative"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

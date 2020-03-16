@@ -9,7 +9,7 @@ use fnv::FnvHashSet;
 use graphql_ir::Program;
 use graphql_transforms::{
     flatten, generate_id_field, generate_typename, inline_fragments, remove_base_fragments,
-    skip_client_extensions, sort_selections, transform_connections, FBConnectionInterface,
+    skip_client_extensions, sort_selections, transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -19,16 +19,17 @@ pub struct Programs<'schema> {
     pub operation_text: Program<'schema>,
 }
 
-pub fn apply_transforms<'schema>(
+pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
+    connection_interface: &TConnectionInterface,
 ) -> Programs<'schema> {
     // common
     //  |- reader
     //  |- operation
     //     |- normalization
     //     |- operation_text
-    let common_program = apply_common_transforms(&program);
+    let common_program = apply_common_transforms(&program, connection_interface);
     let reader_program = apply_reader_transforms(&common_program, base_fragment_names);
     let operation_program = apply_operation_transforms(&common_program);
     let normalization_program = apply_normalization_transforms(&operation_program);
@@ -42,7 +43,10 @@ pub fn apply_transforms<'schema>(
 }
 
 /// Applies transforms that apply to every output.
-fn apply_common_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
+fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
+    program: &Program<'schema>,
+    connection_interface: &TConnectionInterface,
+) -> Program<'schema> {
     // JS compiler
     // - DisallowIdAsAlias
     // - ConnectionTransform
@@ -52,7 +56,7 @@ fn apply_common_transforms<'schema>(program: &Program<'schema>) -> Program<'sche
     // - RefetchableFragmentTransform
     // - DeferStreamTransform
 
-    transform_connections(program, &FBConnectionInterface::default())
+    transform_connections(program, connection_interface)
 }
 
 /// Applies transforms only for generated reader code.

@@ -19,9 +19,12 @@ use crate::compiler::AstSets;
 use crate::compiler_state::CompilerState;
 use crate::config::{Config, ConfigProject};
 use crate::errors::BuildProjectError;
+pub use apply_transforms::apply_transforms;
 use build_ir::BuildIRResult;
 use common::Timer;
 use graphql_ir::{Program, Sources, ValidationError};
+use graphql_transforms::FBConnectionInterface;
+pub use validate::validate;
 
 pub async fn build_project(
     compiler_state: &CompilerState,
@@ -51,14 +54,21 @@ pub async fn build_project(
         Program::from_definitions(&schema, ir)
     });
 
+    let connection_interface = FBConnectionInterface::default();
+
     // Call validation rules that go beyond type checking.
     Timer::time(format!("validate {}", project_config.name), || {
-        add_error_sources(validate::validate(&program), sources)
+        add_error_sources(
+            // TODO(T63482263): Pass connection interface from configuration
+            validate(&program, &connection_interface),
+            sources,
+        )
     })?;
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
-        apply_transforms::apply_transforms(&program, &base_fragment_names)
+        // TODO(T63482263): Pass connection interface from configuration
+        apply_transforms(&program, &base_fragment_names, &connection_interface)
     });
 
     // Generate code and persist text to produce output artifacts in memory.

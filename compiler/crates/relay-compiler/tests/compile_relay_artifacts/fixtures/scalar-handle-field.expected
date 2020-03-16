@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+# %TODO%
+
+query ScalarHandleField($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      name @__clientField(handle: "clientName")
+    }
+  }
+}
+==================================== OUTPUT ===================================
+TODO

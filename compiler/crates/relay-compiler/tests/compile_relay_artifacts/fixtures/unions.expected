@@ -1,0 +1,201 @@
+==================================== INPUT ====================================
+query UnionQuery {
+  maybeNode {
+    ... on NonNode {
+      name
+    }
+    ... on Story {
+      id
+      body {
+        text
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "ConcreteRequest",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "UnionQuery",
+    "type": "Query",
+    "metadata": {},
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "maybeNode",
+        "args": null,
+        "concreteType": "MaybeNode",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "type": "NonNode",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Story",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "body",
+                "args": null,
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "text",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "UnionQuery",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "maybeNode",
+        "args": null,
+        "concreteType": "MaybeNode",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "type": "FakeNode",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "NonNode",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Story",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "body",
+                "args": null,
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "text",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "UnionQuery",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query UnionQuery {
+  maybeNode {
+    ... on Node {
+      id
+    }
+    ... on FakeNode {
+      id
+    }
+    ... on NonNode {
+      name
+    }
+    ... on Story {
+      body {
+        text
+      }
+      id
+    }
+    __typename
+  }
+}

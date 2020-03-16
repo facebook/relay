@@ -9,10 +9,10 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod operation_printer;
+mod print_full_operation;
 mod print_to_text;
 
-pub use operation_printer::OperationPrinter;
+pub use print_full_operation::print_full_operation;
 pub use print_to_text::{
     print_arguments, print_definition, print_directives, print_fragment, print_ir, print_operation,
     write_arguments, write_directives,

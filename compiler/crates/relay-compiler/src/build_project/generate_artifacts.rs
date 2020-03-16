@@ -9,7 +9,7 @@ use super::apply_transforms::Programs;
 use crate::config::ConfigProject;
 use crate::errors::BuildProjectError;
 use graphql_ir::FragmentDefinition;
-use graphql_text_printer::OperationPrinter;
+use graphql_text_printer::print_full_operation;
 use interner::StringKey;
 use persist_query::persist;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -24,8 +24,6 @@ pub async fn generate_artifacts(
     project_config: &ConfigProject,
     programs: &Programs<'_>,
 ) -> Result<Vec<Artifact>, BuildProjectError> {
-    let mut printer = OperationPrinter::new(&programs.operation_text);
-
     let mut artifacts = Vec::new();
     for node in programs.normalization.operations() {
         let name = node.name.item;
@@ -33,7 +31,7 @@ pub async fn generate_artifacts(
             .operation_text
             .operation(name)
             .expect("a query text operation should be generated for this operation");
-        let text = printer.print(print_operation_node);
+        let text = print_full_operation(&programs.operation_text, print_operation_node);
         let id = if let Some(ref persist_config) = project_config.persist {
             persist(&text, &persist_config.url, &persist_config.params)
                 .await

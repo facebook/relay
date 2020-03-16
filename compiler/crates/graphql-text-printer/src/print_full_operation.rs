@@ -13,7 +13,12 @@ use graphql_ir::{
 use interner::StringKey;
 use std::sync::Arc;
 
-pub struct OperationPrinter<'s> {
+pub fn print_full_operation<'s>(program: &Program<'s>, operation: &OperationDefinition) -> String {
+    let mut printer = OperationPrinter::new(program);
+    printer.print(operation)
+}
+
+struct OperationPrinter<'s> {
     fragment_result: FnvHashMap<StringKey, String>,
     reachable_fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
     program: &'s Program<'s>,

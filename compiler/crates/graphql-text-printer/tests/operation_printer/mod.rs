@@ -9,7 +9,7 @@ use common::FileKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, ExecutableDefinition, Program};
 use graphql_syntax::parse;
-use graphql_text_printer::OperationPrinter;
+use graphql_text_printer::print_full_operation;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -17,15 +17,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, file_key).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let mut printer = OperationPrinter::new(&program);
 
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|definitions| {
             definitions
                 .into_iter()
                 .filter_map(|definition| {
-                    if let ExecutableDefinition::Operation(definitions) = definition {
-                        Some(printer.print(&definitions))
+                    if let ExecutableDefinition::Operation(operation) = definition {
+                        Some(print_full_operation(&program, &operation))
                     } else {
                         None
                     }

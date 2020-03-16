@@ -14,7 +14,6 @@ use graphql_ir::{
 use std::iter;
 
 use graphql_syntax::OperationKind;
-use graphql_text_printer::print_operation;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, ConnectionConstants, HandleFieldConstants,
@@ -37,7 +36,10 @@ pub fn build_request(
     }
 }
 
-pub fn build_request_params(schema: &Schema, operation: &OperationDefinition) -> RequestParameters {
+pub fn build_request_params(
+    _schema: &Schema,
+    operation: &OperationDefinition,
+) -> RequestParameters {
     RequestParameters {
         name: operation.name.item,
         operation_kind: match operation.kind {
@@ -48,7 +50,7 @@ pub fn build_request_params(schema: &Schema, operation: &OperationDefinition) ->
         metadata: Default::default(),
         // TODO(T63303793) add persisted query id / text
         id: None,
-        text: Some(print_operation(schema, operation)),
+        text: None,
     }
 }
 

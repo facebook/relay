@@ -373,7 +373,7 @@ return {
     "metadata": {},
     "name": "NodeQuery",
     "operationKind": "query",
-    "text": "query NodeQuery(\n  $id: ID!\n  $orderBy: String\n) @__connectionMetadata(__connectionMetadataArgument: [[null, \"forward\", null, null, false], [[\"node\", \"comments\"], \"forward\", null, null, false]]) {\n  node(id: $id) {\n    id\n    ... on Story {\n      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: \"NodeQuery_comments\", handler: \"connection\", filters: [\"orderby\", \"first\"], dynamicKey_UNSTABLE: null) {\n        edges {\n          node {\n            actor {\n              name\n              friends(first: 10) @connection @__clientField(key: \"NodeQuery_friends\", handler: \"connection\", filters: null, dynamicKey_UNSTABLE: null) {\n                edges {\n                  node {\n                    name\n                  }\n                  ... on FriendsEdge {\n                    cursor\n                    node {\n                      __typename\n                    }\n                  }\n                }\n                pageInfo {\n                  ... on PageInfo {\n                    endCursor\n                    hasNextPage\n                  }\n                }\n              }\n            }\n          }\n          ... on CommentsEdge {\n            cursor\n            node {\n              __typename\n            }\n          }\n        }\n        pageInfo {\n          ... on PageInfo {\n            endCursor\n            hasNextPage\n          }\n        }\n      }\n    }\n  }\n}"
+    "text": null
   }
 };
 })()

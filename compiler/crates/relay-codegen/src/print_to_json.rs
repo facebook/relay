@@ -6,19 +6,12 @@
  */
 
 use crate::build_codegen_ast::{build_fragment, build_operation, build_request};
-use graphql_ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::Schema;
 use serde_json::Value as SerdeValue;
 use std::fmt::{Error as FmtError, Result as FmtResult, Write};
 
 const TAB_SIZE: usize = 2;
-
-pub fn print_json(schema: &Schema, definition: &ExecutableDefinition) -> String {
-    match definition {
-        ExecutableDefinition::Operation(operation) => print_operation(schema, operation),
-        ExecutableDefinition::Fragment(fragment) => print_fragment(schema, fragment),
-    }
-}
 
 pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
     let ast = build_fragment(schema, fragment);

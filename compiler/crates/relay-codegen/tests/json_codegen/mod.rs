@@ -7,9 +7,9 @@
 
 use common::FileKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
+use graphql_ir::{build, ExecutableDefinition};
 use graphql_syntax::parse;
-use relay_codegen::print_json;
+use relay_codegen::{print_fragment, print_operation};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -18,7 +18,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map(|definitions| {
             definitions
                 .iter()
-                .map(|def| print_json(&TEST_SCHEMA, def))
+                .map(|def| match def {
+                    ExecutableDefinition::Operation(operation) => {
+                        print_operation(&TEST_SCHEMA, operation)
+                    }
+                    ExecutableDefinition::Fragment(fragment) => {
+                        print_fragment(&TEST_SCHEMA, fragment)
+                    }
+                })
                 .collect::<Vec<_>>()
                 .join("\n\n")
         })

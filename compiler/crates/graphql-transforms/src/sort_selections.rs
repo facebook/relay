@@ -8,31 +8,33 @@
 use crate::util::PointerAddress;
 use graphql_ir::{Program, Selection, Transformed, TransformedValue, Transformer};
 use std::collections::HashMap;
-
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
 ///
 /// Sorts selections in the fragments and queries (and their selections)
 ///
 pub fn sort_selections<'s>(program: &Program<'s>) -> Program<'s> {
-    let mut transform = SortSelectionsTransform::new();
+    let mut transform = SortSelectionsTransform::new(program);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
 
-#[derive(Default)]
-struct SortSelectionsTransform {
+struct SortSelectionsTransform<'s> {
     seen: Seen,
+    program: &'s Program<'s>,
 }
 
-impl SortSelectionsTransform {
-    pub fn new() -> Self {
-        Default::default()
+impl<'s> SortSelectionsTransform<'s> {
+    pub fn new(program: &'s Program<'s>) -> Self {
+        Self {
+            seen: Default::default(),
+            program,
+        }
     }
 }
 
-impl Transformer for SortSelectionsTransform {
+impl<'s> Transformer for SortSelectionsTransform<'s> {
     const NAME: &'static str = "SortSelectionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -44,7 +46,19 @@ impl Transformer for SortSelectionsTransform {
         let mut next_selections = self
             .transform_list(selections, Self::transform_selection)
             .replace_or_else(|| selections.to_vec());
-        next_selections.sort_unstable();
+        next_selections.sort_unstable_by(|a, b| match (a, b) {
+            (Selection::ScalarField(a), Selection::ScalarField(b)) => a
+                .alias_or_name(self.program.schema())
+                .cmp(&b.alias_or_name(self.program.schema()))
+                .then_with(|| a.arguments.cmp(&b.arguments))
+                .then_with(|| a.directives.cmp(&b.directives)),
+            (Selection::LinkedField(a), Selection::LinkedField(b)) => a
+                .alias_or_name(self.program.schema())
+                .cmp(&b.alias_or_name(self.program.schema()))
+                .then_with(|| a.arguments.cmp(&b.arguments))
+                .then_with(|| a.directives.cmp(&b.directives)),
+            _ => a.cmp(b),
+        });
         TransformedValue::Replace(next_selections)
     }
 

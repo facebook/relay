@@ -31,19 +31,11 @@ impl NodeIdentifier {
         match selection {
             Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier(
                 Arc::clone(&node),
-                if let Some(name) = node.alias {
-                    name.item
-                } else {
-                    schema.field(node.definition.item).name
-                },
+                node.alias_or_name(schema),
             )),
             Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier(
                 Arc::clone(&node),
-                if let Some(name) = node.alias {
-                    name.item
-                } else {
-                    schema.field(node.definition.item).name
-                },
+                node.alias_or_name(schema),
             )),
             Selection::InlineFragment(node) => NodeIdentifier::InlineFragment(Arc::clone(node)),
             Selection::FragmentSpread(node) => NodeIdentifier::FragmentSpread(Arc::clone(node)),

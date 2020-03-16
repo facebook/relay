@@ -21,6 +21,7 @@ fragment NestedFragment on User {
     uri
   }
   name
+  zuck: name
   body {
     text
   }
@@ -49,6 +50,7 @@ fragment NestedFragment on User {
     uri
   }
   name
+  zuck: name
 }
 
 fragment NestedFragment2 on User {

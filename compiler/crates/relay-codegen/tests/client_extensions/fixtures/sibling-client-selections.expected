@@ -96,6 +96,48 @@ interface ClientNamed {
         {
           "kind": "LinkedField",
           "alias": null,
+          "name": "client_foo",
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_name",
+              "args": null,
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "client_foo",
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "type": "ClientNamed",
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_name",
+                  "args": null,
+                  "storageKey": null
+                }
+              ]
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "kind": "LinkedField",
+          "alias": null,
           "name": "client_friends",
           "args": null,
           "concreteType": null,
@@ -135,48 +177,6 @@ interface ClientNamed {
                   "storageKey": null
                 }
               ],
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "client_foo",
-          "args": null,
-          "concreteType": null,
-          "plural": false,
-          "selections": [
-            {
-              "kind": "InlineFragment",
-              "type": "ClientNamed",
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "client_name",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "client_foo",
-          "args": null,
-          "concreteType": null,
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name",
-              "args": null,
               "storageKey": null
             }
           ],

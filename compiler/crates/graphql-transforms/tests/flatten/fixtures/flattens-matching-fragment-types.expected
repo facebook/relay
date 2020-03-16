@@ -61,16 +61,16 @@ query TestQuery(
           cursor
         }
       }
-      id
       firstName
       firstName @customDirective(level: 1)
       firstName @customDirective(level: 2)
+      id
       lastName
       lastName @customDirective(level: 3)
       surname: lastName
     }
-    id
     __typename
+    id
     type: __typename
     typeName: __typename
   }

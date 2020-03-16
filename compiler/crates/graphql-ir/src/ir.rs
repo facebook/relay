@@ -8,10 +8,10 @@
 use common::WithLocation;
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
+use schema::Schema;
 use schema::{FieldID, Type, TypeReference};
 use std::fmt;
 use std::sync::Arc;
-
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -145,6 +145,16 @@ pub struct LinkedField {
     pub selections: Vec<Selection>,
 }
 
+impl LinkedField {
+    pub fn alias_or_name(&self, schema: &Schema) -> StringKey {
+        if let Some(name) = self.alias {
+            name.item
+        } else {
+            schema.field(self.definition.item).name
+        }
+    }
+}
+
 /// Name Arguments?
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ScalarField {
@@ -152,6 +162,16 @@ pub struct ScalarField {
     pub definition: WithLocation<FieldID>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
+}
+
+impl ScalarField {
+    pub fn alias_or_name(&self, schema: &Schema) -> StringKey {
+        if let Some(name) = self.alias {
+            name.item
+        } else {
+            schema.field(self.definition.item).name
+        }
+    }
 }
 
 /// https://spec.graphql.org/June2018/#sec--skip

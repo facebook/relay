@@ -1,6 +1,6 @@
 # @generated
 # @autocargo from //relay/oss/crates/signedsource:signedsource
-# Signature<<b5298de5cb6f16150d9f3203ae06ece05c763945>>
+# Signature<<9c224bcd56c45d6b149d7400e69d4203f0cb33ec>>
 [package]
 name = "signedsource"
 edition = "2018"
@@ -10,7 +10,8 @@ license = "MIT"
 include = ["src/**/*.rs"]
 
 [dependencies]
+hex = "0.4"
 lazy_static = "1.0"
+md-5 = "0.8"
 regex = "1.0"
-rust-crypto = "0.2"
-# @end of Signature<<b5298de5cb6f16150d9f3203ae06ece05c763945>>
+# @end of Signature<<9c224bcd56c45d6b149d7400e69d4203f0cb33ec>>

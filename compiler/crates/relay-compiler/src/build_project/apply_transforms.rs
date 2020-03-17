@@ -56,7 +56,7 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // - RefetchableFragmentTransform
     // - DeferStreamTransform
 
-    transform_connections(program, connection_interface);
+    let program = transform_connections(program, connection_interface);
     mask(&program)
 }
 

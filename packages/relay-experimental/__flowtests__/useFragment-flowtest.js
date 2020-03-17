@@ -23,6 +23,7 @@ import {
   keyNonNullablePlural,
   keyNullable,
   keyNullablePlural,
+  fragmentData,
 } from './utils';
 import type {
   NonNullableData,
@@ -51,5 +52,14 @@ import type {
 
 // $FlowExpectedError: Key should be one of the generated types
 (useFragment(fragmentInput, 'INVALID_KEY'): NullableData);
+
+// $FlowExpectedError: Key should not be a user provided object
+(useFragment(fragmentInput, {a: 123}): NullableData);
+
+// $FlowExpectedError: Key should not be an empty object
+(useFragment(fragmentInput, {}): NullableData);
+
+// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+(useFragment(fragmentInput, fragmentData): NullableData);
 
 /* eslint-enable react-hooks/rules-of-hooks */

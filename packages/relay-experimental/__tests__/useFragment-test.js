@@ -46,6 +46,7 @@ describe('useFragment', () => {
   let ContextProvider;
 
   function useFragment(fragmentNode, fragmentRef) {
+    // $FlowFixMe non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;

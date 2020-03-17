@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::RELAY_DIRECTIVE_CONSTANTS;
 use fnv::FnvHashMap;
 use graphql_ir::{
     ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField,
     Selection, Transformed, Transformer, Value, VariableDefinition,
 };
-use interner::{Intern, StringKey};
 use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
@@ -24,8 +24,6 @@ pub fn mask<'s>(program: &Program<'s>) -> Program<'s> {
 
 struct Mask<'s> {
     program: &'s Program<'s>,
-    relay_key: StringKey,
-    mask_key: StringKey,
     current_reachable_arguments: Vec<&'s VariableDefinition>,
 }
 
@@ -33,8 +31,6 @@ impl<'s> Mask<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
             program,
-            relay_key: "relay".intern(),
-            mask_key: "mask".intern(),
             current_reachable_arguments: vec![],
         }
     }
@@ -98,9 +94,9 @@ impl<'s> Transformer for Mask<'s> {
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let is_relay_mask_false = spread.directives.iter().any(|directive| {
-            directive.name.item == self.relay_key
+            directive.name.item == RELAY_DIRECTIVE_CONSTANTS.relay_directive_name
                 && directive.arguments.iter().any(|arg| {
-                    arg.name.item == self.mask_key
+                    arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name
                         && match arg.value.item {
                             Value::Constant(ConstantValue::Boolean(val)) => !val,
                             _ => false,

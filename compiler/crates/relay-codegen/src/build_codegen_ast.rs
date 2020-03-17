@@ -16,7 +16,8 @@ use std::iter;
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_values_from_handle_field_directive, ConnectionConstants, HandleFieldConstants,
+    extract_relay_directive, extract_values_from_handle_field_directive, ConnectionConstants,
+    HandleFieldConstants, RELAY_DIRECTIVE_CONSTANTS,
 };
 
 use interner::{Intern, StringKey};
@@ -121,6 +122,22 @@ impl<'schema> CodegenBuilder<'schema> {
             None
         };
 
+        let mut plural = None;
+        let mut mask = None;
+        if let Some(directive) = extract_relay_directive(&fragment.directives) {
+            for arg in &directive.arguments {
+                if arg.name.item == RELAY_DIRECTIVE_CONSTANTS.plural_arg_name {
+                    if let Value::Constant(ConstantValue::Boolean(value)) = arg.value.item {
+                        plural = Some(value);
+                    }
+                } else if arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name {
+                    if let Value::Constant(ConstantValue::Boolean(value)) = arg.value.item {
+                        mask = Some(value);
+                    }
+                }
+            }
+        }
+
         ConcreteDefinition::Fragment(ConcreteFragment {
             name: fragment.name.item,
             type_: self.schema.get_type_name(fragment.type_condition),
@@ -132,8 +149,8 @@ impl<'schema> CodegenBuilder<'schema> {
             // TODO(T63303840) include correct fragment metadata
             metadata: Some(FragmentMetadata {
                 connection: connection_metadata,
-                mask: None,
-                plural: None,
+                mask,
+                plural,
                 refetch: None,
             }),
         })

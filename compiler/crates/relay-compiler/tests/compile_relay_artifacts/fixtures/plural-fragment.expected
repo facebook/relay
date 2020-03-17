@@ -7,7 +7,9 @@ fragment PluralFragment on User @relay(plural: true) {
   "kind": "Fragment",
   "name": "PluralFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": {
+    "plural": true
+  },
   "argumentDefinitions": [],
   "selections": [
     {

@@ -13,6 +13,7 @@ use graphql_ir::{
     ValidationMessage, ValidationResult, Validator, Value, VariableDefinition,
 };
 use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 
 pub fn validate_relay_directives<'s>(program: &Program<'s>) -> ValidationResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);
@@ -27,31 +28,42 @@ enum ArgumentDefinition<'ir> {
 // This validtes both @relay(plural) and @relay(mask) usages
 struct RelayDirectiveValidation<'s> {
     program: &'s Program<'s>,
-    relay_key: StringKey,
-    plural_key: StringKey,
-    mask_key: StringKey,
     // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
     current_reachable_arguments: Vec<&'s VariableDefinition>,
+}
+
+pub struct RelayDirectiveConstants {
+    pub relay_directive_name: StringKey,
+    pub plural_arg_name: StringKey,
+    pub mask_arg_name: StringKey,
+}
+
+impl Default for RelayDirectiveConstants {
+    fn default() -> Self {
+        Self {
+            relay_directive_name: "relay".intern(),
+            plural_arg_name: "plural".intern(),
+            mask_arg_name: "mask".intern(),
+        }
+    }
+}
+
+lazy_static! {
+    pub static ref RELAY_DIRECTIVE_CONSTANTS: RelayDirectiveConstants = Default::default();
+}
+
+pub fn extract_relay_directive(directives: &'_ [Directive]) -> Option<&'_ Directive> {
+    directives
+        .iter()
+        .find(|directive| directive.name.item == RELAY_DIRECTIVE_CONSTANTS.relay_directive_name)
 }
 
 impl<'s> RelayDirectiveValidation<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
             program,
-            relay_key: "relay".intern(),
-            plural_key: "plural".intern(),
-            mask_key: "mask".intern(),
             current_reachable_arguments: Default::default(),
         }
-    }
-
-    fn extract_relay_directive<'directives>(
-        &self,
-        directives: &'directives [Directive],
-    ) -> Option<&'directives Directive> {
-        directives
-            .iter()
-            .find(|directive| directive.name.item == self.relay_key)
     }
 
     /// For ...Fragment @relay(mask:false), disallow fragments with directives or local variables
@@ -59,7 +71,9 @@ impl<'s> RelayDirectiveValidation<'s> {
         let mut errs = vec![];
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if !(fragment.directives.is_empty()
-            || fragment.directives.len() == 1 && fragment.directives[0].name.item == self.relay_key)
+            || fragment.directives.len() == 1
+                && fragment.directives[0].name.item
+                    == RELAY_DIRECTIVE_CONSTANTS.relay_directive_name)
         {
             errs.push(ValidationError::new(
                 ValidationMessage::InvalidUnmaskOnFragmentWithDirectives(),
@@ -129,9 +143,11 @@ impl<'s> RelayDirectiveValidation<'s> {
 
     fn validate_relay_directives(&self, directives: &[Directive]) -> ValidationResult<()> {
         let mut errs = vec![];
-        if let Some(directive) = self.extract_relay_directive(directives) {
+        if let Some(directive) = extract_relay_directive(directives) {
             for arg in &directive.arguments {
-                if arg.name.item == self.plural_key || arg.name.item == self.mask_key {
+                if arg.name.item == RELAY_DIRECTIVE_CONSTANTS.plural_arg_name
+                    || arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name
+                {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(_))
                         | Value::Constant(ConstantValue::Null()) => {}
@@ -196,11 +212,11 @@ impl<'s> Validator for RelayDirectiveValidation<'s> {
 
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
         validate!(
-            if let Some(directive) = self.extract_relay_directive(&spread.directives) {
+            if let Some(directive) = extract_relay_directive(&spread.directives) {
                 let mask_argument = directive
                     .arguments
                     .iter()
-                    .find(|arg| arg.name.item == self.mask_key);
+                    .find(|arg| arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name);
                 if let Some(arg) = mask_argument {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(val)) => {

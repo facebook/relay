@@ -121,14 +121,14 @@ fragment UserUtil2_user on User {
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "width",
+                "name": "height",
                 "args": null,
                 "storageKey": null
               },
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "height",
+                "name": "width",
                 "args": null,
                 "storageKey": null
               }
@@ -197,8 +197,8 @@ query TestQuery(
 
 fragment UserProfile_user on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    width
     height
+    width
   }
   firstName(if: $showFirstName)
   url(relative: $isRelative)
@@ -244,14 +244,14 @@ fragment UserProfile_user on User {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
+          "name": "height",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "height",
+          "name": "width",
           "args": null,
           "storageKey": null
         }
@@ -351,14 +351,14 @@ fragment UserProfile_user on User {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
+          "name": "height",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "height",
+          "name": "width",
           "args": null,
           "storageKey": null
         }

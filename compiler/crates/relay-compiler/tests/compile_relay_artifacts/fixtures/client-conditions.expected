@@ -142,7 +142,7 @@ interface ClientNamed {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "name",
+          "name": "client_actor_field",
           "args": null,
           "storageKey": null
         },
@@ -156,7 +156,7 @@ interface ClientNamed {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "client_actor_field",
+          "name": "name",
           "args": null,
           "storageKey": null
         }

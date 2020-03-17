@@ -186,14 +186,14 @@ fragment FeedbackFragment on Feedback
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -219,8 +219,8 @@ query FeedbackQuery(
 ) {
   node(id: $id) {
     ...FeedbackFragment
-    id
     __typename
+    id
   }
 }
 
@@ -423,14 +423,14 @@ fragment FeedbackFragment on Feedback @argumentDefinitions(
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -458,8 +458,8 @@ query PaginationQuery(
 ) {
   node(id: $id) {
     ...FeedbackFragment
-    id
     __typename
+    id
   }
 }
 

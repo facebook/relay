@@ -101,14 +101,14 @@ fragment RefetchableConnection_feedback on Feedback
             {
               "kind": "ScalarField",
               "alias": null,
-              "name": "hasNextPage",
+              "name": "endCursor",
               "args": null,
               "storageKey": null
             },
             {
               "kind": "ScalarField",
               "alias": null,
-              "name": "endCursor",
+              "name": "hasNextPage",
               "args": null,
               "storageKey": null
             }

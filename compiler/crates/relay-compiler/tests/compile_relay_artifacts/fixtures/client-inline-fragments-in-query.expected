@@ -105,14 +105,14 @@ interface ClientNamed {
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "name": "client_name",
+                    "name": "__typename",
                     "args": null,
                     "storageKey": null
                   },
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "name": "__typename",
+                    "name": "client_name",
                     "args": null,
                     "storageKey": null
                   }
@@ -131,14 +131,14 @@ interface ClientNamed {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -163,8 +163,8 @@ query FooQuery(
 ) {
   node(id: $id) {
     ...Foo_user
-    id
     __typename
+    id
   }
 }
 

@@ -195,14 +195,14 @@ fragment FeedbackText_feedback on Feedback {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -228,8 +228,8 @@ query QueryWithMultipeDeferredFragmentsOnSameParent(
   feedback: node(id: $id) {
     ...FeedbackComments_feedback @defer
     ...FeedbackText_feedback @defer
-    id
     __typename
+    id
   }
 }
 

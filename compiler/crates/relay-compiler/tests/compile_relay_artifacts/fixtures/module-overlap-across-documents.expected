@@ -175,14 +175,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -207,8 +207,8 @@ query BarNameRendererQuery(
 ) {
   node(id: $id) {
     ...BarNameRendererFragment
-    id
     __typename
+    id
   }
 }
 
@@ -403,14 +403,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -435,8 +435,8 @@ query FooNameRendererQuery(
 ) {
   node(id: $id) {
     ...FooNameRendererFragment
-    id
     __typename
+    id
   }
 }
 

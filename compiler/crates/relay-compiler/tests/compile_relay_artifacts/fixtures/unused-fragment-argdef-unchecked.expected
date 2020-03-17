@@ -121,6 +121,13 @@ fragment ProfilePhoto on User {
               {
                 "kind": "ScalarField",
                 "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
                 "name": "id",
                 "args": null,
                 "storageKey": null
@@ -131,27 +138,20 @@ fragment ProfilePhoto on User {
                 "name": "name",
                 "args": null,
                 "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "__typename",
-                "args": null,
-                "storageKey": null
               }
             ]
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -176,8 +176,8 @@ query QueryWithUnusedFragmentArgumentDefinition(
 ) {
   node(id: $id) {
     ...Profile
-    id
     __typename
+    id
   }
 }
 

@@ -76,14 +76,14 @@ extend type Page {
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "id",
+      "name": "client_actor_field",
       "args": null,
       "storageKey": null
     },
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "client_actor_field",
+      "name": "id",
       "args": null,
       "storageKey": null
     }

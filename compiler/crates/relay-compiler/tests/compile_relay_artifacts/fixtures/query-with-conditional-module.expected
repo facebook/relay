@@ -179,14 +179,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -212,8 +212,8 @@ query NameRendererQuery(
 ) {
   node(id: $id) {
     ...NameRendererFragment
-    id
     __typename
+    id
   }
 }
 

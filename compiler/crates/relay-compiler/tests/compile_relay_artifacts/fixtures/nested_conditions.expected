@@ -92,14 +92,14 @@ fragment QueryFragment2 on Query {
                         {
                           "kind": "ScalarField",
                           "alias": null,
-                          "name": "canViewerComment",
+                          "name": "alternate_name",
                           "args": null,
                           "storageKey": null
                         },
                         {
                           "kind": "ScalarField",
                           "alias": null,
-                          "name": "alternate_name",
+                          "name": "canViewerComment",
                           "args": null,
                           "storageKey": null
                         }

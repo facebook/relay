@@ -96,14 +96,14 @@ fragment NodeFragment on Node {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -126,8 +126,8 @@ QUERY:
 query QueryWithFragmentWithDefer {
   node(id: "my-id") {
     ...NodeFragment @defer(label: "node")
-    id
     __typename
+    id
   }
 }
 

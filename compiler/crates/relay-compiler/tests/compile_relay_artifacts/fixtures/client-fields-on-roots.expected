@@ -226,14 +226,14 @@ mutation FooMutation(
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           }
@@ -264,8 +264,8 @@ query FooQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    id
     __typename
+    id
   }
 }
 

@@ -96,6 +96,13 @@ fragment MyNestedViewer on Viewer
               {
                 "kind": "ScalarField",
                 "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
                 "name": "id",
                 "args": null,
                 "storageKey": null
@@ -104,13 +111,6 @@ fragment MyNestedViewer on Viewer
                 "kind": "ScalarField",
                 "alias": null,
                 "name": "name",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "__typename",
                 "args": null,
                 "storageKey": null
               }
@@ -152,9 +152,9 @@ query TestQuery {
     ...MyOtherViewer
     ...MyViewer
     actor {
+      __typename
       id
       name
-      __typename
     }
   }
 }

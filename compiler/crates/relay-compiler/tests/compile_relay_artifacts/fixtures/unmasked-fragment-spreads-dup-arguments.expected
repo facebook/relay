@@ -90,29 +90,16 @@ fragment UserUtil2_user on User {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
+          "name": "height",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "height",
+          "name": "width",
           "args": null,
           "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "url",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "globalIsRelative"
         }
       ],
       "storageKey": null
@@ -126,6 +113,19 @@ fragment UserUtil2_user on User {
           "kind": "Variable",
           "name": "relative",
           "variableName": "localIsRelative"
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
         }
       ],
       "storageKey": null

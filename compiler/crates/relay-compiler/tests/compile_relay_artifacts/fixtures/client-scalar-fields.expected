@@ -37,14 +37,14 @@ extend type FriendsConnection {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "count",
+          "name": "client_friends_connection_field",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "client_friends_connection_field",
+          "name": "count",
           "args": null,
           "storageKey": null
         }
@@ -54,14 +54,14 @@ extend type FriendsConnection {
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "id",
+      "name": "client_nickname",
       "args": null,
       "storageKey": null
     },
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "client_nickname",
+      "name": "id",
       "args": null,
       "storageKey": null
     }

@@ -163,14 +163,14 @@ fragment UserFragment on User
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "id",
+            "name": "__typename",
             "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
+            "name": "id",
             "args": null,
             "storageKey": null
           },
@@ -229,13 +229,6 @@ fragment UserFragment on User
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "name": "width",
-                        "args": null,
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
                         "name": "height",
                         "args": null,
                         "storageKey": null
@@ -244,6 +237,13 @@ fragment UserFragment on User
                         "kind": "ScalarField",
                         "alias": "src",
                         "name": "uri",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "width",
                         "args": null,
                         "storageKey": null
                       }
@@ -291,13 +291,6 @@ fragment UserFragment on User
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "name": "width",
-                        "args": null,
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
                         "name": "height",
                         "args": null,
                         "storageKey": null
@@ -308,8 +301,22 @@ fragment UserFragment on User
                         "name": "uri",
                         "args": null,
                         "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "width",
+                        "args": null,
+                        "storageKey": null
                       }
                     ],
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
                     "storageKey": null
                   },
                   {
@@ -323,13 +330,6 @@ fragment UserFragment on User
                     "kind": "ScalarField",
                     "alias": null,
                     "name": "name",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
                     "args": null,
                     "storageKey": null
                   },
@@ -373,8 +373,8 @@ query NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    id
     __typename
+    id
     ...UserFragment @include(if: $cond)... on User @include(if: $cond) {
       name
     }
@@ -391,20 +391,20 @@ fragment UserFragment on User @argumentDefinitions(
     count
   }
   profilePicture(size: $size) {
-    width
     height
     src: uri
+    width
   }
   scaled: profilePicture(size: $PictureSize) {
     uri
   }
   thumbnail: profilePicture(size: 32) {
-    width
     height
     src: uri
+    width
   }
-  id
   __typename
+  id
   name @include(if: $cond)
 }
 
@@ -491,13 +491,6 @@ fragment UserFragment on User @argumentDefinitions(
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
           "name": "height",
           "args": null,
           "storageKey": null
@@ -506,6 +499,13 @@ fragment UserFragment on User @argumentDefinitions(
           "kind": "ScalarField",
           "alias": "src",
           "name": "uri",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "width",
           "args": null,
           "storageKey": null
         }
@@ -553,13 +553,6 @@ fragment UserFragment on User @argumentDefinitions(
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
           "name": "height",
           "args": null,
           "storageKey": null
@@ -570,6 +563,13 @@ fragment UserFragment on User @argumentDefinitions(
           "name": "uri",
           "args": null,
           "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "width",
+          "args": null,
+          "storageKey": null
         }
       ],
       "storageKey": null
@@ -577,14 +577,14 @@ fragment UserFragment on User @argumentDefinitions(
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "id",
+      "name": "__typename",
       "args": null,
       "storageKey": null
     },
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "__typename",
+      "name": "id",
       "args": null,
       "storageKey": null
     },

@@ -1,6 +1,6 @@
 # @generated
-# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_relay_directives-test,graphql-validate_server_only_directives-test]
-# Signature<<47c876ac930255eae93f6cb6bee5897ded292105>>
+# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-mask-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_relay_directives-test,graphql-validate_server_only_directives-test]
+# Signature<<622f106610b488d69b166cad62b145bc02aed295>>
 [package]
 name = "graphql-transforms"
 edition = "2018"
@@ -35,6 +35,10 @@ path = "tests/generate_typename_test.rs"
 [[test]]
 name = "graphql_inline_fragments_test"
 path = "tests/inline_fragments_test.rs"
+
+[[test]]
+name = "graphql_mask_test"
+path = "tests/mask_test.rs"
 
 [[test]]
 name = "graphql_node_identifier_test"
@@ -75,4 +79,4 @@ im = { version = "14.2", features = ["rayon", "serde"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<47c876ac930255eae93f6cb6bee5897ded292105>>
+# @end of Signature<<622f106610b488d69b166cad62b145bc02aed295>>

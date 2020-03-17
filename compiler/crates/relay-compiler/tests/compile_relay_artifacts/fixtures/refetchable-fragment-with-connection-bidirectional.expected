@@ -27,18 +27,7 @@ fragment PaginationFragment on Node
   "kind": "Fragment",
   "name": "PaginationFragment",
   "type": "Node",
-  "metadata": {
-    "connection": [
-      {
-        "path": [
-          "friends"
-        ],
-        "direction": "bidirectional",
-        "cursor": null,
-        "count": null
-      }
-    ]
-  },
+  "metadata": {},
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -106,37 +95,6 @@ fragment PaginationFragment on Node
               "plural": true,
               "selections": [
                 {
-                  "kind": "InlineFragment",
-                  "type": "FriendsEdge",
-                  "selections": [
-                    {
-                      "kind": "LinkedField",
-                      "alias": null,
-                      "name": "node",
-                      "args": null,
-                      "concreteType": null,
-                      "plural": false,
-                      "selections": [
-                        {
-                          "kind": "ScalarField",
-                          "alias": null,
-                          "name": "__typename",
-                          "args": null,
-                          "storageKey": null
-                        }
-                      ],
-                      "storageKey": null
-                    },
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "name": "cursor",
-                      "args": null,
-                      "storageKey": null
-                    }
-                  ]
-                },
-                {
                   "kind": "LinkedField",
                   "alias": null,
                   "name": "node",
@@ -156,78 +114,9 @@ fragment PaginationFragment on Node
                 }
               ],
               "storageKey": null
-            },
-            {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "pageInfo",
-              "args": null,
-              "concreteType": null,
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "hasPreviousPage",
-                  "args": null,
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "hasNextPage",
-                  "args": null,
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "endCursor",
-                  "args": null,
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "startCursor",
-                  "args": null,
-                  "storageKey": null
-                }
-              ],
-              "storageKey": null
             }
           ],
           "storageKey": null
-        },
-        {
-          "kind": "LinkedHandle",
-          "alias": null,
-          "name": "friends",
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "after",
-              "variableName": "cursor"
-            },
-            {
-              "kind": "Variable",
-              "name": "before",
-              "variableName": "beforeCursor"
-            },
-            {
-              "kind": "Variable",
-              "name": "first",
-              "variableName": "count"
-            },
-            {
-              "kind": "Variable",
-              "name": "last",
-              "variableName": "lastCount"
-            }
-          ],
-          "handle": "connection",
-          "key": "PaginationFragment_friends",
-          "filters": null
         },
         {
           "kind": "ScalarField",

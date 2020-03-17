@@ -16,7 +16,8 @@ fragment UserFragment on User {
   }
 }
 
-fragment NestedFragment on User {
+fragment NestedFragment on User
+  @argumentDefinitions(zuck: {type: "String"}, id: {type: "ID!"}) {
   profile_picture {
     uri
   }
@@ -42,7 +43,10 @@ fragment NestedFragment3 on User {
   canViewerLike
 }
 ==================================== OUTPUT ===================================
-fragment NestedFragment on User {
+fragment NestedFragment on User @argumentDefinitions(
+  id: {type: "ID!"}
+  zuck: {type: "String"}
+) {
   body {
     text
   }

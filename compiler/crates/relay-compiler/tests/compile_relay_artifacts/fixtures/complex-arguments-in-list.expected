@@ -212,9 +212,9 @@ QUERY:
 
 query CheckinSearchQuery(
   $queryText: String!
-  $searchInputText: String
   $searchInput: CheckinSearchInput
   $searchInputLast: CheckinSearchInput!
+  $searchInputText: String
 ) {
   checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]}) {
     query

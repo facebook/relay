@@ -8,7 +8,7 @@
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use graphql_transforms::{
-    flatten, generate_id_field, generate_typename, inline_fragments, remove_base_fragments,
+    flatten, generate_id_field, generate_typename, inline_fragments, mask, remove_base_fragments,
     skip_client_extensions, sort_selections, transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
@@ -56,7 +56,8 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // - RefetchableFragmentTransform
     // - DeferStreamTransform
 
-    transform_connections(program, connection_interface)
+    transform_connections(program, connection_interface);
+    mask(&program)
 }
 
 /// Applies transforms only for generated reader code.

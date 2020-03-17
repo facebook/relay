@@ -161,14 +161,10 @@ query TestQuery(
 }
 
 fragment UserProfile_user on User {
-  ...UserUtil_user @relay(mask: false)
   profilePicture(size: $ProfilePicture_SIZE) {
     width
     height
   }
-}
-
-fragment UserUtil_user on User {
   url(relative: $isRelative)
 }
 
@@ -182,14 +178,14 @@ fragment UserUtil_user on User {
       "kind": "RootArgument",
       "name": "ProfilePicture_SIZE",
       "type": "Int"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
     }
   ],
   "selections": [
-    {
-      "kind": "FragmentSpread",
-      "name": "UserUtil_user",
-      "args": null
-    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -217,6 +213,19 @@ fragment UserUtil_user on User {
           "name": "height",
           "args": null,
           "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
         }
       ],
       "storageKey": null

@@ -6,7 +6,10 @@
  */
 
 use crate::util::PointerAddress;
-use graphql_ir::{Program, Selection, Transformed, TransformedValue, Transformer};
+use graphql_ir::{
+    FragmentDefinition, OperationDefinition, Program, Selection, Transformed, TransformedValue,
+    Transformer,
+};
 use std::collections::HashMap;
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
@@ -60,6 +63,39 @@ impl<'s> Transformer for SortSelectionsTransform<'s> {
             _ => a.cmp(b),
         });
         TransformedValue::Replace(next_selections)
+    }
+
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        let mut variable_definitions = fragment.variable_definitions.clone();
+        let mut used_global_variables = fragment.used_global_variables.clone();
+        variable_definitions.sort_unstable();
+        used_global_variables.sort_unstable();
+
+        let selections = self.transform_selections(&fragment.selections);
+        Transformed::Replace(FragmentDefinition {
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
+            variable_definitions,
+            used_global_variables,
+            ..fragment.clone()
+        })
+    }
+
+    fn default_transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let mut variable_definitions = operation.variable_definitions.clone();
+        variable_definitions.sort_unstable();
+
+        let selections = self.transform_selections(&operation.selections);
+        Transformed::Replace(OperationDefinition {
+            selections: selections.replace_or_else(|| operation.selections.clone()),
+            variable_definitions,
+            ..operation.clone()
+        })
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {

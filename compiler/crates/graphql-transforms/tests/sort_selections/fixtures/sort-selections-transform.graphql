@@ -15,7 +15,8 @@ fragment UserFragment on User {
   }
 }
 
-fragment NestedFragment on User {
+fragment NestedFragment on User
+  @argumentDefinitions(zuck: {type: "String"}, id: {type: "ID!"}) {
   profile_picture {
     uri
   }

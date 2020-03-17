@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![deny(warnings)]
+// #![deny(warnings)]
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 #![deny(clippy::clone_on_ref_ptr)]
@@ -17,6 +17,7 @@ mod generate_id_field;
 mod generate_typename;
 mod handle_fields;
 mod inline_fragments;
+mod mask;
 mod node_identifier;
 mod remove_base_fragments;
 mod skip_client_extensions;
@@ -39,6 +40,7 @@ pub use handle_fields::{
     HandleFieldConstants,
 };
 pub use inline_fragments::inline_fragments;
+pub use mask::mask;
 pub use node_identifier::NodeIdentifier;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;

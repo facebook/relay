@@ -220,8 +220,8 @@ QUERY:
 
 query QueryWithUnusedVariables(
   $id: ID!
-  $unusedFirst: Int
   $unusedAfter: ID
+  $unusedFirst: Int
 ) {
   node(id: $id) {
     ...ConnectionFragment

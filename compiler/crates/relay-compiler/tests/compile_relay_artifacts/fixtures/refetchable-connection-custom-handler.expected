@@ -21,18 +21,7 @@ fragment RefetchableConnection_feedback on Feedback
   "kind": "Fragment",
   "name": "RefetchableConnection_feedback",
   "type": "Feedback",
-  "metadata": {
-    "connection": [
-      {
-        "path": [
-          "comments"
-        ],
-        "direction": "forward",
-        "cursor": "cursor",
-        "count": "count"
-      }
-    ]
-  },
+  "metadata": {},
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -73,37 +62,6 @@ fragment RefetchableConnection_feedback on Feedback
           "concreteType": null,
           "plural": true,
           "selections": [
-            {
-              "kind": "InlineFragment",
-              "type": "CommentsEdge",
-              "selections": [
-                {
-                  "kind": "LinkedField",
-                  "alias": null,
-                  "name": "node",
-                  "args": null,
-                  "concreteType": null,
-                  "plural": false,
-                  "selections": [
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "name": "__typename",
-                      "args": null,
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "cursor",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            },
             {
               "kind": "LinkedField",
               "alias": null,
@@ -159,26 +117,6 @@ fragment RefetchableConnection_feedback on Feedback
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "LinkedHandle",
-      "alias": null,
-      "name": "comments",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "after",
-          "variableName": "cursor"
-        },
-        {
-          "kind": "Variable",
-          "name": "first",
-          "variableName": "count"
-        }
-      ],
-      "handle": "custom",
-      "key": "RefetchableConnection_comments",
-      "filters": null
     },
     {
       "kind": "ScalarField",

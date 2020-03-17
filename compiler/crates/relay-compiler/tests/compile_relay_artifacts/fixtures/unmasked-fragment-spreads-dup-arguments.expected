@@ -74,11 +74,6 @@ fragment UserUtil2_user on User {
   ],
   "selections": [
     {
-      "kind": "FragmentSpread",
-      "name": "UserUtil2_user",
-      "args": null
-    },
-    {
       "kind": "LinkedField",
       "alias": null,
       "name": "profilePicture",

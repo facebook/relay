@@ -1,6 +1,6 @@
 # @generated
-# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_server_only_directives-test]
-# Signature<<b48bb000007a5aeb3cb4d13fe07c561672c73328>>
+# @autocargo from //relay/oss/crates/graphql-transforms:[graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_relay_directives-test,graphql-validate_server_only_directives-test]
+# Signature<<47c876ac930255eae93f6cb6bee5897ded292105>>
 [package]
 name = "graphql-transforms"
 edition = "2018"
@@ -53,6 +53,10 @@ name = "graphql_sort_selections_test"
 path = "tests/sort_selections_test.rs"
 
 [[test]]
+name = "graphql_validate_relay_directives_test"
+path = "tests/validate_relay_directives_test.rs"
+
+[[test]]
 name = "graphql_validate_server_only_directives_test"
 path = "tests/validate_server_only_directives_test.rs"
 
@@ -71,4 +75,4 @@ im = { version = "14.2", features = ["rayon", "serde"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<b48bb000007a5aeb3cb4d13fe07c561672c73328>>
+# @end of Signature<<47c876ac930255eae93f6cb6bee5897ded292105>>

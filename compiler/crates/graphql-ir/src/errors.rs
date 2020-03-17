@@ -291,4 +291,18 @@ pub enum ValidationMessage {
         connection_field_name: StringKey,
         filters_arg_name: StringKey,
     },
+
+    #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
+    InvalidRelayDirectiveArg(StringKey),
+    #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
+    InvalidUnmaskOnFragmentWithDirectives(),
+    #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.")]
+    InvalidUnmaskOnFragmentWithArguments(),
+    #[error("Cannot combine global and local variables when applying @relay(mask: false")]
+    InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+    #[error("Cannot combine variables with incompatible types {prev_arg_type} and {next_arg_type} when applying @relay(mask: false")]
+    InvalidUnmaskOnVariablesOfIncompatibleTypesWithSameName {
+        prev_arg_type: String,
+        next_arg_type: String,
+    },
 }

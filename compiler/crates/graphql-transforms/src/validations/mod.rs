@@ -7,8 +7,10 @@
 
 mod disallow_id_as_alias;
 mod validate_connections;
+mod validate_relay_directives;
 mod validate_server_only_directives;
 
 pub use disallow_id_as_alias::disallow_id_as_alias;
 pub use validate_connections::validate_connections;
+pub use validate_relay_directives::validate_relay_directives;
 pub use validate_server_only_directives::validate_server_only_directives;

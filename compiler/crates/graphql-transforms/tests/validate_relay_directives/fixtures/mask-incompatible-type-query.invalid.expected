@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query ParentQuery($id: ID) {
+  ...NullableIDListFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NullableIDListFragment on Query {
+  nodes(ids: $id) {
+    id
+  }
+}
+==================================== ERROR ====================================
+Cannot combine variables with incompatible types ID and [ID!] when applying @relay(mask: false:
+mask-incompatible-type-query.invalid.graphql:1:18:
+query ParentQuery($id: ID) {
+
+
+mask-incompatible-type-query.invalid.graphql:13:13:
+  nodes(ids: $id) {

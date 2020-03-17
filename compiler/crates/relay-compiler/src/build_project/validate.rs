@@ -9,8 +9,8 @@ use errors::try_all;
 use graphql_ir::Program;
 use graphql_ir::ValidationResult;
 use graphql_transforms::{
-    disallow_id_as_alias, validate_connections, validate_server_only_directives,
-    ConnectionInterface,
+    disallow_id_as_alias, validate_connections, validate_relay_directives,
+    validate_server_only_directives, ConnectionInterface,
 };
 
 pub fn validate<TConnectionInterface: ConnectionInterface>(
@@ -21,6 +21,7 @@ pub fn validate<TConnectionInterface: ConnectionInterface>(
         disallow_id_as_alias(program),
         validate_server_only_directives(program),
         validate_connections(program, connection_interface),
+        validate_relay_directives(program),
     ])?;
 
     Ok(())

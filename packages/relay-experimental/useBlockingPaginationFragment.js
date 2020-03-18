@@ -31,6 +31,7 @@ const {getFragment, getFragmentIdentifier} = require('relay-runtime');
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
+  FragmentReference,
   GraphQLResponse,
   GraphQLTaggedNode,
   Observer,
@@ -48,7 +49,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function useBlockingPaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,

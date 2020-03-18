@@ -54,12 +54,12 @@ import type {
 (useFragment(fragmentInput, 'INVALID_KEY'): NullableData);
 
 // $FlowExpectedError: Key should not be a user provided object
-(useFragment(fragmentInput, {a: 123}): NullableData);
+useFragment(fragmentInput, {a: 123});
 
 // $FlowExpectedError: Key should not be an empty object
-(useFragment(fragmentInput, {}): NullableData);
+useFragment(fragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
-(useFragment(fragmentInput, fragmentData): NullableData);
+useFragment(fragmentInput, fragmentData);
 
 /* eslint-enable react-hooks/rules-of-hooks */

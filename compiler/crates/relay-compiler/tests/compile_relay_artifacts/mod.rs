@@ -8,6 +8,7 @@
 use common::FileKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
+use graphql_ir::ValidationError;
 use graphql_ir::{build, FragmentDefinition, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::print_full_operation;
@@ -39,21 +40,20 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let program = Program::from_definitions(&schema, ir);
     let connection_interface = OSSConnectionInterface::default();
 
-    let validation_result = validate(&program, &connection_interface);
-    match validation_result {
-        Ok(_) => {}
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    }
+    let validation_errors_to_string = |errors: Vec<ValidationError>| {
+        let mut errs = errors
+            .into_iter()
+            .map(|err| err.print(&sources))
+            .collect::<Vec<_>>();
+        errs.sort();
+        errs.join("\n\n")
+    };
+
+    validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
 
     // TODO pass base fragment names
-    let programs = apply_transforms(&program, &Default::default(), &connection_interface);
+    let programs = apply_transforms(&program, &Default::default(), &connection_interface)
+        .map_err(validation_errors_to_string)?;
 
     let mut result = programs
         .normalization

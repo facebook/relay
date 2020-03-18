@@ -116,20 +116,6 @@ fragment MyNestedViewer on Viewer
               }
             ],
             "storageKey": null
-          },
-          {
-            "kind": "Condition",
-            "passingValue": true,
-            "condition": "includeEmail",
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "primaryEmail",
-                "args": null,
-                "storageKey": null
-              }
-            ]
           }
         ],
         "storageKey": null
@@ -149,28 +135,12 @@ QUERY:
 
 query TestQuery {
   viewer {
-    ...MyOtherViewer
-    ...MyViewer
     actor {
       __typename
       id
       name
     }
   }
-}
-
-fragment MyNestedViewer on Viewer @argumentDefinitions(
-  includeEmail: {type: "Boolean!", defaultValue: false}
-) {
-  primaryEmail @include(if: $includeEmail)
-}
-
-fragment MyOtherViewer on Viewer {
-  ...MyNestedViewer
-}
-
-fragment MyViewer on Viewer {
-  ...MyNestedViewer
 }
 
 {

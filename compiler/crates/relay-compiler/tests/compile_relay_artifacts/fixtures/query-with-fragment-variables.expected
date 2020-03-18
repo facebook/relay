@@ -291,18 +291,10 @@ query TestQuery(
   $pictureSize: [Int] = [128]
 ) {
   node(id: $id) {
-    ...Profile
+    ...Profile_4CNNX6
     __typename
     id
     ...ProfileFriends @include(if: $cond)
-  }
-}
-
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]"}
-) {
-  profilePicture(size: $pictureSize) {
-    uri
   }
 }
 
@@ -310,10 +302,16 @@ fragment ProfileFriends on User {
   friends(first: 10) {
     edges {
       node {
-        ...Profile
+        ...Profile_4CNNX6
         id
       }
     }
+  }
+}
+
+fragment Profile_4CNNX6 on User {
+  profilePicture(size: $pictureSize) {
+    uri
   }
 }
 

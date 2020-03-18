@@ -75,9 +75,9 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
             "name": "profile_picture",
             "args": [
               {
-                "kind": "Variable",
+                "kind": "Literal",
                 "name": "scale",
-                "variableName": "scale"
+                "value": 1.5
               }
             ],
             "concreteType": null,
@@ -137,10 +137,8 @@ query QueryWithFragmentWithDefer {
   }
 }
 
-fragment DeferredFragment on User @argumentDefinitions(
-  scale: {type: "Float"}
-) {
-  profile_picture(scale: $scale) {
+fragment DeferredFragment_QMvSr on User {
+  profile_picture(scale: 1.5) {
     uri
   }
   id
@@ -148,7 +146,7 @@ fragment DeferredFragment on User @argumentDefinitions(
 }
 
 fragment UserFragment on User {
-  ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  ...DeferredFragment_QMvSr @defer(label: "DeferredFragmentLabel")
   emailAddresses
   id
 }

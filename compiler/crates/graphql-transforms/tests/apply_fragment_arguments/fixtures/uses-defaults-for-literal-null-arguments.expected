@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128])
+    ...ProfileFriends @arguments(pictureSize: null) # should be equivalent to passing the default value
+  }
+}
+
+fragment ProfileFriends on User
+  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_17y1Ti
+    ...ProfileFriends_48REbJ
+  }
+}
+
+fragment ProfileFriends_48REbJ on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_17y1Ti
+      }
+    }
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  profilePicture(size: [128]) {
+    uri
+  }
+}

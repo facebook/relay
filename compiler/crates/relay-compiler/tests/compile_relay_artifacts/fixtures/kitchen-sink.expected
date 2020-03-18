@@ -189,14 +189,9 @@ fragment UserFragment on User
                     "name": "friends",
                     "args": [
                       {
-                        "kind": "Variable",
-                        "name": "after",
-                        "variableName": "after"
-                      },
-                      {
-                        "kind": "Variable",
+                        "kind": "Literal",
                         "name": "first",
-                        "variableName": "first"
+                        "value": 5
                       }
                     ],
                     "concreteType": null,
@@ -220,7 +215,7 @@ fragment UserFragment on User
                       {
                         "kind": "Variable",
                         "name": "size",
-                        "variableName": "size"
+                        "variableName": "PictureSize"
                       }
                     ],
                     "concreteType": null,
@@ -332,20 +327,6 @@ fragment UserFragment on User
                     "name": "name",
                     "args": null,
                     "storageKey": null
-                  },
-                  {
-                    "kind": "Condition",
-                    "passingValue": true,
-                    "condition": "cond",
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "name",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
                   }
                 ]
               }
@@ -375,22 +356,17 @@ query NodeQuery(
   node(id: $id) {
     __typename
     id
-    ...UserFragment @include(if: $cond)... on User @include(if: $cond) {
+    ...UserFragment_3M2EvT @include(if: $cond)... on User @include(if: $cond) {
       name
     }
   }
 }
 
-fragment UserFragment on User @argumentDefinitions(
-  after: {type: "ID"}
-  cond: {type: "Boolean!", defaultValue: false}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-) {
-  friends(after: $after, first: $first) {
+fragment UserFragment_3M2EvT on User {
+  friends(after: null, first: 5) {
     count
   }
-  profilePicture(size: $size) {
+  profilePicture(size: $PictureSize) {
     height
     src: uri
     width
@@ -405,7 +381,6 @@ fragment UserFragment on User @argumentDefinitions(
   }
   __typename
   id
-  name @include(if: $cond)
 }
 
 {

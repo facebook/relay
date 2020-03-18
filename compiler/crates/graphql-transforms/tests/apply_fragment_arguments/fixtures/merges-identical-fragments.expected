@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize)
+    ...ProfileFriends
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+  $pictureSize: [Int] = [128]
+) {
+  node(id: $id) {
+    id
+    ...Profile_4CNNX6
+    ...ProfileFriends
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_4CNNX6
+      }
+    }
+  }
+}
+
+fragment Profile_4CNNX6 on User {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}

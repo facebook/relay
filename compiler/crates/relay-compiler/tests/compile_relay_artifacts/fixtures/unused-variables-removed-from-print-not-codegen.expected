@@ -125,70 +125,6 @@ fragment ConnectionFragment on User
         "plural": false,
         "selections": [
           {
-            "kind": "InlineFragment",
-            "type": "User",
-            "selections": [
-              {
-                "kind": "Condition",
-                "passingValue": true,
-                "condition": "fetchConnection",
-                "selections": [
-                  {
-                    "kind": "LinkedField",
-                    "alias": null,
-                    "name": "friends",
-                    "args": [
-                      {
-                        "kind": "Variable",
-                        "name": "after",
-                        "variableName": "unusedAfter"
-                      },
-                      {
-                        "kind": "Variable",
-                        "name": "first",
-                        "variableName": "unusedFirst"
-                      }
-                    ],
-                    "concreteType": null,
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "edges",
-                        "args": null,
-                        "concreteType": null,
-                        "plural": true,
-                        "selections": [
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "args": null,
-                            "concreteType": null,
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
             "kind": "ScalarField",
             "alias": null,
             "name": "__typename",
@@ -224,21 +160,8 @@ query QueryWithUnusedVariables(
   $unusedFirst: Int
 ) {
   node(id: $id) {
-    ...ConnectionFragment
     __typename
     id
-  }
-}
-
-fragment ConnectionFragment on User @argumentDefinitions(
-  fetchConnection: {type: "Boolean", defaultValue: false}
-) {
-  friends(after: $unusedAfter, first: $unusedFirst) @include(if: $fetchConnection) {
-    edges {
-      node {
-        id
-      }
-    }
   }
 }
 

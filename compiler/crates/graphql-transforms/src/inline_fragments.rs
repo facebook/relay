@@ -52,7 +52,15 @@ impl<'s> InlineFragmentsTransform<'s> {
                 selections: Default::default(),
             }),
         );
-        let fragment = self.program.fragment(spread.fragment.item).unwrap();
+        let fragment = self
+            .program
+            .fragment(spread.fragment.item)
+            .unwrap_or_else(|| {
+                panic!(
+                    "Fragment spread unable to resolve fragment `{}`.",
+                    spread.fragment.item
+                )
+            });
         let selections = self.transform_selections(&fragment.selections);
         let result = Arc::new(InlineFragment {
             type_condition: Some(fragment.type_condition),

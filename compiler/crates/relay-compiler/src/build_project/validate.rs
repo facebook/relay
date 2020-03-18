@@ -6,8 +6,7 @@
  */
 
 use errors::try_all;
-use graphql_ir::Program;
-use graphql_ir::ValidationResult;
+use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     disallow_id_as_alias, validate_connections, validate_relay_directives,
     validate_server_only_directives, ConnectionInterface,

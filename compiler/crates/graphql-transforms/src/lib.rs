@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 #![deny(clippy::clone_on_ref_ptr)]
 
+mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
 mod flatten;
@@ -27,6 +28,7 @@ mod transform_connections;
 mod util;
 mod validations;
 
+pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::client_extensions;
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,

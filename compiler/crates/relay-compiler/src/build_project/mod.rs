@@ -67,9 +67,11 @@ pub async fn build_project(
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
-        // TODO(T63482263): Pass connection interface from configuration
-        apply_transforms(&program, &base_fragment_names, &connection_interface)
-    });
+        add_error_sources(
+            apply_transforms(&program, &base_fragment_names, &connection_interface),
+            sources,
+        )
+    })?;
 
     // Generate code and persist text to produce output artifacts in memory.
     let artifacts_timer = Timer::start(format!("generate_artifacts {}", project_config.name));

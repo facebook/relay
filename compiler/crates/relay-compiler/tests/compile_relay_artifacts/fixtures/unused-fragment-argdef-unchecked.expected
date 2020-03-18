@@ -182,7 +182,7 @@ query QueryWithUnusedFragmentArgumentDefinition(
 }
 
 fragment Profile on User {
-  ...ProfilePhotoWrapper
+  ...ProfilePhotoWrapper_18PEfK
   id
   name
 }
@@ -193,9 +193,7 @@ fragment ProfilePhoto on User {
   }
 }
 
-fragment ProfilePhotoWrapper on User @argumentDefinitions(
-  size: {type: "Int"}
-) {
+fragment ProfilePhotoWrapper_18PEfK on User {
   ...ProfilePhoto
   __typename
 }

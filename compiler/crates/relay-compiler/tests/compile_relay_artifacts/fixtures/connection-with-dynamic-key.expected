@@ -124,14 +124,9 @@ fragment FeedbackFragment on Feedback
                 "name": "comments",
                 "args": [
                   {
-                    "kind": "Variable",
-                    "name": "after",
-                    "variableName": "cursor"
-                  },
-                  {
-                    "kind": "Variable",
+                    "kind": "Literal",
                     "name": "first",
-                    "variableName": "count"
+                    "value": 2
                   },
                   {
                     "kind": "Literal",
@@ -287,11 +282,8 @@ query FeedbackQuery(
   }
 }
 
-fragment FeedbackFragment on Feedback @argumentDefinitions(
-  count: {type: "Int", defaultValue: 2}
-  cursor: {type: "ID"}
-) {
-  comments(after: $cursor, first: $count, orderby: "date") {
+fragment FeedbackFragment on Feedback {
+  comments(after: null, first: 2, orderby: "date") {
     edges {
       ... on CommentsEdge {
         node {
@@ -594,16 +586,13 @@ query PaginationQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ...FeedbackFragment
+    ...FeedbackFragment_1G22uz
     __typename
     id
   }
 }
 
-fragment FeedbackFragment on Feedback @argumentDefinitions(
-  count: {type: "Int", defaultValue: 2}
-  cursor: {type: "ID"}
-) {
+fragment FeedbackFragment_1G22uz on Feedback {
   comments(after: $cursor, first: $count, orderby: "date") {
     edges {
       ... on CommentsEdge {

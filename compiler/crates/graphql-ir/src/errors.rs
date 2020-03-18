@@ -305,4 +305,7 @@ pub enum ValidationMessage {
         prev_arg_type: String,
         next_arg_type: String,
     },
+
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

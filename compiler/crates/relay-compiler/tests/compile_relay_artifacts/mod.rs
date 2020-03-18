@@ -35,11 +35,6 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
-    let ast = parse(base, FileKey::new(fixture.file_name)).unwrap();
-    let ir = build(&schema, &ast.definitions).unwrap();
-    let program = Program::from_definitions(&schema, ir);
-    let connection_interface = OSSConnectionInterface::default();
-
     let validation_errors_to_string = |errors: Vec<ValidationError>| {
         let mut errs = errors
             .into_iter()
@@ -48,6 +43,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         errs.sort();
         errs.join("\n\n")
     };
+
+    let ast = parse(base, FileKey::new(fixture.file_name)).unwrap();
+    let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
+    let program = Program::from_definitions(&schema, ir);
+    let connection_interface = OSSConnectionInterface::default();
 
     validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
 

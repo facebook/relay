@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 # expected-to-throw
 query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
   node(id: $id) {
@@ -25,4 +23,6 @@ fragment ProfilePhoto on User {
   }
 }
 ==================================== ERROR ====================================
-TODO
+Unknown argument 'size':
+unused-fragment-argdef.invalid.graphql:15:29:
+  ...ProfilePhoto @arguments(size: $size)

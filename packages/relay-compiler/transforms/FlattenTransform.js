@@ -229,7 +229,7 @@ function flattenSelectionsInto(
       if (
         selection.name !== flattenedSelection.name ||
         selection.module !== flattenedSelection.module ||
-        selection.documentName !== flattenedSelection.documentName
+        selection.key !== flattenedSelection.key
       ) {
         throw createUserError(
           'Found conflicting @module selections: use a unique alias on the ' +

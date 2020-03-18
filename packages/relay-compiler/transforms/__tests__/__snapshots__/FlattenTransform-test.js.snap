@@ -277,9 +277,6 @@ fragment NameRendererFragment on User {
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
-  plainNameRenderer: nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -293,85 +290,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-fragment NameRendererFragment on User {
-  id
-  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
-    ... on PlainUserNameRenderer {
-      ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
-    }
-    ... on MarkdownUserNameRenderer {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
-    }
-  }
-  plainNameRenderer: nameRenderer(supported: ["PlainUserNameRenderer"]) {
-    ... on PlainUserNameRenderer {
-      ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.plainNameRenderer")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.plainNameRenderer")
-    }
-  }
-}
-
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-  }
-}
-
-`;
-
-exports[`FlattenTransform matches expected output: match-field-overlap.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment NameRendererFragment on User {
-  id
-  nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name
-      @module(name: "MarkdownUserNameRenderer.react")
-  }
-  ... on User {
-    # same alias and selections, should flatten together
-    nameRenderer @match {
-      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-      ...MarkdownUserNameRenderer_name
-        @module(name: "MarkdownUserNameRenderer.react")
-    }
-  }
-}
-
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-    ... on PlainUserNameData {
-      text # should be flattened
-    }
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-    ... on MarkdownUserNameData {
-      markup # should be flattened
-    }
   }
 }
 
@@ -444,19 +362,19 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
+Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'nameRenderer'.
 
-Source: GraphQL request (11:5)
-10:     # conflicts with above: same alias but different types are matched
+Source: GraphQL request (12:7)
 11:     nameRenderer @match {
-        ^
 12:       ...MarkdownUserNameRenderer_name
+          ^
+13:         @module(name: "MarkdownUserNameRenderer.react")
 
-Source: GraphQL request (4:3)
-3:   id
-4:   nameRenderer @match {
-     ^
+Source: GraphQL request (6:5)
 5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+6:     ...MarkdownUserNameRenderer_name
+       ^
+7:       @module(name: "MarkdownUserNameRenderer.react")
 
 `;
 
@@ -498,18 +416,77 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Found conflicting @module selections: use a unique alias on the parent fields.
+Invalid @module selection: concrete type 'PlainUserNameRenderer' was matched multiple times at path 'nameRenderer'.
 
-Source: GraphQL request (13:9)
+Source: GraphQL request (12:7)
+11:     nameRenderer @match {
 12:       ...PlainUserNameRenderer_name
+          ^
 13:         @module(name: "OtherPlainUserNameRenderer.react")
-            ^
-14:       ...MarkdownUserNameRenderer_name
 
-Source: GraphQL request (5:35)
+Source: GraphQL request (5:5)
 4:   nameRenderer @match {
 5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-                                     ^
+       ^
+6:     ...MarkdownUserNameRenderer_name
+
+`;
+
+exports[`FlattenTransform matches expected output: match-field-overlap-same-selections.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+  ... on User {
+    # error: multiple selections against same concrete types
+    nameRenderer @match {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    ... on PlainUserNameData {
+      text # should be flattened
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    ... on MarkdownUserNameData {
+      markup # should be flattened
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid @module selection: concrete type 'PlainUserNameRenderer' was matched multiple times at path 'nameRenderer'.
+
+Source: GraphQL request (12:7)
+11:     nameRenderer @match {
+12:       ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+          ^
+13:       ...MarkdownUserNameRenderer_name
+
+Source: GraphQL request (5:5)
+4:   nameRenderer @match {
+5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+       ^
 6:     ...MarkdownUserNameRenderer_name
 
 `;

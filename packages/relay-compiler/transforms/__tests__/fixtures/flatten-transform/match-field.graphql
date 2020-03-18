@@ -5,9 +5,6 @@ fragment NameRendererFragment on User {
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
-  plainNameRenderer: nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {

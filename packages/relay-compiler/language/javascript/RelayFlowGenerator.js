@@ -780,7 +780,7 @@ function visitRawResposneModuleImport(
     {
       key,
       kind: 'ModuleImport',
-      documentName: node.documentName,
+      documentName: node.key,
     },
   ];
 }

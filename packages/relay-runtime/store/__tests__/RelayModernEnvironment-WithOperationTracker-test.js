@@ -401,7 +401,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
               ...MarkdownUserNameRenderer_name
                 @module(name: "MarkdownUserNameRenderer.react")
             }
-            plainNameRenderer: nameRenderer @match {
+            plainNameRenderer: nameRenderer @match(key: "FeedbackFragment_plainNameRenderer") {
               ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
             }
           }
@@ -478,9 +478,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
               },
               plainNameRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_FeedbackFragment:
+                __module_component_FeedbackFragment_plainNameRenderer:
                   '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                __module_operation_FeedbackFragment:
+                __module_operation_FeedbackFragment_plainNameRenderer:
                   '<mock-value-for-field-"__module_operation_FeedbackFragment">',
               },
               id: '<User-mock-id-1>',
@@ -532,9 +532,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
                 },
                 plainNameRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __module_component_FeedbackFragment:
+                  __module_component_FeedbackFragment_plainNameRenderer:
                     '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                  __module_operation_FeedbackFragment:
+                  __module_operation_FeedbackFragment_plainNameRenderer:
                     '<mock-value-for-field-"__module_operation_FeedbackFragment">',
                 },
                 id: '<User-mock-id-1>',

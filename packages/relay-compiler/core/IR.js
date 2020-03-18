@@ -230,10 +230,13 @@ export type LocalArgumentDefinition = {|
 export type ModuleImport = {|
   +kind: 'ModuleImport',
   +loc: Location,
-  // the name of the document in which the @module was defined, used to
-  // namespace the result and avoid collisions between modules selected by
-  // different consumers on the same record
-  +documentName: string,
+  // a key used as part of the storage key for fields relating to this @module
+  // instance. by default the key is the name of the document where the @module
+  // was defined, but can be overridden with the 'key' argument.
+  +key: string,
+  // the name of the document where the module was defined, used for attributing
+  // the generated SplitOperations to the module that caused their creation.
+  +sourceDocument: string,
   // the name of the module to require
   +module: string,
   // a value that uniquely identifies this @module position in the codebase:

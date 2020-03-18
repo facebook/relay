@@ -17,7 +17,7 @@ const IRTransformer = require('../core/IRTransformer');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('../core/getNormalizationOperationName');
 
-const {createUserError} = require('../core/CompilerError');
+const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {getModuleComponentKey, getModuleOperationKey} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
@@ -25,6 +25,7 @@ import type {
   InlineFragment,
   FragmentSpread,
   LinkedField,
+  Location,
   ScalarField,
 } from '../core/IR';
 import type {TypeID} from '../core/Schema';
@@ -37,7 +38,7 @@ const JS_FIELD_ID_ARG = 'id';
 const JS_FIELD_NAME = 'js';
 
 const SCHEMA_EXTENSION = `
-  directive @match on FIELD
+  directive @match(key: String) on FIELD
 
   directive @module(
     name: String!
@@ -46,8 +47,17 @@ const SCHEMA_EXTENSION = `
 
 type State = {|
   +documentName: string,
-  +path: Array<string>,
   +parentType: TypeID,
+  +path: Array<LinkedField>,
+  +moduleKey: ?string,
+  +matchesForPath: Map<
+    string,
+    {|
+      +key: string,
+      +location: Location,
+      +types: Map<string, Location>,
+    |},
+  >,
 |};
 
 /**
@@ -64,7 +74,13 @@ function matchTransform(context: CompilerContext): CompilerContext {
       InlineFragment: visitInlineFragment,
       ScalarField: visitScalarField,
     },
-    node => ({documentName: node.name, parentType: node.type, path: []}),
+    node => ({
+      documentName: node.name,
+      matchesForPath: new Map(),
+      moduleKey: null,
+      parentType: node.type,
+      path: [],
+    }),
   );
 }
 
@@ -109,16 +125,38 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
 
-  state.path.push(node.alias);
+  const matchDirective = node.directives.find(
+    directive => directive.name === 'match',
+  );
+  let moduleKey = null;
+  if (matchDirective != null) {
+    ({key: moduleKey} = getLiteralArgumentValues(matchDirective.args));
+    if (
+      moduleKey != null &&
+      (typeof moduleKey !== 'string' ||
+        !moduleKey.startsWith(state.documentName))
+    ) {
+      throw createUserError(
+        "Expected the 'key' argument of @match to be a literal string starting " +
+          `with the document name, e.g. '${state.documentName}_<localName>'.`,
+        [
+          (
+            matchDirective.args.find(arg => arg.name === 'key') ??
+            matchDirective
+          ).loc,
+        ],
+      );
+    }
+  }
+
+  state.path.push(node);
   const transformedNode: LinkedField = this.traverse(node, {
     ...state,
+    moduleKey,
     parentType: node.type,
   });
   state.path.pop();
 
-  const matchDirective = transformedNode.directives.find(
-    directive => directive.name === 'match',
-  );
   if (matchDirective == null) {
     return transformedNode;
   }
@@ -146,17 +184,18 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   const supportedArgumentDefinition = currentField.args.find(
     ({name}) => name === SUPPORTED_ARGUMENT_NAME,
   );
+  if (supportedArgumentDefinition == null) {
+    return transformedNode;
+  }
 
-  const supportedArgType =
-    supportedArgumentDefinition != null
-      ? schema.getNullableType(supportedArgumentDefinition.type)
-      : null;
+  const supportedArgType = schema.getNullableType(
+    supportedArgumentDefinition.type,
+  );
   const supportedArgOfType =
     supportedArgType != null && schema.isList(supportedArgType)
       ? schema.getListItemType(supportedArgType)
       : null;
   if (
-    supportedArgumentDefinition == null ||
     supportedArgType == null ||
     supportedArgOfType == null ||
     !schema.isString(schema.getNullableType(supportedArgOfType))
@@ -205,19 +244,6 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
       );
     }
     const matchedType = matchSelection.typeCondition;
-    const previousTypeUsage = seenTypes.get(matchedType);
-    if (previousTypeUsage) {
-      throw createUserError(
-        'Invalid @match selection: each concrete variant/implementor of ' +
-          `'${schema.getTypeString(
-            rawFieldType,
-          )}' may be matched against at-most once, ` +
-          `but '${schema.getTypeString(
-            matchedType,
-          )}' was matched against multiple times.`,
-        [matchSelection.loc, previousTypeUsage.loc],
-      );
-    }
     seenTypes.set(matchedType, matchSelection);
     selections.push(matchSelection);
   });
@@ -274,7 +300,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
 // Transform @module
 function visitFragmentSpread(
   spread: FragmentSpread,
-  {documentName, path}: State,
+  {documentName, path, matchesForPath, moduleKey: moduleKeyFromParent}: State,
 ): FragmentSpread | InlineFragment {
   const transformedNode: FragmentSpread = this.traverse(spread);
 
@@ -377,7 +403,66 @@ function visitFragmentSpread(
       [(moduleDirective.args.find(arg => arg.name === 'name') ?? spread).loc],
     );
   }
-  const moduleId = [documentName, ...path].join('.');
+  const parentField = path[path.length - 1];
+  const moduleKey = moduleKeyFromParent ?? documentName;
+  const aliasPath = path.map(x => x.alias).join('.');
+  const moduleId =
+    aliasPath === '' ? documentName : `${documentName}.${aliasPath}`;
+  const typeName = schema.getTypeString(fragment.type);
+
+  let matches = matchesForPath.get(aliasPath);
+  if (matches == null) {
+    if (matchesForPath.size !== 0) {
+      const existingMatchWithKey = Array.from(matchesForPath.values()).find(
+        entry => entry.key === moduleKey,
+      );
+      if (existingMatchWithKey != null) {
+        if (parentField == null) {
+          throw createCompilerError(
+            'Cannot have @module selections at multiple paths unless the selections are within fields.',
+            [spread.loc],
+          );
+        }
+        throw createUserError(
+          'Invalid @module selection: documents with multiple fields ' +
+            "containing 3D selections must specify a unique 'key' value " +
+            `for each field: use '${
+              parentField.alias
+            } @match(key: "${documentName}_<localName>")'.`,
+          [parentField.loc],
+        );
+      }
+    }
+
+    matches = {
+      key: moduleKey,
+      location: parentField?.loc ?? spread.loc,
+      types: new Map(),
+    };
+    matchesForPath.set(aliasPath, matches);
+  }
+  if (moduleKey !== matches.key) {
+    // The user can't override the key locally (per @module),
+    // so this is just an internal sanity check
+    throw createCompilerError(
+      'Invalid @module selection: expected all selections at path ' +
+        `'${aliasPath} to have the same 'key', got '${moduleKey}' and '${
+          matches.key
+        }'.`,
+      [parentField?.loc ?? spread.loc],
+    );
+  }
+  const previousMatchForType = matches.types.get(typeName);
+  if (previousMatchForType != null) {
+    throw createUserError(
+      'Invalid @module selection: concrete type ' +
+        `'${typeName}' was matched multiple times at path ` +
+        `'${aliasPath}'.`,
+      [spread.loc, previousMatchForType],
+    );
+  }
+  matches.types.set(typeName, spread.loc);
+
   const normalizationName =
     getNormalizationOperationName(spread.name) + '.graphql';
   const componentKey = getModuleComponentKey(documentName);
@@ -464,9 +549,10 @@ function visitFragmentSpread(
       {
         kind: 'ModuleImport',
         loc: moduleDirective.loc,
-        documentName,
+        key: moduleKey,
         id: moduleId,
         module: moduleName,
+        sourceDocument: documentName,
         name: spread.name,
         selections: [
           {

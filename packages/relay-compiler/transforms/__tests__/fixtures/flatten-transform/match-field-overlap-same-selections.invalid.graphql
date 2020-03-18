@@ -1,3 +1,4 @@
+# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -6,7 +7,7 @@ fragment NameRendererFragment on User {
       @module(name: "MarkdownUserNameRenderer.react")
   }
   ... on User {
-    # same alias and selections, should flatten together
+    # error: multiple selections against same concrete types
     nameRenderer @match {
       ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
       ...MarkdownUserNameRenderer_name

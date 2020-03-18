@@ -1,0 +1,44 @@
+fragment NameRendererFragment on User {
+  id
+  nameRenderable @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+query MatchQuery {
+  viewer {
+    actor {
+      ...NameRendererFragment
+    }
+  }
+  user: node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer @match(key: "MatchQuery_nameRenderer") {
+        ...PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderable {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}

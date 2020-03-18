@@ -295,7 +295,7 @@ function generateModuleImport(
   }
   return {
     kind: 'ModuleImport',
-    documentName: node.documentName,
+    documentName: node.key,
     fragmentName,
     fragmentPropName,
   };

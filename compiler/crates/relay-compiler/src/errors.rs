@@ -41,6 +41,12 @@ pub enum Error {
         validation_errors: Vec<ConfigValidationError>,
     },
 
+    #[error("Watchman error: {source}")]
+    WatchmanError {
+        #[from]
+        source: crate::watchman::errors::Error,
+    },
+
     #[error(
         "Failed parsing GraphQL:{}",
         errors

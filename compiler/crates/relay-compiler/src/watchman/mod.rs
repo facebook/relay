@@ -9,7 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod errors;
+pub mod errors;
 mod file_group;
 mod graphql_finder;
 

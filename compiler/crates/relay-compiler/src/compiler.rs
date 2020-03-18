@@ -28,9 +28,9 @@ impl Compiler {
     }
 
     pub async fn compile(&self) -> Result<()> {
-        let finder = GraphQLFinder::connect(&self.config).await.unwrap();
+        let finder = GraphQLFinder::connect(&self.config).await?;
 
-        let compiler_state = finder.query().await.unwrap();
+        let compiler_state = finder.query().await?;
 
         let (ast_sets, sources) = Timer::time("ast_sets", || self.parse_ast_sets(&compiler_state))?;
 

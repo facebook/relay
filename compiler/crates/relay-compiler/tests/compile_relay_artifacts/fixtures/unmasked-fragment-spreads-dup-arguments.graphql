@@ -9,6 +9,7 @@ fragment UserUtil_user on User
     height
   }
   ...UserUtil2_user @relay(mask: false)
+  ...UserUtil3_user
 
   # it should merge with the same existing global variable
   url(relative: $globalIsRelative)
@@ -16,5 +17,9 @@ fragment UserUtil_user on User
 }
 
 fragment UserUtil2_user on User {
+  url(relative: $globalIsRelative)
+}
+
+fragment UserUtil3_user on User @relay(mask: false) {
   url(relative: $globalIsRelative)
 }

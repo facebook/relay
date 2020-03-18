@@ -40,9 +40,4 @@ fragment UserFragment on User
   scaled: profilePicture(size: $PictureSize) {
     uri
   }
-  ...MaskUserFragment
-}
-
-fragment MaskUserFragment on User @relay(mask: true, plural: false) {
-  username
 }

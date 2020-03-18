@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 # expected-to-throw
 
 query TestQuery {
@@ -14,4 +12,10 @@ fragment User_user on User
   url(relative: $isRelative)
 }
 ==================================== ERROR ====================================
-TODO
+Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.:
+unmasked-fragment-spreads-local-arguments.invalid.graphql:4:7:
+    ...User_user @relay(mask: false)
+
+
+unmasked-fragment-spreads-local-arguments.invalid.graphql:8:9:
+fragment User_user on User

@@ -41,11 +41,6 @@ fragment UserFragment on User
   scaled: profilePicture(size: $PictureSize) {
     uri
   }
-  ...MaskUserFragment
-}
-
-fragment MaskUserFragment on User @relay(mask: true, plural: false) {
-  username
 }
 ==================================== OUTPUT ===================================
 {
@@ -373,31 +368,6 @@ fragment MaskUserFragment on User @relay(mask: true, plural: false) {
           "storageKey": null
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "FragmentSpread",
-      "name": "MaskUserFragment",
-      "args": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "MaskUserFragment",
-  "type": "User",
-  "metadata": {
-    "mask": true,
-    "plural": false
-  },
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "username",
-      "args": null,
       "storageKey": null
     }
   ]

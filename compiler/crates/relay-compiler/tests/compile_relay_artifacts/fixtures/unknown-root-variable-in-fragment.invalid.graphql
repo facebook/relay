@@ -1,4 +1,4 @@
-# %TODO%
+# %TODO% After ApplyFragmentArugmentTransform
 
 # expected-to-throw
 query TestQuery($id: ID!) {

@@ -10,6 +10,7 @@ fragment UserUtil_user on User
     height
   }
   ...UserUtil2_user @relay(mask: false)
+  ...UserUtil3_user
 
   # it should merge with the same existing global variable
   url(relative: $globalIsRelative)
@@ -19,12 +20,47 @@ fragment UserUtil_user on User
 fragment UserUtil2_user on User {
   url(relative: $globalIsRelative)
 }
+
+fragment UserUtil3_user on User @relay(mask: false) {
+  url(relative: $globalIsRelative)
+}
 ==================================== OUTPUT ===================================
 {
   "kind": "Fragment",
   "name": "UserUtil2_user",
   "type": "User",
   "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserUtil3_user",
+  "type": "User",
+  "metadata": {
+    "mask": false
+  },
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -73,6 +109,11 @@ fragment UserUtil2_user on User {
     }
   ],
   "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "UserUtil3_user",
+      "args": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,

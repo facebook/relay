@@ -52,7 +52,7 @@ query NodeQuery($id: ID!) {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -341,7 +341,7 @@ query NodeQuery($id: ID!) {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],

@@ -48,19 +48,19 @@ fragment UserFragment on User
       {
         "kind": "LocalArgument",
         "name": "PictureSize",
-        "type": "Int",
+        "type": "[Int]!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "cond",
-        "type": "Boolean",
+        "type": "Boolean!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -129,19 +129,19 @@ fragment UserFragment on User
       {
         "kind": "LocalArgument",
         "name": "PictureSize",
-        "type": "Int",
+        "type": "[Int]!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "cond",
-        "type": "Boolean",
+        "type": "Boolean!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -417,7 +417,7 @@ fragment UserFragment on User @argumentDefinitions(
     {
       "kind": "RootArgument",
       "name": "PictureSize",
-      "type": "Int"
+      "type": "[Int]"
     },
     {
       "kind": "LocalArgument",
@@ -428,7 +428,7 @@ fragment UserFragment on User @argumentDefinitions(
     {
       "kind": "LocalArgument",
       "name": "cond",
-      "type": "Boolean",
+      "type": "Boolean!",
       "defaultValue": false
     },
     {
@@ -440,7 +440,7 @@ fragment UserFragment on User @argumentDefinitions(
     {
       "kind": "LocalArgument",
       "name": "size",
-      "type": "Int",
+      "type": "[Int]",
       "defaultValue": null
     }
   ],

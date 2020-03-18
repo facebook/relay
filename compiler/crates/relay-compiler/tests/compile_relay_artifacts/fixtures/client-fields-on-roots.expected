@@ -159,7 +159,7 @@ mutation FooMutation(
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -204,7 +204,7 @@ mutation FooMutation(
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],

@@ -55,19 +55,19 @@ fragment MaskUserFragment on User @relay(mask: true, plural: false) {
     {
       "kind": "LocalArgument",
       "name": "PictureSize",
-      "type": "Int",
+      "type": "[Int]!",
       "defaultValue": null
     },
     {
       "kind": "LocalArgument",
       "name": "cond",
-      "type": "Boolean",
+      "type": "Boolean!",
       "defaultValue": null
     },
     {
       "kind": "LocalArgument",
       "name": "id",
-      "type": "ID",
+      "type": "ID!",
       "defaultValue": null
     }
   ],
@@ -146,7 +146,7 @@ fragment MaskUserFragment on User @relay(mask: true, plural: false) {
     {
       "kind": "RootArgument",
       "name": "PictureSize",
-      "type": "Int"
+      "type": "[Int]"
     },
     {
       "kind": "LocalArgument",
@@ -157,7 +157,7 @@ fragment MaskUserFragment on User @relay(mask: true, plural: false) {
     {
       "kind": "LocalArgument",
       "name": "cond",
-      "type": "Boolean",
+      "type": "Boolean!",
       "defaultValue": false
     },
     {
@@ -175,7 +175,7 @@ fragment MaskUserFragment on User @relay(mask: true, plural: false) {
     {
       "kind": "LocalArgument",
       "name": "size",
-      "type": "Int",
+      "type": "[Int]",
       "defaultValue": null
     }
   ],

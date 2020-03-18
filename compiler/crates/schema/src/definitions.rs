@@ -11,6 +11,7 @@ use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
 use std::fmt;
+use std::fmt::{Result as FormatResult, Write};
 use std::slice::Iter;
 
 // TODO: consider a common Value representation with the IR
@@ -162,12 +163,27 @@ impl Schema {
         type_.is_interface()
     }
 
-    pub fn get_type_string(&self, type_: &TypeReference) -> String {
+    fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
         match type_ {
-            TypeReference::Named(inner) => self.get_type_name(inner.clone()).lookup().to_string(),
-            TypeReference::NonNull(of) => format!("{}!", self.get_type_string(of)),
-            TypeReference::List(of) => format!("[{}]", self.get_type_string(of)),
+            TypeReference::Named(inner) => {
+                write!(writer, "{}", self.get_type_name(inner.clone()).lookup())
+            }
+            TypeReference::NonNull(of) => {
+                self.write_type_string(writer, of)?;
+                write!(writer, "!")
+            }
+            TypeReference::List(of) => {
+                write!(writer, "[")?;
+                self.write_type_string(writer, of)?;
+                write!(writer, "]")
+            }
         }
+    }
+
+    pub fn get_type_string(&self, type_: &TypeReference) -> String {
+        let mut result = String::new();
+        self.write_type_string(&mut result, type_).unwrap();
+        result
     }
 
     pub fn get_type_name(&self, type_: Type) -> StringKey {

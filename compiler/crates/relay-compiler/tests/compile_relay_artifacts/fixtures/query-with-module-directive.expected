@@ -32,7 +32,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -68,7 +68,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],

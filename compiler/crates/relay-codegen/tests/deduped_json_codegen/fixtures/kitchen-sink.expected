@@ -50,19 +50,19 @@ Operation:
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "PictureSize",
-      "type": "Int"
+      "type": "[Int]!"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "cond",
-      "type": "Boolean"
+      "type": "Boolean!"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "id",
-      "type": "ID"
+      "type": "ID!"
     }
   ],
   "kind": "Operation",
@@ -164,7 +164,7 @@ return {
     {
       "kind": "RootArgument",
       "name": "PictureSize",
-      "type": "Int"
+      "type": "[Int]"
     },
     {
       "defaultValue": null,
@@ -176,7 +176,7 @@ return {
       "defaultValue": false,
       "kind": "LocalArgument",
       "name": "cond",
-      "type": "Boolean"
+      "type": "Boolean!"
     },
     {
       "defaultValue": 5,
@@ -194,7 +194,7 @@ return {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "size",
-      "type": "Int"
+      "type": "[Int]"
     }
   ],
   "kind": "Fragment",

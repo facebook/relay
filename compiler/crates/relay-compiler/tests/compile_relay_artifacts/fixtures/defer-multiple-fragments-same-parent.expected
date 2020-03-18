@@ -37,7 +37,7 @@ fragment FeedbackText_feedback on Feedback {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -85,7 +85,7 @@ fragment FeedbackText_feedback on Feedback {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],

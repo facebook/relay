@@ -31,7 +31,7 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "id",
-    "type": "ID"
+    "type": "ID!"
   },
   {
     "defaultValue": null,
@@ -43,7 +43,7 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "traits",
-    "type": "PersonalityTraits"
+    "type": "[PersonalityTraits]"
   }
 ],
 v1 = [

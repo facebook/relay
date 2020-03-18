@@ -60,7 +60,7 @@ interface ClientNamed {
     {
       "kind": "RootArgument",
       "name": "shouldInclude",
-      "type": "Boolean"
+      "type": "Boolean!"
     }
   ],
   "selections": [

@@ -58,7 +58,7 @@ fragment UserUtil2_user on User {
     {
       "kind": "RootArgument",
       "name": "PictureSize",
-      "type": "Int"
+      "type": "[Int]"
     },
     {
       "kind": "RootArgument",

@@ -33,7 +33,7 @@ fragment ProfilePhoto on User {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -69,7 +69,7 @@ fragment ProfilePhoto on User {
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],

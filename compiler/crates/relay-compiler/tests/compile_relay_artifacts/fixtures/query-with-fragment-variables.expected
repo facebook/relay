@@ -34,19 +34,19 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "kind": "LocalArgument",
         "name": "cond",
-        "type": "Boolean",
+        "type": "Boolean!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "pictureSize",
-        "type": "Int",
+        "type": "[Int]",
         "defaultValue": [
           128
         ]
@@ -109,19 +109,19 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "kind": "LocalArgument",
         "name": "cond",
-        "type": "Boolean",
+        "type": "Boolean!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "pictureSize",
-        "type": "Int",
+        "type": "[Int]",
         "defaultValue": [
           128
         ]
@@ -326,7 +326,7 @@ fragment ProfileFriends on User {
     {
       "kind": "LocalArgument",
       "name": "pictureSize",
-      "type": "Int",
+      "type": "[Int]",
       "defaultValue": null
     }
   ],
@@ -367,7 +367,7 @@ fragment ProfileFriends on User {
     {
       "kind": "RootArgument",
       "name": "pictureSize",
-      "type": "Int"
+      "type": "[Int]"
     }
   ],
   "selections": [

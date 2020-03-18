@@ -53,7 +53,7 @@ fragment FeedbackFragment on Feedback
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -95,7 +95,7 @@ fragment FeedbackFragment on Feedback
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -329,19 +329,19 @@ fragment FeedbackFragment on Feedback @argumentDefinitions(
       {
         "kind": "LocalArgument",
         "name": "count",
-        "type": "Int",
+        "type": "Int!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "cursor",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],
@@ -394,19 +394,19 @@ fragment FeedbackFragment on Feedback @argumentDefinitions(
       {
         "kind": "LocalArgument",
         "name": "count",
-        "type": "Int",
+        "type": "Int!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "cursor",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       },
       {
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID",
+        "type": "ID!",
         "defaultValue": null
       }
     ],

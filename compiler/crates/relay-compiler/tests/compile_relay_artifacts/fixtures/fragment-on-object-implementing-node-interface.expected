@@ -21,7 +21,7 @@ fragment ProfilePicture on User {
     {
       "kind": "RootArgument",
       "name": "size",
-      "type": "Int"
+      "type": "[Int]"
     }
   ],
   "selections": [

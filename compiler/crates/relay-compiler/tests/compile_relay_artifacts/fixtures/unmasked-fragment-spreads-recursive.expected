@@ -37,7 +37,7 @@ fragment UserUtil2_user on User {
       {
         "kind": "LocalArgument",
         "name": "ProfilePicture_SIZE",
-        "type": "Int",
+        "type": "[Int]",
         "defaultValue": null
       },
       {
@@ -79,7 +79,7 @@ fragment UserUtil2_user on User {
       {
         "kind": "LocalArgument",
         "name": "ProfilePicture_SIZE",
-        "type": "Int",
+        "type": "[Int]",
         "defaultValue": null
       },
       {
@@ -213,7 +213,7 @@ fragment UserProfile_user on User {
     {
       "kind": "RootArgument",
       "name": "ProfilePicture_SIZE",
-      "type": "Int"
+      "type": "[Int]"
     },
     {
       "kind": "RootArgument",
@@ -325,7 +325,7 @@ fragment UserProfile_user on User {
     {
       "kind": "RootArgument",
       "name": "ProfilePicture_SIZE",
-      "type": "Int"
+      "type": "[Int]"
     },
     {
       "kind": "RootArgument",

@@ -37,17 +37,17 @@ fragment QueryFragment2 on Query {
     {
       "kind": "RootArgument",
       "name": "bar",
-      "type": "Boolean"
+      "type": "Boolean!"
     },
     {
       "kind": "RootArgument",
       "name": "foo",
-      "type": "Boolean"
+      "type": "Boolean!"
     },
     {
       "kind": "RootArgument",
       "name": "sentinel",
-      "type": "Boolean"
+      "type": "Boolean!"
     }
   ],
   "selections": [
@@ -152,17 +152,17 @@ fragment QueryFragment2 on Query {
     {
       "kind": "RootArgument",
       "name": "bar",
-      "type": "Boolean"
+      "type": "Boolean!"
     },
     {
       "kind": "RootArgument",
       "name": "foo",
-      "type": "Boolean"
+      "type": "Boolean!"
     },
     {
       "kind": "RootArgument",
       "name": "sentinel",
-      "type": "Boolean"
+      "type": "Boolean!"
     }
   ],
   "selections": [

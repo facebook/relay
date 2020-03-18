@@ -182,7 +182,7 @@ fragment MyViewer on Viewer {
     {
       "kind": "LocalArgument",
       "name": "includeEmail",
-      "type": "Boolean",
+      "type": "Boolean!",
       "defaultValue": false
     }
   ],

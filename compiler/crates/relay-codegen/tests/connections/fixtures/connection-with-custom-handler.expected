@@ -34,7 +34,7 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "id",
-    "type": "ID"
+    "type": "ID!"
   }
 ],
 v1 = [

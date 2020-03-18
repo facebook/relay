@@ -26,7 +26,7 @@ query CheckinSearchQuery(
       {
         "kind": "LocalArgument",
         "name": "queryText",
-        "type": "String",
+        "type": "String!",
         "defaultValue": null
       },
       {
@@ -38,7 +38,7 @@ query CheckinSearchQuery(
       {
         "kind": "LocalArgument",
         "name": "searchInputLast",
-        "type": "CheckinSearchInput",
+        "type": "CheckinSearchInput!",
         "defaultValue": null
       },
       {
@@ -116,7 +116,7 @@ query CheckinSearchQuery(
       {
         "kind": "LocalArgument",
         "name": "queryText",
-        "type": "String",
+        "type": "String!",
         "defaultValue": null
       },
       {
@@ -128,7 +128,7 @@ query CheckinSearchQuery(
       {
         "kind": "LocalArgument",
         "name": "searchInputLast",
-        "type": "CheckinSearchInput",
+        "type": "CheckinSearchInput!",
         "defaultValue": null
       },
       {

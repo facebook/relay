@@ -21,7 +21,7 @@ use graphql_transforms::{
 };
 
 use interner::{Intern, StringKey};
-use schema::Schema;
+use schema::{Schema, TypeReference};
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
 
 pub fn build_request(
@@ -349,6 +349,13 @@ impl<'schema> CodegenBuilder<'schema> {
         }
     }
 
+    fn build_variable_type(&self, type_: &TypeReference) -> StringKey {
+        match type_ {
+            TypeReference::Named(inner) => self.schema.get_type_name(inner.clone()),
+            _ => self.schema.get_type_string(type_).intern(),
+        }
+    }
+
     fn build_operation_variable_definitions(
         &self,
         variable_definitions: &[VariableDefinition],
@@ -358,7 +365,7 @@ impl<'schema> CodegenBuilder<'schema> {
             .map(|def| {
                 ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
                     name: def.name.item,
-                    type_: self.schema.get_type_name(def.type_.inner()),
+                    type_: self.build_variable_type(&def.type_),
                     default_value: if let Some(const_val) = &def.default_value {
                         self.build_constant_value(&const_val)
                     } else {
@@ -381,7 +388,7 @@ impl<'schema> CodegenBuilder<'schema> {
         let local_vars_iter = local_variable_definitions.iter().map(|def| {
             ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
                 name: def.name.item,
-                type_: self.schema.get_type_name(def.type_.inner()),
+                type_: self.build_variable_type(&def.type_),
                 default_value: if let Some(const_val) = &def.default_value {
                     self.build_constant_value(&const_val)
                 } else {
@@ -392,7 +399,7 @@ impl<'schema> CodegenBuilder<'schema> {
         let global_vars_iter = global_variable_definitions.iter().map(|def| {
             ConcreteVariableDefinition::RootArgument(ConcreteGlobalVariableDefinition {
                 name: def.name.item,
-                type_: self.schema.get_type_name(def.type_.inner()),
+                type_: self.build_variable_type(&def.type_),
             })
         });
         let mut var_defs = local_vars_iter.chain(global_vars_iter).collect::<Vec<_>>();

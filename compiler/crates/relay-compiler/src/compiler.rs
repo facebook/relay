@@ -50,9 +50,10 @@ impl Compiler {
         self.build_projects(&compiler_state, &ast_sets, &sources)
             .await?;
 
-        finder.subscribe(&compiler_state.clock).await?;
-
-        Ok(())
+        let mut subscription = finder.subscribe(&compiler_state.clock).await?;
+        loop {
+            subscription.next_event().await?;
+        }
     }
 
     /// Parses all source files into ASTs and builds up a Sources map that can

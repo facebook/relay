@@ -17,7 +17,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
-use watchman_client::SubscriptionData;
+use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
 
 pub struct GraphQLFinder<'config> {
     categorizer: FileCategorizer,
@@ -128,10 +128,10 @@ impl<'config> GraphQLFinder<'config> {
     }
 
     /// Starts a subscription sending updates since the given clock.
-    pub async fn subscribe(&self, clock: &Clock) -> Result<CompilerState> {
+    pub async fn subscribe(self, clock: &Clock) -> Result<Subscription<'config>> {
         let expression = get_watchman_expr(&self.config);
 
-        let (mut subscription, _initial) = self
+        let (subscription, _initial) = self
             .client
             .subscribe::<WatchmanFile>(
                 &self.resolved_root,
@@ -143,19 +143,10 @@ impl<'config> GraphQLFinder<'config> {
             )
             .await?;
 
-        loop {
-            let update = subscription.next().await?;
-            if let SubscriptionData::FilesChanged(changes) = update {
-                if let Some(files) = changes.files {
-                    let categorized = self.categorize_files(files);
-                    for (group, files) in categorized {
-                        if group != FileGroup::Generated {
-                            println!("Updated {:?}: {:#?}", group, files);
-                        }
-                    }
-                }
-            }
-        }
+        Ok(Subscription {
+            finder: self,
+            subscription,
+        })
     }
 
     /// The watchman query returns a list of files, but for the compiler we
@@ -203,6 +194,28 @@ query_result_type! {
         name: NameField,
         exists: ExistsField,
         hash: ContentSha1HexField,
+    }
+}
+
+pub struct Subscription<'config> {
+    finder: GraphQLFinder<'config>,
+    subscription: WatchmanSubscription<WatchmanFile>,
+}
+
+impl<'config> Subscription<'config> {
+    pub async fn next_event(&mut self) -> Result<()> {
+        let update = self.subscription.next().await?;
+        if let SubscriptionData::FilesChanged(changes) = update {
+            if let Some(files) = changes.files {
+                let categorized = self.finder.categorize_files(files);
+                for (group, files) in categorized {
+                    if group != FileGroup::Generated {
+                        println!("Updated {:?}: {:#?}", group, files);
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 }
 

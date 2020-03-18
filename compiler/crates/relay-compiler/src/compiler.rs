@@ -40,6 +40,21 @@ impl Compiler {
         Ok(())
     }
 
+    pub async fn watch(&self) -> Result<()> {
+        let finder = GraphQLFinder::connect(&self.config).await?;
+
+        let compiler_state = finder.query().await?;
+
+        let (ast_sets, sources) = Timer::time("ast_sets", || self.parse_ast_sets(&compiler_state))?;
+
+        self.build_projects(&compiler_state, &ast_sets, &sources)
+            .await?;
+
+        finder.subscribe(&compiler_state.clock).await?;
+
+        Ok(())
+    }
+
     /// Parses all source files into ASTs and builds up a Sources map that can
     /// be used to print errors with source code listing.
     fn parse_ast_sets<'state>(

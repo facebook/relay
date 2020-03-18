@@ -17,6 +17,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
+use watchman_client::SubscriptionData;
 
 pub struct GraphQLFinder<'config> {
     categorizer: FileCategorizer,
@@ -122,7 +123,39 @@ impl<'config> GraphQLFinder<'config> {
             extensions,
             schemas,
             source_sets,
+            clock: query_result.clock,
         })
+    }
+
+    /// Starts a subscription sending updates since the given clock.
+    pub async fn subscribe(&self, clock: &Clock) -> Result<CompilerState> {
+        let expression = get_watchman_expr(&self.config);
+
+        let (mut subscription, _initial) = self
+            .client
+            .subscribe::<WatchmanFile>(
+                &self.resolved_root,
+                SubscribeRequest {
+                    expression: Some(expression),
+                    since: Some(clock.clone()),
+                    ..Default::default()
+                },
+            )
+            .await?;
+
+        loop {
+            let update = subscription.next().await?;
+            if let SubscriptionData::FilesChanged(changes) = update {
+                if let Some(files) = changes.files {
+                    let categorized = self.categorize_files(files);
+                    for (group, files) in categorized {
+                        if group != FileGroup::Generated {
+                            println!("Updated {:?}: {:#?}", group, files);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// The watchman query returns a list of files, but for the compiler we

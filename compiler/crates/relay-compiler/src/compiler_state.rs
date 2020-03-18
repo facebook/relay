@@ -9,6 +9,7 @@ use interner::StringKey;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
+use watchman_client::pdu::Clock;
 
 /// Name of a fragment or operation.
 pub struct DefinitionName(StringKey);
@@ -47,4 +48,5 @@ pub struct CompilerState {
     pub schemas: HashMap<ProjectName, Vec<String>>,
     pub extensions: HashMap<ProjectName, Vec<String>>,
     pub artifacts: HashMap<ProjectName, ArtifactMap>,
+    pub clock: Clock,
 }

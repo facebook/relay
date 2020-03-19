@@ -446,7 +446,7 @@ pub trait Transformer {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Transformed<T> {
     Delete,
     Keep,
@@ -468,7 +468,7 @@ impl<T> Transformed<T> {
 
 /// An extension of Transformed that has the additional value `ReplaceMultiple`
 /// which allows more then one item to be returned.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum TransformedMulti<T> {
     Delete,
     Keep,

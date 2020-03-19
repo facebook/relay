@@ -9,8 +9,8 @@ use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, flatten, generate_id_field, generate_typename, inline_fragments,
-    mask, remove_base_fragments, skip_client_extensions, sort_selections, transform_connections,
-    ConnectionInterface,
+    mask, remove_base_fragments, skip_client_extensions, skip_unreachable_node, sort_selections,
+    transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -111,6 +111,7 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
     // - GenerateTypeNameTransform
     // - ValidateServerOnlyDirectivesTransform
 
+    let program = skip_unreachable_node(&program);
     let program = inline_fragments(&program);
     let program = flatten(&program, true);
     let program = generate_typename(&program);
@@ -134,6 +135,7 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     // - ValidateRequiredArgumentsTransform
 
     let program = skip_client_extensions(&program);
+    let program = skip_unreachable_node(&program);
     let program = flatten(&program, false);
     let program = generate_typename(&program);
     sort_selections(&program)

@@ -91,4 +91,8 @@ impl<'s> Program<'s> {
     pub fn document_count(&self) -> usize {
         self.fragments.len() + self.operations.len()
     }
+
+    pub fn fragment_map(&self) -> &HashMap<StringKey, Arc<FragmentDefinition>> {
+        &self.fragments
+    }
 }

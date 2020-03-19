@@ -1,6 +1,6 @@
 # @generated
-# @autocargo from //relay/oss/crates/graphql-transforms:[apply_fragment_arguments_test,graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-mask-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_relay_directives-test,graphql-validate_server_only_directives-test]
-# Signature<<a294b08a2b65ed16a2f2a0e6bfe4c5a55cbb7d64>>
+# @autocargo from //relay/oss/crates/graphql-transforms:[apply_fragment_arguments_test,graphql-disallow_id_as_alias-test,graphql-flatten-test,graphql-generate_id_field-test,graphql-generate_typename-test,graphql-inline_fragments-test,graphql-mask-test,graphql-node_identifier-test,graphql-skip_client_extensions-test,graphql-skip_redundant_nodes-test,graphql-skip_unreachable_nodes-test,graphql-sort_selections-test,graphql-transforms,graphql-transforms-benchmark,graphql-validate_relay_directives-test,graphql-validate_server_only_directives-test]
+# Signature<<8e161537ce5d70f6cd71b3dfedcbdeff77ebaf45>>
 [package]
 name = "graphql-transforms"
 edition = "2018"
@@ -57,6 +57,10 @@ name = "graphql_skip_redundant_nodes_test"
 path = "tests/skip_redundant_nodes_test.rs"
 
 [[test]]
+name = "graphql_skip_unreachable_nodes_test"
+path = "tests/skip_unreachable_nodes_test.rs"
+
+[[test]]
 name = "graphql_sort_selections_test"
 path = "tests/sort_selections_test.rs"
 
@@ -86,4 +90,4 @@ serde_json = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-# @end of Signature<<a294b08a2b65ed16a2f2a0e6bfe4c5a55cbb7d64>>
+# @end of Signature<<8e161537ce5d70f6cd71b3dfedcbdeff77ebaf45>>

@@ -114,8 +114,8 @@ pub fn test_fixture<T, U, V>(
             output
         ),
     };
+
     if actual_result.is_ok() != expect_ok {
-        println!("{}", &actual);
         panic!(if expect_ok {
             "Expected transform to succeeed but it failed, use 'expected-to-throw' if this is expected"
         } else {

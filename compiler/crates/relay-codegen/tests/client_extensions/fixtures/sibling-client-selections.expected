@@ -65,7 +65,7 @@ interface ClientNamed {
   "kind": "Fragment",
   "name": "ClientTypeFragment",
   "type": "ClientType",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -87,7 +87,7 @@ interface ClientNamed {
   "kind": "Fragment",
   "name": "Foo_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

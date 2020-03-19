@@ -43,7 +43,7 @@ fragment UserFragment on User
     "kind": "Fragment",
     "name": "NodeQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -387,7 +387,7 @@ fragment UserFragment_3M2EvT on User {
   "kind": "Fragment",
   "name": "UserFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

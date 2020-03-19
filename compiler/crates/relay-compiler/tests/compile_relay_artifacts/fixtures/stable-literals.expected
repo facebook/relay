@@ -15,7 +15,7 @@ query StableLiteralsTest {
     "kind": "Fragment",
     "name": "StableLiteralsTest",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {

@@ -19,7 +19,7 @@ query UnionQuery {
     "kind": "Fragment",
     "name": "UnionQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {

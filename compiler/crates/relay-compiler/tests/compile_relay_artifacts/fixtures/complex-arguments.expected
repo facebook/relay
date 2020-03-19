@@ -11,7 +11,7 @@ query TestQuery($date: String) {
     "kind": "Fragment",
     "name": "TestQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",

@@ -42,7 +42,7 @@ fragment FeedbackFragment on Feedback
     "kind": "Fragment",
     "name": "FeedbackQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -310,7 +310,7 @@ fragment FeedbackFragment on Feedback {
     "kind": "Fragment",
     "name": "PaginationQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",

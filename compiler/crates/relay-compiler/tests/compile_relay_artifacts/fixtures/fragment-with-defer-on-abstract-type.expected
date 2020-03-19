@@ -21,7 +21,7 @@ fragment NodeFragment on Node {
     "kind": "Fragment",
     "name": "QueryWithFragmentWithDefer",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {
@@ -145,7 +145,7 @@ fragment NodeFragment on Node {
   "kind": "Fragment",
   "name": "NodeFragment",
   "type": "Node",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

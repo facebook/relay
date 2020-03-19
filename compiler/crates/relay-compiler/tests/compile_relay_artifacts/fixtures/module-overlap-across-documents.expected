@@ -50,7 +50,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     "kind": "Fragment",
     "name": "BarNameRendererQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -233,7 +233,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     "kind": "Fragment",
     "name": "FooNameRendererQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -469,7 +469,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "kind": "Fragment",
   "name": "BarNameRendererFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -495,7 +495,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "kind": "Fragment",
   "name": "FooNameRendererFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -533,7 +533,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "kind": "Fragment",
   "name": "MarkdownUserNameRenderer_name",
   "type": "MarkdownUserNameRenderer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -568,7 +568,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "kind": "Fragment",
   "name": "PlainUserNameRenderer_name",
   "type": "PlainUserNameRenderer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

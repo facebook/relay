@@ -17,7 +17,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
     "kind": "Fragment",
     "name": "TestQueryWithLiteral",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",

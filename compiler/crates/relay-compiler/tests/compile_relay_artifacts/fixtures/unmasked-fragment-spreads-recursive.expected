@@ -32,7 +32,7 @@ fragment UserUtil2_user on User {
     "kind": "Fragment",
     "name": "TestQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -208,7 +208,7 @@ fragment UserProfile_user on User {
   "kind": "Fragment",
   "name": "UserProfile_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -291,7 +291,7 @@ fragment UserProfile_user on User {
   "kind": "Fragment",
   "name": "UserUtil2_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -320,7 +320,7 @@ fragment UserProfile_user on User {
   "kind": "Fragment",
   "name": "UserUtil_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

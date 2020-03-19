@@ -29,7 +29,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
     "kind": "Fragment",
     "name": "TestQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -319,7 +319,7 @@ fragment Profile_4CNNX6 on User {
   "kind": "Fragment",
   "name": "Profile",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",
@@ -360,7 +360,7 @@ fragment Profile_4CNNX6 on User {
   "kind": "Fragment",
   "name": "ProfileFriends",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

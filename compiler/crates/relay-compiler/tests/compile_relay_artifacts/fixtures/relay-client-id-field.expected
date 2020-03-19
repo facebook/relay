@@ -33,7 +33,7 @@ query RelayClientIDFieldQuery($id: ID!) {
     "kind": "Fragment",
     "name": "RelayClientIDFieldQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",

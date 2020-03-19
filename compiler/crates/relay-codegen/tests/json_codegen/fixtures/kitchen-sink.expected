@@ -136,7 +136,7 @@ fragment UserFragment on User
   "kind": "Fragment",
   "name": "UserFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

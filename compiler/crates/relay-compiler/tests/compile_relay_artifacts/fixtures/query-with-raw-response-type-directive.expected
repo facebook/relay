@@ -13,7 +13,7 @@ query ViewerQuery @raw_response_type {
     "kind": "Fragment",
     "name": "ViewerQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {

@@ -32,7 +32,7 @@ fragment QueryFragment2 on Query {
   "kind": "Fragment",
   "name": "QueryFragment",
   "type": "Query",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -147,7 +147,7 @@ fragment QueryFragment2 on Query {
   "kind": "Fragment",
   "name": "QueryFragment2",
   "type": "Query",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

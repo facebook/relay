@@ -28,7 +28,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     "kind": "Fragment",
     "name": "NameRendererQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -237,7 +237,7 @@ fragment NameRendererFragment on User {
   "kind": "Fragment",
   "name": "MarkdownUserNameRenderer_name",
   "type": "MarkdownUserNameRenderer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -272,7 +272,7 @@ fragment NameRendererFragment on User {
   "kind": "Fragment",
   "name": "NameRendererFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

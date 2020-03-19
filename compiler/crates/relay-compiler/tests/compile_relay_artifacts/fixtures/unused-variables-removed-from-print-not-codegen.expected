@@ -27,7 +27,7 @@ fragment ConnectionFragment on User
     "kind": "Fragment",
     "name": "QueryWithUnusedVariables",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -169,7 +169,7 @@ query QueryWithUnusedVariables(
   "kind": "Fragment",
   "name": "ConnectionFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",

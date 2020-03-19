@@ -27,7 +27,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
     "kind": "Fragment",
     "name": "QueryWithFragmentWithDefer",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {
@@ -163,7 +163,7 @@ fragment UserFragment on User {
   "kind": "Fragment",
   "name": "DeferredFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",
@@ -218,7 +218,7 @@ fragment UserFragment on User {
   "kind": "Fragment",
   "name": "UserFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

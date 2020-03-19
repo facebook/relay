@@ -19,7 +19,7 @@ fragment FeedbackFragment on Feedback {
     "kind": "Fragment",
     "name": "QueryWithFragmentWithStream",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -184,7 +184,7 @@ fragment FeedbackFragment on Feedback {
   "kind": "Fragment",
   "name": "FeedbackFragment",
   "type": "Feedback",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

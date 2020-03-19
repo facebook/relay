@@ -24,7 +24,7 @@ type ClientType {
   "kind": "Fragment",
   "name": "ClientTypeFragment",
   "type": "ClientType",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -41,7 +41,7 @@ type ClientType {
   "kind": "Fragment",
   "name": "Foo_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

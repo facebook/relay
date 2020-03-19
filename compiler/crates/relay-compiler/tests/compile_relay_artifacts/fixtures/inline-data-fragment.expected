@@ -32,7 +32,7 @@ fragment Profile on User @inline {
     "kind": "Fragment",
     "name": "Test",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {
@@ -215,7 +215,7 @@ fragment Profile on User {
   "kind": "Fragment",
   "name": "ParentFragment",
   "type": "Query",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -294,7 +294,7 @@ fragment Profile on User {
   "kind": "Fragment",
   "name": "Profile",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

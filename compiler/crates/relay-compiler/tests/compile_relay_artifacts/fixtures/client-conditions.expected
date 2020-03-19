@@ -50,7 +50,7 @@ interface ClientNamed {
   "kind": "Fragment",
   "name": "Foo_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

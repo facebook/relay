@@ -26,7 +26,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "kind": "Fragment",
   "name": "MarkdownUserNameRenderer_name",
   "type": "MarkdownUserNameRenderer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -61,7 +61,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "kind": "Fragment",
   "name": "NameRendererFragment",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -99,7 +99,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "kind": "Fragment",
   "name": "PlainUserNameRenderer_name",
   "type": "PlainUserNameRenderer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

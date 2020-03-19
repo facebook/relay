@@ -41,7 +41,7 @@ extend type Subscription {
     "kind": "Fragment",
     "name": "FooMutation",
     "type": "Mutation",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -154,7 +154,7 @@ mutation FooMutation(
     "kind": "Fragment",
     "name": "FooQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -275,7 +275,7 @@ query FooQuery(
     "kind": "Fragment",
     "name": "FooSubscription",
     "type": "Subscription",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",

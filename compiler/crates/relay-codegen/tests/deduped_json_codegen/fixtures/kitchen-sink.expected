@@ -198,7 +198,7 @@ return {
     }
   ],
   "kind": "Fragment",
-  "metadata": {},
+  "metadata": null,
   "name": "UserFragment",
   "selections": [
     {

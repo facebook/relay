@@ -28,7 +28,7 @@ fragment MyNestedViewer on Viewer
     "kind": "Fragment",
     "name": "TestQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {
@@ -147,7 +147,7 @@ query TestQuery {
   "kind": "Fragment",
   "name": "MyNestedViewer",
   "type": "Viewer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",
@@ -178,7 +178,7 @@ query TestQuery {
   "kind": "Fragment",
   "name": "MyOtherViewer",
   "type": "Viewer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -193,7 +193,7 @@ query TestQuery {
   "kind": "Fragment",
   "name": "MyViewer",
   "type": "Viewer",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

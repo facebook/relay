@@ -13,7 +13,7 @@ query ViewerQuery {
     "kind": "Fragment",
     "name": "ViewerQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {

@@ -45,7 +45,7 @@ type ClientUser {
   "kind": "Fragment",
   "name": "ClientFragment",
   "type": "ClientUser",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

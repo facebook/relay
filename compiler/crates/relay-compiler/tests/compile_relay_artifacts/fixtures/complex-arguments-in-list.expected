@@ -21,7 +21,7 @@ query CheckinSearchQuery(
     "kind": "Fragment",
     "name": "CheckinSearchQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",

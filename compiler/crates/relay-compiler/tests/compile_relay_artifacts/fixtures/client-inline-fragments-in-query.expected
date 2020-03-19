@@ -30,7 +30,7 @@ interface ClientNamed {
     "kind": "Fragment",
     "name": "FooQuery",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -176,7 +176,7 @@ fragment Foo_user on User {
   "kind": "Fragment",
   "name": "Foo_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

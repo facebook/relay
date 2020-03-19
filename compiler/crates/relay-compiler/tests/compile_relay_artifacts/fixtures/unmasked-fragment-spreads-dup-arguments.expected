@@ -29,7 +29,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "kind": "Fragment",
   "name": "UserUtil2_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -89,7 +89,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "kind": "Fragment",
   "name": "UserUtil_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",

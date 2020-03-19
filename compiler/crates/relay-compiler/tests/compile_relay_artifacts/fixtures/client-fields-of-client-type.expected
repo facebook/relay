@@ -25,7 +25,7 @@ type Foo {
   "kind": "Fragment",
   "name": "Foo_user",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

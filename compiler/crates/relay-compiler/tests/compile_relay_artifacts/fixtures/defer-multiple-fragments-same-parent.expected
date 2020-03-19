@@ -32,7 +32,7 @@ fragment FeedbackText_feedback on Feedback {
     "kind": "Fragment",
     "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -256,7 +256,7 @@ fragment FeedbackText_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackComments_feedback",
   "type": "Feedback",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
@@ -330,7 +330,7 @@ fragment FeedbackText_feedback on Feedback {
   "kind": "Fragment",
   "name": "FeedbackText_feedback",
   "type": "Feedback",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

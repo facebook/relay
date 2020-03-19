@@ -138,6 +138,23 @@ impl<'schema> CodegenBuilder<'schema> {
             }
         }
 
+        let refetch = None;
+
+        let metadata = if connection_metadata.is_some()
+            || mask.is_some()
+            || plural.is_some()
+            || refetch.is_some()
+        {
+            Some(FragmentMetadata {
+                connection: connection_metadata,
+                mask,
+                plural,
+                refetch,
+            })
+        } else {
+            None
+        };
+
         ConcreteDefinition::Fragment(ConcreteFragment {
             name: fragment.name.item,
             type_: self.schema.get_type_name(fragment.type_condition),
@@ -147,12 +164,7 @@ impl<'schema> CodegenBuilder<'schema> {
             ),
             selections: self.build_selections(&fragment.selections),
             // TODO(T63303840) include correct fragment metadata
-            metadata: Some(FragmentMetadata {
-                connection: connection_metadata,
-                mask,
-                plural,
-                refetch: None,
-            }),
+            metadata,
         })
     }
 

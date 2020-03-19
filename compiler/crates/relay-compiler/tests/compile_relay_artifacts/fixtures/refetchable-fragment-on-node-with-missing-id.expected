@@ -17,7 +17,7 @@ fragment ProfilePicture on User {
   "kind": "Fragment",
   "name": "ProfilePicture",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -57,7 +57,7 @@ fragment ProfilePicture on User {
   "kind": "Fragment",
   "name": "RefetchableFragment",
   "type": "Node",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {

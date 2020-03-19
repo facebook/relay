@@ -12,7 +12,7 @@ query Test {
     "kind": "Fragment",
     "name": "Test",
     "type": "Query",
-    "metadata": {},
+    "metadata": null,
     "argumentDefinitions": [],
     "selections": [
       {

@@ -21,7 +21,7 @@ fragment ProfilePicture on User {
   "kind": "Fragment",
   "name": "ProfilePicture",
   "type": "User",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -61,7 +61,7 @@ fragment ProfilePicture on User {
   "kind": "Fragment",
   "name": "RefetchableFragment",
   "type": "Query",
-  "metadata": {},
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",

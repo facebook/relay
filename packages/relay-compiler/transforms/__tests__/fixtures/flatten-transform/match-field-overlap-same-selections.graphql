@@ -1,4 +1,3 @@
-# expected-to-throw
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -7,7 +6,11 @@ fragment NameRendererFragment on User {
       @module(name: "MarkdownUserNameRenderer.react")
   }
   ... on User {
-    # error: multiple selections against same concrete types
+    # ok: identical 3D selections can be repeated and should flatten together:
+    # the repetition is allowed to support cases where the same 3D field
+    # needs to be selected for each of several concrete parent types,
+    # such that the selection has to be repeated once per `... on ConcreteType`
+    # type condition.
     nameRenderer @match {
       ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
       ...MarkdownUserNameRenderer_name

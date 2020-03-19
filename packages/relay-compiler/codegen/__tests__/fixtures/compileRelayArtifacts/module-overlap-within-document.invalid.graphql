@@ -17,9 +17,7 @@ fragment FooNameRendererFragment on User {
 }
 
 fragment BarNameRendererFragment on User {
-  # same field alias as above and using standalone @module, so this should
-  # flatten with the above selections even though the supported types are
-  # different
+  # conflicts with above: same alias but different selections
   nameRenderer {
     ...MarkdownUserNameRenderer_name
       @module(name: "BarMarkdownUserNameRenderer.react")

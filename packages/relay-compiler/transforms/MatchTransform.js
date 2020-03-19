@@ -55,7 +55,10 @@ type State = {|
     {|
       +key: string,
       +location: Location,
-      +types: Map<string, Location>,
+      +types: Map<
+        string,
+        {|+location: Location, +fragment: string, +module: string|},
+      >,
     |},
   >,
 |};
@@ -453,15 +456,23 @@ function visitFragmentSpread(
     );
   }
   const previousMatchForType = matches.types.get(typeName);
-  if (previousMatchForType != null) {
+  if (
+    previousMatchForType != null &&
+    (previousMatchForType.fragment !== spread.name ||
+      previousMatchForType.module !== moduleName)
+  ) {
     throw createUserError(
       'Invalid @module selection: concrete type ' +
         `'${typeName}' was matched multiple times at path ` +
-        `'${aliasPath}'.`,
-      [spread.loc, previousMatchForType],
+        `'${aliasPath}' but with a different fragment or module name.`,
+      [spread.loc, previousMatchForType.location],
     );
   }
-  matches.types.set(typeName, spread.loc);
+  matches.types.set(typeName, {
+    location: spread.loc,
+    fragment: spread.name,
+    module: moduleName,
+  });
 
   const normalizationName =
     getNormalizationOperationName(spread.name) + '.graphql';

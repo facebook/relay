@@ -962,6 +962,7 @@ type User implements Named & Node & Actor & HasJsField {
   name: String
   alternate_name: String
   nameRenderable(supported: [String!]): UserNameRenderable
+  nameRendererNoSupportedArg: UserNameRenderer
   nameRenderer(supported: [String!]): UserNameRenderer
   nameRendererForContext(
     context: NameRendererContext

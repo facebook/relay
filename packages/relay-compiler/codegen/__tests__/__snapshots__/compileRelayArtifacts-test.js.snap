@@ -8849,8 +8849,8 @@ query MatchQuery {
         __typename
         ... on PlainUserNameRenderer {
           ...PlainUserNameRenderer_name
-          __module_operation_MatchQuery: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
-          __module_component_MatchQuery: js(module: "PlainUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
+          __module_operation_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
+          __module_component_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
         }
       }
     }

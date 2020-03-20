@@ -476,7 +476,7 @@ function visitFragmentSpread(
 
   const normalizationName =
     getNormalizationOperationName(spread.name) + '.graphql';
-  const componentKey = getModuleComponentKey(documentName);
+  const componentKey = getModuleComponentKey(moduleKey);
   const componentField: ScalarField = {
     alias: componentKey,
     args: [
@@ -513,7 +513,7 @@ function visitFragmentSpread(
     name: JS_FIELD_NAME,
     type: jsModuleType,
   };
-  const operationKey = getModuleOperationKey(documentName);
+  const operationKey = getModuleOperationKey(moduleKey);
   const operationField: ScalarField = {
     alias: operationKey,
     args: [

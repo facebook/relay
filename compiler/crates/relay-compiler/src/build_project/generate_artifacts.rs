@@ -54,14 +54,14 @@ pub async fn generate_artifacts(
         artifacts.push(Artifact {
             name,
             content: sign_file(&format!(
-                "// {}\n\nconst request = {};\n\nconst text = `{}`;\n\nconst id = '{}';\n",
+                "// {}\n\n/*\n{}\n*/\n\nvar node/*: ConcreteRequest*/ = {};\n\nconst id = '{}';\n",
                 SIGNING_TOKEN,
+                text,
                 relay_codegen::print_request_deduped(
                     programs.normalization.schema(),
                     node,
                     &operation_fragment,
                 ),
-                text,
                 id,
             )),
         });

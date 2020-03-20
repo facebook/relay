@@ -36,7 +36,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "alias": null,
       "name": "actors",
       "args": null,
-      "concreteType": "Actor",
+      "concreteType": null,
       "plural": true,
       "selections": [
         {
@@ -44,7 +44,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "alias": null,
           "name": "nameRenderer",
           "args": null,
-          "concreteType": "UserNameRenderer",
+          "concreteType": null,
           "plural": false,
           "selections": [
             {
@@ -85,7 +85,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "alias": null,
       "name": "data",
       "args": null,
-      "concreteType": null,
+      "concreteType": "MarkdownUserNameData",
       "plural": false,
       "selections": [
         {
@@ -120,7 +120,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "alias": null,
       "name": "data",
       "args": null,
-      "concreteType": null,
+      "concreteType": "PlainUserNameData",
       "plural": false,
       "selections": [
         {

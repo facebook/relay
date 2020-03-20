@@ -69,7 +69,7 @@ fragment FeedbackFragment on Feedback
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -111,7 +111,7 @@ fragment FeedbackFragment on Feedback
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -134,7 +134,7 @@ fragment FeedbackFragment on Feedback
                     "value": "date"
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "plural": false,
                 "selections": [
                   {
@@ -142,7 +142,7 @@ fragment FeedbackFragment on Feedback
                     "alias": null,
                     "name": "edges",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "plural": true,
                     "selections": [
                       {
@@ -154,7 +154,7 @@ fragment FeedbackFragment on Feedback
                             "alias": null,
                             "name": "node",
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "plural": false,
                             "selections": [
                               {
@@ -188,7 +188,7 @@ fragment FeedbackFragment on Feedback
                         "alias": null,
                         "name": "node",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "plural": false,
                         "selections": [
                           {
@@ -209,7 +209,7 @@ fragment FeedbackFragment on Feedback
                     "alias": null,
                     "name": "pageInfo",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "PageInfo",
                     "plural": false,
                     "selections": [
                       {
@@ -349,7 +349,7 @@ fragment FeedbackFragment on Feedback {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -414,7 +414,7 @@ fragment FeedbackFragment on Feedback {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -442,7 +442,7 @@ fragment FeedbackFragment on Feedback {
                     "value": "date"
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "plural": false,
                 "selections": [
                   {
@@ -450,7 +450,7 @@ fragment FeedbackFragment on Feedback {
                     "alias": null,
                     "name": "edges",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "plural": true,
                     "selections": [
                       {
@@ -462,7 +462,7 @@ fragment FeedbackFragment on Feedback {
                             "alias": null,
                             "name": "node",
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "plural": false,
                             "selections": [
                               {
@@ -496,7 +496,7 @@ fragment FeedbackFragment on Feedback {
                         "alias": null,
                         "name": "node",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "plural": false,
                         "selections": [
                           {
@@ -517,7 +517,7 @@ fragment FeedbackFragment on Feedback {
                     "alias": null,
                     "name": "pageInfo",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "PageInfo",
                     "plural": false,
                     "selections": [
                       {
@@ -671,7 +671,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
           "value": "date"
         }
       ],
-      "concreteType": null,
+      "concreteType": "CommentsConnection",
       "plural": false,
       "selections": [
         {
@@ -679,7 +679,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
           "alias": null,
           "name": "edges",
           "args": null,
-          "concreteType": null,
+          "concreteType": "CommentsEdge",
           "plural": true,
           "selections": [
             {
@@ -691,7 +691,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
                   "alias": null,
                   "name": "node",
                   "args": null,
-                  "concreteType": null,
+                  "concreteType": "Comment",
                   "plural": false,
                   "selections": [
                     {
@@ -718,7 +718,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
               "alias": null,
               "name": "node",
               "args": null,
-              "concreteType": null,
+              "concreteType": "Comment",
               "plural": false,
               "selections": [
                 {
@@ -739,7 +739,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
           "alias": null,
           "name": "pageInfo",
           "args": null,
-          "concreteType": null,
+          "concreteType": "PageInfo",
           "plural": false,
           "selections": [
             {

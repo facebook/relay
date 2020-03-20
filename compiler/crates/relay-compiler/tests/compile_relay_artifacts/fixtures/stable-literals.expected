@@ -23,7 +23,7 @@ query StableLiteralsTest {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -41,7 +41,7 @@ query StableLiteralsTest {
                 }
               }
             ],
-            "concreteType": null,
+            "concreteType": "Comment",
             "plural": true,
             "selections": [
               {
@@ -69,7 +69,7 @@ query StableLiteralsTest {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -87,7 +87,7 @@ query StableLiteralsTest {
                 }
               }
             ],
-            "concreteType": null,
+            "concreteType": "Comment",
             "plural": true,
             "selections": [
               {

@@ -37,7 +37,7 @@ extend type FriendsEdge {
       "alias": null,
       "name": "client_friends",
       "args": null,
-      "concreteType": null,
+      "concreteType": "FriendsConnection",
       "plural": false,
       "selections": [
         {
@@ -45,7 +45,7 @@ extend type FriendsEdge {
           "alias": null,
           "name": "edges",
           "args": null,
-          "concreteType": null,
+          "concreteType": "FriendsEdge",
           "plural": true,
           "selections": [
             {
@@ -53,7 +53,7 @@ extend type FriendsEdge {
               "alias": null,
               "name": "node",
               "args": null,
-              "concreteType": null,
+              "concreteType": "User",
               "plural": false,
               "selections": [
                 {
@@ -81,7 +81,7 @@ extend type FriendsEdge {
           "alias": null,
           "name": "pageInfo",
           "args": null,
-          "concreteType": null,
+          "concreteType": "PageInfo",
           "plural": false,
           "selections": [
             {

@@ -56,7 +56,7 @@ fragment QueryFragment2 on Query {
       "alias": null,
       "name": "viewer",
       "args": null,
-      "concreteType": null,
+      "concreteType": "Viewer",
       "plural": false,
       "selections": [
         {
@@ -69,7 +69,7 @@ fragment QueryFragment2 on Query {
               "alias": null,
               "name": "account_user",
               "args": null,
-              "concreteType": null,
+              "concreteType": "User",
               "plural": false,
               "selections": [
                 {
@@ -120,7 +120,7 @@ fragment QueryFragment2 on Query {
                   "alias": null,
                   "name": "actor",
                   "args": null,
-                  "concreteType": "Actor",
+                  "concreteType": null,
                   "plural": false,
                   "selections": [
                     {
@@ -171,7 +171,7 @@ fragment QueryFragment2 on Query {
       "alias": null,
       "name": "viewer",
       "args": null,
-      "concreteType": null,
+      "concreteType": "Viewer",
       "plural": false,
       "selections": [
         {
@@ -194,7 +194,7 @@ fragment QueryFragment2 on Query {
                       "alias": null,
                       "name": "account_user",
                       "args": null,
-                      "concreteType": null,
+                      "concreteType": "User",
                       "plural": false,
                       "selections": [
                         {

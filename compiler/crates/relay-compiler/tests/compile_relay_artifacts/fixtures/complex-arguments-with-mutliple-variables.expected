@@ -93,7 +93,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
             ]
           }
         ],
-        "concreteType": null,
+        "concreteType": "Route",
         "plural": false,
         "selections": [
           {
@@ -186,7 +186,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
             ]
           }
         ],
-        "concreteType": null,
+        "concreteType": "Route",
         "plural": false,
         "selections": [
           {

@@ -20,7 +20,7 @@ query Test {
         "alias": null,
         "name": "node",
         "args": null,
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -45,7 +45,7 @@ query Test {
         "alias": null,
         "name": "node",
         "args": null,
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {

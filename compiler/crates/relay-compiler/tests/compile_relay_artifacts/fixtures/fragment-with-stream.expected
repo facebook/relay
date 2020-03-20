@@ -40,7 +40,7 @@ fragment FeedbackFragment on Feedback {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -83,7 +83,7 @@ fragment FeedbackFragment on Feedback {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -95,7 +95,7 @@ fragment FeedbackFragment on Feedback {
                 "alias": null,
                 "name": "actors",
                 "args": null,
-                "concreteType": "Actor",
+                "concreteType": null,
                 "plural": true,
                 "selections": [
                   {
@@ -192,7 +192,7 @@ fragment FeedbackFragment on Feedback {
       "alias": null,
       "name": "actors",
       "args": null,
-      "concreteType": "Actor",
+      "concreteType": null,
       "plural": true,
       "selections": [
         {

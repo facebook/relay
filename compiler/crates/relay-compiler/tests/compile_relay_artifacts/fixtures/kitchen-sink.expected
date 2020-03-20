@@ -76,7 +76,7 @@ fragment UserFragment on User
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -157,7 +157,7 @@ fragment UserFragment on User
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -194,7 +194,7 @@ fragment UserFragment on User
                         "value": 5
                       }
                     ],
-                    "concreteType": null,
+                    "concreteType": "FriendsConnection",
                     "plural": false,
                     "selections": [
                       {
@@ -218,7 +218,7 @@ fragment UserFragment on User
                         "variableName": "PictureSize"
                       }
                     ],
-                    "concreteType": null,
+                    "concreteType": "Image",
                     "plural": false,
                     "selections": [
                       {
@@ -256,7 +256,7 @@ fragment UserFragment on User
                         "variableName": "PictureSize"
                       }
                     ],
-                    "concreteType": null,
+                    "concreteType": "Image",
                     "plural": false,
                     "selections": [
                       {
@@ -280,7 +280,7 @@ fragment UserFragment on User
                         "value": 32
                       }
                     ],
-                    "concreteType": null,
+                    "concreteType": "Image",
                     "plural": false,
                     "selections": [
                       {
@@ -436,7 +436,7 @@ fragment UserFragment_3M2EvT on User {
           "variableName": "first"
         }
       ],
-      "concreteType": null,
+      "concreteType": "FriendsConnection",
       "plural": false,
       "selections": [
         {
@@ -460,7 +460,7 @@ fragment UserFragment_3M2EvT on User {
           "variableName": "size"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {
@@ -498,7 +498,7 @@ fragment UserFragment_3M2EvT on User {
           "variableName": "PictureSize"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {
@@ -522,7 +522,7 @@ fragment UserFragment_3M2EvT on User {
           "value": 32
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

@@ -53,7 +53,7 @@ type ClientType {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -89,7 +89,7 @@ type ClientType {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -101,7 +101,7 @@ type ClientType {
                 "alias": null,
                 "name": "foo",
                 "args": null,
-                "concreteType": null,
+                "concreteType": "ClientType",
                 "plural": false,
                 "selections": [
                   {
@@ -196,7 +196,7 @@ fragment Foo_user on User {
       "alias": null,
       "name": "foo",
       "args": null,
-      "concreteType": null,
+      "concreteType": "ClientType",
       "plural": false,
       "selections": [
         {

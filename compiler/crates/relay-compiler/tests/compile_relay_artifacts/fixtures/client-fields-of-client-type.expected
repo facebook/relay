@@ -33,7 +33,7 @@ type Foo {
       "alias": null,
       "name": "client_foo",
       "args": null,
-      "concreteType": null,
+      "concreteType": "Foo",
       "plural": false,
       "selections": [
         {
@@ -47,7 +47,7 @@ type Foo {
               "value": 2.0
             }
           ],
-          "concreteType": null,
+          "concreteType": "Image",
           "plural": false,
           "selections": [
             {

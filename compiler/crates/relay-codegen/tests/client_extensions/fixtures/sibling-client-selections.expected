@@ -98,7 +98,7 @@ interface ClientNamed {
           "alias": null,
           "name": "client_foo",
           "args": null,
-          "concreteType": null,
+          "concreteType": "Foo",
           "plural": false,
           "selections": [
             {
@@ -116,7 +116,7 @@ interface ClientNamed {
           "alias": null,
           "name": "client_foo",
           "args": null,
-          "concreteType": null,
+          "concreteType": "Foo",
           "plural": false,
           "selections": [
             {
@@ -140,7 +140,7 @@ interface ClientNamed {
           "alias": null,
           "name": "client_friends",
           "args": null,
-          "concreteType": null,
+          "concreteType": "FriendsConnection",
           "plural": false,
           "selections": [
             {
@@ -148,7 +148,7 @@ interface ClientNamed {
               "alias": null,
               "name": "edges",
               "args": null,
-              "concreteType": null,
+              "concreteType": "FriendsEdge",
               "plural": true,
               "selections": [
                 {
@@ -156,7 +156,7 @@ interface ClientNamed {
                   "alias": null,
                   "name": "node",
                   "args": null,
-                  "concreteType": null,
+                  "concreteType": "User",
                   "plural": false,
                   "selections": [
                     {
@@ -187,7 +187,7 @@ interface ClientNamed {
           "alias": null,
           "name": "client_type",
           "args": null,
-          "concreteType": null,
+          "concreteType": "ClientType",
           "plural": false,
           "selections": [
             {
@@ -234,7 +234,7 @@ interface ClientNamed {
       "alias": null,
       "name": "me",
       "args": null,
-      "concreteType": null,
+      "concreteType": "User",
       "plural": false,
       "selections": [
         {

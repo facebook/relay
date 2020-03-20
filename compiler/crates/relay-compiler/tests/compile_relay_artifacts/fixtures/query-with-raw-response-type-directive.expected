@@ -21,7 +21,7 @@ query ViewerQuery @raw_response_type {
         "alias": null,
         "name": "viewer",
         "args": null,
-        "concreteType": null,
+        "concreteType": "Viewer",
         "plural": false,
         "selections": [
           {
@@ -29,7 +29,7 @@ query ViewerQuery @raw_response_type {
             "alias": null,
             "name": "actor",
             "args": null,
-            "concreteType": "Actor",
+            "concreteType": null,
             "plural": false,
             "selections": [
               {
@@ -57,7 +57,7 @@ query ViewerQuery @raw_response_type {
         "alias": null,
         "name": "viewer",
         "args": null,
-        "concreteType": null,
+        "concreteType": "Viewer",
         "plural": false,
         "selections": [
           {
@@ -65,7 +65,7 @@ query ViewerQuery @raw_response_type {
             "alias": null,
             "name": "actor",
             "args": null,
-            "concreteType": "Actor",
+            "concreteType": null,
             "plural": false,
             "selections": [
               {

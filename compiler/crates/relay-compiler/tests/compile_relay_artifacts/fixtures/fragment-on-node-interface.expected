@@ -38,7 +38,7 @@ fragment ProfilePicture on User {
           "variableName": "size"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

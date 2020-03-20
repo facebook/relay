@@ -18,7 +18,7 @@ Operation:
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "User",
       "kind": "LinkedField",
       "name": "me",
       "plural": false,
@@ -36,7 +36,7 @@ Operation:
               }
             }
           ],
-          "concreteType": null,
+          "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "storyCommentSearch",
           "plural": true,

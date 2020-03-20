@@ -35,7 +35,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -65,7 +65,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -79,7 +79,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
                 "value": 1.5
               }
             ],
-            "concreteType": null,
+            "concreteType": "Image",
             "plural": false,
             "selections": [
               {
@@ -184,7 +184,7 @@ fragment UserFragment on User {
           "variableName": "scale"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

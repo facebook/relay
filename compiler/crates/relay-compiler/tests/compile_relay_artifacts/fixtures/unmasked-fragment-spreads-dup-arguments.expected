@@ -125,7 +125,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
           "variableName": "PictureSize"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

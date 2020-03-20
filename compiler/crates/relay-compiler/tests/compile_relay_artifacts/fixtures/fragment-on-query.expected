@@ -41,7 +41,7 @@ fragment ProfilePicture on User {
           "variableName": "size"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {
@@ -82,7 +82,7 @@ fragment ProfilePicture on User {
           "variableName": "id"
         }
       ],
-      "concreteType": "Node",
+      "concreteType": null,
       "plural": false,
       "selections": [
         {

@@ -62,7 +62,7 @@ fragment RefetchableConnection_feedback on Feedback
           "variableName": "count"
         }
       ],
-      "concreteType": null,
+      "concreteType": "CommentsConnection",
       "plural": false,
       "selections": [
         {
@@ -70,7 +70,7 @@ fragment RefetchableConnection_feedback on Feedback
           "alias": null,
           "name": "edges",
           "args": null,
-          "concreteType": null,
+          "concreteType": "CommentsEdge",
           "plural": true,
           "selections": [
             {
@@ -82,7 +82,7 @@ fragment RefetchableConnection_feedback on Feedback
                   "alias": null,
                   "name": "node",
                   "args": null,
-                  "concreteType": null,
+                  "concreteType": "Comment",
                   "plural": false,
                   "selections": [
                     {
@@ -109,7 +109,7 @@ fragment RefetchableConnection_feedback on Feedback
               "alias": null,
               "name": "node",
               "args": null,
-              "concreteType": null,
+              "concreteType": "Comment",
               "plural": false,
               "selections": [
                 {
@@ -137,7 +137,7 @@ fragment RefetchableConnection_feedback on Feedback
           "alias": null,
           "name": "pageInfo",
           "args": null,
-          "concreteType": null,
+          "concreteType": "PageInfo",
           "plural": false,
           "selections": [
             {

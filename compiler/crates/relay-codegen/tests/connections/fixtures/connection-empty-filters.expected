@@ -61,7 +61,7 @@ v3 = [
 v4 = {
   "alias": null,
   "args": (v3/*: any*/),
-  "concreteType": null,
+  "concreteType": "CommentsConnection",
   "kind": "LinkedField",
   "name": "comments",
   "plural": false,
@@ -69,7 +69,7 @@ v4 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "CommentsEdge",
       "kind": "LinkedField",
       "name": "edges",
       "plural": true,
@@ -77,7 +77,7 @@ v4 = {
         {
           "alias": null,
           "args": null,
-          "concreteType": null,
+          "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "node",
           "plural": false,
@@ -85,7 +85,7 @@ v4 = {
             {
               "alias": null,
               "args": null,
-              "concreteType": "Actor",
+              "concreteType": null,
               "kind": "LinkedField",
               "name": "actor",
               "plural": false,
@@ -116,7 +116,7 @@ v4 = {
             {
               "alias": null,
               "args": null,
-              "concreteType": null,
+              "concreteType": "Comment",
               "kind": "LinkedField",
               "name": "node",
               "plural": false,
@@ -140,7 +140,7 @@ v4 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "PageInfo",
       "kind": "LinkedField",
       "name": "pageInfo",
       "plural": false,
@@ -193,7 +193,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "Node",
+        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
@@ -230,7 +230,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "Node",
+        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,

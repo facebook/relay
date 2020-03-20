@@ -272,9 +272,9 @@ impl<'schema> CodegenBuilder<'schema> {
             args: self.build_arguments(&field.arguments),
             selections: self.build_selections(&field.selections),
             concrete_type: if self.schema.is_abstract_type(schema_field.type_.inner()) {
-                Some(self.schema.get_type_name(schema_field.type_.inner()))
-            } else {
                 None
+            } else {
+                Some(self.schema.get_type_name(schema_field.type_.inner()))
             },
             storage_key: get_static_storage_key(field_name, &field.arguments),
             plural: schema_field.type_.is_list(),

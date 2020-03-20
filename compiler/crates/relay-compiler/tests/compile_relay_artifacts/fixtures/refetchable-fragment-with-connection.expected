@@ -70,7 +70,7 @@ fragment PaginationFragment on Node
               "variableName": "count"
             }
           ],
-          "concreteType": null,
+          "concreteType": "FriendsConnection",
           "plural": false,
           "selections": [
             {
@@ -78,7 +78,7 @@ fragment PaginationFragment on Node
               "alias": null,
               "name": "edges",
               "args": null,
-              "concreteType": null,
+              "concreteType": "FriendsEdge",
               "plural": true,
               "selections": [
                 {
@@ -90,7 +90,7 @@ fragment PaginationFragment on Node
                       "alias": null,
                       "name": "node",
                       "args": null,
-                      "concreteType": null,
+                      "concreteType": "User",
                       "plural": false,
                       "selections": [
                         {
@@ -117,7 +117,7 @@ fragment PaginationFragment on Node
                   "alias": null,
                   "name": "node",
                   "args": null,
-                  "concreteType": null,
+                  "concreteType": "User",
                   "plural": false,
                   "selections": [
                     {
@@ -138,7 +138,7 @@ fragment PaginationFragment on Node
               "alias": null,
               "name": "pageInfo",
               "args": null,
-              "concreteType": null,
+              "concreteType": "PageInfo",
               "plural": false,
               "selections": [
                 {

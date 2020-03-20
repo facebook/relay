@@ -62,7 +62,7 @@ extend type Subscription {
             "variableName": "input"
           }
         ],
-        "concreteType": null,
+        "concreteType": "UnfriendResponsePayload",
         "plural": false,
         "selections": [
           {
@@ -107,7 +107,7 @@ extend type Subscription {
             "variableName": "input"
           }
         ],
-        "concreteType": null,
+        "concreteType": "UnfriendResponsePayload",
         "plural": false,
         "selections": [
           {
@@ -175,7 +175,7 @@ mutation FooMutation(
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -220,7 +220,7 @@ mutation FooMutation(
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -296,7 +296,7 @@ query FooQuery(
             "variableName": "input"
           }
         ],
-        "concreteType": null,
+        "concreteType": "FeedbackLikeResponsePayload",
         "plural": false,
         "selections": [
           {
@@ -341,7 +341,7 @@ query FooQuery(
             "variableName": "input"
           }
         ],
-        "concreteType": null,
+        "concreteType": "FeedbackLikeResponsePayload",
         "plural": false,
         "selections": [
           {

@@ -59,7 +59,7 @@ fragment UserUtil2_user on User {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -101,7 +101,7 @@ fragment UserUtil2_user on User {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -115,7 +115,7 @@ fragment UserUtil2_user on User {
                 "variableName": "ProfilePicture_SIZE"
               }
             ],
-            "concreteType": null,
+            "concreteType": "Image",
             "plural": false,
             "selections": [
               {
@@ -238,7 +238,7 @@ fragment UserProfile_user on User {
           "variableName": "ProfilePicture_SIZE"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {
@@ -345,7 +345,7 @@ fragment UserProfile_user on User {
           "variableName": "ProfilePicture_SIZE"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

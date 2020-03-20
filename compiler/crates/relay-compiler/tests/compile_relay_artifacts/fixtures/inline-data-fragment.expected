@@ -52,7 +52,7 @@ fragment Profile on User @inline {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -66,7 +66,7 @@ fragment Profile on User @inline {
                 "value": 100
               }
             ],
-            "concreteType": null,
+            "concreteType": "Image",
             "plural": false,
             "selections": [
               {
@@ -114,7 +114,7 @@ fragment Profile on User @inline {
             "value": "test"
           }
         ],
-        "concreteType": "Actor",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -132,7 +132,7 @@ fragment Profile on User @inline {
                     "value": 100
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "Image",
                 "plural": false,
                 "selections": [
                   {
@@ -223,7 +223,7 @@ fragment Profile on User {
       "alias": null,
       "name": "me",
       "args": null,
-      "concreteType": null,
+      "concreteType": "User",
       "plural": false,
       "selections": [
         {
@@ -242,7 +242,7 @@ fragment Profile on User {
               "value": 100
             }
           ],
-          "concreteType": null,
+          "concreteType": "Image",
           "plural": false,
           "selections": [
             {
@@ -276,7 +276,7 @@ fragment Profile on User {
           "value": "test"
         }
       ],
-      "concreteType": "Actor",
+      "concreteType": null,
       "plural": false,
       "selections": [
         {
@@ -308,7 +308,7 @@ fragment Profile on User {
           "value": 100
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

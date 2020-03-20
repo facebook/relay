@@ -64,7 +64,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -139,7 +139,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -157,7 +157,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                     "variableName": "pictureSize"
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "Image",
                 "plural": false,
                 "selections": [
                   {
@@ -206,7 +206,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                         "value": 10
                       }
                     ],
-                    "concreteType": null,
+                    "concreteType": "FriendsConnection",
                     "plural": false,
                     "selections": [
                       {
@@ -214,7 +214,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                         "alias": null,
                         "name": "edges",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "FriendsEdge",
                         "plural": true,
                         "selections": [
                           {
@@ -222,7 +222,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                             "alias": null,
                             "name": "node",
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "User",
                             "plural": false,
                             "selections": [
                               {
@@ -236,7 +236,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                                     "variableName": "pictureSize"
                                   }
                                 ],
-                                "concreteType": null,
+                                "concreteType": "Image",
                                 "plural": false,
                                 "selections": [
                                   {
@@ -340,7 +340,7 @@ fragment Profile_4CNNX6 on User {
           "variableName": "pictureSize"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {
@@ -380,7 +380,7 @@ fragment Profile_4CNNX6 on User {
           "value": 10
         }
       ],
-      "concreteType": null,
+      "concreteType": "FriendsConnection",
       "plural": false,
       "selections": [
         {
@@ -388,7 +388,7 @@ fragment Profile_4CNNX6 on User {
           "alias": null,
           "name": "edges",
           "args": null,
-          "concreteType": null,
+          "concreteType": "FriendsEdge",
           "plural": true,
           "selections": [
             {
@@ -396,7 +396,7 @@ fragment Profile_4CNNX6 on User {
               "alias": null,
               "name": "node",
               "args": null,
-              "concreteType": null,
+              "concreteType": "User",
               "plural": false,
               "selections": [
                 {

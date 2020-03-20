@@ -60,7 +60,7 @@ fragment ConnectionFragment on User
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -121,7 +121,7 @@ fragment ConnectionFragment on User
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -210,7 +210,7 @@ query QueryWithUnusedVariables(
               "variableName": "unusedFirst"
             }
           ],
-          "concreteType": null,
+          "concreteType": "FriendsConnection",
           "plural": false,
           "selections": [
             {
@@ -218,7 +218,7 @@ query QueryWithUnusedVariables(
               "alias": null,
               "name": "edges",
               "args": null,
-              "concreteType": null,
+              "concreteType": "FriendsEdge",
               "plural": true,
               "selections": [
                 {
@@ -226,7 +226,7 @@ query QueryWithUnusedVariables(
                   "alias": null,
                   "name": "node",
                   "args": null,
-                  "concreteType": null,
+                  "concreteType": "User",
                   "plural": false,
                   "selections": [
                     {

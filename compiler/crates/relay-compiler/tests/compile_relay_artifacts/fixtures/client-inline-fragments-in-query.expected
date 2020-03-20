@@ -51,7 +51,7 @@ interface ClientNamed {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -87,7 +87,7 @@ interface ClientNamed {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -99,7 +99,7 @@ interface ClientNamed {
                 "alias": null,
                 "name": "foo",
                 "args": null,
-                "concreteType": "ClientNamed",
+                "concreteType": null,
                 "plural": false,
                 "selections": [
                   {
@@ -184,7 +184,7 @@ fragment Foo_user on User {
       "alias": null,
       "name": "foo",
       "args": null,
-      "concreteType": "ClientNamed",
+      "concreteType": null,
       "plural": false,
       "selections": [
         {

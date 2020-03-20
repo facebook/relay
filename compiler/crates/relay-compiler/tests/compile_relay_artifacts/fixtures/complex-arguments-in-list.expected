@@ -94,7 +94,7 @@ query CheckinSearchQuery(
             ]
           }
         ],
-        "concreteType": null,
+        "concreteType": "CheckinSearchResult",
         "plural": false,
         "selections": [
           {
@@ -184,7 +184,7 @@ query CheckinSearchQuery(
             ]
           }
         ],
-        "concreteType": null,
+        "concreteType": "CheckinSearchResult",
         "plural": false,
         "selections": [
           {

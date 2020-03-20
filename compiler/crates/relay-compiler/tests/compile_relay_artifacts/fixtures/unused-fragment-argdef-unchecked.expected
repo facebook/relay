@@ -49,7 +49,7 @@ fragment ProfilePhoto on User {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -85,7 +85,7 @@ fragment ProfilePhoto on User {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -105,7 +105,7 @@ fragment ProfilePhoto on User {
                     ]
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "Image",
                 "plural": false,
                 "selections": [
                   {
@@ -259,7 +259,7 @@ fragment ProfilePhotoWrapper_18PEfK on User {
           ]
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "plural": false,
       "selections": [
         {

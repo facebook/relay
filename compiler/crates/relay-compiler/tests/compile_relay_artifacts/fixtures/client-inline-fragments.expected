@@ -30,7 +30,7 @@ interface ClientNamed {
       "alias": null,
       "name": "foo",
       "args": null,
-      "concreteType": "ClientNamed",
+      "concreteType": null,
       "plural": false,
       "selections": [
         {

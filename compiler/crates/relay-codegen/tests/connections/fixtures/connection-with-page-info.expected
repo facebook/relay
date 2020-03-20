@@ -71,7 +71,7 @@ return {
     {
       "alias": null,
       "args": (v0/*: any*/),
-      "concreteType": null,
+      "concreteType": "FriendsConnection",
       "kind": "LinkedField",
       "name": "friends",
       "plural": false,
@@ -79,7 +79,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": null,
+          "concreteType": "FriendsEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
@@ -87,7 +87,7 @@ return {
             {
               "alias": null,
               "args": null,
-              "concreteType": null,
+              "concreteType": "User",
               "kind": "LinkedField",
               "name": "node",
               "plural": false,
@@ -101,7 +101,7 @@ return {
                       "variableName": "preset"
                     }
                   ],
-                  "concreteType": null,
+                  "concreteType": "Image",
                   "kind": "LinkedField",
                   "name": "profilePicture",
                   "plural": false,
@@ -132,7 +132,7 @@ return {
                 {
                   "alias": null,
                   "args": null,
-                  "concreteType": null,
+                  "concreteType": "User",
                   "kind": "LinkedField",
                   "name": "node",
                   "plural": false,
@@ -156,7 +156,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": null,
+          "concreteType": "PageInfo",
           "kind": "LinkedField",
           "name": "pageInfo",
           "plural": false,

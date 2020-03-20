@@ -76,7 +76,7 @@ v3 = [
 v4 = {
   "alias": null,
   "args": null,
-  "concreteType": null,
+  "concreteType": "CommentsEdge",
   "kind": "LinkedField",
   "name": "edges",
   "plural": true,
@@ -84,7 +84,7 @@ v4 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "Comment",
       "kind": "LinkedField",
       "name": "node",
       "plural": false,
@@ -106,7 +106,7 @@ v4 = {
         {
           "alias": null,
           "args": null,
-          "concreteType": null,
+          "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "node",
           "plural": false,
@@ -144,7 +144,7 @@ v6 = {
 v7 = {
   "alias": "forwardComments",
   "args": (v3/*: any*/),
-  "concreteType": null,
+  "concreteType": "CommentsConnection",
   "kind": "LinkedField",
   "name": "comments",
   "plural": false,
@@ -153,7 +153,7 @@ v7 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "PageInfo",
       "kind": "LinkedField",
       "name": "pageInfo",
       "plural": false,
@@ -196,7 +196,7 @@ v10 = {
 v11 = {
   "alias": "backwardComments",
   "args": (v8/*: any*/),
-  "concreteType": null,
+  "concreteType": "CommentsConnection",
   "kind": "LinkedField",
   "name": "comments",
   "plural": false,
@@ -205,7 +205,7 @@ v11 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "PageInfo",
       "kind": "LinkedField",
       "name": "pageInfo",
       "plural": false,
@@ -239,7 +239,7 @@ v12 = [
 v13 = {
   "alias": "mixedDirectionComments",
   "args": (v12/*: any*/),
-  "concreteType": null,
+  "concreteType": "CommentsConnection",
   "kind": "LinkedField",
   "name": "comments",
   "plural": false,
@@ -248,7 +248,7 @@ v13 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "PageInfo",
       "kind": "LinkedField",
       "name": "pageInfo",
       "plural": false,
@@ -309,7 +309,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "Node",
+        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
@@ -366,7 +366,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "Node",
+        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,

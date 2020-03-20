@@ -36,7 +36,7 @@ fragment MyNestedViewer on Viewer
         "alias": null,
         "name": "viewer",
         "args": null,
-        "concreteType": null,
+        "concreteType": "Viewer",
         "plural": false,
         "selections": [
           {
@@ -54,7 +54,7 @@ fragment MyNestedViewer on Viewer
             "alias": null,
             "name": "actor",
             "args": null,
-            "concreteType": "Actor",
+            "concreteType": null,
             "plural": false,
             "selections": [
               {
@@ -82,7 +82,7 @@ fragment MyNestedViewer on Viewer
         "alias": null,
         "name": "viewer",
         "args": null,
-        "concreteType": null,
+        "concreteType": "Viewer",
         "plural": false,
         "selections": [
           {
@@ -90,7 +90,7 @@ fragment MyNestedViewer on Viewer
             "alias": null,
             "name": "actor",
             "args": null,
-            "concreteType": "Actor",
+            "concreteType": null,
             "plural": false,
             "selections": [
               {

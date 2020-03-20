@@ -38,7 +38,7 @@ query TestQuery($date: String) {
             ]
           }
         ],
-        "concreteType": null,
+        "concreteType": "ItemFilterResult",
         "plural": false,
         "selections": [
           {
@@ -82,7 +82,7 @@ query TestQuery($date: String) {
             ]
           }
         ],
-        "concreteType": null,
+        "concreteType": "ItemFilterResult",
         "plural": false,
         "selections": [
           {

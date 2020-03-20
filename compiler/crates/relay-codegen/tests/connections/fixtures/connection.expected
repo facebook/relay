@@ -60,37 +60,26 @@ v4 = {
   "name": "name",
   "storageKey": null
 },
-v5 = [
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "cursor",
+  "storageKey": null
+},
+v6 = [
   {
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "cursor",
-    "storageKey": null
-  },
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": null,
-    "kind": "LinkedField",
-    "name": "node",
-    "plural": false,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "__typename",
-        "storageKey": null
-      }
-    ],
+    "name": "__typename",
     "storageKey": null
   }
 ],
-v6 = {
+v7 = {
   "alias": null,
   "args": null,
-  "concreteType": null,
+  "concreteType": "PageInfo",
   "kind": "LinkedField",
   "name": "pageInfo",
   "plural": false,
@@ -118,10 +107,10 @@ v6 = {
   ],
   "storageKey": null
 },
-v7 = {
+v8 = {
   "alias": null,
   "args": (v3/*: any*/),
-  "concreteType": null,
+  "concreteType": "FriendsConnection",
   "kind": "LinkedField",
   "name": "friends",
   "plural": false,
@@ -129,7 +118,7 @@ v7 = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "FriendsEdge",
       "kind": "LinkedField",
       "name": "edges",
       "plural": true,
@@ -137,7 +126,7 @@ v7 = {
         {
           "alias": null,
           "args": null,
-          "concreteType": null,
+          "concreteType": "User",
           "kind": "LinkedField",
           "name": "node",
           "plural": false,
@@ -148,19 +137,43 @@ v7 = {
         },
         {
           "kind": "InlineFragment",
-          "selections": (v5/*: any*/),
+          "selections": [
+            (v5/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": (v6/*: any*/),
+              "storageKey": null
+            }
+          ],
           "type": "FriendsEdge"
         }
       ],
       "storageKey": null
     },
-    (v6/*: any*/)
+    (v7/*: any*/)
   ],
   "storageKey": null
 },
-v8 = {
+v9 = {
   "kind": "InlineFragment",
-  "selections": (v5/*: any*/),
+  "selections": [
+    (v5/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "Comment",
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": (v6/*: any*/),
+      "storageKey": null
+    }
+  ],
   "type": "CommentsEdge"
 };
 return {
@@ -191,7 +204,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "Node",
+        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
@@ -203,7 +216,7 @@ return {
               {
                 "alias": null,
                 "args": (v3/*: any*/),
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
                 "plural": false,
@@ -211,7 +224,7 @@ return {
                   {
                     "alias": null,
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "kind": "LinkedField",
                     "name": "edges",
                     "plural": true,
@@ -219,7 +232,7 @@ return {
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "kind": "LinkedField",
                         "name": "node",
                         "plural": false,
@@ -227,13 +240,13 @@ return {
                           {
                             "alias": null,
                             "args": null,
-                            "concreteType": "Actor",
+                            "concreteType": null,
                             "kind": "LinkedField",
                             "name": "actor",
                             "plural": false,
                             "selections": [
                               (v4/*: any*/),
-                              (v7/*: any*/),
+                              (v8/*: any*/),
                               {
                                 "alias": null,
                                 "args": (v3/*: any*/),
@@ -249,11 +262,11 @@ return {
                         ],
                         "storageKey": null
                       },
-                      (v8/*: any*/)
+                      (v9/*: any*/)
                     ],
                     "storageKey": null
                   },
-                  (v6/*: any*/)
+                  (v7/*: any*/)
                 ],
                 "storageKey": null
               },
@@ -284,7 +297,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "Node",
+        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
@@ -296,7 +309,7 @@ return {
               {
                 "alias": null,
                 "args": (v3/*: any*/),
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
                 "plural": false,
@@ -304,7 +317,7 @@ return {
                   {
                     "alias": null,
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "kind": "LinkedField",
                     "name": "edges",
                     "plural": true,
@@ -312,7 +325,7 @@ return {
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "kind": "LinkedField",
                         "name": "node",
                         "plural": false,
@@ -320,24 +333,24 @@ return {
                           {
                             "alias": null,
                             "args": null,
-                            "concreteType": "Actor",
+                            "concreteType": null,
                             "kind": "LinkedField",
                             "name": "actor",
                             "plural": false,
                             "selections": [
                               (v4/*: any*/),
-                              (v7/*: any*/)
+                              (v8/*: any*/)
                             ],
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       },
-                      (v8/*: any*/)
+                      (v9/*: any*/)
                     ],
                     "storageKey": null
                   },
-                  (v6/*: any*/)
+                  (v7/*: any*/)
                 ],
                 "storageKey": null
               }

@@ -31,7 +31,7 @@ extend type FriendsConnection {
       "alias": null,
       "name": "friends",
       "args": null,
-      "concreteType": null,
+      "concreteType": "FriendsConnection",
       "plural": false,
       "selections": [
         {

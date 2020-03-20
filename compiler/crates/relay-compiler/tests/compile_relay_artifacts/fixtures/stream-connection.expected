@@ -64,7 +64,7 @@ query NodeQuery($id: ID!) {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -82,7 +82,7 @@ query NodeQuery($id: ID!) {
                     "value": 10
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "plural": false,
                 "selections": [
                   {
@@ -90,7 +90,7 @@ query NodeQuery($id: ID!) {
                     "alias": null,
                     "name": "edges",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "plural": true,
                     "selections": [
                       {
@@ -102,7 +102,7 @@ query NodeQuery($id: ID!) {
                             "alias": null,
                             "name": "node",
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "plural": false,
                             "selections": [
                               {
@@ -129,7 +129,7 @@ query NodeQuery($id: ID!) {
                         "alias": null,
                         "name": "node",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "plural": false,
                         "selections": [
                           {
@@ -137,7 +137,7 @@ query NodeQuery($id: ID!) {
                             "alias": null,
                             "name": "actor",
                             "args": null,
-                            "concreteType": "Actor",
+                            "concreteType": null,
                             "plural": false,
                             "selections": [
                               {
@@ -161,7 +161,7 @@ query NodeQuery($id: ID!) {
                     "alias": null,
                     "name": "pageInfo",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "PageInfo",
                     "plural": false,
                     "selections": [
                       {
@@ -236,7 +236,7 @@ query NodeQuery($id: ID!) {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -254,7 +254,7 @@ query NodeQuery($id: ID!) {
                     "value": 10
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "plural": false,
                 "selections": [
                   {
@@ -262,7 +262,7 @@ query NodeQuery($id: ID!) {
                     "alias": null,
                     "name": "edges",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "plural": true,
                     "selections": [
                       {
@@ -274,7 +274,7 @@ query NodeQuery($id: ID!) {
                             "alias": null,
                             "name": "node",
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "plural": false,
                             "selections": [
                               {
@@ -308,7 +308,7 @@ query NodeQuery($id: ID!) {
                         "alias": null,
                         "name": "node",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "plural": false,
                         "selections": [
                           {
@@ -316,7 +316,7 @@ query NodeQuery($id: ID!) {
                             "alias": null,
                             "name": "actor",
                             "args": null,
-                            "concreteType": "Actor",
+                            "concreteType": null,
                             "plural": false,
                             "selections": [
                               {
@@ -361,7 +361,7 @@ query NodeQuery($id: ID!) {
                     "alias": null,
                     "name": "pageInfo",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "PageInfo",
                     "plural": false,
                     "selections": [
                       {

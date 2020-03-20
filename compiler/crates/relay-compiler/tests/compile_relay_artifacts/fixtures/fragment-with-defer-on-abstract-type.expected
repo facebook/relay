@@ -35,7 +35,7 @@ fragment NodeFragment on Node {
             "value": "my-id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -64,7 +64,7 @@ fragment NodeFragment on Node {
             "value": "my-id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {

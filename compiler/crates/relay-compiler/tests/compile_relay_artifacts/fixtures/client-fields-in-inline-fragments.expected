@@ -47,7 +47,7 @@ extend type Page {
       "alias": null,
       "name": "address",
       "args": null,
-      "concreteType": null,
+      "concreteType": "StreetAddress",
       "plural": false,
       "selections": [
         {

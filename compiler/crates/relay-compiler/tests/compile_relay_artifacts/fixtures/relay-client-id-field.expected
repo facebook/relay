@@ -48,7 +48,7 @@ query RelayClientIDFieldQuery($id: ID!) {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -86,7 +86,7 @@ query RelayClientIDFieldQuery($id: ID!) {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -106,7 +106,7 @@ query RelayClientIDFieldQuery($id: ID!) {
                     ]
                   }
                 ],
-                "concreteType": "CommentBody",
+                "concreteType": null,
                 "plural": false,
                 "selections": [
                   {
@@ -118,7 +118,7 @@ query RelayClientIDFieldQuery($id: ID!) {
                         "alias": null,
                         "name": "text",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Text",
                         "plural": false,
                         "selections": [
                           {
@@ -223,7 +223,7 @@ query RelayClientIDFieldQuery($id: ID!) {
         "alias": null,
         "name": "me",
         "args": null,
-        "concreteType": null,
+        "concreteType": "User",
         "plural": false,
         "selections": [
           {
@@ -261,7 +261,7 @@ query RelayClientIDFieldQuery($id: ID!) {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -281,7 +281,7 @@ query RelayClientIDFieldQuery($id: ID!) {
                     ]
                   }
                 ],
-                "concreteType": "CommentBody",
+                "concreteType": null,
                 "plural": false,
                 "selections": [
                   {
@@ -293,7 +293,7 @@ query RelayClientIDFieldQuery($id: ID!) {
                         "alias": null,
                         "name": "text",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Text",
                         "plural": false,
                         "selections": [
                           {

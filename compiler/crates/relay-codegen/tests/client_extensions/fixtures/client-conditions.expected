@@ -78,7 +78,7 @@ interface ClientNamed {
           "alias": null,
           "name": "foo",
           "args": null,
-          "concreteType": "ClientNamed",
+          "concreteType": null,
           "plural": false,
           "selections": [
             {
@@ -165,7 +165,7 @@ interface ClientNamed {
               "alias": null,
               "name": "address",
               "args": null,
-              "concreteType": null,
+              "concreteType": "StreetAddress",
               "plural": false,
               "selections": [
                 {
@@ -227,7 +227,7 @@ interface ClientNamed {
       "alias": null,
       "name": "me",
       "args": null,
-      "concreteType": null,
+      "concreteType": "User",
       "plural": false,
       "selections": [
         {

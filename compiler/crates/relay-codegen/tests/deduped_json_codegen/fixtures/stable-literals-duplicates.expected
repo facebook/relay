@@ -43,7 +43,7 @@ return {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "User",
       "kind": "LinkedField",
       "name": "me",
       "plural": false,
@@ -51,7 +51,7 @@ return {
         {
           "alias": null,
           "args": (v0/*: any*/),
-          "concreteType": null,
+          "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "storyCommentSearch",
           "plural": true,
@@ -61,7 +61,7 @@ return {
         {
           "alias": "aliased",
           "args": (v0/*: any*/),
-          "concreteType": null,
+          "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "storyCommentSearch",
           "plural": true,

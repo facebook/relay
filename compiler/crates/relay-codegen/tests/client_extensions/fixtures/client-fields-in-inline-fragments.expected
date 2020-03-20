@@ -68,7 +68,7 @@ extend type Page {
           "alias": null,
           "name": "address",
           "args": null,
-          "concreteType": null,
+          "concreteType": "StreetAddress",
           "plural": false,
           "selections": [
             {
@@ -121,7 +121,7 @@ extend type Page {
       "alias": null,
       "name": "me",
       "args": null,
-      "concreteType": null,
+      "concreteType": "User",
       "plural": false,
       "selections": [
         {

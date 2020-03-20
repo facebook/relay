@@ -27,7 +27,7 @@ query UnionQuery {
         "alias": null,
         "name": "maybeNode",
         "args": null,
-        "concreteType": "MaybeNode",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -52,7 +52,7 @@ query UnionQuery {
                 "alias": null,
                 "name": "body",
                 "args": null,
-                "concreteType": null,
+                "concreteType": "Text",
                 "plural": false,
                 "selections": [
                   {
@@ -89,7 +89,7 @@ query UnionQuery {
         "alias": null,
         "name": "maybeNode",
         "args": null,
-        "concreteType": "MaybeNode",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -127,7 +127,7 @@ query UnionQuery {
                 "alias": null,
                 "name": "body",
                 "args": null,
-                "concreteType": null,
+                "concreteType": "Text",
                 "plural": false,
                 "selections": [
                   {

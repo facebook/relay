@@ -77,7 +77,7 @@ Operation:
           "variableName": "id"
         }
       ],
-      "concreteType": "Node",
+      "concreteType": null,
       "kind": "LinkedField",
       "name": "node",
       "plural": false,
@@ -229,7 +229,7 @@ return {
           "variableName": "first"
         }
       ],
-      "concreteType": null,
+      "concreteType": "FriendsConnection",
       "kind": "LinkedField",
       "name": "friends",
       "plural": false,
@@ -267,7 +267,7 @@ return {
           "value": 32
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "kind": "LinkedField",
       "name": "profilePicture",
       "plural": false,
@@ -283,7 +283,7 @@ return {
           "variableName": "size"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "kind": "LinkedField",
       "name": "profilePicture",
       "plural": false,
@@ -299,7 +299,7 @@ return {
           "variableName": "scale"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
@@ -315,7 +315,7 @@ return {
           "variableName": "PictureSize"
         }
       ],
-      "concreteType": null,
+      "concreteType": "Image",
       "kind": "LinkedField",
       "name": "profilePicture",
       "plural": false,

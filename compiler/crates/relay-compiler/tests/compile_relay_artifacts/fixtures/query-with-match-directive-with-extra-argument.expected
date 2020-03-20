@@ -55,7 +55,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -91,7 +91,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -109,7 +109,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "value": "HEADER"
                   }
                 ],
-                "concreteType": "UserNameRenderer",
+                "concreteType": null,
                 "plural": false,
                 "selections": [
                   {
@@ -121,7 +121,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "alias": null,
                         "name": "data",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "PlainUserNameData",
                         "plural": false,
                         "selections": [
                           {
@@ -159,7 +159,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "alias": null,
                         "name": "data",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "MarkdownUserNameData",
                         "plural": false,
                         "selections": [
                           {
@@ -284,7 +284,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "alias": null,
       "name": "data",
       "args": null,
-      "concreteType": null,
+      "concreteType": "MarkdownUserNameData",
       "plural": false,
       "selections": [
         {
@@ -325,7 +325,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "value": "HEADER"
         }
       ],
-      "concreteType": "UserNameRenderer",
+      "concreteType": null,
       "plural": false,
       "selections": [
         {
@@ -363,7 +363,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "alias": null,
       "name": "data",
       "args": null,
-      "concreteType": null,
+      "concreteType": "PlainUserNameData",
       "plural": false,
       "selections": [
         {

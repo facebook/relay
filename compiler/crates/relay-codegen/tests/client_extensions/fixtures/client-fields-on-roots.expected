@@ -109,7 +109,7 @@ type ClientUser {
           "alias": null,
           "name": "client_user",
           "args": null,
-          "concreteType": null,
+          "concreteType": "ClientUser",
           "plural": false,
           "selections": [
             {
@@ -140,7 +140,7 @@ type ClientUser {
           "variableName": "id"
         }
       ],
-      "concreteType": "Node",
+      "concreteType": null,
       "plural": false,
       "selections": [
         {

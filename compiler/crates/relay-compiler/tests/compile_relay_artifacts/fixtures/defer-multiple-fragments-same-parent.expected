@@ -53,7 +53,7 @@ fragment FeedbackText_feedback on Feedback {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -101,7 +101,7 @@ fragment FeedbackText_feedback on Feedback {
             "variableName": "id"
           }
         ],
-        "concreteType": "Node",
+        "concreteType": null,
         "plural": false,
         "selections": [
           {
@@ -113,7 +113,7 @@ fragment FeedbackText_feedback on Feedback {
                 "alias": null,
                 "name": "body",
                 "args": null,
-                "concreteType": null,
+                "concreteType": "Text",
                 "plural": false,
                 "selections": [
                   {
@@ -137,7 +137,7 @@ fragment FeedbackText_feedback on Feedback {
                     "value": 10
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "CommentsConnection",
                 "plural": false,
                 "selections": [
                   {
@@ -145,7 +145,7 @@ fragment FeedbackText_feedback on Feedback {
                     "alias": null,
                     "name": "edges",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "CommentsEdge",
                     "plural": true,
                     "selections": [
                       {
@@ -153,7 +153,7 @@ fragment FeedbackText_feedback on Feedback {
                         "alias": null,
                         "name": "node",
                         "args": null,
-                        "concreteType": null,
+                        "concreteType": "Comment",
                         "plural": false,
                         "selections": [
                           {
@@ -174,7 +174,7 @@ fragment FeedbackText_feedback on Feedback {
                     "alias": null,
                     "name": "pageInfo",
                     "args": null,
-                    "concreteType": null,
+                    "concreteType": "PageInfo",
                     "plural": false,
                     "selections": [
                       {
@@ -270,7 +270,7 @@ fragment FeedbackText_feedback on Feedback {
           "value": 10
         }
       ],
-      "concreteType": null,
+      "concreteType": "CommentsConnection",
       "plural": false,
       "selections": [
         {
@@ -278,7 +278,7 @@ fragment FeedbackText_feedback on Feedback {
           "alias": null,
           "name": "edges",
           "args": null,
-          "concreteType": null,
+          "concreteType": "CommentsEdge",
           "plural": true,
           "selections": [
             {
@@ -286,7 +286,7 @@ fragment FeedbackText_feedback on Feedback {
               "alias": null,
               "name": "node",
               "args": null,
-              "concreteType": null,
+              "concreteType": "Comment",
               "plural": false,
               "selections": [
                 {
@@ -307,7 +307,7 @@ fragment FeedbackText_feedback on Feedback {
           "alias": null,
           "name": "pageInfo",
           "args": null,
-          "concreteType": null,
+          "concreteType": "PageInfo",
           "plural": false,
           "selections": [
             {
@@ -338,7 +338,7 @@ fragment FeedbackText_feedback on Feedback {
       "alias": null,
       "name": "body",
       "args": null,
-      "concreteType": null,
+      "concreteType": "Text",
       "plural": false,
       "selections": [
         {

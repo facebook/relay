@@ -31,7 +31,7 @@ query NodeQuery($id: ID!, $last: Int, $first: Int) {
   }
 }
 ==================================== OUTPUT ===================================
-(function(){
+(function () {
 var v0 = [
   {
     "defaultValue": null,

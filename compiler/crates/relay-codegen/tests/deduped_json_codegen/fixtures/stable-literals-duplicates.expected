@@ -14,7 +14,7 @@ query StableLiteralsTest {
 }
 ==================================== OUTPUT ===================================
 Operation:
-(function(){
+(function () {
 var v0 = [
   {
     "kind": "Literal",

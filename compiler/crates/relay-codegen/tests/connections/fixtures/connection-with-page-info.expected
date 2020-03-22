@@ -15,7 +15,7 @@ fragment Example on User {
   }
 }
 ==================================== OUTPUT ===================================
-(function(){
+(function () {
 var v0 = [
   {
     "kind": "Variable",

@@ -108,7 +108,7 @@ impl DedupedJSONPrinter {
         self.dupes_count = self.get_dupes_count();
 
         if self.dupes_count > 0 {
-            writeln!(dest_buffer, "(function(){{")?;
+            writeln!(dest_buffer, "(function () {{")?;
             self.print_js_vars(dest_buffer, deduped_value_key, true)?;
             write!(dest_buffer, "return ")?;
         }
@@ -518,7 +518,7 @@ mod tests {
               {"args": [], "values": [], "dupe1": {"key": []}, "dupe2": {"key": []}}
             );
             let expected = r#"
-(function(){
+(function () {
 var v0 = {
   "key": ([]/*: any*/)
 };
@@ -540,7 +540,7 @@ return {
               [1, {"name": "id"}, {"friend": [{"name": "id"}]}]
             );
             let expected = r#"
-(function(){
+(function () {
 var v0 = {
   "name": "id"
 };
@@ -564,7 +564,7 @@ return [
             let obj = json!({"name": "id"});
             let data = json!([obj, obj]);
             let expected = r#"
-(function(){
+(function () {
 var v0 = {
   "name": "id"
 };
@@ -588,7 +588,7 @@ return [
               [{"name": "id", "alias": "other"}],
             ]);
             let expected = r#"
-(function(){
+(function () {
 var v0 = {
   "alias": null,
   "name": "id"

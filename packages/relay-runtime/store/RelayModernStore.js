@@ -173,10 +173,10 @@ class RelayModernStore implements Store {
         operationLastWrittenAt == null ||
         operationLastWrittenAt <= globalInvalidationEpoch
       ) {
-        // If the operation was written /before/ global invalidation ocurred,
+        // If the operation was written /before/ global invalidation occurred,
         // or if this operation has never been written to the store before,
         // we will consider the data for this operation to be stale
-        //  (i.e. not resolvable from the store).
+        // (i.e. not resolvable from the store).
         return {status: 'stale'};
       }
     }
@@ -192,7 +192,7 @@ class RelayModernStore implements Store {
       this._getDataID,
     );
 
-    return getAvailablityStatus(
+    return getAvailabilityStatus(
       operationAvailability,
       operationLastWrittenAt,
       rootEntry?.fetchTime,
@@ -238,7 +238,7 @@ class RelayModernStore implements Store {
         // all release buffer entries have a refCount of 0.
         this._releaseBuffer = this._releaseBuffer.filter(_id => _id !== id);
       }
-      // If we've previously retained this operation, inrement the refCount
+      // If we've previously retained this operation, increment the refCount
       rootEntry.refCount += 1;
     } else {
       // Otherwise create a new entry for the operation
@@ -690,18 +690,18 @@ function updateTargetFromSource(
 /**
  * Returns an OperationAvailability given the Availability returned
  * by checking an operation, and when that operation was last written to the store.
- * Specifically, the provided Availablity of a an operation will contain the
+ * Specifically, the provided Availability of an operation will contain the
  * value of when a record referenced by the operation was most recently
  * invalidated; given that value, and given when this operation was last
  * written to the store, this function will return the overall
  * OperationAvailability for the operation.
  */
-function getAvailablityStatus(
-  opearionAvailability: Availability,
+function getAvailabilityStatus(
+  operationAvailability: Availability,
   operationLastWrittenAt: ?number,
   operationFetchTime: ?number,
 ): OperationAvailability {
-  const {mostRecentlyInvalidatedAt, status} = opearionAvailability;
+  const {mostRecentlyInvalidatedAt, status} = operationAvailability;
   if (typeof mostRecentlyInvalidatedAt === 'number') {
     // If some record referenced by this operation is stale, then the operation itself is stale
     // if either the operation itself was never written *or* the operation was last written

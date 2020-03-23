@@ -286,8 +286,8 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
 QUERY:
 
 query TestQuery(
-  $cond: Boolean!
   $id: ID!
+  $cond: Boolean!
   $pictureSize: [Int] = [128]
 ) {
   node(id: $id) {

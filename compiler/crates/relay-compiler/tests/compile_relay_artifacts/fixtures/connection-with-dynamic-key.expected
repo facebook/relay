@@ -272,8 +272,8 @@ fragment FeedbackFragment on Feedback
 QUERY:
 
 query FeedbackQuery(
-  $commentsKey: String
   $id: ID!
+  $commentsKey: String
 ) {
   node(id: $id) {
     ...FeedbackFragment
@@ -580,10 +580,10 @@ fragment FeedbackFragment on Feedback {
 QUERY:
 
 query PaginationQuery(
+  $id: ID!
   $commentsKey: String
   $count: Int!
   $cursor: ID!
-  $id: ID!
 ) {
   node(id: $id) {
     ...FeedbackFragment_1G22uz

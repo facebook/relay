@@ -349,9 +349,9 @@ fragment UserFragment on User
 QUERY:
 
 query NodeQuery(
-  $PictureSize: [Int]!
-  $cond: Boolean!
   $id: ID!
+  $cond: Boolean!
+  $PictureSize: [Int]!
 ) {
   node(id: $id) {
     __typename

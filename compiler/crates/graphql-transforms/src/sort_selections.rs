@@ -87,15 +87,12 @@ impl<'s> Transformer for SortSelectionsTransform<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        let mut variable_definitions = operation.variable_definitions.clone();
-        variable_definitions.sort_unstable();
-
-        let selections = self.transform_selections(&operation.selections);
-        Transformed::Replace(OperationDefinition {
-            selections: selections.replace_or_else(|| operation.selections.clone()),
-            variable_definitions,
-            ..operation.clone()
-        })
+        self.transform_selections(&operation.selections)
+            .map(|selections| OperationDefinition {
+                selections,
+                ..operation.clone()
+            })
+            .into()
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {

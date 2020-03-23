@@ -207,8 +207,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 QUERY:
 
 query NameRendererQuery(
-  $fetchModule: Boolean!
   $id: ID!
+  $fetchModule: Boolean!
 ) {
   node(id: $id) {
     ...NameRendererFragment

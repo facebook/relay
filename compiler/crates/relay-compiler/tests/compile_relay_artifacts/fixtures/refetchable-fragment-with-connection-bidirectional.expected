@@ -106,37 +106,6 @@ fragment PaginationFragment on Node
               "plural": true,
               "selections": [
                 {
-                  "kind": "InlineFragment",
-                  "type": "FriendsEdge",
-                  "selections": [
-                    {
-                      "kind": "LinkedField",
-                      "alias": null,
-                      "name": "node",
-                      "args": null,
-                      "concreteType": "User",
-                      "plural": false,
-                      "selections": [
-                        {
-                          "kind": "ScalarField",
-                          "alias": null,
-                          "name": "__typename",
-                          "args": null,
-                          "storageKey": null
-                        }
-                      ],
-                      "storageKey": null
-                    },
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "name": "cursor",
-                      "args": null,
-                      "storageKey": null
-                    }
-                  ]
-                },
-                {
                   "kind": "LinkedField",
                   "alias": null,
                   "name": "node",
@@ -147,11 +116,25 @@ fragment PaginationFragment on Node
                     {
                       "kind": "ScalarField",
                       "alias": null,
+                      "name": "__typename",
+                      "args": null,
+                      "storageKey": null
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
                       "name": "id",
                       "args": null,
                       "storageKey": null
                     }
                   ],
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "cursor",
+                  "args": null,
                   "storageKey": null
                 }
               ],

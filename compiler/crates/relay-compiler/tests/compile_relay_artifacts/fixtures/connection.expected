@@ -98,37 +98,6 @@ query NodeQuery($id: ID!) {
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsEdge",
-                        "selections": [
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "cursor",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
-                      },
-                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "node",
@@ -167,37 +136,6 @@ query NodeQuery($id: ID!) {
                                     "plural": true,
                                     "selections": [
                                       {
-                                        "kind": "InlineFragment",
-                                        "type": "FriendsEdge",
-                                        "selections": [
-                                          {
-                                            "kind": "LinkedField",
-                                            "alias": null,
-                                            "name": "node",
-                                            "args": null,
-                                            "concreteType": "User",
-                                            "plural": false,
-                                            "selections": [
-                                              {
-                                                "kind": "ScalarField",
-                                                "alias": null,
-                                                "name": "__typename",
-                                                "args": null,
-                                                "storageKey": null
-                                              }
-                                            ],
-                                            "storageKey": null
-                                          },
-                                          {
-                                            "kind": "ScalarField",
-                                            "alias": null,
-                                            "name": "cursor",
-                                            "args": null,
-                                            "storageKey": null
-                                          }
-                                        ]
-                                      },
-                                      {
                                         "kind": "LinkedField",
                                         "alias": null,
                                         "name": "node",
@@ -208,11 +146,25 @@ query NodeQuery($id: ID!) {
                                           {
                                             "kind": "ScalarField",
                                             "alias": null,
+                                            "name": "__typename",
+                                            "args": null,
+                                            "storageKey": null
+                                          },
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
                                             "name": "name",
                                             "args": null,
                                             "storageKey": null
                                           }
                                         ],
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "name": "cursor",
+                                        "args": null,
                                         "storageKey": null
                                       }
                                     ],
@@ -270,8 +222,22 @@ query NodeQuery($id: ID!) {
                               }
                             ],
                             "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
                           }
                         ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
                         "storageKey": null
                       }
                     ],
@@ -387,44 +353,6 @@ query NodeQuery($id: ID!) {
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsEdge",
-                        "selections": [
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "cursor",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
-                      },
-                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "node",
@@ -463,44 +391,6 @@ query NodeQuery($id: ID!) {
                                     "plural": true,
                                     "selections": [
                                       {
-                                        "kind": "InlineFragment",
-                                        "type": "FriendsEdge",
-                                        "selections": [
-                                          {
-                                            "kind": "LinkedField",
-                                            "alias": null,
-                                            "name": "node",
-                                            "args": null,
-                                            "concreteType": "User",
-                                            "plural": false,
-                                            "selections": [
-                                              {
-                                                "kind": "ScalarField",
-                                                "alias": null,
-                                                "name": "__typename",
-                                                "args": null,
-                                                "storageKey": null
-                                              },
-                                              {
-                                                "kind": "ScalarField",
-                                                "alias": null,
-                                                "name": "id",
-                                                "args": null,
-                                                "storageKey": null
-                                              }
-                                            ],
-                                            "storageKey": null
-                                          },
-                                          {
-                                            "kind": "ScalarField",
-                                            "alias": null,
-                                            "name": "cursor",
-                                            "args": null,
-                                            "storageKey": null
-                                          }
-                                        ]
-                                      },
-                                      {
                                         "kind": "LinkedField",
                                         "alias": null,
                                         "name": "node",
@@ -508,6 +398,13 @@ query NodeQuery($id: ID!) {
                                         "concreteType": "User",
                                         "plural": false,
                                         "selections": [
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "name": "__typename",
+                                            "args": null,
+                                            "storageKey": null
+                                          },
                                           {
                                             "kind": "ScalarField",
                                             "alias": null,
@@ -523,6 +420,13 @@ query NodeQuery($id: ID!) {
                                             "storageKey": null
                                           }
                                         ],
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "name": "cursor",
+                                        "args": null,
                                         "storageKey": null
                                       }
                                     ],
@@ -583,11 +487,25 @@ query NodeQuery($id: ID!) {
                           {
                             "kind": "ScalarField",
                             "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
                             "name": "id",
                             "args": null,
                             "storageKey": null
                           }
                         ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
                         "storageKey": null
                       }
                     ],
@@ -660,28 +578,16 @@ query NodeQuery(
     ... on Story {
       comments(first: 10) {
         edges {
-          ... on CommentsEdge {
-            node {
-              __typename
-              id
-            }
-            cursor
-          }
           node {
             actor {
               friends(first: 10) {
                 edges {
-                  ... on FriendsEdge {
-                    node {
-                      __typename
-                      id
-                    }
-                    cursor
-                  }
                   node {
+                    __typename
                     id
                     name
                   }
+                  cursor
                 }
                 pageInfo {
                   endCursor
@@ -692,8 +598,10 @@ query NodeQuery(
               id
               name
             }
+            __typename
             id
           }
+          cursor
         }
         pageInfo {
           endCursor

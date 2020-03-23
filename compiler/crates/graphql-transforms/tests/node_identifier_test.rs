@@ -126,8 +126,8 @@ fn test_inline_fragments() {
             "#
     ));
 
-    assert!(are_selections_equal(
-        // We don't compare directives for inline fragments
+    assert!(!are_selections_equal(
+        // We compare directives for inline fragments in Rust
         r#"
                 fragment Left on Actor {
                     ... on User @defer(label: "Zuck") {

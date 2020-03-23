@@ -54,6 +54,7 @@ impl PartialEq for NodeIdentifier {
             }
             (NodeIdentifier::InlineFragment(l), NodeIdentifier::InlineFragment(r)) => {
                 l.type_condition == r.type_condition
+                    && l.directives.location_agnostic_eq(&r.directives)
             }
             (NodeIdentifier::Condition(l), NodeIdentifier::Condition(r)) => {
                 l.passing_value == r.passing_value && l.value.location_agnostic_eq(&r.value)
@@ -78,6 +79,7 @@ impl Hash for NodeIdentifier {
             }
             NodeIdentifier::InlineFragment(v) => {
                 v.type_condition.hash(state);
+                v.directives.location_agnostic_hash(state);
             }
             NodeIdentifier::Condition(v) => {
                 v.passing_value.hash(state);

@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+fragment TestFragment on User {
+  ... @defer {
+    lastName
+  }
+  ... @defer {
+    firstName
+  }
+  ... @__clientExtension {
+    firstName
+  }
+  ... @__clientExtension {
+    lastName
+  }
+  ... @__clientExtension(label: "123", if: false) {
+    lastName
+  }
+  ... @__clientExtension(label: "123", if: false) {
+    firstName
+  }
+  ... @__clientExtension(label: "123", if: true) {
+    lastName
+  }
+  ... @__clientExtension(label: "123", if: false) {
+    firstName
+  }
+  ... @serverInlineDirective {
+    lastName
+  }
+  ... @serverInlineDirective {
+    firstName
+  }
+}
+==================================== OUTPUT ===================================
+fragment TestFragment on User {
+  ... @__clientExtension {
+    firstName
+    lastName
+  }
+  ... @__clientExtension(label: "123", if: false) {
+    firstName
+    lastName
+  }
+  ... @__clientExtension(label: "123", if: true) {
+    lastName
+  }
+  ... @defer {
+    firstName
+    lastName
+  }
+  firstName
+  lastName
+}

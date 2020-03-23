@@ -74,37 +74,6 @@ fragment RefetchableConnection_feedback on Feedback
           "plural": true,
           "selections": [
             {
-              "kind": "InlineFragment",
-              "type": "CommentsEdge",
-              "selections": [
-                {
-                  "kind": "LinkedField",
-                  "alias": null,
-                  "name": "node",
-                  "args": null,
-                  "concreteType": "Comment",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "name": "__typename",
-                      "args": null,
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "cursor",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            },
-            {
               "kind": "LinkedField",
               "alias": null,
               "name": "node",
@@ -112,6 +81,13 @@ fragment RefetchableConnection_feedback on Feedback
               "concreteType": "Comment",
               "plural": false,
               "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "__typename",
+                  "args": null,
+                  "storageKey": null
+                },
                 {
                   "kind": "ScalarField",
                   "alias": null,

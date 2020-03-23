@@ -146,44 +146,6 @@ fragment FeedbackFragment on Feedback
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsEdge",
-                        "selections": [
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "cursor",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
-                      },
-                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "node",
@@ -194,11 +156,25 @@ fragment FeedbackFragment on Feedback
                           {
                             "kind": "ScalarField",
                             "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
                             "name": "id",
                             "args": null,
                             "storageKey": null
                           }
                         ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
                         "storageKey": null
                       }
                     ],
@@ -285,16 +261,11 @@ query FeedbackQuery(
 fragment FeedbackFragment on Feedback {
   comments(after: null, first: 2, orderby: "date") {
     edges {
-      ... on CommentsEdge {
-        node {
-          __typename
-          id
-        }
-        cursor
-      }
       node {
+        __typename
         id
       }
+      cursor
     }
     pageInfo {
       endCursor
@@ -454,44 +425,6 @@ fragment FeedbackFragment on Feedback {
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsEdge",
-                        "selections": [
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "cursor",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ]
-                      },
-                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "node",
@@ -502,11 +435,25 @@ fragment FeedbackFragment on Feedback {
                           {
                             "kind": "ScalarField",
                             "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
                             "name": "id",
                             "args": null,
                             "storageKey": null
                           }
                         ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
                         "storageKey": null
                       }
                     ],
@@ -595,16 +542,11 @@ query PaginationQuery(
 fragment FeedbackFragment_1G22uz on Feedback {
   comments(after: $cursor, first: $count, orderby: "date") {
     edges {
-      ... on CommentsEdge {
-        node {
-          __typename
-          id
-        }
-        cursor
-      }
       node {
+        __typename
         id
       }
+      cursor
     }
     pageInfo {
       endCursor
@@ -683,37 +625,6 @@ fragment FeedbackFragment_1G22uz on Feedback {
           "plural": true,
           "selections": [
             {
-              "kind": "InlineFragment",
-              "type": "CommentsEdge",
-              "selections": [
-                {
-                  "kind": "LinkedField",
-                  "alias": null,
-                  "name": "node",
-                  "args": null,
-                  "concreteType": "Comment",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "name": "__typename",
-                      "args": null,
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "cursor",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            },
-            {
               "kind": "LinkedField",
               "alias": null,
               "name": "node",
@@ -724,11 +635,25 @@ fragment FeedbackFragment_1G22uz on Feedback {
                 {
                   "kind": "ScalarField",
                   "alias": null,
+                  "name": "__typename",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
                   "name": "id",
                   "args": null,
                   "storageKey": null
                 }
               ],
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "cursor",
+              "args": null,
               "storageKey": null
             }
           ],

@@ -88,35 +88,29 @@ query NodeQuery($id: ID!) {
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsEdge",
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "node",
+                        "args": null,
+                        "concreteType": "Comment",
+                        "plural": false,
                         "selections": [
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "node",
-                            "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          },
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "cursor",
+                            "name": "__typename",
                             "args": null,
                             "storageKey": null
                           }
-                        ]
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
+                        "storageKey": null
                       }
                     ],
                     "storageKey": null
@@ -231,42 +225,36 @@ query NodeQuery($id: ID!) {
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "type": "CommentsEdge",
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "node",
+                        "args": null,
+                        "concreteType": "Comment",
+                        "plural": false,
                         "selections": [
                           {
-                            "kind": "LinkedField",
+                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "node",
+                            "name": "__typename",
                             "args": null,
-                            "concreteType": "Comment",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ],
                             "storageKey": null
                           },
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "cursor",
+                            "name": "id",
                             "args": null,
                             "storageKey": null
                           }
-                        ]
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
+                        "storageKey": null
                       }
                     ],
                     "storageKey": null
@@ -338,13 +326,11 @@ query NodeQuery(
     ... on Story {
       comments(first: 10) {
         edges {
-          ... on CommentsEdge {
-            node {
-              __typename
-              id
-            }
-            cursor
+          node {
+            __typename
+            id
           }
+          cursor
         }
         pageInfo {
           endCursor

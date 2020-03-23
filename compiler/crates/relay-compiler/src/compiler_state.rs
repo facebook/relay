@@ -54,8 +54,25 @@ impl GraphQLSources {
         self.grouped_sources.iter()
     }
 
-    fn set_sources(&mut self, source_set_name: SourceSetName, sources: GraphQLSourceSet) {
+    fn has_sources(&self) -> bool {
+        !self.grouped_sources.is_empty()
+    }
+
+    fn set_source_set(&mut self, source_set_name: SourceSetName, sources: GraphQLSourceSet) {
         self.grouped_sources.insert(source_set_name, sources);
+    }
+
+    fn merge_pending_graphql_sources(&mut self, pending_graphql_sources: &GraphQLSources) {
+        for (source_set_name, pending_source_set) in pending_graphql_sources.all_sources() {
+            let base_source_set = self
+                .grouped_sources
+                .entry(*source_set_name)
+                .or_insert_with(HashMap::new);
+
+            for (file_name, pending_file_state) in pending_source_set.iter() {
+                base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
+            }
+        }
     }
 }
 
@@ -75,9 +92,9 @@ pub struct CompilerState {
 impl CompilerState {
     pub fn from_file_source_changes(
         config: &Config,
-        file_source_result: &FileSourceResult,
+        file_source_changes: &FileSourceResult,
     ) -> Result<Self> {
-        let categorized = categorize_files(config, &file_source_result.files);
+        let categorized = categorize_files(config, &file_source_changes.files);
 
         let pending_artifacts = HashMap::new();
         let mut pending_schemas = HashMap::new();
@@ -103,7 +120,7 @@ impl CompilerState {
                             }
 
                             match extract_graphql_strings_from_file(
-                                &file_source_result.resolved_root,
+                                &file_source_changes.resolved_root,
                                 &file,
                             ) {
                                 // NOTE: Some of the JS files might not contain any graphql, so we
@@ -123,19 +140,19 @@ impl CompilerState {
                         })
                         .collect::<Result<HashMap<FilePath, FileState>>>()?;
                     extract_timer.stop();
-                    pending_graphql_sources.set_sources(source_set_name, sources);
+                    pending_graphql_sources.set_source_set(source_set_name, sources);
                 }
                 FileGroup::Schema { project_name } => {
                     let schema_sources = files
                         .iter()
-                        .map(|file| read_to_string(&file_source_result.resolved_root, file))
+                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
                         .collect::<Result<Vec<String>>>()?;
                     pending_schemas.insert(project_name, schema_sources);
                 }
                 FileGroup::Extension { project_name } => {
                     let extension_sources: Vec<String> = files
                         .iter()
-                        .map(|file| read_to_string(&file_source_result.resolved_root, file))
+                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
                         .collect::<Result<Vec<String>>>()?;
                     pending_extensions.insert(project_name, extension_sources);
                 }
@@ -152,5 +169,38 @@ impl CompilerState {
             extensions: pending_extensions,
             schemas: pending_schemas,
         })
+    }
+
+    /// Merges the provided changes from the file source into the compiler state.
+    /// Returns a boolean indicating if any changes were merged.
+    pub fn merge_file_source_changes(
+        &mut self,
+        config: &Config,
+        file_source_changes: &FileSourceResult,
+    ) -> Result<bool> {
+        let pending_compiler_state =
+            CompilerState::from_file_source_changes(config, file_source_changes)?;
+
+        if !pending_compiler_state.schemas.is_empty() {
+            // TODO support watching schema changes
+            panic!("Watching for changes in schema files in unsupported");
+        }
+        if !pending_compiler_state.extensions.is_empty() {
+            // TODO support watching extension changes
+            panic!("Watching for changes in extensions files in unsupported");
+        }
+
+        let pending_graphql_sources = pending_compiler_state.graphql_sources;
+        if !pending_graphql_sources.has_sources() {
+            // If there are no source changes, don't notify the subscriber of changes,
+            // otherwise we'll enter an infinite loop if we don't handle artifact
+            // changes
+            // TODO support watching artifact changes
+            return Ok(false);
+        }
+
+        self.graphql_sources
+            .merge_pending_graphql_sources(&pending_graphql_sources);
+        Ok(true)
     }
 }

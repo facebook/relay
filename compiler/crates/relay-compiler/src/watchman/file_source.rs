@@ -19,6 +19,7 @@ pub struct FileSource<'config> {
     resolved_root: ResolvedRoot,
 }
 
+#[derive(Debug)]
 pub struct FileSourceResult {
     pub files: Vec<WatchmanFile>,
     pub resolved_root: ResolvedRoot,

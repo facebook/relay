@@ -9,7 +9,7 @@ use crate::build_project::build_project;
 use crate::compiler_state::{CompilerState, SourceSetName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
-use crate::watchman::{categorize_files, FileGroup, FileSource};
+use crate::watchman::FileSource;
 use common::{FileKey, Timer};
 use fnv::FnvHashMap;
 use graphql_ir::Sources;
@@ -43,7 +43,7 @@ impl Compiler {
     pub async fn watch(&self) -> Result<()> {
         let file_source = FileSource::connect(&self.config).await?;
         let initial_file_source_result = file_source.query().await?;
-        let compiler_state =
+        let mut compiler_state =
             CompilerState::from_file_source_changes(&self.config, &initial_file_source_result)?;
 
         let (ast_sets, sources) = Timer::time("ast_sets", || self.parse_ast_sets(&compiler_state))?;
@@ -53,11 +53,14 @@ impl Compiler {
         let mut subscription = file_source.subscribe(initial_file_source_result).await?;
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
-                let categorized = categorize_files(&self.config, &file_source_changes.files);
-                for (group, files) in categorized {
-                    if group != FileGroup::Generated {
-                        println!("Updated {:?}: {:#?}", group, files);
-                    }
+                let had_changes =
+                    compiler_state.merge_file_source_changes(&self.config, &file_source_changes)?;
+
+                if had_changes {
+                    let (ast_sets, sources) =
+                        Timer::time("ast_sets", || self.parse_ast_sets(&compiler_state))?;
+                    self.build_projects(&compiler_state, &ast_sets, &sources)
+                        .await?;
                 }
             }
         }

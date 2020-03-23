@@ -10,7 +10,7 @@ use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::config::{Config, SchemaLocation};
 use common::Timer;
 use std::cmp::Reverse;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::path::{Component, PathBuf};
 
@@ -49,7 +49,8 @@ pub fn categorize_files(
 /// specific source file group or generated files from some project.
 struct FileCategorizer {
     extensions_mapping: PathMapping<ProjectName>,
-    generated_str: &'static OsStr,
+    default_generated_dir: &'static OsStr,
+    generated_dir_paths: HashSet<PathBuf>,
     source_mapping: PathMapping<SourceSetName>,
     schema_file_mapping: HashMap<PathBuf, ProjectName>,
     schema_dir_mapping: PathMapping<ProjectName>,
@@ -99,10 +100,17 @@ impl FileCategorizer {
                 .collect(),
         );
 
-        let generated_str = OsStr::new("__generated__");
+        let default_generated_dir = OsStr::new("__generated__");
+        let generated_dir_paths: HashSet<PathBuf> = config
+            .projects
+            .iter()
+            .filter_map(|(_, project_config)| project_config.output.clone())
+            .collect();
+
         Self {
             extensions_mapping,
-            generated_str,
+            default_generated_dir,
+            generated_dir_paths,
             schema_file_mapping,
             schema_dir_mapping,
             source_mapping: PathMapping(source_mapping),
@@ -114,7 +122,7 @@ impl FileCategorizer {
             .extension()
             .unwrap_or_else(|| panic!("Got unexpected path without extension: `{:?}`.", path));
         if extension == "js" {
-            if self.in_relative_generated_dir(path) {
+            if self.in_generated_dir(path) {
                 FileGroup::Generated
             } else {
                 let source_set_name = self.source_mapping.get(path);
@@ -141,9 +149,19 @@ impl FileCategorizer {
         }
     }
 
+    fn in_generated_dir(&self, path: &PathBuf) -> bool {
+        self.in_absolute_generated_dir(path) || self.in_relative_generated_dir(path)
+    }
+
+    fn in_absolute_generated_dir(&self, path: &PathBuf) -> bool {
+        self.generated_dir_paths
+            .iter()
+            .any(|generated_dir_path| path.starts_with(generated_dir_path))
+    }
+
     fn in_relative_generated_dir(&self, path: &PathBuf) -> bool {
         path.components().any(|comp| match comp {
-            Component::Normal(comp) => comp == self.generated_str,
+            Component::Normal(comp) => comp == self.default_generated_dir,
             _ => false,
         })
     }
@@ -180,7 +198,8 @@ mod tests {
                     "sources": {
                         "src/js": "public",
                         "src/js/internal": "internal",
-                        "src/vendor": "public"
+                        "src/vendor": "public",
+                        "src/custom": "with_custom_generated_dir"
                     },
                     "projects": {
                         "public": {
@@ -188,6 +207,10 @@ mod tests {
                         },
                         "internal": {
                             "schema": "graphql/__generated__/internal.graphql"
+                        },
+                        "with_custom_generated_dir": {
+                            "schema": "graphql/__generated__/custom.graphql",
+                            "output": "graphql/custom-generated"
                         }
                     }
                 }
@@ -215,7 +238,21 @@ mod tests {
             },
         );
         assert_eq!(
+            // When custom output dir is provided, path is correctly categorized
+            // even if it has same dirname in path as custom output folder.
+            // Path is only categorized as generated if it matches the absolute path
+            // of the provided custom output.
+            categorizer.categorize(&"src/custom/custom-generated/c.js".into()),
+            FileGroup::Source {
+                source_set_name: "with_custom_generated_dir".intern(),
+            },
+        );
+        assert_eq!(
             categorizer.categorize(&"src/js/internal/nested/__generated__/c.js".into()),
+            FileGroup::Generated,
+        );
+        assert_eq!(
+            categorizer.categorize(&"graphql/custom-generated/c.js".into()),
             FileGroup::Generated,
         );
         assert_eq!(

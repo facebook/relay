@@ -192,13 +192,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                   }
                 ],
                 "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
               }
             ]
           },

@@ -33,33 +33,46 @@ extend type FriendsEdge {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "client_friends",
-      "args": null,
-      "concreteType": "FriendsConnection",
-      "plural": false,
+      "kind": "ClientExtension",
       "selections": [
         {
           "kind": "LinkedField",
           "alias": null,
-          "name": "edges",
+          "name": "client_friends",
           "args": null,
-          "concreteType": "FriendsEdge",
-          "plural": true,
+          "concreteType": "FriendsConnection",
+          "plural": false,
           "selections": [
             {
               "kind": "LinkedField",
               "alias": null,
-              "name": "node",
+              "name": "edges",
               "args": null,
-              "concreteType": "User",
-              "plural": false,
+              "concreteType": "FriendsEdge",
+              "plural": true,
               "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "node",
+                  "args": null,
+                  "concreteType": "User",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "id",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                },
                 {
                   "kind": "ScalarField",
                   "alias": null,
-                  "name": "id",
+                  "name": "client_friend_edge_field",
                   "args": null,
                   "storageKey": null
                 }
@@ -67,35 +80,27 @@ extend type FriendsEdge {
               "storageKey": null
             },
             {
-              "kind": "ScalarField",
+              "kind": "LinkedField",
               "alias": null,
-              "name": "client_friend_edge_field",
+              "name": "pageInfo",
               "args": null,
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "pageInfo",
-          "args": null,
-          "concreteType": "PageInfo",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "hasNextPage",
-              "args": null,
+              "concreteType": "PageInfo",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "hasNextPage",
+                  "args": null,
+                  "storageKey": null
+                }
+              ],
               "storageKey": null
             }
           ],
           "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "ScalarField",

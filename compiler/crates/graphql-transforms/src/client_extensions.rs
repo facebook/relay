@@ -7,18 +7,23 @@
 
 use crate::util::PointerAddress;
 use common::{FileKey, Location, Span, WithLocation};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Directive, FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection,
-    Transformed, TransformedValue, Transformer,
+    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
+    ScalarField, Selection, Transformed, TransformedValue, Transformer,
 };
 use interner::Intern;
 use interner::StringKey;
 use std::sync::Arc;
 
-/// Transform to skip IR nodes if they are extensions
-pub fn client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
-    let mut transform = ClientExtensionsTransform::new(program);
+/// A transform that group all client selections and generates ... @__clientExtension inline fragments
+/// the generated result is used by codegen only to generate `ClientExtension` nodes.
+/// We mark client selection as  `Transformed::Delete`, and consume them in `transform_selections`.
+pub fn client_extensions<'s>(
+    program: &Program<'s>,
+    base_fragment_names: &FnvHashSet<StringKey>,
+) -> Program<'s> {
+    let mut transform = ClientExtensionsTransform::new(program, base_fragment_names);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -38,16 +43,18 @@ impl Default for ClientExtensionConstants {
     }
 }
 
-struct ClientExtensionsTransform<'s> {
+struct ClientExtensionsTransform<'s, 'b> {
+    base_fragment_names: &'b FnvHashSet<StringKey>,
     client_extension_constants: ClientExtensionConstants,
     program: &'s Program<'s>,
     empty_location: Location,
     seen: Seen,
 }
 
-impl<'s> ClientExtensionsTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'s, 'b> ClientExtensionsTransform<'s, 'b> {
+    fn new(program: &'s Program<'s>, base_fragment_names: &'b FnvHashSet<StringKey>) -> Self {
         Self {
+            base_fragment_names,
             client_extension_constants: Default::default(),
             program,
             seen: Default::default(),
@@ -69,13 +76,22 @@ impl<'s> ClientExtensionsTransform<'s> {
     }
 }
 
-/// A transform that group all client selections and generates ... @__clientExtension inline fragments
-/// the generated result is used by codegen only to generate `ClientExtension` nodes.
-/// We mark client selection as  `Transformed::Delete`, and consume them in `transform_selections`.
-impl<'s> Transformer for ClientExtensionsTransform<'s> {
+impl<'s, 'b> Transformer for ClientExtensionsTransform<'s, 'b> {
     const NAME: &'static str = "ClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    // Skip processing base fragments
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        if self.base_fragment_names.contains(&fragment.name.item) {
+            Transformed::Keep
+        } else {
+            self.default_transform_fragment(fragment)
+        }
+    }
 
     fn transform_selections(
         &mut self,

@@ -207,13 +207,6 @@ fragment FeedbackFragment on Feedback
                   }
                 ],
                 "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
               }
             ]
           },
@@ -485,13 +478,6 @@ fragment FeedbackFragment on Feedback {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
                 "storageKey": null
               }
             ]

@@ -8,9 +8,9 @@
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    apply_fragment_arguments, flatten, generate_id_field, generate_typename, inline_fragments,
-    mask, remove_base_fragments, skip_client_extensions, skip_unreachable_node, sort_selections,
-    transform_connections, ConnectionInterface,
+    apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
+    inline_fragments, mask, remove_base_fragments, skip_client_extensions, skip_redundant_nodes,
+    skip_unreachable_node, sort_selections, transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -74,6 +74,7 @@ fn apply_reader_transforms<'schema>(
     // - FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
 
+    let program = client_extensions(&program, base_fragment_names);
     let program = remove_base_fragments(&program, base_fragment_names);
     let program = flatten(&program, true);
     sort_selections(&program)
@@ -113,7 +114,9 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
 
     let program = skip_unreachable_node(&program);
     let program = inline_fragments(&program);
+    let program = client_extensions(&program, &Default::default());
     let program = flatten(&program, true);
+    let program = skip_redundant_nodes(&program);
     let program = generate_typename(&program);
     sort_selections(&program)
 }

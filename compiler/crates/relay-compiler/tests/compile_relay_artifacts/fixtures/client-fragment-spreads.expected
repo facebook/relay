@@ -28,11 +28,16 @@ type ClientType {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "client_field",
-      "args": null,
-      "storageKey": null
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
     }
   ]
 }
@@ -45,20 +50,25 @@ type ClientType {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "foo",
-      "args": null,
-      "concreteType": "ClientType",
-      "plural": false,
+      "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "FragmentSpread",
-          "name": "ClientTypeFragment",
-          "args": null
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "args": null,
+          "concreteType": "ClientType",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment",
+              "args": null
+            }
+          ],
+          "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "ScalarField",

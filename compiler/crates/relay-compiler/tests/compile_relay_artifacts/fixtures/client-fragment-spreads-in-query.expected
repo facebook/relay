@@ -97,29 +97,27 @@ type ClientType {
             "type": "User",
             "selections": [
               {
-                "kind": "LinkedField",
-                "alias": null,
-                "name": "foo",
-                "args": null,
-                "concreteType": "ClientType",
-                "plural": false,
+                "kind": "ClientExtension",
                 "selections": [
                   {
-                    "kind": "ScalarField",
+                    "kind": "LinkedField",
                     "alias": null,
-                    "name": "client_field",
+                    "name": "foo",
                     "args": null,
+                    "concreteType": "ClientType",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "client_field",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ],
                     "storageKey": null
                   }
-                ],
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
+                ]
               }
             ]
           },
@@ -175,11 +173,16 @@ fragment Foo_user on User {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "client_field",
-      "args": null,
-      "storageKey": null
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
     }
   ]
 }
@@ -192,20 +195,25 @@ fragment Foo_user on User {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "foo",
-      "args": null,
-      "concreteType": "ClientType",
-      "plural": false,
+      "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "FragmentSpread",
-          "name": "ClientTypeFragment",
-          "args": null
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "args": null,
+          "concreteType": "ClientType",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment",
+              "args": null
+            }
+          ],
+          "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "ScalarField",

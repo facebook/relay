@@ -21,7 +21,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         let schema = test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(&schema, ir);
-        let next_program = client_extensions(&program);
+        let next_program = client_extensions(&program, &Default::default());
 
         let mut printed = next_program
             .operations()

@@ -94,19 +94,6 @@ query UnionQuery {
         "selections": [
           {
             "kind": "InlineFragment",
-            "type": "FakeNode",
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
-              }
-            ]
-          },
-          {
-            "kind": "InlineFragment",
             "type": "NonNode",
             "selections": [
               {
@@ -138,13 +125,6 @@ query UnionQuery {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
                 "storageKey": null
               }
             ]

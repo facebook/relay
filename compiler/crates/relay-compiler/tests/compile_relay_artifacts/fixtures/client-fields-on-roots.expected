@@ -52,6 +52,18 @@ extend type Subscription {
     ],
     "selections": [
       {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "client_root_field",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "unfriend",
@@ -73,13 +85,6 @@ extend type Subscription {
             "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "client_root_field",
-        "args": null,
         "storageKey": null
       }
     ]
@@ -97,6 +102,18 @@ extend type Subscription {
     ],
     "selections": [
       {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "client_root_field",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "unfriend",
@@ -118,13 +135,6 @@ extend type Subscription {
             "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "client_root_field",
-        "args": null,
         "storageKey": null
       }
     ]
@@ -165,6 +175,18 @@ mutation FooMutation(
     ],
     "selections": [
       {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "client_root_field",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "node",
@@ -187,13 +209,6 @@ mutation FooMutation(
           }
         ],
         "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "client_root_field",
-        "args": null,
-        "storageKey": null
       }
     ]
   },
@@ -209,6 +224,18 @@ mutation FooMutation(
       }
     ],
     "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "client_root_field",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
       {
         "kind": "LinkedField",
         "alias": null,
@@ -238,13 +265,6 @@ mutation FooMutation(
             "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "client_root_field",
-        "args": null,
         "storageKey": null
       }
     ]
@@ -286,6 +306,18 @@ query FooQuery(
     ],
     "selections": [
       {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "client_root_field",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "feedbackLikeSubscribe",
@@ -307,13 +339,6 @@ query FooQuery(
             "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "client_root_field",
-        "args": null,
         "storageKey": null
       }
     ]
@@ -331,6 +356,18 @@ query FooQuery(
     ],
     "selections": [
       {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "client_root_field",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "feedbackLikeSubscribe",
@@ -352,13 +389,6 @@ query FooQuery(
             "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "client_root_field",
-        "args": null,
         "storageKey": null
       }
     ]

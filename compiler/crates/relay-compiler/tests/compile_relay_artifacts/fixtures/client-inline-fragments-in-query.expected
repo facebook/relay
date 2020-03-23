@@ -95,36 +95,34 @@ interface ClientNamed {
             "type": "User",
             "selections": [
               {
-                "kind": "LinkedField",
-                "alias": null,
-                "name": "foo",
-                "args": null,
-                "concreteType": null,
-                "plural": false,
+                "kind": "ClientExtension",
                 "selections": [
                   {
-                    "kind": "ScalarField",
+                    "kind": "LinkedField",
                     "alias": null,
-                    "name": "__typename",
+                    "name": "foo",
                     "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "client_name",
-                    "args": null,
+                    "concreteType": null,
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "__typename",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "client_name",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ],
                     "storageKey": null
                   }
-                ],
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
-                "storageKey": null
+                ]
               }
             ]
           },
@@ -180,22 +178,27 @@ fragment Foo_user on User {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "foo",
-      "args": null,
-      "concreteType": null,
-      "plural": false,
+      "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
+          "kind": "LinkedField",
           "alias": null,
-          "name": "client_name",
+          "name": "foo",
           "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_name",
+              "args": null,
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "ScalarField",

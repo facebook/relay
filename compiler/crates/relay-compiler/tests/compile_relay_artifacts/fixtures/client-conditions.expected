@@ -65,36 +65,41 @@ interface ClientNamed {
   ],
   "selections": [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "foo",
-      "args": null,
-      "concreteType": null,
-      "plural": false,
+      "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "Condition",
-          "passingValue": true,
-          "condition": "shouldInclude",
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "args": null,
+          "concreteType": null,
+          "plural": false,
           "selections": [
             {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name_2",
-              "args": null,
-              "storageKey": null
+              "kind": "Condition",
+              "passingValue": true,
+              "condition": "shouldInclude",
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_name",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_name_2",
+                  "args": null,
+                  "storageKey": null
+                }
+              ]
             }
-          ]
+          ],
+          "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "ScalarField",
@@ -109,6 +114,25 @@ interface ClientNamed {
       "condition": "shouldInclude",
       "selections": [
         {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_actor_field",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_nickname",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        },
+        {
           "kind": "LinkedField",
           "alias": null,
           "name": "address",
@@ -117,40 +141,31 @@ interface ClientNamed {
           "plural": false,
           "selections": [
             {
+              "kind": "ClientExtension",
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_street_address_field",
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "arg",
+                      "variableName": "arg"
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ]
+            },
+            {
               "kind": "ScalarField",
               "alias": null,
               "name": "city",
               "args": null,
               "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_street_address_field",
-              "args": [
-                {
-                  "kind": "Variable",
-                  "name": "arg",
-                  "variableName": "arg"
-                }
-              ],
-              "storageKey": null
             }
           ],
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "client_actor_field",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "client_nickname",
-          "args": null,
           "storageKey": null
         },
         {

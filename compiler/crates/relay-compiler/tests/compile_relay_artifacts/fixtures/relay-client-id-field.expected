@@ -319,13 +319,6 @@ query RelayClientIDFieldQuery($id: ID!) {
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "__id",
-                        "args": null,
-                        "storageKey": null
                       }
                     ]
                   },

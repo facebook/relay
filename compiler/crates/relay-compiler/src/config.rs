@@ -118,7 +118,7 @@ impl Config {
 
         for (&project_name, project_config) in &self.projects {
             // there should be a source for each project matching the project name
-            if !source_set_names.contains(&project_name.as_source_set_name()) {
+            if !source_set_names.contains(&project_name) {
                 errors.push(ConfigValidationError::ProjectSourceMissing { project_name });
             }
 

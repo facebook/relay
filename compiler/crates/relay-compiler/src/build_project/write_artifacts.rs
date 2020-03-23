@@ -19,7 +19,7 @@ pub fn write_artifacts(
     artifacts: &[Artifact],
 ) -> Result<(), BuildProjectError> {
     // For now, just write test projects
-    if !project_config.name.0.lookup().ends_with("-test") {
+    if !project_config.name.lookup().ends_with("-test") {
         return Ok(());
     }
 

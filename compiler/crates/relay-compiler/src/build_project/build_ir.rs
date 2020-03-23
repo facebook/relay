@@ -23,9 +23,9 @@ pub fn build_ir(
     schema: &Schema,
     ast_sets: &AstSets,
 ) -> Result<BuildIRResult, Vec<ValidationError>> {
-    let project_document_asts = ast_sets[&project_config.name.as_source_set_name()].to_vec();
+    let project_document_asts = ast_sets[&project_config.name].to_vec();
     let base_document_asts = match project_config.base {
-        Some(base_project_name) => ast_sets[&base_project_name.as_source_set_name()].clone(),
+        Some(base_project_name) => ast_sets[&base_project_name].clone(),
         None => Vec::new(),
     };
     let ReachableAst {

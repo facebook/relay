@@ -6,27 +6,27 @@
  */
 
 use super::errors::{Error, Result};
-use super::file_group::FileCategorizer;
-use super::file_group::FileGroup;
-use crate::compiler_state::{CompilerState, SourceSet, SourceSetName};
+use super::WatchmanFile;
 use crate::config::{Config, SchemaLocation};
 use common::Timer;
-use extract_graphql;
-use rayon::prelude::*;
-use serde::Deserialize;
-use std::collections::HashMap;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
 
-pub struct GraphQLFinder<'config> {
-    categorizer: FileCategorizer,
+pub struct FileSource<'config> {
     client: Client,
     config: &'config Config,
     resolved_root: ResolvedRoot,
 }
-impl<'config> GraphQLFinder<'config> {
-    pub async fn connect(config: &'config Config) -> Result<GraphQLFinder<'config>> {
+
+pub struct FileSourceResult {
+    pub files: Vec<WatchmanFile>,
+    pub resolved_root: ResolvedRoot,
+    pub clock: Clock,
+}
+
+impl<'config> FileSource<'config> {
+    pub async fn connect(config: &'config Config) -> Result<FileSource<'config>> {
         let connect_timer = Timer::start("connect");
         let client = Connector::new().connect().await?;
         let canonical_root = CanonicalPath::canonicalize(&config.root_dir).map_err(|err| {
@@ -38,10 +38,7 @@ impl<'config> GraphQLFinder<'config> {
         let resolved_root = client.resolve_root(canonical_root).await?;
         connect_timer.stop();
 
-        let categorizer = FileCategorizer::from_config(&config);
-
         Ok(Self {
-            categorizer,
             client,
             config,
             resolved_root,
@@ -49,8 +46,8 @@ impl<'config> GraphQLFinder<'config> {
     }
 
     /// Executes a point query (as opposed to a subscription) to find all files
-    /// to compile and creates a CompilerState.
-    pub async fn query(&self) -> Result<CompilerState> {
+    /// to compile and returns the result.
+    pub async fn query(&self) -> Result<FileSourceResult> {
         let roots = get_all_roots(&self.config);
         let expression = get_watchman_expr(&self.config);
 
@@ -74,61 +71,18 @@ impl<'config> GraphQLFinder<'config> {
         query_timer.stop();
 
         let files = query_result.files.ok_or_else(|| Error::EmptyQueryResult)?;
-        let categorized = self.categorize_files(files);
-
-        let mut schemas = HashMap::new();
-
-        let mut extensions = HashMap::new();
-
-        let mut source_sets: HashMap<SourceSetName, SourceSet> = HashMap::new();
-        let artifacts = HashMap::new();
-
-        for (category, files) in categorized {
-            match category {
-                FileGroup::Source { source_set } => {
-                    let extract_timer = Timer::start(format!("extract {}", source_set.0));
-                    let definitions = files
-                        .into_par_iter()
-                        .filter_map(|file| match self.extract_from_file(&file) {
-                            Ok(definitions) if definitions.is_empty() => None,
-                            Ok(definitions) => Some(Ok(((*file.name).to_owned(), definitions))),
-                            Err(err) => Some(Err(err)),
-                        })
-                        .collect::<Result<HashMap<PathBuf, Vec<String>>>>()?;
-                    source_sets.insert(source_set, SourceSet(definitions));
-                    extract_timer.stop();
-                }
-                FileGroup::Schema { project_name } => {
-                    let schema_sources = files
-                        .iter()
-                        .map(|file| self.read_to_string(file))
-                        .collect::<Result<Vec<String>>>()?;
-                    schemas.insert(project_name, schema_sources);
-                }
-                FileGroup::Extension { project_name } => {
-                    let extension_sources: Vec<String> = files
-                        .iter()
-                        .map(|file| self.read_to_string(file))
-                        .collect::<Result<Vec<String>>>()?;
-                    extensions.insert(project_name, extension_sources);
-                }
-                FileGroup::Generated => {
-                    // TODO
-                }
-            }
-        }
-
-        Ok(CompilerState {
-            artifacts,
-            extensions,
-            schemas,
-            source_sets,
+        Ok(FileSourceResult {
+            files,
+            resolved_root: self.resolved_root.clone(),
             clock: query_result.clock,
         })
     }
 
     /// Starts a subscription sending updates since the given clock.
-    pub async fn subscribe(self, clock: &Clock) -> Result<Subscription<'config>> {
+    pub async fn subscribe(
+        self,
+        file_source_result: FileSourceResult,
+    ) -> Result<FileSourceSubscription<'config>> {
         let expression = get_watchman_expr(&self.config);
 
         let (subscription, _initial) = self
@@ -137,85 +91,39 @@ impl<'config> GraphQLFinder<'config> {
                 &self.resolved_root,
                 SubscribeRequest {
                     expression: Some(expression),
-                    since: Some(clock.clone()),
+                    since: Some(file_source_result.clock.clone()),
                     ..Default::default()
                 },
             )
             .await?;
 
-        Ok(Subscription {
-            finder: self,
+        Ok(FileSourceSubscription {
+            file_source: self,
             subscription,
         })
     }
-
-    /// The watchman query returns a list of files, but for the compiler we
-    /// need to categorize these files into multiple groups of files like
-    /// schema files, extensions and sources by their SourceSet.
-    ///
-    /// See `FileGroup` for all groups of files.
-    fn categorize_files(&self, files: Vec<WatchmanFile>) -> HashMap<FileGroup, Vec<WatchmanFile>> {
-        Timer::time("categorize", || {
-            let mut categorized = HashMap::new();
-            for file in files {
-                categorized
-                    .entry(self.categorizer.categorize(&file.name))
-                    .or_insert_with(Vec::new)
-                    .push(file);
-            }
-            categorized
-        })
-    }
-
-    /// Reads and extracts `graphql` tagged literals from a file.
-    fn extract_from_file(&self, file: &WatchmanFile) -> Result<Vec<String>> {
-        let contents = self.read_to_string(file)?;
-        let definitions =
-            extract_graphql::parse_chunks(&contents).map_err(|err| Error::Syntax { error: err })?;
-        Ok(definitions
-            .iter()
-            .map(|chunk| (*chunk).to_string())
-            .collect())
-    }
-
-    /// Reads a file into a string.
-    fn read_to_string(&self, file: &WatchmanFile) -> Result<String> {
-        let mut absolute_path = self.resolved_root.path();
-        absolute_path.push(&*file.name);
-        std::fs::read_to_string(&absolute_path).map_err(|err| Error::FileRead {
-            file: absolute_path.clone(),
-            source: err,
-        })
-    }
 }
 
-query_result_type! {
-    struct WatchmanFile {
-        name: NameField,
-        exists: ExistsField,
-        hash: ContentSha1HexField,
-    }
-}
-
-pub struct Subscription<'config> {
-    finder: GraphQLFinder<'config>,
+pub struct FileSourceSubscription<'config> {
+    file_source: FileSource<'config>,
     subscription: WatchmanSubscription<WatchmanFile>,
 }
 
-impl<'config> Subscription<'config> {
-    pub async fn next_event(&mut self) -> Result<()> {
+impl<'config> FileSourceSubscription<'config> {
+    /// Awaits changes from Watchman and provides the next set of changes
+    /// if there were any changes to files
+    pub async fn next_change(&mut self) -> Result<Option<FileSourceResult>> {
         let update = self.subscription.next().await?;
         if let SubscriptionData::FilesChanged(changes) = update {
             if let Some(files) = changes.files {
-                let categorized = self.finder.categorize_files(files);
-                for (group, files) in categorized {
-                    if group != FileGroup::Generated {
-                        println!("Updated {:?}: {:#?}", group, files);
-                    }
-                }
+                return Ok(Some(FileSourceResult {
+                    files,
+                    resolved_root: self.file_source.resolved_root.clone(),
+                    clock: changes.clock,
+                }));
             }
         }
-        Ok(())
+        Ok(None)
     }
 }
 

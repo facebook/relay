@@ -23,6 +23,8 @@ pub struct Config {
     pub sources: HashMap<PathBuf, SourceSetName>,
     pub blacklist: Vec<String>,
     pub projects: HashMap<ProjectName, ConfigProject>,
+    pub header: Vec<String>,
+    pub codegen_command: Option<String>,
 }
 impl Config {
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
@@ -91,6 +93,8 @@ impl Config {
             sources: config_file.sources,
             blacklist: config_file.blacklist,
             projects,
+            header: config_file.header,
+            codegen_command: config_file.codegen_command,
         };
 
         let mut validation_errors = Vec::new();
@@ -207,8 +211,13 @@ pub enum SchemaLocation {
 
 /// Schema of the compiler configuration JSON file.
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    #[serde(default)]
+    header: Vec<String>,
+    #[serde(default)]
+    codegen_command: Option<String>,
+
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.

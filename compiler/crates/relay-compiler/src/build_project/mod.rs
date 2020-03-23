@@ -75,7 +75,8 @@ pub async fn build_project(
 
     // Generate code and persist text to produce output artifacts in memory.
     let artifacts_timer = Timer::start(format!("generate_artifacts {}", project_config.name));
-    let artifacts = generate_artifacts::generate_artifacts(project_config, &programs).await?;
+    let artifacts =
+        generate_artifacts::generate_artifacts(config, project_config, &programs).await?;
     artifacts_timer.stop();
 
     // Write the generated artifacts to disk. This step is separte from

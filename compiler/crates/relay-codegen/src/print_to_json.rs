@@ -6,6 +6,7 @@
  */
 
 use crate::build_codegen_ast::{build_fragment, build_operation, build_request};
+use crate::codegen_ast::RequestParameters;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::Schema;
 use serde_json::Value as SerdeValue;
@@ -27,8 +28,9 @@ pub fn print_request(
     schema: &Schema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
+    request_parameters: RequestParameters,
 ) -> String {
-    let ast = build_request(schema, operation, fragment);
+    let ast = build_request(schema, operation, fragment, request_parameters);
     serde_json::to_string_pretty(&ast).unwrap()
 }
 
@@ -56,8 +58,9 @@ pub fn print_request_deduped(
     schema: &Schema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
+    request_parameters: RequestParameters,
 ) -> String {
-    let ast = build_request(schema, operation, fragment);
+    let ast = build_request(schema, operation, fragment, request_parameters);
     let mut result = String::new();
     let mut printer = DedupedJSONPrinter::new();
     printer

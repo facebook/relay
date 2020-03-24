@@ -13,7 +13,7 @@ use graphql_ir::{build, FragmentDefinition, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::print_full_operation;
 use graphql_transforms::OSSConnectionInterface;
-use relay_codegen::{print_fragment, print_request};
+use relay_codegen::{build_request_params, print_fragment, print_request};
 use relay_compiler::{apply_transforms, validate};
 use test_schema::{test_schema, test_schema_with_extensions};
 
@@ -78,9 +78,10 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 directives: reader_operation.directives.clone(),
                 type_condition: reader_operation.type_,
             };
+            let request_parameters = build_request_params(&operation);
             format!(
                 "{}\n\nQUERY:\n\n{}",
-                print_request(&schema, operation, &operation_fragment),
+                print_request(&schema, operation, &operation_fragment, request_parameters),
                 text
             )
         })

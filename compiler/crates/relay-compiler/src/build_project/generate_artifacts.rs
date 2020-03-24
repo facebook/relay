@@ -13,6 +13,7 @@ use graphql_ir::OperationDefinition;
 use graphql_text_printer::print_full_operation;
 use interner::StringKey;
 use persist_query::persist;
+use relay_codegen::build_request_params;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::Write;
 
@@ -51,12 +52,14 @@ async fn generate_normalization_artifact(
         .operation(name)
         .expect("a query text operation should be generated for this operation");
     let text = print_full_operation(&programs.operation_text, print_operation_node);
-    let id = if let Some(ref persist_config) = project_config.persist {
-        persist(&text, &persist_config.url, &persist_config.params)
+    let mut request_parameters = build_request_params(&node);
+    if let Some(ref persist_config) = project_config.persist {
+        let id = persist(&text, &persist_config.url, &persist_config.params)
             .await
-            .map_err(BuildProjectError::PersistError)?
+            .map_err(BuildProjectError::PersistError)?;
+        request_parameters.id = Some(id);
     } else {
-        "null".to_string()
+        request_parameters.text = Some(text.clone());
     };
     let reader_operation = programs
         .reader
@@ -92,10 +95,10 @@ async fn generate_normalization_artifact(
             programs.normalization.schema(),
             node,
             &operation_fragment,
+            request_parameters
         )
     )
     .unwrap();
-    writeln!(content, "// id: {}\n", id).unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
     writeln!(content, "  (node/*: any*/).hash = \"TODO\";").unwrap();
     writeln!(content, "}}\n").unwrap();

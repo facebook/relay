@@ -28,19 +28,17 @@ pub fn build_request(
     schema: &Schema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
+    request_parameters: RequestParameters,
 ) -> ConcreteRequest {
     ConcreteRequest {
         kind: "Request",
         fragment: build_fragment(schema, fragment),
         operation: build_operation(schema, operation),
-        params: build_request_params(schema, operation),
+        params: request_parameters,
     }
 }
 
-pub fn build_request_params(
-    _schema: &Schema,
-    operation: &OperationDefinition,
-) -> RequestParameters {
+pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters {
     RequestParameters {
         name: operation.name.item,
         operation_kind: match operation.kind {
@@ -49,7 +47,6 @@ pub fn build_request_params(
             OperationKind::Subscription => ConcreteOperationKind::Subscription,
         },
         metadata: Default::default(),
-        // TODO(T63303793) add persisted query id / text
         id: None,
         text: None,
     }

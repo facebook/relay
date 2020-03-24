@@ -9547,6 +9547,10 @@ Fragment {
       args: null,
       name: "NodeFragment",
     },
+    FragmentSpread {
+      args: null,
+      name: "FooFragment",
+    },
     ClientExtension {
       selections: [
         LinkedField {
@@ -9606,10 +9610,6 @@ Fragment {
             },
           ],
           storageKey: null,
-        },
-        FragmentSpread {
-          args: null,
-          name: "FooFragment",
         },
         InlineFragment {
           selections: [

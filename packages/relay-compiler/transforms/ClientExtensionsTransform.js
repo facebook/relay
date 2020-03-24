@@ -149,16 +149,6 @@ function traverseSelections<T: Node>(
         );
       }
       case 'FragmentSpread': {
-        const fragment = compilerContext.getFragment(
-          selection.name,
-          selection.loc,
-        );
-        const isClientType = !schema.isServerType(fragment.type);
-
-        if (isClientType) {
-          clientSelections.push(selection);
-          return null;
-        }
         return selection;
       }
       default:

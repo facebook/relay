@@ -1,5 +1,103 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`FlattenTransform matches expected output: flatten-abstract-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      ... on Node {
+        id
+        ... on User {
+          firstName
+          surname: lastName
+          friends(first: 10) {
+            edges {
+              node {
+                firstName
+              }
+            }
+          }
+        }
+      }
+      ... on User {
+        firstName
+      }
+    }
+    ... on User {
+      lastName
+      friends(first: 10) {
+        edges {
+          cursor
+          node {
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on User {
+      id
+      firstName
+      surname: lastName
+      friends(first: 10) {
+        edges {
+          node {
+            firstName
+            lastName
+          }
+          cursor
+        }
+      }
+      lastName
+    }
+  }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: flatten-abstract-inline-framgent-with-directives.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on Actor {
+  ... @defer {
+    lastName
+  }
+  ... @defer {
+    firstName
+  }
+  ... @defer(label: "123") {
+    lastName
+  }
+  ... @defer(label: "123") {
+    firstName
+  }
+  lastName
+  firstName
+  ... on Actor {
+    ... on Actor @defer {
+      lastName
+    }
+    ... on Actor @defer {
+      firstName
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment TestFragment on Actor {
+  lastName
+  firstName
+}
+
+`;
+
 exports[`FlattenTransform matches expected output: flatten-same-alias-different-args.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
@@ -236,6 +334,49 @@ query TestQuery(
       firstName @customDirective(level: 2)
     }
   }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: inline-framgent-with-directives.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on Actor {
+  ... @defer {
+    lastName
+  }
+  ... @defer {
+    firstName
+  }
+  ... @defer(label: "123") {
+    lastName
+  }
+  ... @defer(label: "123") {
+    firstName
+  }
+  lastName
+  firstName
+  ... on Actor {
+    ... on Actor @defer {
+      lastName
+    }
+    ... on Actor @defer {
+      firstName
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment TestFragment on Actor {
+  ... on Actor @defer {
+    lastName
+    firstName
+  }
+  ... on Actor @defer(label: "123") {
+    lastName
+    firstName
+  }
+  lastName
+  firstName
 }
 
 `;

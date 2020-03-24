@@ -32,20 +32,20 @@ import type {
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
-export type FlattenOptions = {flattenAbstractTypes?: boolean, ...};
+export type FlattenOptions = {|+isForCodegen?: boolean|};
 
-type State = {
-  flattenAbstractTypes: boolean,
+type State = {|
+  +isForCodegen: boolean,
   parentType: ?TypeID,
-  ...
-};
+|};
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
  *
  * Inline fragments are inlined (replaced with their selections) when:
- * - The fragment type matches the type of its parent.
- * - The fragment has an abstract type and the `flattenAbstractTypes` option has
+ * - The fragment type matches the type of its parent, and its `isForCodegen`,
+ *   or if it's for printing, there is no directive on the inline fragment.
+ * - The fragment has an abstract type and the `isForCodegen` option has
  *   been set.
  */
 function flattenTransformImpl(
@@ -53,7 +53,7 @@ function flattenTransformImpl(
   options?: FlattenOptions,
 ): CompilerContext {
   const state = {
-    flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
+    isForCodegen: !!(options && options.isForCodegen),
     parentType: null,
   };
   const visitorFn = memoizedFlattenSelection(new Map());
@@ -384,9 +384,9 @@ function shouldFlattenInlineFragment(
   type: TypeID,
 ): boolean {
   return (
-    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) ||
-    (state.flattenAbstractTypes &&
-      schema.isAbstractType(fragment.typeCondition))
+    (schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) &&
+      (state.isForCodegen || fragment.directives.length === 0)) ||
+    (state.isForCodegen && schema.isAbstractType(fragment.typeCondition))
   );
 }
 

@@ -40,7 +40,11 @@ function getIdentifierForSelection(schema: Schema, node: Selection): string {
   } else if (node.kind === 'Stream') {
     return 'Stream:' + node.label;
   } else if (node.kind === 'InlineFragment') {
-    return 'InlineFragment:' + schema.getTypeString(node.typeCondition);
+    return (
+      'InlineFragment:' +
+      schema.getTypeString(node.typeCondition) +
+      printDirectives(schema, node.directives)
+    );
   } else if (node.kind === 'ClientExtension') {
     return 'ClientExtension:';
   } else if (node.kind === 'InlineDataFragmentSpread') {

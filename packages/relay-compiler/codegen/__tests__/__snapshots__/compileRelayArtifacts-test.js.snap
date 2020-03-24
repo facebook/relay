@@ -421,7 +421,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "FooQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -429,6 +428,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "FooQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -530,7 +530,6 @@ Request {
     type: "Mutation",
   },
   operation: Operation {
-    name: "FooMutation",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -538,6 +537,7 @@ Request {
         type: "UnfriendInput",
       },
     ],
+    name: "FooMutation",
     selections: [
       LinkedField {
         alias: null,
@@ -632,7 +632,6 @@ Request {
     type: "Subscription",
   },
   operation: Operation {
-    name: "FooSubscription",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -640,6 +639,7 @@ Request {
         type: "FeedbackLikeInput",
       },
     ],
+    name: "FooSubscription",
     selections: [
       LinkedField {
         alias: null,
@@ -826,7 +826,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "FooQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -834,6 +833,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "FooQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -860,7 +860,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ClientExtension {
                 selections: [
@@ -883,6 +882,7 @@ Request {
                 ],
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -1078,7 +1078,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "FooQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -1086,6 +1085,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "FooQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -1112,7 +1112,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ClientExtension {
                 selections: [
@@ -1141,6 +1140,7 @@ Request {
                 ],
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -1431,7 +1431,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "TestQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -1439,18 +1438,19 @@ Request {
         type: "String",
       },
     ],
+    name: "TestQuery",
     selections: [
       LinkedField {
         alias: null,
         args: [
           ObjectValue {
-            name: "filter",
             fields: [
               Variable {
                 name: "date",
                 variableName: "date",
               },
             ],
+            name: "filter",
           },
         ],
         concreteType: "ItemFilterResult",
@@ -1581,7 +1581,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "CheckinSearchQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -1604,24 +1603,24 @@ Request {
         type: "CheckinSearchInput!",
       },
     ],
+    name: "CheckinSearchQuery",
     selections: [
       LinkedField {
         alias: null,
         args: [
           ObjectValue {
-            name: "query",
             fields: [
               ListValue {
                 name: "inputs",
                 items: [
                   ObjectValue {
-                    name: "inputs.0",
                     fields: [
                       Variable {
                         name: "query",
                         variableName: "searchInputText",
                       },
                     ],
+                    name: "inputs.0",
                   },
                   Variable {
                     name: "inputs.1",
@@ -1639,6 +1638,7 @@ Request {
                 variableName: "queryText",
               },
             ],
+            name: "query",
           },
         ],
         concreteType: "CheckinSearchResult",
@@ -1770,7 +1770,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "TestQueryWithLiteral",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -1783,6 +1782,7 @@ Request {
         type: "String",
       },
     ],
+    name: "TestQueryWithLiteral",
     selections: [
       LinkedField {
         alias: null,
@@ -1791,7 +1791,6 @@ Request {
             name: "waypoints",
             items: [
               ObjectValue {
-                name: "waypoints.0",
                 fields: [
                   Variable {
                     name: "lat",
@@ -1802,9 +1801,9 @@ Request {
                     variableName: "lonArg",
                   },
                 ],
+                name: "waypoints.0",
               },
               ObjectValue {
-                name: "waypoints.1",
                 fields: [
                   Literal {
                     name: "lat",
@@ -1815,9 +1814,9 @@ Request {
                     variableName: "latArg",
                   },
                 ],
+                name: "waypoints.1",
               },
               ObjectValue {
-                name: "waypoints.2",
                 fields: [
                   Variable {
                     name: "lat",
@@ -1828,6 +1827,7 @@ Request {
                     value: "1234",
                   },
                 ],
+                name: "waypoints.2",
               },
             ],
           },
@@ -2081,7 +2081,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NodeQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -2089,6 +2088,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NodeQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -2115,7 +2115,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Story",
             selections: [
               LinkedField {
                 alias: null,
@@ -2328,6 +2327,7 @@ Request {
                 name: "comments",
               },
             ],
+            type: "Story",
           },
         ],
         storageKey: null,
@@ -2564,7 +2564,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NodeQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -2572,6 +2571,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NodeQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -2598,7 +2598,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Story",
             selections: [
               LinkedField {
                 alias: null,
@@ -2759,6 +2758,7 @@ Request {
                 name: "comments",
               },
             ],
+            type: "Story",
           },
         ],
         storageKey: null,
@@ -2888,7 +2888,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "FeedbackQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -2901,6 +2900,7 @@ Request {
         type: "String",
       },
     ],
+    name: "FeedbackQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -2927,7 +2927,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Feedback",
             selections: [
               LinkedField {
                 alias: null,
@@ -3032,6 +3031,7 @@ Request {
                 },
               },
             ],
+            type: "Feedback",
           },
         ],
         storageKey: null,
@@ -3129,7 +3129,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "PaginationQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -3152,6 +3151,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "PaginationQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -3178,7 +3178,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Feedback",
             selections: [
               LinkedField {
                 alias: null,
@@ -3291,6 +3290,7 @@ Request {
                 },
               },
             ],
+            type: "Feedback",
           },
         ],
         storageKey: null,
@@ -3594,7 +3594,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithMultipeDeferredFragmentsOnSameParent",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -3602,6 +3601,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "QueryWithMultipeDeferredFragmentsOnSameParent",
     selections: [
       LinkedField {
         alias: "feedback",
@@ -3633,7 +3633,6 @@ Request {
             metadata: null,
             selections: [
               InlineFragment {
-                type: "Feedback",
                 selections: [
                   LinkedField {
                     alias: null,
@@ -3693,6 +3692,7 @@ Request {
                     storageKey: "comments(first:10)",
                   },
                 ],
+                type: "Feedback",
               },
             ],
           },
@@ -3702,7 +3702,6 @@ Request {
             metadata: null,
             selections: [
               InlineFragment {
-                type: "Feedback",
                 selections: [
                   LinkedField {
                     alias: null,
@@ -3721,6 +3720,7 @@ Request {
                     storageKey: null,
                   },
                 ],
+                type: "Feedback",
               },
             ],
           },
@@ -3892,8 +3892,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "Test",
     argumentDefinitions: [],
+    name: "Test",
     selections: [
       LinkedField {
         alias: null,
@@ -4002,8 +4002,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "TestQuery",
     argumentDefinitions: [],
+    name: "TestQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -4172,7 +4172,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -4185,6 +4184,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -4211,7 +4211,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -4241,6 +4240,7 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -4412,7 +4412,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -4425,6 +4424,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -4451,7 +4451,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -4481,6 +4480,7 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -4640,7 +4640,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -4653,6 +4652,7 @@ Request {
         type: "[Int]",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -4679,7 +4679,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -4709,6 +4708,7 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -4960,7 +4960,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -4968,6 +4967,7 @@ Request {
         type: "[Int]",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -5002,7 +5002,6 @@ Request {
                 storageKey: null,
               },
               InlineFragment {
-                type: "User",
                 selections: [
                   LinkedField {
                     alias: null,
@@ -5026,6 +5025,7 @@ Request {
                     storageKey: null,
                   },
                 ],
+                type: "User",
               },
             ],
             storageKey: null,
@@ -5203,8 +5203,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithFragmentWithDefer",
     argumentDefinitions: [],
+    name: "QueryWithFragmentWithDefer",
     selections: [
       LinkedField {
         alias: null,
@@ -5434,8 +5434,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithFragmentWithDefer",
     argumentDefinitions: [],
+    name: "QueryWithFragmentWithDefer",
     selections: [
       LinkedField {
         alias: null,
@@ -5724,8 +5724,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithFragmentWithDefer",
     argumentDefinitions: [],
+    name: "QueryWithFragmentWithDefer",
     selections: [
       LinkedField {
         alias: null,
@@ -5763,7 +5763,6 @@ Request {
                 storageKey: null,
               },
               InlineFragment {
-                type: "User",
                 selections: [
                   ScalarField {
                     alias: null,
@@ -5772,9 +5771,9 @@ Request {
                     storageKey: null,
                   },
                 ],
+                type: "User",
               },
               InlineFragment {
-                type: "Page",
                 selections: [
                   ScalarField {
                     alias: null,
@@ -5783,6 +5782,7 @@ Request {
                     storageKey: null,
                   },
                 ],
+                type: "Page",
               },
             ],
           },
@@ -6102,7 +6102,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithFragmentWithStream",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -6110,6 +6109,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "QueryWithFragmentWithStream",
     selections: [
       LinkedField {
         alias: null,
@@ -6136,7 +6136,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Feedback",
             selections: [
               Stream {
                 if: null,
@@ -6175,6 +6174,7 @@ Request {
                 useCustomizedBatch: null,
               },
             ],
+            type: "Feedback",
           },
         ],
         storageKey: null,
@@ -6353,8 +6353,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "Test",
     argumentDefinitions: [],
+    name: "Test",
     selections: [
       LinkedField {
         alias: null,
@@ -6430,7 +6430,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -6460,6 +6459,7 @@ Request {
                 storageKey: "profilePicture(size:100)",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: "username(name:\\"test\\")",
@@ -6813,7 +6813,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NodeQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -6831,6 +6830,7 @@ Request {
         type: "[Int]!",
       },
     ],
+    name: "NodeQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -6861,7 +6861,6 @@ Request {
             passingValue: true,
             selections: [
               InlineFragment {
-                type: "User",
                 selections: [
                   ScalarField {
                     alias: null,
@@ -6984,6 +6983,7 @@ Request {
                     storageKey: null,
                   },
                 ],
+                type: "User",
               },
             ],
           },
@@ -7269,7 +7269,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "LinkedHandleField",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -7277,6 +7276,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "LinkedHandleField",
     selections: [
       LinkedField {
         alias: null,
@@ -7303,7 +7303,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -7340,6 +7339,7 @@ Request {
                 name: "friends",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -7755,7 +7755,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "FooNameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -7763,6 +7762,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "FooNameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -7789,7 +7789,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -7805,7 +7804,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "FooNameRendererFragment",
@@ -7813,9 +7811,9 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                   InlineFragment {
-                    type: "PlainUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "FooNameRendererFragment",
@@ -7823,11 +7821,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "PlainUserNameRenderer",
                   },
                 ],
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -7917,7 +7917,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "BarNameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -7925,6 +7924,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "BarNameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -7951,7 +7951,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -7967,7 +7966,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "BarNameRendererFragment",
@@ -7975,11 +7973,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -8463,8 +8463,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "MatchQuery",
     argumentDefinitions: [],
+    name: "MatchQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -8498,7 +8498,6 @@ Request {
                 storageKey: null,
               },
               InlineFragment {
-                type: "MarkdownUserNameRenderer",
                 selections: [
                   ModuleImport {
                     documentName: "MatchQuery",
@@ -8506,6 +8505,7 @@ Request {
                     fragmentPropName: "name",
                   },
                 ],
+                type: "MarkdownUserNameRenderer",
               },
             ],
             storageKey: null,
@@ -8741,8 +8741,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "MatchQuery",
     argumentDefinitions: [],
+    name: "MatchQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -8783,7 +8783,6 @@ Request {
                 storageKey: null,
               },
               InlineFragment {
-                type: "PlainUserNameRenderer",
                 selections: [
                   ModuleImport {
                     documentName: "MatchQuery_nameRenderer",
@@ -8791,6 +8790,7 @@ Request {
                     fragmentPropName: "name",
                   },
                 ],
+                type: "PlainUserNameRenderer",
               },
             ],
             storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\"])",
@@ -8802,7 +8802,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -8818,7 +8817,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "MatchQuery",
@@ -8826,11 +8824,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: "node(id:\\"<user-id>\\")",
@@ -9364,7 +9364,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "BestFriendsQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -9372,6 +9371,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "BestFriendsQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -9398,7 +9398,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ClientExtension {
                 selections: [
@@ -9467,7 +9466,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "Foo",
                     selections: [
                       ScalarField {
                         alias: null,
@@ -9476,10 +9474,12 @@ Request {
                         storageKey: null,
                       },
                     ],
+                    type: "Foo",
                   },
                 ],
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -9754,7 +9754,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -9767,6 +9766,7 @@ Request {
         type: "Boolean!",
       },
     ],
+    name: "NameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -9793,7 +9793,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -9813,7 +9812,6 @@ Request {
                     passingValue: true,
                     selections: [
                       InlineFragment {
-                        type: "MarkdownUserNameRenderer",
                         selections: [
                           ModuleImport {
                             documentName: "NameRendererFragment",
@@ -9821,6 +9819,7 @@ Request {
                             fragmentPropName: "name",
                           },
                         ],
+                        type: "MarkdownUserNameRenderer",
                       },
                     ],
                   },
@@ -9828,6 +9827,7 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -10080,7 +10080,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "TestQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -10100,6 +10099,7 @@ Request {
         type: "[Int]",
       },
     ],
+    name: "TestQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -10126,7 +10126,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -10150,13 +10149,13 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "User",
           },
           Condition {
             condition: "cond",
             passingValue: true,
             selections: [
               InlineFragment {
-                type: "User",
                 selections: [
                   LinkedField {
                     alias: null,
@@ -10221,6 +10220,7 @@ Request {
                     storageKey: "friends(first:10)",
                   },
                 ],
+                type: "User",
               },
             ],
           },
@@ -10426,7 +10426,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -10434,6 +10433,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -10460,7 +10460,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -10484,7 +10483,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "PlainUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -10492,9 +10490,9 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "PlainUserNameRenderer",
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -10502,11 +10500,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -10818,7 +10818,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -10826,6 +10825,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -10852,7 +10852,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -10876,7 +10875,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "PlainUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -10884,9 +10882,9 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "PlainUserNameRenderer",
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -10894,11 +10892,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -11239,7 +11239,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -11247,6 +11246,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -11273,7 +11273,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -11301,7 +11300,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "PlainUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -11309,9 +11307,9 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "PlainUserNameRenderer",
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -11319,11 +11317,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: "nameRendererForContext(context:\\"HEADER\\",supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -11640,7 +11640,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -11648,6 +11647,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -11674,7 +11674,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -11698,7 +11697,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "PlainUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -11706,9 +11704,9 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "PlainUserNameRenderer",
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -11716,11 +11714,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -12031,7 +12031,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NameRendererQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -12039,6 +12038,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NameRendererQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -12065,7 +12065,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               LinkedField {
                 alias: null,
@@ -12081,7 +12080,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "MarkdownUserNameRenderer",
                     selections: [
                       ModuleImport {
                         documentName: "NameRendererFragment",
@@ -12089,11 +12087,13 @@ Request {
                         fragmentPropName: "name",
                       },
                     ],
+                    type: "MarkdownUserNameRenderer",
                   },
                 ],
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -12286,8 +12286,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "ViewerQuery",
     argumentDefinitions: [],
+    name: "ViewerQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -12404,7 +12404,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableConnectionQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -12422,6 +12421,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableConnectionQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -12448,7 +12448,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Feedback",
             selections: [
               LinkedField {
                 alias: null,
@@ -12547,6 +12546,7 @@ Request {
                 name: "comments",
               },
             ],
+            type: "Feedback",
           },
         ],
         storageKey: null,
@@ -12775,7 +12775,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableConnectionQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -12793,6 +12792,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableConnectionQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -12819,7 +12819,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Feedback",
             selections: [
               LinkedField {
                 alias: null,
@@ -12918,6 +12917,7 @@ Request {
                 name: "comments",
               },
             ],
+            type: "Feedback",
           },
         ],
         storageKey: null,
@@ -13137,7 +13137,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -13150,6 +13149,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -13176,7 +13176,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -13206,6 +13205,7 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -13398,7 +13398,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: 10,
@@ -13416,6 +13415,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -13442,7 +13442,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -13547,6 +13546,7 @@ Request {
                 name: "friends",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -13816,7 +13816,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: 10,
@@ -13844,6 +13843,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -13870,7 +13870,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -14003,6 +14002,7 @@ Request {
                 name: "friends",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -14285,7 +14285,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RefetchableFragmentQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: 10,
@@ -14303,6 +14302,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RefetchableFragmentQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -14329,7 +14329,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -14451,6 +14450,7 @@ Request {
                 name: "friends",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -14851,7 +14851,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "RelayClientIDFieldQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -14859,6 +14858,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "RelayClientIDFieldQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -14917,7 +14917,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Comment",
             selections: [
               LinkedField {
                 alias: null,
@@ -14940,7 +14939,6 @@ Request {
                     storageKey: null,
                   },
                   InlineFragment {
-                    type: "PlainCommentBody",
                     selections: [
                       LinkedField {
                         alias: null,
@@ -14985,6 +14983,7 @@ Request {
                         ],
                       },
                     ],
+                    type: "PlainCommentBody",
                   },
                   ClientExtension {
                     selections: [
@@ -15000,6 +14999,7 @@ Request {
                 storageKey: "commentBody(supported:[\\"PlainCommentBody\\"])",
               },
             ],
+            type: "Comment",
           },
           ClientExtension {
             selections: [
@@ -15109,7 +15109,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "ScalarHandleField",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -15117,6 +15116,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "ScalarHandleField",
     selections: [
       LinkedField {
         alias: null,
@@ -15143,7 +15143,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -15160,6 +15159,7 @@ Request {
                 name: "name",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -15423,8 +15423,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "StableLiteralsTest",
     argumentDefinitions: [],
+    name: "StableLiteralsTest",
     selections: [
       LinkedField {
         alias: null,
@@ -15643,7 +15643,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "NodeQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -15651,6 +15650,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "NodeQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -15677,7 +15677,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "Story",
             selections: [
               LinkedField {
                 alias: null,
@@ -15813,6 +15812,7 @@ Request {
                 name: "comments",
               },
             ],
+            type: "Story",
           },
         ],
         storageKey: null,
@@ -15931,8 +15931,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "UnionQuery",
     argumentDefinitions: [],
+    name: "UnionQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -15954,7 +15954,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "NonNode",
             selections: [
               ScalarField {
                 alias: null,
@@ -15963,9 +15962,9 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "NonNode",
           },
           InlineFragment {
-            type: "Story",
             selections: [
               LinkedField {
                 alias: null,
@@ -15984,6 +15983,7 @@ Request {
                 storageKey: null,
               },
             ],
+            type: "Story",
           },
         ],
         storageKey: null,
@@ -16239,7 +16239,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "TestQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -16252,6 +16251,7 @@ Request {
         type: "Boolean",
       },
     ],
+    name: "TestQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -16518,7 +16518,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "TestQuery",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -16536,6 +16535,7 @@ Request {
         type: "Boolean",
       },
     ],
+    name: "TestQuery",
     selections: [
       LinkedField {
         alias: null,
@@ -16887,7 +16887,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithUnusedFragmentArgumentDefinition",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -16895,6 +16894,7 @@ Request {
         type: "ID!",
       },
     ],
+    name: "QueryWithUnusedFragmentArgumentDefinition",
     selections: [
       LinkedField {
         alias: null,
@@ -16921,7 +16921,6 @@ Request {
             storageKey: null,
           },
           InlineFragment {
-            type: "User",
             selections: [
               ScalarField {
                 alias: null,
@@ -16959,6 +16958,7 @@ Request {
                 storageKey: "profilePicture(size:[100])",
               },
             ],
+            type: "User",
           },
         ],
         storageKey: null,
@@ -17176,7 +17176,6 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "QueryWithUnusedVariables",
     argumentDefinitions: [
       LocalArgument {
         defaultValue: null,
@@ -17194,6 +17193,7 @@ Request {
         type: "ID",
       },
     ],
+    name: "QueryWithUnusedVariables",
     selections: [
       LinkedField {
         alias: null,
@@ -17360,8 +17360,8 @@ Request {
     type: "Query",
   },
   operation: Operation {
-    name: "ViewerQuery",
     argumentDefinitions: [],
+    name: "ViewerQuery",
     selections: [
       LinkedField {
         alias: null,

@@ -85,16 +85,27 @@ function generateRoot(
   node: Root,
   sortObjectKeys: boolean,
 ): NormalizationOperation {
-  return {
-    kind: 'Operation',
-    name: node.name,
-    argumentDefinitions: generateArgumentDefinitions(
-      schema,
-      node.argumentDefinitions,
-      sortObjectKeys,
-    ),
-    selections: generateSelections(schema, node.selections, sortObjectKeys),
-  };
+  return sortObjectKeys
+    ? {
+        argumentDefinitions: generateArgumentDefinitions(
+          schema,
+          node.argumentDefinitions,
+          sortObjectKeys,
+        ),
+        kind: 'Operation',
+        name: node.name,
+        selections: generateSelections(schema, node.selections, sortObjectKeys),
+      }
+    : {
+        kind: 'Operation',
+        name: node.name,
+        argumentDefinitions: generateArgumentDefinitions(
+          schema,
+          node.argumentDefinitions,
+          sortObjectKeys,
+        ),
+        selections: generateSelections(schema, node.selections, sortObjectKeys),
+      };
 }
 
 function generateSplitOperation(
@@ -102,12 +113,19 @@ function generateSplitOperation(
   node: SplitOperation,
   sortObjectKeys: boolean,
 ): NormalizationSplitOperation {
-  return {
-    kind: 'SplitOperation',
-    name: node.name,
-    metadata: node.metadata,
-    selections: generateSelections(schema, node.selections, sortObjectKeys),
-  };
+  return sortObjectKeys
+    ? {
+        kind: 'SplitOperation',
+        name: node.name,
+        metadata: node.metadata,
+        selections: generateSelections(schema, node.selections, sortObjectKeys),
+      }
+    : {
+        kind: 'SplitOperation',
+        metadata: node.metadata,
+        name: node.name,
+        selections: generateSelections(schema, node.selections, sortObjectKeys),
+      };
 }
 
 function generateSelections(
@@ -267,11 +285,17 @@ function generateInlineFragment(
   node: InlineFragment,
   sortObjectKeys: boolean,
 ): NormalizationSelection {
-  return {
-    kind: 'InlineFragment',
-    type: schema.getTypeString(node.typeCondition),
-    selections: generateSelections(schema, node.selections, sortObjectKeys),
-  };
+  return sortObjectKeys
+    ? {
+        kind: 'InlineFragment',
+        selections: generateSelections(schema, node.selections, sortObjectKeys),
+        type: schema.getTypeString(node.typeCondition),
+      }
+    : {
+        kind: 'InlineFragment',
+        type: schema.getTypeString(node.typeCondition),
+        selections: generateSelections(schema, node.selections, sortObjectKeys),
+      };
 }
 
 function generateLinkedField(
@@ -537,23 +561,45 @@ function generateArgumentValue(
           return [field.name, field.value];
         }),
       );
-      return {
-        kind: 'ObjectValue',
-        name: name,
-        fields: objectKeys.map(fieldName => {
-          const fieldValue = objectValues.get(fieldName);
-          if (fieldValue == null) {
-            throw createCompilerError('Expected to have object field value');
+      return sortObjectKeys
+        ? {
+            fields: objectKeys.map(fieldName => {
+              const fieldValue = objectValues.get(fieldName);
+              if (fieldValue == null) {
+                throw createCompilerError(
+                  'Expected to have object field value',
+                );
+              }
+              return (
+                generateArgumentValue(
+                  fieldName,
+                  fieldValue,
+                  sortObjectKeys,
+                ) ?? {kind: 'Literal', name: fieldName, value: null}
+              );
+            }),
+            kind: 'ObjectValue',
+            name: name,
           }
-          return (
-            generateArgumentValue(fieldName, fieldValue, sortObjectKeys) ?? {
-              kind: 'Literal',
-              name: fieldName,
-              value: null,
-            }
-          );
-        }),
-      };
+        : {
+            kind: 'ObjectValue',
+            name: name,
+            fields: objectKeys.map(fieldName => {
+              const fieldValue = objectValues.get(fieldName);
+              if (fieldValue == null) {
+                throw createCompilerError(
+                  'Expected to have object field value',
+                );
+              }
+              return (
+                generateArgumentValue(
+                  fieldName,
+                  fieldValue,
+                  sortObjectKeys,
+                ) ?? {kind: 'Literal', name: fieldName, value: null}
+              );
+            }),
+          };
     }
     case 'ListValue': {
       return {

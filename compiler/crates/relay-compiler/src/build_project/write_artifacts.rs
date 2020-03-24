@@ -6,7 +6,7 @@
  */
 
 use super::generate_artifacts::Artifact;
-use crate::config::{Config, ConfigProject};
+use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use std::fs::File;
 use std::io;
@@ -15,7 +15,7 @@ use std::path::PathBuf;
 
 pub fn write_artifacts(
     config: &Config,
-    project_config: &ConfigProject,
+    project_config: &ProjectConfig,
     artifacts: &[Artifact],
 ) -> Result<(), BuildProjectError> {
     // For now, just write test projects

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ConfigProject;
+use crate::config::ProjectConfig;
 use crate::parse_sources::GraphQLAsts;
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::FnvHashSet;
@@ -19,7 +19,7 @@ pub struct BuildIRResult {
 }
 
 pub fn build_ir(
-    project_config: &ConfigProject,
+    project_config: &ProjectConfig,
     schema: &Schema,
     graphql_asts: &GraphQLAsts<'_>,
     is_incremental_build: bool,

@@ -16,7 +16,7 @@ mod validate;
 mod write_artifacts;
 
 use crate::compiler_state::CompilerState;
-use crate::config::{Config, ConfigProject};
+use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
@@ -28,7 +28,7 @@ pub use validate::validate;
 
 pub async fn build_project(
     config: &Config,
-    project_config: &ConfigProject,
+    project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
 ) -> Result<(), BuildProjectError> {

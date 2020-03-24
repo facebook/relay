@@ -6,10 +6,10 @@
  */
 
 use crate::compiler_state::CompilerState;
-use crate::config::ConfigProject;
+use crate::config::ProjectConfig;
 use schema::Schema;
 
-pub fn build_schema(compiler_state: &CompilerState, project_config: &ConfigProject) -> Schema {
+pub fn build_schema(compiler_state: &CompilerState, project_config: &ProjectConfig) -> Schema {
     let relay_extensions = String::from(schema::RELAY_EXTENSIONS);
     let mut extensions = vec![&relay_extensions];
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {

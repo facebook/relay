@@ -22,7 +22,7 @@ pub struct Config {
     pub root_dir: PathBuf,
     pub sources: HashMap<PathBuf, SourceSetName>,
     pub blacklist: Vec<String>,
-    pub projects: HashMap<ProjectName, ConfigProject>,
+    pub projects: HashMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
 }
@@ -77,7 +77,7 @@ impl Config {
                         }),
                     }?;
 
-                let config_project = ConfigProject {
+                let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
                     extensions: config_file_project.extensions,
@@ -85,7 +85,7 @@ impl Config {
                     schema_location,
                     persist: config_file_project.persist,
                 };
-                Ok((project_name, config_project))
+                Ok((project_name, project_config))
             })
             .collect::<Result<HashMap<_, _>>>()?;
         let config = Self {
@@ -194,7 +194,7 @@ impl Config {
 }
 
 #[derive(Debug)]
-pub struct ConfigProject {
+pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,

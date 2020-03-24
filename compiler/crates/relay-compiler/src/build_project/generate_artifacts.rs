@@ -6,7 +6,7 @@
  */
 
 use super::apply_transforms::Programs;
-use crate::config::{Config, ConfigProject};
+use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -24,7 +24,7 @@ pub struct Artifact {
 
 pub async fn generate_artifacts(
     config: &Config,
-    project_config: &ConfigProject,
+    project_config: &ProjectConfig,
     programs: &Programs<'_>,
 ) -> Result<Vec<Artifact>, BuildProjectError> {
     let mut artifacts = Vec::new();
@@ -41,7 +41,7 @@ pub async fn generate_artifacts(
 
 async fn generate_normalization_artifact(
     config: &Config,
-    project_config: &ConfigProject,
+    project_config: &ProjectConfig,
     programs: &Programs<'_>,
     node: &OperationDefinition,
 ) -> Result<Artifact, BuildProjectError> {

@@ -30,7 +30,7 @@ pub fn build_request(
     fragment: &FragmentDefinition,
 ) -> ConcreteRequest {
     ConcreteRequest {
-        kind: "ConcreteRequest",
+        kind: "Request",
         fragment: build_fragment(schema, fragment),
         operation: build_operation(schema, operation),
         params: build_request_params(schema, operation),

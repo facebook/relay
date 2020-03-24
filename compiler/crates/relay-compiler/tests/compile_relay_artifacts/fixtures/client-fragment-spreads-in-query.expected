@@ -27,7 +27,67 @@ type ClientType {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "ClientTypeFragment",
+  "type": "ClientType",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "Foo_user",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "args": null,
+          "concreteType": "ClientType",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment",
+              "args": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "FooQuery",
@@ -163,64 +223,4 @@ query FooQuery(
 
 fragment Foo_user on User {
   id
-}
-
-{
-  "kind": "Fragment",
-  "name": "ClientTypeFragment",
-  "type": "ClientType",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "client_field",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "foo",
-          "args": null,
-          "concreteType": "ClientType",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "FragmentSpread",
-              "name": "ClientTypeFragment",
-              "args": null
-            }
-          ],
-          "storageKey": null
-        }
-      ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    }
-  ]
 }

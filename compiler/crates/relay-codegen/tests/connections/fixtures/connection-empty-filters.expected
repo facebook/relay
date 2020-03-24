@@ -221,7 +221,7 @@ return {
     ],
     "type": "Query"
   },
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",

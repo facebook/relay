@@ -7,7 +7,7 @@ query Test {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "Test",

@@ -16,7 +16,50 @@ fragment NodeFragment on Node {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "NodeFragment",
+  "type": "Node",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "InlineFragment",
+      "type": "Page",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "websites",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "User",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "QueryWithFragmentWithDefer",
@@ -139,47 +182,4 @@ fragment NodeFragment on Node {
     name
   }
   id
-}
-
-{
-  "kind": "Fragment",
-  "name": "NodeFragment",
-  "type": "Node",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "InlineFragment",
-      "type": "Page",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "websites",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    },
-    {
-      "kind": "InlineFragment",
-      "type": "User",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    }
-  ]
 }

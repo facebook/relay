@@ -18,7 +18,101 @@ fragment UserUtil_user on User {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "UserProfile_user",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "ProfilePicture_SIZE",
+      "type": "[Int]"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "ProfilePicture_SIZE"
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "height",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "width",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserUtil_user",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "TestQuery",
@@ -166,98 +260,4 @@ fragment UserProfile_user on User {
     width
   }
   url(relative: $isRelative)
-}
-
-{
-  "kind": "Fragment",
-  "name": "UserProfile_user",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "ProfilePicture_SIZE",
-      "type": "[Int]"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
-    }
-  ],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "profilePicture",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "ProfilePicture_SIZE"
-        }
-      ],
-      "concreteType": "Image",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "height",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "width",
-          "args": null,
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "url",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "isRelative"
-        }
-      ],
-      "storageKey": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "UserUtil_user",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
-    }
-  ],
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "url",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "isRelative"
-        }
-      ],
-      "storageKey": null
-    }
-  ]
 }

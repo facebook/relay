@@ -22,7 +22,108 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "DeferredFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "scale",
+      "type": "Float",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profile_picture",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "scale"
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "UserFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "DeferredFragment",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 1.5
+        }
+      ]
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "DeferredFragment",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 2.0
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "emailAddresses",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "QueryWithFragmentWithDefer",
@@ -157,105 +258,4 @@ fragment UserFragment on User {
   ...DeferredFragment_QMvSr @defer
   emailAddresses
   id
-}
-
-{
-  "kind": "Fragment",
-  "name": "DeferredFragment",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
-      "kind": "LocalArgument",
-      "name": "scale",
-      "type": "Float",
-      "defaultValue": null
-    }
-  ],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "profile_picture",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "scale",
-          "variableName": "scale"
-        }
-      ],
-      "concreteType": "Image",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "uri",
-          "args": null,
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "name",
-      "args": null,
-      "storageKey": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "UserFragment",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 1.5
-        }
-      ]
-    },
-    {
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 2.0
-        }
-      ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "emailAddresses",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    }
-  ]
 }

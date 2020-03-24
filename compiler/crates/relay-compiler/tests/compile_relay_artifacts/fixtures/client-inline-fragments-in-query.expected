@@ -25,7 +25,47 @@ interface ClientNamed {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "Foo_user",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "foo",
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_name",
+              "args": null,
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "FooQuery",
@@ -168,44 +208,4 @@ query FooQuery(
 
 fragment Foo_user on User {
   id
-}
-
-{
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "foo",
-          "args": null,
-          "concreteType": null,
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name",
-              "args": null,
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
-      ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    }
-  ]
 }

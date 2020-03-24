@@ -36,7 +36,7 @@ extend type Subscription {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "FooMutation",
@@ -159,7 +159,7 @@ mutation FooMutation(
 }
 
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "FooQuery",
@@ -290,7 +290,7 @@ query FooQuery(
 }
 
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "FooSubscription",

@@ -22,7 +22,92 @@ fragment ConnectionFragment on User
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "ConnectionFragment",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "fetchConnection",
+      "type": "Boolean",
+      "defaultValue": false
+    },
+    {
+      "kind": "RootArgument",
+      "name": "unusedAfter",
+      "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "unusedFirst",
+      "type": "Int"
+    }
+  ],
+  "selections": [
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "fetchConnection",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "friends",
+          "args": [
+            {
+              "kind": "Variable",
+              "name": "after",
+              "variableName": "unusedAfter"
+            },
+            {
+              "kind": "Variable",
+              "name": "first",
+              "variableName": "unusedFirst"
+            }
+          ],
+          "concreteType": "FriendsConnection",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "edges",
+              "args": null,
+              "concreteType": "FriendsEdge",
+              "plural": true,
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "node",
+                  "args": null,
+                  "concreteType": "User",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "id",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "QueryWithUnusedVariables",
@@ -163,89 +248,4 @@ query QueryWithUnusedVariables(
     __typename
     id
   }
-}
-
-{
-  "kind": "Fragment",
-  "name": "ConnectionFragment",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
-      "kind": "LocalArgument",
-      "name": "fetchConnection",
-      "type": "Boolean",
-      "defaultValue": false
-    },
-    {
-      "kind": "RootArgument",
-      "name": "unusedAfter",
-      "type": "ID"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "unusedFirst",
-      "type": "Int"
-    }
-  ],
-  "selections": [
-    {
-      "kind": "Condition",
-      "passingValue": true,
-      "condition": "fetchConnection",
-      "selections": [
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "friends",
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "after",
-              "variableName": "unusedAfter"
-            },
-            {
-              "kind": "Variable",
-              "name": "first",
-              "variableName": "unusedFirst"
-            }
-          ],
-          "concreteType": "FriendsConnection",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "edges",
-              "args": null,
-              "concreteType": "FriendsEdge",
-              "plural": true,
-              "selections": [
-                {
-                  "kind": "LinkedField",
-                  "alias": null,
-                  "name": "node",
-                  "args": null,
-                  "concreteType": "User",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "name": "id",
-                      "args": null,
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ],
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
-      ]
-    }
-  ]
 }

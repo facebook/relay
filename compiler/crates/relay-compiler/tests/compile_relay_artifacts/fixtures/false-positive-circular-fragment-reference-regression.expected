@@ -23,7 +23,68 @@ fragment MyNestedViewer on Viewer
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "MyNestedViewer",
+  "type": "Viewer",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "includeEmail",
+      "type": "Boolean!",
+      "defaultValue": false
+    }
+  ],
+  "selections": [
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "includeEmail",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "primaryEmail",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyOtherViewer",
+  "type": "Viewer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "MyNestedViewer",
+      "args": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "MyViewer",
+  "type": "Viewer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "MyNestedViewer",
+      "args": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "TestQuery",
@@ -141,65 +202,4 @@ query TestQuery {
       name
     }
   }
-}
-
-{
-  "kind": "Fragment",
-  "name": "MyNestedViewer",
-  "type": "Viewer",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
-      "kind": "LocalArgument",
-      "name": "includeEmail",
-      "type": "Boolean!",
-      "defaultValue": false
-    }
-  ],
-  "selections": [
-    {
-      "kind": "Condition",
-      "passingValue": true,
-      "condition": "includeEmail",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "primaryEmail",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "MyOtherViewer",
-  "type": "Viewer",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "FragmentSpread",
-      "name": "MyNestedViewer",
-      "args": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "MyViewer",
-  "type": "Viewer",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "FragmentSpread",
-      "name": "MyNestedViewer",
-      "args": null
-    }
-  ]
 }

@@ -14,7 +14,7 @@ query UnionQuery {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "UnionQuery",

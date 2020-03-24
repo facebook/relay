@@ -6,7 +6,7 @@ query TestQuery($date: String) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "TestQuery",

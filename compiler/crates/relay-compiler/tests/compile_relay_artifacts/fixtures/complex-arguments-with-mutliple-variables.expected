@@ -12,7 +12,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "TestQueryWithLiteral",

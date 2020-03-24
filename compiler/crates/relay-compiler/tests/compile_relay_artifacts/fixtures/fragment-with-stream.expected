@@ -14,7 +14,42 @@ fragment FeedbackFragment on Feedback {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "ConcreteRequest",
+  "kind": "Fragment",
+  "name": "FeedbackFragment",
+  "type": "Feedback",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "actors",
+      "args": null,
+      "concreteType": null,
+      "plural": true,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Request",
   "fragment": {
     "kind": "Fragment",
     "name": "QueryWithFragmentWithStream",
@@ -171,39 +206,4 @@ fragment FeedbackFragment on Feedback {
     name
   }
   id
-}
-
-{
-  "kind": "Fragment",
-  "name": "FeedbackFragment",
-  "type": "Feedback",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "actors",
-      "args": null,
-      "concreteType": null,
-      "plural": true,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    }
-  ]
 }

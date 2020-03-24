@@ -14,6 +14,7 @@ pub mod compiler;
 pub mod compiler_state;
 pub mod config;
 pub mod errors;
+mod parse_sources;
 mod watchman;
 
 pub use build_project::apply_transforms;

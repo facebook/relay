@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler::AstSets;
 use crate::config::ConfigProject;
-use dependency_analyzer::{get_reachable_ast, ReachableAst};
+use crate::parse_sources::GraphQLAsts;
+use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::FnvHashSet;
 use graphql_ir::ValidationError;
 use interner::StringKey;
@@ -21,20 +21,50 @@ pub struct BuildIRResult {
 pub fn build_ir(
     project_config: &ConfigProject,
     schema: &Schema,
-    ast_sets: &AstSets,
+    graphql_asts: &GraphQLAsts<'_>,
+    is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<ValidationError>> {
-    let project_document_asts = ast_sets[&project_config.name].to_vec();
-    let base_document_asts = match project_config.base {
-        Some(base_project_name) => ast_sets[&base_project_name].clone(),
-        None => Vec::new(),
+    let project_asts = graphql_asts.asts_for_source_set(project_config.name);
+    let (base_project_asts, base_definition_names) = match project_config.base {
+        Some(base_project_name) => {
+            let base_project_asts = graphql_asts.asts_for_source_set(base_project_name);
+            let base_definition_names = base_project_asts
+                .iter()
+                .filter_map(|definition| match definition {
+                    graphql_syntax::ExecutableDefinition::Operation(operation) => {
+                        // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
+                        let operation_name = operation.name.clone();
+                        operation_name.map(|name| name.value)
+                    }
+                    graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
+                        Some(fragment.name.value)
+                    }
+                })
+                .collect::<FnvHashSet<_>>();
+            (base_project_asts, base_definition_names)
+        }
+        None => (Vec::new(), FnvHashSet::default()),
     };
     let ReachableAst {
         definitions: reachable_ast,
         base_fragment_names,
-    } = get_reachable_ast(project_document_asts, base_document_asts).unwrap();
+    } = get_reachable_ast(project_asts, base_project_asts).unwrap();
+
     let ir = graphql_ir::build(&schema, &reachable_ast)?;
-    Ok(BuildIRResult {
-        ir,
-        base_fragment_names,
-    })
+    if is_incremental_build {
+        let mut changed_names = graphql_asts.changed_names_for_source_set(project_config.name);
+        if let Some(base_project_name) = project_config.base {
+            changed_names.extend(graphql_asts.changed_names_for_source_set(base_project_name));
+        }
+        let affected_ir = get_reachable_ir(ir, base_definition_names, changed_names);
+        Ok(BuildIRResult {
+            ir: affected_ir,
+            base_fragment_names,
+        })
+    } else {
+        Ok(BuildIRResult {
+            ir,
+            base_fragment_names,
+        })
+    }
 }

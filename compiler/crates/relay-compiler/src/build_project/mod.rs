@@ -15,10 +15,10 @@ mod generate_artifacts;
 mod validate;
 mod write_artifacts;
 
-use crate::compiler::AstSets;
 use crate::compiler_state::CompilerState;
 use crate::config::{Config, ConfigProject};
 use crate::errors::BuildProjectError;
+use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
 use build_ir::BuildIRResult;
 use common::Timer;
@@ -27,12 +27,14 @@ use graphql_transforms::FBConnectionInterface;
 pub use validate::validate;
 
 pub async fn build_project(
-    compiler_state: &CompilerState,
     config: &Config,
     project_config: &ConfigProject,
-    ast_sets: &AstSets,
-    sources: &Sources<'_>,
+    compiler_state: &CompilerState,
+    graphql_asts: &GraphQLAsts<'_>,
 ) -> Result<(), BuildProjectError> {
+    let sources = graphql_asts.sources();
+    let is_incremental_build = compiler_state.has_processed_changes();
+
     // Construct a schema instance including project specific extensions.
     let schema = Timer::time(format!("build_schema {}", project_config.name), || {
         build_schema::build_schema(compiler_state, project_config)
@@ -44,7 +46,7 @@ pub async fn build_project(
         base_fragment_names,
     } = Timer::time(format!("build_ir {}", project_config.name), || {
         add_error_sources(
-            build_ir::build_ir(project_config, &schema, ast_sets),
+            build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build),
             sources,
         )
     })?;
@@ -87,7 +89,7 @@ pub async fn build_project(
     })?;
 
     println!(
-        "[{}] documents: {} reader, {} normalization, {} operation",
+        "[{}] compiled documents: {} reader, {} normalization, {} operation text",
         project_config.name,
         programs.reader.document_count(),
         programs.normalization.document_count(),

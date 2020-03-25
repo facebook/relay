@@ -93,7 +93,7 @@ describe('useLazyLoadQueryNode', () => {
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
-    const V1 = function (props) {
+    const V1 = function(props) {
       const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);

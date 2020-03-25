@@ -12,7 +12,7 @@
 
 const RelayProfiler = require('../RelayProfiler');
 
-describe('RelayProfiler', function () {
+describe('RelayProfiler', function() {
   const DEV = __DEV__;
 
   let mockMethod;
@@ -42,7 +42,7 @@ describe('RelayProfiler', function () {
       const expectedContext = mockObject;
       const expectedReturnValue = {};
 
-      mockMethod.mockImplementation(function (actualArgument) {
+      mockMethod.mockImplementation(function(actualArgument) {
         expect(actualArgument).toBe(expectedArgument);
         expect(this).toBe(expectedContext);
         return expectedReturnValue;

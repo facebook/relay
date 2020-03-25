@@ -3070,9 +3070,12 @@ describe('useRefetchableFragmentNode', () => {
             },
           },
         });
-        expect(anotherNewEnvironment.getStore().getSource().get('1')).toEqual(
-          dataInSource,
-        );
+        expect(
+          anotherNewEnvironment
+            .getStore()
+            .getSource()
+            .get('1'),
+        ).toEqual(dataInSource);
       });
     });
   });

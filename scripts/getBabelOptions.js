@@ -9,7 +9,7 @@
 
 'use strict';
 
-module.exports = function (options) {
+module.exports = function(options) {
   options = Object.assign(
     {
       env: 'production',

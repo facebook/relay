@@ -113,7 +113,9 @@ function transformRoot(
     argumentDefinitions: Array.from(argumentDefinitions.values(), argDef => {
       if (argDef.kind !== 'RootArgumentDefinition') {
         throw createCompilerError(
-          `inferRootArgumentDefinitions: Expected inferred variable '\$${argDef.name}' to be a root variables.`,
+          `inferRootArgumentDefinitions: Expected inferred variable '\$${
+            argDef.name
+          }' to be a root variables.`,
           [argDef.loc],
         );
       }

@@ -145,7 +145,7 @@ function instrument<F: (...$FlowFixMe) => mixed>(fn: F, name?: string): F {
     // $FlowFixMe - Flow no longer considers statics of functions as any
     fn.displayName ??
     fn.name;
-  const instrumented = function () {
+  const instrumented = function() {
     const traceId = start(profileName);
     try {
       return fn.apply(this, arguments);
@@ -182,7 +182,7 @@ function instrumentAsyncContext<F: (...$FlowFixMe) => Promise<$FlowFixMe>>(
     // $FlowFixMe - Flow no longer considers statics of functions as any
     fn.displayName ??
     fn.name;
-  const instrumented = async function () {
+  const instrumented = async function() {
     const traceId = start(profileName);
     try {
       return await fn.apply(this, arguments);
@@ -213,7 +213,7 @@ function instrumentWait<F: (...$FlowFixMe) => Promise<$FlowFixMe>>(
     // $FlowFixMe - Flow no longer considers statics of functions as any
     fn.displayName ??
     fn.name;
-  const instrumented = async function () {
+  const instrumented = async function() {
     const traceId = startWait(profileName);
     try {
       return await fn.apply(this, arguments);

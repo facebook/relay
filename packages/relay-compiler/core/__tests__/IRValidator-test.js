@@ -85,7 +85,7 @@ describe('IRValidator', () => {
       const sequence = [];
       const seenKinds = new Set();
       function createRecorder(kind) {
-        return function (node, state) {
+        return function(node, state) {
           expect(node.kind).toBe(kind);
           sequence.push(kind);
           seenKinds.add(kind);

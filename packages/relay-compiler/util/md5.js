@@ -13,7 +13,10 @@
 'use strict';
 
 function md5(str: string): string {
-  return require('crypto').createHash('md5').update(str, 'utf8').digest('hex');
+  return require('crypto')
+    .createHash('md5')
+    .update(str, 'utf8')
+    .digest('hex');
 }
 
 module.exports = md5;

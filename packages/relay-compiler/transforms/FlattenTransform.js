@@ -163,7 +163,9 @@ function flattenSelectionsInto(
     if (flattenedSelection.kind === 'InlineFragment') {
       if (selection.kind !== 'InlineFragment') {
         throw createCompilerError(
-          `FlattenTransform: Expected an InlineFragment, got a '${selection.kind}'`,
+          `FlattenTransform: Expected an InlineFragment, got a '${
+            selection.kind
+          }'`,
           [selection.loc],
         );
       }
@@ -197,7 +199,9 @@ function flattenSelectionsInto(
     } else if (flattenedSelection.kind === 'ClientExtension') {
       if (selection.kind !== 'ClientExtension') {
         throw createCompilerError(
-          `FlattenTransform: Expected a ClientExtension, got a '${selection.kind}'`,
+          `FlattenTransform: Expected a ClientExtension, got a '${
+            selection.kind
+          }'`,
           [selection.loc],
         );
       }
@@ -216,7 +220,9 @@ function flattenSelectionsInto(
     } else if (flattenedSelection.kind === 'ModuleImport') {
       if (selection.kind !== 'ModuleImport') {
         throw createCompilerError(
-          `FlattenTransform: Expected a ModuleImport, got a '${selection.kind}'`,
+          `FlattenTransform: Expected a ModuleImport, got a '${
+            selection.kind
+          }'`,
           [selection.loc],
         );
       }

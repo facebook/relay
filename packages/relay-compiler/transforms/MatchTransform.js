@@ -376,8 +376,8 @@ function visitFragmentSpread(
   if (
     jsFieldModuleArg == null ||
     !schema.isString(schema.getNullableType(jsFieldModuleArg.type)) ||
-    (jsFieldIdArg != null && !schema.isString(jsFieldIdArg.type)) ||
-    jsField.type !== jsModuleType
+    ((jsFieldIdArg != null && !schema.isString(jsFieldIdArg.type)) ||
+      jsField.type !== jsModuleType)
   ) {
     throw createUserError(
       `@module used on invalid fragment spread '...${spread.name}'. @module ` +
@@ -429,7 +429,9 @@ function visitFragmentSpread(
         throw createUserError(
           'Invalid @module selection: documents with multiple fields ' +
             "containing 3D selections must specify a unique 'key' value " +
-            `for each field: use '${parentField.alias} @match(key: "${documentName}_<localName>")'.`,
+            `for each field: use '${
+              parentField.alias
+            } @match(key: "${documentName}_<localName>")'.`,
           [parentField.loc],
         );
       }
@@ -447,7 +449,9 @@ function visitFragmentSpread(
     // so this is just an internal sanity check
     throw createCompilerError(
       'Invalid @module selection: expected all selections at path ' +
-        `'${aliasPath} to have the same 'key', got '${moduleKey}' and '${matches.key}'.`,
+        `'${aliasPath} to have the same 'key', got '${moduleKey}' and '${
+          matches.key
+        }'.`,
       [parentField?.loc ?? spread.loc],
     );
   }

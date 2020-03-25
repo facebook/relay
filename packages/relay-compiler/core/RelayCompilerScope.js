@@ -154,7 +154,9 @@ function getFragmentScope(
       if (argMap.has(definition.name)) {
         const argNode = args.find(a => a.name === definition.name);
         throw createUserError(
-          `Unexpected argument '${definition.name}' supplied to fragment '${spread.name}'. @arguments may only be provided for variables defined in the fragment's @argumentDefinitions.`,
+          `Unexpected argument '${definition.name}' supplied to fragment '${
+            spread.name
+          }'. @arguments may only be provided for variables defined in the fragment's @argumentDefinitions.`,
           [argNode?.loc ?? spread.loc],
         );
       }

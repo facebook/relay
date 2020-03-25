@@ -35,7 +35,9 @@ function useSubscribeToInvalidationState(
   const environment = useRelayEnvironment();
   const disposableRef = useRef(null);
 
-  const stableDataIDs = Array.from(dataIDs).sort().join('');
+  const stableDataIDs = Array.from(dataIDs)
+    .sort()
+    .join('');
   useEffect(() => {
     const store = environment.getStore();
     const invalidationState = store.lookupInvalidationState(dataIDs);

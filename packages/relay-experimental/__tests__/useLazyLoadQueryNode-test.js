@@ -297,7 +297,12 @@ describe('useLazyLoadQueryNode', () => {
     // Trigger timeout and GC to clear all references
     ReactTestRenderer.act(() => jest.runAllTimers());
     // Verify GC has run
-    expect(environment.getStore().getSource().toJSON()).toEqual({});
+    expect(
+      environment
+        .getStore()
+        .getSource()
+        .toJSON(),
+    ).toEqual({});
 
     renderFn.mockClear();
     environment.retain.mockClear();

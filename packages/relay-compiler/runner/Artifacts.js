@@ -203,7 +203,10 @@ function* eachNameAndArtifact(
 }
 
 function sha1(content: string): string {
-  return crypto.createHash('sha1').update(content).digest('hex');
+  return crypto
+    .createHash('sha1')
+    .update(content)
+    .digest('hex');
 }
 
 module.exports = {

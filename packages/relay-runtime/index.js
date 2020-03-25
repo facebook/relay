@@ -74,7 +74,9 @@ export type {
   RangeBehaviors,
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
-export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
+export type {
+  OptimisticMutationConfig,
+} from './mutations/applyOptimisticMutation';
 export type {
   DEPRECATED_MutationConfig,
   MutationConfig,
@@ -141,7 +143,9 @@ export type {
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
-export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
+export type {
+  GraphQLSubscriptionConfig,
+} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,

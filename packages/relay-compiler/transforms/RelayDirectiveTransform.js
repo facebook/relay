@@ -46,7 +46,7 @@ type MixedObj = {[key: string]: mixed, ...};
 function visitRelayMetadata<T: Fragment | FragmentSpread>(
   metadataFn: MixedObj => MixedObj,
 ): T => T {
-  return function (node) {
+  return function(node) {
     const relayDirective = node.directives.find(({name}) => name === RELAY);
     if (!relayDirective) {
       return this.traverse(node);

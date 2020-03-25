@@ -196,14 +196,18 @@ function printSelection(
       streamStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     if (selection.initialCount !== null) {
-      streamStr += `, initial_count: ${
-        printValue(schema, selection.initialCount, null) ?? ''
-      }`;
+      streamStr += `, initial_count: ${printValue(
+        schema,
+        selection.initialCount,
+        null,
+      ) ?? ''}`;
     }
     if (selection.useCustomizedBatch !== null) {
-      streamStr += `, use_customized_batch: ${
-        printValue(schema, selection.useCustomizedBatch, null) ?? 'false'
-      }`;
+      streamStr += `, use_customized_batch: ${printValue(
+        schema,
+        selection.useCustomizedBatch,
+        null,
+      ) ?? 'false'}`;
     }
     streamStr += ')';
     streamStr += parentDirectives;

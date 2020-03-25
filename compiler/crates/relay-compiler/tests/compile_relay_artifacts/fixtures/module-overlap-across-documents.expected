@@ -326,10 +326,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "BarNameRendererQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }
@@ -547,10 +547,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "FooNameRendererQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

@@ -140,10 +140,10 @@ extend type Subscription {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "FooMutation",
     "operationKind": "mutation",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }
@@ -270,10 +270,10 @@ mutation FooMutation(
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "FooQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }
@@ -394,10 +394,10 @@ query FooQuery(
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "FooSubscription",
     "operationKind": "subscription",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

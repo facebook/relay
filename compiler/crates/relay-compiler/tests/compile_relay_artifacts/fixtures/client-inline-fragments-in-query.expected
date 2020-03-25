@@ -186,10 +186,10 @@ interface ClientNamed {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "FooQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

@@ -149,10 +149,10 @@ query UnionQuery {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "UnionQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

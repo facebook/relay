@@ -85,7 +85,12 @@ async fn generate_normalization_artifact(
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
-    writeln!(content, "// @relayRequestParams TODO\n").unwrap();
+    writeln!(
+        content,
+        "// @relayRequestParams {}\n",
+        serde_json::to_string(&request_parameters).unwrap()
+    )
+    .unwrap();
     writeln!(content, "/*::\nTODO flow\n*/\n").unwrap();
     writeln!(content, "/*\n{}\n*/\n", text).unwrap();
     writeln!(

@@ -202,10 +202,10 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "TestQueryWithLiteral",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

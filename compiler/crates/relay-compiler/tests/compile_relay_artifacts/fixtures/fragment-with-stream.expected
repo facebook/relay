@@ -179,10 +179,10 @@ fragment FeedbackFragment on Feedback {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "QueryWithFragmentWithStream",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

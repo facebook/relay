@@ -68,10 +68,10 @@ query Test {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "Test",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

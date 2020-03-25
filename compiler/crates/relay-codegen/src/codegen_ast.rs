@@ -22,10 +22,10 @@ pub struct ConcreteRequest {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RequestParameters {
+    pub id: Option<String>,
+    pub metadata: FnvHashMap<String, String>,
     pub name: StringKey,
     pub operation_kind: ConcreteOperationKind,
-    pub metadata: FnvHashMap<String, String>,
-    pub id: Option<String>,
     pub text: Option<String>,
 }
 

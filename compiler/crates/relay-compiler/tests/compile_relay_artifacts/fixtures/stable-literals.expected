@@ -113,10 +113,10 @@ query StableLiteralsTest {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "StableLiteralsTest",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

@@ -91,10 +91,10 @@ query ViewerQuery {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "ViewerQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

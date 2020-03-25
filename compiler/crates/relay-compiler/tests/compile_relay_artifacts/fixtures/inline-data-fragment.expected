@@ -294,10 +294,10 @@ fragment Profile on User @inline {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "Test",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

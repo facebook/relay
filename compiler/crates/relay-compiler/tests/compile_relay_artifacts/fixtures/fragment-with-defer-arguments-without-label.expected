@@ -220,10 +220,10 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "QueryWithFragmentWithDefer",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

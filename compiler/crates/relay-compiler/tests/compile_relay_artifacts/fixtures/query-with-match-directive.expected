@@ -322,10 +322,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "NameRendererQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

@@ -98,10 +98,10 @@ query TestQuery($date: String) {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "TestQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

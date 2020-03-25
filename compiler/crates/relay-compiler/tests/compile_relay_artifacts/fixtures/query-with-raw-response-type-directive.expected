@@ -91,10 +91,10 @@ query ViewerQuery @raw_response_type {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "ViewerQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

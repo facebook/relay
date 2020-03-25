@@ -314,10 +314,10 @@ fragment FeedbackText_feedback on Feedback {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

@@ -351,10 +351,10 @@ fragment UserUtil2_user on User {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "TestQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

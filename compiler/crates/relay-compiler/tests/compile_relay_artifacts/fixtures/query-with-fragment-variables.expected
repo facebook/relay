@@ -382,10 +382,10 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "TestQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

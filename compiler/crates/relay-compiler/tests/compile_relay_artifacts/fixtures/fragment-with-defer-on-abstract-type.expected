@@ -156,10 +156,10 @@ fragment NodeFragment on Node {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "QueryWithFragmentWithDefer",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

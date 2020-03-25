@@ -260,10 +260,10 @@ fragment ProfilePhoto on User {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "QueryWithUnusedFragmentArgumentDefinition",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

@@ -184,10 +184,10 @@ fragment MyNestedViewer on Viewer
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "TestQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

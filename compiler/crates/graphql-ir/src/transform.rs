@@ -64,13 +64,7 @@ pub trait Transformer {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
-        if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
-                return Transformed::Delete;
-            }
-        }
         let directives = self.transform_directives(&fragment.directives);
         if selections.should_keep() && directives.should_keep() {
             return Transformed::Keep;

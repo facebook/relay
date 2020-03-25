@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 query BestFriendsQuery($id: ID!) {
   node(id: $id) {
     ...BestFriends
@@ -57,4 +55,395 @@ type Foo implements Named {
   name: String
 }
 ==================================== OUTPUT ===================================
-TODO
+{
+  "kind": "Fragment",
+  "name": "BestFriends",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "FragmentSpread",
+      "name": "NodeFragment",
+      "args": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "name": "FooFragment",
+          "args": null
+        },
+        {
+          "kind": "InlineFragment",
+          "type": "Foo",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "name",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "best_friends",
+          "args": null,
+          "concreteType": "FriendsConnection",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "edges",
+              "args": null,
+              "concreteType": "FriendsEdge",
+              "plural": true,
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "name": "node",
+                  "args": null,
+                  "concreteType": "User",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "name": "id",
+                      "args": null,
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                },
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "cursor",
+                  "args": null,
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            },
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "pageInfo",
+              "args": null,
+              "concreteType": "PageInfo",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "hasNextPage",
+                  "args": null,
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "FooFragment",
+  "type": "Foo",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "NodeFragment",
+  "type": "Node",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "OnlyClientFields",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "best_friends",
+          "args": null,
+          "concreteType": "FriendsConnection",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "__typename",
+              "args": null,
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Request",
+  "fragment": {
+    "kind": "Fragment",
+    "name": "BestFriendsQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "BestFriends",
+            "args": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "OnlyClientFields",
+            "args": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "BestFriendsQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "type": "Foo",
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "name",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "best_friends",
+                    "args": null,
+                    "concreteType": "FriendsConnection",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "edges",
+                        "args": null,
+                        "concreteType": "FriendsEdge",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "name": "node",
+                            "args": null,
+                            "concreteType": "User",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "name": "id",
+                                "args": null,
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "cursor",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "pageInfo",
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "hasNextPage",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "__typename",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "name": "BestFriendsQuery",
+    "operationKind": "query",
+    "metadata": {},
+    "id": null,
+    "text": null
+  }
+}
+
+QUERY:
+
+query BestFriendsQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...BestFriends
+    ...OnlyClientFields
+    __typename
+    id
+  }
+}
+
+fragment BestFriends on User {
+  ...NodeFragment
+}
+
+fragment NodeFragment on Node {
+  id
+}
+
+fragment OnlyClientFields on User

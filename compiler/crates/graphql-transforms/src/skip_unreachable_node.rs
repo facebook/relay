@@ -95,6 +95,28 @@ impl Transformer for SkipUnreachableNodeTransform {
         }
     }
 
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        // Remove the fragment with empty selections
+        let selections = self.transform_selections(&fragment.selections);
+        if let TransformedValue::Replace(selections) = &selections {
+            if selections.is_empty() {
+                return Transformed::Delete;
+            }
+        }
+        let directives = self.transform_directives(&fragment.directives);
+        if selections.should_keep() && directives.should_keep() {
+            return Transformed::Keep;
+        }
+        Transformed::Replace(FragmentDefinition {
+            directives: directives.replace_or_else(|| fragment.directives.clone()),
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
+            ..fragment.clone()
+        })
+    }
+
     fn transform_selections(
         &mut self,
         selections: &[Selection],

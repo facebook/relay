@@ -64,17 +64,17 @@ type Foo implements Named {
   "selections": [
     {
       "kind": "FragmentSpread",
+      "name": "FooFragment",
+      "args": null
+    },
+    {
+      "kind": "FragmentSpread",
       "name": "NodeFragment",
       "args": null
     },
     {
       "kind": "ClientExtension",
       "selections": [
-        {
-          "kind": "FragmentSpread",
-          "name": "FooFragment",
-          "args": null
-        },
         {
           "kind": "InlineFragment",
           "type": "Foo",

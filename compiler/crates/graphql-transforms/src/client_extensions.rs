@@ -7,10 +7,10 @@
 
 use crate::util::PointerAddress;
 use common::{FileKey, Location, Span, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
 use graphql_ir::{
-    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
-    ScalarField, Selection, Transformed, TransformedValue, Transformer,
+    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
+    TransformedValue, Transformer,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -19,11 +19,8 @@ use std::sync::Arc;
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.
 /// We mark client selection as  `Transformed::Delete`, and consume them in `transform_selections`.
-pub fn client_extensions<'s>(
-    program: &Program<'s>,
-    base_fragment_names: &FnvHashSet<StringKey>,
-) -> Program<'s> {
-    let mut transform = ClientExtensionsTransform::new(program, base_fragment_names);
+pub fn client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
+    let mut transform = ClientExtensionsTransform::new(program);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -43,18 +40,16 @@ impl Default for ClientExtensionConstants {
     }
 }
 
-struct ClientExtensionsTransform<'s, 'b> {
-    base_fragment_names: &'b FnvHashSet<StringKey>,
+struct ClientExtensionsTransform<'s> {
     client_extension_constants: ClientExtensionConstants,
     program: &'s Program<'s>,
     empty_location: Location,
     seen: Seen,
 }
 
-impl<'s, 'b> ClientExtensionsTransform<'s, 'b> {
-    fn new(program: &'s Program<'s>, base_fragment_names: &'b FnvHashSet<StringKey>) -> Self {
+impl<'s> ClientExtensionsTransform<'s> {
+    fn new(program: &'s Program<'s>) -> Self {
         Self {
-            base_fragment_names,
             client_extension_constants: Default::default(),
             program,
             seen: Default::default(),
@@ -76,22 +71,10 @@ impl<'s, 'b> ClientExtensionsTransform<'s, 'b> {
     }
 }
 
-impl<'s, 'b> Transformer for ClientExtensionsTransform<'s, 'b> {
+impl<'s> Transformer for ClientExtensionsTransform<'s> {
     const NAME: &'static str = "ClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
-
-    // Skip processing base fragments
-    fn transform_fragment(
-        &mut self,
-        fragment: &FragmentDefinition,
-    ) -> Transformed<FragmentDefinition> {
-        if self.base_fragment_names.contains(&fragment.name.item) {
-            Transformed::Keep
-        } else {
-            self.default_transform_fragment(fragment)
-        }
-    }
 
     fn transform_selections(
         &mut self,
@@ -160,19 +143,6 @@ impl<'s, 'b> Transformer for ClientExtensionsTransform<'s, 'b> {
             let result = self.default_transform_selection(selection);
             self.seen.insert(key, result.clone());
             result
-        }
-    }
-
-    fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        let fragment = self.program.fragment(spread.fragment.item).unwrap();
-        if self
-            .program
-            .schema()
-            .is_extension_type(fragment.type_condition)
-        {
-            Transformed::Delete
-        } else {
-            Transformed::Keep
         }
     }
 

@@ -119,7 +119,7 @@ const RelayProfiler = {
     const aggregateHandlers = aggregateHandlersByName[name];
     const handlers: Array<Handler> = [];
     const contexts: Array<[number, number, number, any, any, any]> = [];
-    const invokeHandlers = function() {
+    const invokeHandlers = function () {
       const context = contexts[contexts.length - 1];
       if (context[0]) {
         context[0]--;
@@ -134,7 +134,7 @@ const RelayProfiler = {
         context[5] = originalFunction.apply(context[3], context[4]);
       }
     };
-    const instrumentedCallback = function() {
+    const instrumentedCallback = function () {
       let returnValue;
       if (
         aggregateHandlers.length === 0 &&
@@ -162,10 +162,10 @@ const RelayProfiler = {
       }
       return returnValue;
     };
-    instrumentedCallback.attachHandler = function(handler: Handler): void {
+    instrumentedCallback.attachHandler = function (handler: Handler): void {
       handlers.push(handler);
     };
-    instrumentedCallback.detachHandler = function(handler: Handler): void {
+    instrumentedCallback.detachHandler = function (handler: Handler): void {
       removeFromArray(handlers, handler);
     };
     instrumentedCallback.displayName = '(instrumented ' + name + ')';

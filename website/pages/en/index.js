@@ -55,7 +55,7 @@ class Index extends React.Component {
   render() {
     let language = this.props.language || 'en';
     const showcase = siteConfig.users
-      .filter(user => {
+      .filter((user) => {
         return user.pinned;
       })
       .map((user, i) => {
@@ -257,24 +257,30 @@ export default createFragmentContainer(ArtistHeader, {
               contents={[
                 {
                   title: 'Fragments',
-                  content: `<p>A GraphQL <a href="https://graphql.org/learn/queries/#fragments" target="_blank">Fragment</a> is a reusable selection of fields for a given GraphQL type. It can be composed by including it in other Fragments, or including it as part of GraphQL Queries.</p><p>Relay uses Fragments to declare data requirements for components, and compose data requirements together.</p><p>See the <a href=${siteConfig.baseUrl +
+                  content: `<p>A GraphQL <a href="https://graphql.org/learn/queries/#fragments" target="_blank">Fragment</a> is a reusable selection of fields for a given GraphQL type. It can be composed by including it in other Fragments, or including it as part of GraphQL Queries.</p><p>Relay uses Fragments to declare data requirements for components, and compose data requirements together.</p><p>See the <a href=${
+                    siteConfig.baseUrl +
                     'docs/' +
                     this.props.language +
-                    '/fragment-container'}>Fragment Container docs</a></p>`,
+                    '/fragment-container'
+                  }>Fragment Container docs</a></p>`,
                 },
                 {
                   title: 'Connections',
-                  content: `<p>GraphQL <a href="https://graphql.org/learn/pagination/#complete-connection-model" target="_blank">Connections</a> are a model for representing lists of data in GraphQL, so that they can easily be paginated in any direction, as well as to be able to encode rich relationship data.</p><p>GraphQL Connections are considered a best practice for <a href="https://graphql.org/learn/pagination/">Pagination in GraphQL</a>, and Relay provides first class support for these, as long as your GraphQL server supports them.</p><p>See the <a href=${siteConfig.baseUrl +
+                  content: `<p>GraphQL <a href="https://graphql.org/learn/pagination/#complete-connection-model" target="_blank">Connections</a> are a model for representing lists of data in GraphQL, so that they can easily be paginated in any direction, as well as to be able to encode rich relationship data.</p><p>GraphQL Connections are considered a best practice for <a href="https://graphql.org/learn/pagination/">Pagination in GraphQL</a>, and Relay provides first class support for these, as long as your GraphQL server supports them.</p><p>See the <a href=${
+                    siteConfig.baseUrl +
                     'docs/' +
                     this.props.language +
-                    '/graphql-server-specification.html#connections'}>Connections</a> docs</p>`,
+                    '/graphql-server-specification.html#connections'
+                  }>Connections</a> docs</p>`,
                 },
                 {
                   title: 'Global Object Identification',
-                  content: `<p>Relay relies on <a href="https://graphql.org/learn/global-object-identification/" target="_blank">Global Object Identification</a> to provide reliable caching and refetching, and to make it possible to automatically merge updates for objects.</p><p>Global Object Identification consists on providing globally unique ids across your entire schema for every type, built using the Node GraphQL interface.</p><p><a href=${siteConfig.baseUrl +
+                  content: `<p>Relay relies on <a href="https://graphql.org/learn/global-object-identification/" target="_blank">Global Object Identification</a> to provide reliable caching and refetching, and to make it possible to automatically merge updates for objects.</p><p>Global Object Identification consists on providing globally unique ids across your entire schema for every type, built using the Node GraphQL interface.</p><p><a href=${
+                    siteConfig.baseUrl +
                     'docs/' +
                     this.props.language +
-                    '/graphql-server-specification.html#object-identification'}>See the Object Identification docs</a></p>`,
+                    '/graphql-server-specification.html#object-identification'
+                  }>See the Object Identification docs</a></p>`,
                 },
               ]}
             />

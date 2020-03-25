@@ -919,10 +919,7 @@ class Executor {
         // but Relay records paths relative to the parent of the stream node:
         // therefore we strip the last two elements just to lookup the path
         // (the item index is used later to insert the element in the list)
-        const pathKey = path
-          .slice(0, -2)
-          .map(String)
-          .join('.');
+        const pathKey = path.slice(0, -2).map(String).join('.');
         let resultForPath = resultForLabel.get(pathKey);
         if (resultForPath == null) {
           resultForPath = {kind: 'response', responses: [incrementalResponse]};

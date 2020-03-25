@@ -15,9 +15,10 @@ const transformerWithOptions = require('./transformerWithOptions');
 describe('`development` option', () => {
   it('tests the hash when `development` is set', () => {
     expect(
-      transformerWithOptions({}, 'development')(
-        'graphql`fragment TestFrag on Node { id }`',
-      ),
+      transformerWithOptions(
+        {},
+        'development',
+      )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
   });
 
@@ -42,9 +43,10 @@ describe('`development` option', () => {
 
   it('does not test the hash when `development` is not set', () => {
     expect(
-      transformerWithOptions({}, 'production')(
-        'graphql`fragment TestFrag on Node { id }`',
-      ),
+      transformerWithOptions(
+        {},
+        'production',
+      )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
   });
 });

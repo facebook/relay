@@ -238,10 +238,7 @@ function updateFiles(
 
 function hashFile(filename: string): string {
   const content = fs.readFileSync(filename);
-  return crypto
-    .createHash('sha1')
-    .update(content)
-    .digest('hex');
+  return crypto.createHash('sha1').update(content).digest('hex');
 }
 
 module.exports = {

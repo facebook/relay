@@ -29,7 +29,7 @@ const babelOptions = getBabelOptions({
 });
 
 module.exports = {
-  process: function(src, filename) {
+  process: function (src, filename) {
     const options = Object.assign({}, babelOptions, {
       filename: filename,
       retainLines: true,

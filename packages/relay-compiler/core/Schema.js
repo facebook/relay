@@ -1732,9 +1732,7 @@ class TypeMap {
     const type = this._types.get(node.name.value);
     if (!(type instanceof ObjectType)) {
       throw createCompilerError(
-        `_parseObjectTypeExtension: Expected to find type with the name '${
-          node.name.value
-        }'`,
+        `_parseObjectTypeExtension: Expected to find type with the name '${node.name.value}'`,
         null,
         [node],
       );

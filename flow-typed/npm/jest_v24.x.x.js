@@ -1113,9 +1113,9 @@ type JestPrettyFormatColors = {
   value: {close: string, open: string},
 };
 
-type JestPrettyFormatIndent = string => string;
+type JestPrettyFormatIndent = (string) => string;
 type JestPrettyFormatRefs = Array<any>;
-type JestPrettyFormatPrint = any => string;
+type JestPrettyFormatPrint = (any) => string;
 type JestPrettyFormatStringOrNull = string | null;
 
 type JestPrettyFormatOptions = {|
@@ -1146,7 +1146,7 @@ type JestPrettyFormatPlugin = {
     opts: JestPrettyFormatOptions,
     colors: JestPrettyFormatColors,
   ) => string,
-  test: any => boolean,
+  test: (any) => boolean,
 };
 
 type JestPrettyFormatPlugins = Array<JestPrettyFormatPlugin>;

@@ -50,10 +50,7 @@ type SourcesState = {
 };
 
 function md5(x: string): string {
-  return require('crypto')
-    .createHash('md5')
-    .update(x, 'utf8')
-    .digest('hex');
+  return require('crypto').createHash('md5').update(x, 'utf8').digest('hex');
 }
 
 class Sources<T: ASTNode> {
@@ -129,9 +126,7 @@ class Sources<T: ASTNode> {
         }
       } catch (error) {
         throw new Error(
-          `RelayCompiler: Sources module failed to parse ${file.name}:\n${
-            error.message
-          }`,
+          `RelayCompiler: Sources module failed to parse ${file.name}:\n${error.message}`,
         );
       }
       const hasEntry = state.hasOwnProperty(file.name);

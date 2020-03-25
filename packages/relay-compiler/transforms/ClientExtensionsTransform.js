@@ -70,9 +70,7 @@ function traverseDefinition<T: Definition>(node: T): T {
   }
   if (rootType == null) {
     throw createUserError(
-      `ClientExtensionTransform: Expected the type of \`${
-        node.name
-      }\` to have been defined in the schema. Make sure both server and ` +
+      `ClientExtensionTransform: Expected the type of \`${node.name}\` to have been defined in the schema. Make sure both server and ` +
         'client schema are up to date.',
       [node.loc],
     );
@@ -154,9 +152,7 @@ function traverseSelections<T: Node>(
       default:
         (selection: empty);
         throw createCompilerError(
-          `ClientExtensionTransform: Unexpected selection of kind \`${
-            selection.kind
-          }\`.`,
+          `ClientExtensionTransform: Unexpected selection of kind \`${selection.kind}\`.`,
           [selection.loc],
         );
     }

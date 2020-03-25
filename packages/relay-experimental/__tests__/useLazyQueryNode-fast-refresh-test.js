@@ -101,7 +101,7 @@ describe('useLazyLoadQueryNode', () => {
      */
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
-    const V1 = function(props) {
+    const V1 = function (props) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,

@@ -140,9 +140,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${context.alias ??
-              context.name ??
-              'undefined'}">`);
+          : `<mock-value-for-field-"${
+              context.alias ?? context.name ?? 'undefined'
+            }">`);
     }
     return mockValue;
   };

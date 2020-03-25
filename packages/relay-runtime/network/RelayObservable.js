@@ -223,7 +223,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   do(observer: Observer<T>): RelayObservable<T> {
     return RelayObservable.create(sink => {
       const both = (action: any) =>
-        function() {
+        function () {
           try {
             observer[action] && observer[action].apply(observer, arguments);
           } catch (error) {

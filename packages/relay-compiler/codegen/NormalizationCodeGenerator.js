@@ -113,19 +113,12 @@ function generateSplitOperation(
   node: SplitOperation,
   sortObjectKeys: boolean,
 ): NormalizationSplitOperation {
-  return sortObjectKeys
-    ? {
-        kind: 'SplitOperation',
-        name: node.name,
-        metadata: node.metadata,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      }
-    : {
-        kind: 'SplitOperation',
-        metadata: node.metadata,
-        name: node.name,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      };
+  return {
+    kind: 'SplitOperation',
+    metadata: node.metadata,
+    name: node.name,
+    selections: generateSelections(schema, node.selections, sortObjectKeys),
+  };
 }
 
 function generateSelections(

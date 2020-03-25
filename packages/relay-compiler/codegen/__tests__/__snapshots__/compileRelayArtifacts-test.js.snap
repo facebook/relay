@@ -8021,10 +8021,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -8058,10 +8058,10 @@ SplitOperation {
 }
 
 SplitOperation {
-  name: "PlainUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "PlainUserNameRenderer_name",
   },
+  name: "PlainUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -8562,10 +8562,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -8886,10 +8886,10 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 
 SplitOperation {
-  name: "PlainUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "PlainUserNameRenderer_name",
   },
+  name: "PlainUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -8923,10 +8923,10 @@ SplitOperation {
 }
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -9871,10 +9871,10 @@ fragment NameRendererFragment on User {
 
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -10562,10 +10562,10 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 
 SplitOperation {
-  name: "PlainUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "PlainUserNameRenderer_name",
   },
+  name: "PlainUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -10599,10 +10599,10 @@ SplitOperation {
 }
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -10954,10 +10954,10 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 
 SplitOperation {
-  name: "PlainUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "PlainUserNameRenderer_name",
   },
+  name: "PlainUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -10991,10 +10991,10 @@ SplitOperation {
 }
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -11379,10 +11379,10 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 
 SplitOperation {
-  name: "PlainUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "PlainUserNameRenderer_name",
   },
+  name: "PlainUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -11416,10 +11416,10 @@ SplitOperation {
 }
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -11776,10 +11776,10 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 
 SplitOperation {
-  name: "PlainUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "PlainUserNameRenderer_name",
   },
+  name: "PlainUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -11813,10 +11813,10 @@ SplitOperation {
 }
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,
@@ -12136,10 +12136,10 @@ fragment NameRendererFragment on User {
 
 
 SplitOperation {
-  name: "MarkdownUserNameRenderer_name$normalization",
   metadata: {
     "derivedFrom": "MarkdownUserNameRenderer_name",
   },
+  name: "MarkdownUserNameRenderer_name$normalization",
   selections: [
     ScalarField {
       alias: null,

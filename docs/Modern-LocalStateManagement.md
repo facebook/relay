@@ -131,12 +131,32 @@ Note that since this record will be rendered by the `ExampleQuery` in our `Query
 If no component is rendering the local data and you want to manually retain it, you can do so by calling `environment.retain()`:
 
 ```javascript
-// Tell Relay to retain the record so it isn't garbage collected
-environment.retain({
-  dataID,
-  variables: {},
-  node: { selections: [] }
-});
+import {createOperationDescriptor, getRequest} from 'relay-runtime';
+
+// Create a query that references that record
+const localDataQuery = graphql`
+  query LocalDataQuery {
+    viewer {
+      notes {
+        __typename
+      }
+    }
+  }
+`;
+
+// Create an operation descriptor for the query
+const request = getRequest(localDataQuery);
+const operation = createOperationDescriptor(request, {} /* variables */);
+
+
+// Tell Relay to retain this operation so any data referenced by it isn't garbage collected
+// In this case, all the notes linked to the `viewer` will be retained
+const disposable = environment.retain(operation);
+
+
+// Whenever you don't need that data anymore and it's okay for Relay to garbage collect it,
+// you can dispose of the retain
+disposable.dispose();
 ```
 
 ### Update

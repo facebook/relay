@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::print_fragment;
-use graphql_transforms::{mask, sort_selections};
+use graphql_transforms::mask;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -18,7 +18,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, file_key).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let next_program = sort_selections(&mask(&program));
+    let next_program = &mask(&program);
 
     assert_eq!(
         next_program.fragments().count(),

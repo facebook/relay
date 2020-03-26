@@ -48,6 +48,13 @@ query UnionQuery {
             "type": "Story",
             "selections": [
               {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              },
+              {
                 "kind": "LinkedField",
                 "alias": null,
                 "name": "body",
@@ -63,13 +70,6 @@ query UnionQuery {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "id",
-                "args": null,
                 "storageKey": null
               }
             ]
@@ -92,6 +92,20 @@ query UnionQuery {
         "concreteType": null,
         "plural": false,
         "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
           {
             "kind": "InlineFragment",
             "type": "NonNode",
@@ -128,20 +142,6 @@ query UnionQuery {
                 "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -161,21 +161,21 @@ QUERY:
 
 query UnionQuery {
   maybeNode {
-    ... on Node {
+    __typename
+    ... on FakeNode {
       id
     }
-    ... on FakeNode {
+    ... on Node {
       id
     }
     ... on NonNode {
       name
     }
     ... on Story {
+      id
       body {
         text
       }
-      id
     }
-    __typename
   }
 }

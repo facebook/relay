@@ -31,11 +31,11 @@ fragment NestedFragment2 on User {
 }
 
 fragment UserFragment on User {
+  name
+  address {
+    street
+    city
+  }
   ...NestedFragment
   ...NestedFragment2
-  address {
-    city
-    street
-  }
-  name
 }

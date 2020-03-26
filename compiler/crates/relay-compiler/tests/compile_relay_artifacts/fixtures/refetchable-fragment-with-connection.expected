@@ -51,9 +51,23 @@ fragment PaginationFragment on Node
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "InlineFragment",
       "type": "User",
       "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        },
         {
           "kind": "LinkedField",
           "alias": null,
@@ -163,22 +177,8 @@ fragment PaginationFragment on Node
           "handle": "connection",
           "key": "PaginationFragment_friends",
           "filters": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
-          "storageKey": null
         }
       ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }

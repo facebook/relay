@@ -56,6 +56,13 @@ type ClientType {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "ClientExtension",
       "selections": [
         {
@@ -75,13 +82,6 @@ type ClientType {
           "storageKey": null
         }
       ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -153,6 +153,20 @@ type ClientType {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "User",
             "selections": [
@@ -180,20 +194,6 @@ type ClientType {
                 ]
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -215,8 +215,8 @@ query FooQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ...Foo_user
     __typename
+    ...Foo_user
     id
   }
 }

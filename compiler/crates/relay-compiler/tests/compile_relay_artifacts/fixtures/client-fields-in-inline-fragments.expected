@@ -43,16 +43,11 @@ extend type Page {
   ],
   "selections": [
     {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "client_actor_field",
-          "args": null,
-          "storageKey": null
-        }
-      ]
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
     },
     {
       "kind": "LinkedField",
@@ -62,6 +57,13 @@ extend type Page {
       "concreteType": "StreetAddress",
       "plural": false,
       "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "city",
+          "args": null,
+          "storageKey": null
+        },
         {
           "kind": "ClientExtension",
           "selections": [
@@ -79,23 +81,21 @@ extend type Page {
               "storageKey": null
             }
           ]
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "city",
-          "args": null,
-          "storageKey": null
         }
       ],
       "storageKey": null
     },
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_actor_field",
+          "args": null,
+          "storageKey": null
+        }
+      ]
     }
   ]
 }

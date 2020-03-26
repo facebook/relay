@@ -29,6 +29,13 @@ type Foo {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "ClientExtension",
       "selections": [
         {
@@ -39,6 +46,13 @@ type Foo {
           "concreteType": "Foo",
           "plural": false,
           "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_name",
+              "args": null,
+              "storageKey": null
+            },
             {
               "kind": "LinkedField",
               "alias": null,
@@ -62,25 +76,11 @@ type Foo {
                 }
               ],
               "storageKey": "profile_picture(scale:2.0)"
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_name",
-              "args": null,
-              "storageKey": null
             }
           ],
           "storageKey": null
         }
       ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }

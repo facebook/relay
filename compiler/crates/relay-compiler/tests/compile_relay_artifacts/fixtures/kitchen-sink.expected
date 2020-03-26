@@ -75,6 +75,20 @@ fragment UserFragment on User
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "__typename",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "friends",
@@ -104,6 +118,58 @@ fragment UserFragment on User
       "storageKey": null
     },
     {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "cond",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "LinkedField",
+      "alias": "thumbnail",
+      "name": "profilePicture",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": 32
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "height",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "width",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": "src",
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ],
+      "storageKey": "profilePicture(size:32)"
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "profilePicture",
@@ -126,15 +192,15 @@ fragment UserFragment on User
         },
         {
           "kind": "ScalarField",
-          "alias": "src",
-          "name": "uri",
+          "alias": null,
+          "name": "width",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
-          "alias": null,
-          "name": "width",
+          "alias": "src",
+          "name": "uri",
           "args": null,
           "storageKey": null
         }
@@ -164,72 +230,6 @@ fragment UserFragment on User
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "LinkedField",
-      "alias": "thumbnail",
-      "name": "profilePicture",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "size",
-          "value": 32
-        }
-      ],
-      "concreteType": "Image",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "height",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": "src",
-          "name": "uri",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "width",
-          "args": null,
-          "storageKey": null
-        }
-      ],
-      "storageKey": "profilePicture(size:32)"
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "__typename",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "Condition",
-      "passingValue": true,
-      "condition": "cond",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
-          "storageKey": null
-        }
-      ]
     }
   ]
 }
@@ -381,6 +381,20 @@ fragment UserFragment on User
                 "type": "User",
                 "selections": [
                   {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "name",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
                     "kind": "LinkedField",
                     "alias": null,
                     "name": "friends",
@@ -406,6 +420,44 @@ fragment UserFragment on User
                   },
                   {
                     "kind": "LinkedField",
+                    "alias": "thumbnail",
+                    "name": "profilePicture",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "size",
+                        "value": 32
+                      }
+                    ],
+                    "concreteType": "Image",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "height",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "width",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": "src",
+                        "name": "uri",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": "profilePicture(size:32)"
+                  },
+                  {
+                    "kind": "LinkedField",
                     "alias": null,
                     "name": "profilePicture",
                     "args": [
@@ -427,15 +479,15 @@ fragment UserFragment on User
                       },
                       {
                         "kind": "ScalarField",
-                        "alias": "src",
-                        "name": "uri",
+                        "alias": null,
+                        "name": "width",
                         "args": null,
                         "storageKey": null
                       },
                       {
                         "kind": "ScalarField",
-                        "alias": null,
-                        "name": "width",
+                        "alias": "src",
+                        "name": "uri",
                         "args": null,
                         "storageKey": null
                       }
@@ -464,58 +516,6 @@ fragment UserFragment on User
                         "storageKey": null
                       }
                     ],
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "LinkedField",
-                    "alias": "thumbnail",
-                    "name": "profilePicture",
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "size",
-                        "value": 32
-                      }
-                    ],
-                    "concreteType": "Image",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "height",
-                        "args": null,
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": "src",
-                        "name": "uri",
-                        "args": null,
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "width",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": "profilePicture(size:32)"
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "name",
-                    "args": null,
                     "storageKey": null
                   }
                 ]
@@ -553,22 +553,22 @@ query NodeQuery(
 }
 
 fragment UserFragment_3M2EvT on User {
+  id
+  __typename
   friends(after: null, first: 5) {
     count
   }
+  thumbnail: profilePicture(size: 32) {
+    height
+    width
+    src: uri
+  }
   profilePicture(size: $PictureSize) {
     height
-    src: uri
     width
+    src: uri
   }
   scaled: profilePicture(size: $PictureSize) {
     uri
   }
-  thumbnail: profilePicture(size: 32) {
-    height
-    src: uri
-    width
-  }
-  __typename
-  id
 }

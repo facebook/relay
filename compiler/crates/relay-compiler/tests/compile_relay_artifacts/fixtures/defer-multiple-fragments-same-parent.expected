@@ -159,6 +159,13 @@ fragment FeedbackText_feedback on Feedback {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "FragmentSpread",
             "name": "FeedbackComments_feedback",
             "args": null
@@ -167,13 +174,6 @@ fragment FeedbackText_feedback on Feedback {
             "kind": "FragmentSpread",
             "name": "FeedbackText_feedback",
             "args": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -206,6 +206,20 @@ fragment FeedbackText_feedback on Feedback {
         "concreteType": null,
         "plural": false,
         "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
           {
             "kind": "InlineFragment",
             "type": "Feedback",
@@ -293,20 +307,6 @@ fragment FeedbackText_feedback on Feedback {
                 "storageKey": "comments(first:10)"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -328,10 +328,10 @@ query QueryWithMultipeDeferredFragmentsOnSameParent(
   $id: ID!
 ) {
   feedback: node(id: $id) {
-    ...FeedbackComments_feedback @defer
-    ...FeedbackText_feedback @defer
     __typename
     id
+    ...FeedbackComments_feedback @defer
+    ...FeedbackText_feedback @defer
   }
 }
 

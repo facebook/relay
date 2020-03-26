@@ -62,6 +62,13 @@ query NodeQuery($id: ID!) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Story",
             "selections": [
@@ -88,6 +95,13 @@ query NodeQuery($id: ID!) {
                     "plural": true,
                     "selections": [
                       {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "node",
@@ -103,13 +117,6 @@ query NodeQuery($id: ID!) {
                             "storageKey": null
                           }
                         ],
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "cursor",
-                        "args": null,
                         "storageKey": null
                       }
                     ],
@@ -159,13 +166,6 @@ query NodeQuery($id: ID!) {
                 "filters": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -199,6 +199,20 @@ query NodeQuery($id: ID!) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Story",
             "selections": [
@@ -225,6 +239,13 @@ query NodeQuery($id: ID!) {
                     "plural": true,
                     "selections": [
                       {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "cursor",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "node",
@@ -247,13 +268,6 @@ query NodeQuery($id: ID!) {
                             "storageKey": null
                           }
                         ],
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "cursor",
-                        "args": null,
                         "storageKey": null
                       }
                     ],
@@ -288,20 +302,6 @@ query NodeQuery($id: ID!) {
                 "storageKey": "comments(first:10)"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -323,14 +323,16 @@ query NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
+    __typename
+    id
     ... on Story {
       comments(first: 10) {
         edges {
+          cursor
           node {
             __typename
             id
           }
-          cursor
         }
         pageInfo {
           endCursor
@@ -338,7 +340,5 @@ query NodeQuery(
         }
       }
     }
-    __typename
-    id
   }
 }

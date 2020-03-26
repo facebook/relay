@@ -68,6 +68,13 @@ query NodeQuery($id: ID!) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Story",
             "selections": [
@@ -102,6 +109,13 @@ query NodeQuery($id: ID!) {
                         "plural": false,
                         "selections": [
                           {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
                             "kind": "LinkedField",
                             "alias": null,
                             "name": "actor",
@@ -117,13 +131,6 @@ query NodeQuery($id: ID!) {
                                 "storageKey": null
                               }
                             ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "__typename",
-                            "args": null,
                             "storageKey": null
                           }
                         ],
@@ -183,13 +190,6 @@ query NodeQuery($id: ID!) {
                 "filters": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -222,6 +222,20 @@ query NodeQuery($id: ID!) {
         "concreteType": null,
         "plural": false,
         "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
           {
             "kind": "InlineFragment",
             "type": "Story",
@@ -257,6 +271,20 @@ query NodeQuery($id: ID!) {
                         "plural": false,
                         "selections": [
                           {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "__typename",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "id",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
                             "kind": "LinkedField",
                             "alias": null,
                             "name": "actor",
@@ -274,32 +302,18 @@ query NodeQuery($id: ID!) {
                               {
                                 "kind": "ScalarField",
                                 "alias": null,
-                                "name": "id",
+                                "name": "name",
                                 "args": null,
                                 "storageKey": null
                               },
                               {
                                 "kind": "ScalarField",
                                 "alias": null,
-                                "name": "name",
+                                "name": "id",
                                 "args": null,
                                 "storageKey": null
                               }
                             ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "__typename",
-                            "args": null,
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
                             "storageKey": null
                           }
                         ],
@@ -344,20 +358,6 @@ query NodeQuery($id: ID!) {
                 "storageKey": "comments(first:10)"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -379,17 +379,19 @@ query NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
+    __typename
+    id
     ... on Story {
       comments(first: 10) {
         edges {
           node {
-            actor {
-              __typename
-              id
-              name
-            }
             __typename
             id
+            actor {
+              __typename
+              name
+              id
+            }
           }
           cursor
         }
@@ -399,7 +401,5 @@ query NodeQuery(
         }
       }
     }
-    __typename
-    id
   }
 }

@@ -62,29 +62,29 @@ fragment ProfilePicture on User {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "InlineFragment",
       "type": "User",
       "selections": [
-        {
-          "kind": "FragmentSpread",
-          "name": "ProfilePicture",
-          "args": null
-        },
         {
           "kind": "ScalarField",
           "alias": null,
           "name": "name",
           "args": null,
           "storageKey": null
+        },
+        {
+          "kind": "FragmentSpread",
+          "name": "ProfilePicture",
+          "args": null
         }
       ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }

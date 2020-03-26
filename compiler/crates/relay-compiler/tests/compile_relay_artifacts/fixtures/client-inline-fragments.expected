@@ -26,6 +26,13 @@ interface ClientNamed {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "ClientExtension",
       "selections": [
         {
@@ -47,13 +54,6 @@ interface ClientNamed {
           "storageKey": null
         }
       ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }

@@ -50,6 +50,19 @@ fragment UserUtil2_user on User {
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "firstName",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "if",
+          "variableName": "showFirstName"
+        }
+      ],
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "profilePicture",
@@ -66,29 +79,16 @@ fragment UserUtil2_user on User {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "height",
+          "name": "width",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
+          "name": "height",
           "args": null,
           "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "firstName",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "if",
-          "variableName": "showFirstName"
         }
       ],
       "storageKey": null
@@ -173,14 +173,14 @@ fragment UserUtil2_user on User {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "height",
+          "name": "width",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
+          "name": "height",
           "args": null,
           "storageKey": null
         }
@@ -282,6 +282,19 @@ fragment UserUtil2_user on User {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "firstName",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "if",
+                "variableName": "showFirstName"
+              }
+            ],
+            "storageKey": null
+          },
+          {
             "kind": "LinkedField",
             "alias": null,
             "name": "profilePicture",
@@ -298,38 +311,18 @@ fragment UserUtil2_user on User {
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "height",
+                "name": "width",
                 "args": null,
                 "storageKey": null
               },
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "width",
+                "name": "height",
                 "args": null,
                 "storageKey": null
               }
             ],
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "firstName",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "if",
-                "variableName": "showFirstName"
-              }
-            ],
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
             "storageKey": null
           },
           {
@@ -343,6 +336,13 @@ fragment UserUtil2_user on User {
                 "variableName": "isRelative"
               }
             ],
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
             "storageKey": null
           }
         ],
@@ -373,10 +373,10 @@ query TestQuery(
 }
 
 fragment UserProfile_user on User {
-  profilePicture(size: $ProfilePicture_SIZE) {
-    height
-    width
-  }
   firstName(if: $showFirstName)
+  profilePicture(size: $ProfilePicture_SIZE) {
+    width
+    height
+  }
   url(relative: $isRelative)
 }

@@ -37,6 +37,20 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "profile_picture",
@@ -59,20 +73,6 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "name",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -85,15 +85,11 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 1.5
-        }
-      ]
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
     },
     {
       "kind": "ScalarField",
@@ -103,11 +99,15 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
       "storageKey": null
     },
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
+      "kind": "FragmentSpread",
+      "name": "DeferredFragment",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 1.5
+        }
+      ]
     }
   ]
 }
@@ -130,16 +130,16 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "plural": false,
         "selections": [
           {
-            "kind": "FragmentSpread",
-            "name": "UserFragment",
-            "args": null
-          },
-          {
             "kind": "ScalarField",
             "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "UserFragment",
+            "args": null
           }
         ],
         "storageKey": null
@@ -159,6 +159,27 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "concreteType": "User",
         "plural": false,
         "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "emailAddresses",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "name",
+            "args": null,
+            "storageKey": null
+          },
           {
             "kind": "LinkedField",
             "alias": null,
@@ -182,27 +203,6 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
               }
             ],
             "storageKey": "profile_picture(scale:1.5)"
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "emailAddresses",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "name",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -222,21 +222,21 @@ QUERY:
 
 query QueryWithFragmentWithDefer {
   me {
-    ...UserFragment
     id
+    ...UserFragment
   }
 }
 
 fragment DeferredFragment_QMvSr on User {
+  id
+  name
   profile_picture(scale: 1.5) {
     uri
   }
-  id
-  name
 }
 
 fragment UserFragment on User {
-  ...DeferredFragment_QMvSr @defer(label: "DeferredFragmentLabel")
-  emailAddresses
   id
+  emailAddresses
+  ...DeferredFragment_QMvSr @defer(label: "DeferredFragmentLabel")
 }

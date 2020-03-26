@@ -149,6 +149,13 @@ fragment ConnectionFragment on User
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "FragmentSpread",
             "name": "ConnectionFragment",
             "args": [
@@ -158,13 +165,6 @@ fragment ConnectionFragment on User
                 "value": false
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null

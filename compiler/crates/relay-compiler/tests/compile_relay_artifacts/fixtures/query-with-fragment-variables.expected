@@ -175,6 +175,13 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "FragmentSpread",
             "name": "Profile",
             "args": [
@@ -184,13 +191,6 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                 "variableName": "pictureSize"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           },
           {
             "kind": "Condition",
@@ -250,6 +250,20 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "User",
             "selections": [
@@ -278,20 +292,6 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                 "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           },
           {
             "kind": "Condition",
@@ -398,9 +398,9 @@ query TestQuery(
   $pictureSize: [Int] = [128]
 ) {
   node(id: $id) {
-    ...Profile_4CNNX6
     __typename
     id
+    ...Profile_4CNNX6
     ...ProfileFriends @include(if: $cond)
   }
 }

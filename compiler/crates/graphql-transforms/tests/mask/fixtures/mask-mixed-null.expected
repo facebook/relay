@@ -44,12 +44,12 @@ fragment NonNullIDFragment on Query {
 
 fragment NonNullableIDFirstFragment on Query {
   ... on Query {
-    node(id: $id) {
+    node_id_required(id: $id) {
       id
     }
   }
   ... on Query {
-    node_id_required(id: $id) {
+    node(id: $id) {
       id
     }
   }

@@ -25,6 +25,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
 schema = { path = "../schema" }
 fnv = "1.0"
+indexmap = { version = "1.3", features = ["serde-1", "rayon"] }
 lazy_static = "1.0"
 thiserror = "1.0"
 

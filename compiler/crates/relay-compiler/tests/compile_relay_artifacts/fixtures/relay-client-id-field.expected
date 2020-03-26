@@ -44,6 +44,13 @@ query RelayClientIDFieldQuery($id: ID!) {
     ],
     "selections": [
       {
+        "kind": "ScalarField",
+        "alias": null,
+        "name": "__id",
+        "args": null,
+        "storageKey": null
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "me",
@@ -90,6 +97,27 @@ query RelayClientIDFieldQuery($id: ID!) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Comment",
             "selections": [
@@ -110,9 +138,30 @@ query RelayClientIDFieldQuery($id: ID!) {
                 "plural": false,
                 "selections": [
                   {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
                     "kind": "InlineFragment",
                     "type": "PlainCommentBody",
                     "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "__id",
+                        "args": null,
+                        "storageKey": null
+                      },
                       {
                         "kind": "LinkedField",
                         "alias": null,
@@ -144,64 +193,15 @@ query RelayClientIDFieldQuery($id: ID!) {
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "__id",
-                        "args": null,
-                        "storageKey": null
                       }
                     ]
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__id",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
                   }
                 ],
                 "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "__id",
-        "args": null,
         "storageKey": null
       }
     ]
@@ -219,6 +219,13 @@ query RelayClientIDFieldQuery($id: ID!) {
     ],
     "selections": [
       {
+        "kind": "ScalarField",
+        "alias": null,
+        "name": "__id",
+        "args": null,
+        "storageKey": null
+      },
+      {
         "kind": "LinkedField",
         "alias": null,
         "name": "me",
@@ -265,6 +272,27 @@ query RelayClientIDFieldQuery($id: ID!) {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Comment",
             "selections": [
@@ -284,6 +312,20 @@ query RelayClientIDFieldQuery($id: ID!) {
                 "concreteType": null,
                 "plural": false,
                 "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__id",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
                   {
                     "kind": "InlineFragment",
                     "type": "PlainCommentBody",
@@ -321,55 +363,13 @@ query RelayClientIDFieldQuery($id: ID!) {
                         "storageKey": null
                       }
                     ]
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__id",
-                    "args": null,
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
                   }
                 ],
                 "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__id",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "__id",
-        "args": null,
         "storageKey": null
       }
     ]
@@ -388,29 +388,29 @@ QUERY:
 query RelayClientIDFieldQuery(
   $id: ID!
 ) {
+  __id
   me {
     __id
     __typename
     id
   }
   node(id: $id) {
+    __id
+    __typename
+    id
     ... on Comment {
       commentBody(supported: ["PlainCommentBody"]) {
+        __id
+        __typename
         ... on PlainCommentBody {
+          __id
           text {
             __id
             __typename
             text
           }
-          __id
         }
-        __id
-        __typename
       }
     }
-    __id
-    __typename
-    id
   }
-  __id
 }

@@ -36,6 +36,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "markdown",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "data",
@@ -52,13 +59,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "markdown",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -70,6 +70,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -86,23 +93,16 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "selections": [
         {
           "kind": "FragmentSpread",
-          "name": "MarkdownUserNameRenderer_name",
+          "name": "PlainUserNameRenderer_name",
           "args": null
         },
         {
           "kind": "FragmentSpread",
-          "name": "PlainUserNameRenderer_name",
+          "name": "MarkdownUserNameRenderer_name",
           "args": null
         }
       ],
       "storageKey": "nameRendererForContext(context:\"HEADER\")"
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -114,6 +114,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -130,13 +137,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "storageKey": null
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "plaintext",
-      "args": null,
       "storageKey": null
     }
   ]
@@ -209,6 +209,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "User",
             "selections": [
@@ -227,9 +241,23 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 "plural": false,
                 "selections": [
                   {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
                     "kind": "InlineFragment",
                     "type": "PlainUserNameRenderer",
                     "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "plaintext",
+                        "args": null,
+                        "storageKey": null
+                      },
                       {
                         "kind": "LinkedField",
                         "alias": null,
@@ -241,25 +269,18 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
+                            "name": "text",
                             "args": null,
                             "storageKey": null
                           },
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "text",
+                            "name": "id",
                             "args": null,
                             "storageKey": null
                           }
                         ],
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "plaintext",
-                        "args": null,
                         "storageKey": null
                       }
                     ]
@@ -268,6 +289,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "type": "MarkdownUserNameRenderer",
                     "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "markdown",
+                        "args": null,
+                        "storageKey": null
+                      },
                       {
                         "kind": "LinkedField",
                         "alias": null,
@@ -279,54 +307,26 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
+                            "name": "markup",
                             "args": null,
                             "storageKey": null
                           },
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "markup",
+                            "name": "id",
                             "args": null,
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "markdown",
-                        "args": null,
-                        "storageKey": null
                       }
                     ]
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
                   }
                 ],
                 "storageKey": "nameRendererForContext(context:\"HEADER\")"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -348,33 +348,33 @@ query NameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ...NameRendererFragment
     __typename
+    ...NameRendererFragment
     id
   }
 }
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  data {
-    id
-    markup
-  }
   markdown
+  data {
+    markup
+    id
+  }
 }
 
 fragment NameRendererFragment on User {
-  nameRendererForContext(context: HEADER) {
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    __typename
-  }
   id
+  nameRendererForContext(context: HEADER) {
+    __typename
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  data {
-    id
-    text
-  }
   plaintext
+  data {
+    text
+    id
+  }
 }

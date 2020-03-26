@@ -30,11 +30,11 @@ fragment AnotherRecursiveFragment on Image {
 []
 
 fragment PhotoFragment on Image {
+  uri
   ... on Image {
     uri
     width
   }
-  uri
 }
 []
 
@@ -46,17 +46,17 @@ fragment RecursiveFragment on Image {
 
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    ...PhotoFragment
     ... on Image {
+      uri
       ... on Image {
         uri
         width
       }
-      uri
     }
     ... on Image @include(if: $cond) {
       uri
     }
+    ...PhotoFragment
   }
   smallPic: profilePicture(size: 20) {
     ...PhotoFragment @relay(mask: true)

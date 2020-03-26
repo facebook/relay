@@ -24,12 +24,12 @@ fragment TestFragment on Node {
 }
 ==================================== OUTPUT ===================================
 fragment TestFragment on Node {
+  firstName
+  lastName
   ... on Actor @defer(label: "1") {
     lastName
   }
   ... on Actor @defer(label: "2") {
     firstName
   }
-  firstName
-  lastName
 }

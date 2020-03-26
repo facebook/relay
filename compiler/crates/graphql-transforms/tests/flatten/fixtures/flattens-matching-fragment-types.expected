@@ -50,28 +50,28 @@ query TestQuery(
   $id: ID!
 ) {
   node(id: $id) {
+    id
+    __typename
+    type: __typename
+    typeName: __typename
     ... on User {
+      id
+      firstName
+      surname: lastName
       friends(first: 10) {
         edges {
           node {
-            firstName
             id
             lastName
+            firstName
           }
           cursor
         }
       }
-      firstName
-      firstName @customDirective(level: 1)
-      firstName @customDirective(level: 2)
-      id
       lastName
+      firstName @customDirective(level: 1)
       lastName @customDirective(level: 3)
-      surname: lastName
+      firstName @customDirective(level: 2)
     }
-    __typename
-    id
-    type: __typename
-    typeName: __typename
   }
 }

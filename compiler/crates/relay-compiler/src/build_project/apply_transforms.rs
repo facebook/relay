@@ -10,7 +10,7 @@ use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
     inline_fragments, mask, remove_base_fragments, skip_client_extensions, skip_redundant_nodes,
-    skip_unreachable_node, sort_selections, transform_connections, ConnectionInterface,
+    skip_unreachable_node, transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -76,8 +76,7 @@ fn apply_reader_transforms<'schema>(
 
     let program = remove_base_fragments(&program, base_fragment_names);
     let program = client_extensions(&program);
-    let program = flatten(&program, true);
-    sort_selections(&program)
+    flatten(&program, true)
 }
 
 /// Applies transforms that apply to all operation artifacts.
@@ -117,8 +116,7 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
     let program = client_extensions(&program);
     let program = flatten(&program, true);
     let program = skip_redundant_nodes(&program);
-    let program = generate_typename(&program);
-    sort_selections(&program)
+    generate_typename(&program)
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -140,6 +138,5 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     let program = skip_client_extensions(&program);
     let program = skip_unreachable_node(&program);
     let program = flatten(&program, false);
-    let program = generate_typename(&program);
-    sort_selections(&program)
+    generate_typename(&program)
 }

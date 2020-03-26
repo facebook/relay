@@ -47,6 +47,13 @@ fragment RefetchableConnection_feedback on Feedback
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "comments",
@@ -74,6 +81,13 @@ fragment RefetchableConnection_feedback on Feedback
           "plural": true,
           "selections": [
             {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "cursor",
+              "args": null,
+              "storageKey": null
+            },
+            {
               "kind": "LinkedField",
               "alias": null,
               "name": "node",
@@ -96,13 +110,6 @@ fragment RefetchableConnection_feedback on Feedback
                   "storageKey": null
                 }
               ],
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "cursor",
-              "args": null,
               "storageKey": null
             }
           ],
@@ -155,13 +162,6 @@ fragment RefetchableConnection_feedback on Feedback
       "handle": "connection",
       "key": "RefetchableConnection_comments",
       "filters": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }

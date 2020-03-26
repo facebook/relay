@@ -21,6 +21,13 @@ fragment FeedbackFragment on Feedback {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "actors",
@@ -36,13 +43,6 @@ fragment FeedbackFragment on Feedback {
           "storageKey": null
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
       "storageKey": null
     }
   ]
@@ -79,16 +79,16 @@ fragment FeedbackFragment on Feedback {
         "plural": false,
         "selections": [
           {
-            "kind": "FragmentSpread",
-            "name": "FeedbackFragment",
-            "args": null
-          },
-          {
             "kind": "ScalarField",
             "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "FeedbackFragment",
+            "args": null
           }
         ],
         "storageKey": null
@@ -122,6 +122,20 @@ fragment FeedbackFragment on Feedback {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Feedback",
             "selections": [
@@ -143,14 +157,14 @@ fragment FeedbackFragment on Feedback {
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "name": "id",
+                    "name": "name",
                     "args": null,
                     "storageKey": null
                   },
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "name": "name",
+                    "name": "id",
                     "args": null,
                     "storageKey": null
                   }
@@ -158,20 +172,6 @@ fragment FeedbackFragment on Feedback {
                 "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -193,17 +193,17 @@ query QueryWithFragmentWithStream(
   $id: ID!
 ) {
   node(id: $id) {
-    ...FeedbackFragment
     __typename
     id
+    ...FeedbackFragment
   }
 }
 
 fragment FeedbackFragment on Feedback {
+  id
   actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
     __typename
-    id
     name
+    id
   }
-  id
 }

@@ -26,26 +26,26 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
   data {
     markup
   }
-  markdown
 }
 
 fragment NameRendererFragment on User {
+  id
   nameRenderer @match {
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
   }
   plainNameRenderer: nameRenderer @match {
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   }
-  id
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
   data {
     text
   }
-  plaintext
 }

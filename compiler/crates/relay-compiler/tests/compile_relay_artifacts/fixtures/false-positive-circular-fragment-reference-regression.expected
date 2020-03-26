@@ -102,12 +102,12 @@ fragment MyNestedViewer on Viewer
         "selections": [
           {
             "kind": "FragmentSpread",
-            "name": "MyOtherViewer",
+            "name": "MyViewer",
             "args": null
           },
           {
             "kind": "FragmentSpread",
-            "name": "MyViewer",
+            "name": "MyOtherViewer",
             "args": null
           },
           {
@@ -164,14 +164,14 @@ fragment MyNestedViewer on Viewer
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "id",
+                "name": "name",
                 "args": null,
                 "storageKey": null
               },
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "name",
+                "name": "id",
                 "args": null,
                 "storageKey": null
               }
@@ -198,8 +198,8 @@ query TestQuery {
   viewer {
     actor {
       __typename
-      id
       name
+      id
     }
   }
 }

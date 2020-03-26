@@ -110,11 +110,6 @@ fragment UserUtil3_user on User @relay(mask: false) {
   ],
   "selections": [
     {
-      "kind": "FragmentSpread",
-      "name": "UserUtil3_user",
-      "args": null
-    },
-    {
       "kind": "LinkedField",
       "alias": null,
       "name": "profilePicture",
@@ -131,29 +126,16 @@ fragment UserUtil3_user on User @relay(mask: false) {
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "height",
+          "name": "width",
           "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "name": "width",
+          "name": "height",
           "args": null,
           "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": "anotherUrl",
-      "name": "url",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "localIsRelative"
         }
       ],
       "storageKey": null
@@ -167,6 +149,24 @@ fragment UserUtil3_user on User @relay(mask: false) {
           "kind": "Variable",
           "name": "relative",
           "variableName": "globalIsRelative"
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "UserUtil3_user",
+      "args": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": "anotherUrl",
+      "name": "url",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "localIsRelative"
         }
       ],
       "storageKey": null

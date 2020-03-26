@@ -78,6 +78,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "nameRenderer",
@@ -97,13 +104,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -115,6 +115,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "markdown",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -132,13 +139,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "markdown",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -150,6 +150,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -166,13 +173,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "storageKey": null
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "plaintext",
-      "args": null,
       "storageKey": null
     }
   ]
@@ -245,6 +245,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "User",
             "selections": [
@@ -257,9 +264,23 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 "plural": false,
                 "selections": [
                   {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
                     "kind": "InlineFragment",
                     "type": "MarkdownUserNameRenderer",
                     "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "markdown",
+                        "args": null,
+                        "storageKey": null
+                      },
                       {
                         "kind": "LinkedField",
                         "alias": null,
@@ -271,47 +292,26 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
+                            "name": "markup",
                             "args": null,
                             "storageKey": null
                           },
                           {
                             "kind": "ScalarField",
                             "alias": null,
-                            "name": "markup",
+                            "name": "id",
                             "args": null,
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "markdown",
-                        "args": null,
-                        "storageKey": null
                       }
                     ]
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
                   }
                 ],
                 "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
           },
           {
             "kind": "ScalarField",
@@ -340,25 +340,25 @@ query BarNameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ...BarNameRendererFragment
     __typename
+    ...BarNameRendererFragment
     id
   }
 }
 
 fragment BarNameRendererFragment on User {
   nameRenderer {
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
     __typename
+    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  data {
-    id
-    markup
-  }
   markdown
+  data {
+    markup
+    id
+  }
 }
 
 {
@@ -428,106 +428,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "plural": false,
         "selections": [
           {
-            "kind": "InlineFragment",
-            "type": "User",
-            "selections": [
-              {
-                "kind": "LinkedField",
-                "alias": null,
-                "name": "nameRenderer",
-                "args": null,
-                "concreteType": null,
-                "plural": false,
-                "selections": [
-                  {
-                    "kind": "InlineFragment",
-                    "type": "PlainUserNameRenderer",
-                    "selections": [
-                      {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "data",
-                        "args": null,
-                        "concreteType": "PlainUserNameData",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "text",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "plaintext",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "InlineFragment",
-                    "type": "MarkdownUserNameRenderer",
-                    "selections": [
-                      {
-                        "kind": "LinkedField",
-                        "alias": null,
-                        "name": "data",
-                        "args": null,
-                        "concreteType": "MarkdownUserNameData",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "id",
-                            "args": null,
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "markup",
-                            "args": null,
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "markdown",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ]
-          },
-          {
             "kind": "ScalarField",
             "alias": null,
             "name": "__typename",
@@ -540,6 +440,106 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "id",
             "args": null,
             "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "User",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "nameRenderer",
+                "args": null,
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "type": "MarkdownUserNameRenderer",
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "markdown",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "data",
+                        "args": null,
+                        "concreteType": "MarkdownUserNameData",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "markup",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "id",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "type": "PlainUserNameRenderer",
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "plaintext",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "data",
+                        "args": null,
+                        "concreteType": "PlainUserNameData",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "text",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "id",
+                            "args": null,
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
           }
         ],
         "storageKey": null
@@ -561,33 +561,33 @@ query FooNameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ...FooNameRendererFragment
     __typename
+    ...FooNameRendererFragment
     id
   }
 }
 
 fragment FooNameRendererFragment on User {
+  id
   nameRenderer {
+    __typename
     ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    __typename
   }
-  id
 }
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  data {
-    id
-    markup
-  }
   markdown
+  data {
+    markup
+    id
+  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  data {
-    id
-    text
-  }
   plaintext
+  data {
+    text
+    id
+  }
 }

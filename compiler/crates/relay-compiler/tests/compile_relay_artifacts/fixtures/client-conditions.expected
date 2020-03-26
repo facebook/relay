@@ -65,6 +65,82 @@ interface ClientNamed {
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "Condition",
+      "passingValue": true,
+      "condition": "shouldInclude",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "address",
+          "args": null,
+          "concreteType": "StreetAddress",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "city",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ClientExtension",
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "client_street_address_field",
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "arg",
+                      "variableName": "arg"
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ]
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_nickname",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "client_actor_field",
+              "args": null,
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
       "kind": "ClientExtension",
       "selections": [
         {
@@ -97,82 +173,6 @@ interface ClientNamed {
               ]
             }
           ],
-          "storageKey": null
-        }
-      ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
-    },
-    {
-      "kind": "Condition",
-      "passingValue": true,
-      "condition": "shouldInclude",
-      "selections": [
-        {
-          "kind": "ClientExtension",
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_actor_field",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "client_nickname",
-              "args": null,
-              "storageKey": null
-            }
-          ]
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "address",
-          "args": null,
-          "concreteType": "StreetAddress",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ClientExtension",
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "client_street_address_field",
-                  "args": [
-                    {
-                      "kind": "Variable",
-                      "name": "arg",
-                      "variableName": "arg"
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ]
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "city",
-              "args": null,
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
           "storageKey": null
         }
       ]

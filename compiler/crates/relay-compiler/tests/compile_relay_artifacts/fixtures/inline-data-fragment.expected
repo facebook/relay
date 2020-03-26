@@ -63,14 +63,14 @@ fragment Profile on User @inline {
             {
               "kind": "ScalarField",
               "alias": null,
-              "name": "height",
+              "name": "uri",
               "args": null,
               "storageKey": null
             },
             {
               "kind": "ScalarField",
               "alias": null,
-              "name": "uri",
+              "name": "height",
               "args": null,
               "storageKey": null
             }
@@ -192,14 +192,14 @@ fragment Profile on User @inline {
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "height",
+                "name": "uri",
                 "args": null,
                 "storageKey": null
               },
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "name": "uri",
+                "name": "height",
                 "args": null,
                 "storageKey": null
               },
@@ -237,6 +237,13 @@ fragment Profile on User @inline {
         "concreteType": null,
         "plural": false,
         "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
           {
             "kind": "InlineFragment",
             "type": "User",
@@ -277,13 +284,6 @@ fragment Profile on User @inline {
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
@@ -312,14 +312,14 @@ fragment ParentFragment on Query {
   me {
     ...Profile
     profilePicture(size: 100) {
-      height
       uri
+      height
     }
     id
   }
   username(name: "test") {
-    ...Profile
     __typename
+    ...Profile
     id
   }
 }

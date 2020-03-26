@@ -27,16 +27,11 @@ extend type FriendsConnection {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "client_nickname",
-          "args": null,
-          "storageKey": null
-        }
-      ]
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
     },
     {
       "kind": "LinkedField",
@@ -46,6 +41,13 @@ extend type FriendsConnection {
       "concreteType": "FriendsConnection",
       "plural": false,
       "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "count",
+          "args": null,
+          "storageKey": null
+        },
         {
           "kind": "ClientExtension",
           "selections": [
@@ -57,23 +59,21 @@ extend type FriendsConnection {
               "storageKey": null
             }
           ]
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "count",
-          "args": null,
-          "storageKey": null
         }
       ],
       "storageKey": null
     },
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "client_nickname",
+          "args": null,
+          "storageKey": null
+        }
+      ]
     }
   ]
 }

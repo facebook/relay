@@ -73,6 +73,13 @@ fragment FeedbackFragment on Feedback
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "comments",
@@ -198,13 +205,6 @@ fragment FeedbackFragment on Feedback
       "filters": [
         "orderby"
       ]
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -287,6 +287,20 @@ fragment FeedbackFragment on Feedback
         "concreteType": null,
         "plural": false,
         "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
           {
             "kind": "InlineFragment",
             "type": "Feedback",
@@ -382,20 +396,6 @@ fragment FeedbackFragment on Feedback
                 "storageKey": "comments(first:2,orderby:\"date\")"
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -418,13 +418,14 @@ query FeedbackQuery(
   $commentsKey: String
 ) {
   node(id: $id) {
-    ...FeedbackFragment
     __typename
+    ...FeedbackFragment
     id
   }
 }
 
 fragment FeedbackFragment on Feedback {
+  id
   comments(after: null, first: 2, orderby: "date") {
     edges {
       node {
@@ -438,7 +439,6 @@ fragment FeedbackFragment on Feedback {
       hasNextPage
     }
   }
-  id
 }
 
 {
@@ -555,6 +555,20 @@ fragment FeedbackFragment on Feedback {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "Feedback",
             "selections": [
@@ -654,20 +668,6 @@ fragment FeedbackFragment on Feedback {
                 "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -692,13 +692,14 @@ query PaginationQuery(
   $cursor: ID!
 ) {
   node(id: $id) {
-    ...FeedbackFragment_1G22uz
     __typename
+    ...FeedbackFragment_1G22uz
     id
   }
 }
 
 fragment FeedbackFragment_1G22uz on Feedback {
+  id
   comments(after: $cursor, first: $count, orderby: "date") {
     edges {
       node {
@@ -712,5 +713,4 @@ fragment FeedbackFragment_1G22uz on Feedback {
       hasNextPage
     }
   }
-  id
 }

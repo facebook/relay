@@ -10,8 +10,9 @@ use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignatures};
 use common::{Location, Span, WithLocation};
 use errors::{try2, try3, try_map};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::OperationKind;
+use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
 use schema::{
@@ -57,7 +58,7 @@ pub fn build_constant_value(
 // Helper Types
 
 type VariableDefinitions = FnvHashMap<StringKey, VariableDefinition>;
-type UsedVariables = FnvHashMap<StringKey, VariableUsage>;
+type UsedVariables = IndexMap<StringKey, VariableUsage, FnvBuildHasher>;
 
 #[derive(Debug)]
 struct VariableUsage {
@@ -84,7 +85,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             signatures,
             location,
             defined_variables: Default::default(),
-            used_variabales: Default::default(),
+            used_variabales: UsedVariables::default(),
         }
     }
 

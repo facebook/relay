@@ -30,6 +30,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "markdown",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "data",
@@ -46,13 +53,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         }
       ],
       "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "markdown",
-      "args": null,
-      "storageKey": null
     }
   ]
 }
@@ -65,6 +65,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
       "name": "nameRenderer",
@@ -74,22 +81,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "selections": [
         {
           "kind": "FragmentSpread",
-          "name": "MarkdownUserNameRenderer_name",
+          "name": "PlainUserNameRenderer_name",
           "args": null
         },
         {
           "kind": "FragmentSpread",
-          "name": "PlainUserNameRenderer_name",
+          "name": "MarkdownUserNameRenderer_name",
           "args": null
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
       "storageKey": null
     }
   ]
@@ -102,6 +102,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
     {
       "kind": "LinkedField",
       "alias": null,
@@ -118,13 +125,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "storageKey": null
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "plaintext",
-      "args": null,
       "storageKey": null
     }
   ]

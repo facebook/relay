@@ -60,11 +60,6 @@ fragment ProfilePicture on User {
   "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "FragmentSpread",
-      "name": "ProfilePicture",
-      "args": null
-    },
-    {
       "kind": "ScalarField",
       "alias": null,
       "name": "id",
@@ -77,6 +72,11 @@ fragment ProfilePicture on User {
       "name": "name",
       "args": null,
       "storageKey": null
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePicture",
+      "args": null
     }
   ]
 }

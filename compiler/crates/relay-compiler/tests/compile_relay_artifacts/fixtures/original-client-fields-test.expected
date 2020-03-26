@@ -64,30 +64,17 @@ type Foo implements Named {
   "selections": [
     {
       "kind": "FragmentSpread",
-      "name": "FooFragment",
+      "name": "NodeFragment",
       "args": null
     },
     {
       "kind": "FragmentSpread",
-      "name": "NodeFragment",
+      "name": "FooFragment",
       "args": null
     },
     {
       "kind": "ClientExtension",
       "selections": [
-        {
-          "kind": "InlineFragment",
-          "type": "Foo",
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "name",
-              "args": null,
-              "storageKey": null
-            }
-          ]
-        },
         {
           "kind": "LinkedField",
           "alias": null,
@@ -105,6 +92,13 @@ type Foo implements Named {
               "plural": true,
               "selections": [
                 {
+                  "kind": "ScalarField",
+                  "alias": null,
+                  "name": "cursor",
+                  "args": null,
+                  "storageKey": null
+                },
+                {
                   "kind": "LinkedField",
                   "alias": null,
                   "name": "node",
@@ -120,13 +114,6 @@ type Foo implements Named {
                       "storageKey": null
                     }
                   ],
-                  "storageKey": null
-                },
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "cursor",
-                  "args": null,
                   "storageKey": null
                 }
               ],
@@ -152,6 +139,19 @@ type Foo implements Named {
             }
           ],
           "storageKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "type": "Foo",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "name",
+              "args": null,
+              "storageKey": null
+            }
+          ]
         }
       ]
     }
@@ -302,25 +302,26 @@ type Foo implements Named {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "User",
             "selections": [
               {
                 "kind": "ClientExtension",
                 "selections": [
-                  {
-                    "kind": "InlineFragment",
-                    "type": "Foo",
-                    "selections": [
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "name",
-                        "args": null,
-                        "storageKey": null
-                      }
-                    ]
-                  },
                   {
                     "kind": "LinkedField",
                     "alias": null,
@@ -330,6 +331,13 @@ type Foo implements Named {
                     "plural": false,
                     "selections": [
                       {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "__typename",
+                        "args": null,
+                        "storageKey": null
+                      },
+                      {
                         "kind": "LinkedField",
                         "alias": null,
                         "name": "edges",
@@ -337,6 +345,13 @@ type Foo implements Named {
                         "concreteType": "FriendsEdge",
                         "plural": true,
                         "selections": [
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "cursor",
+                            "args": null,
+                            "storageKey": null
+                          },
                           {
                             "kind": "LinkedField",
                             "alias": null,
@@ -353,13 +368,6 @@ type Foo implements Named {
                                 "storageKey": null
                               }
                             ],
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "cursor",
-                            "args": null,
                             "storageKey": null
                           }
                         ],
@@ -382,34 +390,26 @@ type Foo implements Named {
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "name": "__typename",
-                        "args": null,
-                        "storageKey": null
                       }
                     ],
                     "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "type": "Foo",
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "name": "name",
+                        "args": null,
+                        "storageKey": null
+                      }
+                    ]
                   }
                 ]
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -431,9 +431,9 @@ query BestFriendsQuery(
   $id: ID!
 ) {
   node(id: $id) {
+    __typename
     ...BestFriends
     ...OnlyClientFields
-    __typename
     id
   }
 }

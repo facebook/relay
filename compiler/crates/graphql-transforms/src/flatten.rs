@@ -13,12 +13,13 @@ use graphql_ir::{
 use schema::{Schema, TypeReference};
 
 use crate::node_identifier::NodeIdentifier;
-use fnv::FnvHashMap;
-use fnv::FnvHashSet;
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
-type FlattenedSelectionMap = FnvHashMap<NodeIdentifier, Selection>;
+
+type FlattenedSelectionMap = IndexMap<NodeIdentifier, Selection, FnvBuildHasher>;
 type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 
 ///

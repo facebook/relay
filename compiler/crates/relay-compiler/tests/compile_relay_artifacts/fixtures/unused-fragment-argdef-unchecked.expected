@@ -36,17 +36,6 @@ fragment ProfilePhoto on User {
   ],
   "selections": [
     {
-      "kind": "FragmentSpread",
-      "name": "ProfilePhotoWrapper",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "size"
-        }
-      ]
-    },
-    {
       "kind": "ScalarField",
       "alias": null,
       "name": "id",
@@ -59,6 +48,17 @@ fragment ProfilePhoto on User {
       "name": "name",
       "args": null,
       "storageKey": null
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePhotoWrapper",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ]
     }
   ]
 }
@@ -114,16 +114,16 @@ fragment ProfilePhoto on User {
   ],
   "selections": [
     {
-      "kind": "FragmentSpread",
-      "name": "ProfilePhoto",
-      "args": null
-    },
-    {
       "kind": "ScalarField",
       "alias": null,
       "name": "__typename",
       "args": null,
       "storageKey": null
+    },
+    {
+      "kind": "FragmentSpread",
+      "name": "ProfilePhoto",
+      "args": null
     }
   ]
 }
@@ -195,9 +195,37 @@ fragment ProfilePhoto on User {
         "plural": false,
         "selections": [
           {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "type": "User",
             "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "__typename",
+                "args": null,
+                "storageKey": null
+              },
               {
                 "kind": "LinkedField",
                 "alias": null,
@@ -223,36 +251,8 @@ fragment ProfilePhoto on User {
                   }
                 ],
                 "storageKey": "profilePicture(size:[100])"
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "__typename",
-                "args": null,
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "name": "name",
-                "args": null,
-                "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -274,16 +274,16 @@ query QueryWithUnusedFragmentArgumentDefinition(
   $id: ID!
 ) {
   node(id: $id) {
-    ...Profile
     __typename
+    ...Profile
     id
   }
 }
 
 fragment Profile on User {
-  ...ProfilePhotoWrapper_18PEfK
   id
   name
+  ...ProfilePhotoWrapper_18PEfK
 }
 
 fragment ProfilePhoto on User {
@@ -293,6 +293,6 @@ fragment ProfilePhoto on User {
 }
 
 fragment ProfilePhotoWrapper_18PEfK on User {
-  ...ProfilePhoto
   __typename
+  ...ProfilePhoto
 }

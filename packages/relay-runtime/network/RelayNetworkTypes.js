@@ -105,6 +105,5 @@ export type SubscribeFunction = (
   cacheConfig: CacheConfig,
 ) => RelayObservable<GraphQLResponse>;
 
-// $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 export type UploadableMap = {[key: string]: Uploadable, ...};

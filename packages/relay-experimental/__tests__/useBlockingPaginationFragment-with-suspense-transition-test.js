@@ -18,13 +18,7 @@ const Scheduler = require('scheduler');
 
 import type {Direction} from '../useLoadMoreFunction';
 import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {
-  // $FlowFixMe unstable_withSuspenseConfig isn't in the public ReactDOM flow typing
-  unstable_withSuspenseConfig,
-  useCallback,
-  useMemo,
-  useState,
-} = React;
+const {useTransition, useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
@@ -40,24 +34,7 @@ const {
 
 const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
 
-function useSuspenseTransition(config: {|timeoutMs: number|}) {
-  const [isPending, setPending] = useState(false);
-  const startTransition = useCallback(
-    (callback: () => void) => {
-      setPending(true);
-      Scheduler.unstable_next(() => {
-        unstable_withSuspenseConfig(() => {
-          setPending(false);
-          callback();
-        }, config);
-      });
-    },
-    [config, setPending],
-  );
-  return [startTransition, isPending];
-}
-
-describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
+describe('useBlockingPaginationFragment with useTransition', () => {
   if (React.version.startsWith('16')) {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
@@ -104,7 +81,7 @@ describe('useBlockingPaginationFragment with useSuspenseTransition', () => {
       fragmentNode,
       fragmentRef,
     ) {
-      const [startTransition, isPendingNext] = useSuspenseTransition(
+      const [startTransition, isPendingNext] = useTransition(
         PAGINATION_SUSPENSE_CONFIG,
       );
       /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found

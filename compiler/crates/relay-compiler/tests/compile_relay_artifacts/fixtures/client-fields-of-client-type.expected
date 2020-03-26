@@ -61,7 +61,7 @@ type Foo {
                   "storageKey": null
                 }
               ],
-              "storageKey": null
+              "storageKey": "profile_picture(scale:2.0)"
             },
             {
               "kind": "ScalarField",

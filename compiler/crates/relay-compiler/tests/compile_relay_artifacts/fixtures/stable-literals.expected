@@ -52,7 +52,7 @@ query StableLiteralsTest {
                 "storageKey": null
               }
             ],
-            "storageKey": null
+            "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
           }
         ],
         "storageKey": null
@@ -98,7 +98,7 @@ query StableLiteralsTest {
                 "storageKey": null
               }
             ],
-            "storageKey": null
+            "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
           },
           {
             "kind": "ScalarField",

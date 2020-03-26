@@ -173,7 +173,7 @@ v10 = {
     },
     (v9/*: any*/)
   ],
-  "storageKey": null
+  "storageKey": "friends(first:10)"
 },
 v11 = {
   "kind": "InlineFragment",

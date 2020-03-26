@@ -11,18 +11,16 @@ use graphql_ir::{
     InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection, Value,
     VariableDefinition,
 };
-use std::iter;
-
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_relay_directive, extract_values_from_handle_field_directive, ConnectionConstants,
     HandleFieldConstants, RELAY_DIRECTIVE_CONSTANTS,
 };
-
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
+use std::iter;
 
 pub fn build_request(
     schema: &Schema,
@@ -202,14 +200,16 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_scalar_field(&self, field: &ScalarField) -> ConcreteSelection {
         let field_name = self.schema.field(field.definition.item).name;
+        let args = self.build_arguments(&field.arguments);
+        let storage_key = get_static_storage_key(field_name, &args);
         ConcreteSelection::ScalarField(ConcreteScalarField {
             alias: match field.alias {
                 Some(alias) => Some(alias.item),
                 None => None,
             },
             name: field_name,
-            args: self.build_arguments(&field.arguments),
-            storage_key: get_static_storage_key(field_name, &field.arguments),
+            args,
+            storage_key,
         })
     }
 
@@ -260,20 +260,22 @@ impl<'schema> CodegenBuilder<'schema> {
     fn build_linked_field(&self, field: &LinkedField) -> ConcreteSelection {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
+        let args = self.build_arguments(&field.arguments);
+        let storage_key = get_static_storage_key(field_name, &args);
         ConcreteSelection::LinkedField(ConcreteLinkedField {
             alias: match field.alias {
                 Some(alias) => Some(alias.item),
                 None => None,
             },
             name: field_name,
-            args: self.build_arguments(&field.arguments),
+            args,
             selections: self.build_selections(&field.selections),
             concrete_type: if self.schema.is_abstract_type(schema_field.type_.inner()) {
                 None
             } else {
                 Some(self.schema.get_type_name(schema_field.type_.inner()))
             },
-            storage_key: get_static_storage_key(field_name, &field.arguments),
+            storage_key,
             plural: schema_field.type_.is_list(),
         })
     }
@@ -531,10 +533,73 @@ impl<'schema> CodegenBuilder<'schema> {
     }
 }
 
+/// Tries to convert a `ConcreteArgument` into a `serde_json::Value`.
+/// Returns `None`, if it contains a `Variable` somewhere
+fn try_argument_value_to_serde(arg: &ConcreteArgument) -> Option<SerdeValue> {
+    match arg {
+        ConcreteArgument::Variable(_) => {
+            // Unable to print a static storage key, abort.
+            None
+        }
+        ConcreteArgument::Literal(val) => Some(val.value.clone()),
+        ConcreteArgument::ListValue(list_arg) => {
+            let mut json_values = Vec::with_capacity(list_arg.items.len());
+            for item in &list_arg.items {
+                if let Some(item_value) = item {
+                    let item_json = try_argument_value_to_serde(item_value)?;
+                    json_values.push(item_json);
+                } else {
+                    json_values.push(json!(null));
+                }
+            }
+            Some(json!(json_values))
+        }
+        ConcreteArgument::ObjectValue(object_arg) => {
+            let mut map = SerdeMap::with_capacity(object_arg.fields.len());
+            for arg in &object_arg.fields {
+                let field_value = try_argument_value_to_serde(arg)?;
+                let field_name = arg.name().lookup().to_string();
+                map.insert(field_name, field_value);
+            }
+            Some(json!(map))
+        }
+    }
+}
+
+/// Pre-computes storage key if possible and advantageous. Storage keys are
+/// generated for fields with supplied arguments that are all statically known
+/// (ie. literals, no variables) at build time.
 fn get_static_storage_key(
-    _field_name: StringKey,
-    _arguments: &[Argument], /*_metadata: ?*/
+    field_name: StringKey,
+    arguments: &Option<Vec<ConcreteArgument>>, /*_metadata: ?*/
 ) -> Option<String> {
-    // TODO(T63303994) implementation + properly using metadata
-    None
+    // TODO (T64585375): JS compiler has an option to force a storageKey.
+    if let Some(arguments) = arguments {
+        let mut static_args = Vec::new();
+        for arg in arguments {
+            // Abort if the argument cannot be converted statically.
+            let arg_value = try_argument_value_to_serde(arg)?;
+            static_args.push((arg.name(), arg_value));
+        }
+        if static_args.is_empty() {
+            None
+        } else {
+            let mut key = format!("{}(", field_name);
+            let mut first = true;
+            for (arg_name, arg_value) in static_args {
+                if first {
+                    first = false;
+                } else {
+                    key.push(',');
+                }
+                key.push_str(arg_name.lookup());
+                key.push(':');
+                key.push_str(&serde_json::to_string(&arg_value).unwrap());
+            }
+            key.push(')');
+            Some(key)
+        }
+    } else {
+        None
+    }
 }

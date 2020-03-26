@@ -165,7 +165,7 @@ query NodeQuery($id: ID!) {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "comments(first:10)"
               },
               {
                 "kind": "LinkedHandle",
@@ -341,7 +341,7 @@ query NodeQuery($id: ID!) {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "comments(first:10)"
               }
             ]
           },

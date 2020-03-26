@@ -201,7 +201,7 @@ fragment UserFragment on User
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "profilePicture(size:32)"
     },
     {
       "kind": "ScalarField",
@@ -402,7 +402,7 @@ fragment UserFragment on User
                         "storageKey": null
                       }
                     ],
-                    "storageKey": null
+                    "storageKey": "friends(first:5)"
                   },
                   {
                     "kind": "LinkedField",
@@ -502,7 +502,7 @@ fragment UserFragment on User
                         "storageKey": null
                       }
                     ],
-                    "storageKey": null
+                    "storageKey": "profilePicture(size:32)"
                   },
                   {
                     "kind": "ScalarField",

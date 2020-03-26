@@ -170,7 +170,7 @@ v7 = {
       "storageKey": null
     }
   ],
-  "storageKey": null
+  "storageKey": "comments(first:1)"
 },
 v8 = [
   {
@@ -222,7 +222,7 @@ v11 = {
       "storageKey": null
     }
   ],
-  "storageKey": null
+  "storageKey": "comments(last:2)"
 },
 v12 = [
   {

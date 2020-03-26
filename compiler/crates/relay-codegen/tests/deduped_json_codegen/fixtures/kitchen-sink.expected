@@ -272,7 +272,7 @@ return {
       "name": "profilePicture",
       "plural": false,
       "selections": (v0/*: any*/),
-      "storageKey": null
+      "storageKey": "profilePicture(size:32)"
     },
     {
       "alias": null,

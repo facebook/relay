@@ -379,7 +379,7 @@ fragment FeedbackFragment on Feedback
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "comments(first:2,orderby:\"date\")"
               }
             ]
           },

@@ -95,7 +95,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "args": null
         }
       ],
-      "storageKey": null
+      "storageKey": "nameRendererForContext(context:\"HEADER\")"
     },
     {
       "kind": "ScalarField",
@@ -310,7 +310,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "nameRendererForContext(context:\"HEADER\")"
               }
             ]
           },

@@ -95,7 +95,7 @@ fragment FeedbackText_feedback on Feedback {
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "comments(first:10)"
     }
   ]
 }
@@ -290,7 +290,7 @@ fragment FeedbackText_feedback on Feedback {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "comments(first:10)"
               }
             ]
           },

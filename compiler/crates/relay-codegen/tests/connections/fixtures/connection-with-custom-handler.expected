@@ -162,7 +162,7 @@ v8 = {
     },
     (v7/*: any*/)
   ],
-  "storageKey": null
+  "storageKey": "friends(first:10)"
 },
 v9 = {
   "kind": "InlineFragment",
@@ -273,7 +273,7 @@ return {
                   },
                   (v7/*: any*/)
                 ],
-                "storageKey": null
+                "storageKey": "comments(first:10)"
               },
               {
                 "alias": null,
@@ -357,7 +357,7 @@ return {
                   },
                   (v7/*: any*/)
                 ],
-                "storageKey": null
+                "storageKey": "comments(first:10)"
               }
             ],
             "type": "Story"

@@ -169,7 +169,7 @@ query RelayClientIDFieldQuery($id: ID!) {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
             ]
           },
@@ -337,7 +337,7 @@ query RelayClientIDFieldQuery($id: ID!) {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
             ]
           },

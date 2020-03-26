@@ -75,7 +75,7 @@ fragment Profile on User @inline {
               "storageKey": null
             }
           ],
-          "storageKey": null
+          "storageKey": "profilePicture(size:100)"
         }
       ],
       "storageKey": null
@@ -100,7 +100,7 @@ fragment Profile on User @inline {
           "args": null
         }
       ],
-      "storageKey": null
+      "storageKey": "username(name:\"test\")"
     }
   ]
 }
@@ -141,7 +141,7 @@ fragment Profile on User @inline {
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "profilePicture(size:100)"
     }
   ]
 }
@@ -211,7 +211,7 @@ fragment Profile on User @inline {
                 "storageKey": null
               }
             ],
-            "storageKey": null
+            "storageKey": "profilePicture(size:100)"
           },
           {
             "kind": "ScalarField",
@@ -270,7 +270,7 @@ fragment Profile on User @inline {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "profilePicture(size:100)"
               }
             ]
           },
@@ -289,7 +289,7 @@ fragment Profile on User @inline {
             "storageKey": null
           }
         ],
-        "storageKey": null
+        "storageKey": "username(name:\"test\")"
       }
     ]
   },

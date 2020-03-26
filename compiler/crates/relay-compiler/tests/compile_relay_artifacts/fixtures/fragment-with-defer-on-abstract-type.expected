@@ -87,7 +87,7 @@ fragment NodeFragment on Node {
             "args": null
           }
         ],
-        "storageKey": null
+        "storageKey": "node(id:\"my-id\")"
       }
     ]
   },
@@ -151,7 +151,7 @@ fragment NodeFragment on Node {
             "storageKey": null
           }
         ],
-        "storageKey": null
+        "storageKey": "node(id:\"my-id\")"
       }
     ]
   },

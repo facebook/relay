@@ -125,7 +125,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "friends(first:10)"
     }
   ]
 }
@@ -370,7 +370,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                         "storageKey": null
                       }
                     ],
-                    "storageKey": null
+                    "storageKey": "friends(first:10)"
                   }
                 ]
               }

@@ -131,7 +131,7 @@ v4 = {
       "storageKey": null
     }
   ],
-  "storageKey": null
+  "storageKey": "comments(first:10)"
 };
 return {
   "fragment": {

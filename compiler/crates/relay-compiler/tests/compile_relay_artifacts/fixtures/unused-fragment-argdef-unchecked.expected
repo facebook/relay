@@ -94,7 +94,7 @@ fragment ProfilePhoto on User {
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "profilePicture(size:[100])"
     }
   ]
 }
@@ -222,7 +222,7 @@ fragment ProfilePhoto on User {
                     "storageKey": null
                   }
                 ],
-                "storageKey": null
+                "storageKey": "profilePicture(size:[100])"
               },
               {
                 "kind": "ScalarField",

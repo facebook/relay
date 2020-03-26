@@ -417,10 +417,10 @@ type Foo implements Named {
     ]
   },
   "params": {
+    "id": null,
+    "metadata": {},
     "name": "BestFriendsQuery",
     "operationKind": "query",
-    "metadata": {},
-    "id": null,
     "text": null
   }
 }

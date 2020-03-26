@@ -191,7 +191,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
                 "storageKey": null
               }
             ],
-            "storageKey": null
+            "storageKey": "profile_picture(scale:1.5)"
           },
           {
             "kind": "ScalarField",

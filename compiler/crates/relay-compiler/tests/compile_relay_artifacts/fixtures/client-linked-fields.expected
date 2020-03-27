@@ -26,58 +26,57 @@ extend type FriendsEdge {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "client_friends",
           "args": null,
           "concreteType": "FriendsConnection",
+          "kind": "LinkedField",
+          "name": "client_friends",
           "plural": false,
           "selections": [
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "edges",
               "args": null,
               "concreteType": "FriendsEdge",
+              "kind": "LinkedField",
+              "name": "edges",
               "plural": true,
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "client_friend_edge_field",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_friend_edge_field",
                   "storageKey": null
                 },
                 {
-                  "kind": "LinkedField",
                   "alias": null,
-                  "name": "node",
                   "args": null,
                   "concreteType": "User",
+                  "kind": "LinkedField",
+                  "name": "node",
                   "plural": false,
                   "selections": [
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "id",
                       "args": null,
+                      "kind": "ScalarField",
+                      "name": "id",
                       "storageKey": null
                     }
                   ],
@@ -87,18 +86,18 @@ extend type FriendsEdge {
               "storageKey": null
             },
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "pageInfo",
               "args": null,
               "concreteType": "PageInfo",
+              "kind": "LinkedField",
+              "name": "pageInfo",
               "plural": false,
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "hasNextPage",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "hasNextPage",
                   "storageKey": null
                 }
               ],
@@ -109,5 +108,6 @@ extend type FriendsEdge {
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }

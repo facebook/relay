@@ -62,118 +62,117 @@ interface ClientNamed {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ClientTypeFragment",
-  "type": "ClientType",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientTypeFragment",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_field",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "ClientType"
 }
 
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "client_foo",
           "args": null,
           "concreteType": "Foo",
+          "kind": "LinkedField",
+          "name": "client_foo",
           "plural": false,
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "client_name",
               "args": null,
+              "kind": "ScalarField",
+              "name": "client_name",
               "storageKey": null
             }
           ],
           "storageKey": null
         },
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "client_foo",
           "args": null,
           "concreteType": "Foo",
+          "kind": "LinkedField",
+          "name": "client_foo",
           "plural": false,
           "selections": [
             {
               "kind": "InlineFragment",
-              "type": "ClientNamed",
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "client_name",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_name",
                   "storageKey": null
                 }
-              ]
+              ],
+              "type": "ClientNamed"
             }
           ],
           "storageKey": null
         },
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "client_friends",
           "args": null,
           "concreteType": "FriendsConnection",
+          "kind": "LinkedField",
+          "name": "client_friends",
           "plural": false,
           "selections": [
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "edges",
               "args": null,
               "concreteType": "FriendsEdge",
+              "kind": "LinkedField",
+              "name": "edges",
               "plural": true,
               "selections": [
                 {
-                  "kind": "LinkedField",
                   "alias": null,
-                  "name": "node",
                   "args": null,
                   "concreteType": "User",
+                  "kind": "LinkedField",
+                  "name": "node",
                   "plural": false,
                   "selections": [
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "id",
                       "args": null,
+                      "kind": "ScalarField",
+                      "name": "id",
                       "storageKey": null
                     }
                   ],
                   "storageKey": null
                 },
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "client_friend_edge_field",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_friend_edge_field",
                   "storageKey": null
                 }
               ],
@@ -183,64 +182,65 @@ interface ClientNamed {
           "storageKey": null
         },
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "client_type",
           "args": null,
           "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
           "plural": false,
           "selections": [
             {
+              "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientTypeFragment",
-              "args": null
+              "name": "ClientTypeFragment"
             }
           ],
           "storageKey": null
         },
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_nickname",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_nickname",
           "storageKey": null
         }
       ]
     },
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "name",
       "args": null,
+      "kind": "ScalarField",
+      "name": "name",
       "storageKey": null
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
+  "argumentDefinitions": [],
   "kind": "Operation",
   "name": "Foo",
-  "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "me",
       "args": null,
       "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
       "plural": false,
       "selections": [
         {
+          "args": null,
           "kind": "FragmentSpread",
-          "name": "Foo_user",
-          "args": null
+          "name": "Foo_user"
         }
       ],
       "storageKey": null

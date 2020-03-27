@@ -16,61 +16,57 @@ fragment NodeFragment on Node {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "NodeFragment",
-  "type": "Node",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "NodeFragment",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
       "kind": "InlineFragment",
-      "type": "User",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "name",
           "args": null,
+          "kind": "ScalarField",
+          "name": "name",
           "storageKey": null
         }
-      ]
+      ],
+      "type": "User"
     },
     {
       "kind": "InlineFragment",
-      "type": "Page",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "websites",
           "args": null,
+          "kind": "ScalarField",
+          "name": "websites",
           "storageKey": null
         }
-      ]
+      ],
+      "type": "Page"
     }
-  ]
+  ],
+  "type": "Node"
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "QueryWithFragmentWithDefer",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "QueryWithFragmentWithDefer",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Literal",
@@ -79,27 +75,29 @@ fragment NodeFragment on Node {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "NodeFragment",
-            "args": null
+            "name": "NodeFragment"
           }
         ],
         "storageKey": "node(id:\"my-id\")"
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
+    "argumentDefinitions": [],
     "kind": "Operation",
     "name": "QueryWithFragmentWithDefer",
-    "argumentDefinitions": [],
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Literal",
@@ -108,47 +106,49 @@ fragment NodeFragment on Node {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__typename",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "User",
             "selections": [
               {
-                "kind": "ScalarField",
                 "alias": null,
-                "name": "name",
                 "args": null,
+                "kind": "ScalarField",
+                "name": "name",
                 "storageKey": null
               }
-            ]
+            ],
+            "type": "User"
           },
           {
             "kind": "InlineFragment",
-            "type": "Page",
             "selections": [
               {
-                "kind": "ScalarField",
                 "alias": null,
-                "name": "websites",
                 "args": null,
+                "kind": "ScalarField",
+                "name": "websites",
                 "storageKey": null
               }
-            ]
+            ],
+            "type": "Page"
           }
         ],
         "storageKey": "node(id:\"my-id\")"

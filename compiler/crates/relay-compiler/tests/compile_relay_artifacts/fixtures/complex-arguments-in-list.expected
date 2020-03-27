@@ -16,62 +16,54 @@ query CheckinSearchQuery(
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "CheckinSearchQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "queryText",
-        "type": "String!",
-        "defaultValue": null
+        "type": "String!"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "searchInput",
-        "type": "CheckinSearchInput",
-        "defaultValue": null
+        "type": "CheckinSearchInput"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "searchInputLast",
-        "type": "CheckinSearchInput!",
-        "defaultValue": null
+        "type": "CheckinSearchInput!"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "searchInputText",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "CheckinSearchQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "checkinSearchQuery",
         "args": [
           {
-            "kind": "ObjectValue",
-            "name": "query",
             "fields": [
               {
-                "kind": "ListValue",
-                "name": "inputs",
                 "items": [
                   {
-                    "kind": "ObjectValue",
-                    "name": "inputs.0",
                     "fields": [
                       {
                         "kind": "Variable",
                         "name": "query",
                         "variableName": "searchInputText"
                       }
-                    ]
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "inputs.0"
                   },
                   {
                     "kind": "Variable",
@@ -84,84 +76,86 @@ query CheckinSearchQuery(
                     "name": "inputs.3",
                     "variableName": "searchInputLast"
                   }
-                ]
+                ],
+                "kind": "ListValue",
+                "name": "inputs"
               },
               {
                 "kind": "Variable",
                 "name": "query",
                 "variableName": "queryText"
               }
-            ]
+            ],
+            "kind": "ObjectValue",
+            "name": "query"
           }
         ],
         "concreteType": "CheckinSearchResult",
+        "kind": "LinkedField",
+        "name": "checkinSearchQuery",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "query",
             "args": null,
+            "kind": "ScalarField",
+            "name": "query",
             "storageKey": null
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "CheckinSearchQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "queryText",
-        "type": "String!",
-        "defaultValue": null
+        "type": "String!"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "searchInput",
-        "type": "CheckinSearchInput",
-        "defaultValue": null
+        "type": "CheckinSearchInput"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "searchInputLast",
-        "type": "CheckinSearchInput!",
-        "defaultValue": null
+        "type": "CheckinSearchInput!"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "searchInputText",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       }
     ],
+    "kind": "Operation",
+    "name": "CheckinSearchQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "checkinSearchQuery",
         "args": [
           {
-            "kind": "ObjectValue",
-            "name": "query",
             "fields": [
               {
-                "kind": "ListValue",
-                "name": "inputs",
                 "items": [
                   {
-                    "kind": "ObjectValue",
-                    "name": "inputs.0",
                     "fields": [
                       {
                         "kind": "Variable",
                         "name": "query",
                         "variableName": "searchInputText"
                       }
-                    ]
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "inputs.0"
                   },
                   {
                     "kind": "Variable",
@@ -174,24 +168,30 @@ query CheckinSearchQuery(
                     "name": "inputs.3",
                     "variableName": "searchInputLast"
                   }
-                ]
+                ],
+                "kind": "ListValue",
+                "name": "inputs"
               },
               {
                 "kind": "Variable",
                 "name": "query",
                 "variableName": "queryText"
               }
-            ]
+            ],
+            "kind": "ObjectValue",
+            "name": "query"
           }
         ],
         "concreteType": "CheckinSearchResult",
+        "kind": "LinkedField",
+        "name": "checkinSearchQuery",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "query",
             "args": null,
+            "kind": "ScalarField",
+            "name": "query",
             "storageKey": null
           }
         ],

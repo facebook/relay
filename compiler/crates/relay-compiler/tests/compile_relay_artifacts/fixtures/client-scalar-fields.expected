@@ -20,42 +20,41 @@ extend type FriendsConnection {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "friends",
       "args": null,
       "concreteType": "FriendsConnection",
+      "kind": "LinkedField",
+      "name": "friends",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "count",
           "args": null,
+          "kind": "ScalarField",
+          "name": "count",
           "storageKey": null
         },
         {
           "kind": "ClientExtension",
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "client_friends_connection_field",
               "args": null,
+              "kind": "ScalarField",
+              "name": "client_friends_connection_field",
               "storageKey": null
             }
           ]
@@ -67,13 +66,14 @@ extend type FriendsConnection {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_nickname",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_nickname",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }

@@ -30,10 +30,6 @@ extend type Page {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -41,36 +37,37 @@ extend type Page {
       "type": "String"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "address",
       "args": null,
       "concreteType": "StreetAddress",
+      "kind": "LinkedField",
+      "name": "address",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "city",
           "args": null,
+          "kind": "ScalarField",
+          "name": "city",
           "storageKey": null
         },
         {
           "kind": "ClientExtension",
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "client_street_address_field",
               "args": [
                 {
                   "kind": "Variable",
@@ -78,6 +75,8 @@ extend type Page {
                   "variableName": "arg"
                 }
               ],
+              "kind": "ScalarField",
+              "name": "client_street_address_field",
               "storageKey": null
             }
           ]
@@ -89,13 +88,14 @@ extend type Page {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_actor_field",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_actor_field",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }

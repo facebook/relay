@@ -18,63 +18,20 @@ fragment ProfilePicture on User {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ProfilePicture",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
-    }
-  ],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "profilePicture",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "size"
-        }
-      ],
-      "concreteType": "Image",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "uri",
-          "args": null,
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "RefetchableFragment",
-  "type": "Query",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
+      "defaultValue": null,
       "kind": "LocalArgument",
       "name": "id",
-      "type": "ID!",
-      "defaultValue": null
+      "type": "ID!"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "RefetchableFragment",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "node",
       "args": [
         {
           "kind": "Variable",
@@ -83,35 +40,78 @@ fragment ProfilePicture on User {
         }
       ],
       "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
       "plural": false,
       "selections": [
         {
           "kind": "InlineFragment",
-          "type": "User",
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
+              "args": null,
+              "kind": "ScalarField",
               "name": "id",
-              "args": null,
               "storageKey": null
             },
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "name",
               "args": null,
+              "kind": "ScalarField",
+              "name": "name",
               "storageKey": null
             },
             {
+              "args": null,
               "kind": "FragmentSpread",
-              "name": "ProfilePicture",
-              "args": null
+              "name": "ProfilePicture"
             }
-          ]
+          ],
+          "type": "User"
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "Query"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "[Int]"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
 }

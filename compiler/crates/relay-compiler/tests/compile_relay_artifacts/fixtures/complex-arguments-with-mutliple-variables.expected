@@ -12,39 +12,31 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "TestQueryWithLiteral",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "latArg",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "lonArg",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "TestQueryWithLiteral",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "route",
         "args": [
           {
-            "kind": "ListValue",
-            "name": "waypoints",
             "items": [
               {
-                "kind": "ObjectValue",
-                "name": "waypoints.0",
                 "fields": [
                   {
                     "kind": "Variable",
@@ -56,11 +48,11 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
                     "name": "lon",
                     "variableName": "lonArg"
                   }
-                ]
+                ],
+                "kind": "ObjectValue",
+                "name": "waypoints.0"
               },
               {
-                "kind": "ObjectValue",
-                "name": "waypoints.1",
                 "fields": [
                   {
                     "kind": "Literal",
@@ -72,11 +64,11 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
                     "name": "lon",
                     "variableName": "latArg"
                   }
-                ]
+                ],
+                "kind": "ObjectValue",
+                "name": "waypoints.1"
               },
               {
-                "kind": "ObjectValue",
-                "name": "waypoints.2",
                 "fields": [
                   {
                     "kind": "Variable",
@@ -88,56 +80,58 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
                     "name": "lon",
                     "value": "1234"
                   }
-                ]
+                ],
+                "kind": "ObjectValue",
+                "name": "waypoints.2"
               }
-            ]
+            ],
+            "kind": "ListValue",
+            "name": "waypoints"
           }
         ],
         "concreteType": "Route",
+        "kind": "LinkedField",
+        "name": "route",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "TestQueryWithLiteral",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "latArg",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "lonArg",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       }
     ],
+    "kind": "Operation",
+    "name": "TestQueryWithLiteral",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "route",
         "args": [
           {
-            "kind": "ListValue",
-            "name": "waypoints",
             "items": [
               {
-                "kind": "ObjectValue",
-                "name": "waypoints.0",
                 "fields": [
                   {
                     "kind": "Variable",
@@ -149,11 +143,11 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
                     "name": "lon",
                     "variableName": "lonArg"
                   }
-                ]
+                ],
+                "kind": "ObjectValue",
+                "name": "waypoints.0"
               },
               {
-                "kind": "ObjectValue",
-                "name": "waypoints.1",
                 "fields": [
                   {
                     "kind": "Literal",
@@ -165,11 +159,11 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
                     "name": "lon",
                     "variableName": "latArg"
                   }
-                ]
+                ],
+                "kind": "ObjectValue",
+                "name": "waypoints.1"
               },
               {
-                "kind": "ObjectValue",
-                "name": "waypoints.2",
                 "fields": [
                   {
                     "kind": "Variable",
@@ -181,19 +175,25 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
                     "name": "lon",
                     "value": "1234"
                   }
-                ]
+                ],
+                "kind": "ObjectValue",
+                "name": "waypoints.2"
               }
-            ]
+            ],
+            "kind": "ListValue",
+            "name": "waypoints"
           }
         ],
         "concreteType": "Route",
+        "kind": "LinkedField",
+        "name": "route",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           }
         ],

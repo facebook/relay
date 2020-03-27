@@ -23,106 +23,104 @@ fragment MyNestedViewer on Viewer
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "MyNestedViewer",
-  "type": "Viewer",
-  "metadata": null,
   "argumentDefinitions": [
     {
+      "defaultValue": false,
       "kind": "LocalArgument",
       "name": "includeEmail",
-      "type": "Boolean!",
-      "defaultValue": false
+      "type": "Boolean!"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyNestedViewer",
   "selections": [
     {
+      "condition": "includeEmail",
       "kind": "Condition",
       "passingValue": true,
-      "condition": "includeEmail",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "primaryEmail",
           "args": null,
+          "kind": "ScalarField",
+          "name": "primaryEmail",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "Viewer"
 }
 
 {
+  "argumentDefinitions": [],
   "kind": "Fragment",
+  "metadata": null,
   "name": "MyOtherViewer",
-  "type": "Viewer",
-  "metadata": null,
-  "argumentDefinitions": [],
   "selections": [
     {
+      "args": null,
       "kind": "FragmentSpread",
-      "name": "MyNestedViewer",
-      "args": null
+      "name": "MyNestedViewer"
     }
-  ]
+  ],
+  "type": "Viewer"
 }
 
 {
+  "argumentDefinitions": [],
   "kind": "Fragment",
-  "name": "MyViewer",
-  "type": "Viewer",
   "metadata": null,
-  "argumentDefinitions": [],
+  "name": "MyViewer",
   "selections": [
     {
+      "args": null,
       "kind": "FragmentSpread",
-      "name": "MyNestedViewer",
-      "args": null
+      "name": "MyNestedViewer"
     }
-  ]
+  ],
+  "type": "Viewer"
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "TestQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "TestQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "viewer",
         "args": null,
         "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
         "plural": false,
         "selections": [
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "MyViewer",
-            "args": null
+            "name": "MyViewer"
           },
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "MyOtherViewer",
-            "args": null
+            "name": "MyOtherViewer"
           },
           {
-            "kind": "LinkedField",
             "alias": null,
-            "name": "actor",
             "args": null,
             "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
             "plural": false,
             "selections": [
               {
-                "kind": "ScalarField",
                 "alias": null,
-                "name": "name",
                 "args": null,
+                "kind": "ScalarField",
+                "name": "name",
                 "storageKey": null
               }
             ],
@@ -131,48 +129,50 @@ fragment MyNestedViewer on Viewer
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
+    "argumentDefinitions": [],
     "kind": "Operation",
     "name": "TestQuery",
-    "argumentDefinitions": [],
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "viewer",
         "args": null,
         "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
         "plural": false,
         "selections": [
           {
-            "kind": "LinkedField",
             "alias": null,
-            "name": "actor",
             "args": null,
             "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
             "plural": false,
             "selections": [
               {
-                "kind": "ScalarField",
                 "alias": null,
+                "args": null,
+                "kind": "ScalarField",
                 "name": "__typename",
-                "args": null,
                 "storageKey": null
               },
               {
-                "kind": "ScalarField",
                 "alias": null,
+                "args": null,
+                "kind": "ScalarField",
                 "name": "name",
-                "args": null,
                 "storageKey": null
               },
               {
-                "kind": "ScalarField",
                 "alias": null,
-                "name": "id",
                 "args": null,
+                "kind": "ScalarField",
+                "name": "id",
                 "storageKey": null
               }
             ],

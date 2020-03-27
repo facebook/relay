@@ -42,97 +42,53 @@ type ClientUser {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ClientFragment",
-  "type": "ClientUser",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ]
-}
-
-{
-  "kind": "Operation",
-  "name": "FooMutation",
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "client_root_field",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ]
-}
-
-{
-  "kind": "Operation",
-  "name": "FooQuery",
   "argumentDefinitions": [
     {
+      "defaultValue": null,
       "kind": "LocalArgument",
       "name": "arg",
-      "type": "String",
-      "defaultValue": null
+      "type": "String"
     },
     {
+      "defaultValue": null,
       "kind": "LocalArgument",
       "name": "id",
-      "type": "ID!",
-      "defaultValue": null
+      "type": "ID!"
     }
   ],
+  "kind": "Operation",
+  "name": "FooQuery",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "client_user",
           "args": null,
           "concreteType": "ClientUser",
+          "kind": "LinkedField",
+          "name": "client_user",
           "plural": false,
           "selections": [
             {
+              "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientFragment",
-              "args": null
+              "name": "ClientFragment"
             }
           ],
           "storageKey": null
         },
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_root_field",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_root_field",
           "storageKey": null
         }
       ]
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "node",
       "args": [
         {
           "kind": "Variable",
@@ -141,13 +97,15 @@ type ClientUser {
         }
       ],
       "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "id",
           "args": null,
+          "kind": "ScalarField",
+          "name": "id",
           "storageKey": null
         }
       ],
@@ -157,18 +115,60 @@ type ClientUser {
 }
 
 {
-  "kind": "Operation",
-  "name": "FooSubscription",
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientFragment",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_root_field",
           "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientUser"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "FooMutation",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_root_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "FooSubscription",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_root_field",
           "storageKey": null
         }
       ]

@@ -28,64 +28,60 @@ query RelayClientIDFieldQuery($id: ID!) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "RelayClientIDFieldQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RelayClientIDFieldQuery",
     "selections": [
       {
-        "kind": "ScalarField",
         "alias": null,
-        "name": "__id",
         "args": null,
+        "kind": "ScalarField",
+        "name": "__id",
         "storageKey": null
       },
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "me",
         "args": null,
         "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__id",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__typename",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],
         "storageKey": null
       },
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -94,37 +90,36 @@ query RelayClientIDFieldQuery($id: ID!) {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__id",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__typename",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "Comment",
             "selections": [
               {
-                "kind": "LinkedField",
                 "alias": null,
-                "name": "commentBody",
                 "args": [
                   {
                     "kind": "Literal",
@@ -135,132 +130,135 @@ query RelayClientIDFieldQuery($id: ID!) {
                   }
                 ],
                 "concreteType": null,
+                "kind": "LinkedField",
+                "name": "commentBody",
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "__id",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "__id",
                     "storageKey": null
                   },
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "__typename",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
                     "storageKey": null
                   },
                   {
                     "kind": "InlineFragment",
-                    "type": "PlainCommentBody",
                     "selections": [
                       {
-                        "kind": "ScalarField",
                         "alias": null,
-                        "name": "__id",
                         "args": null,
+                        "kind": "ScalarField",
+                        "name": "__id",
                         "storageKey": null
                       },
                       {
-                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "text",
                         "args": null,
                         "concreteType": "Text",
+                        "kind": "LinkedField",
+                        "name": "text",
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
                             "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
                             "name": "__id",
-                            "args": null,
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
                             "name": "__typename",
-                            "args": null,
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "text",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "text",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       }
-                    ]
+                    ],
+                    "type": "PlainCommentBody"
                   }
                 ],
                 "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
-            ]
+            ],
+            "type": "Comment"
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "RelayClientIDFieldQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Operation",
+    "name": "RelayClientIDFieldQuery",
     "selections": [
       {
-        "kind": "ScalarField",
         "alias": null,
-        "name": "__id",
         "args": null,
+        "kind": "ScalarField",
+        "name": "__id",
         "storageKey": null
       },
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "me",
         "args": null,
         "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__id",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__typename",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],
         "storageKey": null
       },
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -269,37 +267,36 @@ query RelayClientIDFieldQuery($id: ID!) {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__id",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__typename",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "Comment",
             "selections": [
               {
-                "kind": "LinkedField",
                 "alias": null,
-                "name": "commentBody",
                 "args": [
                   {
                     "kind": "Literal",
@@ -310,64 +307,67 @@ query RelayClientIDFieldQuery($id: ID!) {
                   }
                 ],
                 "concreteType": null,
+                "kind": "LinkedField",
+                "name": "commentBody",
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "__id",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "__id",
                     "storageKey": null
                   },
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "__typename",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
                     "storageKey": null
                   },
                   {
                     "kind": "InlineFragment",
-                    "type": "PlainCommentBody",
                     "selections": [
                       {
-                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "text",
                         "args": null,
                         "concreteType": "Text",
+                        "kind": "LinkedField",
+                        "name": "text",
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
                             "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
                             "name": "__id",
-                            "args": null,
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
                             "name": "__typename",
-                            "args": null,
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "text",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "text",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       }
-                    ]
+                    ],
+                    "type": "PlainCommentBody"
                   }
                 ],
                 "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
-            ]
+            ],
+            "type": "Comment"
           }
         ],
         "storageKey": null

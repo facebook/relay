@@ -27,85 +27,81 @@ type ClientType {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ClientTypeFragment",
-  "type": "ClientType",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientTypeFragment",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_field",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "ClientType"
 }
 
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "foo",
           "args": null,
           "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "foo",
           "plural": false,
           "selections": [
             {
+              "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientTypeFragment",
-              "args": null
+              "name": "ClientTypeFragment"
             }
           ],
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "FooQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FooQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -114,34 +110,36 @@ type ClientType {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "Foo_user",
-            "args": null
+            "name": "Foo_user"
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "FooQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Operation",
+    "name": "FooQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -150,42 +148,43 @@ type ClientType {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "User",
             "selections": [
               {
                 "kind": "ClientExtension",
                 "selections": [
                   {
-                    "kind": "LinkedField",
                     "alias": null,
-                    "name": "foo",
                     "args": null,
                     "concreteType": "ClientType",
+                    "kind": "LinkedField",
+                    "name": "foo",
                     "plural": false,
                     "selections": [
                       {
-                        "kind": "ScalarField",
                         "alias": null,
-                        "name": "client_field",
                         "args": null,
+                        "kind": "ScalarField",
+                        "name": "client_field",
                         "storageKey": null
                       }
                     ],
@@ -193,7 +192,8 @@ type ClientType {
                   }
                 ]
               }
-            ]
+            ],
+            "type": "User"
           }
         ],
         "storageKey": null

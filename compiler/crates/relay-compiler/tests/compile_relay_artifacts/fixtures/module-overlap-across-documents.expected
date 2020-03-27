@@ -45,159 +45,155 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "BarNameRendererFragment",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "BarNameRendererFragment",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "nameRenderer",
       "args": null,
       "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
       "plural": false,
       "selections": [
         {
+          "args": null,
           "kind": "FragmentSpread",
-          "name": "MarkdownUserNameRenderer_name",
-          "args": null
+          "name": "MarkdownUserNameRenderer_name"
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
-  "kind": "Fragment",
-  "name": "FooNameRendererFragment",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "FooNameRendererFragment",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "nameRenderer",
       "args": null,
       "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
       "plural": false,
       "selections": [
         {
+          "args": null,
           "kind": "FragmentSpread",
-          "name": "MarkdownUserNameRenderer_name",
-          "args": null
+          "name": "MarkdownUserNameRenderer_name"
         },
         {
+          "args": null,
           "kind": "FragmentSpread",
-          "name": "PlainUserNameRenderer_name",
-          "args": null
+          "name": "PlainUserNameRenderer_name"
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
-  "kind": "Fragment",
-  "name": "MarkdownUserNameRenderer_name",
-  "type": "MarkdownUserNameRenderer",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MarkdownUserNameRenderer_name",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "markdown",
       "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "data",
       "args": null,
       "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "markup",
           "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
           "storageKey": null
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "MarkdownUserNameRenderer"
 }
 
 {
-  "kind": "Fragment",
-  "name": "PlainUserNameRenderer_name",
-  "type": "PlainUserNameRenderer",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "PlainUserNameRenderer_name",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "plaintext",
       "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "data",
       "args": null,
       "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "text",
           "args": null,
+          "kind": "ScalarField",
+          "name": "text",
           "storageKey": null
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "PlainUserNameRenderer"
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "BarNameRendererQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "BarNameRendererQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -206,34 +202,36 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "BarNameRendererFragment",
-            "args": null
+            "name": "BarNameRendererFragment"
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "BarNameRendererQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Operation",
+    "name": "BarNameRendererQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -242,82 +240,84 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "User",
             "selections": [
               {
-                "kind": "LinkedField",
                 "alias": null,
-                "name": "nameRenderer",
                 "args": null,
                 "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "__typename",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
                     "storageKey": null
                   },
                   {
                     "kind": "InlineFragment",
-                    "type": "MarkdownUserNameRenderer",
                     "selections": [
                       {
-                        "kind": "ScalarField",
                         "alias": null,
-                        "name": "markdown",
                         "args": null,
+                        "kind": "ScalarField",
+                        "name": "markdown",
                         "storageKey": null
                       },
                       {
-                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "data",
                         "args": null,
                         "concreteType": "MarkdownUserNameData",
+                        "kind": "LinkedField",
+                        "name": "data",
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "markup",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "markup",
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       }
-                    ]
+                    ],
+                    "type": "MarkdownUserNameRenderer"
                   }
                 ],
                 "storageKey": null
               }
-            ]
+            ],
+            "type": "User"
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],
@@ -362,25 +362,21 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "FooNameRendererQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FooNameRendererQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -389,34 +385,36 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "FooNameRendererFragment",
-            "args": null
+            "name": "FooNameRendererFragment"
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "FooNameRendererQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Operation",
+    "name": "FooNameRendererQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -425,121 +423,123 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "User",
             "selections": [
               {
-                "kind": "LinkedField",
                 "alias": null,
-                "name": "nameRenderer",
                 "args": null,
                 "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "__typename",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
                     "storageKey": null
                   },
                   {
                     "kind": "InlineFragment",
-                    "type": "MarkdownUserNameRenderer",
                     "selections": [
                       {
-                        "kind": "ScalarField",
                         "alias": null,
-                        "name": "markdown",
                         "args": null,
+                        "kind": "ScalarField",
+                        "name": "markdown",
                         "storageKey": null
                       },
                       {
-                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "data",
                         "args": null,
                         "concreteType": "MarkdownUserNameData",
+                        "kind": "LinkedField",
+                        "name": "data",
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "markup",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "markup",
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       }
-                    ]
+                    ],
+                    "type": "MarkdownUserNameRenderer"
                   },
                   {
                     "kind": "InlineFragment",
-                    "type": "PlainUserNameRenderer",
                     "selections": [
                       {
-                        "kind": "ScalarField",
                         "alias": null,
-                        "name": "plaintext",
                         "args": null,
+                        "kind": "ScalarField",
+                        "name": "plaintext",
                         "storageKey": null
                       },
                       {
-                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "data",
                         "args": null,
                         "concreteType": "PlainUserNameData",
+                        "kind": "LinkedField",
+                        "name": "data",
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "text",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "text",
                             "storageKey": null
                           },
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       }
-                    ]
+                    ],
+                    "type": "PlainUserNameRenderer"
                   }
                 ],
                 "storageKey": null
               }
-            ]
+            ],
+            "type": "User"
           }
         ],
         "storageKey": null

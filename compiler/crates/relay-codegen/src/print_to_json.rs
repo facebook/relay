@@ -14,14 +14,19 @@ use std::fmt::{Error as FmtError, Result as FmtResult, Write};
 
 const TAB_SIZE: usize = 2;
 
+/// Printing without deduping. The following 3 functions do an extra serialization to
+/// get sorted object keys. They should only be used in tests. For production,
+/// use print_..._deduped instead.
 pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
     let ast = build_fragment(schema, fragment);
-    serde_json::to_string_pretty(&ast).unwrap()
+    let value = serde_json::to_value(ast).unwrap();
+    serde_json::to_string_pretty(&value).unwrap()
 }
 
 pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
     let ast = build_operation(schema, operation);
-    serde_json::to_string_pretty(&ast).unwrap()
+    let value = serde_json::to_value(ast).unwrap();
+    serde_json::to_string_pretty(&value).unwrap()
 }
 
 pub fn print_request(
@@ -31,7 +36,8 @@ pub fn print_request(
     request_parameters: RequestParameters,
 ) -> String {
     let ast = build_request(schema, operation, fragment, request_parameters);
-    serde_json::to_string_pretty(&ast).unwrap()
+    let value = serde_json::to_value(ast).unwrap();
+    serde_json::to_string_pretty(&value).unwrap()
 }
 
 pub fn print_fragment_deduped(schema: &Schema, fragment: &FragmentDefinition) -> String {

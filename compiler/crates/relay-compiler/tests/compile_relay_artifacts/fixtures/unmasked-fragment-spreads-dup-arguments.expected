@@ -26,70 +26,6 @@ fragment UserUtil3_user on User @relay(mask: false) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "UserUtil2_user",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
-    }
-  ],
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "url",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "globalIsRelative"
-        }
-      ],
-      "storageKey": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "UserUtil3_user",
-  "type": "User",
-  "metadata": {
-    "mask": false
-  },
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
-    }
-  ],
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "url",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "globalIsRelative"
-        }
-      ],
-      "storageKey": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "UserUtil_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -102,17 +38,18 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "type": "Boolean"
     },
     {
+      "defaultValue": false,
       "kind": "LocalArgument",
       "name": "localIsRelative",
-      "type": "Boolean",
-      "defaultValue": false
+      "type": "Boolean"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserUtil_user",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "profilePicture",
       "args": [
         {
           "kind": "Variable",
@@ -121,29 +58,29 @@ fragment UserUtil3_user on User @relay(mask: false) {
         }
       ],
       "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "width",
           "args": null,
+          "kind": "ScalarField",
+          "name": "width",
           "storageKey": null
         },
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "height",
           "args": null,
+          "kind": "ScalarField",
+          "name": "height",
           "storageKey": null
         }
       ],
       "storageKey": null
     },
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "url",
       "args": [
         {
           "kind": "Variable",
@@ -151,17 +88,17 @@ fragment UserUtil3_user on User @relay(mask: false) {
           "variableName": "globalIsRelative"
         }
       ],
+      "kind": "ScalarField",
+      "name": "url",
       "storageKey": null
     },
     {
+      "args": null,
       "kind": "FragmentSpread",
-      "name": "UserUtil3_user",
-      "args": null
+      "name": "UserUtil3_user"
     },
     {
-      "kind": "ScalarField",
       "alias": "anotherUrl",
-      "name": "url",
       "args": [
         {
           "kind": "Variable",
@@ -169,7 +106,70 @@ fragment UserUtil3_user on User @relay(mask: false) {
           "variableName": "localIsRelative"
         }
       ],
+      "kind": "ScalarField",
+      "name": "url",
       "storageKey": null
     }
-  ]
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserUtil2_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "mask": false
+  },
+  "name": "UserUtil3_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
 }

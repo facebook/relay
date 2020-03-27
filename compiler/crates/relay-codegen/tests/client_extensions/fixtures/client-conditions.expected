@@ -53,10 +53,6 @@ interface ClientNamed {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -69,42 +65,45 @@ interface ClientNamed {
       "type": "Boolean!"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "foo",
           "args": null,
           "concreteType": null,
+          "kind": "LinkedField",
+          "name": "foo",
           "plural": false,
           "selections": [
             {
+              "condition": "shouldInclude",
               "kind": "Condition",
               "passingValue": true,
-              "condition": "shouldInclude",
               "selections": [
                 {
                   "kind": "InlineFragment",
-                  "type": "ClientNamed",
                   "selections": [
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "client_name",
                       "args": null,
+                      "kind": "ScalarField",
+                      "name": "client_name",
                       "storageKey": null
                     },
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "client_name_2",
                       "args": null,
+                      "kind": "ScalarField",
+                      "name": "client_name_2",
                       "storageKey": null
                     }
-                  ]
+                  ],
+                  "type": "ClientNamed"
                 }
               ]
             }
@@ -114,25 +113,25 @@ interface ClientNamed {
       ]
     },
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
+      "condition": "shouldInclude",
       "kind": "Condition",
       "passingValue": true,
-      "condition": "shouldInclude",
       "selections": [
         {
           "kind": "ClientExtension",
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "client_nickname",
               "args": null,
+              "kind": "ScalarField",
+              "name": "client_nickname",
               "storageKey": null
             }
           ]
@@ -140,41 +139,38 @@ interface ClientNamed {
       ]
     },
     {
+      "condition": "shouldInclude",
       "kind": "Condition",
       "passingValue": true,
-      "condition": "shouldInclude",
       "selections": [
         {
           "kind": "InlineFragment",
-          "type": "Actor",
           "selections": [
             {
               "kind": "ClientExtension",
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "client_actor_field",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_actor_field",
                   "storageKey": null
                 }
               ]
             },
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "address",
               "args": null,
               "concreteType": "StreetAddress",
+              "kind": "LinkedField",
+              "name": "address",
               "plural": false,
               "selections": [
                 {
                   "kind": "ClientExtension",
                   "selections": [
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "client_street_address_field",
                       "args": [
                         {
                           "kind": "Variable",
@@ -182,58 +178,62 @@ interface ClientNamed {
                           "variableName": "arg"
                         }
                       ],
+                      "kind": "ScalarField",
+                      "name": "client_street_address_field",
                       "storageKey": null
                     }
                   ]
                 },
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "city",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "city",
                   "storageKey": null
                 }
               ],
               "storageKey": null
             }
-          ]
+          ],
+          "type": "Actor"
         }
       ]
     },
     {
+      "condition": "shouldInclude",
       "kind": "Condition",
       "passingValue": true,
-      "condition": "shouldInclude",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "name",
           "args": null,
+          "kind": "ScalarField",
+          "name": "name",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
+  "argumentDefinitions": [],
   "kind": "Operation",
   "name": "Foo",
-  "argumentDefinitions": [],
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "me",
       "args": null,
       "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
       "plural": false,
       "selections": [
         {
+          "args": null,
           "kind": "FragmentSpread",
-          "name": "Foo_user",
-          "args": null
+          "name": "Foo_user"
         }
       ],
       "storageKey": null

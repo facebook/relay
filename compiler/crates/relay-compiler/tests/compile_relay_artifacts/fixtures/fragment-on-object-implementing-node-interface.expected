@@ -13,10 +13,6 @@ fragment ProfilePicture on User {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ProfilePicture",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -24,11 +20,12 @@ fragment ProfilePicture on User {
       "type": "[Int]"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfilePicture",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "profilePicture",
       "args": [
         {
           "kind": "Variable",
@@ -37,46 +34,49 @@ fragment ProfilePicture on User {
         }
       ],
       "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "uri",
           "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
           "storageKey": null
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
-  "kind": "Fragment",
-  "name": "RefetchableFragment",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "RefetchableFragment",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
+      "args": null,
+      "kind": "ScalarField",
       "name": "id",
-      "args": null,
       "storageKey": null
     },
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "name",
       "args": null,
+      "kind": "ScalarField",
+      "name": "name",
       "storageKey": null
     },
     {
+      "args": null,
       "kind": "FragmentSpread",
-      "name": "ProfilePicture",
-      "args": null
+      "name": "ProfilePicture"
     }
-  ]
+  ],
+  "type": "User"
 }

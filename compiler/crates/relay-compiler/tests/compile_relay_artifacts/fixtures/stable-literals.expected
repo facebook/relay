@@ -10,26 +10,22 @@ query StableLiteralsTest {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "StableLiteralsTest",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "StableLiteralsTest",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "me",
         "args": null,
         "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
         "plural": false,
         "selections": [
           {
-            "kind": "LinkedField",
             "alias": null,
-            "name": "storyCommentSearch",
             "args": [
               {
                 "kind": "Literal",
@@ -42,13 +38,15 @@ query StableLiteralsTest {
               }
             ],
             "concreteType": "Comment",
+            "kind": "LinkedField",
+            "name": "storyCommentSearch",
             "plural": true,
             "selections": [
               {
-                "kind": "ScalarField",
                 "alias": null,
-                "name": "id",
                 "args": null,
+                "kind": "ScalarField",
+                "name": "id",
                 "storageKey": null
               }
             ],
@@ -57,25 +55,25 @@ query StableLiteralsTest {
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
+    "argumentDefinitions": [],
     "kind": "Operation",
     "name": "StableLiteralsTest",
-    "argumentDefinitions": [],
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "me",
         "args": null,
         "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
         "plural": false,
         "selections": [
           {
-            "kind": "LinkedField",
             "alias": null,
-            "name": "storyCommentSearch",
             "args": [
               {
                 "kind": "Literal",
@@ -88,23 +86,25 @@ query StableLiteralsTest {
               }
             ],
             "concreteType": "Comment",
+            "kind": "LinkedField",
+            "name": "storyCommentSearch",
             "plural": true,
             "selections": [
               {
-                "kind": "ScalarField",
                 "alias": null,
-                "name": "id",
                 "args": null,
+                "kind": "ScalarField",
+                "name": "id",
                 "storageKey": null
               }
             ],
             "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],

@@ -6,90 +6,90 @@ query TestQuery($date: String) {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "TestQuery",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "date",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "TestQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "items",
         "args": [
           {
-            "kind": "ObjectValue",
-            "name": "filter",
             "fields": [
               {
                 "kind": "Variable",
                 "name": "date",
                 "variableName": "date"
               }
-            ]
+            ],
+            "kind": "ObjectValue",
+            "name": "filter"
           }
         ],
         "concreteType": "ItemFilterResult",
+        "kind": "LinkedField",
+        "name": "items",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "date",
             "args": null,
+            "kind": "ScalarField",
+            "name": "date",
             "storageKey": null
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "TestQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "date",
-        "type": "String",
-        "defaultValue": null
+        "type": "String"
       }
     ],
+    "kind": "Operation",
+    "name": "TestQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "items",
         "args": [
           {
-            "kind": "ObjectValue",
-            "name": "filter",
             "fields": [
               {
                 "kind": "Variable",
                 "name": "date",
                 "variableName": "date"
               }
-            ]
+            ],
+            "kind": "ObjectValue",
+            "name": "filter"
           }
         ],
         "concreteType": "ItemFilterResult",
+        "kind": "LinkedField",
+        "name": "items",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "date",
             "args": null,
+            "kind": "ScalarField",
+            "name": "date",
             "storageKey": null
           }
         ],

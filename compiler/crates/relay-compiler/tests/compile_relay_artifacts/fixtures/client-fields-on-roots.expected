@@ -36,148 +36,21 @@ extend type Subscription {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "FooMutation",
-    "type": "Mutation",
-    "metadata": null,
     "argumentDefinitions": [
       {
-        "kind": "LocalArgument",
-        "name": "input",
-        "type": "UnfriendInput",
-        "defaultValue": null
-      }
-    ],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "unfriend",
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "input",
-            "variableName": "input"
-          }
-        ],
-        "concreteType": "UnfriendResponsePayload",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "clientMutationId",
-            "args": null,
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      },
-      {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "client_root_field",
-            "args": null,
-            "storageKey": null
-          }
-        ]
-      }
-    ]
-  },
-  "operation": {
-    "kind": "Operation",
-    "name": "FooMutation",
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "input",
-        "type": "UnfriendInput",
-        "defaultValue": null
-      }
-    ],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "unfriend",
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "input",
-            "variableName": "input"
-          }
-        ],
-        "concreteType": "UnfriendResponsePayload",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "clientMutationId",
-            "args": null,
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      },
-      {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "client_root_field",
-            "args": null,
-            "storageKey": null
-          }
-        ]
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "FooMutation",
-    "operationKind": "mutation",
-    "text": null
-  }
-}
-
-QUERY:
-
-mutation FooMutation(
-  $input: UnfriendInput
-) {
-  unfriend(input: $input) {
-    clientMutationId
-  }
-}
-
-{
-  "kind": "Request",
-  "fragment": {
-    "kind": "Fragment",
-    "name": "FooQuery",
-    "type": "Query",
-    "metadata": null,
-    "argumentDefinitions": [
-      {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FooQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -186,13 +59,15 @@ mutation FooMutation(
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],
@@ -202,32 +77,32 @@ mutation FooMutation(
         "kind": "ClientExtension",
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "client_root_field",
             "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
             "storageKey": null
           }
         ]
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "FooQuery",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Operation",
+    "name": "FooQuery",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -236,20 +111,22 @@ mutation FooMutation(
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__typename",
-            "args": null,
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],
@@ -259,10 +136,10 @@ mutation FooMutation(
         "kind": "ClientExtension",
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "client_root_field",
             "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
             "storageKey": null
           }
         ]
@@ -290,25 +167,21 @@ query FooQuery(
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "FooSubscription",
-    "type": "Subscription",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "input",
-        "type": "FeedbackLikeInput",
-        "defaultValue": null
+        "type": "FeedbackLikeInput"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FooSubscription",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "feedbackLikeSubscribe",
         "args": [
           {
             "kind": "Variable",
@@ -317,13 +190,15 @@ query FooQuery(
           }
         ],
         "concreteType": "FeedbackLikeResponsePayload",
+        "kind": "LinkedField",
+        "name": "feedbackLikeSubscribe",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "clientSubscriptionId",
             "args": null,
+            "kind": "ScalarField",
+            "name": "clientSubscriptionId",
             "storageKey": null
           }
         ],
@@ -333,32 +208,32 @@ query FooQuery(
         "kind": "ClientExtension",
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "client_root_field",
             "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
             "storageKey": null
           }
         ]
       }
-    ]
+    ],
+    "type": "Subscription"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "FooSubscription",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "input",
-        "type": "FeedbackLikeInput",
-        "defaultValue": null
+        "type": "FeedbackLikeInput"
       }
     ],
+    "kind": "Operation",
+    "name": "FooSubscription",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "feedbackLikeSubscribe",
         "args": [
           {
             "kind": "Variable",
@@ -367,13 +242,15 @@ query FooQuery(
           }
         ],
         "concreteType": "FeedbackLikeResponsePayload",
+        "kind": "LinkedField",
+        "name": "feedbackLikeSubscribe",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "clientSubscriptionId",
             "args": null,
+            "kind": "ScalarField",
+            "name": "clientSubscriptionId",
             "storageKey": null
           }
         ],
@@ -383,10 +260,10 @@ query FooQuery(
         "kind": "ClientExtension",
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "client_root_field",
             "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
             "storageKey": null
           }
         ]
@@ -409,5 +286,128 @@ subscription FooSubscription(
 ) {
   feedbackLikeSubscribe(input: $input) {
     clientSubscriptionId
+  }
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input",
+        "type": "UnfriendInput"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FooMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "UnfriendResponsePayload",
+        "kind": "LinkedField",
+        "name": "unfriend",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "clientMutationId",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Mutation"
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input",
+        "type": "UnfriendInput"
+      }
+    ],
+    "kind": "Operation",
+    "name": "FooMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "UnfriendResponsePayload",
+        "kind": "LinkedField",
+        "name": "unfriend",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "clientMutationId",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "FooMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation FooMutation(
+  $input: UnfriendInput
+) {
+  unfriend(input: $input) {
+    clientMutationId
   }
 }

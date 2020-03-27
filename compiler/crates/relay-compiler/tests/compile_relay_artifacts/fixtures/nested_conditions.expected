@@ -29,10 +29,6 @@ fragment QueryFragment2 on Query {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "QueryFragment",
-  "type": "Query",
-  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -50,57 +46,60 @@ fragment QueryFragment2 on Query {
       "type": "Boolean!"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "QueryFragment",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "viewer",
       "args": null,
       "concreteType": "Viewer",
+      "kind": "LinkedField",
+      "name": "viewer",
       "plural": false,
       "selections": [
         {
+          "condition": "sentinel",
           "kind": "Condition",
           "passingValue": true,
-          "condition": "sentinel",
           "selections": [
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "account_user",
               "args": null,
               "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "account_user",
               "plural": false,
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "name",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
                   "storageKey": null
                 },
                 {
+                  "condition": "foo",
                   "kind": "Condition",
                   "passingValue": true,
-                  "condition": "foo",
                   "selections": [
                     {
+                      "condition": "bar",
                       "kind": "Condition",
                       "passingValue": false,
-                      "condition": "bar",
                       "selections": [
                         {
-                          "kind": "ScalarField",
                           "alias": null,
-                          "name": "alternate_name",
                           "args": null,
+                          "kind": "ScalarField",
+                          "name": "alternate_name",
                           "storageKey": null
                         },
                         {
-                          "kind": "ScalarField",
                           "alias": null,
-                          "name": "canViewerComment",
                           "args": null,
+                          "kind": "ScalarField",
+                          "name": "canViewerComment",
                           "storageKey": null
                         }
                       ]
@@ -111,23 +110,23 @@ fragment QueryFragment2 on Query {
               "storageKey": null
             },
             {
+              "condition": "foo",
               "kind": "Condition",
               "passingValue": false,
-              "condition": "foo",
               "selections": [
                 {
-                  "kind": "LinkedField",
                   "alias": null,
-                  "name": "actor",
                   "args": null,
                   "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "actor",
                   "plural": false,
                   "selections": [
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "name",
                       "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
                       "storageKey": null
                     }
                   ],
@@ -140,14 +139,11 @@ fragment QueryFragment2 on Query {
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "Query"
 }
 
 {
-  "kind": "Fragment",
-  "name": "QueryFragment2",
-  "type": "Query",
-  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -165,43 +161,46 @@ fragment QueryFragment2 on Query {
       "type": "Boolean!"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "QueryFragment2",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "viewer",
       "args": null,
       "concreteType": "Viewer",
+      "kind": "LinkedField",
+      "name": "viewer",
       "plural": false,
       "selections": [
         {
+          "condition": "foo",
           "kind": "Condition",
           "passingValue": false,
-          "condition": "foo",
           "selections": [
             {
+              "condition": "sentinel",
               "kind": "Condition",
               "passingValue": true,
-              "condition": "sentinel",
               "selections": [
                 {
+                  "condition": "bar",
                   "kind": "Condition",
                   "passingValue": true,
-                  "condition": "bar",
                   "selections": [
                     {
-                      "kind": "LinkedField",
                       "alias": null,
-                      "name": "account_user",
                       "args": null,
                       "concreteType": "User",
+                      "kind": "LinkedField",
+                      "name": "account_user",
                       "plural": false,
                       "selections": [
                         {
-                          "kind": "ScalarField",
                           "alias": null,
-                          "name": "name",
                           "args": null,
+                          "kind": "ScalarField",
+                          "name": "name",
                           "storageKey": null
                         }
                       ],
@@ -216,5 +215,6 @@ fragment QueryFragment2 on Query {
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "Query"
 }

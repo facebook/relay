@@ -27,16 +27,13 @@ fragment FeedbackText_feedback on Feedback {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "FeedbackComments_feedback",
-  "type": "Feedback",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "FeedbackComments_feedback",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "comments",
       "args": [
         {
           "kind": "Literal",
@@ -45,29 +42,31 @@ fragment FeedbackText_feedback on Feedback {
         }
       ],
       "concreteType": "CommentsConnection",
+      "kind": "LinkedField",
+      "name": "comments",
       "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "edges",
           "args": null,
           "concreteType": "CommentsEdge",
+          "kind": "LinkedField",
+          "name": "edges",
           "plural": true,
           "selections": [
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "node",
               "args": null,
               "concreteType": "Comment",
+              "kind": "LinkedField",
+              "name": "node",
               "plural": false,
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "id",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
                   "storageKey": null
                 }
               ],
@@ -77,18 +76,18 @@ fragment FeedbackText_feedback on Feedback {
           "storageKey": null
         },
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "pageInfo",
           "args": null,
           "concreteType": "PageInfo",
+          "kind": "LinkedField",
+          "name": "pageInfo",
           "plural": false,
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "hasNextPage",
               "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
               "storageKey": null
             }
           ],
@@ -97,57 +96,54 @@ fragment FeedbackText_feedback on Feedback {
       ],
       "storageKey": "comments(first:10)"
     }
-  ]
+  ],
+  "type": "Feedback"
 }
 
 {
-  "kind": "Fragment",
-  "name": "FeedbackText_feedback",
-  "type": "Feedback",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "FeedbackText_feedback",
   "selections": [
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "body",
       "args": null,
       "concreteType": "Text",
+      "kind": "LinkedField",
+      "name": "body",
       "plural": false,
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "text",
           "args": null,
+          "kind": "ScalarField",
+          "name": "text",
           "storageKey": null
         }
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "type": "Feedback"
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": "feedback",
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -156,46 +152,48 @@ fragment FeedbackText_feedback on Feedback {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "FeedbackComments_feedback",
-            "args": null
+            "name": "FeedbackComments_feedback"
           },
           {
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "FeedbackText_feedback",
-            "args": null
+            "name": "FeedbackText_feedback"
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       }
     ],
+    "kind": "Operation",
+    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": "feedback",
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -204,48 +202,47 @@ fragment FeedbackText_feedback on Feedback {
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
             "kind": "InlineFragment",
-            "type": "Feedback",
             "selections": [
               {
-                "kind": "LinkedField",
                 "alias": null,
-                "name": "body",
                 "args": null,
                 "concreteType": "Text",
+                "kind": "LinkedField",
+                "name": "body",
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "ScalarField",
                     "alias": null,
-                    "name": "text",
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "text",
                     "storageKey": null
                   }
                 ],
                 "storageKey": null
               },
               {
-                "kind": "LinkedField",
                 "alias": null,
-                "name": "comments",
                 "args": [
                   {
                     "kind": "Literal",
@@ -254,29 +251,31 @@ fragment FeedbackText_feedback on Feedback {
                   }
                 ],
                 "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
                 "plural": false,
                 "selections": [
                   {
-                    "kind": "LinkedField",
                     "alias": null,
-                    "name": "edges",
                     "args": null,
                     "concreteType": "CommentsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
                     "plural": true,
                     "selections": [
                       {
-                        "kind": "LinkedField",
                         "alias": null,
-                        "name": "node",
                         "args": null,
                         "concreteType": "Comment",
+                        "kind": "LinkedField",
+                        "name": "node",
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
                             "alias": null,
-                            "name": "id",
                             "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
                             "storageKey": null
                           }
                         ],
@@ -286,18 +285,18 @@ fragment FeedbackText_feedback on Feedback {
                     "storageKey": null
                   },
                   {
-                    "kind": "LinkedField",
                     "alias": null,
-                    "name": "pageInfo",
                     "args": null,
                     "concreteType": "PageInfo",
+                    "kind": "LinkedField",
+                    "name": "pageInfo",
                     "plural": false,
                     "selections": [
                       {
-                        "kind": "ScalarField",
                         "alias": null,
-                        "name": "hasNextPage",
                         "args": null,
+                        "kind": "ScalarField",
+                        "name": "hasNextPage",
                         "storageKey": null
                       }
                     ],
@@ -306,7 +305,8 @@ fragment FeedbackText_feedback on Feedback {
                 ],
                 "storageKey": "comments(first:10)"
               }
-            ]
+            ],
+            "type": "Feedback"
           }
         ],
         "storageKey": null

@@ -21,61 +21,61 @@ type ClientType {
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ClientTypeFragment",
-  "type": "ClientType",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientTypeFragment",
   "selections": [
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "ScalarField",
           "alias": null,
-          "name": "client_field",
           "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "ClientType"
 }
 
 {
-  "kind": "Fragment",
-  "name": "Foo_user",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
       "kind": "ClientExtension",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "foo",
           "args": null,
           "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "foo",
           "plural": false,
           "selections": [
             {
+              "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientTypeFragment",
-              "args": null
+              "name": "ClientTypeFragment"
             }
           ],
           "storageKey": null
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }

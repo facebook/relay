@@ -22,16 +22,12 @@ fragment ConnectionFragment on User
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "ConnectionFragment",
-  "type": "User",
-  "metadata": null,
   "argumentDefinitions": [
     {
+      "defaultValue": false,
       "kind": "LocalArgument",
       "name": "fetchConnection",
-      "type": "Boolean",
-      "defaultValue": false
+      "type": "Boolean"
     },
     {
       "kind": "RootArgument",
@@ -44,16 +40,17 @@ fragment ConnectionFragment on User
       "type": "Int"
     }
   ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ConnectionFragment",
   "selections": [
     {
+      "condition": "fetchConnection",
       "kind": "Condition",
       "passingValue": true,
-      "condition": "fetchConnection",
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "friends",
           "args": [
             {
               "kind": "Variable",
@@ -67,29 +64,31 @@ fragment ConnectionFragment on User
             }
           ],
           "concreteType": "FriendsConnection",
+          "kind": "LinkedField",
+          "name": "friends",
           "plural": false,
           "selections": [
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "edges",
               "args": null,
               "concreteType": "FriendsEdge",
+              "kind": "LinkedField",
+              "name": "edges",
               "plural": true,
               "selections": [
                 {
-                  "kind": "LinkedField",
                   "alias": null,
-                  "name": "node",
                   "args": null,
                   "concreteType": "User",
+                  "kind": "LinkedField",
+                  "name": "node",
                   "plural": false,
                   "selections": [
                     {
-                      "kind": "ScalarField",
                       "alias": null,
-                      "name": "id",
                       "args": null,
+                      "kind": "ScalarField",
+                      "name": "id",
                       "storageKey": null
                     }
                   ],
@@ -103,41 +102,38 @@ fragment ConnectionFragment on User
         }
       ]
     }
-  ]
+  ],
+  "type": "User"
 }
 
 {
-  "kind": "Request",
   "fragment": {
-    "kind": "Fragment",
-    "name": "QueryWithUnusedVariables",
-    "type": "Query",
-    "metadata": null,
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "unusedAfter",
-        "type": "ID",
-        "defaultValue": null
+        "type": "ID"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "unusedFirst",
-        "type": "Int",
-        "defaultValue": null
+        "type": "Int"
       }
     ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "QueryWithUnusedVariables",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -146,59 +142,61 @@ fragment ConnectionFragment on User
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
-            "kind": "FragmentSpread",
-            "name": "ConnectionFragment",
             "args": [
               {
                 "kind": "Literal",
                 "name": "fetchConnection",
                 "value": false
               }
-            ]
+            ],
+            "kind": "FragmentSpread",
+            "name": "ConnectionFragment"
           }
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "type": "Query"
   },
+  "kind": "Request",
   "operation": {
-    "kind": "Operation",
-    "name": "QueryWithUnusedVariables",
     "argumentDefinitions": [
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "id",
-        "type": "ID!",
-        "defaultValue": null
+        "type": "ID!"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "unusedAfter",
-        "type": "ID",
-        "defaultValue": null
+        "type": "ID"
       },
       {
+        "defaultValue": null,
         "kind": "LocalArgument",
         "name": "unusedFirst",
-        "type": "Int",
-        "defaultValue": null
+        "type": "Int"
       }
     ],
+    "kind": "Operation",
+    "name": "QueryWithUnusedVariables",
     "selections": [
       {
-        "kind": "LinkedField",
         "alias": null,
-        "name": "node",
         "args": [
           {
             "kind": "Variable",
@@ -207,20 +205,22 @@ fragment ConnectionFragment on User
           }
         ],
         "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
         "plural": false,
         "selections": [
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
             "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           },
           {
-            "kind": "ScalarField",
             "alias": null,
-            "name": "id",
             "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],

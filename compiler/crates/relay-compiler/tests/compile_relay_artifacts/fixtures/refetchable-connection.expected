@@ -18,21 +18,6 @@ fragment RefetchableConnection_feedback on Feedback
 }
 ==================================== OUTPUT ===================================
 {
-  "kind": "Fragment",
-  "name": "RefetchableConnection_feedback",
-  "type": "Feedback",
-  "metadata": {
-    "connection": [
-      {
-        "path": [
-          "comments"
-        ],
-        "direction": "forward",
-        "cursor": "cursor",
-        "count": "count"
-      }
-    ]
-  },
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -45,18 +30,30 @@ fragment RefetchableConnection_feedback on Feedback
       "type": "ID"
     }
   ],
+  "kind": "Fragment",
+  "metadata": {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ]
+  },
+  "name": "RefetchableConnection_feedback",
   "selections": [
     {
-      "kind": "ScalarField",
       "alias": null,
-      "name": "id",
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
       "storageKey": null
     },
     {
-      "kind": "LinkedField",
       "alias": null,
-      "name": "comments",
       "args": [
         {
           "kind": "Variable",
@@ -70,43 +67,45 @@ fragment RefetchableConnection_feedback on Feedback
         }
       ],
       "concreteType": "CommentsConnection",
+      "kind": "LinkedField",
+      "name": "comments",
       "plural": false,
       "selections": [
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "edges",
           "args": null,
           "concreteType": "CommentsEdge",
+          "kind": "LinkedField",
+          "name": "edges",
           "plural": true,
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "cursor",
               "args": null,
+              "kind": "ScalarField",
+              "name": "cursor",
               "storageKey": null
             },
             {
-              "kind": "LinkedField",
               "alias": null,
-              "name": "node",
               "args": null,
               "concreteType": "Comment",
+              "kind": "LinkedField",
+              "name": "node",
               "plural": false,
               "selections": [
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "__typename",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "__typename",
                   "storageKey": null
                 },
                 {
-                  "kind": "ScalarField",
                   "alias": null,
-                  "name": "id",
                   "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
                   "storageKey": null
                 }
               ],
@@ -116,25 +115,25 @@ fragment RefetchableConnection_feedback on Feedback
           "storageKey": null
         },
         {
-          "kind": "LinkedField",
           "alias": null,
-          "name": "pageInfo",
           "args": null,
           "concreteType": "PageInfo",
+          "kind": "LinkedField",
+          "name": "pageInfo",
           "plural": false,
           "selections": [
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "endCursor",
               "args": null,
+              "kind": "ScalarField",
+              "name": "endCursor",
               "storageKey": null
             },
             {
-              "kind": "ScalarField",
               "alias": null,
-              "name": "hasNextPage",
               "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
               "storageKey": null
             }
           ],
@@ -144,9 +143,7 @@ fragment RefetchableConnection_feedback on Feedback
       "storageKey": null
     },
     {
-      "kind": "LinkedHandle",
       "alias": null,
-      "name": "comments",
       "args": [
         {
           "kind": "Variable",
@@ -159,9 +156,12 @@ fragment RefetchableConnection_feedback on Feedback
           "variableName": "count"
         }
       ],
+      "filters": null,
       "handle": "connection",
       "key": "RefetchableConnection_comments",
-      "filters": null
+      "kind": "LinkedHandle",
+      "name": "comments"
     }
-  ]
+  ],
+  "type": "Feedback"
 }

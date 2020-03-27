@@ -108,13 +108,6 @@ query NodeQuery($id: ID!) {
                           {
                             "alias": null,
                             "args": null,
-                            "kind": "ScalarField",
-                            "name": "__typename",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
                             "concreteType": null,
                             "kind": "LinkedField",
                             "name": "actor",
@@ -128,6 +121,13 @@ query NodeQuery($id: ID!) {
                                 "storageKey": null
                               }
                             ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__typename",
                             "storageKey": null
                           }
                         ],
@@ -272,20 +272,6 @@ query NodeQuery($id: ID!) {
                           {
                             "alias": null,
                             "args": null,
-                            "kind": "ScalarField",
-                            "name": "__typename",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "id",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
                             "concreteType": null,
                             "kind": "LinkedField",
                             "name": "actor",
@@ -313,6 +299,20 @@ query NodeQuery($id: ID!) {
                                 "storageKey": null
                               }
                             ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__typename",
                             "storageKey": null
                           }
                         ],
@@ -385,13 +385,13 @@ query NodeQuery(
       comments(first: 10) {
         edges {
           node {
-            __typename
-            id
             actor {
               __typename
               name
               id
             }
+            id
+            __typename
           }
           cursor
         }

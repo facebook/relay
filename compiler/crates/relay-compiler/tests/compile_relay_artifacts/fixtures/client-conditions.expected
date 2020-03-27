@@ -78,6 +78,13 @@ interface ClientNamed {
         {
           "alias": null,
           "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
           "concreteType": "StreetAddress",
           "kind": "LinkedField",
           "name": "address",
@@ -129,13 +136,6 @@ interface ClientNamed {
               "storageKey": null
             }
           ]
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
         }
       ]
     },

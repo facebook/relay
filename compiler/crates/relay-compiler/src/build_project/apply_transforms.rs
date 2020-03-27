@@ -75,8 +75,8 @@ fn apply_reader_transforms<'schema>(
     // - SkipRedundantNodesTransform
 
     let program = remove_base_fragments(&program, base_fragment_names);
-    let program = client_extensions(&program);
-    flatten(&program, true)
+    let program = flatten(&program, true);
+    client_extensions(&program)
 }
 
 /// Applies transforms that apply to all operation artifacts.
@@ -113,9 +113,9 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
 
     let program = skip_unreachable_node(&program);
     let program = inline_fragments(&program);
-    let program = client_extensions(&program);
     let program = flatten(&program, true);
     let program = skip_redundant_nodes(&program);
+    let program = client_extensions(&program);
     generate_typename(&program)
 }
 

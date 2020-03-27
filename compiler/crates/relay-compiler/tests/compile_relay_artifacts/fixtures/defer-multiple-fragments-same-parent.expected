@@ -225,24 +225,6 @@ fragment FeedbackText_feedback on Feedback {
             "selections": [
               {
                 "alias": null,
-                "args": null,
-                "concreteType": "Text",
-                "kind": "LinkedField",
-                "name": "body",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "text",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              },
-              {
-                "alias": null,
                 "args": [
                   {
                     "kind": "Literal",
@@ -304,6 +286,24 @@ fragment FeedbackText_feedback on Feedback {
                   }
                 ],
                 "storageKey": "comments(first:10)"
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "Text",
+                "kind": "LinkedField",
+                "name": "body",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "text",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
               }
             ],
             "type": "Feedback"

@@ -287,17 +287,6 @@ fragment UserFragment on User
             "passingValue": true,
             "selections": [
               {
-                "args": [
-                  {
-                    "kind": "Variable",
-                    "name": "size",
-                    "variableName": "PictureSize"
-                  }
-                ],
-                "kind": "FragmentSpread",
-                "name": "UserFragment"
-              },
-              {
                 "kind": "InlineFragment",
                 "selections": [
                   {
@@ -309,6 +298,17 @@ fragment UserFragment on User
                   }
                 ],
                 "type": "User"
+              },
+              {
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "PictureSize"
+                  }
+                ],
+                "kind": "FragmentSpread",
+                "name": "UserFragment"
               }
             ]
           }
@@ -546,9 +546,9 @@ query NodeQuery(
   node(id: $id) {
     __typename
     id
-    ...UserFragment_3M2EvT @include(if: $cond)... on User @include(if: $cond) {
+    ... on User @include(if: $cond) {
       name
-    }
+    }...UserFragment_3M2EvT @include(if: $cond)
   }
 }
 

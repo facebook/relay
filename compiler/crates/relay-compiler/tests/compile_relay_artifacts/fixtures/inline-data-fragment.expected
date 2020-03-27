@@ -200,14 +200,14 @@ fragment Profile on User @inline {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "height",
+                "name": "width",
                 "storageKey": null
               },
               {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "width",
+                "name": "height",
                 "storageKey": null
               }
             ],

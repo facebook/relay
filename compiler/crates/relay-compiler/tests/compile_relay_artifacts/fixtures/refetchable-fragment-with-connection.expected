@@ -105,14 +105,14 @@ fragment PaginationFragment on Node
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "__typename",
+                      "name": "id",
                       "storageKey": null
                     },
                     {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "id",
+                      "name": "__typename",
                       "storageKey": null
                     }
                   ],

@@ -204,8 +204,8 @@ impl<'s> FlattenTransform<'s> {
                             type_condition: flattened_node.type_condition,
                             directives: flattened_node.directives.clone(),
                             selections: self.merge_selections(
-                                &node_selections,
                                 &flattened_node.selections,
+                                &node_selections,
                                 &type_condition,
                             ),
                         }));
@@ -222,8 +222,8 @@ impl<'s> FlattenTransform<'s> {
                             arguments: flattened_node.arguments.clone(),
                             directives: flattened_node.directives.clone(),
                             selections: self.merge_selections(
-                                &node_selections,
                                 &flattened_node.selections,
+                                &node_selections,
                                 &self
                                     .program
                                     .schema()
@@ -243,8 +243,8 @@ impl<'s> FlattenTransform<'s> {
                             value: flattened_node.value.clone(),
                             passing_value: flattened_node.passing_value,
                             selections: self.merge_selections(
-                                &node_selections,
                                 &flattened_node.selections,
+                                &node_selections,
                                 parent_type,
                             ),
                         }));

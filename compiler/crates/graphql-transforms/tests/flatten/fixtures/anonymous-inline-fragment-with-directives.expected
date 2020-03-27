@@ -34,16 +34,16 @@ fragment TestFragment on User {
 ==================================== OUTPUT ===================================
 fragment TestFragment on User {
   ... @defer {
-    firstName
     lastName
+    firstName
   }
   ... @__clientExtension {
-    lastName
     firstName
+    lastName
   }
   ... @__clientExtension(label: "123", if: false) {
-    firstName
     lastName
+    firstName
   }
   ... @__clientExtension(label: "123", if: true) {
     lastName

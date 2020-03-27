@@ -122,14 +122,14 @@ fragment FeedbackFragment on Feedback
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "__typename",
+                  "name": "id",
                   "storageKey": null
                 },
                 {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "id",
+                  "name": "__typename",
                   "storageKey": null
                 }
               ],
@@ -383,14 +383,14 @@ fragment FeedbackFragment on Feedback
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "__typename",
+                            "name": "id",
                             "storageKey": null
                           },
                           {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "id",
+                            "name": "__typename",
                             "storageKey": null
                           }
                         ],
@@ -471,8 +471,8 @@ fragment FeedbackFragment_1G22uz on Feedback {
   comments(after: $cursor, first: $count, orderby: "date") {
     edges {
       node {
-        __typename
         id
+        __typename
       }
       cursor
     }
@@ -617,14 +617,14 @@ fragment FeedbackFragment_1G22uz on Feedback {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "__typename",
+                            "name": "id",
                             "storageKey": null
                           },
                           {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "id",
+                            "name": "__typename",
                             "storageKey": null
                           }
                         ],
@@ -703,8 +703,8 @@ fragment FeedbackFragment on Feedback {
   comments(after: null, first: 2, orderby: "date") {
     edges {
       node {
-        __typename
         id
+        __typename
       }
       cursor
     }

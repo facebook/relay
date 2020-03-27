@@ -35,8 +35,8 @@ fragment TestFragment on Node {
       firstName
     }
     ... on Actor @serverInlineDirective {
-      lastName
       firstName
+      lastName
     }
   }
 }

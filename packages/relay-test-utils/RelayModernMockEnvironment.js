@@ -441,11 +441,6 @@ function createMockEnvironment(config?: {|
   // $FlowExpectedError
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
-    loggerProvider: {
-      getLogger() {
-        return null;
-      },
-    },
     network: Network.create(execute, execute),
     store,
     ...config,

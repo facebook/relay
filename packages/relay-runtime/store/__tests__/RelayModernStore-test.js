@@ -1112,6 +1112,31 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             });
           });
 
+          it('returns the most recent fetchTime when the query is written multiple times to the store', () => {
+            const operation = createOperationDescriptor(UserQuery, {
+              id: '4',
+              size: 32,
+            });
+
+            // Write query data and record operation write
+            let fetchTime = Date.now();
+            jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+            store.retain(operation);
+            store.publish(source);
+            store.notify(operation);
+
+            // Do it again
+            store.retain(operation);
+            store.publish(source);
+            fetchTime += 1000;
+            store.notify(operation);
+
+            expect(store.check(operation)).toEqual({
+              status: 'available',
+              fetchTime,
+            });
+          });
+
           it('returns available if data is cached and store was invalidated before query was written (query not retained)', () => {
             store = new RelayModernStore(source, {
               gcReleaseBufferSize: 1,

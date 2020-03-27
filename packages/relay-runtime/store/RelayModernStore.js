@@ -262,7 +262,7 @@ class RelayModernStore implements Store {
     return snapshot;
   }
 
-  // This method will return a list of updated owners form the subscriptions
+  // This method will return a list of updated owners from the subscriptions
   notify(
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
@@ -305,7 +305,7 @@ class RelayModernStore implements Store {
       const rootEntry = this._roots.get(id);
       if (rootEntry != null) {
         rootEntry.epoch = this._currentWriteEpoch;
-        rootEntry.fetchTime = rootEntry.fetchTime ?? Date.now();
+        rootEntry.fetchTime = Date.now();
       } else if (
         sourceOperation.request.node.params.operationKind === 'query' &&
         this._gcReleaseBufferSize > 0 &&

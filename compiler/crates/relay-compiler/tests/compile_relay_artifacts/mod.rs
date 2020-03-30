@@ -55,7 +55,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let programs = apply_transforms(&program, &Default::default(), &connection_interface)
         .map_err(validation_errors_to_string)?;
 
-    let mut result = programs
+    let result = programs
         .normalization
         .operations()
         .map(|operation| {
@@ -85,13 +85,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 text
             )
         })
-        .chain(
-            programs
-                .reader
-                .fragments()
-                .map(|fragment| print_fragment(&schema, fragment)),
-        )
+        .chain({
+            let mut fragments: Vec<&std::sync::Arc<FragmentDefinition>> =
+                programs.reader.fragments().collect();
+            fragments.sort_by(|a, b| a.name.item.lookup().cmp(&b.name.item.lookup()));
+            fragments
+                .into_iter()
+                .map(|fragment| print_fragment(&schema, fragment))
+        })
         .collect::<Vec<_>>();
-    result.sort_unstable();
     Ok(result.join("\n\n"))
 }

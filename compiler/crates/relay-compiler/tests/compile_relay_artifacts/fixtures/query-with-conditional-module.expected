@@ -23,87 +23,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "fetchModule",
-      "type": "Boolean!"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "NameRendererFragment",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": null,
-      "kind": "LinkedField",
-      "name": "nameRenderer",
-      "plural": false,
-      "selections": [
-        {
-          "condition": "fetchModule",
-          "kind": "Condition",
-          "passingValue": true,
-          "selections": [
-            {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "MarkdownUserNameRenderer_name"
-            }
-          ]
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "markdown",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "MarkdownUserNameData",
-      "kind": "LinkedField",
-      "name": "data",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "markup",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "type": "MarkdownUserNameRenderer"
-}
-
-{
   "fragment": {
     "argumentDefinitions": [
       {
@@ -305,4 +224,85 @@ fragment NameRendererFragment on User {
     __typename
     ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react") @include(if: $fetchModule)
   }
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "fetchModule",
+      "type": "Boolean!"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "NameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "condition": "fetchModule",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "MarkdownUserNameRenderer_name"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
 }

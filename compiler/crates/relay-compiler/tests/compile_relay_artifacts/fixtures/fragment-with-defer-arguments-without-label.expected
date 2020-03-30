@@ -22,107 +22,6 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "scale",
-      "type": "Float"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "DeferredFragment",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "name",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "scale",
-          "variableName": "scale"
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profile_picture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "uri",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "UserFragment",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "emailAddresses",
-      "storageKey": null
-    },
-    {
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 1.5
-        }
-      ],
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment"
-    },
-    {
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 2.0
-        }
-      ],
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment"
-    }
-  ],
-  "type": "User"
-}
-
-{
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -258,4 +157,105 @@ fragment UserFragment on User {
   emailAddresses
   ...DeferredFragment_QMvSr @defer
   ...DeferredFragment_1HMuo6 @defer
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "scale",
+      "type": "Float"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "DeferredFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "scale"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "emailAddresses",
+      "storageKey": null
+    },
+    {
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 1.5
+        }
+      ],
+      "kind": "FragmentSpread",
+      "name": "DeferredFragment"
+    },
+    {
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 2.0
+        }
+      ],
+      "kind": "FragmentSpread",
+      "name": "DeferredFragment"
+    }
+  ],
+  "type": "User"
 }

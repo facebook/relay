@@ -24,113 +24,6 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "pictureSize",
-      "type": "[Int]"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "Profile",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "pictureSize"
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profilePicture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "uri",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "pictureSize",
-      "type": "[Int]"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "ProfileFriends",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
-      "concreteType": "FriendsConnection",
-      "kind": "LinkedField",
-      "name": "friends",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "concreteType": "FriendsEdge",
-          "kind": "LinkedField",
-          "name": "edges",
-          "plural": true,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "User",
-              "kind": "LinkedField",
-              "name": "node",
-              "plural": false,
-              "selections": [
-                {
-                  "args": [
-                    {
-                      "kind": "Variable",
-                      "name": "pictureSize",
-                      "variableName": "pictureSize"
-                    }
-                  ],
-                  "kind": "FragmentSpread",
-                  "name": "Profile"
-                }
-              ],
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
-      ],
-      "storageKey": "friends(first:10)"
-    }
-  ],
-  "type": "User"
-}
-
-{
   "fragment": {
     "argumentDefinitions": [
       {
@@ -420,4 +313,111 @@ fragment Profile_4CNNX6 on User {
   profilePicture(size: $pictureSize) {
     uri
   }
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "[Int]"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Profile",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "pictureSize"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "pictureSize",
+      "type": "[Int]"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfileFriends",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "kind": "LinkedField",
+      "name": "friends",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "FriendsEdge",
+          "kind": "LinkedField",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "pictureSize",
+                      "variableName": "pictureSize"
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "Profile"
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": "friends(first:10)"
+    }
+  ],
+  "type": "User"
 }

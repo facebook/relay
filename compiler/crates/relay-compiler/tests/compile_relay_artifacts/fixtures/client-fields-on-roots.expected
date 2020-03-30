@@ -173,129 +173,6 @@ query FooQuery(
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "input",
-        "type": "FeedbackLikeInput"
-      }
-    ],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "FooSubscription",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "input",
-            "variableName": "input"
-          }
-        ],
-        "concreteType": "FeedbackLikeResponsePayload",
-        "kind": "LinkedField",
-        "name": "feedbackLikeSubscribe",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "clientSubscriptionId",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      },
-      {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "client_root_field",
-            "storageKey": null
-          }
-        ]
-      }
-    ],
-    "type": "Subscription"
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "input",
-        "type": "FeedbackLikeInput"
-      }
-    ],
-    "kind": "Operation",
-    "name": "FooSubscription",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "input",
-            "variableName": "input"
-          }
-        ],
-        "concreteType": "FeedbackLikeResponsePayload",
-        "kind": "LinkedField",
-        "name": "feedbackLikeSubscribe",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "clientSubscriptionId",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      },
-      {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "client_root_field",
-            "storageKey": null
-          }
-        ]
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "FooSubscription",
-    "operationKind": "subscription",
-    "text": null
-  }
-}
-
-QUERY:
-
-subscription FooSubscription(
-  $input: FeedbackLikeInput
-) {
-  feedbackLikeSubscribe(input: $input) {
-    clientSubscriptionId
-  }
-}
-
-{
-  "fragment": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "input",
         "type": "UnfriendInput"
       }
     ],
@@ -409,5 +286,128 @@ mutation FooMutation(
 ) {
   unfriend(input: $input) {
     clientMutationId
+  }
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input",
+        "type": "FeedbackLikeInput"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FooSubscription",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "FeedbackLikeResponsePayload",
+        "kind": "LinkedField",
+        "name": "feedbackLikeSubscribe",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "clientSubscriptionId",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Subscription"
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input",
+        "type": "FeedbackLikeInput"
+      }
+    ],
+    "kind": "Operation",
+    "name": "FooSubscription",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "FeedbackLikeResponsePayload",
+        "kind": "LinkedField",
+        "name": "feedbackLikeSubscribe",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "clientSubscriptionId",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "FooSubscription",
+    "operationKind": "subscription",
+    "text": null
+  }
+}
+
+QUERY:
+
+subscription FooSubscription(
+  $input: FeedbackLikeInput
+) {
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
   }
 }

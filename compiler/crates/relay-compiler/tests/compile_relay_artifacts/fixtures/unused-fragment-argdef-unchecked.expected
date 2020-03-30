@@ -23,112 +23,6 @@ fragment ProfilePhoto on User {
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "size",
-      "type": "Int"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "ProfilePhotoWrapper",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__typename",
-      "storageKey": null
-    },
-    {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "ProfilePhoto"
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "size",
-      "type": "Int"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "Profile",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "name",
-      "storageKey": null
-    },
-    {
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "size"
-        }
-      ],
-      "kind": "FragmentSpread",
-      "name": "ProfilePhotoWrapper"
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "ProfilePhoto",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "size",
-          "value": [
-            100
-          ]
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profilePicture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "uri",
-          "storageKey": null
-        }
-      ],
-      "storageKey": "profilePicture(size:[100])"
-    }
-  ],
-  "type": "User"
-}
-
-{
   "fragment": {
     "argumentDefinitions": [
       {
@@ -295,4 +189,110 @@ fragment ProfilePhoto on User {
 fragment ProfilePhotoWrapper_18PEfK on User {
   __typename
   ...ProfilePhoto
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "Int"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Profile",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "kind": "FragmentSpread",
+      "name": "ProfilePhotoWrapper"
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfilePhoto",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": [
+            100
+          ]
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": "profilePicture(size:[100])"
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "Int"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfilePhotoWrapper",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "ProfilePhoto"
+    }
+  ],
+  "type": "User"
 }

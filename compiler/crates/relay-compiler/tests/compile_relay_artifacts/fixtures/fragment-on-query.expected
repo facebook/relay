@@ -20,6 +20,46 @@ fragment ProfilePicture on User {
 {
   "argumentDefinitions": [
     {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "[Int]"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "id",
@@ -74,44 +114,4 @@ fragment ProfilePicture on User {
     }
   ],
   "type": "Query"
-}
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "ProfilePicture",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "size"
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profilePicture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "uri",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "type": "User"
 }

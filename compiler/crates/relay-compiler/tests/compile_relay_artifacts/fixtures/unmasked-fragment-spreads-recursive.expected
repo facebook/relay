@@ -27,183 +27,6 @@ fragment UserUtil2_user on User {
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "ProfilePicture_SIZE",
-      "type": "[Int]"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "UserUtil_user",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "ProfilePicture_SIZE"
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profilePicture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "width",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "height",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "isRelative"
-        }
-      ],
-      "kind": "ScalarField",
-      "name": "url",
-      "storageKey": null
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "ProfilePicture_SIZE",
-      "type": "[Int]"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "showFirstName",
-      "type": "Boolean"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "UserProfile_user",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "if",
-          "variableName": "showFirstName"
-        }
-      ],
-      "kind": "ScalarField",
-      "name": "firstName",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "size",
-          "variableName": "ProfilePicture_SIZE"
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profilePicture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "width",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "height",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "isRelative"
-        }
-      ],
-      "kind": "ScalarField",
-      "name": "url",
-      "storageKey": null
-    }
-  ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "UserUtil2_user",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "relative",
-          "variableName": "isRelative"
-        }
-      ],
-      "kind": "ScalarField",
-      "name": "url",
-      "storageKey": null
-    }
-  ],
-  "type": "User"
-}
-
-{
   "fragment": {
     "argumentDefinitions": [
       {
@@ -379,4 +202,181 @@ fragment UserProfile_user on User {
     height
   }
   url(relative: $isRelative)
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "ProfilePicture_SIZE",
+      "type": "[Int]"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "showFirstName",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserProfile_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "if",
+          "variableName": "showFirstName"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "ProfilePicture_SIZE"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserUtil2_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "ProfilePicture_SIZE",
+      "type": "[Int]"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "isRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserUtil_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "ProfilePicture_SIZE"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
 }

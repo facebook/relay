@@ -8,10 +8,10 @@
 use super::apply_transforms::Programs;
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use graphql_ir::FragmentDefinition;
-use graphql_ir::OperationDefinition;
+use graphql_ir::{FragmentDefinition, OperationDefinition, Sources};
 use graphql_text_printer::print_full_operation;
 use interner::StringKey;
+use md5::{Digest, Md5};
 use persist_query::persist;
 use relay_codegen::build_request_params;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -27,14 +27,24 @@ pub async fn generate_artifacts(
     config: &Config,
     project_config: &ProjectConfig,
     programs: &Programs<'_>,
+    sources: &Sources<'_>,
 ) -> Result<Vec<Artifact>, BuildProjectError> {
     let mut artifacts = Vec::new();
     for node in programs.normalization.operations() {
-        artifacts
-            .push(generate_normalization_artifact(config, project_config, programs, node).await?);
+        // TODO(T64697087): This is currently just `hash(source)`. In the JS
+        // version, we normalize first by computing `md5(print(parse(source)))`
+        // which normalizes whitespace and strips comments.
+        let hash = md5(sources[&node.name.location.file()]);
+        artifacts.push(
+            generate_normalization_artifact(config, project_config, programs, node, &hash).await?,
+        );
     }
     for node in programs.reader.fragments() {
-        artifacts.push(generate_reader_artifact(config, programs, node));
+        // TODO(T64697087): This is currently just `hash(source)`. In the JS
+        // version, we normalize first by computing `md5(print(parse(source)))`
+        // which normalizes whitespace and strips comments.
+        let hash = md5(sources[&node.name.location.file()]);
+        artifacts.push(generate_reader_artifact(config, programs, node, &hash));
     }
 
     Ok(artifacts)
@@ -45,6 +55,7 @@ async fn generate_normalization_artifact(
     project_config: &ProjectConfig,
     programs: &Programs<'_>,
     node: &OperationDefinition,
+    hash: &str,
 ) -> Result<Artifact, BuildProjectError> {
     let name = node.name.item;
     let print_operation_node = programs
@@ -105,7 +116,7 @@ async fn generate_normalization_artifact(
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"TODO\";").unwrap();
+    writeln!(content, "  (node/*: any*/).hash = \"{}\";", hash).unwrap();
     writeln!(content, "}}\n").unwrap();
     writeln!(content, "module.exports = node;").unwrap();
 
@@ -119,6 +130,7 @@ fn generate_reader_artifact(
     config: &Config,
     programs: &Programs<'_>,
     node: &FragmentDefinition,
+    hash: &str,
 ) -> Artifact {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
@@ -139,7 +151,7 @@ fn generate_reader_artifact(
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"TODO\";").unwrap();
+    writeln!(content, "  (node/*: any*/).hash = \"{}\";", hash).unwrap();
     writeln!(content, "}}\n").unwrap();
     writeln!(content, "module.exports = node;").unwrap();
 
@@ -159,4 +171,10 @@ fn get_content_start(config: &Config) -> String {
         writeln!(content, " *").unwrap();
     }
     content
+}
+
+fn md5(data: &str) -> String {
+    let mut md5 = Md5::new();
+    md5.input(data);
+    hex::encode(md5.result())
 }

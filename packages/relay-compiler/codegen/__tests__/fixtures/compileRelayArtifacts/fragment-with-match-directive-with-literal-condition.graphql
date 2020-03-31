@@ -1,0 +1,35 @@
+query Test($use3D: Boolean!) {
+  node {
+    ... on User {
+      nameRenderer {
+        ...MarkdownUserNameRenderer_name
+      }
+      ...UserFragment_with3d @arguments(use3D: $use3D)
+    }
+  }
+}
+
+query Test2 {
+  node {
+    ...UserFragment_with3d
+  }
+}
+
+fragment UserFragment_with3d on User
+  @argumentDefinitions(use3D: {type: "Boolean!", defaultValue: false}) {
+  id
+  name
+  ... @include(if: $use3D) {
+    test: nameRenderer {
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

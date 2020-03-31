@@ -1,9 +1,4 @@
-query Test {
-  node {
-    ...NameRendererFragment
-  }
-}
-
+# the output of this transform should not contain any SplitOperations
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {

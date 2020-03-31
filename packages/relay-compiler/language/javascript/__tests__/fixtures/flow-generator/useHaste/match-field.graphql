@@ -1,3 +1,9 @@
+query Test {
+  node {
+    ...NameRendererFragment
+  }
+}
+
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {

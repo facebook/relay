@@ -18,7 +18,7 @@ const Scheduler = require('scheduler');
 
 import type {Direction} from '../useLoadMoreFunction';
 import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useTransition, useMemo, useState} = React;
+const {useEffect, useTransition, useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
@@ -35,7 +35,7 @@ const {
 const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
 
 describe('useBlockingPaginationFragment with useTransition', () => {
-  if (React.version.startsWith('16')) {
+  if (typeof React.useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });
@@ -54,12 +54,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     let setEnvironment;
     let setOwner;
     let renderFragment;
-    let renderSpy;
     let createMockEnvironment;
     let generateAndCompile;
     let loadNext;
     let refetch;
     let forceUpdate;
+    let release;
     let Renderer;
 
     class ErrorBoundary extends React.Component<any, any> {
@@ -102,37 +102,46 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       refetch = result.refetch;
       // $FlowFixMe
       result.isPendingNext = isPendingNext;
-      renderSpy(data, result);
+
+      useEffect(() => {
+        Scheduler.unstable_yieldValue({data, ...result});
+      });
+
       return {data, ...result};
     }
 
-    function assertCall(expected, idx) {
-      const actualData = renderSpy.mock.calls[idx][0];
-      const actualResult = renderSpy.mock.calls[idx][1];
-      // $FlowFixMe
-      const actualIsNextPending = actualResult.isPendingNext;
-      const actualHasNext = actualResult.hasNext;
-      const actualHasPrevious = actualResult.hasPrevious;
-
-      expect(actualData).toEqual(expected.data);
-      expect(actualIsNextPending).toEqual(expected.isPendingNext);
-      expect(actualHasNext).toEqual(expected.hasNext);
-      expect(actualHasPrevious).toEqual(expected.hasPrevious);
+    function assertYield(expected, actual) {
+      expect(actual.data).toEqual(expected.data);
+      expect(actual.isPendingNext).toEqual(expected.isPendingNext);
+      expect(actual.hasNext).toEqual(expected.hasNext);
+      expect(actual.hasPrevious).toEqual(expected.hasPrevious);
     }
 
     function expectFragmentResults(
-      expectedCalls: $ReadOnlyArray<{|
+      expectedYields: $ReadOnlyArray<{|
         data: $FlowFixMe,
         isPendingNext: boolean,
         hasNext: boolean,
         hasPrevious: boolean,
       |}>,
     ) {
-      // This ensures that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
-      expect(renderSpy).toBeCalledTimes(expectedCalls.length);
-      expectedCalls.forEach((expected, idx) => assertCall(expected, idx));
-      renderSpy.mockClear();
+      assertYieldsWereCleared();
+      Scheduler.unstable_flushNumberOfYields(expectedYields.length);
+      const actualYields = Scheduler.unstable_clearYields();
+      expect(actualYields.length).toEqual(expectedYields.length);
+      expectedYields.forEach((expected, idx) =>
+        assertYield(expected, actualYields[idx]),
+      );
+    }
+
+    function assertYieldsWereCleared() {
+      const actualYields = Scheduler.unstable_clearYields();
+      if (actualYields.length !== 0) {
+        throw new Error(
+          'Log of yielded values is not empty. ' +
+            'Call expect(Scheduler).toHaveYielded(...) first.',
+        );
+      }
     }
 
     function createFragmentRef(id, owner) {
@@ -148,12 +157,25 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     beforeEach(() => {
       // Set up mocks
       jest.resetModules();
-      jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
       jest.mock('warning');
       jest.mock('../ExecutionEnvironment', () => ({
         isServer: false,
       }));
-      renderSpy = jest.fn();
+      jest.mock('scheduler', () => {
+        return jest.requireActual('scheduler/unstable_mock');
+      });
+
+      // Supress `act` warnings since we are intentionally not
+      // using it for most tests here. `act` currently always
+      // flushes Suspense fallbacks, and that's not what we want
+      // when asserting pending/suspended states,
+      const originalLogError = console.error.bind(console);
+      jest.spyOn(console, 'error').mockImplementation((message, ...args) => {
+        if (typeof message === 'string' && message.includes('act(...)')) {
+          return;
+        }
+        originalLogError(message, ...args);
+      });
 
       ({
         createMockEnvironment,
@@ -163,6 +185,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       // Set up environment and base data
       environment = createMockEnvironment({
         handlerProvider: () => ConnectionHandler,
+      });
+      release = jest.fn();
+      environment.retain.mockImplementation((...args) => {
+        return {
+          dispose: release,
+        };
       });
       const generated = generateAndCompile(
         `
@@ -372,6 +400,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         );
       };
 
+      const Fallback = () => {
+        useEffect(() => {
+          Scheduler.unstable_yieldValue('Fallback');
+        });
+
+        return 'Fallback';
+      };
+
       renderFragment = (args?: {
         isConcurrent?: boolean,
         owner?: $FlowFixMe,
@@ -379,24 +415,20 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         fragment?: $FlowFixMe,
         ...
       }): $FlowFixMe => {
-        const {isConcurrent = false, ...props} = args ?? {};
-        let renderer;
-        TestRenderer.act(() => {
-          renderer = TestRenderer.create(
-            <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
-              <React.Suspense fallback="Fallback">
-                {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-                 * type of React$Node */}
-                <ContextProvider>
-                  <Container owner={query} {...props} />
-                </ContextProvider>
-              </React.Suspense>
-            </ErrorBoundary>,
-            // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
-            {unstable_isConcurrent: isConcurrent},
-          );
-        });
-        return renderer;
+        const {isConcurrent = true, ...props} = args ?? {};
+        return TestRenderer.create(
+          <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
+            <React.Suspense fallback={<Fallback />}>
+              {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+               * type of React$Node */}
+              <ContextProvider>
+                <Container owner={query} {...props} />
+              </ContextProvider>
+            </React.Suspense>
+          </ErrorBoundary>,
+          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          {unstable_isConcurrent: isConcurrent},
+        );
       };
 
       initialUser = {
@@ -426,39 +458,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
     afterEach(() => {
       environment.mockClear();
-      renderSpy.mockClear();
+      jest.dontMock('scheduler');
     });
 
     describe('pagination', () => {
-      let runScheduledCallback = () => {};
-      let release;
-
-      beforeEach(() => {
-        jest.resetModules();
-        jest.doMock('scheduler', () => {
-          const original = jest.requireActual('scheduler/unstable_mock');
-          return {
-            ...original,
-            unstable_next: cb => {
-              runScheduledCallback = () => {
-                original.unstable_next(cb);
-              };
-            },
-          };
-        });
-
-        release = jest.fn();
-        environment.retain.mockImplementation((...args) => {
-          return {
-            dispose: release,
-          };
-        });
-      });
-
-      afterEach(() => {
-        jest.dontMock('scheduler');
-      });
-
       function expectRequestIsInFlight(expected) {
         expect(environment.execute).toBeCalledTimes(expected.requestCount);
         expect(
@@ -470,7 +473,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         ).toEqual(expected.inFlight);
       }
 
-      function expectFragmentIsLoadingMore(
+      function expectFragmentIsPendingOnPagination(
         renderer,
         direction: Direction,
         expected: {|
@@ -482,25 +485,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         |},
       ) {
         // Assert fragment sets isPending to true
-        expect(renderSpy).toBeCalledTimes(1);
-        assertCall(
+        expectFragmentResults([
           {
             data: expected.data,
             isPendingNext: direction === 'forward',
             hasNext: expected.hasNext,
             hasPrevious: expected.hasPrevious,
           },
-          0,
-        );
-        renderSpy.mockClear();
-
-        // $FlowFixMe(site=www) batchedUpdats is not part of the public Flow types
-        // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
-        TestRenderer.unstable_batchedUpdates(() => {
-          runScheduledCallback();
-          jest.runAllImmediates();
-        });
-        Scheduler.unstable_flushExpired();
+        ]);
 
         // Assert refetch query was fetched
         expectRequestIsInFlight({...expected, inFlight: true, requestCount: 1});
@@ -522,10 +514,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             },
           ]);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
-            jest.runAllTimers();
-          });
+          loadNext(1, {onComplete: callback});
+
           const paginationVariables = {
             id: '1',
             after: 'cursor:1',
@@ -535,7 +525,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             isViewerFriendLocal: false,
             orderby: ['name'],
           };
-          expectFragmentIsLoadingMore(renderer, direction, {
+          expectFragmentIsPendingOnPagination(renderer, direction, {
             data: initialUser,
             hasNext: true,
             hasPrevious: false,
@@ -543,6 +533,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
+          expect(renderer.toJSON()).toEqual(null);
 
           environment.mock.resolve(gqlPaginationQuery, {
             data: {
@@ -618,7 +609,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
         it('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
           const callback = jest.fn();
-          const renderer = renderFragment({isConcurrent: true});
+          const renderer = renderFragment();
           expectFragmentResults([
             {
               data: initialUser,
@@ -628,13 +619,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             },
           ]);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
-            Scheduler.unstable_flushAll();
-            jest.runAllTimers();
-          });
-
-          expect(renderer.toJSON()).toEqual(null);
+          loadNext(1, {onComplete: callback});
 
           const paginationVariables = {
             id: '1',
@@ -645,7 +630,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             isViewerFriendLocal: false,
             orderby: ['name'],
           };
-          expectFragmentIsLoadingMore(renderer, direction, {
+          expectFragmentIsPendingOnPagination(renderer, direction, {
             data: initialUser,
             hasNext: true,
             hasPrevious: false,
@@ -653,6 +638,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
+          expect(renderer.toJSON()).toEqual(null);
 
           // Schedule a high-pri update while the component is
           // suspended on pagination
@@ -662,8 +648,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
               forceUpdate(prev => prev + 1);
             },
           );
-
-          Scheduler.unstable_flushAll();
 
           // Assert high-pri update is rendered when initial update
           // that suspended hasn't committed
@@ -789,9 +773,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             },
           ]);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
-          });
+          loadNext(1, {onComplete: callback});
+
           const paginationVariables = {
             id: '1',
             after: 'cursor:1',
@@ -801,7 +784,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             isViewerFriendLocal: false,
             orderby: ['name'],
           };
-          expectFragmentIsLoadingMore(renderer, direction, {
+          expectFragmentIsPendingOnPagination(renderer, direction, {
             data: expectedUser,
             hasNext: true,
             hasPrevious: false,
@@ -809,6 +792,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
+          expect(renderer.toJSON()).toEqual(null);
 
           environment.mock.resolve(gqlPaginationQuery, {
             data: {
@@ -894,9 +878,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             },
           ]);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
-          });
+          loadNext(1, {onComplete: callback});
+
           const paginationVariables = {
             id: '1',
             after: 'cursor:1',
@@ -906,7 +889,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             isViewerFriendLocal: false,
             orderby: ['name'],
           };
-          expectFragmentIsLoadingMore(renderer, direction, {
+          expectFragmentIsPendingOnPagination(renderer, direction, {
             data: initialUser,
             hasNext: true,
             hasPrevious: false,
@@ -914,6 +897,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
+          expect(renderer.toJSON()).toEqual(null);
 
           const error = new Error('Oops');
           environment.mock.reject(gqlPaginationQuery, error);
@@ -937,9 +921,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             },
           ]);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
-          });
+          loadNext(1, {onComplete: callback});
+
           const paginationVariables = {
             id: '1',
             after: 'cursor:1',
@@ -949,7 +932,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             isViewerFriendLocal: false,
             orderby: ['name'],
           };
-          expectFragmentIsLoadingMore(renderer, direction, {
+          expectFragmentIsPendingOnPagination(renderer, direction, {
             data: initialUser,
             hasNext: true,
             hasPrevious: false,
@@ -957,10 +940,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
+          expect(renderer.toJSON()).toEqual(null);
 
-          TestRenderer.act(() => {
-            setOwner({...query});
-          });
+          setOwner({...query});
 
           // Assert that request is still in flight after re-rendering
           // with new fragment ref that points to the same data.
@@ -1036,6 +1018,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           expectFragmentResults([
             {
               data: expectedUser,
+              isPendingNext: true,
+              hasNext: true,
+              hasPrevious: false,
+            },
+            {
+              data: expectedUser,
               isPendingNext: false,
               hasNext: true,
               hasPrevious: false,
@@ -1059,7 +1047,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           ).toEqual(expected.inFlight);
         }
 
-        function expectFragmentIsRefetching(
+        function expectFragmentSuspendedOnRefetch(
           renderer,
           expected: {|
             data: mixed,
@@ -1070,8 +1058,19 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlRefetchQuery?: $FlowFixMe,
           |},
         ) {
-          expect(renderSpy).toBeCalledTimes(0);
-          renderSpy.mockClear();
+          assertYieldsWereCleared();
+
+          TestRenderer.act(() => {
+            // Wrap in act to ensure passive effects are run
+            jest.runAllImmediates();
+          });
+
+          // Assert component suspended
+          Scheduler.unstable_flushNumberOfYields(1);
+          const actualYields = Scheduler.unstable_clearYields();
+          expect(actualYields.length).toEqual(1);
+          expect(actualYields[0]).toEqual('Fallback');
+          expect(renderer.toJSON()).toEqual('Fallback');
 
           // Assert refetch query was fetched
           expectRefetchRequestIsInFlight({
@@ -1079,10 +1078,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             inFlight: true,
             requestCount: 1,
           });
-
-          // Assert component suspended
-          expect(renderSpy).toBeCalledTimes(0);
-          expect(renderer.toJSON()).toEqual('Fallback');
 
           // Assert query is tentatively retained while component is suspended
           expect(environment.retain).toBeCalledTimes(1);
@@ -1102,9 +1097,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             },
           ]);
 
-          TestRenderer.act(() => {
-            refetch({isViewerFriendLocal: true, orderby: ['lastname']});
-          });
+          refetch({isViewerFriendLocal: true, orderby: ['lastname']});
 
           // Assert that fragment is refetching with the right variables and
           // suspends upon refetch
@@ -1121,7 +1114,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             gqlPaginationQuery,
             refetchVariables,
           );
-          expectFragmentIsRefetching(renderer, {
+          expectFragmentSuspendedOnRefetch(renderer, {
             data: initialUser,
             hasNext: true,
             hasPrevious: false,
@@ -1183,13 +1176,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
               },
             },
           };
+
+          jest.runAllImmediates();
           expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
             {
               data: expectedUser,
               isPendingNext: false,
@@ -1205,9 +1194,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
           // Paginate after refetching
           environment.execute.mockClear();
-          TestRenderer.act(() => {
-            loadNext(1);
-          });
+          loadNext(1);
+
           const paginationVariables = {
             id: '1',
             after: 'cursor:100',
@@ -1217,7 +1205,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             isViewerFriendLocal: true,
             orderby: ['lastname'],
           };
-          expectFragmentIsLoadingMore(renderer, 'forward', {
+          expectFragmentIsPendingOnPagination(renderer, 'forward', {
             data: expectedUser,
             hasNext: true,
             hasPrevious: false,

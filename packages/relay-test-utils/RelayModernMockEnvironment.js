@@ -35,13 +35,14 @@ import type {
   CacheConfig,
   ConcreteRequest,
   GraphQLSingularResponse,
+  GraphQLTaggedNode,
   IEnvironment,
+  LogFunction,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
   RequestParameters,
   Variables,
-  GraphQLTaggedNode,
 } from 'relay-runtime';
 
 type PendingRequest = {|
@@ -188,6 +189,7 @@ function createMockEnvironment(config?: {|
   +operationTracker?: OperationTracker,
   +operationLoader?: OperationLoader,
   +store?: Store,
+  +log?: ?LogFunction,
   +options?: mixed,
 |}): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());

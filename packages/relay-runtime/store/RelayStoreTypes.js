@@ -401,6 +401,9 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
 export type LogEvent =
   | {|
       +name: 'queryresource.fetch',
+      // ID of this query resource request and will be the same
+      // if there is an associated queryresource.retain event.
+      +resourceID: number,
       +operation: OperationDescriptor,
       // value from ProfilerContext
       +profilerContext: mixed,
@@ -410,6 +413,12 @@ export type LogEvent =
       +renderPolicy: string,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
+    |}
+  | {|
+      +name: 'queryresource.retain',
+      +resourceID: number,
+      // value from ProfilerContext
+      +profilerContext: mixed,
     |}
   | {|
       +name: 'execute.info',

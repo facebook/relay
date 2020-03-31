@@ -67,6 +67,7 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
+  let logs;
 
   beforeEach(() => {
     jest.resetModules();
@@ -124,7 +125,12 @@ describe('useLazyLoadQueryNode', () => {
       );
     };
 
-    environment = createMockEnvironment();
+    logs = [];
+    environment = createMockEnvironment({
+      log: event => {
+        logs.push(event);
+      },
+    });
     release = jest.fn();
     const originalRetain = environment.retain.bind(environment);
     // $FlowFixMe
@@ -553,6 +559,200 @@ describe('useLazyLoadQueryNode', () => {
           name: 'Alice',
         },
       });
+    });
+  });
+
+  describe('logging', () => {
+    test('simple fetch', () => {
+      render(environment, <Container variables={variables} />);
+
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Alice',
+          },
+        },
+      });
+
+      ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+      });
+
+      expect(logs).toMatchObject([
+        {
+          name: 'execute.start',
+          transactionID: 100000,
+        },
+        {
+          name: 'queryresource.fetch',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+        },
+        {
+          name: 'execute.next',
+          transactionID: 100000,
+        },
+        {
+          name: 'execute.complete',
+          transactionID: 100000,
+        },
+        {
+          name: 'queryresource.retain',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+        },
+      ]);
+    });
+
+    test('log when unsubscribed and send again', () => {
+      const initialVariables = {id: 'first-render'};
+      const variablesOne = {id: '1'};
+      const variablesTwo = {id: '2'};
+
+      // Render the component
+      const initialQuery = createOperationDescriptor(gqlQuery, {
+        id: 'first-render',
+      });
+      environment.commitPayload(initialQuery, {
+        node: {
+          __typename: 'User',
+          id: 'first-render',
+          name: 'Bob',
+        },
+      });
+
+      render(
+        environment,
+        <Container variables={initialVariables} fetchPolicy="store-only" />,
+      );
+
+      // Suspend on the first query
+      ReactTestRenderer.act(() => {
+        setProps({variables: variablesOne});
+      });
+
+      // Switch to the second query to cancel the first query
+      ReactTestRenderer.act(() => {
+        setProps({variables: variablesTwo});
+      });
+
+      // Switch back to the first query and it should request again
+      ReactTestRenderer.act(() => {
+        setProps({variables: variablesOne});
+      });
+
+      ReactTestRenderer.act(() => {
+        const payload = {
+          data: {
+            node: {
+              __typename: 'User',
+              id: variablesOne.id,
+              name: 'Alice',
+            },
+          },
+        };
+        environment.mock.resolve(gqlQuery, payload);
+        jest.runAllImmediates();
+      });
+
+      expect(logs).toMatchObject([
+        {
+          // initial fetch
+          name: 'queryresource.fetch',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: false,
+          operation: {
+            request: {
+              variables: initialVariables,
+            },
+          },
+        },
+        {
+          // initial fetch completes, since it was fulfilled from cache
+          name: 'queryresource.retain',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+        },
+        {
+          // request for variables one starts
+          name: 'execute.start',
+          transactionID: 100000,
+          variables: variablesOne,
+        },
+        {
+          // fetch event for variables one
+          name: 'queryresource.fetch',
+          resourceID: 200001,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: true,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+        },
+        {
+          // request for variables one is cancelled
+          name: 'execute.unsubscribe',
+          transactionID: 100000,
+        },
+        {
+          // request for variables two starts
+          name: 'execute.start',
+          transactionID: 100001,
+          variables: variablesTwo,
+        },
+        {
+          // fetch event for variables two
+          name: 'queryresource.fetch',
+          resourceID: 200002,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: true,
+          operation: {
+            request: {
+              variables: variablesTwo,
+            },
+          },
+        },
+        {
+          // request for variables two cancelled
+          name: 'execute.unsubscribe',
+          transactionID: 100001,
+        },
+        {
+          // request is send for variables one again
+          name: 'execute.start',
+          transactionID: 100002,
+        },
+        {
+          // fetch event for variables one
+          name: 'queryresource.fetch',
+          resourceID: 200003,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: true,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+        },
+        {
+          name: 'execute.next',
+          transactionID: 100002,
+        },
+        {
+          name: 'execute.complete',
+          transactionID: 100002,
+        },
+        {
+          name: 'queryresource.retain',
+          resourceID: 200003,
+          profilerContext: expect.objectContaining({}),
+        },
+      ]);
     });
   });
 });

@@ -315,7 +315,7 @@ function useRefetchableFragmentNode<
     // in the useEffect cleanup.
     const queryDisposable =
       refetchedQueryResult != null
-        ? QueryResource.retain(refetchedQueryResult)
+        ? QueryResource.retain(refetchedQueryResult, profilerContext)
         : null;
 
     return () => {

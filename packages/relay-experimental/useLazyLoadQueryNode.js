@@ -104,7 +104,10 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
         return;
       }
     }
-    const disposable = QueryResource.retain(preparedQueryResult);
+    const disposable = QueryResource.retain(
+      preparedQueryResult,
+      profilerContext,
+    );
     return () => {
       disposable.dispose();
     };

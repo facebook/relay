@@ -46,6 +46,7 @@ export type QueryResource = QueryResourceImpl;
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
+  +id: number,
   +cacheKey: string,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
@@ -99,6 +100,8 @@ function getQueryResult(
   };
 }
 
+let nextID = 200000;
+
 function createCacheEntry(
   cacheKey: string,
   operation: OperationDescriptor,
@@ -137,6 +140,7 @@ function createCacheEntry(
 
   const cacheEntry = {
     cacheKey,
+    id: nextID++,
     getValue() {
       return currentValue;
     },
@@ -313,7 +317,7 @@ class QueryResourceImpl {
    * (e.g. inside useEffect), in order to retain the operation in the Relay store
    * and transfer ownership of the operation to the component lifecycle.
    */
-  retain(queryResult: QueryResult): Disposable {
+  retain(queryResult: QueryResult, profilerContext: mixed): Disposable {
     const environment = this._environment;
     const {cacheKey, operation} = queryResult;
     const cacheEntry = this._getOrCreateCacheEntry(
@@ -323,6 +327,11 @@ class QueryResourceImpl {
       null,
     );
     const disposable = cacheEntry.permanentRetain(environment);
+    environment.__log({
+      name: 'queryresource.retain',
+      profilerContext,
+      resourceID: cacheEntry.id,
+    });
 
     return {
       dispose: () => {
@@ -433,16 +442,6 @@ class QueryResourceImpl {
       this._cache.set(cacheKey, cacheEntry);
     }
 
-    environment.__log({
-      name: 'queryresource.fetch',
-      operation,
-      profilerContext,
-      fetchPolicy,
-      renderPolicy,
-      queryAvailability,
-      shouldFetch,
-    });
-
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheKey);
       let networkSubscription;
@@ -529,6 +528,16 @@ class QueryResourceImpl {
       'Relay: Expected to have cached a result when attempting to fetch query.' +
         "If you're seeing this, this is likely a bug in Relay.",
     );
+    environment.__log({
+      name: 'queryresource.fetch',
+      resourceID: cacheEntry.id,
+      operation,
+      profilerContext,
+      fetchPolicy,
+      renderPolicy,
+      queryAvailability,
+      shouldFetch,
+    });
     return cacheEntry;
   }
 }

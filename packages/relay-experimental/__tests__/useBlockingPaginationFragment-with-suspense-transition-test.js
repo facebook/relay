@@ -51,7 +51,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     let paginationQuery;
     let variables;
     let variablesWithoutID;
-    let setEnvironment;
     let setOwner;
     let renderFragment;
     let createMockEnvironment;
@@ -84,9 +83,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       const [startTransition, isPendingNext] = useTransition(
         PAGINATION_SUSPENSE_CONFIG,
       );
-      /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-       * when Flow v0.108.0 was deployed. To see the error delete this comment
-       * and run Flow. */
+      // $FlowFixMe
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,
         // $FlowFixMe
@@ -108,6 +105,16 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       return {data, ...result};
+    }
+
+    function assertYieldsWereCleared() {
+      const actualYields = Scheduler.unstable_clearYields();
+      if (actualYields.length !== 0) {
+        throw new Error(
+          'Log of yielded values is not empty. ' +
+            'Call expect(Scheduler).toHaveYielded(...) first.',
+        );
+      }
     }
 
     function assertYield(expected, actual) {
@@ -134,14 +141,39 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       );
     }
 
-    function assertYieldsWereCleared() {
-      const actualYields = Scheduler.unstable_clearYields();
-      if (actualYields.length !== 0) {
-        throw new Error(
-          'Log of yielded values is not empty. ' +
-            'Call expect(Scheduler).toHaveYielded(...) first.',
-        );
-      }
+    function expectRequestIsInFlight(expected) {
+      expect(environment.execute).toBeCalledTimes(expected.requestCount);
+      expect(
+        environment.mock.isLoading(
+          gqlPaginationQuery,
+          expected.paginationVariables,
+          {force: true},
+        ),
+      ).toEqual(expected.inFlight);
+    }
+
+    function expectFragmentIsPendingOnPagination(
+      renderer,
+      direction: Direction,
+      expected: {|
+        data: mixed,
+        hasNext: boolean,
+        hasPrevious: boolean,
+        paginationVariables: Variables,
+      |},
+    ) {
+      // Assert fragment sets isPending to true
+      expectFragmentResults([
+        {
+          data: expected.data,
+          isPendingNext: direction === 'forward',
+          hasNext: expected.hasNext,
+          hasPrevious: expected.hasPrevious,
+        },
+      ]);
+
+      // Assert refetch query was fetched
+      expectRequestIsInFlight({...expected, inFlight: true, requestCount: 1});
     }
 
     function createFragmentRef(id, owner) {
@@ -376,22 +408,17 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: userData,
         } = useBlockingPaginationFragmentWithSuspenseTransition(
           fragment,
-          /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-           * when Flow v0.108.0 was deployed. To see the error delete this comment
-           * and run Flow. */
+          // $FlowFixMe
           userRef,
         );
         return <Renderer user={userData} />;
       };
 
       const ContextProvider = ({children}) => {
-        const [env, _setEnv] = useState(environment);
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment: env}), [env]);
-
-        setEnvironment = _setEnv;
+        const relayContext = useMemo(() => ({environment}), []);
 
         return (
           <ReactRelayContext.Provider value={relayContext}>
@@ -461,829 +488,784 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       jest.dontMock('scheduler');
     });
 
-    describe('pagination', () => {
-      function expectRequestIsInFlight(expected) {
+    describe('loadNext', () => {
+      const direction = 'forward';
+
+      // Sanity check test, should already be tested in useBlockingPagination test
+      it('loads and renders next items in connection', () => {
+        const callback = jest.fn();
+        const renderer = renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        loadNext(1, {onComplete: callback});
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsPendingOnPagination(renderer, direction, {
+          data: initialUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+        });
+        expect(callback).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual(null);
+
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      username: 'username:node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  startCursor: 'cursor:2',
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: true,
+                },
+              },
+            },
+          },
+        });
+
+        const expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:1',
+                node: {
+                  __typename: 'User',
+                  id: 'node:1',
+                  name: 'name:node:1',
+                  ...createFragmentRef('node:1', query),
+                },
+              },
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'name:node:2',
+                  ...createFragmentRef('node:2', query),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:1',
+            },
+          },
+        };
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
+      });
+
+      it('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
+        const callback = jest.fn();
+        const renderer = renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        loadNext(1, {onComplete: callback});
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsPendingOnPagination(renderer, direction, {
+          data: initialUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+        });
+        expect(callback).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual(null);
+
+        // Schedule a high-pri update while the component is
+        // suspended on pagination
+        Scheduler.unstable_runWithPriority(
+          Scheduler.unstable_UserBlockingPriority,
+          () => {
+            forceUpdate(prev => prev + 1);
+          },
+        );
+
+        // Assert high-pri update is rendered when initial update
+        // that suspended hasn't committed
+        // Assert that the avoided Suspense fallback isn't rendered
+        expect(renderer.toJSON()).toEqual(null);
+        expectFragmentResults([
+          {
+            data: initialUser,
+            // Assert that isPending flag is still true
+            isPendingNext: true,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        // Assert list is updated after pagination request completes
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      username: 'username:node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  startCursor: 'cursor:2',
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: true,
+                },
+              },
+            },
+          },
+        });
+
+        const expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:1',
+                node: {
+                  __typename: 'User',
+                  id: 'node:1',
+                  name: 'name:node:1',
+                  ...createFragmentRef('node:1', query),
+                },
+              },
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'name:node:2',
+                  ...createFragmentRef('node:2', query),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:1',
+            },
+          },
+        };
+
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
+      });
+
+      it('loads more correctly when original variables do not include an id', () => {
+        const callback = jest.fn();
+        const viewer = environment.lookup(queryWithoutID.fragment).data?.viewer;
+        const userRef =
+          typeof viewer === 'object' && viewer != null ? viewer?.actor : null;
+        invariant(userRef != null, 'Expected to have cached test data');
+
+        let expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:1',
+                node: {
+                  __typename: 'User',
+                  id: 'node:1',
+                  name: 'name:node:1',
+                  ...createFragmentRef('node:1', queryWithoutID),
+                },
+              },
+            ],
+          },
+        };
+
+        const renderer = renderFragment({owner: queryWithoutID, userRef});
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        loadNext(1, {onComplete: callback});
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsPendingOnPagination(renderer, direction, {
+          data: expectedUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+        });
+        expect(callback).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual(null);
+
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      username: 'username:node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  startCursor: 'cursor:2',
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: true,
+                },
+              },
+            },
+          },
+        });
+
+        expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:1',
+                node: {
+                  __typename: 'User',
+                  id: 'node:1',
+                  name: 'name:node:1',
+                  ...createFragmentRef('node:1', queryWithoutID),
+                },
+              },
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'name:node:2',
+                  ...createFragmentRef('node:2', queryWithoutID),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:1',
+            },
+          },
+        };
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
+      });
+
+      it('calls callback with error when error occurs during fetch', () => {
+        const callback = jest.fn();
+        const renderer = renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        loadNext(1, {onComplete: callback});
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsPendingOnPagination(renderer, direction, {
+          data: initialUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+        });
+        expect(callback).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual(null);
+
+        const error = new Error('Oops');
+        environment.mock.reject(gqlPaginationQuery, error);
+
+        // We pass the error in the callback, but do not throw during render
+        // since we want to continue rendering the existing items in the
+        // connection
+        expect(callback).toBeCalledTimes(1);
+        expect(callback).toBeCalledWith(error);
+      });
+
+      it('preserves pagination request if re-rendered with same fragment ref', () => {
+        const callback = jest.fn();
+        const renderer = renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        loadNext(1, {onComplete: callback});
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:1',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: false,
+          orderby: ['name'],
+        };
+        expectFragmentIsPendingOnPagination(renderer, direction, {
+          data: initialUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+        });
+        expect(callback).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual(null);
+
+        setOwner({...query});
+
+        // Assert that request is still in flight after re-rendering
+        // with new fragment ref that points to the same data.
+        expectRequestIsInFlight({
+          inFlight: true,
+          requestCount: 1,
+          gqlPaginationQuery,
+          paginationVariables,
+        });
+        expect(callback).toBeCalledTimes(0);
+
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      username: 'username:node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  startCursor: 'cursor:2',
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: true,
+                },
+              },
+            },
+          },
+        });
+
+        const expectedUser = {
+          ...initialUser,
+          friends: {
+            ...initialUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:1',
+                node: {
+                  __typename: 'User',
+                  id: 'node:1',
+                  name: 'name:node:1',
+                  ...createFragmentRef('node:1', query),
+                },
+              },
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'name:node:2',
+                  ...createFragmentRef('node:2', query),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:1',
+            },
+          },
+        };
+        expectFragmentResults([
+          {
+            data: expectedUser,
+            isPendingNext: true,
+            hasNext: true,
+            hasPrevious: false,
+          },
+          {
+            data: expectedUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
+      });
+    });
+
+    describe('refetch', () => {
+      // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
+      // so this suite covers the pagination-related test cases.
+      function expectRefetchRequestIsInFlight(expected) {
         expect(environment.execute).toBeCalledTimes(expected.requestCount);
         expect(
           environment.mock.isLoading(
-            expected.gqlPaginationQuery ?? gqlPaginationQuery,
-            expected.paginationVariables,
+            expected.gqlRefetchQuery ?? gqlPaginationQuery,
+            expected.refetchVariables,
             {force: true},
           ),
         ).toEqual(expected.inFlight);
       }
 
-      function expectFragmentIsPendingOnPagination(
+      function expectFragmentSuspendedOnRefetch(
         renderer,
-        direction: Direction,
         expected: {|
           data: mixed,
           hasNext: boolean,
           hasPrevious: boolean,
-          paginationVariables: Variables,
-          gqlPaginationQuery?: $FlowFixMe,
+          refetchVariables: Variables,
+          refetchQuery?: OperationDescriptor,
+          gqlRefetchQuery?: $FlowFixMe,
         |},
       ) {
-        // Assert fragment sets isPending to true
+        assertYieldsWereCleared();
+
+        TestRenderer.act(() => {
+          // Wrap in act to ensure passive effects are run
+          jest.runAllImmediates();
+        });
+
+        // Assert component suspended
+        Scheduler.unstable_flushNumberOfYields(1);
+        const actualYields = Scheduler.unstable_clearYields();
+        expect(actualYields.length).toEqual(1);
+        expect(actualYields[0]).toEqual('Fallback');
+        expect(renderer.toJSON()).toEqual('Fallback');
+
+        // Assert refetch query was fetched
+        expectRefetchRequestIsInFlight({
+          ...expected,
+          inFlight: true,
+          requestCount: 1,
+        });
+
+        // Assert query is tentatively retained while component is suspended
+        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain.mock.calls[0][0]).toEqual(
+          expected.refetchQuery,
+        );
+      }
+
+      it('loads more items correctly after refetching', () => {
+        const renderer = renderFragment();
         expectFragmentResults([
           {
-            data: expected.data,
-            isPendingNext: direction === 'forward',
-            hasNext: expected.hasNext,
-            hasPrevious: expected.hasPrevious,
+            data: initialUser,
+            isPendingNext: false,
+            hasNext: true,
+            hasPrevious: false,
           },
         ]);
 
-        // Assert refetch query was fetched
-        expectRequestIsInFlight({...expected, inFlight: true, requestCount: 1});
-      }
+        refetch({isViewerFriendLocal: true, orderby: ['lastname']});
 
-      describe('loadNext', () => {
-        const direction = 'forward';
-
-        // Sanity check test, should already be tested in useBlockingPagination test
-        it('loads and renders next items in connection', () => {
-          const callback = jest.fn();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
-              data: initialUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-
-          loadNext(1, {onComplete: callback});
-
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-          };
-          expectFragmentIsPendingOnPagination(renderer, direction, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
-          expect(renderer.toJSON()).toEqual(null);
-
-          environment.mock.resolve(gqlPaginationQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                friends: {
-                  edges: [
-                    {
-                      cursor: 'cursor:2',
-                      node: {
-                        __typename: 'User',
-                        id: 'node:2',
-                        name: 'name:node:2',
-                        username: 'username:node:2',
-                      },
-                    },
-                  ],
-                  pageInfo: {
-                    startCursor: 'cursor:2',
-                    endCursor: 'cursor:2',
-                    hasNextPage: true,
-                    hasPreviousPage: true,
-                  },
-                },
-              },
-            },
-          });
-
-          const expectedUser = {
-            ...initialUser,
-            friends: {
-              ...initialUser.friends,
-              edges: [
-                {
-                  cursor: 'cursor:1',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:1',
-                    name: 'name:node:1',
-                    ...createFragmentRef('node:1', query),
-                  },
-                },
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
-                    name: 'name:node:2',
-                    ...createFragmentRef('node:2', query),
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
-              },
-            },
-          };
-          expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-          expect(callback).toBeCalledTimes(1);
+        // Assert that fragment is refetching with the right variables and
+        // suspends upon refetch
+        const refetchVariables = {
+          after: null,
+          first: 1,
+          before: null,
+          last: null,
+          id: '1',
+          isViewerFriendLocal: true,
+          orderby: ['lastname'],
+        };
+        paginationQuery = createOperationDescriptor(
+          gqlPaginationQuery,
+          refetchVariables,
+        );
+        expectFragmentSuspendedOnRefetch(renderer, {
+          data: initialUser,
+          hasNext: true,
+          hasPrevious: false,
+          refetchVariables,
+          refetchQuery: paginationQuery,
         });
 
-        it('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
-          const callback = jest.fn();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
-              data: initialUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-
-          loadNext(1, {onComplete: callback});
-
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-          };
-          expectFragmentIsPendingOnPagination(renderer, direction, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
-          expect(renderer.toJSON()).toEqual(null);
-
-          // Schedule a high-pri update while the component is
-          // suspended on pagination
-          Scheduler.unstable_runWithPriority(
-            Scheduler.unstable_UserBlockingPriority,
-            () => {
-              forceUpdate(prev => prev + 1);
-            },
-          );
-
-          // Assert high-pri update is rendered when initial update
-          // that suspended hasn't committed
-          // Assert that the avoided Suspense fallback isn't rendered
-          expect(renderer.toJSON()).toEqual(null);
-          expectFragmentResults([
-            {
-              data: initialUser,
-              // Assert that isPending flag is still true
-              isPendingNext: true,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-
-          // Assert list is updated after pagination request completes
-          environment.mock.resolve(gqlPaginationQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                friends: {
-                  edges: [
-                    {
-                      cursor: 'cursor:2',
-                      node: {
-                        __typename: 'User',
-                        id: 'node:2',
-                        name: 'name:node:2',
-                        username: 'username:node:2',
-                      },
+        // Mock network response
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:100',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:100',
+                      name: 'name:node:100',
+                      username: 'username:node:100',
                     },
-                  ],
-                  pageInfo: {
-                    startCursor: 'cursor:2',
-                    endCursor: 'cursor:2',
-                    hasNextPage: true,
-                    hasPreviousPage: true,
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:100',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:100',
                 },
               },
             },
-          });
-
-          const expectedUser = {
-            ...initialUser,
-            friends: {
-              ...initialUser.friends,
-              edges: [
-                {
-                  cursor: 'cursor:1',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:1',
-                    name: 'name:node:1',
-                    ...createFragmentRef('node:1', query),
-                  },
-                },
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
-                    name: 'name:node:2',
-                    ...createFragmentRef('node:2', query),
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
-              },
-            },
-          };
-
-          expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-          expect(callback).toBeCalledTimes(1);
+          },
         });
 
-        it('loads more correctly when original variables do not include an id', () => {
-          const callback = jest.fn();
-          const viewer = environment.lookup(queryWithoutID.fragment).data
-            ?.viewer;
-          const userRef =
-            typeof viewer === 'object' && viewer != null ? viewer?.actor : null;
-          invariant(userRef != null, 'Expected to have cached test data');
-
-          let expectedUser = {
-            ...initialUser,
-            friends: {
-              ...initialUser.friends,
-              edges: [
-                {
-                  cursor: 'cursor:1',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:1',
-                    name: 'name:node:1',
-                    ...createFragmentRef('node:1', queryWithoutID),
-                  },
+        // Assert fragment is rendered with new data
+        const expectedUser = {
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:100',
+                node: {
+                  __typename: 'User',
+                  id: 'node:100',
+                  name: 'name:node:100',
+                  ...createFragmentRef('node:100', paginationQuery),
                 },
-              ],
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:100',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:100',
             },
-          };
+          },
+        };
 
-          const renderer = renderFragment({owner: queryWithoutID, userRef});
-          expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-
-          loadNext(1, {onComplete: callback});
-
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-          };
-          expectFragmentIsPendingOnPagination(renderer, direction, {
+        jest.runAllImmediates();
+        expectFragmentResults([
+          {
             data: expectedUser,
+            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
-          expect(renderer.toJSON()).toEqual(null);
+          },
+        ]);
 
-          environment.mock.resolve(gqlPaginationQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                friends: {
-                  edges: [
-                    {
-                      cursor: 'cursor:2',
-                      node: {
-                        __typename: 'User',
-                        id: 'node:2',
-                        name: 'name:node:2',
-                        username: 'username:node:2',
-                      },
-                    },
-                  ],
-                  pageInfo: {
-                    startCursor: 'cursor:2',
-                    endCursor: 'cursor:2',
-                    hasNextPage: true,
-                    hasPreviousPage: true,
-                  },
-                },
-              },
-            },
-          });
+        // Assert refetch query was retained
+        expect(release).not.toBeCalled();
+        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
-          expectedUser = {
-            ...initialUser,
-            friends: {
-              ...initialUser.friends,
-              edges: [
-                {
-                  cursor: 'cursor:1',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:1',
-                    name: 'name:node:1',
-                    ...createFragmentRef('node:1', queryWithoutID),
-                  },
-                },
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
-                    name: 'name:node:2',
-                    ...createFragmentRef('node:2', queryWithoutID),
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
-              },
-            },
-          };
-          expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-          expect(callback).toBeCalledTimes(1);
+        // Paginate after refetching
+        environment.execute.mockClear();
+        loadNext(1);
+
+        const paginationVariables = {
+          id: '1',
+          after: 'cursor:100',
+          first: 1,
+          before: null,
+          last: null,
+          isViewerFriendLocal: true,
+          orderby: ['lastname'],
+        };
+        expectFragmentIsPendingOnPagination(renderer, 'forward', {
+          data: expectedUser,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
         });
 
-        it('calls callback with error when error occurs during fetch', () => {
-          const callback = jest.fn();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
-              data: initialUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:200',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:200',
+                      name: 'name:node:200',
+                      username: 'username:node:200',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  startCursor: 'cursor:200',
+                  endCursor: 'cursor:200',
+                  hasNextPage: true,
+                  hasPreviousPage: true,
+                },
+              },
             },
-          ]);
-
-          loadNext(1, {onComplete: callback});
-
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-          };
-          expectFragmentIsPendingOnPagination(renderer, direction, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
-          expect(renderer.toJSON()).toEqual(null);
-
-          const error = new Error('Oops');
-          environment.mock.reject(gqlPaginationQuery, error);
-
-          // We pass the error in the callback, but do not throw during render
-          // since we want to continue rendering the existing items in the
-          // connection
-          expect(callback).toBeCalledTimes(1);
-          expect(callback).toBeCalledWith(error);
+          },
         });
 
-        it('preserves pagination request if re-rendered with same fragment ref', () => {
-          const callback = jest.fn();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
-              data: initialUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
+        const paginatedUser = {
+          ...expectedUser,
+          friends: {
+            ...expectedUser.friends,
+            edges: [
+              {
+                cursor: 'cursor:100',
+                node: {
+                  __typename: 'User',
+                  id: 'node:100',
+                  name: 'name:node:100',
+                  ...createFragmentRef('node:100', paginationQuery),
+                },
+              },
+              {
+                cursor: 'cursor:200',
+                node: {
+                  __typename: 'User',
+                  id: 'node:200',
+                  name: 'name:node:200',
+                  ...createFragmentRef('node:200', paginationQuery),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:200',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:100',
             },
-          ]);
-
-          loadNext(1, {onComplete: callback});
-
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-          };
-          expectFragmentIsPendingOnPagination(renderer, direction, {
-            data: initialUser,
+          },
+        };
+        expectFragmentResults([
+          {
+            data: paginatedUser,
+            // Assert pending flag is set back to false
+            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
-          expect(renderer.toJSON()).toEqual(null);
-
-          setOwner({...query});
-
-          // Assert that request is still in flight after re-rendering
-          // with new fragment ref that points to the same data.
-          expectRequestIsInFlight({
-            inFlight: true,
-            requestCount: 1,
-            gqlPaginationQuery,
-            paginationVariables,
-          });
-          expect(callback).toBeCalledTimes(0);
-
-          environment.mock.resolve(gqlPaginationQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                friends: {
-                  edges: [
-                    {
-                      cursor: 'cursor:2',
-                      node: {
-                        __typename: 'User',
-                        id: 'node:2',
-                        name: 'name:node:2',
-                        username: 'username:node:2',
-                      },
-                    },
-                  ],
-                  pageInfo: {
-                    startCursor: 'cursor:2',
-                    endCursor: 'cursor:2',
-                    hasNextPage: true,
-                    hasPreviousPage: true,
-                  },
-                },
-              },
-            },
-          });
-
-          const expectedUser = {
-            ...initialUser,
-            friends: {
-              ...initialUser.friends,
-              edges: [
-                {
-                  cursor: 'cursor:1',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:1',
-                    name: 'name:node:1',
-                    ...createFragmentRef('node:1', query),
-                  },
-                },
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
-                    name: 'name:node:2',
-                    ...createFragmentRef('node:2', query),
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
-              },
-            },
-          };
-          expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: true,
-              hasNext: true,
-              hasPrevious: false,
-            },
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-          expect(callback).toBeCalledTimes(1);
-        });
-      });
-
-      describe('refetch', () => {
-        // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
-        // so this suite covers the pagination-related test cases.
-        function expectRefetchRequestIsInFlight(expected) {
-          expect(environment.execute).toBeCalledTimes(expected.requestCount);
-          expect(
-            environment.mock.isLoading(
-              expected.gqlRefetchQuery ?? gqlPaginationQuery,
-              expected.refetchVariables,
-              {force: true},
-            ),
-          ).toEqual(expected.inFlight);
-        }
-
-        function expectFragmentSuspendedOnRefetch(
-          renderer,
-          expected: {|
-            data: mixed,
-            hasNext: boolean,
-            hasPrevious: boolean,
-            refetchVariables: Variables,
-            refetchQuery?: OperationDescriptor,
-            gqlRefetchQuery?: $FlowFixMe,
-          |},
-        ) {
-          assertYieldsWereCleared();
-
-          TestRenderer.act(() => {
-            // Wrap in act to ensure passive effects are run
-            jest.runAllImmediates();
-          });
-
-          // Assert component suspended
-          Scheduler.unstable_flushNumberOfYields(1);
-          const actualYields = Scheduler.unstable_clearYields();
-          expect(actualYields.length).toEqual(1);
-          expect(actualYields[0]).toEqual('Fallback');
-          expect(renderer.toJSON()).toEqual('Fallback');
-
-          // Assert refetch query was fetched
-          expectRefetchRequestIsInFlight({
-            ...expected,
-            inFlight: true,
-            requestCount: 1,
-          });
-
-          // Assert query is tentatively retained while component is suspended
-          expect(environment.retain).toBeCalledTimes(1);
-          expect(environment.retain.mock.calls[0][0]).toEqual(
-            expected.refetchQuery ?? paginationQuery,
-          );
-        }
-
-        it('loads more items correctly after refetching', () => {
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
-              data: initialUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-
-          refetch({isViewerFriendLocal: true, orderby: ['lastname']});
-
-          // Assert that fragment is refetching with the right variables and
-          // suspends upon refetch
-          const refetchVariables = {
-            after: null,
-            first: 1,
-            before: null,
-            last: null,
-            id: '1',
-            isViewerFriendLocal: true,
-            orderby: ['lastname'],
-          };
-          paginationQuery = createOperationDescriptor(
-            gqlPaginationQuery,
-            refetchVariables,
-          );
-          expectFragmentSuspendedOnRefetch(renderer, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            refetchVariables,
-            refetchQuery: paginationQuery,
-          });
-
-          // Mock network response
-          environment.mock.resolve(gqlPaginationQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                friends: {
-                  edges: [
-                    {
-                      cursor: 'cursor:100',
-                      node: {
-                        __typename: 'User',
-                        id: 'node:100',
-                        name: 'name:node:100',
-                        username: 'username:node:100',
-                      },
-                    },
-                  ],
-                  pageInfo: {
-                    endCursor: 'cursor:100',
-                    hasNextPage: true,
-                    hasPreviousPage: false,
-                    startCursor: 'cursor:100',
-                  },
-                },
-              },
-            },
-          });
-
-          // Assert fragment is rendered with new data
-          const expectedUser = {
-            id: '1',
-            name: 'Alice',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:100',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:100',
-                    name: 'name:node:100',
-                    ...createFragmentRef('node:100', paginationQuery),
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:100',
-                hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:100',
-              },
-            },
-          };
-
-          jest.runAllImmediates();
-          expectFragmentResults([
-            {
-              data: expectedUser,
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-
-          // Assert refetch query was retained
-          expect(release).not.toBeCalled();
-          expect(environment.retain).toBeCalledTimes(1);
-          expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
-
-          // Paginate after refetching
-          environment.execute.mockClear();
-          loadNext(1);
-
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:100',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: true,
-            orderby: ['lastname'],
-          };
-          expectFragmentIsPendingOnPagination(renderer, 'forward', {
-            data: expectedUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-
-          environment.mock.resolve(gqlPaginationQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                friends: {
-                  edges: [
-                    {
-                      cursor: 'cursor:200',
-                      node: {
-                        __typename: 'User',
-                        id: 'node:200',
-                        name: 'name:node:200',
-                        username: 'username:node:200',
-                      },
-                    },
-                  ],
-                  pageInfo: {
-                    startCursor: 'cursor:200',
-                    endCursor: 'cursor:200',
-                    hasNextPage: true,
-                    hasPreviousPage: true,
-                  },
-                },
-              },
-            },
-          });
-
-          const paginatedUser = {
-            ...expectedUser,
-            friends: {
-              ...expectedUser.friends,
-              edges: [
-                {
-                  cursor: 'cursor:100',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:100',
-                    name: 'name:node:100',
-                    ...createFragmentRef('node:100', paginationQuery),
-                  },
-                },
-                {
-                  cursor: 'cursor:200',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:200',
-                    name: 'name:node:200',
-                    ...createFragmentRef('node:200', paginationQuery),
-                  },
-                },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:200',
-                hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:100',
-              },
-            },
-          };
-          expectFragmentResults([
-            {
-              data: paginatedUser,
-              // Assert pending flag is set back to false
-              isPendingNext: false,
-              hasNext: true,
-              hasPrevious: false,
-            },
-          ]);
-        });
+          },
+        ]);
       });
     });
   }

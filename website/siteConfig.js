@@ -169,6 +169,7 @@ const siteConfig = {
   url: 'https://relay.dev',
   baseUrl: '/',
   projectName: 'relay',
+  cname: 'relay.dev',
   users,
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [

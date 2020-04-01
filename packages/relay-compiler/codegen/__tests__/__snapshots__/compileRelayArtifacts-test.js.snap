@@ -1611,7 +1611,6 @@ Request {
           ObjectValue {
             fields: [
               ListValue {
-                name: "inputs",
                 items: [
                   ObjectValue {
                     fields: [
@@ -1632,6 +1631,7 @@ Request {
                     variableName: "searchInputLast",
                   },
                 ],
+                name: "inputs",
               },
               Variable {
                 name: "query",
@@ -1788,7 +1788,6 @@ Request {
         alias: null,
         args: [
           ListValue {
-            name: "waypoints",
             items: [
               ObjectValue {
                 fields: [
@@ -1830,6 +1829,7 @@ Request {
                 name: "waypoints.2",
               },
             ],
+            name: "waypoints",
           },
         ],
         concreteType: "Route",

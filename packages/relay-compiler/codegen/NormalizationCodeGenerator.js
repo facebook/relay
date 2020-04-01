@@ -28,6 +28,7 @@ import type {
   Stream,
   Condition,
   InlineFragment,
+  ModuleImport,
   LocalArgumentDefinition,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
@@ -374,9 +375,8 @@ function generateLinkedField(
 }
 
 function generateModuleImport(
-  node,
-  key,
-  sortObjectKeys,
+  node: ModuleImport,
+  sortObjectKeys: boolean,
 ): NormalizationModuleImport {
   const fragmentName = node.name;
   const regExpMatch = fragmentName.match(
@@ -595,17 +595,29 @@ function generateArgumentValue(
           };
     }
     case 'ListValue': {
-      return {
-        kind: 'ListValue',
-        name: name,
-        items: value.items.map((item, index) => {
-          return generateArgumentValue(
-            `${name}.${index}`,
-            item,
-            sortObjectKeys,
-          );
-        }),
-      };
+      return sortObjectKeys
+        ? {
+            items: value.items.map((item, index) => {
+              return generateArgumentValue(
+                `${name}.${index}`,
+                item,
+                sortObjectKeys,
+              );
+            }),
+            kind: 'ListValue',
+            name: name,
+          }
+        : {
+            kind: 'ListValue',
+            name: name,
+            items: value.items.map((item, index) => {
+              return generateArgumentValue(
+                `${name}.${index}`,
+                item,
+                sortObjectKeys,
+              );
+            }),
+          };
     }
     default:
       throw createUserError(

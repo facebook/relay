@@ -72,9 +72,6 @@ describe('useLazyLoadQueryNode', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    jest.mock('../ExecutionEnvironment', () => ({
-      isServer: false,
-    }));
 
     ({
       createMockEnvironment,

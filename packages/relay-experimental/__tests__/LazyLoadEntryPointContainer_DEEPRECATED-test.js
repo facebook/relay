@@ -13,10 +13,6 @@
 
 'use strict';
 
-jest.mock('../ExecutionEnvironment', () => ({
-  isServer: false,
-}));
-
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');

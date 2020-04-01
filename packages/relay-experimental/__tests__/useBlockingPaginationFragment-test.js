@@ -130,9 +130,6 @@ describe('useBlockingPaginationFragment', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    jest.mock('../ExecutionEnvironment', () => ({
-      isServer: false,
-    }));
     renderSpy = jest.fn();
 
     ({

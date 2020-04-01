@@ -190,9 +190,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       // Set up mocks
       jest.resetModules();
       jest.mock('warning');
-      jest.mock('../ExecutionEnvironment', () => ({
-        isServer: false,
-      }));
       jest.mock('scheduler', () => {
         return jest.requireActual('scheduler/unstable_mock');
       });

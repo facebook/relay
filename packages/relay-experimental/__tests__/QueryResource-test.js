@@ -47,9 +47,6 @@ describe('QueryResource', () => {
   };
 
   beforeEach(() => {
-    jest.mock('../ExecutionEnvironment', () => ({
-      isServer: false,
-    }));
     store = new Store(new RecordSource());
     environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
@@ -2749,6 +2746,89 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(2);
         expect(environment.retain).toBeCalledTimes(2);
       });
+    });
+  });
+});
+
+describe('QueryResource, with an environment meant for SSR', () => {
+  let environment;
+  let QueryResource;
+  let fetchPolicy;
+  let fetchObservable;
+  let gqlQuery;
+  let query;
+  let release;
+  let renderPolicy;
+  const variables = {
+    id: '4',
+  };
+
+  beforeEach(() => {
+    environment = createMockEnvironment({isServer: true});
+    QueryResource = getQueryResourceForEnvironment(environment);
+    gqlQuery = generateAndCompile(
+      `query UserQuery($id: ID!) {
+        node(id: $id) {
+          ... on User {
+            id
+          }
+        }
+      }
+    `,
+    ).UserQuery;
+    query = createOperationDescriptor(gqlQuery, variables);
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '4',
+      },
+    });
+
+    fetchObservable = fetchQuery(environment, query, {
+      networkCacheConfig: {force: true},
+    });
+
+    release = jest.fn();
+    environment.retain.mockImplementation((...args) => {
+      return {
+        dispose: release,
+      };
+    });
+
+    renderPolicy = 'partial';
+  });
+
+  describe('prepare', () => {
+    it('does not attempt to temporarily retain the query in a server environment', () => {
+      expect(environment.check(query)).toEqual({
+        status: 'available',
+        fetchTime: null,
+      });
+
+      jest.useFakeTimers();
+      const result = QueryResource.prepare(
+        query,
+        fetchObservable,
+        fetchPolicy,
+        renderPolicy,
+      );
+      expect(result).toEqual({
+        cacheKey: expect.any(String),
+        fragmentNode: query.fragment.node,
+        fragmentRef: {
+          __id: ROOT_ID,
+          __fragments: {
+            UserQuery: variables,
+          },
+          __fragmentOwner: query.request,
+        },
+        operation: query,
+      });
+      expect(environment.execute).not.toHaveBeenCalled();
+      expect(environment.retain).not.toHaveBeenCalled();
+      jest.runAllTimers();
+      expect(release).not.toHaveBeenCalled();
+      expect(setTimeout).not.toHaveBeenCalled();
     });
   });
 });

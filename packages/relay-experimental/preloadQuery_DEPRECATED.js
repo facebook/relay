@@ -13,7 +13,6 @@
 
 'use strict';
 
-const ExecutionEnvironment = require('./ExecutionEnvironment');
 const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
 
 const invariant = require('invariant');
@@ -184,7 +183,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
               cacheTime: availability?.fetchTime ?? null,
             },
           };
-    if (!ExecutionEnvironment.isServer && prevQueryEntry == null) {
+    if (!environment.isServer() && prevQueryEntry == null) {
       setTimeout(() => {
         // Clear the cache entry after the default timeout
         // null-check for Flow
@@ -222,7 +221,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       subject,
       subscription: source
         .finally(() => {
-          if (ExecutionEnvironment.isServer) {
+          if (environment.isServer()) {
             return;
           }
           setTimeout(() => {

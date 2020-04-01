@@ -13,10 +13,6 @@
 
 'use strict';
 
-jest.mock('../ExecutionEnvironment', () => ({
-  isServer: false,
-}));
-
 const EntryPointContainer = require('../EntryPointContainer.react');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');

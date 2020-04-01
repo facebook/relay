@@ -728,9 +728,6 @@ describe('usePaginationFragment', () => {
 
     beforeEach(() => {
       jest.resetModules();
-      jest.mock('../ExecutionEnvironment', () => ({
-        isServer: false,
-      }));
       jest.doMock('scheduler', () => {
         const original = jest.requireActual('scheduler/unstable_mock');
         return {

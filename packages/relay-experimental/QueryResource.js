@@ -13,7 +13,6 @@
 
 'use strict';
 
-const ExecutionEnvironment = require('./ExecutionEnvironment');
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
@@ -162,7 +161,7 @@ function createCacheEntry(
     temporaryRetain(environment: IEnvironment): Disposable {
       // NOTE: If we're executing in a server environment, there's no need
       // to create temporary retains, since the component will never commit.
-      if (ExecutionEnvironment.isServer) {
+      if (environment.isServer()) {
         return {dispose: () => {}};
       }
 

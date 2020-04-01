@@ -43,6 +43,7 @@ import type {
   OperationTracker,
   RequestParameters,
   Variables,
+  EnvironmentConfig,
 } from 'relay-runtime';
 
 type PendingRequest = {|
@@ -183,15 +184,9 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
  * - rejectMostRecentOperation(...) - should reject the most recent operation
  *   with a specific error
  */
-function createMockEnvironment(config?: {|
-  +handlerProvider?: HandlerProvider,
-  +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
-  +operationTracker?: OperationTracker,
-  +operationLoader?: OperationLoader,
-  +store?: Store,
-  +log?: ?LogFunction,
-  +options?: mixed,
-|}): RelayMockEnvironment {
+function createMockEnvironment(
+  config?: $Shape<EnvironmentConfig>,
+): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({
     size: MAX_SIZE,

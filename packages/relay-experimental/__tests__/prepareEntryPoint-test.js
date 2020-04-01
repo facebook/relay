@@ -13,10 +13,6 @@
 
 'use strict';
 
-jest.mock('../ExecutionEnvironment', () => ({
-  isServer: false,
-}));
-
 const prepareEntryPoint = require('../prepareEntryPoint');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 

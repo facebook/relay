@@ -119,9 +119,6 @@ describe('useRefetchableFragmentNode', () => {
     jest.mock('scheduler', () => {
       return jest.requireActual('scheduler/unstable_mock');
     });
-    jest.mock('../ExecutionEnvironment', () => ({
-      isServer: false,
-    }));
     renderSpy = jest.fn();
 
     fetchPolicy = 'store-or-network';

@@ -607,6 +607,13 @@ export interface IEnvironment {
    * active GraphQL subscription
    */
   isRequestActive(requestIdentifier: string): boolean;
+
+  /**
+   * Returns true if the environment is for use during server side rendering.
+   * functions like getQueryResource key off of this in order to determine
+   * whether we need to set up certain caches and timeout's.
+   */
+  isServer(): boolean;
 }
 
 /**

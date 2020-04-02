@@ -22,13 +22,14 @@ impl Compiler {
         Self { config }
     }
 
-    pub async fn compile(&self) -> Result<()> {
+    pub async fn compile(&self) -> Result<CompilerState> {
         let file_source = FileSource::connect(&self.config).await?;
         let initial_file_source_result = file_source.query().await?;
         let mut compiler_state =
             CompilerState::from_file_source_changes(&self.config, &initial_file_source_result)?;
 
-        self.build_projects(&mut compiler_state).await
+        self.build_projects(&mut compiler_state).await?;
+        Ok(compiler_state)
     }
 
     pub async fn watch(&self) -> Result<()> {

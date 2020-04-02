@@ -15,8 +15,11 @@ use crate::watchman::{
 use common::Timer;
 use interner::StringKey;
 use rayon::prelude::*;
+use serde::ser::{SerializeStruct, Serializer};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::{fs::File, io, result};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -25,7 +28,7 @@ pub type ProjectName = StringKey;
 /// that can be shared by multiple compiler projects
 pub type SourceSetName = StringKey;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileState {
     pub graphql_strings: Vec<String>,
     pub exists: bool,
@@ -33,7 +36,7 @@ pub struct FileState {
 
 type GraphQLSourceSet = HashMap<PathBuf, FileState>;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GraphQLSources {
     grouped_pending_sources: HashMap<SourceSetName, GraphQLSourceSet>,
     grouped_processed_sources: HashMap<SourceSetName, GraphQLSourceSet>,
@@ -115,11 +118,24 @@ impl GraphQLSources {
     }
 }
 
+#[derive(Deserialize, Debug)]
 pub struct CompilerState {
     pub graphql_sources: GraphQLSources,
     pub schemas: HashMap<ProjectName, Vec<String>>,
     pub extensions: HashMap<ProjectName, Vec<String>>,
     pub artifacts: HashMap<ProjectName, ArtifactMap>,
+}
+
+impl Serialize for CompilerState {
+    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("CompilerState", 2)?;
+        state.serialize_field("graphql_sources", &self.graphql_sources)?;
+        state.serialize_field("artifacts", &self.artifacts)?;
+        state.end()
+    }
 }
 
 impl CompilerState {
@@ -128,7 +144,6 @@ impl CompilerState {
         file_source_changes: &FileSourceResult,
     ) -> Result<Self> {
         let categorized = categorize_files(config, &file_source_changes.files);
-
         let artifacts = HashMap::new();
         let mut schemas = HashMap::new();
         let mut extensions = HashMap::new();
@@ -271,5 +286,12 @@ impl CompilerState {
     ) {
         self.update_artifacts_map(written_artifacts);
         self.commit_pending_file_source_changes();
+    }
+
+    pub fn write_to_file(&self, path: &PathBuf) -> io::Result<()> {
+        let write_to_file_timer = Timer::start(format!("write state to file {:?}", path));
+        serde_json::to_writer(File::create(path)?, self)?;
+        write_to_file_timer.stop();
+        Ok(())
     }
 }

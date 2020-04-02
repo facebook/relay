@@ -199,6 +199,10 @@ describe('fetchQuery', () => {
       expect(result).toEqual(response);
       expect(
         environment.mock.isLoading(gqlQuery, query.request.variables),
+      ).toEqual(true);
+      environment.mock.complete(gqlQuery);
+      expect(
+        environment.mock.isLoading(gqlQuery, query.request.variables),
       ).toEqual(false);
     });
 

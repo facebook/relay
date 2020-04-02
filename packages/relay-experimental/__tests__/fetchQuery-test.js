@@ -148,6 +148,12 @@ describe('fetchQuery', () => {
       });
       expect(
         environment.mock.isLoading(query, variables, {force: true}),
+      ).toEqual(true);
+      expect(retained.length).toEqual(0);
+
+      environment.mock.complete(query);
+      expect(
+        environment.mock.isLoading(query, variables, {force: true}),
       ).toEqual(false);
       expect(retained.length).toEqual(0);
     });

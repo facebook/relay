@@ -2382,8 +2382,7 @@ describe('RelayObservable', () => {
         err => list.push(err),
       );
 
-      // Due to Promise resolving at the end of the frame, cleanup occurs first.
-      expect(list).toEqual(['cleanup', 'resolve:1']);
+      expect(list).toEqual(['resolve:1']);
     });
 
     it('Converts an Observable error into a rejected Promise', async () => {

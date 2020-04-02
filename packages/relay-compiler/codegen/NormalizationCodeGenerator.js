@@ -53,26 +53,20 @@ import type {
  * Converts an IR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(
-  schema: Schema,
-  node: Root,
-  sortObjectKeys: boolean,
-): NormalizationOperation;
+declare function generate(schema: Schema, node: Root): NormalizationOperation;
 declare function generate(
   schema: Schema,
   node: SplitOperation,
-  sortObjectKeys: boolean,
 ): NormalizationSplitOperation;
 function generate(
   schema: Schema,
   node: Root | SplitOperation,
-  sortObjectKeys: boolean,
 ): NormalizationOperation | NormalizationSplitOperation {
   switch (node.kind) {
     case 'Root':
-      return generateRoot(schema, node, sortObjectKeys);
+      return generateRoot(schema, node);
     case 'SplitOperation':
-      return generateSplitOperation(schema, node, sortObjectKeys);
+      return generateSplitOperation(schema, node);
     default:
       throw createCompilerError(
         `NormalizationCodeGenerator: Unsupported AST kind '${node.kind}'.`,
@@ -81,94 +75,62 @@ function generate(
   }
 }
 
-function generateRoot(
-  schema: Schema,
-  node: Root,
-  sortObjectKeys: boolean,
-): NormalizationOperation {
-  return sortObjectKeys
-    ? {
-        argumentDefinitions: generateArgumentDefinitions(
-          schema,
-          node.argumentDefinitions,
-          sortObjectKeys,
-        ),
-        kind: 'Operation',
-        name: node.name,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      }
-    : {
-        kind: 'Operation',
-        name: node.name,
-        argumentDefinitions: generateArgumentDefinitions(
-          schema,
-          node.argumentDefinitions,
-          sortObjectKeys,
-        ),
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      };
+function generateRoot(schema: Schema, node: Root): NormalizationOperation {
+  return {
+    argumentDefinitions: generateArgumentDefinitions(
+      schema,
+      node.argumentDefinitions,
+    ),
+    kind: 'Operation',
+    name: node.name,
+    selections: generateSelections(schema, node.selections),
+  };
 }
 
 function generateSplitOperation(
   schema: Schema,
   node: SplitOperation,
-  sortObjectKeys: boolean,
 ): NormalizationSplitOperation {
   return {
     kind: 'SplitOperation',
     metadata: node.metadata,
     name: node.name,
-    selections: generateSelections(schema, node.selections, sortObjectKeys),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
 function generateSelections(
   schema: Schema,
   selections: $ReadOnlyArray<Selection>,
-  sortObjectKeys: boolean,
 ): $ReadOnlyArray<NormalizationSelection> {
   const normalizationSelections: Array<NormalizationSelection> = [];
   selections.forEach(selection => {
     switch (selection.kind) {
       case 'Condition':
-        normalizationSelections.push(
-          generateCondition(schema, selection, sortObjectKeys),
-        );
+        normalizationSelections.push(generateCondition(schema, selection));
         break;
       case 'ClientExtension':
         normalizationSelections.push(
-          generateClientExtension(schema, selection, sortObjectKeys),
+          generateClientExtension(schema, selection),
         );
         break;
       case 'ScalarField':
-        normalizationSelections.push(
-          ...generateScalarField(selection, sortObjectKeys),
-        );
+        normalizationSelections.push(...generateScalarField(selection));
         break;
       case 'ModuleImport':
-        normalizationSelections.push(
-          generateModuleImport(selection, sortObjectKeys),
-        );
+        normalizationSelections.push(generateModuleImport(selection));
         break;
       case 'InlineFragment':
-        normalizationSelections.push(
-          generateInlineFragment(schema, selection, sortObjectKeys),
-        );
+        normalizationSelections.push(generateInlineFragment(schema, selection));
         break;
       case 'LinkedField':
-        normalizationSelections.push(
-          ...generateLinkedField(schema, selection, sortObjectKeys),
-        );
+        normalizationSelections.push(...generateLinkedField(schema, selection));
         break;
       case 'Defer':
-        normalizationSelections.push(
-          generateDefer(schema, selection, sortObjectKeys),
-        );
+        normalizationSelections.push(generateDefer(schema, selection));
         break;
       case 'Stream':
-        normalizationSelections.push(
-          generateStream(schema, selection, sortObjectKeys),
-        );
+        normalizationSelections.push(generateStream(schema, selection));
         break;
       case 'InlineDataFragmentSpread':
       case 'FragmentSpread':
@@ -187,40 +149,30 @@ function generateSelections(
 function generateArgumentDefinitions(
   schema: Schema,
   nodes: $ReadOnlyArray<LocalArgumentDefinition>,
-  sortObjectKeys: boolean,
 ): $ReadOnlyArray<NormalizationLocalArgumentDefinition> {
   return nodes.map(node => {
-    return sortObjectKeys
-      ? {
-          defaultValue: node.defaultValue,
-          kind: 'LocalArgument',
-          name: node.name,
-          type: schema.getTypeString(node.type),
-        }
-      : {
-          kind: 'LocalArgument',
-          name: node.name,
-          type: schema.getTypeString(node.type),
-          defaultValue: node.defaultValue,
-        };
+    return {
+      defaultValue: node.defaultValue,
+      kind: 'LocalArgument',
+      name: node.name,
+      type: schema.getTypeString(node.type),
+    };
   });
 }
 
 function generateClientExtension(
   schema: Schema,
   node: ClientExtension,
-  sortObjectKeys: boolean,
 ): NormalizationSelection {
   return {
     kind: 'ClientExtension',
-    selections: generateSelections(schema, node.selections, sortObjectKeys),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
 function generateCondition(
   schema: Schema,
   node: Condition,
-  sortObjectKeys: boolean,
 ): NormalizationSelection {
   if (node.condition.kind !== 'Variable') {
     throw createCompilerError(
@@ -229,26 +181,15 @@ function generateCondition(
       [node.condition.loc],
     );
   }
-  return sortObjectKeys
-    ? {
-        condition: node.condition.variableName,
-        kind: 'Condition',
-        passingValue: node.passingValue,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      }
-    : {
-        kind: 'Condition',
-        passingValue: node.passingValue,
-        condition: node.condition.variableName,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      };
+  return {
+    condition: node.condition.variableName,
+    kind: 'Condition',
+    passingValue: node.passingValue,
+    selections: generateSelections(schema, node.selections),
+  };
 }
 
-function generateDefer(
-  schema: Schema,
-  node: Defer,
-  sortObjectKeys: boolean,
-): NormalizationDefer {
+function generateDefer(schema: Schema, node: Defer): NormalizationDefer {
   if (
     !(
       node.if == null ||
@@ -270,32 +211,24 @@ function generateDefer(
     kind: 'Defer',
     label: node.label,
     metadata: node.metadata,
-    selections: generateSelections(schema, node.selections, sortObjectKeys),
+    selections: generateSelections(schema, node.selections),
   };
 }
 
 function generateInlineFragment(
   schema: Schema,
   node: InlineFragment,
-  sortObjectKeys: boolean,
 ): NormalizationSelection {
-  return sortObjectKeys
-    ? {
-        kind: 'InlineFragment',
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-        type: schema.getTypeString(node.typeCondition),
-      }
-    : {
-        kind: 'InlineFragment',
-        type: schema.getTypeString(node.typeCondition),
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      };
+  return {
+    kind: 'InlineFragment',
+    selections: generateSelections(schema, node.selections),
+    type: schema.getTypeString(node.typeCondition),
+  };
 }
 
 function generateLinkedField(
   schema: Schema,
   node: LinkedField,
-  sortObjectKeys: boolean,
 ): $ReadOnlyArray<NormalizationSelection> {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
@@ -303,25 +236,15 @@ function generateLinkedField(
   const handles =
     (node.handles &&
       node.handles.map(handle => {
-        let handleNode: NormalizationLinkedHandle = sortObjectKeys
-          ? {
-              alias: node.alias === node.name ? null : node.alias,
-              args: generateArgs(node.args, sortObjectKeys),
-              filters: handle.filters,
-              handle: handle.name,
-              key: handle.key,
-              kind: 'LinkedHandle',
-              name: node.name,
-            }
-          : {
-              kind: 'LinkedHandle',
-              alias: node.alias === node.name ? null : node.alias,
-              name: node.name,
-              args: generateArgs(node.args, sortObjectKeys),
-              handle: handle.name,
-              key: handle.key,
-              filters: handle.filters,
-            };
+        let handleNode: NormalizationLinkedHandle = {
+          alias: node.alias === node.name ? null : node.alias,
+          args: generateArgs(node.args),
+          filters: handle.filters,
+          handle: handle.name,
+          key: handle.key,
+          kind: 'LinkedHandle',
+          name: node.name,
+        };
         // T45504512: new connection model
         // NOTE: this intentionally adds a dynamic key in order to avoid
         // triggering updates to existing queries that do not use dynamic
@@ -341,31 +264,18 @@ function generateLinkedField(
       })) ||
     [];
   const type = schema.getRawType(node.type);
-  let field: NormalizationLinkedField = sortObjectKeys
-    ? {
-        alias: node.alias === node.name ? null : node.alias,
-        args: generateArgs(node.args, sortObjectKeys),
-        concreteType: !schema.isAbstractType(type)
-          ? schema.getTypeString(type)
-          : null,
-        kind: 'LinkedField',
-        name: node.name,
-        plural: isPlural(schema, node.type),
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-        storageKey: null,
-      }
-    : {
-        kind: 'LinkedField',
-        alias: node.alias === node.name ? null : node.alias,
-        name: node.name,
-        storageKey: null,
-        args: generateArgs(node.args, sortObjectKeys),
-        concreteType: !schema.isAbstractType(type)
-          ? schema.getTypeString(type)
-          : null,
-        plural: isPlural(schema, node.type),
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      };
+  let field: NormalizationLinkedField = {
+    alias: node.alias === node.name ? null : node.alias,
+    args: generateArgs(node.args),
+    concreteType: !schema.isAbstractType(type)
+      ? schema.getTypeString(type)
+      : null,
+    kind: 'LinkedField',
+    name: node.name,
+    plural: isPlural(schema, node.type),
+    selections: generateSelections(schema, node.selections),
+    storageKey: null,
+  };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey != null) {
@@ -374,10 +284,7 @@ function generateLinkedField(
   return [field].concat(handles);
 }
 
-function generateModuleImport(
-  node: ModuleImport,
-  sortObjectKeys: boolean,
-): NormalizationModuleImport {
+function generateModuleImport(node: ModuleImport): NormalizationModuleImport {
   const fragmentName = node.name;
   const regExpMatch = fragmentName.match(
     /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
@@ -397,25 +304,15 @@ function generateModuleImport(
       [node.loc],
     );
   }
-  return sortObjectKeys
-    ? {
-        documentName: node.key,
-        fragmentName,
-        fragmentPropName,
-        kind: 'ModuleImport',
-      }
-    : {
-        kind: 'ModuleImport',
-        documentName: node.key,
-        fragmentName,
-        fragmentPropName,
-      };
+  return {
+    documentName: node.key,
+    fragmentName,
+    fragmentPropName,
+    kind: 'ModuleImport',
+  };
 }
 
-function generateScalarField(
-  node,
-  sortObjectKeys: boolean,
-): Array<NormalizationSelection> {
+function generateScalarField(node): Array<NormalizationSelection> {
   // flowlint-next-line sketchy-null-mixed:off
   if (node.metadata?.skipNormalizationNode) {
     return [];
@@ -432,42 +329,24 @@ function generateScalarField(
             [handle.dynamicKey.loc],
           );
         }
-        return sortObjectKeys
-          ? {
-              alias: node.alias === node.name ? null : node.alias,
-              args: generateArgs(node.args, sortObjectKeys),
-              filters: handle.filters,
-              handle: handle.name,
-              key: handle.key,
-              kind: 'ScalarHandle',
-              name: node.name,
-            }
-          : {
-              kind: 'ScalarHandle',
-              alias: node.alias === node.name ? null : node.alias,
-              name: node.name,
-              args: generateArgs(node.args, sortObjectKeys),
-              handle: handle.name,
-              key: handle.key,
-              filters: handle.filters,
-            };
+        return {
+          alias: node.alias === node.name ? null : node.alias,
+          args: generateArgs(node.args),
+          filters: handle.filters,
+          handle: handle.name,
+          key: handle.key,
+          kind: 'ScalarHandle',
+          name: node.name,
+        };
       })) ||
     [];
-  let field: NormalizationScalarField = sortObjectKeys
-    ? {
-        alias: node.alias === node.name ? null : node.alias,
-        args: generateArgs(node.args, sortObjectKeys),
-        kind: 'ScalarField',
-        name: node.name,
-        storageKey: null,
-      }
-    : {
-        kind: 'ScalarField',
-        alias: node.alias === node.name ? null : node.alias,
-        name: node.name,
-        args: generateArgs(node.args, sortObjectKeys),
-        storageKey: null,
-      };
+  let field: NormalizationScalarField = {
+    alias: node.alias === node.name ? null : node.alias,
+    args: generateArgs(node.args),
+    kind: 'ScalarField',
+    name: node.name,
+    storageKey: null,
+  };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey != null) {
@@ -476,11 +355,7 @@ function generateScalarField(
   return [field].concat(handles);
 }
 
-function generateStream(
-  schema: Schema,
-  node: Stream,
-  sortObjectKeys: boolean,
-): NormalizationStream {
+function generateStream(schema: Schema, node: Stream): NormalizationStream {
   if (
     !(
       node.if == null ||
@@ -494,43 +369,26 @@ function generateStream(
       [node.if?.loc ?? node.loc],
     );
   }
-  return sortObjectKeys
-    ? {
-        if:
-          node.if != null && node.if.kind === 'Variable'
-            ? node.if.variableName
-            : null,
-        kind: 'Stream',
-        label: node.label,
-        metadata: node.metadata,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-        useCustomizedBatch:
-          node.useCustomizedBatch != null &&
-          node.useCustomizedBatch.kind === 'Variable'
-            ? node.useCustomizedBatch.variableName
-            : null,
-      }
-    : {
-        if:
-          node.if != null && node.if.kind === 'Variable'
-            ? node.if.variableName
-            : null,
-        kind: 'Stream',
-        useCustomizedBatch:
-          node.useCustomizedBatch != null &&
-          node.useCustomizedBatch.kind === 'Variable'
-            ? node.useCustomizedBatch.variableName
-            : null,
-        label: node.label,
-        metadata: node.metadata,
-        selections: generateSelections(schema, node.selections, sortObjectKeys),
-      };
+  return {
+    if:
+      node.if != null && node.if.kind === 'Variable'
+        ? node.if.variableName
+        : null,
+    kind: 'Stream',
+    label: node.label,
+    metadata: node.metadata,
+    selections: generateSelections(schema, node.selections),
+    useCustomizedBatch:
+      node.useCustomizedBatch != null &&
+      node.useCustomizedBatch.kind === 'Variable'
+        ? node.useCustomizedBatch.variableName
+        : null,
+  };
 }
 
 function generateArgumentValue(
   name: string,
   value: ArgumentValue,
-  sortObjectKeys: boolean,
 ): NormalizationArgument | null {
   switch (value.kind) {
     case 'Variable':
@@ -554,70 +412,32 @@ function generateArgumentValue(
           return [field.name, field.value];
         }),
       );
-      return sortObjectKeys
-        ? {
-            fields: objectKeys.map(fieldName => {
-              const fieldValue = objectValues.get(fieldName);
-              if (fieldValue == null) {
-                throw createCompilerError(
-                  'Expected to have object field value',
-                );
-              }
-              return (
-                generateArgumentValue(
-                  fieldName,
-                  fieldValue,
-                  sortObjectKeys,
-                ) ?? {kind: 'Literal', name: fieldName, value: null}
-              );
-            }),
-            kind: 'ObjectValue',
-            name: name,
+      return {
+        fields: objectKeys.map(fieldName => {
+          const fieldValue = objectValues.get(fieldName);
+          if (fieldValue == null) {
+            throw createCompilerError('Expected to have object field value');
           }
-        : {
-            kind: 'ObjectValue',
-            name: name,
-            fields: objectKeys.map(fieldName => {
-              const fieldValue = objectValues.get(fieldName);
-              if (fieldValue == null) {
-                throw createCompilerError(
-                  'Expected to have object field value',
-                );
-              }
-              return (
-                generateArgumentValue(
-                  fieldName,
-                  fieldValue,
-                  sortObjectKeys,
-                ) ?? {kind: 'Literal', name: fieldName, value: null}
-              );
-            }),
-          };
+          return (
+            generateArgumentValue(fieldName, fieldValue) ?? {
+              kind: 'Literal',
+              name: fieldName,
+              value: null,
+            }
+          );
+        }),
+        kind: 'ObjectValue',
+        name: name,
+      };
     }
     case 'ListValue': {
-      return sortObjectKeys
-        ? {
-            items: value.items.map((item, index) => {
-              return generateArgumentValue(
-                `${name}.${index}`,
-                item,
-                sortObjectKeys,
-              );
-            }),
-            kind: 'ListValue',
-            name: name,
-          }
-        : {
-            kind: 'ListValue',
-            name: name,
-            items: value.items.map((item, index) => {
-              return generateArgumentValue(
-                `${name}.${index}`,
-                item,
-                sortObjectKeys,
-              );
-            }),
-          };
+      return {
+        items: value.items.map((item, index) => {
+          return generateArgumentValue(`${name}.${index}`, item);
+        }),
+        kind: 'ListValue',
+        name: name,
+      };
     }
     default:
       throw createUserError(
@@ -630,15 +450,10 @@ function generateArgumentValue(
 
 function generateArgs(
   args: $ReadOnlyArray<Argument>,
-  sortObjectKeys: boolean,
 ): ?$ReadOnlyArray<NormalizationArgument> {
   const concreteArguments = [];
   args.forEach(arg => {
-    const concreteArgument = generateArgumentValue(
-      arg.name,
-      arg.value,
-      sortObjectKeys,
-    );
+    const concreteArgument = generateArgumentValue(arg.name, arg.value);
     if (concreteArgument !== null) {
       concreteArguments.push(concreteArgument);
     }

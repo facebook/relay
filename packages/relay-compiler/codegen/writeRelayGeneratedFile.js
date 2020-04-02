@@ -150,27 +150,15 @@ async function writeRelayGeneratedFile(
             text != null,
             'writeRelayGeneratedFile: Expected `text` in order to persist query',
           );
-          const sortObjectKeys = Rollout.check(
-            'sort-object-keys',
-            generatedNode.params.name,
-          );
           generatedNode = {
             ...generatedNode,
-            params: sortObjectKeys
-              ? {
-                  id: await persistQuery(text),
-                  metadata: generatedNode.params.metadata,
-                  name: generatedNode.params.name,
-                  operationKind: generatedNode.params.operationKind,
-                  text: null,
-                }
-              : {
-                  operationKind: generatedNode.params.operationKind,
-                  name: generatedNode.params.name,
-                  id: await persistQuery(text),
-                  text: null,
-                  metadata: generatedNode.params.metadata,
-                },
+            params: {
+              id: await persistQuery(text),
+              metadata: generatedNode.params.metadata,
+              name: generatedNode.params.name,
+              operationKind: generatedNode.params.operationKind,
+              text: null,
+            },
           };
           break;
         case RelayConcreteNode.FRAGMENT:

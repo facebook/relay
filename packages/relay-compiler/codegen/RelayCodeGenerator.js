@@ -42,8 +42,6 @@ function generate(
   schema: Schema,
   node: Fragment | Request | SplitOperation,
 ): $FlowFixMe {
-  const sortObjectKeys = Rollout.check('sort-object-keys', node.name);
-
   switch (node.kind) {
     case 'Fragment':
       if (node.metadata?.inlineData === true) {
@@ -52,51 +50,22 @@ function generate(
           name: node.name,
         };
       }
-      return ReaderCodeGenerator.generate(schema, node, sortObjectKeys);
+      return ReaderCodeGenerator.generate(schema, node);
     case 'Request':
-      return sortObjectKeys
-        ? {
-            fragment: ReaderCodeGenerator.generate(
-              schema,
-              node.fragment,
-              sortObjectKeys,
-            ),
-            kind: 'Request',
-            operation: NormalizationCodeGenerator.generate(
-              schema,
-              node.root,
-              sortObjectKeys,
-            ),
-            params: {
-              id: node.id,
-              metadata: node.metadata,
-              name: node.name,
-              operationKind: node.root.operation,
-              text: node.text,
-            },
-          }
-        : {
-            kind: 'Request',
-            fragment: ReaderCodeGenerator.generate(
-              schema,
-              node.fragment,
-              sortObjectKeys,
-            ),
-            operation: NormalizationCodeGenerator.generate(
-              schema,
-              node.root,
-              sortObjectKeys,
-            ),
-            params: {
-              operationKind: node.root.operation,
-              name: node.name,
-              id: node.id,
-              text: node.text,
-              metadata: node.metadata,
-            },
-          };
+      return {
+        fragment: ReaderCodeGenerator.generate(schema, node.fragment),
+        kind: 'Request',
+        operation: NormalizationCodeGenerator.generate(schema, node.root),
+        params: {
+          id: node.id,
+          metadata: node.metadata,
+          name: node.name,
+          operationKind: node.root.operation,
+          text: node.text,
+        },
+      };
     case 'SplitOperation':
-      return NormalizationCodeGenerator.generate(schema, node, sortObjectKeys);
+      return NormalizationCodeGenerator.generate(schema, node);
   }
   throw createCompilerError(
     `RelayCodeGenerator: Unknown AST kind '${node.kind}'.`,

@@ -541,12 +541,6 @@ export type UnionTypeTest = {|
 
 exports[`Snapshot tests for useHaste matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query Test {
-  node {
-    ...NameRendererFragment
-  }
-}
-
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -571,19 +565,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-// Test.graphql
-import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
-export type TestVariables = {||};
-export type TestResponse = {|
-  +node: ?{|
-    +$fragmentRefs: NameRendererFragment$ref
-  |}
-|};
-export type Test = {|
-  variables: TestVariables,
-  response: TestResponse,
-|};
-
 // NameRendererFragment.graphql
 import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
 import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";

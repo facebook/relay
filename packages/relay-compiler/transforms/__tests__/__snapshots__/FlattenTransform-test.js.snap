@@ -411,12 +411,6 @@ fragment LinkedHandleField on User {
 
 exports[`FlattenTransform matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query Test {
-  node {
-    ...NameRendererFragment
-  }
-}
-
 fragment NameRendererFragment on User {
   id
   nameRenderer @match {
@@ -441,12 +435,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-query Test {
-  node {
-    ...NameRendererFragment
-  }
-}
-
 fragment NameRendererFragment on User {
   id
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {

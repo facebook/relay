@@ -1,9 +1,3 @@
-query Test {
-  node {
-    ...ActorsRendererFragment
-  }
-}
-
 fragment ActorsRendererFragment on Node {
   id
   actors {

@@ -121,7 +121,6 @@ async function writeRelayGeneratedFile(
         writeQueryParameters &&
         oldRequestParameters &&
         queryParametersFilename != null &&
-        generatedNode.kind === RelayConcreteNode.REQUEST &&
         generatedNode.params.operationKind === 'query'
       ) {
         writeQueryParameters(
@@ -143,30 +142,21 @@ async function writeRelayGeneratedFile(
       return null;
     }
     if (persistQuery) {
-      switch (generatedNode.kind) {
-        case RelayConcreteNode.REQUEST:
-          const {text} = generatedNode.params;
-          invariant(
-            text != null,
-            'writeRelayGeneratedFile: Expected `text` in order to persist query',
-          );
-          generatedNode = {
-            ...generatedNode,
-            params: {
-              id: await persistQuery(text),
-              metadata: generatedNode.params.metadata,
-              name: generatedNode.params.name,
-              operationKind: generatedNode.params.operationKind,
-              text: null,
-            },
-          };
-          break;
-        case RelayConcreteNode.FRAGMENT:
-          // Do not persist fragments.
-          break;
-        default:
-          (generatedNode.kind: empty);
-      }
+      const {text} = generatedNode.params;
+      invariant(
+        text != null,
+        'writeRelayGeneratedFile: Expected `text` in order to persist query',
+      );
+      generatedNode = {
+        ...generatedNode,
+        params: {
+          id: await persistQuery(text),
+          metadata: generatedNode.params.metadata,
+          name: generatedNode.params.name,
+          operationKind: generatedNode.params.operationKind,
+          text: null,
+        },
+      };
     }
   }
 

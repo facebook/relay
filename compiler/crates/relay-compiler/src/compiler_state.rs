@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::artifact_map::ArtifactMap;
+use crate::build_project::WrittenArtifacts;
 use crate::config::Config;
 use crate::watchman::{
     categorize_files, errors::Result, extract_graphql_strings_from_file, read_to_string, FileGroup,
@@ -16,20 +18,12 @@ use rayon::prelude::*;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-/// Name of a fragment or operation.
-pub type DefinitionName = StringKey;
-
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
 
 /// Name of a source set; a source set corresponds to a set fo files
 /// that can be shared by multiple compiler projects
 pub type SourceSetName = StringKey;
-
-/// A map from DefinitionName to output artifacts and their hashes
-pub struct ArtifactMap(HashMap<DefinitionName, Vec<(PathBuf, Sha1Hash)>>);
-
-pub struct Sha1Hash(String);
 
 #[derive(Clone, Debug)]
 pub struct FileState {
@@ -123,7 +117,6 @@ impl GraphQLSources {
 
 pub struct CompilerState {
     pub graphql_sources: GraphQLSources,
-
     pub schemas: HashMap<ProjectName, Vec<String>>,
     pub extensions: HashMap<ProjectName, Vec<String>>,
     pub artifacts: HashMap<ProjectName, ArtifactMap>,
@@ -258,5 +251,25 @@ impl CompilerState {
 
     pub fn commit_pending_file_source_changes(&mut self) {
         self.graphql_sources.commit_pending_sources();
+    }
+
+    /// The initial implementation of the `update_artifacts_map` do not handle incremental updates
+    /// of the artifacts map
+    /// This will be added in the next iterations
+    fn update_artifacts_map(&mut self, written_artifacts: HashMap<ProjectName, WrittenArtifacts>) {
+        for (project_name, project_written_artifacts) in written_artifacts.iter() {
+            self.artifacts.insert(
+                project_name.to_owned(),
+                ArtifactMap::new(project_written_artifacts.to_owned()),
+            );
+        }
+    }
+
+    pub fn complete_compilation(
+        &mut self,
+        written_artifacts: HashMap<ProjectName, WrittenArtifacts>,
+    ) {
+        self.update_artifacts_map(written_artifacts);
+        self.commit_pending_file_source_changes();
     }
 }

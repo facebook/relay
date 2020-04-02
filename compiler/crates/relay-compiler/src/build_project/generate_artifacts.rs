@@ -18,9 +18,11 @@ use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::Write;
 
 /// Represents a generated output artifact.
+#[derive(Clone)]
 pub struct Artifact {
     pub name: StringKey,
     pub content: String,
+    pub hash: String,
 }
 
 pub async fn generate_artifacts(
@@ -123,6 +125,7 @@ async fn generate_normalization_artifact(
     Ok(Artifact {
         name: node.name.item,
         content: sign_file(&content),
+        hash: hash.to_string(),
     })
 }
 
@@ -158,6 +161,7 @@ fn generate_reader_artifact(
     Artifact {
         name: node.name.item,
         content: sign_file(&content),
+        hash: hash.to_string(),
     }
 }
 

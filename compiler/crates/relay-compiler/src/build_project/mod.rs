@@ -22,16 +22,20 @@ use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
 use build_ir::BuildIRResult;
 use common::Timer;
+pub use generate_artifacts::Artifact;
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FBConnectionInterface;
+use std::path::PathBuf;
 pub use validate::validate;
+
+pub type WrittenArtifacts = Vec<(PathBuf, Artifact)>;
 
 pub async fn build_project(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
-) -> Result<(), BuildProjectError> {
+) -> Result<WrittenArtifacts, BuildProjectError> {
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
 
@@ -81,12 +85,13 @@ pub async fn build_project(
         generate_artifacts::generate_artifacts(config, project_config, &programs, sources).await?;
     artifacts_timer.stop();
 
-    // Write the generated artifacts to disk. This step is separte from
+    // Write the generated artifacts to disk. This step is separate from
     // generating artifacts to avoid partial writes in case of errors as
     // much as possible.
-    Timer::time(format!("write_artifacts {}", project_config.name), || {
-        write_artifacts::write_artifacts(config, project_config, &artifacts)
-    })?;
+    let written_artifacts =
+        Timer::time(format!("write_artifacts {}", project_config.name), || {
+            write_artifacts::write_artifacts(config, project_config, &artifacts)
+        })?;
 
     println!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",
@@ -96,7 +101,7 @@ pub async fn build_project(
         programs.operation_text.document_count()
     );
 
-    Ok(())
+    Ok(written_artifacts)
 }
 
 fn add_error_sources<T>(

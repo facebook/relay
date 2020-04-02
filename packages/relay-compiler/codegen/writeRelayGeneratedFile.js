@@ -95,69 +95,90 @@ async function writeRelayGeneratedFile(
   }
 
   let hash = null;
-  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    let oldContent;
-    const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
-      oldContent = codegenDir.read(filename);
-      // Hash the concrete node including the query text.
-      const hasher = crypto.createHash('md5');
-      hasher.update('cache-breaker-9');
-      hasher.update(JSON.stringify(generatedNode));
-      hasher.update(sourceHash);
-      if (typeText) {
-        hasher.update(typeText);
-      }
-      if (persistQuery) {
-        hasher.update('persisted');
-      }
-      hash = hasher.digest('hex');
-      return extractHash(oldContent);
-    });
-    const oldRequestParameters = extractRelayRequestParams(oldContent);
+  if (generatedNode.kind === RelayConcreteNode.REQUEST && persistQuery) {
+    const {text} = generatedNode.params;
+    invariant(
+      text != null,
+      'writeRelayGeneratedFile: Expected `text` in order to persist query',
+    );
 
-    if (!shouldRepersist && hash === oldHash) {
-      codegenDir.markUnchanged(filename);
-      if (
-        writeQueryParameters &&
-        oldRequestParameters &&
-        queryParametersFilename != null &&
-        generatedNode.params.operationKind === 'query'
-      ) {
-        writeQueryParameters(
-          codegenDir,
-          queryParametersFilename,
-          moduleName,
-          oldRequestParameters,
-        );
+    let id = null;
+    if (Rollout.check('hash-only-text', generatedNode.params.name)) {
+      const hasher = crypto.createHash('md5');
+      hasher.update(text);
+      hash = hasher.digest('hex');
+
+      if (!shouldRepersist) {
+        const oldContent = codegenDir.read(filename);
+        const oldHash = extractHash(oldContent);
+        const oldRequestID = extractRelayRequestID(oldContent);
+
+        if (hash === oldHash && oldRequestID != null) {
+          id = oldRequestID;
+        }
       }
-      return oldRequestParameters
-        ? {
-            ...generatedNode,
-            params: oldRequestParameters,
-          }
-        : null;
+    } else {
+      let oldContent;
+      const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
+        oldContent = codegenDir.read(filename);
+        // Hash the concrete node including the query text.
+        const hasher = crypto.createHash('md5');
+        hasher.update('cache-breaker-9');
+        hasher.update(JSON.stringify(generatedNode));
+        hasher.update(sourceHash);
+        if (typeText) {
+          hasher.update(typeText);
+        }
+        if (persistQuery) {
+          hasher.update('persisted');
+        }
+        hash = hasher.digest('hex');
+        return extractHash(oldContent);
+      });
+      const oldRequestParameters = extractRelayRequestParams(oldContent);
+
+      if (!shouldRepersist && hash === oldHash) {
+        codegenDir.markUnchanged(filename);
+        if (
+          writeQueryParameters &&
+          oldRequestParameters &&
+          queryParametersFilename != null &&
+          generatedNode.params.operationKind === 'query'
+        ) {
+          writeQueryParameters(
+            codegenDir,
+            queryParametersFilename,
+            moduleName,
+            oldRequestParameters,
+          );
+        }
+        return oldRequestParameters
+          ? {
+              ...generatedNode,
+              params: oldRequestParameters,
+            }
+          : null;
+      }
+      if (codegenDir.onlyValidate) {
+        codegenDir.markUpdated(filename);
+        return null;
+      }
     }
-    if (codegenDir.onlyValidate) {
-      codegenDir.markUpdated(filename);
-      return null;
+
+    if (id == null) {
+      id = await persistQuery(text);
     }
-    if (persistQuery) {
-      const {text} = generatedNode.params;
-      invariant(
-        text != null,
-        'writeRelayGeneratedFile: Expected `text` in order to persist query',
-      );
-      generatedNode = {
-        ...generatedNode,
-        params: {
-          id: await persistQuery(text),
-          metadata: generatedNode.params.metadata,
-          name: generatedNode.params.name,
-          operationKind: generatedNode.params.operationKind,
-          text: null,
-        },
-      };
-    }
+
+    generatedNode = {
+      ...generatedNode,
+      params: {
+        id,
+        metadata: generatedNode.params.metadata,
+        name: generatedNode.params.name,
+        operationKind: generatedNode.params.operationKind,
+        text: null,
+      },
+    };
   }
 
   const moduleText = formatModule({
@@ -167,7 +188,7 @@ async function writeRelayGeneratedFile(
     kind: generatedNode.kind,
     docText,
     typeText,
-    hash: hash ? `@relayHash ${hash}` : null,
+    hash: hash != null ? `@relayHash ${hash}` : null,
     concreteText: CodeMarker.postProcess(
       dedupeJSONStringify(generatedNode),
       printModuleDependency,
@@ -203,6 +224,18 @@ function extractHash(text: ?string): ?string {
   }
   const match = text.match(/@relayHash (\w{32})\b/m);
   return match && match[1];
+}
+
+function extractRelayRequestID(text: ?string): ?string {
+  if (text == null || text.length === 0) {
+    return null;
+  }
+  if (/<<<<<|>>>>>/.test(text)) {
+    // looks like a merge conflict
+    return null;
+  }
+  const match = text.match(/@relayRequestID (.+)/);
+  return match ? match[1] : null;
 }
 
 function extractRelayRequestParams(text: ?string): ?RequestParameters {

@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v4.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v4.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-Guides-RootContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Root Container</h1></header><article><div><span><p>So far, we've covered two pieces that each contribute to declaring data:</p>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v4.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v4.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-Guides-RootContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Root Container</h1></header><article><div><span><p>So far, we've covered two pieces that each contribute to declaring data:</p>
 <ul>
 <li><strong>Relay.Route</strong> lets us declare query roots.</li>
 <li><strong>Relay.Container</strong> lets components declare fragments.</li>
@@ -47,11 +47,11 @@
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">ScrollView</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">ProfilePicture</span> {<span class="hljs-attr">...data</span>} /&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">ScrollView</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">ScrollView</span>&gt;</span></span>
     );
   }}
 /&gt;
-</span></code></pre>
+</code></pre>
 <p>This snippet configures <strong>Relay.RootContainer</strong> to render <code>ProfilePicture</code> within a <code>ScrollView</code> component as soon as data is ready.</p>
 <p>The <code>renderFetched</code> callback is always called with a <code>data</code> argument, which is an object mapping from <code>propName</code> to query data. It is expected that the <code>renderFetched</code> callback renders the supplied <code>Component</code> with them (e.g. using the <a href="https://facebook.github.io/react/docs/jsx-spread.html">JSX spread attributes feature</a>).</p>
 <blockquote>
@@ -83,21 +83,21 @@
 /&gt;</span>
 </code></pre>
 <p>When <code>forceFetch</code> is true, <strong>Relay.RootContainer</strong> will always send a request to the server. However, if all the data required to render is also available on the client, <code>renderFetched</code> may still be called before the server request completes.</p>
-<pre><code class="hljs css language-{5-6,9}"><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Relay.RootContainer</span>
-  <span class="hljs-attr">Component</span>=<span class="hljs-string">{ProfilePicture}</span>
-  <span class="hljs-attr">route</span>=<span class="hljs-string">{profileRoute}</span>
-  <span class="hljs-attr">forceFetch</span>=<span class="hljs-string">{true}</span>
-  <span class="hljs-attr">renderFetched</span>=<span class="hljs-string">{function(data,</span> <span class="hljs-attr">readyState</span>) {
-    <span class="hljs-attr">var</span> <span class="hljs-attr">isRefreshing</span> = <span class="hljs-string">readyState.stale;</span>
-    <span class="hljs-attr">return</span> (
-      &lt;<span class="hljs-attr">ScrollView</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">Spinner</span> <span class="hljs-attr">style</span>=</span></span><span class="hljs-template-variable">{{display: isRefreshing ? '<span class="hljs-name">block</span>' : 'none' }}</span><span class="xml"><span class="hljs-tag">
+<pre><code class="hljs css language-{5-6,9}">&lt;Relay.RootContainer
+  Component={ProfilePicture}
+  route={profileRoute}
+  forceFetch={<span class="hljs-literal">true</span>}
+  renderFetched={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, readyState</span>) </span>{
+    <span class="hljs-keyword">var</span> isRefreshing = readyState.stale;
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">ScrollView</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Spinner</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{display:</span> <span class="hljs-attr">isRefreshing</span> ? '<span class="hljs-attr">block</span>' <span class="hljs-attr">:</span> '<span class="hljs-attr">none</span>' }}
         &lt;<span class="hljs-attr">ProfilePicture</span> {<span class="hljs-attr">...data</span>} /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">ScrollView</span>&gt;</span>
     );
   }}
-/&gt;
-</span></code></pre>
+/&gt;</span>
+</code></pre>
 <p>When <code>forceFetch</code> is true and <code>renderFetched</code> is called as a result of available client data, <code>renderFetched</code> is called with a second argument that has a <code>stale</code> boolean property. The <code>stale</code> property is true if <code>renderFetched</code> is called before the forced server request completes.</p>
 <h2><a class="anchor" aria-hidden="true" id="ready-state-change"></a><a href="#ready-state-change" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Ready State Change</h2>
 <p><strong>Relay.RootContainer</strong> also supports the <code>onReadyStateChange</code> prop which lets us receive fine-grained events as they occur while fulfilling the data requirements.</p>

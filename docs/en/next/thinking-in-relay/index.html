@@ -60,7 +60,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-ThinkingInRelay.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Thinking In Relay</h1></header><article><div><span><p>Relay's approach to data-fetching is heavily inspired by our experience with React. In particular, React breaks complex interfaces into reusable <strong>components</strong>, allowing developers to reason about discrete units of an application in isolation, and reducing the coupling between disparate parts of an application. Even more important is that these components are <strong>declarative</strong>: they allow developers to specify <em>what</em> the UI should look like for a given state, and not have to worry about <em>how</em> to show that UI. Unlike previous approaches that used imperative commands to manipulate native views (e.g. the DOM), React uses a UI description to automatically determine the necessary commands.</p>
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-ThinkingInRelay.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Thinking In Relay</h1></header><article><div><span><p>Relay's approach to data-fetching is heavily inspired by our experience with React. In particular, React breaks complex interfaces into reusable <strong>components</strong>, allowing developers to reason about discrete units of an application in isolation, and reducing the coupling between disparate parts of an application. Even more important is that these components are <strong>declarative</strong>: they allow developers to specify <em>what</em> the UI should look like for a given state, and not have to worry about <em>how</em> to show that UI. Unlike previous approaches that used imperative commands to manipulate native views (e.g. the DOM), React uses a UI description to automatically determine the necessary commands.</p>
 <p>Let's look at some product use-cases to understand how we incorporated these ideas into Relay. We'll assume a basic familiarity with React.</p>
 <h2><a class="anchor" aria-hidden="true" id="fetching-data-for-a-view"></a><a href="#fetching-data-for-a-view" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fetching Data For a View</h2>
 <p>In our experience, the overwhelming majority of products want one specific behavior: fetch <em>all</em> the data for a view hierarchy while displaying a loading indicator, and then render the <em>entire</em> view once the data is ready.</p>
@@ -101,28 +101,28 @@
 <h2><a class="anchor" aria-hidden="true" id="rendering"></a><a href="#rendering" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rendering</h2>
 <p>In React, rendering a view requires two inputs: the <em>component</em> to render, and a <em>root</em> DOM (UI) node to render into. Rendering Relay containers is similar: we need a <em>container</em> to render, and a <em>root</em> in the graph from which to start our query. We also must ensure that the queries for the container are executed and may want to show a loading indicator while data is being fetched. Similar to <code>ReactDOM.render(component, domNode)</code>, Relay provides <code>&lt;QueryRenderer query={...} variables={...} render={...}&gt;</code> for this purpose. The <code>query</code> and <code>variables</code> define what data to fetch and <code>render</code> defines what to render. Here's how we might render <code>&lt;StoryContainer&gt;</code>:</p>
 <pre><code class="hljs css language-javascript">ReactDOM.render(
-  &lt;QueryRenderer
-    environment={/* defined or imported above... */}
-    query={graphql`
-      query StoryQuery($storyID: ID!) {
-        node(id: $storyID) {
-          ...Story_story
+  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
+    <span class="hljs-attr">environment</span>=<span class="hljs-string">{/*</span> <span class="hljs-attr">defined</span> <span class="hljs-attr">or</span> <span class="hljs-attr">imported</span> <span class="hljs-attr">above...</span> */}
+    <span class="hljs-attr">query</span>=<span class="hljs-string">{graphql</span>`
+      <span class="hljs-attr">query</span> <span class="hljs-attr">StoryQuery</span>($<span class="hljs-attr">storyID:</span> <span class="hljs-attr">ID</span>!) {
+        <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> $<span class="hljs-attr">storyID</span>) {
+          <span class="hljs-attr">...Story_story</span>
         }
       }
     `}
-    variables={{
-      storyID: '123',
+    <span class="hljs-attr">variables</span>=<span class="hljs-string">{{</span>
+      <span class="hljs-attr">storyID:</span> '<span class="hljs-attr">123</span>',
     }}
-    render={(props, error) =&gt; {
+    <span class="hljs-attr">render</span>=<span class="hljs-string">{(props,</span> <span class="hljs-attr">error</span>) =&gt;</span> {
       if (error) {
-        return &lt;ErrorView /&gt;;
+        return <span class="hljs-tag">&lt;<span class="hljs-name">ErrorView</span> /&gt;</span>;
       } else if (props) {
-        return &lt;StoryContainer story={props.story} /&gt;;
+        return <span class="hljs-tag">&lt;<span class="hljs-name">StoryContainer</span> <span class="hljs-attr">story</span>=<span class="hljs-string">{props.story}</span> /&gt;</span>;
       } else {
-        return &lt;LoadingIndicator /&gt;;
+        return <span class="hljs-tag">&lt;<span class="hljs-name">LoadingIndicator</span> /&gt;</span>;
       }
     }}
-  /&gt;,
+  /&gt;</span>,
   rootElement
 )
 </code></pre>

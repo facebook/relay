@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>experimental</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/experimental/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-PaginationContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Pagination Container</h1></header><article><div><span><p>Pagination Container is also a <a href="https://reactjs.org/docs/higher-order-components.html">higher-order component</a>, similar to a <a href="./fragment-container.html">Fragment Container</a>, that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out <a href="https://facebook.github.io/relay/graphql/connections.htm">this page</a>.</p>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>experimental</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/experimental/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-PaginationContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Pagination Container</h1></header><article><div><span><p>Pagination Container is also a <a href="https://reactjs.org/docs/higher-order-components.html">higher-order component</a>, similar to a <a href="./fragment-container.html">Fragment Container</a>, that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out <a href="https://facebook.github.io/relay/graphql/connections.htm">this page</a>.</p>
 <p>Table of Contents:</p>
 <ul>
 <li><a href="#connection"><code>@connection</code></a></li>
@@ -173,36 +173,36 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Feed</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
   render() {
     <span class="hljs-keyword">return</span> (
-      &lt;div&gt;
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
         {this.props.user.feed.edges.map(
-          edge =&gt; &lt;Story story={edge.node} key={edge.node.id} /&gt;
+          edge =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">Story</span> <span class="hljs-attr">story</span>=<span class="hljs-string">{edge.node}</span> <span class="hljs-attr">key</span>=<span class="hljs-string">{edge.node.id}</span> /&gt;</span>
         )}
-        &lt;button
-          onPress={() =&gt; this._loadMore()}
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span>
+          <span class="hljs-attr">onPress</span>=<span class="hljs-string">{()</span> =&gt;</span> this._loadMore()}
           title="Load More"
         /&gt;
-      &lt;/div&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
     );
   }
 
   _loadMore() {
-    if (!this.props.relay.hasMore() || this.props.relay.isLoading()) {
-      return;
+    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.props.relay.hasMore() || <span class="hljs-keyword">this</span>.props.relay.isLoading()) {
+      <span class="hljs-keyword">return</span>;
     }
 
-    this.props.relay.loadMore(
-      10,  // Fetch the next 10 feed items
+    <span class="hljs-keyword">this</span>.props.relay.loadMore(
+      <span class="hljs-number">10</span>,  <span class="hljs-comment">// Fetch the next 10 feed items</span>
       error =&gt; {
-        console.log(error);
+        <span class="hljs-built_in">console</span>.log(error);
       },
     );
   }
 }
 
-module.exports = createPaginationContainer(
+<span class="hljs-built_in">module</span>.exports = createPaginationContainer(
   Feed,
   {
-    user: graphql`
+    <span class="hljs-attr">user</span>: graphql<span class="hljs-string">`
       fragment Feed_user on User
       @argumentDefinitions(
         count: {type: "Int", defaultValue: 10}
@@ -222,31 +222,31 @@ module.exports = createPaginationContainer(
           }
         }
       }
-    `,
+    `</span>,
   },
   {
-    direction: 'forward',
+    <span class="hljs-attr">direction</span>: <span class="hljs-string">'forward'</span>,
     getConnectionFromProps(props) {
-      return props.user &amp;&amp; props.user.feed;
+      <span class="hljs-keyword">return</span> props.user &amp;&amp; props.user.feed;
     },
-    // This is also the default implementation of `getFragmentVariables` if it isn't provided.
+    <span class="hljs-comment">// This is also the default implementation of `getFragmentVariables` if it isn't provided.</span>
     getFragmentVariables(prevVars, totalCount) {
-      return {
+      <span class="hljs-keyword">return</span> {
         ...prevVars,
-        count: totalCount,
+        <span class="hljs-attr">count</span>: totalCount,
       };
     },
     getVariables(props, {count, cursor}, fragmentVariables) {
-      return {
+      <span class="hljs-keyword">return</span> {
         count,
         cursor,
-        orderBy: fragmentVariables.orderBy,
-        // userID isn't specified as an @argument for the fragment, but it should be a variable available for the fragment under the query root.
-        userID: fragmentVariables.userID,
+        <span class="hljs-attr">orderBy</span>: fragmentVariables.orderBy,
+        <span class="hljs-comment">// userID isn't specified as an @argument for the fragment, but it should be a variable available for the fragment under the query root.</span>
+        <span class="hljs-attr">userID</span>: fragmentVariables.userID,
       };
     },
-    query: graphql`
-      # Pagination query to be fetched upon calling `loadMore`.
+    <span class="hljs-attr">query</span>: graphql<span class="hljs-string">`
+      # Pagination query to be fetched upon calling `</span>loadMore<span class="hljs-string">`.
       # Notice that we re-use our fragment, and the shape of this query matches our fragment spec.
       query FeedPaginationQuery(
         $count: Int!
@@ -258,7 +258,7 @@ module.exports = createPaginationContainer(
           ...Feed_user @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
         }
       }
-    `
+    `</span>
   }
 );
 </code></pre>

@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>classic</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/classic/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Introduction-QuickStartGuide.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Quick Start Guide</h1></header><article><div><span><p>In this guide we are going to give a brief overview of how Relay works and how to use it, using as reference an example todo list app. For more thorough documentation, check out our Guides and API sections.</p>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>classic</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/classic/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Introduction-QuickStartGuide.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Quick Start Guide</h1></header><article><div><span><p>In this guide we are going to give a brief overview of how Relay works and how to use it, using as reference an example todo list app. For more thorough documentation, check out our Guides and API sections.</p>
 <p>Table of Contents:</p>
 <ul>
 <li><a href="#setup">Setup</a></li>
@@ -109,11 +109,11 @@ type </span>Query {
           }
           return <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User ID: {props.viewer.id}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>;
         }}
-      /&gt;
+      /&gt;</span>
     );
   }
 }
-</span></code></pre>
+</code></pre>
 <p>Our app is rendering a <code>QueryRenderer</code> in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:</p>
 <ul>
 <li>We're passing the <code>environment</code> we defined earlier.</li>
@@ -168,11 +168,11 @@ type Props = {
           }
           return <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User ID: {props.node.id}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>;
         }}
-      /&gt;
+      /&gt;</span>
     );
   }
 }
-</span></code></pre>
+</code></pre>
 <p>The above code is doing something very similar to our <a href="#rendering-graphql-queries">previous example</a>, however, we are now passing a <code>$userID</code> variable to the GraphQL query, via the <code>variables</code> prop. This has a couple of important implications:</p>
 <ul>
 <li>Given that <code>userID</code> is also a prop that our component takes, it could receive a new <code>userID</code> from its parent component at any moment. When this happens, we new <code>variables</code> will be passed down to our <code>QueryRenderer</code>, which will automatically cause it to re-fetch the query with the new value for <code>$userID</code>.</li>
@@ -207,11 +207,11 @@ type Props = {
             {text}
           <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span></span>
     );
   }
 }
-</span></code></pre>
+</code></pre>
 <p>From our <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107">schema</a>, we know that we can query this data on the <code>Todo</code> type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our <code>QueryRenderer</code> query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, a problem Relay directly tries to address.</p>
 <p>Instead, we can define a reusable <a href="http://graphql.org/learn/queries/#fragments">Fragment</a>, which allows us to define a set of fields on a type and reuse them within our queries wherever we need to:</p>
 <pre><code class="hljs css language-graphql">fragment TodoItemFragment <span class="hljs-keyword">on</span> Todo {
@@ -237,30 +237,30 @@ type Props = {
     <span class="hljs-keyword">const</span> {complete, text} = <span class="hljs-keyword">this</span>.props.todo;
 
     <span class="hljs-keyword">return</span> (
-      &lt;li&gt;
-        &lt;div&gt;
-          &lt;input
-            checked={complete}
-            type="checkbox"
-          /&gt;
-          &lt;label&gt;
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">input</span>
+            <span class="hljs-attr">checked</span>=<span class="hljs-string">{complete}</span>
+            <span class="hljs-attr">type</span>=<span class="hljs-string">"checkbox"</span>
+          /&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>
             {text}
-          &lt;/label&gt;
-        &lt;/div&gt;
-      &lt;/li&gt;
+          <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span></span>
     );
   }
 }
 
-export default createFragmentContainer(
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
   Todo,
-  graphql`
+  graphql<span class="hljs-string">`
     # As a convention, we name the fragment as '&lt;ComponentFileName&gt;_&lt;propName&gt;'
     fragment Todo_todo on Todo {
       complete
       text
     }
-  `
+  `</span>
 )
 </code></pre>
 <p>The above code highlights one of Relay's most important principles which is colocation of components with their data dependencies. This is beneficial for a few reasons:</p>
@@ -289,28 +289,28 @@ type Props = {
     <span class="hljs-keyword">const</span> {<span class="hljs-attr">userTodoData</span>: {totalCount, completedCount, todos}} = <span class="hljs-keyword">this</span>.props;
 
     <span class="hljs-keyword">return</span> (
-      &lt;section&gt;
-        &lt;input
-          checked={totalCount === completedCount}
-          type="checkbox"
-        /&gt;
-        &lt;ul&gt;
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">input</span>
+          <span class="hljs-attr">checked</span>=<span class="hljs-string">{totalCount</span> === <span class="hljs-string">completedCount}</span>
+          <span class="hljs-attr">type</span>=<span class="hljs-string">"checkbox"</span>
+        /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
           {todos.edges.map(edge =&gt;
-            &lt;Todo
-              key={edge.node.id}
-              {/*We pass the data required by Todo here*/}
-              todo={edge.node}
-            /&gt;
+            <span class="hljs-tag">&lt;<span class="hljs-name">Todo</span>
+              <span class="hljs-attr">key</span>=<span class="hljs-string">{edge.node.id}</span>
+              {/*<span class="hljs-attr">We</span> <span class="hljs-attr">pass</span> <span class="hljs-attr">the</span> <span class="hljs-attr">data</span> <span class="hljs-attr">required</span> <span class="hljs-attr">by</span> <span class="hljs-attr">Todo</span> <span class="hljs-attr">here</span>*/}
+              <span class="hljs-attr">todo</span>=<span class="hljs-string">{edge.node}</span>
+            /&gt;</span>
           )}
-        &lt;/ul&gt;
-      &lt;/section&gt;
+        <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span></span>
     );
   }
 }
 
-export default createFragmentContainer(
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
   TodoList,
-  graphql`
+  graphql<span class="hljs-string">`
     # As a convention, we name the fragment as '&lt;ComponentFileName&gt;_&lt;PropName&gt;'
     fragment TodoList_userTodoData on User {
       todos(
@@ -328,7 +328,7 @@ export default createFragmentContainer(
       totalCount,
       completedCount,
     }
-  `,
+  `</span>,
 );
 </code></pre>
 <p>As with the first fragment container we defined, <code>TodoList</code> declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the <code>Todo</code> component, and passes the appropriate data to when rendering the child <code>Todo</code> components (a.k.a. fragment containers).</p>
@@ -348,33 +348,33 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> ViewerTodoList extends React.Component {
   render() {
     <span class="hljs-keyword">return</span> (
-      &lt;QueryRenderer
-        environment={environment}
-        query={graphql`
-          query ViewerQuery {
-            viewer {
-              id
-              # Re-use the fragment here
-              ...TodoList_userTodoData  
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
+        <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span>
+        <span class="hljs-attr">query</span>=<span class="hljs-string">{graphql</span>`
+          <span class="hljs-attr">query</span> <span class="hljs-attr">ViewerQuery</span> {
+            <span class="hljs-attr">viewer</span> {
+              <span class="hljs-attr">id</span>
+              # <span class="hljs-attr">Re-use</span> <span class="hljs-attr">the</span> <span class="hljs-attr">fragment</span> <span class="hljs-attr">here</span>
+              <span class="hljs-attr">...TodoList_userTodoData</span>  
             }
           }
         `}
-        variables={{}}
-        render={({error, props}) =&gt; {
+        <span class="hljs-attr">variables</span>=<span class="hljs-string">{{}}</span>
+        <span class="hljs-attr">render</span>=<span class="hljs-string">{({error,</span> <span class="hljs-attr">props</span>}) =&gt;</span> {
           if (error) {
-            return &lt;div&gt;Error!&lt;/div&gt;;
+            return <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Error!<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>;
           }
           if (!props) {
-            return &lt;div&gt;Loading...&lt;/div&gt;;
+            return <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Loading...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>;
           }
           return (
-            &lt;div&gt;
-              &lt;div&gt;Todo list for User {props.user.id}:&lt;/div&gt;
-              &lt;TodoList userTodoData={props.user.userTodoData} /&gt;
-            &lt;/div&gt;
+            <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Todo list for User {props.user.id}:<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">TodoList</span> <span class="hljs-attr">userTodoData</span>=<span class="hljs-string">{props.user.userTodoData}</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
           );
         }}
-      /&gt;
+      /&gt;</span>
     );
   }
 }

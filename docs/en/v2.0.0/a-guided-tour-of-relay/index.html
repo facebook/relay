@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v2.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v2.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/RelayHooks-AGuidedTourOfRelay.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">A Guided Tour</h1></header><article><div><span><p><a href="https://relay.dev/">Relay</a> is a framework for managing and declaratively fetching GraphQL data. Specifically, it provides a set of APIs to fetch and declare data dependencies for React components, in colocation with component definitions themselves.</p>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v2.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v2.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/RelayHooks-AGuidedTourOfRelay.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">A Guided Tour</h1></header><article><div><span><p><a href="https://relay.dev/">Relay</a> is a framework for managing and declaratively fetching GraphQL data. Specifically, it provides a set of APIs to fetch and declare data dependencies for React components, in colocation with component definitions themselves.</p>
 <p>In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our <a href="api-reference.html">API Reference</a> page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, <a href="https://reactjs.org/docs/getting-started.html">React</a>, <a href="https://graphql.org/learn/">GraphQL</a>, and assume that you have set up a GraphQL Server that adheres to the <a href="graphql-server-specification.html">Relay specification</a></p>
 <h2><a class="anchor" aria-hidden="true" id="example-app"></a><a href="#example-app" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example App</h2>
 <p>To see a full example using Relay Hooks and our integration with <a href="https://reactjs.org/docs/concurrent-mode-suspense.html">Suspense for Data Fetching</a>, check out: <a href="https://github.com/relayjs/relay-examples/tree/master/issue-tracker">relay-examples/issue-tracker</a>.</p>
@@ -120,16 +120,16 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;{data.name}&lt;/h1&gt;
-      &lt;div&gt;
-        &lt;img src={data.profile_picture?.uri} /&gt;
-      &lt;/div&gt;
-    &lt;/&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">{data.profile_picture?.uri}</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = UserComponent;
+<span class="hljs-built_in">module</span>.exports = UserComponent;
 </code></pre>
 <p>Let's distill what's going on here:</p>
 <ul>
@@ -181,17 +181,17 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;{userData.name}&lt;/h1&gt;
-      &lt;div&gt;
-        &lt;img src={userData.profile_picture?.uri} /&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{userData.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">{userData.profile_picture?.uri}</span> /&gt;</span>
         Acting as: {viewerData.actor?.name ?? 'Unknown'}
-      &lt;/div&gt;
-    &lt;/&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = UserComponent;
+<span class="hljs-built_in">module</span>.exports = UserComponent;
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="composing-fragments"></a><a href="#composing-fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Composing Fragments</h3>
 <p>In GraphQL, fragments are reusable units, which means they can include <em>other</em> fragments, and consequently a fragment can be included within other fragments or <a href="#queries">Queries</a>:</p>
@@ -275,20 +275,20 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;{user.name}&lt;/h1&gt;
-      &lt;div&gt;
-        &lt;img src={user.profile_picture?.uri} /&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">{user.profile_picture?.uri}</span> /&gt;</span>
         {user.age}
 
         {/* Render child component, passing the _fragment reference_: */}
-        &lt;UsernameSection user={user}/&gt;
-      &lt;/div&gt;
-    &lt;/&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">UsernameSection</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{user}/</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = UserComponent;
+<span class="hljs-built_in">module</span>.exports = UserComponent;
 </code></pre>
 <p>There are a few things to note here:</p>
 <ul>
@@ -427,11 +427,11 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;{data.user?.name}&lt;/h1&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
       {/* Render child component, passing the fragment reference: */}
-      &lt;UserComponent user={data.user} /&gt;
-    &lt;/&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">UserComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{data.user}</span> /&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 </code></pre>
@@ -520,7 +520,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 <h3><a class="anchor" aria-hidden="true" id="arguments-and-argumentdefinitions"></a><a href="#arguments-and-argumentdefinitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@arguments</code> and <code>@argumentDefinitions</code></h3>
 <p>However, in order to prevent bloating queries with global variable declarations, Relay also provides a way to declare variables that are scoped locally to a fragment using the <strong><code>@arguments</code></strong> and <strong><code>@argumentDefinitions</code></strong> directives:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">/**
- * Declare a fragment that accepts arguments with @argumentDefinitions
+ * Declare a fragment that accepts arguments with <span class="hljs-doctag">@argumentDefinitions</span>
  */</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">PictureComponent</span>(<span class="hljs-params">props</span>) </span>{
@@ -541,7 +541,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 }
 </code></pre>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">/**
- * Include fragment using @arguments
+ * Include fragment using <span class="hljs-doctag">@arguments</span>
  */</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserComponent</span>(<span class="hljs-params">props</span>) </span>{
@@ -559,7 +559,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 }
 </code></pre>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">/**
- * Include same fragment using _different_ @arguments
+ * Include same fragment using _different_ <span class="hljs-doctag">@arguments</span>
  */</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">OtherUserComponent</span>(<span class="hljs-params">props</span>) </span>{
@@ -724,10 +724,10 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
         <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">SecondaryContent</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <ul>
 <li>In this case, we're showing 2 separate loading UIs:
 <ul>
@@ -760,10 +760,10 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
         }&gt;
         Show Photos
       <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <p>Let's take a look at what's happening here:</p>
 <ul>
 <li>We have a <code>MainContent</code> component that takes a tab to render. This component might suspend while it loads the content for the current tab. During initial render, if this component suspends, we'll show the <code>LoadingGlimmer</code> fallback from the <code>Suspense</code> boundary that is wrapping it.</li>
@@ -803,10 +803,10 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
         disabled={isPending}&gt;
         Show Photos
       <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <blockquote>
 <p><strong>NOTE:</strong> Providing a Suspense config to <code>useTransition</code> will only work as expected in <strong><em><em>React Concurrent Mode</em></em></strong></p>
 </blockquote>
@@ -900,10 +900,10 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">ErrorBoundary</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{error</span> =&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">ErrorUI</span> <span class="hljs-attr">error</span>=<span class="hljs-string">{error}</span> /&gt;</span>}&gt;
       <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">SecondaryContent</span> /&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">ErrorBoundary</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">ErrorBoundary</span>&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <ul>
 <li>We can use the Error Boundary to wrap subtrees and show a different UI when an error occurs within that subtree. When an error occurs, the specified <code>fallback</code> will be rendered instead of the content inside the boundary.</li>
 <li>Note that we can also control the granularity at which we render error UIs, by wrapping components at different levels with error boundaries. In this example, if any error occurs within <code>MainContent</code> or <code>SecondaryContent</code>, we will render an <code>ErrorSection</code> in place of the entire app content.</li>
@@ -944,31 +944,31 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
   }
 }
 </code></pre>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">/**
+<pre><code class="hljs css language-javascript">/**
  * App.react.js
- */</span>
+ */
 
-<span class="hljs-keyword">const</span> ErrorBoundary = <span class="hljs-built_in">require</span>(<span class="hljs-string">'ErrorBoundary'</span>);
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+const ErrorBoundary = require('ErrorBoundary');
+const React = require('React');
 
-<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MainContent.react'</span>);
+const MainContent = require('./MainContent.react');
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">return</span> (
-    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">ErrorBoundaryWithRetry</span>
-      <span class="hljs-attr">fallback</span>=<span class="hljs-string">{(error,</span> <span class="hljs-attr">retry</span>) =&gt;</span>
-        <span class="hljs-tag">&lt;&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">ErrorUI</span> <span class="hljs-attr">error</span>=<span class="hljs-string">{error}</span> /&gt;</span>
+function App() {
+  return (
+    &lt;ErrorBoundaryWithRetry
+      fallback={(error, retry) =&gt;
+        &lt;&gt;
+          &lt;ErrorUI error={error} /&gt;
           {/* Render a button to retry; this will attempt to re-render the
             content inside the boundary, i.e. the query component */}
-          <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onPress</span>=<span class="hljs-string">{retry}</span>&gt;</span>Retry<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-        <span class="hljs-tag">&lt;/&gt;</span>
+          &lt;Button onPress={retry}&gt;Retry&lt;/Button&gt;
+        &lt;/&gt;
       }&gt;
-      <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">ErrorBoundaryWithRetry</span>&gt;</span>
+      &lt;MainContent /&gt;
+    &lt;/ErrorBoundaryWithRetry&gt;
   );
 }
-</span></code></pre>
+</code></pre>
 <ul>
 <li>The sample Error Boundary in this example code will provide a <code>retry</code> function to re-attempt to render the content that originally produced the error. By doing so, we will attempt to re-render our query component (that uses <code>useLazyLoadQuery</code>), and consequently attempt to fetch the query again.</li>
 </ul>
@@ -1246,10 +1246,10 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;{data.user?.name}&lt;/h1&gt;
-      &lt;UsernameComponent user={data.user} /&gt;
-    &lt;/&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">UsernameComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{data.user}</span> /&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 </code></pre>
@@ -1289,17 +1289,17 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;{data.user?.name}&lt;/h1&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 
       {/*
         Wrap the UserComponent in Suspense to allow other parts of the
         App to be rendered even if the username is missing.
     */}
-      &lt;Suspense fallback={&lt;LoadingSpinner label="Fetching username" /&gt;}&gt;
-        &lt;UsernameComponent user={data.user} /&gt;
-      &lt;/Suspense&gt;
-    &lt;/&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> <span class="hljs-attr">label</span>=<span class="hljs-string">"Fetching username"</span> /&gt;</span>}&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">UsernameComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{data.user}</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 </code></pre>
@@ -1413,10 +1413,10 @@ query NodeQuery {
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Friends count: {data.user.friends?.count}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> refresh()}&gt;Fetch latest count<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <p>If you want to know whether the request is in flight, in order to show a busy indicator or disable a UI control, you can subscribe to the observable returned by <code>fetchQuery</code>, and keep state in your component:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
 
@@ -1462,10 +1462,10 @@ query NodeQuery {
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> refetch()}&gt;
         Fetch latest count {isRefreshing ? <span class="hljs-tag">&lt;<span class="hljs-name">LoadingSpinner</span> /&gt;</span> : null}
       <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="refreshing-fragments"></a><a href="#refreshing-fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refreshing Fragments</h4>
 <p>In order to refresh the data for a fragment, we can also use <code>fetchQuery</code>, but we need to provide a query to refetch the fragment under; remember, <strong><em>fragments can't be fetched by themselves: they need to be part of a query,</em></strong> so we can't just &quot;fetch&quot; the fragment again by itself.</p>
 <p>However, we don't need to manually write the query; instead, we can use the <strong><code>@refetchable</code></strong> directive, which will make it so Relay automatically generates a query to fetch the fragment when the compiler is run:</p>
@@ -1513,12 +1513,12 @@ type Props = {|
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Friends count: {data.friends?.count}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> refresh()}&gt;Fetch latest count<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = UserComponent;
-</span></code></pre>
+<span class="hljs-built_in">module</span>.exports = UserComponent;
+</code></pre>
 <ul>
 <li>Relay will autogenerate a query by adding the <code>@refetchable</code> directive to our fragment, and we can import it and pass it to <code>fetchQuery</code>. Note that <code>@refetchable</code> directive can only be added to fragments that are &quot;refetchable&quot;, that is, on fragments that are on <code>Viewer</code>, or on <code>Query</code>, or on a type that implements <code>Node</code> (i.e. a type that has an <code>id</code> field).</li>
 <li>In order to fetch the query, we need to know the <code>id</code> of the user since it will be a required query variable in the generated query. To do so, we simply include the <code>id</code> in our fragment.</li>
@@ -1569,10 +1569,10 @@ module.exports = UserComponent;
           Fetch different User
         <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <p>Let's distill what's going on here:</p>
 <ul>
 <li>Calling <code>setVariables</code> and passing a new set of variables will re-render the component and cause the query to be fetched again <strong><em>with the newly provided variables</em></strong>. In this case, we will fetch the <code>User</code> with id <code>'different-id'</code>, and render the results when they're available.</li>
@@ -1623,10 +1623,10 @@ module.exports = UserComponent;
           Fetch different User
         <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <ul>
 <li>In this case, we're keeping both the <code>fetchPolicy</code> and <code>variables</code> in component state in order to trigger a refetch both with different <code>variables</code> and a different <code>fetchPolicy</code>.</li>
 </ul>
@@ -1669,12 +1669,12 @@ type Props = {|
         }}&gt;
         Translate Comment
       <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = CommentBody;
-</span></code></pre>
+<span class="hljs-built_in">module</span>.exports = CommentBody;
+</code></pre>
 <p>Let's distill what's happening in this example:</p>
 <ul>
 <li><code>useRefetchableFragment</code> behaves the same way as a <code>useFragment</code> (<a href="#fragments">Fragments</a>), but with a few additions:
@@ -1753,24 +1753,24 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;Friends of {data.name}:&lt;/h1&gt;
-      &lt;SuspenseList revealOrder="forwards"&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
         {/* Extract each friend from the resulting data */}
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
-            &lt;Suspense fallback={&lt;Glimmer /&gt;}&gt;
-              &lt;FriendComponent user={node} /&gt;
-            &lt;/Suspense&gt;
+            <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Glimmer</span> /&gt;</span>}&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">FriendComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{node}</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
           );
         })}
-      &lt;/SuspenseList&gt;
-    &lt;/&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = FriendsListComponent;
+<span class="hljs-built_in">module</span>.exports = FriendsListComponent;
 </code></pre>
 <ul>
 <li><code>usePaginationFragment</code> behaves the same way as a <code>useFragment</code> (<a href="#fragments">Fragments</a>), so our list of friends is available under <strong><code>data.friends.edges.node</code></strong>, as declared by the fragment. However, it also has a few additions:
@@ -1817,32 +1817,32 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;Friends of {data.name}:&lt;/h1&gt;
-      &lt;SuspenseList revealOrder="forwards"&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
-            &lt;Suspense fallback={&lt;Glimmer /&gt;}&gt;
-              &lt;FriendComponent user={node} /&gt;
-            &lt;/Suspense&gt;
+            <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Glimmer</span> /&gt;</span>}&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">FriendComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{node}</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
           );
         })}
-      &lt;/SuspenseList&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
 
-      &lt;Button
-        onClick={() =&gt; {
+      <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+        <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
           startTransition(() =&gt; {
             loadNext(10)
           });
         }}&gt;
         Load more friends
-      &lt;/Button&gt;
-    &lt;/&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = FriendsListComponent;
+<span class="hljs-built_in">module</span>.exports = FriendsListComponent;
 </code></pre>
 <p>Let's distill what's happening here:</p>
 <ul>
@@ -1892,35 +1892,35 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;Friends of {data.name}:&lt;/h1&gt;
-      &lt;SuspenseList revealOrder="forwards"&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
-            &lt;Suspense fallback={&lt;Glimmer /&gt;}&gt;
-              &lt;FriendComponent user={node} /&gt;
-            &lt;/Suspense&gt;
+            <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Glimmer</span> /&gt;</span>}&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">FriendComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{node}</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
           );
         })}
-      &lt;/SuspenseList&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
 
       {/* Only render button if there are more friends to load in the list */}
       {hasNext ? (
-        &lt;Button
-          onClick={() =&gt; {
+        <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+          <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
             startTransition(() =&gt; {
               loadNext(10)
             });
           }}&gt;
           Load more friends
-        &lt;/Button&gt;
+        <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
       ) : null}
-    &lt;/&gt;
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = FriendsListComponent;
+<span class="hljs-built_in">module</span>.exports = FriendsListComponent;
 </code></pre>
 <ul>
 <li><code>hasNext</code> is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the <code>Button</code> if there are more friends available in the connection .</li>
@@ -1982,39 +1982,39 @@ type Props = {|
   );
 
   <span class="hljs-keyword">return</span> (
-    &lt;&gt;
-      &lt;h1&gt;Friends of {data.name}:&lt;/h1&gt;
-      &lt;SuspenseList revealOrder="forwards"&gt;
+    <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
-            &lt;Suspense fallback={&lt;Glimmer /&gt;}&gt;
-              &lt;FriendComponent user={node} /&gt;
-            &lt;/Suspense&gt;
+            <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Glimmer</span> /&gt;</span>}&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">FriendComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{node}</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
           );
         })}
-      &lt;/SuspenseList&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
 
       {/* Render a Spinner next to the button immediately, while transition is pending */}
-      {isPending ? &lt;Spinner /&gt; : null}
+      {isPending ? <span class="hljs-tag">&lt;<span class="hljs-name">Spinner</span> /&gt;</span> : null}
 
       {hasNext ? (
-        &lt;Button
-          {/* Disbale the button immediately, while transition is pending */}
-          disabled={isPending}
-          onClick={() =&gt; {
+        <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+          {/* <span class="hljs-attr">Disbale</span> <span class="hljs-attr">the</span> <span class="hljs-attr">button</span> <span class="hljs-attr">immediately</span>, <span class="hljs-attr">while</span> <span class="hljs-attr">transition</span> <span class="hljs-attr">is</span> <span class="hljs-attr">pending</span> */}
+          <span class="hljs-attr">disabled</span>=<span class="hljs-string">{isPending}</span>
+          <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
             startTransition(() =&gt; {
               loadNext(10)
             });
           }}&gt;
           Load more friends
-        &lt;/Button&gt;
+        <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
       ) : null}
-    &lt;/&gt;
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-module.exports = FriendsListComponent;
+<span class="hljs-built_in">module</span>.exports = FriendsListComponent;
 </code></pre>
 <p>Let's distill what's going on here:</p>
 <ul>
@@ -2112,10 +2112,10 @@ module.exports = FriendsListComponent;
        values used for the initial query
     */
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> loadNext(10)}&gt;Load more friends<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <ul>
 <li>Note that calling <code>loadNext</code> will use the <strong><em>original</em></strong> <strong><code>order_by</code></strong> and <strong><code>search_term</code></strong> values used for the initial query. During pagination, these value won't (<em>and shouldn't</em>) change.</li>
 </ul>
@@ -2184,10 +2184,10 @@ type Props = {|
 
       <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span>&gt;</span>...<span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> loadNext(10)}&gt;Load more friends<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
-</span></code></pre>
+</code></pre>
 <p>Let's distill what's going on here:</p>
 <ul>
 <li>Calling <strong><code>refetch</code></strong> and passing a new set of variables will fetch the fragment again <strong><em>with the newly-provided variables</em></strong>. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an <code>id</code>, if the type of the fragment has an <code>id</code> field, and any other variables that are transitively referenced in your fragment.
@@ -2618,11 +2618,11 @@ type Props = {|
       ) : null}
 
       {/* Forward pagination controls can go simultaneously here */}
-    <span class="hljs-tag">&lt;/&gt;</span>
+    <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
 
-</span></code></pre>
+</code></pre>
 <ul>
 <li>The APIs for both <em>&quot;forward&quot;</em> and <em>&quot;backward&quot;</em> are exactly the same, they're only named differently. When paginating forward, then the  <code>after</code> and <code>first</code> connection arguments will be used, when paginating backward, the <code>before</code> and <code>last</code> connection arguments will be used.</li>
 <li>Note that the primitives for both <em>&quot;forward&quot;</em> and <em>&quot;backward&quot;</em> pagination are exposed from a single use of <code>usePaginationFragment</code> call, so both <em>&quot;forward&quot;</em> and <em>&quot;backward&quot;</em> pagination can be performed simultaneously in the same component.</li>
@@ -3476,7 +3476,7 @@ disposable.dispose();
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="testing"></a><a href="#testing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing</h2>
 <p>See this guide for <a href="https://relay.dev/docs/en/testing-relay-components">Testing Relay Components</a>, which also applies for any components built using Relay Hooks.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 1/13/2020 by Jordan Eldredge</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#example-app">Example App</a></li><li><a href="#setup-and-workflow">Setup and Workflow</a><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#babel-plugin">Babel plugin</a></li><li><a href="#relay-compiler">Relay Compiler</a></li><li><a href="#config-file">Config file</a></li></ul></li><li><a href="#rendering-data-basics">Rendering Data Basics</a><ul class="toc-headings"><li><a href="#fragments">Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#queries">Queries</a></li><li><a href="#variables">Variables</a></li><li><a href="#arguments-and-argumentdefinitions"><code>@arguments</code> and <code>@argumentDefinitions</code></a></li><li><a href="#loading-states-with-suspense">Loading States with Suspense</a></li><li><a href="#error-states-with-error-boundaries">Error States with Error Boundaries</a></li><li><a href="#environment">Environment</a></li></ul></li><li><a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a><ul class="toc-headings"><li><a href="#fetch-policies">Fetch Policies</a></li><li><a href="#availability-of-cached-data">Availability of Cached Data</a></li><li><a href="#presence-of-data">Presence of Data</a></li><li><a href="#staleness-of-data">Staleness of Data</a></li><li><a href="#rendering-partially-cached-data-highly-experimental">Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</a></li><li><a href="#filling-in-missing-data-missing-data-handlers">Filling in Missing Data (Missing Data Handlers)</a></li></ul></li><li><a href="#fetching-rendering-different-data">Fetching Rendering <em>Different</em> Data</a><ul class="toc-headings"><li><a href="#refreshing-rendered-data">Refreshing Rendered Data</a></li><li><a href="#re-rendering-with-different-data">Re-rendering with Different Data</a></li></ul></li><li><a href="#rendering-list-data-and-pagination">Rendering List Data and Pagination</a><ul class="toc-headings"><li><a href="#connections">Connections</a></li><li><a href="#rendering-connections">Rendering Connections</a></li><li><a href="#pagination">Pagination</a></li><li><a href="#blocking-quot-all-at-once-quot-pagination">Blocking (&quot;all-at-once&quot;) Pagination</a></li><li><a href="#using-and-changing-filters">Using and Changing Filters</a></li><li><a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a></li><li><a href="#connection-records">Connection Records</a></li><li><a href="#adding-edges">Adding Edges</a></li><li><a href="#removing-edges">Removing Edges</a></li><li><a href="#connection-identity-with-filters">Connection Identity With Filters</a></li><li><a href="#advanced-pagination-use-cases">Advanced Pagination Use Cases</a></li></ul></li><li><a href="#advanced-data-fetching">Advanced Data Fetching</a><ul class="toc-headings"><li><a href="#preloading-data">Preloading Data</a></li><li><a href="#incremental-data-delivery">Incremental Data Delivery</a></li><li><a href="#data-driven-dependencies">Data-driven Dependencies</a></li><li><a href="#image-prefetching">Image Prefetching</a></li></ul></li><li><a href="#updating-data">Updating Data</a><ul class="toc-headings"><li><a href="#graphql-mutations">GraphQL Mutations</a></li><li><a href="#graphql-subscriptions">GraphQL Subscriptions</a></li><li><a href="#local-data-updates">Local Data Updates</a></li><li><a href="#client-only-data-client-schema-extensions">Client-Only Data (Client Schema Extensions)</a></li></ul></li><li><a href="#local-application-state-management">Local Application State Management</a></li><li><a href="#accessing-data-outside-react">Accessing Data Outside React</a><ul class="toc-headings"><li><a href="#fetching-queries">Fetching Queries</a></li><li><a href="#prefetching-queries">Prefetching Queries</a></li><li><a href="#subscribing-to-queries">Subscribing to Queries</a></li><li><a href="#reading-queries-from-local-cache">Reading Queries from Local Cache</a></li><li><a href="#reading-fragments-from-local-cache">Reading Fragments from Local Cache</a></li><li><a href="#retaining-queries">Retaining Queries</a></li></ul></li><li><a href="#testing">Testing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 1/13/2020 by Jordan Eldredge</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#example-app">Example App</a></li><li><a href="#setup-and-workflow">Setup and Workflow</a><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#babel-plugin">Babel plugin</a></li><li><a href="#relay-compiler">Relay Compiler</a></li><li><a href="#config-file">Config file</a></li></ul></li><li><a href="#rendering-data-basics">Rendering Data Basics</a><ul class="toc-headings"><li><a href="#fragments">Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#queries">Queries</a></li><li><a href="#variables">Variables</a></li><li><a href="#arguments-and-argumentdefinitions"><code>@arguments</code> and <code>@argumentDefinitions</code></a></li><li><a href="#loading-states-with-suspense">Loading States with Suspense</a></li><li><a href="#error-states-with-error-boundaries">Error States with Error Boundaries</a></li><li><a href="#environment">Environment</a></li></ul></li><li><a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a><ul class="toc-headings"><li><a href="#fetch-policies">Fetch Policies</a></li><li><a href="#availability-of-cached-data">Availability of Cached Data</a></li><li><a href="#presence-of-data">Presence of Data</a></li><li><a href="#staleness-of-data">Staleness of Data</a></li><li><a href="#rendering-partially-cached-data-highly-experimental">Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</a></li><li><a href="#filling-in-missing-data-missing-data-handlers">Filling in Missing Data (Missing Data Handlers)</a></li></ul></li><li><a href="#fetching-rendering-different-data">Fetching Rendering <em>Different</em> Data</a><ul class="toc-headings"><li><a href="#refreshing-rendered-data">Refreshing Rendered Data</a></li><li><a href="#re-rendering-with-different-data">Re-rendering with Different Data</a></li></ul></li><li><a href="#rendering-list-data-and-pagination">Rendering List Data and Pagination</a><ul class="toc-headings"><li><a href="#connections">Connections</a></li><li><a href="#rendering-connections">Rendering Connections</a></li><li><a href="#pagination">Pagination</a></li><li><a href="#blocking-all-at-once-pagination">Blocking (&quot;all-at-once&quot;) Pagination</a></li><li><a href="#using-and-changing-filters">Using and Changing Filters</a></li><li><a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a></li><li><a href="#connection-records">Connection Records</a></li><li><a href="#adding-edges">Adding Edges</a></li><li><a href="#removing-edges">Removing Edges</a></li><li><a href="#connection-identity-with-filters">Connection Identity With Filters</a></li><li><a href="#advanced-pagination-use-cases">Advanced Pagination Use Cases</a></li></ul></li><li><a href="#advanced-data-fetching">Advanced Data Fetching</a><ul class="toc-headings"><li><a href="#preloading-data">Preloading Data</a></li><li><a href="#incremental-data-delivery">Incremental Data Delivery</a></li><li><a href="#data-driven-dependencies">Data-driven Dependencies</a></li><li><a href="#image-prefetching">Image Prefetching</a></li></ul></li><li><a href="#updating-data">Updating Data</a><ul class="toc-headings"><li><a href="#graphql-mutations">GraphQL Mutations</a></li><li><a href="#graphql-subscriptions">GraphQL Subscriptions</a></li><li><a href="#local-data-updates">Local Data Updates</a></li><li><a href="#client-only-data-client-schema-extensions">Client-Only Data (Client Schema Extensions)</a></li></ul></li><li><a href="#local-application-state-management">Local Application State Management</a></li><li><a href="#accessing-data-outside-react">Accessing Data Outside React</a><ul class="toc-headings"><li><a href="#fetching-queries">Fetching Queries</a></li><li><a href="#prefetching-queries">Prefetching Queries</a></li><li><a href="#subscribing-to-queries">Subscribing to Queries</a></li><li><a href="#reading-queries-from-local-cache">Reading Queries from Local Cache</a></li><li><a href="#reading-fragments-from-local-cache">Reading Fragments from Local Cache</a></li><li><a href="#retaining-queries">Retaining Queries</a></li></ul></li><li><a href="#testing">Testing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

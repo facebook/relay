@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v5.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v5.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-GraphQLMutation.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Relay.GraphQLMutation</h1></header><article><div><span><p><code>Relay.GraphQLMutation</code> is a low-level API for modeling a GraphQL mutation.</p>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v5.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v5.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-GraphQLMutation.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Relay.GraphQLMutation</h1></header><article><div><span><p><code>Relay.GraphQLMutation</code> is a low-level API for modeling a GraphQL mutation.</p>
 <p>This is the lowest level of abstraction at which product code may deal with mutations in Relay, and it corresponds to the mutation operation (&quot;a write followed by a fetch&quot;) described in <a href="/graphql/mutations.htm">the GraphQL Specification</a>. You specify the mutation, the inputs, and the query.</p>
 <p><code>Relay.GraphQLMutation</code> doesn't provide any bells and whistles such as fat queries or tracked queries (that is, automatic synthesis at runtime of the mutation query to be sent to the server), instead having the user define a static and explicit query. Restricting yourself to the low-level API is a useful preparatory step that will help you ready your codebase for migration to the new static Relay core. In the meantime, if you want those dynamic features, you can opt in to the higher-level <code>Relay.Mutation</code> API.</p>
 <h2><a class="anchor" aria-hidden="true" id="overview"></a><a href="#overview" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
@@ -56,23 +56,23 @@
 </code></pre>
 <p>Convenience method that wraps the constructor, passing some default parameters and returning an instance.</p>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-{16-20}"><span class="hljs-attribute">const environment</span> = new Relay.Environment();
-<span class="hljs-attribute">const query</span> = Relay.QL`mutation FeedbackLikeMutation {
-  feedbackLike(input: $input) {
+<pre><code class="hljs css language-{16-20}"><span class="hljs-keyword">const</span> environment = new Relay.Environment();
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">query</span> = Relay.QL`mutation FeedbackLikeMutation {
+  feedbackLike(<span class="hljs-keyword">input</span>: <span class="hljs-variable">$input</span>) {
     clientMutationId
     feedback {
       doesViewerLike
     }
   }
 }`;
-<span class="hljs-attribute">const variables</span> = {
-  input: {
-    feedbackId: <span class="hljs-string">'aFeedbackId'</span>,
+<span class="hljs-keyword">const</span> variables = {
+  <span class="hljs-keyword">input</span>: {
+    feedbackId: 'aFeedbackId',
   },
 };
 
-<span class="hljs-attribute">const mutation</span> = Relay.GraphQLMutation.create(
-  query,
+<span class="hljs-keyword">const</span> mutation = Relay.GraphQLMutation.create(
+  <span class="hljs-keyword">query</span>,
   variables,
   environment
 );
@@ -149,24 +149,24 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
 <p>Optionally, follow up with a call to <code>commit()</code> to send the mutation to the server.</p>
 <p><strong>Note:</strong> An optimistic update may only be applied once.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-3"></a><a href="#example-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-{18-21}"><span class="hljs-attribute">const optimisticQuery</span> = Relay.QL`mutation FeedbackLikeOptimisticUpdate {
+<pre><code class="hljs css language-{18-21}"><span class="hljs-keyword">const</span> optimisticQuery = Relay.QL`mutation FeedbackLikeOptimisticUpdate {
   feedbackLike(input: $input) {
     clientMutationId
     feedback {
       doesViewerLike
-      id
+      <span class="hljs-keyword">id</span>
     }
   }
 }`;
-<span class="hljs-attribute">const optimisticResponse</span> = {
+<span class="hljs-keyword">const</span> optimisticResponse = {
   feedback: {
-    doesViewerLike: true,
-    id: <span class="hljs-string">'aFeedbackId'</span>,
-    __typename: <span class="hljs-string">'Feedback'</span>,
+    doesViewerLike: <span class="hljs-literal">true</span>,
+    <span class="hljs-keyword">id</span>: <span class="hljs-string">'aFeedbackId'</span>,
+    __<span class="hljs-keyword">typename</span>: <span class="hljs-string">'Feedback'</span>,
   },
 };
 
-<span class="hljs-attribute">const transaction</span> = mutation.applyOptimistic(
+<span class="hljs-keyword">const</span> transaction = mutation.applyOptimistic(
   optimisticQuery,
   optimisticResponse,
 );
@@ -180,8 +180,8 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
 <p>Optionally, precede with a call to <code>applyOptimistic()</code> to apply an update optimistically to the store.</p>
 <p>Note: This method may only be called once per instance.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-4"></a><a href="#example-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-{11}"><span class="hljs-attribute">const configs</span> = [{
-  type: <span class="hljs-string">'RANGE_ADD'</span>,
+<pre><code class="hljs css language-{11}">const configs = [{
+  <span class="hljs-keyword">type</span>: <span class="hljs-string">'RANGE_ADD'</span>,
   connectionName: <span class="hljs-string">'topLevelComments'</span>,
   edgeName: <span class="hljs-string">'feedbackCommentEdge'</span>,
   parentID: <span class="hljs-string">'aFeedbackId'</span>,
@@ -190,7 +190,7 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
     <span class="hljs-string">''</span>: GraphQLMutatorConstants.PREPEND,
   },
 }];
-<span class="hljs-attribute">const transaction</span> = mutation.commit(configs);
+const <span class="hljs-keyword">transaction</span> = mutation.<span class="hljs-keyword">commit</span>(configs);
 </code></pre>
 <p>See also: <a href="api-reference-relay-mutation.html#getconfigs-abstract-method">Relay.Mutation::getConfigs()</a></p>
 <h3><a class="anchor" aria-hidden="true" id="rollback"></a><a href="#rollback" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>rollback</h3>

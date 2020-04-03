@@ -60,7 +60,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-Runtime.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Runtime Architecture</h1></header><article><div><span><p>The Relay runtime is a full-featured GraphQL client that is designed for high performance even on low-end mobile devices and is capable of scaling to large, complex apps. The runtime API is not intended to be used directly in product code, but rather to provide a foundation for building higher-level product APIs such as React/Relay. This foundation includes:</p>
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-Runtime.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Runtime Architecture</h1></header><article><div><span><p>The Relay runtime is a full-featured GraphQL client that is designed for high performance even on low-end mobile devices and is capable of scaling to large, complex apps. The runtime API is not intended to be used directly in product code, but rather to provide a foundation for building higher-level product APIs such as React/Relay. This foundation includes:</p>
 <ul>
 <li>A normalized, in-memory object graph/cache.</li>
 <li>An optimized &quot;write&quot; operation for updating the cache with the results of queries/mutations/subscriptions.</li>
@@ -95,7 +95,7 @@
 <pre><code class="hljs"><span class="hljs-comment">// GraphQL Fragment</span>
 fragment on User {
   id
-  name
+  <span class="hljs-built_in">name</span>
   address {
     city
   }
@@ -103,27 +103,27 @@ fragment on User {
 
 <span class="hljs-comment">// Response</span>
 {
-  id: '<span class="hljs-number">842472</span>',
-  name: 'Joe',
+  id: <span class="hljs-string">'842472'</span>,
+  <span class="hljs-built_in">name</span>: <span class="hljs-string">'Joe'</span>,
   address: {
-    city: 'Seattle',
+    city: <span class="hljs-string">'Seattle'</span>,
   }
 }
 
 <span class="hljs-comment">// Normalized Representation</span>
 RecordSource {
-  '<span class="hljs-number">842472</span>': Record {
-    __id: '<span class="hljs-number">842472</span>',
-    __typename: 'User', <span class="hljs-comment">// the type is known statically from the fragment</span>
-    id: '<span class="hljs-number">842472</span>',
-    name: 'Joe',
-    address: {__ref: 'client:<span class="hljs-number">842472</span>:address'}, <span class="hljs-comment">// link to another record</span>
+  <span class="hljs-string">'842472'</span>: Record {
+    <span class="hljs-variable">__id</span>: <span class="hljs-string">'842472'</span>,
+    <span class="hljs-variable">__typename</span>: <span class="hljs-string">'User'</span>, <span class="hljs-comment">// the type is known statically from the fragment</span>
+    id: <span class="hljs-string">'842472'</span>,
+    <span class="hljs-built_in">name</span>: <span class="hljs-string">'Joe'</span>,
+    address: {<span class="hljs-variable">__ref</span>: <span class="hljs-string">'client:842472:address'</span>}, <span class="hljs-comment">// link to another record</span>
   },
-  'client:<span class="hljs-number">842472</span>:address': Record {
+  <span class="hljs-string">'client:842472:address'</span>: Record {
     <span class="hljs-comment">// A client ID, derived from the path from parent &amp; parent's ID</span>
-    __id: 'client:<span class="hljs-number">842472</span>:address',
-    __typename: 'Address',
-    city: 'Seattle',
+    <span class="hljs-variable">__id</span>: <span class="hljs-string">'client:842472:address'</span>,
+    <span class="hljs-variable">__typename</span>: <span class="hljs-string">'Address'</span>,
+    city: <span class="hljs-string">'Seattle'</span>,
   }
 }
 </code></pre>

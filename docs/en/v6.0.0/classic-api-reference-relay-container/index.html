@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v6.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v6.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-Container.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">RelayContainer</h1></header><article><div><span><p><code>RelayContainer</code> is a higher-order React component that lets a React component encode its data requirements.</p>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v6.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v6.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-Container.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">RelayContainer</h1></header><article><div><span><p><code>RelayContainer</code> is a higher-order React component that lets a React component encode its data requirements.</p>
 <ul>
 <li>Relay ensures that this data is available before the component is rendered.</li>
 <li>Relay updates the component whenever the underlying data has changed.</li>
@@ -247,19 +247,19 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
         <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">{this.requestRandomPictureSize}</span>&gt;</span>
           Request random picture size
         <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span></span>
     );
   }
 }
-module.exports = Relay.createContainer(ProfilePicture, {
-  initialVariables: {size: 50},
-  fragments: {
-    user: () =&gt; Relay.QL`
+<span class="hljs-built_in">module</span>.exports = Relay.createContainer(ProfilePicture, {
+  <span class="hljs-attr">initialVariables</span>: {<span class="hljs-attr">size</span>: <span class="hljs-number">50</span>},
+  <span class="hljs-attr">fragments</span>: {
+    <span class="hljs-attr">user</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
       fragment on User { profilePicture(size: $size) { ... } }
-    `,
+    `</span>,
   },
 });
-</span></code></pre>
+</code></pre>
 <p>In this example, whenever a picture with a new size is being loaded a spinner is displayed instead of the picture.</p>
 <h3><a class="anchor" aria-hidden="true" id="setvariables"></a><a href="#setvariables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>setVariables</h3>
 <pre><code class="hljs">setVariables([partialVariables: <span class="hljs-built_in">Object</span>, [onReadyStateChange: <span class="hljs-built_in">Function</span>]]): <span class="hljs-keyword">void</span>
@@ -271,35 +271,35 @@ module.exports = Relay.createContainer(ProfilePicture, {
 <pre><code class="hljs css language-{12-15}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Feed</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
   render() {
     <span class="hljs-keyword">return</span> (
-      &lt;div&gt;
-        {<span class="hljs-keyword">this</span>.props.viewer.feed.edges.map(
-          edge =&gt; &lt;<span class="hljs-type">Story</span> story={edge.node} key={edge.node.id} /&gt;
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+        {this.props.viewer.feed.edges.map(
+          edge =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">Story</span> <span class="hljs-attr">story</span>=<span class="hljs-string">{edge.node}</span> <span class="hljs-attr">key</span>=<span class="hljs-string">{edge.node.id}</span> /&gt;</span>
         )}
-      &lt;/div&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
     );
   }
   _handleScrollLoad() {
     <span class="hljs-comment">// Increments the number of stories being rendered by 10.</span>
     <span class="hljs-keyword">this</span>.props.relay.setVariables({
-      count: <span class="hljs-keyword">this</span>.props.relay.variables.count + <span class="hljs-number">10</span>
+      <span class="hljs-attr">count</span>: <span class="hljs-keyword">this</span>.props.relay.variables.count + <span class="hljs-number">10</span>
     });
   }
 }
-module.exports = <span class="hljs-type">Relay</span>.createContainer(<span class="hljs-type">Feed</span>, {
-  initialVariables: {count: <span class="hljs-number">10</span>},
-  fragments: {
-    viewer: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
-      fragment on <span class="hljs-type">Viewer</span> {
+<span class="hljs-built_in">module</span>.exports = Relay.createContainer(Feed, {
+  <span class="hljs-attr">initialVariables</span>: {<span class="hljs-attr">count</span>: <span class="hljs-number">10</span>},
+  <span class="hljs-attr">fragments</span>: {
+    <span class="hljs-attr">viewer</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+      fragment on Viewer {
         feed(first: $count) {
           edges {
             node {
               id,
-              ${<span class="hljs-type">Story</span>.getFragment(<span class="hljs-symbol">'stor</span>y')},
+              <span class="hljs-subst">${Story.getFragment(<span class="hljs-string">'story'</span>)}</span>,
             },
           },
         },
       }
-    `,
+    `</span>,
   },
 });
 </code></pre>
@@ -476,10 +476,10 @@ Relay.createContainer(Parent, {
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Child</span>
       <span class="hljs-attr">childFragment</span>=<span class="hljs-string">{props.parentFragment}</span>
       <span class="hljs-attr">size</span>=<span class="hljs-string">{128}</span>
-    /&gt;</span>;
+    /&gt;</span></span>;
   );
 }
-</span></code></pre>
+</code></pre>
 <p>Now Relay will both fetch the larger photo size <em>and</em> <code>Child</code> will know to render it.</p>
 </span></div></article></div><div class="docLastUpdate"><em>Last updated on 11/9/2017 by Jan Kassens</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#overview">Overview</a></li><li><a href="#container-specification">Container Specification</a><ul class="toc-headings"><li><a href="#fragments">fragments</a></li><li><a href="#initialvariables">initialVariables</a></li><li><a href="#preparevariables">prepareVariables</a></li><li><a href="#shouldcomponentupdate">shouldComponentUpdate</a></li></ul></li><li><a href="#properties-and-methods">Properties and Methods</a><ul class="toc-headings"><li><a href="#route">route</a></li><li><a href="#variables">variables</a></li><li><a href="#pendingvariables">pendingVariables</a></li><li><a href="#setvariables">setVariables</a></li><li><a href="#forcefetch">forceFetch</a></li><li><a href="#hasoptimisticupdate">hasOptimisticUpdate</a></li><li><a href="#getpendingtransactions">getPendingTransactions</a></li></ul></li><li><a href="#static-methods">Static Methods</a><ul class="toc-headings"><li><a href="#getfragment">getFragment</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {

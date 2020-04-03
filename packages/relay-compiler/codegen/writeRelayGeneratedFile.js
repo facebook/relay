@@ -46,7 +46,7 @@ function getConcreteType(node: GeneratedNode): string {
   }
 }
 
-async function writeRelayGeneratedFile(
+function writeRelayGeneratedFile(
   schema: Schema,
   codegenDir: CodegenDirectory,
   definition: GeneratedDefinition,
@@ -92,78 +92,81 @@ async function writeRelayGeneratedFile(
     docText = generatedNode.params.text;
   }
 
-  let hash = null;
-  if (generatedNode.kind === RelayConcreteNode.REQUEST && persistQuery) {
-    const {text} = generatedNode.params;
-    invariant(
-      text != null,
-      'writeRelayGeneratedFile: Expected `text` in order to persist query',
-    );
+  // Use `Promise.resolve` to work around a Babel 7.8/7.9 issue.
+  return Promise.resolve().then(async () => {
+    let hash = null;
+    if (generatedNode.kind === RelayConcreteNode.REQUEST && persistQuery) {
+      const {text} = generatedNode.params;
+      invariant(
+        text != null,
+        'writeRelayGeneratedFile: Expected `text` in order to persist query',
+      );
 
-    const hasher = crypto.createHash('md5');
-    hasher.update(text);
-    hash = hasher.digest('hex');
+      const hasher = crypto.createHash('md5');
+      hasher.update(text);
+      hash = hasher.digest('hex');
 
-    let id = null;
-    if (!shouldRepersist) {
-      // Unless we `shouldRepersist` the query, check if the @relayHash matches
-      // the operation text of the current text and re-use the persisted
-      // operation id.
-      const oldContent = codegenDir.read(filename);
-      const oldHash = extractHash(oldContent);
-      const oldRequestID = extractRelayRequestID(oldContent);
+      let id = null;
+      if (!shouldRepersist) {
+        // Unless we `shouldRepersist` the query, check if the @relayHash matches
+        // the operation text of the current text and re-use the persisted
+        // operation id.
+        const oldContent = codegenDir.read(filename);
+        const oldHash = extractHash(oldContent);
+        const oldRequestID = extractRelayRequestID(oldContent);
 
-      if (hash === oldHash && oldRequestID != null) {
-        id = oldRequestID;
+        if (hash === oldHash && oldRequestID != null) {
+          id = oldRequestID;
+        }
       }
-    }
-    if (id == null) {
-      id = await persistQuery(text);
+      if (id == null) {
+        id = await persistQuery(text);
+      }
+
+      generatedNode = {
+        ...generatedNode,
+        params: {
+          id,
+          metadata: generatedNode.params.metadata,
+          name: generatedNode.params.name,
+          operationKind: generatedNode.params.operationKind,
+          text: null,
+        },
+      };
     }
 
-    generatedNode = {
-      ...generatedNode,
-      params: {
-        id,
-        metadata: generatedNode.params.metadata,
-        name: generatedNode.params.name,
-        operationKind: generatedNode.params.operationKind,
-        text: null,
-      },
-    };
-  }
-
-  const moduleText = formatModule({
-    moduleName,
-    documentType: typeName,
-    definition,
-    kind: generatedNode.kind,
-    docText,
-    typeText,
-    hash: hash != null ? `@relayHash ${hash}` : null,
-    concreteText: CodeMarker.postProcess(
-      dedupeJSONStringify(generatedNode),
-      printModuleDependency,
-    ),
-    sourceHash,
-    node: generatedNode,
-    schema,
-  });
-  codegenDir.writeFile(filename, moduleText, shouldRepersist);
-  if (
-    writeQueryParameters &&
-    queryParametersFilename != null &&
-    generatedNode.kind === RelayConcreteNode.REQUEST &&
-    generatedNode.params.operationKind === 'query'
-  ) {
-    writeQueryParameters(
-      codegenDir,
-      queryParametersFilename,
+    const moduleText = formatModule({
       moduleName,
-      generatedNode.params,
-    );
-  }
-  return generatedNode;
+      documentType: typeName,
+      definition,
+      kind: generatedNode.kind,
+      docText,
+      typeText,
+      hash: hash != null ? `@relayHash ${hash}` : null,
+      concreteText: CodeMarker.postProcess(
+        dedupeJSONStringify(generatedNode),
+        printModuleDependency,
+      ),
+      sourceHash,
+      node: generatedNode,
+      schema,
+    });
+    codegenDir.writeFile(filename, moduleText, shouldRepersist);
+    if (
+      writeQueryParameters &&
+      queryParametersFilename != null &&
+      generatedNode.kind === RelayConcreteNode.REQUEST &&
+      generatedNode.params.operationKind === 'query'
+    ) {
+      writeQueryParameters(
+        codegenDir,
+        queryParametersFilename,
+        moduleName,
+        generatedNode.params,
+      );
+    }
+    return generatedNode;
+  });
 }
 
 function extractHash(text: ?string): ?string {

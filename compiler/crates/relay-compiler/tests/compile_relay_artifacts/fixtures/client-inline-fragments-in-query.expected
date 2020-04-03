@@ -170,6 +170,7 @@ fragment Foo_user on User {
   id
 }
 
+
 {
   "argumentDefinitions": [],
   "kind": "Fragment",

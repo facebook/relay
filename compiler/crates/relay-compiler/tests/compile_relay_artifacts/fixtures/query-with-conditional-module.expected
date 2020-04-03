@@ -226,6 +226,7 @@ fragment NameRendererFragment on User {
   }
 }
 
+
 {
   "argumentDefinitions": [],
   "kind": "Fragment",

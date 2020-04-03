@@ -66,6 +66,7 @@ fragment UserFragment on User {
 
 
 
+
 query AnotherQuery(
   $id: ID
 ) {

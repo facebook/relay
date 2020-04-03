@@ -19,7 +19,7 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-(function () {
+(function(){
 var v0 = [
   {
     "defaultValue": null,

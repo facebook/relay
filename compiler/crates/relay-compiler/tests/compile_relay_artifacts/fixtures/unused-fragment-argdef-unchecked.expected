@@ -191,6 +191,7 @@ fragment ProfilePhotoWrapper_18PEfK on User {
   ...ProfilePhoto
 }
 
+
 {
   "argumentDefinitions": [
     {

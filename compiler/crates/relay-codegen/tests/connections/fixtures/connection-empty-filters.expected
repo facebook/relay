@@ -17,7 +17,7 @@ query NodeQuery($id: ID!, $orderBy: String) {
   }
 }
 ==================================== OUTPUT ===================================
-(function () {
+(function(){
 var v0 = [
   {
     "defaultValue": null,

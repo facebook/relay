@@ -166,6 +166,7 @@ query FooQuery(
   }
 }
 
+
 {
   "fragment": {
     "argumentDefinitions": [
@@ -288,6 +289,7 @@ mutation FooMutation(
     clientMutationId
   }
 }
+
 
 {
   "fragment": {

@@ -25,7 +25,7 @@ query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
   }
 }
 ==================================== OUTPUT ===================================
-(function () {
+(function(){
 var v0 = [
   {
     "defaultValue": null,

@@ -259,6 +259,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   }
 }
 
+
 {
   "argumentDefinitions": [],
   "kind": "Fragment",

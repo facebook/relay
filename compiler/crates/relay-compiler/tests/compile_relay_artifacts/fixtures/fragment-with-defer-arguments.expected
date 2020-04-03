@@ -151,6 +151,7 @@ fragment UserFragment on User {
   ...DeferredFragment_QMvSr @defer(label: "DeferredFragmentLabel")
 }
 
+
 {
   "argumentDefinitions": [
     {

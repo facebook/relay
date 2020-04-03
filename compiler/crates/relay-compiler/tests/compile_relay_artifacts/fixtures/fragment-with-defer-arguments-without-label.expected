@@ -159,6 +159,7 @@ fragment UserFragment on User {
   ...DeferredFragment_1HMuo6 @defer
 }
 
+
 {
   "argumentDefinitions": [
     {

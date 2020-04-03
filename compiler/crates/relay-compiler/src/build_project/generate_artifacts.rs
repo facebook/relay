@@ -57,7 +57,7 @@ async fn generate_normalization_artifact(
     project_config: &ProjectConfig,
     programs: &Programs<'_>,
     node: &OperationDefinition,
-    hash: &str,
+    source_hash: &str,
 ) -> Result<Artifact, BuildProjectError> {
     let name = node.name.item;
     let print_operation_node = programs
@@ -66,7 +66,9 @@ async fn generate_normalization_artifact(
         .expect("a query text operation should be generated for this operation");
     let text = print_full_operation(&programs.operation_text, print_operation_node);
     let mut request_parameters = build_request_params(&node);
+    let mut operation_hash = None;
     if let Some(ref persist_config) = project_config.persist {
+        operation_hash = Some(md5(&text));
         let id = persist(&text, &persist_config.url, &persist_config.params)
             .await
             .map_err(BuildProjectError::PersistError)?;
@@ -88,7 +90,9 @@ async fn generate_normalization_artifact(
     };
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @relayHash TODO").unwrap();
+    if let Some(operation_hash) = operation_hash {
+        writeln!(content, " * @relayHash {}", operation_hash).unwrap();
+    }
     writeln!(content, " * @flow").unwrap();
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
@@ -98,14 +102,11 @@ async fn generate_normalization_artifact(
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
-    writeln!(
-        content,
-        "// @relayRequestParams {}\n",
-        serde_json::to_string(&request_parameters).unwrap()
-    )
-    .unwrap();
+    if let Some(id) = &request_parameters.id {
+        writeln!(content, "// @relayRequestID {}\n", id).unwrap();
+    }
     writeln!(content, "/*::\nTODO flow\n*/\n").unwrap();
-    writeln!(content, "/*\n{}\n*/\n", text).unwrap();
+    writeln!(content, "/*\n{}*/\n", text).unwrap();
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",
@@ -118,14 +119,14 @@ async fn generate_normalization_artifact(
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", hash).unwrap();
+    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
     writeln!(content, "}}\n").unwrap();
     writeln!(content, "module.exports = node;").unwrap();
 
     Ok(Artifact {
         name: node.name.item,
         content: sign_file(&content),
-        hash: hash.to_string(),
+        hash: source_hash.to_string(),
     })
 }
 

@@ -273,6 +273,7 @@ fragment NodeFragment on Node {
 
 fragment OnlyClientFields on User
 
+
 {
   "argumentDefinitions": [],
   "kind": "Fragment",

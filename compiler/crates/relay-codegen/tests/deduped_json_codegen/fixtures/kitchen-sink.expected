@@ -135,7 +135,7 @@ Operation:
 
 
 Fragment:
-(function () {
+(function(){
 var v0 = [
   {
     "alias": null,

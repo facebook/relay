@@ -275,6 +275,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   }
 }
 
+
 {
   "fragment": {
     "argumentDefinitions": [
@@ -457,6 +458,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     id
   }
 }
+
 
 {
   "argumentDefinitions": [],

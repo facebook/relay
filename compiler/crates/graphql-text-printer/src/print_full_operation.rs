@@ -43,6 +43,7 @@ impl<'s> OperationPrinter<'s> {
             result.push_str("\n\n");
             result.push_str(self.print_fragment(&fragment));
         }
+        result.push('\n');
         result
     }
 

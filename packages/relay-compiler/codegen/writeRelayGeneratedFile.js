@@ -13,8 +13,6 @@
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
-const Profiler = require('../core/GraphQLCompilerProfiler');
-const Rollout = require('../util/Rollout');
 
 const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
 const crypto = require('crypto');
@@ -102,69 +100,23 @@ async function writeRelayGeneratedFile(
       'writeRelayGeneratedFile: Expected `text` in order to persist query',
     );
 
+    const hasher = crypto.createHash('md5');
+    hasher.update(text);
+    hash = hasher.digest('hex');
+
     let id = null;
-    if (Rollout.check('hash-only-text', generatedNode.params.name)) {
-      const hasher = crypto.createHash('md5');
-      hasher.update(text);
-      hash = hasher.digest('hex');
+    if (!shouldRepersist) {
+      // Unless we `shouldRepersist` the query, check if the @relayHash matches
+      // the operation text of the current text and re-use the persisted
+      // operation id.
+      const oldContent = codegenDir.read(filename);
+      const oldHash = extractHash(oldContent);
+      const oldRequestID = extractRelayRequestID(oldContent);
 
-      if (!shouldRepersist) {
-        const oldContent = codegenDir.read(filename);
-        const oldHash = extractHash(oldContent);
-        const oldRequestID = extractRelayRequestID(oldContent);
-
-        if (hash === oldHash && oldRequestID != null) {
-          id = oldRequestID;
-        }
-      }
-    } else {
-      let oldContent;
-      const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
-        oldContent = codegenDir.read(filename);
-        // Hash the concrete node including the query text.
-        const hasher = crypto.createHash('md5');
-        hasher.update('cache-breaker-9');
-        hasher.update(JSON.stringify(generatedNode));
-        hasher.update(sourceHash);
-        if (typeText) {
-          hasher.update(typeText);
-        }
-        if (persistQuery) {
-          hasher.update('persisted');
-        }
-        hash = hasher.digest('hex');
-        return extractHash(oldContent);
-      });
-      const oldRequestParameters = extractRelayRequestParams(oldContent);
-
-      if (!shouldRepersist && hash === oldHash) {
-        codegenDir.markUnchanged(filename);
-        if (
-          writeQueryParameters &&
-          oldRequestParameters &&
-          queryParametersFilename != null &&
-          generatedNode.params.operationKind === 'query'
-        ) {
-          writeQueryParameters(
-            codegenDir,
-            queryParametersFilename,
-            moduleName,
-            oldRequestParameters,
-          );
-        }
-        return oldRequestParameters
-          ? {
-              ...generatedNode,
-              params: oldRequestParameters,
-            }
-          : null;
-      }
-      if (codegenDir.onlyValidate) {
-        codegenDir.markUpdated(filename);
-        return null;
+      if (hash === oldHash && oldRequestID != null) {
+        id = oldRequestID;
       }
     }
-
     if (id == null) {
       id = await persistQuery(text);
     }
@@ -236,22 +188,6 @@ function extractRelayRequestID(text: ?string): ?string {
   }
   const match = text.match(/@relayRequestID (.+)/);
   return match ? match[1] : null;
-}
-
-function extractRelayRequestParams(text: ?string): ?RequestParameters {
-  if (text == null || text.length === 0) {
-    return null;
-  }
-  if (/<<<<<|>>>>>/.test(text)) {
-    // looks like a merge conflict
-    return null;
-  }
-  const match = text.match(/@relayRequestParams (.+)/);
-  let requestParams;
-  try {
-    requestParams = JSON.parse(match?.[1] ?? '');
-  } catch {}
-  return requestParams;
 }
 
 module.exports = writeRelayGeneratedFile;

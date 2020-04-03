@@ -14,9 +14,10 @@
 'use strict';
 
 const React = require('react');
+const Scheduler = require('scheduler');
 
 import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useMemo, useState} = React;
+const {useMemo, useState, useEffect, useTransition} = React;
 const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
@@ -54,7 +55,6 @@ describe('useRefetchableFragmentNode', () => {
   let createMockEnvironment;
   let generateAndCompile;
   let renderFragment;
-  let forceUpdate;
   let renderSpy;
   let refetch;
   let Renderer;
@@ -262,7 +262,6 @@ describe('useRefetchableFragmentNode', () => {
         : artificialUserRef;
 
       setOwner = _setOwner;
-      forceUpdate = () => _setCount(count => count + 1);
 
       const {fragmentData: userData} = useRefetchableFragmentNode(
         fragment,
@@ -284,6 +283,14 @@ describe('useRefetchableFragmentNode', () => {
       );
     };
 
+    const Fallback = () => {
+      useEffect(() => {
+        Scheduler.unstable_yieldValue('Fallback');
+      });
+
+      return 'Fallback';
+    };
+
     renderFragment = (args?: {
       isConcurrent?: boolean,
       owner?: $FlowFixMe,
@@ -292,23 +299,19 @@ describe('useRefetchableFragmentNode', () => {
       ...
     }): $FlowFixMe => {
       const {isConcurrent = false, ...props} = args ?? {};
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
-            <React.Suspense fallback="Fallback">
-              {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-               * type of React$Node */}
-              <ContextProvider>
-                <Container owner={query} {...props} />
-              </ContextProvider>
-            </React.Suspense>
-          </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
-          {unstable_isConcurrent: isConcurrent},
-        );
-      });
-      return renderer;
+      return TestRenderer.create(
+        <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
+          <React.Suspense fallback={<Fallback />}>
+            {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
+             * type of React$Node */}
+            <ContextProvider>
+              <Container owner={query} {...props} />
+            </ContextProvider>
+          </React.Suspense>
+        </ErrorBoundary>,
+        // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+        {unstable_isConcurrent: isConcurrent},
+      );
     };
   });
 
@@ -831,83 +834,6 @@ describe('useRefetchableFragmentNode', () => {
       expect(release).not.toBeCalled();
       expect(environment.retain).toBeCalledTimes(1);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
-    });
-
-    it('refetches correctly when refetching multiple times', () => {
-      const renderer = renderFragment();
-      const initialUser = {
-        id: '1',
-        name: 'Alice',
-        profile_picture: null,
-        ...createFragmentRef('1', query),
-      };
-      expectFragmentResults([{data: initialUser}]);
-
-      const refetchVariables = {
-        id: '1',
-        scale: 32,
-      };
-      refetchQuery = createOperationDescriptor(
-        gqlRefetchQuery,
-        refetchVariables,
-      );
-      const refetchedUser = {
-        id: '1',
-        name: 'Alice',
-        profile_picture: {
-          uri: 'scale32',
-        },
-        ...createFragmentRef('1', refetchQuery),
-      };
-
-      const doAndAssertRefetch = fragmentResults => {
-        renderSpy.mockClear();
-        environment.execute.mockClear();
-        environment.retain.mockClear();
-        release.mockClear();
-
-        TestRenderer.act(() => {
-          // We use fetchPolicy network-only to ensure the call to refetch
-          // always suspends
-          refetch({scale: 32}, {fetchPolicy: 'network-only'});
-        });
-
-        // Assert that fragment is refetching with the right variables and
-        // suspends upon refetch
-        expectFragmentIsRefetching(renderer, {
-          refetchVariables,
-          refetchQuery,
-        });
-
-        // Mock network response
-        environment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            node: {
-              __typename: 'User',
-              id: '1',
-              name: 'Alice',
-              profile_picture: {
-                uri: 'scale32',
-              },
-              username: 'useralice',
-            },
-          },
-        });
-
-        // Assert fragment is rendered with new data
-        expectFragmentResults(fragmentResults);
-
-        // Assert refetch query was retained
-        expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
-      };
-
-      // Refetch once
-      doAndAssertRefetch([{data: refetchedUser}, {data: refetchedUser}]);
-
-      // Refetch twice
-      doAndAssertRefetch([{data: refetchedUser}]);
     });
 
     it('refetches new variables correctly when using @arguments', () => {
@@ -1506,6 +1432,246 @@ describe('useRefetchableFragmentNode', () => {
         // $FlowFixMe
         warning.mock.calls.filter(call => call[0] === false).length,
       ).toEqual(0);
+    });
+
+    describe('multiple refetches', () => {
+      it('refetches correctly when refetching multiple times in a row', () => {
+        const renderer = renderFragment();
+        const initialUser = {
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', query),
+        };
+        expectFragmentResults([{data: initialUser}]);
+
+        const refetchVariables = {
+          id: '1',
+          scale: 32,
+        };
+        refetchQuery = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables,
+        );
+        const refetchedUser = {
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: 'scale32',
+          },
+          ...createFragmentRef('1', refetchQuery),
+        };
+
+        const doAndAssertRefetch = fragmentResults => {
+          renderSpy.mockClear();
+          environment.execute.mockClear();
+          environment.retain.mockClear();
+
+          TestRenderer.act(() => {
+            // We use fetchPolicy network-only to ensure the call to refetch
+            // always suspends
+            refetch({scale: 32}, {fetchPolicy: 'network-only'});
+          });
+
+          // Assert that fragment is refetching with the right variables and
+          // suspends upon refetch
+          expectFragmentIsRefetching(renderer, {
+            refetchVariables,
+            refetchQuery,
+          });
+
+          // Mock network response
+          environment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice',
+                profile_picture: {
+                  uri: 'scale32',
+                },
+                username: 'useralice',
+              },
+            },
+          });
+
+          // Assert fragment is rendered with new data
+          expectFragmentResults(fragmentResults);
+
+          // Assert refetch query was retained
+          expect(environment.retain).toBeCalledTimes(1);
+          expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        };
+
+        // Refetch once
+        doAndAssertRefetch([{data: refetchedUser}, {data: refetchedUser}]);
+
+        // Refetch twice
+        doAndAssertRefetch([{data: refetchedUser}]);
+        expect(release).toBeCalledTimes(1);
+      });
+
+      it('refetches correctly when a second refetch starts while the first is one suspended', () => {
+        const renderer = renderFragment();
+        renderSpy.mockClear();
+        TestRenderer.act(() => {
+          refetch(
+            {id: '1'},
+            {fetchPolicy: 'network-only', UNSTABLE_renderPolicy: renderPolicy},
+          );
+        });
+
+        // Assert request is started
+        const refetchVariables1 = {id: '1', scale: 16};
+        const refetchQuery1 = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables1,
+        );
+
+        // Assert we suspend on intial refetch request
+        expectFragmentIsRefetching(renderer, {
+          refetchQuery: refetchQuery1,
+          refetchVariables: refetchVariables1,
+        });
+
+        // Call refetch a second time
+        environment.execute.mockClear();
+        environment.retain.mockClear();
+        const refetchVariables2 = {id: '4', scale: 16};
+        const refetchQuery2 = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables2,
+        );
+        TestRenderer.act(() => {
+          refetch(
+            {id: '4'},
+            {fetchPolicy: 'network-only', UNSTABLE_renderPolicy: renderPolicy},
+          );
+        });
+
+        // Assert we suspend on the second refetch request
+        expectFragmentIsRefetching(renderer, {
+          refetchQuery: refetchQuery2,
+          refetchVariables: refetchVariables2,
+        });
+
+        // Mock response for initial refetch request
+        TestRenderer.act(() => {
+          environment.mock.resolve(refetchQuery1, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'User 1',
+                profile_picture: {
+                  uri: 'scale16',
+                },
+                username: 'user1',
+              },
+            },
+          });
+        });
+
+        // Assert that we are still suspended the second refetch request
+        // since that one hasn't resolved and that's the latest one we want
+        // to render
+        expectFragmentIsRefetching(renderer, {
+          refetchQuery: refetchQuery2,
+          refetchVariables: refetchVariables2,
+        });
+
+        // Mock response for second refetch request
+        TestRenderer.act(() => {
+          environment.mock.resolve(refetchQuery2, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '4',
+                name: 'Mark',
+                profile_picture: {
+                  uri: 'scale16',
+                },
+                username: 'usermark',
+              },
+            },
+          });
+        });
+
+        // Assert component is rendered with data from second request
+        const refetchedUser = {
+          id: '4',
+          name: 'Mark',
+          profile_picture: {uri: 'scale16'},
+          ...createFragmentRef('4', refetchQuery2),
+        };
+        expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      });
+
+      it('does not dispose ongoing request if refetch is called again', () => {
+        const renderer = renderFragment();
+        renderSpy.mockClear();
+        TestRenderer.act(() => {
+          refetch(
+            {id: '1'},
+            {
+              fetchPolicy: 'store-and-network',
+              UNSTABLE_renderPolicy: renderPolicy,
+            },
+          );
+        });
+
+        // Assert request is started
+        const refetchVariables1 = {id: '1', scale: 16};
+        const refetchQuery1 = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables1,
+        );
+        expectRequestIsInFlight({
+          inFlight: true,
+          requestCount: 1,
+          gqlRefetchQuery,
+          refetchVariables: refetchVariables1,
+        });
+
+        // Component renders immediately even though request is in flight
+        // since data is cached
+        const refetchingUser = {
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', refetchQuery1),
+        };
+        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
+
+        // Call refetch a second time
+        environment.execute.mockClear();
+        const refetchVariables2 = {id: '4', scale: 16};
+        TestRenderer.act(() => {
+          refetch(
+            {id: '4'},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+          );
+        });
+
+        // Assert first request is not canceled
+        expectRequestIsInFlight({
+          inFlight: true,
+          requestCount: 1,
+          gqlRefetchQuery,
+          refetchVariables: refetchVariables1,
+        });
+
+        // Assert second request is started
+        expectRequestIsInFlight({
+          inFlight: true,
+          requestCount: 1,
+          gqlRefetchQuery,
+          refetchVariables: refetchVariables2,
+        });
+        // Assert component suspended
+        expect(renderSpy).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual('Fallback');
+      });
     });
 
     describe('fetchPolicy', () => {
@@ -2529,70 +2695,6 @@ describe('useRefetchableFragmentNode', () => {
           {data: expectedUser},
           {data: expectedUser},
         ]);
-      });
-
-      it('disposes ongoing request if refetch is called again', () => {
-        const renderer = renderFragment();
-        renderSpy.mockClear();
-        TestRenderer.act(() => {
-          refetch(
-            {id: '1'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
-          );
-        });
-
-        // Assert request is started
-        const refetchVariables1 = {id: '1', scale: 16};
-        const refetchQuery1 = createOperationDescriptor(
-          gqlRefetchQuery,
-          refetchVariables1,
-        );
-        expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables: refetchVariables1,
-        });
-
-        // Component renders immediately even though request is in flight
-        // since data is cached
-        const refetchingUser = {
-          id: '1',
-          name: 'Alice',
-          profile_picture: null,
-          ...createFragmentRef('1', refetchQuery1),
-        };
-        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
-
-        // Call refetch a second time
-        environment.execute.mockClear();
-        const refetchVariables2 = {id: '4', scale: 16};
-        TestRenderer.act(() => {
-          refetch(
-            {id: '4'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
-          );
-        });
-
-        // Assert first request was canceled
-        expect(unsubscribe).toBeCalledTimes(1);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables: refetchVariables1,
-        });
-
-        // Assert second request is started
-        expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables: refetchVariables2,
-        });
-        // Assert component suspended
-        expect(renderSpy).toBeCalledTimes(0);
-        expect(renderer.toJSON()).toEqual('Fallback');
       });
 
       it('disposes of ongoing request on unmount when refetch suspends', () => {

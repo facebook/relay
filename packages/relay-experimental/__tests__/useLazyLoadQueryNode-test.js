@@ -326,7 +326,7 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
-  it('fetches and renders correctly if the same query was unsubscribed before', () => {
+  it('fetches and renders correctly when switching between queries', () => {
     // Render the component
     const initialQuery = createOperationDescriptor(gqlQuery, {
       id: 'first-render',
@@ -358,7 +358,7 @@ describe('useLazyLoadQueryNode', () => {
     environment.retain.mockClear();
     environment.execute.mockClear();
 
-    // Switch to the second query to cancel the first query
+    // Switch to the second query
     const nextVariables = {id: '2'};
     const nextQuery = createOperationDescriptor(gqlQuery, nextVariables);
     ReactTestRenderer.act(() => {
@@ -373,15 +373,15 @@ describe('useLazyLoadQueryNode', () => {
     environment.retain.mockClear();
     environment.execute.mockClear();
 
-    // Switch back to the first query and it should request again
+    // Switch back to the first query, it shouldn't request again
     ReactTestRenderer.act(() => {
       setProps({variables});
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToHaveFetched(environment, query);
+    expect(environment.execute).toBeCalledTimes(0);
     expect(renderFn).not.toBeCalled();
-    expect(environment.retain).toHaveBeenCalledTimes(1);
+    expect(environment.retain).toHaveBeenCalledTimes(0);
 
     const payload = {
       data: {
@@ -603,7 +603,7 @@ describe('useLazyLoadQueryNode', () => {
       ]);
     });
 
-    test('log when unsubscribed and send again', () => {
+    test('log when switching queries', () => {
       const initialVariables = {id: 'first-render'};
       const variablesOne = {id: '1'};
       const variablesTwo = {id: '2'};
@@ -630,17 +630,18 @@ describe('useLazyLoadQueryNode', () => {
         setProps({variables: variablesOne});
       });
 
-      // Switch to the second query to cancel the first query
+      // Switch to the second query
       ReactTestRenderer.act(() => {
         setProps({variables: variablesTwo});
       });
 
-      // Switch back to the first query and it should request again
+      // Switch back to the first query and it should not request again
       ReactTestRenderer.act(() => {
         setProps({variables: variablesOne});
       });
 
       ReactTestRenderer.act(() => {
+        const queryOne = createOperationDescriptor(gqlQuery, variablesOne);
         const payload = {
           data: {
             node: {
@@ -650,7 +651,7 @@ describe('useLazyLoadQueryNode', () => {
             },
           },
         };
-        environment.mock.resolve(gqlQuery, payload);
+        environment.mock.resolve(queryOne, payload);
         jest.runAllImmediates();
       });
 
@@ -692,11 +693,6 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
-          // request for variables one is cancelled
-          name: 'execute.unsubscribe',
-          transactionID: 100000,
-        },
-        {
           // request for variables two starts
           name: 'execute.start',
           transactionID: 100001,
@@ -714,39 +710,20 @@ describe('useLazyLoadQueryNode', () => {
             },
           },
         },
-        {
-          // request for variables two cancelled
-          name: 'execute.unsubscribe',
-          transactionID: 100001,
-        },
-        {
-          // request is send for variables one again
-          name: 'execute.start',
-          transactionID: 100002,
-        },
-        {
-          // fetch event for variables one
-          name: 'queryresource.fetch',
-          resourceID: 200003,
-          profilerContext: expect.objectContaining({}),
-          shouldFetch: true,
-          operation: {
-            request: {
-              variables: variablesOne,
-            },
-          },
-        },
+        // fetch event for variables one is skipped
+        // since it's already cached and reused
         {
           name: 'execute.next',
-          transactionID: 100002,
+          transactionID: 100000,
         },
         {
           name: 'execute.complete',
-          transactionID: 100002,
+          transactionID: 100000,
         },
+        // retain event for variables one
         {
           name: 'queryresource.retain',
-          resourceID: 200003,
+          resourceID: 200001,
           profilerContext: expect.objectContaining({}),
         },
       ]);

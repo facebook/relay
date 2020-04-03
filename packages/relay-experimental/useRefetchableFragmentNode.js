@@ -327,7 +327,12 @@ function useRefetchableFragmentNode<
     // refetchedQueryResult is captured by including refetchQuery, which is
     // already capturing if the query or variables changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [QueryResource, fragmentIdentifier, refetchQuery]);
+  }, [
+    QueryResource,
+    fragmentIdentifier,
+    refetchQuery,
+    refetchGenerationRef.current,
+  ]);
 
   const refetch = useRefetchFunction<TQuery>(
     fragmentNode,

@@ -14,10 +14,8 @@
 'use strict';
 
 const ProfilerContext = require('./ProfilerContext');
-// flowlint untyped-import:off
+// flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
 
 const getRefetchMetadata = require('./getRefetchMetadata');
 const getValueAtPath = require('./getValueAtPath');

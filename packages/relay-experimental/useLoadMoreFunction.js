@@ -13,10 +13,8 @@
 
 'use strict';
 
-// flowlint untyped-import:off
+// flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
 
 const getPaginationVariables = require('./getPaginationVariables');
 const getValueAtPath = require('./getValueAtPath');

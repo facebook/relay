@@ -73,6 +73,20 @@ pub fn write_operation(
     printer.print_operation(operation)
 }
 
+/// This is a temporary function that replicates the formatting choices of the
+/// graphql-js printer in order to obtain output parity with the JS compiler.
+/// When the JS compiler consistency is no longer needed, this can just be
+/// replaced by write_operation.
+pub fn write_operation_with_graphqljs_formatting(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    mut result: &mut impl Write,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.graphqljs_formatting = true;
+    printer.print_operation(operation)
+}
+
 pub fn write_fragment(
     schema: &Schema,
     fragment: &FragmentDefinition,
@@ -103,11 +117,16 @@ pub fn write_directives(
 struct Printer<'schema, 'writer, W: Write> {
     schema: &'schema Schema,
     writer: &'writer mut W,
+    graphqljs_formatting: bool,
 }
 
 impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn new(schema: &'schema Schema, writer: &'writer mut W) -> Self {
-        Self { schema, writer }
+        Self {
+            schema,
+            writer,
+            graphqljs_formatting: false,
+        }
     }
 
     fn print_definition(self, definition: &ExecutableDefinition) -> Result {
@@ -308,20 +327,31 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         variable_definitions: &[VariableDefinition],
     ) -> Result {
         let len = variable_definitions.len();
+        let mut first = true;
         if len > 0 {
-            writeln!(self.writer, "(")?;
+            write!(self.writer, "(")?;
             for var_def in variable_definitions.iter() {
+                if !self.graphqljs_formatting {
+                    writeln!(self.writer)?;
+                    self.print_indentation(TAB_SIZE)?;
+                } else if first {
+                    first = false;
+                } else {
+                    write!(self.writer, ", ")?;
+                }
                 let type_name = self.schema.get_type_string(&var_def.type_);
-                self.print_indentation(TAB_SIZE)?;
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
                 if let Some(default_value) = &var_def.default_value {
                     write!(self.writer, " = ")?;
                     self.print_constant_value(&default_value)?;
                 }
-                writeln!(self.writer)?;
             }
-            write!(self.writer, ")")?;
+            if self.graphqljs_formatting {
+                write!(self.writer, ")")?;
+            } else {
+                write!(self.writer, "\n)")?;
+            }
         }
         Ok(())
     }

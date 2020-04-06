@@ -52,7 +52,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
 
     // TODO pass base fragment names
-    let programs = apply_transforms(&program, &Default::default(), &connection_interface)
+    let programs = apply_transforms(program, &Default::default(), &connection_interface)
         .map_err(validation_errors_to_string)?;
 
     let result = programs

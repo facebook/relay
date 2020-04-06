@@ -8,8 +8,10 @@
 use super::apply_transforms::Programs;
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use graphql_ir::{FragmentDefinition, OperationDefinition, Sources};
-use graphql_text_printer::print_full_operation;
+use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_text_printer::{
+    print_fragment, print_full_operation, write_operation_with_graphqljs_formatting,
+};
 use interner::StringKey;
 use md5::{Digest, Md5};
 use persist_query::persist;
@@ -29,23 +31,31 @@ pub async fn generate_artifacts(
     config: &Config,
     project_config: &ProjectConfig,
     programs: &Programs<'_>,
-    sources: &Sources<'_>,
 ) -> Result<Vec<Artifact>, BuildProjectError> {
     let mut artifacts = Vec::new();
     for node in programs.normalization.operations() {
-        // TODO(T64697087): This is currently just `hash(source)`. In the JS
-        // version, we normalize first by computing `md5(print(parse(source)))`
-        // which normalizes whitespace and strips comments.
-        let hash = md5(sources[&node.name.location.file()]);
+        let source_node = programs.source.operation(node.name.item).unwrap();
+        // TODO: Consider using the std::io::Write trait here to directly
+        // write to the md5. Currently, this doesn't work as `write_operation`
+        // expects a `std::fmt::Write`.
+        // Same for fragment hashing below.
+        let mut source_string = String::new();
+        write_operation_with_graphqljs_formatting(
+            programs.source.schema(),
+            &source_node,
+            &mut source_string,
+        )
+        .unwrap();
+        let hash = md5(&source_string);
         artifacts.push(
             generate_normalization_artifact(config, project_config, programs, node, &hash).await?,
         );
     }
     for node in programs.reader.fragments() {
-        // TODO(T64697087): This is currently just `hash(source)`. In the JS
-        // version, we normalize first by computing `md5(print(parse(source)))`
-        // which normalizes whitespace and strips comments.
-        let hash = md5(sources[&node.name.location.file()]);
+        let source_node = programs.source.fragment(node.name.item).unwrap();
+        // Same as for operation hashing above.
+        let source_string = print_fragment(programs.source.schema(), &source_node);
+        let hash = md5(&source_string);
         artifacts.push(generate_reader_artifact(config, programs, node, &hash));
     }
 

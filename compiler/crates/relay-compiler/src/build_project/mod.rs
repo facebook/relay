@@ -74,7 +74,7 @@ pub async fn build_project(
     // Apply various chains of transforms to create a set of output programs.
     let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
         add_error_sources(
-            apply_transforms(&program, &base_fragment_names, &connection_interface),
+            apply_transforms(program, &base_fragment_names, &connection_interface),
             sources,
         )
     })?;
@@ -82,7 +82,7 @@ pub async fn build_project(
     // Generate code and persist text to produce output artifacts in memory.
     let artifacts_timer = Timer::start(format!("generate_artifacts {}", project_config.name));
     let artifacts =
-        generate_artifacts::generate_artifacts(config, project_config, &programs, sources).await?;
+        generate_artifacts::generate_artifacts(config, project_config, &programs).await?;
     artifacts_timer.stop();
 
     // Write the generated artifacts to disk. This step is separate from

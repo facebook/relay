@@ -15,13 +15,14 @@ use graphql_transforms::{
 use interner::StringKey;
 
 pub struct Programs<'schema> {
+    pub source: Program<'schema>,
     pub reader: Program<'schema>,
     pub normalization: Program<'schema>,
     pub operation_text: Program<'schema>,
 }
 
 pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
-    program: &Program<'schema>,
+    program: Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
     connection_interface: &TConnectionInterface,
 ) -> ValidationResult<Programs<'schema>> {
@@ -37,6 +38,7 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     let operation_text_program = apply_operation_text_transforms(&operation_program);
 
     Ok(Programs {
+        source: program,
         reader: reader_program,
         normalization: normalization_program,
         operation_text: operation_text_program,

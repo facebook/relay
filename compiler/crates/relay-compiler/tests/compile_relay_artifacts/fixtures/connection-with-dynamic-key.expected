@@ -646,7 +646,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
       "storageKey": null
     },
     {
-      "alias": null,
+      "alias": "comments",
       "args": [
         {
           "kind": "Variable",
@@ -666,7 +666,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
       ],
       "concreteType": "CommentsConnection",
       "kind": "LinkedField",
-      "name": "comments",
+      "name": "__FeedbackFragment_comments_connection",
       "plural": false,
       "selections": [
         {

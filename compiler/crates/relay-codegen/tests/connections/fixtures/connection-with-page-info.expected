@@ -57,7 +57,7 @@ return {
   "name": "Example",
   "selections": [
     {
-      "alias": null,
+      "alias": "friends",
       "args": [
         {
           "kind": "Variable",
@@ -72,7 +72,7 @@ return {
       ],
       "concreteType": "FriendsConnection",
       "kind": "LinkedField",
-      "name": "friends",
+      "name": "__Example_friends_connection",
       "plural": false,
       "selections": [
         {

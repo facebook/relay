@@ -46,7 +46,7 @@ fragment Example on User {
   "name": "Example",
   "selections": [
     {
-      "alias": null,
+      "alias": "friends",
       "args": [
         {
           "kind": "Variable",
@@ -61,7 +61,7 @@ fragment Example on User {
       ],
       "concreteType": "FriendsConnection",
       "kind": "LinkedField",
-      "name": "friends",
+      "name": "__Example_friends_connection",
       "plural": false,
       "selections": [
         {

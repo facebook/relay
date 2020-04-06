@@ -53,7 +53,7 @@ fragment RefetchableConnection_feedback on Feedback
       "storageKey": null
     },
     {
-      "alias": null,
+      "alias": "comments",
       "args": [
         {
           "kind": "Variable",
@@ -68,7 +68,7 @@ fragment RefetchableConnection_feedback on Feedback
       ],
       "concreteType": "CommentsConnection",
       "kind": "LinkedField",
-      "name": "comments",
+      "name": "__RefetchableConnection_comments_custom",
       "plural": false,
       "selections": [
         {

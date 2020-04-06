@@ -141,37 +141,28 @@ v6 = {
   "name": "hasNextPage",
   "storageKey": null
 },
-v7 = {
-  "alias": "forwardComments",
-  "args": (v3/*: any*/),
-  "concreteType": "CommentsConnection",
-  "kind": "LinkedField",
-  "name": "comments",
-  "plural": false,
-  "selections": [
-    (v4/*: any*/),
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "PageInfo",
-      "kind": "LinkedField",
-      "name": "pageInfo",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "InlineFragment",
-          "selections": [
-            (v5/*: any*/),
-            (v6/*: any*/)
-          ],
-          "type": "PageInfo"
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "storageKey": "comments(first:1)"
-},
+v7 = [
+  (v4/*: any*/),
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "PageInfo",
+    "kind": "LinkedField",
+    "name": "pageInfo",
+    "plural": false,
+    "selections": [
+      {
+        "kind": "InlineFragment",
+        "selections": [
+          (v5/*: any*/),
+          (v6/*: any*/)
+        ],
+        "type": "PageInfo"
+      }
+    ],
+    "storageKey": null
+  }
+],
 v8 = [
   {
     "kind": "Literal",
@@ -193,37 +184,28 @@ v10 = {
   "name": "startCursor",
   "storageKey": null
 },
-v11 = {
-  "alias": "backwardComments",
-  "args": (v8/*: any*/),
-  "concreteType": "CommentsConnection",
-  "kind": "LinkedField",
-  "name": "comments",
-  "plural": false,
-  "selections": [
-    (v4/*: any*/),
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "PageInfo",
-      "kind": "LinkedField",
-      "name": "pageInfo",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "InlineFragment",
-          "selections": [
-            (v9/*: any*/),
-            (v10/*: any*/)
-          ],
-          "type": "PageInfo"
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "storageKey": "comments(last:2)"
-},
+v11 = [
+  (v4/*: any*/),
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "PageInfo",
+    "kind": "LinkedField",
+    "name": "pageInfo",
+    "plural": false,
+    "selections": [
+      {
+        "kind": "InlineFragment",
+        "selections": [
+          (v9/*: any*/),
+          (v10/*: any*/)
+        ],
+        "type": "PageInfo"
+      }
+    ],
+    "storageKey": null
+  }
+],
 v12 = [
   {
     "kind": "Variable",
@@ -236,39 +218,30 @@ v12 = [
     "variableName": "last"
   }
 ],
-v13 = {
-  "alias": "mixedDirectionComments",
-  "args": (v12/*: any*/),
-  "concreteType": "CommentsConnection",
-  "kind": "LinkedField",
-  "name": "comments",
-  "plural": false,
-  "selections": [
-    (v4/*: any*/),
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "PageInfo",
-      "kind": "LinkedField",
-      "name": "pageInfo",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "InlineFragment",
-          "selections": [
-            (v5/*: any*/),
-            (v6/*: any*/),
-            (v9/*: any*/),
-            (v10/*: any*/)
-          ],
-          "type": "PageInfo"
-        }
-      ],
-      "storageKey": null
-    }
-  ],
-  "storageKey": null
-};
+v13 = [
+  (v4/*: any*/),
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "PageInfo",
+    "kind": "LinkedField",
+    "name": "pageInfo",
+    "plural": false,
+    "selections": [
+      {
+        "kind": "InlineFragment",
+        "selections": [
+          (v5/*: any*/),
+          (v6/*: any*/),
+          (v9/*: any*/),
+          (v10/*: any*/)
+        ],
+        "type": "PageInfo"
+      }
+    ],
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -318,9 +291,36 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v7/*: any*/),
-              (v11/*: any*/),
-              (v13/*: any*/)
+              {
+                "alias": "forwardComments",
+                "args": (v3/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_forwardComments_connection",
+                "plural": false,
+                "selections": (v7/*: any*/),
+                "storageKey": "__NodeQuery_forwardComments_connection(first:1)"
+              },
+              {
+                "alias": "backwardComments",
+                "args": (v8/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_backwardComments_connection",
+                "plural": false,
+                "selections": (v11/*: any*/),
+                "storageKey": "__NodeQuery_backwardComments_connection(last:2)"
+              },
+              {
+                "alias": "mixedDirectionComments",
+                "args": (v12/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_mixedDirectionComments_connection",
+                "plural": false,
+                "selections": (v13/*: any*/),
+                "storageKey": null
+              }
             ],
             "type": "Story"
           }
@@ -348,7 +348,16 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v7/*: any*/),
+              {
+                "alias": "forwardComments",
+                "args": (v3/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": (v7/*: any*/),
+                "storageKey": "comments(first:1)"
+              },
               {
                 "alias": "forwardComments",
                 "args": (v3/*: any*/),
@@ -358,7 +367,16 @@ return {
                 "kind": "LinkedHandle",
                 "name": "comments"
               },
-              (v11/*: any*/),
+              {
+                "alias": "backwardComments",
+                "args": (v8/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": (v11/*: any*/),
+                "storageKey": "comments(last:2)"
+              },
               {
                 "alias": "backwardComments",
                 "args": (v8/*: any*/),
@@ -368,7 +386,16 @@ return {
                 "kind": "LinkedHandle",
                 "name": "comments"
               },
-              (v13/*: any*/),
+              {
+                "alias": "mixedDirectionComments",
+                "args": (v12/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": (v13/*: any*/),
+                "storageKey": null
+              },
               {
                 "alias": "mixedDirectionComments",
                 "args": (v12/*: any*/),

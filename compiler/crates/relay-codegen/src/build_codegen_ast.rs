@@ -6,10 +6,11 @@
  */
 
 use crate::codegen_ast::*;
+use common::WithLocation;
 use graphql_ir::{
-    Argument, Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
-    InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection, Value,
-    VariableDefinition,
+    Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
+    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection,
+    Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
@@ -67,6 +68,7 @@ struct CodegenBuilder<'schema> {
     variant: CodegenVariant,
 }
 
+#[derive(PartialEq)]
 enum CodegenVariant {
     Reader,
     Normalization,
@@ -198,15 +200,14 @@ impl<'schema> CodegenBuilder<'schema> {
     }
 
     fn build_scalar_field(&self, field: &ScalarField) -> ConcreteSelection {
-        let field_name = self.schema.field(field.definition.item).name;
+        let schema_field = self.schema.field(field.definition.item);
+        let (name, alias) =
+            self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let storage_key = get_static_storage_key(field_name, &args);
+        let storage_key = get_static_storage_key(name, &args);
         ConcreteSelection::ScalarField(ConcreteScalarField {
-            alias: match field.alias {
-                Some(alias) => Some(alias.item),
-                None => None,
-            },
-            name: field_name,
+            alias,
+            name,
             args,
             storage_key,
         })
@@ -254,12 +255,13 @@ impl<'schema> CodegenBuilder<'schema> {
 
     fn build_linked_field(&self, field: &LinkedField) -> ConcreteSelection {
         let schema_field = self.schema.field(field.definition.item);
-        let field_name = schema_field.name;
+        let (name, alias) =
+            self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let storage_key = get_static_storage_key(field_name, &args);
+        let storage_key = get_static_storage_key(name, &args);
         ConcreteSelection::LinkedField(ConcreteLinkedField {
-            alias: field.alias.map(|alias| alias.item),
-            name: field_name,
+            alias,
+            name,
             args,
             selections: self.build_selections(&field.selections),
             concrete_type: if self.schema.is_abstract_type(schema_field.type_.inner()) {
@@ -305,6 +307,36 @@ impl<'schema> CodegenBuilder<'schema> {
                 },
             })
         })
+    }
+
+    fn build_field_name_and_alias(
+        &self,
+        mut name: StringKey,
+        alias: Option<WithLocation<StringKey>>,
+        directives: &[Directive],
+    ) -> (StringKey, Option<StringKey>) {
+        let mut alias = alias.map(|alias| alias.item);
+        if self.variant == CodegenVariant::Reader {
+            let mut handle_field_directives =
+                extract_handle_field_directives(directives, self.handle_field_constants);
+            if let Some(handle_field_directive) = handle_field_directives.next() {
+                if let Some(other_handle_field_directive) = handle_field_directives.next() {
+                    panic!(
+                        "Expected at most one handle directive, got `{:?}` and `{:?}`.",
+                        handle_field_directive, other_handle_field_directive
+                    );
+                }
+                let values = extract_values_from_handle_field_directive(
+                    &handle_field_directive,
+                    self.handle_field_constants,
+                    None,
+                    None,
+                );
+                alias = alias.or_else(|| Some(name));
+                name = format!("__{}_{}", values.key, values.handle).intern();
+            }
+        }
+        (name, alias)
     }
 
     fn build_fragment_spread(&self, frag_spread: &FragmentSpread) -> ConcreteFragmentSpread {

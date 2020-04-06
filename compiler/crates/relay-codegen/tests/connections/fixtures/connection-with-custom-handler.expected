@@ -112,58 +112,49 @@ v7 = {
   ],
   "storageKey": null
 },
-v8 = {
-  "alias": null,
-  "args": (v3/*: any*/),
-  "concreteType": "FriendsConnection",
-  "kind": "LinkedField",
-  "name": "friends",
-  "plural": false,
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "FriendsEdge",
-      "kind": "LinkedField",
-      "name": "edges",
-      "plural": true,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "concreteType": "User",
-          "kind": "LinkedField",
-          "name": "node",
-          "plural": false,
-          "selections": [
-            (v4/*: any*/)
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "InlineFragment",
-          "selections": [
-            (v5/*: any*/),
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "User",
-              "kind": "LinkedField",
-              "name": "node",
-              "plural": false,
-              "selections": (v6/*: any*/),
-              "storageKey": null
-            }
-          ],
-          "type": "FriendsEdge"
-        }
-      ],
-      "storageKey": null
-    },
-    (v7/*: any*/)
-  ],
-  "storageKey": "friends(first:10)"
-},
+v8 = [
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "FriendsEdge",
+    "kind": "LinkedField",
+    "name": "edges",
+    "plural": true,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v4/*: any*/)
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "InlineFragment",
+        "selections": [
+          (v5/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "node",
+            "plural": false,
+            "selections": (v6/*: any*/),
+            "storageKey": null
+          }
+        ],
+        "type": "FriendsEdge"
+      }
+    ],
+    "storageKey": null
+  },
+  (v7/*: any*/)
+],
 v9 = {
   "kind": "InlineFragment",
   "selections": [
@@ -219,11 +210,11 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "alias": "comments",
                 "args": (v3/*: any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
-                "name": "comments",
+                "name": "__NodeQuery_comments_my_comments_handler",
                 "plural": false,
                 "selections": [
                   {
@@ -251,7 +242,16 @@ return {
                             "plural": false,
                             "selections": [
                               (v4/*: any*/),
-                              (v8/*: any*/)
+                              {
+                                "alias": "friends",
+                                "args": (v3/*: any*/),
+                                "concreteType": "FriendsConnection",
+                                "kind": "LinkedField",
+                                "name": "__NodeQuery_friends_my_friends_handler",
+                                "plural": false,
+                                "selections": (v8/*: any*/),
+                                "storageKey": "__NodeQuery_friends_my_friends_handler(first:10)"
+                              }
                             ],
                             "storageKey": null
                           }
@@ -264,7 +264,7 @@ return {
                   },
                   (v7/*: any*/)
                 ],
-                "storageKey": "comments(first:10)"
+                "storageKey": "__NodeQuery_comments_my_comments_handler(first:10)"
               }
             ],
             "type": "Story"
@@ -326,7 +326,16 @@ return {
                             "plural": false,
                             "selections": [
                               (v4/*: any*/),
-                              (v8/*: any*/),
+                              {
+                                "alias": null,
+                                "args": (v3/*: any*/),
+                                "concreteType": "FriendsConnection",
+                                "kind": "LinkedField",
+                                "name": "friends",
+                                "plural": false,
+                                "selections": (v8/*: any*/),
+                                "storageKey": "friends(first:10)"
+                              },
                               {
                                 "alias": null,
                                 "args": (v3/*: any*/),

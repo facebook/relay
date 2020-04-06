@@ -70,7 +70,7 @@ query NodeQuery($id: ID!) {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "alias": "comments",
                 "args": [
                   {
                     "kind": "Literal",
@@ -80,7 +80,7 @@ query NodeQuery($id: ID!) {
                 ],
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
-                "name": "comments",
+                "name": "__NodeQuery_comments_connection",
                 "plural": false,
                 "selections": [
                   {
@@ -145,7 +145,7 @@ query NodeQuery($id: ID!) {
                     "storageKey": null
                   }
                 ],
-                "storageKey": "comments(first:10)"
+                "storageKey": "__NodeQuery_comments_connection(first:10)"
               }
             ],
             "type": "Story"

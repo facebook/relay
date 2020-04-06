@@ -67,7 +67,7 @@ fragment PaginationFragment on Node
           "storageKey": null
         },
         {
-          "alias": null,
+          "alias": "friends",
           "args": [
             {
               "kind": "Variable",
@@ -82,7 +82,7 @@ fragment PaginationFragment on Node
           ],
           "concreteType": "FriendsConnection",
           "kind": "LinkedField",
-          "name": "friends",
+          "name": "__PaginationFragment_friends_connection",
           "plural": false,
           "selections": [
             {

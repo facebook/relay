@@ -6,8 +6,10 @@
  */
 
 use crate::compiler_state::ProjectName;
+use crate::watchman::errors::Error as WatchmanError;
 use graphql_syntax::SyntaxErrorWithSource;
 use persist_query::PersistError;
+use serde_json::error::Error as SerdeError;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
@@ -44,7 +46,7 @@ pub enum Error {
     #[error("Watchman error: {source}")]
     WatchmanError {
         #[from]
-        source: crate::watchman::errors::Error,
+        source: WatchmanError,
     },
 
     #[error(
@@ -66,6 +68,18 @@ pub enum Error {
             .join("")
     )]
     BuildProjectsErrors { errors: Vec<BuildProjectError> },
+
+    #[error("Failed to read file `{file}`: {source}")]
+    ReadFileError { file: PathBuf, source: io::Error },
+
+    #[error("Failed to write file `{file}`: {source}")]
+    WriteFileError { file: PathBuf, source: io::Error },
+
+    #[error("Unable to serialize state to file: `{file}`, because of `{source}`.")]
+    SerializationError { file: PathBuf, source: SerdeError },
+
+    #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
+    DeserializationError { file: PathBuf, source: SerdeError },
 }
 
 #[derive(Debug, Error)]

@@ -8,8 +8,9 @@
 use crate::artifact_map::ArtifactMap;
 use crate::build_project::WrittenArtifacts;
 use crate::config::Config;
+use crate::errors::{Error, Result};
 use crate::watchman::{
-    categorize_files, errors::Error, errors::Result, extract_graphql_strings_from_file,
+    categorize_files, errors::Result as WatchmanResult, extract_graphql_strings_from_file,
     read_to_string, Clock, FileGroup, FileSourceResult,
 };
 use common::Timer;
@@ -204,7 +205,7 @@ impl CompilerState {
                                 Err(err) => Some(Err(err)),
                             }
                         })
-                        .collect::<Result<HashMap<PathBuf, FileState>>>()?;
+                        .collect::<WatchmanResult<HashMap<PathBuf, FileState>>>()?;
                     extract_timer.stop();
                     graphql_sources.set_pending_source_set(source_set_name, sources);
                 }
@@ -212,14 +213,14 @@ impl CompilerState {
                     let schema_sources = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<Result<Vec<String>>>()?;
+                        .collect::<WatchmanResult<Vec<String>>>()?;
                     schemas.insert(project_name, schema_sources);
                 }
                 FileGroup::Extension { project_name } => {
                     let extension_sources: Vec<String> = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<Result<Vec<String>>>()?;
+                        .collect::<WatchmanResult<Vec<String>>>()?;
                     extensions.insert(project_name, extension_sources);
                 }
                 FileGroup::Generated => {
@@ -313,16 +314,23 @@ impl CompilerState {
         self.commit_pending_file_source_changes();
     }
 
-    pub fn serialize_to_file(&self, path: &PathBuf) -> io::Result<()> {
+    pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
         let write_to_file_timer = Timer::start(format!("write state to {:?}", path));
-        serde_json::to_writer(File::create(path)?, self)?;
+        let writer = File::create(path).map_err(|err| Error::WriteFileError {
+            file: path.clone(),
+            source: err,
+        })?;
+        serde_json::to_writer(writer, self).map_err(|err| Error::SerializationError {
+            file: path.clone(),
+            source: err,
+        })?;
         write_to_file_timer.stop();
         Ok(())
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
         let restoring_timer = Timer::start(format!("restoring state from {:?}", path));
-        let file = File::open(path).map_err(|err| Error::FileRead {
+        let file = File::open(path).map_err(|err| Error::ReadFileError {
             file: path.clone(),
             source: err,
         })?;

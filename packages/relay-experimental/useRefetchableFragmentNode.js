@@ -35,7 +35,6 @@ const {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
 } = require('react');
 const {
   __internal: {fetchQuery},
@@ -135,6 +134,7 @@ type RefetchState = {|
   onComplete: ((Error | null) => void) | void,
   refetchEnvironment?: ?IEnvironment,
   refetchVariables: Variables | null,
+  refetchGeneration: number,
 |};
 
 type DebugIDandTypename = {
@@ -149,6 +149,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
       return {
         ...state,
         refetchVariables: action.refetchVariables,
+        refetchGeneration: state.refetchGeneration + 1,
         fetchPolicy: action.fetchPolicy,
         renderPolicy: action.renderPolicy,
         onComplete: action.onComplete,
@@ -162,6 +163,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
         renderPolicy: undefined,
         onComplete: undefined,
         refetchVariables: null,
+        refetchGeneration: 0,
         mirroredEnvironment: action.environment,
         mirroredFragmentIdentifier: action.fragmentIdentifier,
       };
@@ -196,14 +198,15 @@ function useRefetchableFragmentNode<
     renderPolicy: undefined,
     onComplete: undefined,
     refetchVariables: null,
+    refetchGeneration: 0,
     refetchEnvironment: null,
     mirroredEnvironment: parentEnvironment,
     mirroredFragmentIdentifier: fragmentIdentifier,
   });
   const {startFetch, disposeFetch, completeFetch} = useFetchTrackingRef();
-  const refetchGenerationRef = useRef(0);
   const {
     refetchVariables,
+    refetchGeneration,
     refetchEnvironment,
     fetchPolicy,
     renderPolicy,
@@ -255,7 +258,7 @@ function useRefetchableFragmentNode<
       refetchQuery,
       fetchPolicy,
       renderPolicy,
-      refetchGenerationRef.current ?? 0,
+      refetchGeneration,
       componentDisplayName,
       {
         start: startFetch,
@@ -325,12 +328,7 @@ function useRefetchableFragmentNode<
     // refetchedQueryResult is captured by including refetchQuery, which is
     // already capturing if the query or variables changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    QueryResource,
-    fragmentIdentifier,
-    refetchQuery,
-    refetchGenerationRef.current,
-  ]);
+  }, [QueryResource, fragmentIdentifier, refetchQuery, refetchGeneration]);
 
   const refetch = useRefetchFunction<TQuery>(
     fragmentNode,
@@ -338,7 +336,6 @@ function useRefetchableFragmentNode<
     fragmentIdentifier,
     fragmentRefPathInResponse,
     fragmentData,
-    refetchGenerationRef,
     dispatch,
     disposeFetch,
     componentDisplayName,
@@ -358,7 +355,6 @@ function useRefetchFunction<TQuery: OperationType>(
   fragmentIdentifier,
   fragmentRefPathInResponse,
   fragmentData,
-  refetchGenerationRef,
   dispatch,
   disposeFetch,
   componentDisplayName,
@@ -413,7 +409,6 @@ function useRefetchFunction<TQuery: OperationType>(
           componentDisplayName,
         );
       }
-      refetchGenerationRef.current = (refetchGenerationRef.current ?? 0) + 1;
 
       const environment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;

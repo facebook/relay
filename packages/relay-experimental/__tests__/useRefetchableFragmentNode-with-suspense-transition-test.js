@@ -439,6 +439,25 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       });
 
       describe('multiple refetches', () => {
+        let fetchSpy;
+        beforeEach(() => {
+          fetchSpy = jest.fn();
+          const internalRuntime = require('relay-runtime').__internal;
+          const originalFetchQuery = internalRuntime.fetchQuery;
+          jest
+            .spyOn(internalRuntime, 'fetchQuery')
+            .mockImplementation((...args) => {
+              const originalObservable = originalFetchQuery(...args);
+              return {
+                ...originalObservable,
+                subscribe: (...subscribeArgs) => {
+                  fetchSpy(...args);
+                  originalObservable.subscribe(...subscribeArgs);
+                },
+              };
+            });
+        });
+
         it('refetches correctly when a second refetch starts while the first is one suspended', () => {
           const renderer = renderFragment();
           const initialUser = {
@@ -473,7 +492,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
           // Call refetch a second time
           environment.execute.mockClear();
-          environment.retain.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
@@ -564,9 +582,11 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             ...createFragmentRef('4', refetchQuery2),
           };
           expectFragmentResults([{data: refetchedUser, isPending: false}]);
+
+          expect(fetchSpy).toBeCalledTimes(2);
         });
 
-        it('does not re-issue initial refetch request if high-pri update occurs after second refetch request', () => {
+        it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -600,7 +620,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
           // Call refetch a second time
           environment.execute.mockClear();
-          environment.retain.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
@@ -702,6 +721,166 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             ...createFragmentRef('4', refetchQuery2),
           };
           expectFragmentResults([{data: refetchedUser, isPending: false}]);
+
+          expect(fetchSpy).toBeCalledTimes(2);
+        });
+
+        it('refetches correctly when switching between multiple refetches', () => {
+          const renderer = renderFragment();
+          const initialUser = {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', query),
+          };
+          expectFragmentResults([{data: initialUser, isPending: false}]);
+
+          refetch(
+            {id: '2'},
+            {
+              fetchPolicy: 'network-only',
+              UNSTABLE_renderPolicy: renderPolicy,
+            },
+          );
+
+          // Assert request is started
+          const refetchVariables1 = {id: '2', scale: 16};
+          const refetchQuery1 = createOperationDescriptor(
+            gqlRefetchQuery,
+            refetchVariables1,
+          );
+
+          // Assert we suspend on intial refetch request
+          expectFragmentIsPendingOnRefetch(renderer, {
+            data: initialUser,
+            refetchQuery: refetchQuery1,
+            refetchVariables: refetchVariables1,
+          });
+
+          // Call refetch a second time
+          environment.execute.mockClear();
+          const refetchVariables2 = {id: '4', scale: 16};
+          const refetchQuery2 = createOperationDescriptor(
+            gqlRefetchQuery,
+            refetchVariables2,
+          );
+          refetch(
+            {id: '4'},
+            {
+              fetchPolicy: 'network-only',
+              UNSTABLE_renderPolicy: renderPolicy,
+            },
+          );
+
+          // Assert that no updates occur and both requests are in flight.
+          // We are now in a pending state for the second refetch, and no
+          // updates should occur.
+          expectNoYields();
+          expectRequestIsInFlight({
+            data: initialUser,
+            refetchQuery: refetchQuery1,
+            refetchVariables: refetchVariables1,
+            inFlight: true,
+            requestCount: 1,
+          });
+          expectRequestIsInFlight({
+            data: initialUser,
+            refetchQuery: refetchQuery2,
+            refetchVariables: refetchVariables2,
+            inFlight: true,
+            requestCount: 1,
+          });
+
+          // Switch back to initial refetch, assert network
+          // request doesn't fire again
+          environment.execute.mockClear();
+          refetch(
+            {id: '2'},
+            {
+              fetchPolicy: 'network-only',
+              UNSTABLE_renderPolicy: renderPolicy,
+            },
+          );
+
+          // Assert that no updates occur and both requests are in flight.
+          // We are now in a pending state for the second refetch, and no
+          // updates should occur.
+          expectNoYields();
+          expectRequestIsInFlight({
+            data: initialUser,
+            refetchQuery: refetchQuery1,
+            refetchVariables: refetchVariables1,
+            inFlight: true,
+            requestCount: 0,
+          });
+          expectRequestIsInFlight({
+            data: initialUser,
+            refetchQuery: refetchQuery2,
+            refetchVariables: refetchVariables2,
+            inFlight: true,
+            requestCount: 0,
+          });
+
+          // Mock response for second refetch request
+          environment.mock.resolve(refetchQuery2, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '4',
+                name: 'Mark',
+                profile_picture: {
+                  uri: 'scale16',
+                },
+                username: 'usermark',
+              },
+            },
+          });
+          jest.runAllImmediates();
+
+          // Assert that we are still in a pending state even after
+          // the second refetch completes
+          expectNoYields();
+          expectRequestIsInFlight({
+            data: initialUser,
+            refetchQuery: refetchQuery1,
+            refetchVariables: refetchVariables1,
+            inFlight: true,
+            requestCount: 0,
+          });
+          expectRequestIsInFlight({
+            data: initialUser,
+            refetchQuery: refetchQuery2,
+            refetchVariables: refetchVariables2,
+            inFlight: false,
+            requestCount: 0,
+          });
+
+          // Mock response for initial refetch request
+          environment.mock.resolve(refetchQuery1, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '2',
+                name: 'User 2',
+                profile_picture: {
+                  uri: 'scale16',
+                },
+                username: 'user2',
+              },
+            },
+          });
+          jest.runAllImmediates();
+
+          // Assert component is rendered with data from second request
+          const refetchedUser = {
+            id: '2',
+            name: 'User 2',
+            profile_picture: {uri: 'scale16'},
+            ...createFragmentRef('2', refetchQuery1),
+          };
+          expectFragmentResults([{data: refetchedUser, isPending: false}]);
+
+          expect(fetchSpy).toBeCalledTimes(3);
         });
       });
     });

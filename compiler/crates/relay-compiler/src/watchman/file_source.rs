@@ -6,6 +6,7 @@
  */
 
 use super::errors::{Error, Result};
+use super::Clock;
 use super::WatchmanFile;
 use crate::config::{Config, SchemaLocation};
 use common::Timer;
@@ -24,6 +25,11 @@ pub struct FileSourceResult {
     pub files: Vec<WatchmanFile>,
     pub resolved_root: ResolvedRoot,
     pub clock: Clock,
+}
+
+#[derive(Debug)]
+pub struct QueryParams {
+    pub since: Clock,
 }
 
 impl<'config> FileSource<'config> {
@@ -48,23 +54,35 @@ impl<'config> FileSource<'config> {
 
     /// Executes a point query (as opposed to a subscription) to find all files
     /// to compile and returns the result.
-    pub async fn query(&self) -> Result<FileSourceResult> {
+    pub async fn query(
+        &self,
+        optional_query_params: Option<QueryParams>,
+    ) -> Result<FileSourceResult> {
         let roots = get_all_roots(&self.config);
         let expression = get_watchman_expr(&self.config);
 
         let query_timer = Timer::start("query");
+        // If `since` is available, we should not pass the `path` parameter.
+        // Watchman ignores `since` parameter if both `path` and `since` are
+        // passed as the request params
+        let since = optional_query_params.map(|query_params| query_params.since);
+        let path = match since {
+            None => Some(
+                roots
+                    .into_iter()
+                    .map(PathGeneratorElement::RecursivePath)
+                    .collect(),
+            ),
+            Some(_) => None,
+        };
         let query_result = self
             .client
             .query::<WatchmanFile>(
                 &self.resolved_root,
                 QueryRequestCommon {
                     expression: Some(expression),
-                    path: Some(
-                        roots
-                            .into_iter()
-                            .map(PathGeneratorElement::RecursivePath)
-                            .collect(),
-                    ),
+                    since,
+                    path,
                     ..Default::default()
                 },
             )

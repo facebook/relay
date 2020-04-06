@@ -9,17 +9,17 @@ use crate::artifact_map::ArtifactMap;
 use crate::build_project::WrittenArtifacts;
 use crate::config::Config;
 use crate::watchman::{
-    categorize_files, errors::Result, extract_graphql_strings_from_file, read_to_string, FileGroup,
-    FileSourceResult,
+    categorize_files, errors::Error, errors::Result, extract_graphql_strings_from_file,
+    read_to_string, Clock, FileGroup, FileSourceResult,
 };
 use common::Timer;
 use interner::StringKey;
+use io::BufReader;
 use rayon::prelude::*;
-use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::{fs::File, io, result};
+use std::{fs::File, io};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -47,6 +47,18 @@ impl Default for GraphQLSources {
         Self {
             grouped_pending_sources: Default::default(),
             grouped_processed_sources: Default::default(),
+        }
+    }
+}
+
+impl Default for CompilerState {
+    fn default() -> Self {
+        Self {
+            schemas: Default::default(),
+            graphql_sources: Default::default(),
+            extensions: Default::default(),
+            artifacts: Default::default(),
+            metadata: None,
         }
     }
 }
@@ -117,25 +129,31 @@ impl GraphQLSources {
         }
     }
 }
-
-#[derive(Deserialize, Debug)]
-pub struct CompilerState {
-    pub graphql_sources: GraphQLSources,
-    pub schemas: HashMap<ProjectName, Vec<String>>,
-    pub extensions: HashMap<ProjectName, Vec<String>>,
-    pub artifacts: HashMap<ProjectName, ArtifactMap>,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CompilerStateMetadata {
+    pub clock: Clock,
 }
 
-impl Serialize for CompilerState {
-    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("CompilerState", 2)?;
-        state.serialize_field("graphql_sources", &self.graphql_sources)?;
-        state.serialize_field("artifacts", &self.artifacts)?;
-        state.end()
+pub type SchemaSources = HashMap<ProjectName, Vec<String>>;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CompilerState {
+    pub graphql_sources: GraphQLSources,
+    pub schemas: SchemaSources,
+    pub extensions: SchemaSources,
+    pub artifacts: HashMap<ProjectName, ArtifactMap>,
+    pub metadata: Option<CompilerStateMetadata>,
+}
+
+fn merge_schema_sources(
+    current_schemas: SchemaSources,
+    new_schemas: SchemaSources,
+) -> SchemaSources {
+    let mut next_schemas: SchemaSources = current_schemas;
+    for (project_name, schema_sources) in new_schemas {
+        next_schemas.insert(project_name, schema_sources.to_owned());
     }
+    next_schemas
 }
 
 impl CompilerState {
@@ -215,6 +233,9 @@ impl CompilerState {
             artifacts,
             extensions,
             schemas,
+            metadata: Some(CompilerStateMetadata {
+                clock: file_source_changes.clock.clone(),
+            }),
         })
     }
 
@@ -243,11 +264,15 @@ impl CompilerState {
 
         if !pending_compiler_state.schemas.is_empty() {
             // TODO support watching schema changes
-            panic!("Watching for changes in schema files in unsupported");
+            self.schemas =
+                merge_schema_sources(self.schemas.to_owned(), pending_compiler_state.schemas);
         }
         if !pending_compiler_state.extensions.is_empty() {
             // TODO support watching extension changes
-            panic!("Watching for changes in extensions files in unsupported");
+            self.extensions = merge_schema_sources(
+                self.extensions.to_owned(),
+                pending_compiler_state.extensions,
+            );
         }
 
         let pending_graphql_sources = pending_compiler_state.graphql_sources;
@@ -288,10 +313,25 @@ impl CompilerState {
         self.commit_pending_file_source_changes();
     }
 
-    pub fn write_to_file(&self, path: &PathBuf) -> io::Result<()> {
-        let write_to_file_timer = Timer::start(format!("write state to file {:?}", path));
+    pub fn serialize_to_file(&self, path: &PathBuf) -> io::Result<()> {
+        let write_to_file_timer = Timer::start(format!("write state to {:?}", path));
         serde_json::to_writer(File::create(path)?, self)?;
         write_to_file_timer.stop();
         Ok(())
+    }
+
+    pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
+        let restoring_timer = Timer::start(format!("restoring state from {:?}", path));
+        let file = File::open(path).map_err(|err| Error::FileRead {
+            file: path.clone(),
+            source: err,
+        })?;
+        let reader = BufReader::new(file);
+        let state = serde_json::from_reader(reader).map_err(|err| Error::DeserializationError {
+            file: path.clone(),
+            source: err,
+        })?;
+        restoring_timer.stop();
+        Ok(state)
     }
 }

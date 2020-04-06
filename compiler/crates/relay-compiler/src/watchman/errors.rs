@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use serde_json::error::Error as SerdeError;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -32,6 +33,9 @@ pub enum Error {
         file: PathBuf,
         source: std::io::Error,
     },
+
+    #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
+    DeserializationError { file: PathBuf, source: SerdeError },
 
     #[error("Syntax error: {error}")]
     Syntax { error: String },

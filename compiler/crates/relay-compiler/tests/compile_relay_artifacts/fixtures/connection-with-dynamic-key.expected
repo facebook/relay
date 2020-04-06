@@ -650,13 +650,8 @@ fragment FeedbackFragment_1G22uz on Feedback {
       "args": [
         {
           "kind": "Variable",
-          "name": "after",
-          "variableName": "cursor"
-        },
-        {
-          "kind": "Variable",
-          "name": "first",
-          "variableName": "count"
+          "name": "__dynamicKey",
+          "variableName": "commentsKey"
         },
         {
           "kind": "Literal",

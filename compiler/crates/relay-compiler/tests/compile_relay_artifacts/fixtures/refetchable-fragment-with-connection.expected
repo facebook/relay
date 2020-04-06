@@ -68,18 +68,7 @@ fragment PaginationFragment on Node
         },
         {
           "alias": "friends",
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "after",
-              "variableName": "cursor"
-            },
-            {
-              "kind": "Variable",
-              "name": "first",
-              "variableName": "count"
-            }
-          ],
+          "args": null,
           "concreteType": "FriendsConnection",
           "kind": "LinkedField",
           "name": "__PaginationFragment_friends_connection",

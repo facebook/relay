@@ -54,18 +54,7 @@ fragment RefetchableConnection_feedback on Feedback
     },
     {
       "alias": "comments",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "after",
-          "variableName": "cursor"
-        },
-        {
-          "kind": "Variable",
-          "name": "first",
-          "variableName": "count"
-        }
-      ],
+      "args": null,
       "concreteType": "CommentsConnection",
       "kind": "LinkedField",
       "name": "__RefetchableConnection_comments_connection",

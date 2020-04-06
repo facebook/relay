@@ -40,7 +40,7 @@ pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;
 pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,
-    HandleFieldConstants,
+    handle_field_transform, HandleFieldConstants,
 };
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;

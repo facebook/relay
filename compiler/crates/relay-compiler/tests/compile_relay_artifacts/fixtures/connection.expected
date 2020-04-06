@@ -81,13 +81,7 @@ query NodeQuery($id: ID!) {
             "selections": [
               {
                 "alias": "comments",
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
+                "args": null,
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "__NodeQuery_comments_connection",
@@ -126,13 +120,7 @@ query NodeQuery($id: ID!) {
                               },
                               {
                                 "alias": "friends",
-                                "args": [
-                                  {
-                                    "kind": "Literal",
-                                    "name": "first",
-                                    "value": 10
-                                  }
-                                ],
+                                "args": null,
                                 "concreteType": "FriendsConnection",
                                 "kind": "LinkedField",
                                 "name": "__NodeQuery_friends_connection",
@@ -207,7 +195,7 @@ query NodeQuery($id: ID!) {
                                     "storageKey": null
                                   }
                                 ],
-                                "storageKey": "__NodeQuery_friends_connection(first:10)"
+                                "storageKey": null
                               }
                             ],
                             "storageKey": null
@@ -258,7 +246,7 @@ query NodeQuery($id: ID!) {
                     "storageKey": null
                   }
                 ],
-                "storageKey": "__NodeQuery_comments_connection(first:10)"
+                "storageKey": null
               }
             ],
             "type": "Story"

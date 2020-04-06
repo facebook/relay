@@ -186,6 +186,7 @@ export type {
   DataID,
   Disposable,
   FetchPolicy,
+  FetchQueryFetchPolicy,
   OperationType,
   RenderPolicy,
   Variables,

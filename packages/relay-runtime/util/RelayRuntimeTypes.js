@@ -62,9 +62,9 @@ export type CacheConfig = {|
 /**
  * Experimental
  */
+export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
 export type FetchPolicy =
-  | 'store-only'
-  | 'store-or-network'
+  | FetchQueryFetchPolicy
   | 'store-and-network'
-  | 'network-only';
+  | 'store-only';
 export type RenderPolicy = 'full' | 'partial';

@@ -220,6 +220,33 @@ fragment FeedbackFragment on Feedback
                   }
                 ],
                 "storageKey": "comments(first:2,orderby:\"date\")"
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 2
+                  },
+                  {
+                    "kind": "Literal",
+                    "name": "orderby",
+                    "value": "date"
+                  }
+                ],
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                },
+                "filters": [
+                  "orderby"
+                ],
+                "handle": "connection",
+                "key": "FeedbackFragment_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
               }
             ],
             "type": "Feedback"
@@ -493,6 +520,38 @@ fragment FeedbackFragment on Feedback {
                   }
                 ],
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "after",
+                    "variableName": "cursor"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "first",
+                    "variableName": "count"
+                  },
+                  {
+                    "kind": "Literal",
+                    "name": "orderby",
+                    "value": "date"
+                  }
+                ],
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                },
+                "filters": [
+                  "orderby"
+                ],
+                "handle": "connection",
+                "key": "FeedbackFragment_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
               }
             ],
             "type": "Feedback"
@@ -680,38 +739,6 @@ fragment FeedbackFragment_1G22uz on Feedback {
         }
       ],
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "after",
-          "variableName": "cursor"
-        },
-        {
-          "kind": "Variable",
-          "name": "first",
-          "variableName": "count"
-        },
-        {
-          "kind": "Literal",
-          "name": "orderby",
-          "value": "date"
-        }
-      ],
-      "dynamicKey": {
-        "kind": "Variable",
-        "name": "__dynamicKey",
-        "variableName": "commentsKey"
-      },
-      "filters": [
-        "orderby"
-      ],
-      "handle": "connection",
-      "key": "FeedbackFragment_comments",
-      "kind": "LinkedHandle",
-      "name": "comments"
     }
   ],
   "type": "Feedback"

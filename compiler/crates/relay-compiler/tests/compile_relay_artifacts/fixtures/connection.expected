@@ -208,21 +208,6 @@ query NodeQuery($id: ID!) {
                                   }
                                 ],
                                 "storageKey": "friends(first:10)"
-                              },
-                              {
-                                "alias": null,
-                                "args": [
-                                  {
-                                    "kind": "Literal",
-                                    "name": "first",
-                                    "value": 10
-                                  }
-                                ],
-                                "filters": null,
-                                "handle": "connection",
-                                "key": "NodeQuery_friends",
-                                "kind": "LinkedHandle",
-                                "name": "friends"
                               }
                             ],
                             "storageKey": null
@@ -274,21 +259,6 @@ query NodeQuery($id: ID!) {
                   }
                 ],
                 "storageKey": "comments(first:10)"
-              },
-              {
-                "alias": null,
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
-                "filters": null,
-                "handle": "connection",
-                "key": "NodeQuery_comments",
-                "kind": "LinkedHandle",
-                "name": "comments"
               }
             ],
             "type": "Story"
@@ -489,6 +459,21 @@ query NodeQuery($id: ID!) {
                               },
                               {
                                 "alias": null,
+                                "args": [
+                                  {
+                                    "kind": "Literal",
+                                    "name": "first",
+                                    "value": 10
+                                  }
+                                ],
+                                "filters": null,
+                                "handle": "connection",
+                                "key": "NodeQuery_friends",
+                                "kind": "LinkedHandle",
+                                "name": "friends"
+                              },
+                              {
+                                "alias": null,
                                 "args": null,
                                 "kind": "ScalarField",
                                 "name": "id",
@@ -551,6 +536,21 @@ query NodeQuery($id: ID!) {
                   }
                 ],
                 "storageKey": "comments(first:10)"
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10
+                  }
+                ],
+                "filters": null,
+                "handle": "connection",
+                "key": "NodeQuery_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
               }
             ],
             "type": "Story"

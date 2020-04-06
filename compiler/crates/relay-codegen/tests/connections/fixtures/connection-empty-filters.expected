@@ -202,16 +202,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v4/*: any*/),
-              {
-                "alias": null,
-                "args": (v3/*: any*/),
-                "filters": [],
-                "handle": "connection",
-                "key": "NodeQuery_comments",
-                "kind": "LinkedHandle",
-                "name": "comments"
-              }
+              (v4/*: any*/)
             ],
             "type": "Story"
           }
@@ -239,7 +230,16 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v4/*: any*/)
+              (v4/*: any*/),
+              {
+                "alias": null,
+                "args": (v3/*: any*/),
+                "filters": [],
+                "handle": "connection",
+                "key": "NodeQuery_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              }
             ],
             "type": "Story"
           }

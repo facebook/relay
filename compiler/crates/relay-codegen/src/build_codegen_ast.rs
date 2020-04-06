@@ -188,14 +188,13 @@ impl<'schema> CodegenBuilder<'schema> {
     }
 
     fn build_scalar_field_and_handles(&self, field: &ScalarField) -> Vec<ConcreteSelection> {
-        if let CodegenVariant::Normalization = self.variant {
-            // TODO(T63303873) check for skipNormalizationNode metadata
-            return vec![self.build_scalar_field(field)];
+        // TODO(T63303873) check for skipNormalizationNode metadata
+        match self.variant {
+            CodegenVariant::Reader => vec![self.build_scalar_field(field)],
+            CodegenVariant::Normalization => iter::once(self.build_scalar_field(field))
+                .chain(self.build_scalar_handles(field))
+                .collect(),
         }
-
-        iter::once(self.build_scalar_field(field))
-            .chain(self.build_scalar_handles(field))
-            .collect::<Vec<_>>()
     }
 
     fn build_scalar_field(&self, field: &ScalarField) -> ConcreteSelection {
@@ -244,17 +243,13 @@ impl<'schema> CodegenBuilder<'schema> {
         })
     }
 
-    fn build_linked_field_and_handles(
-        &self,
-        field: &'schema LinkedField,
-    ) -> Vec<ConcreteSelection> {
-        if let CodegenVariant::Normalization = self.variant {
-            return vec![self.build_linked_field(field)];
+    fn build_linked_field_and_handles(&self, field: &LinkedField) -> Vec<ConcreteSelection> {
+        match self.variant {
+            CodegenVariant::Reader => vec![self.build_linked_field(field)],
+            CodegenVariant::Normalization => iter::once(self.build_linked_field(field))
+                .chain(self.build_linked_handles(field))
+                .collect(),
         }
-
-        iter::once(self.build_linked_field(field))
-            .chain(self.build_linked_handles(field))
-            .collect::<Vec<_>>()
     }
 
     fn build_linked_field(&self, field: &LinkedField) -> ConcreteSelection {
@@ -263,10 +258,7 @@ impl<'schema> CodegenBuilder<'schema> {
         let args = self.build_arguments(&field.arguments);
         let storage_key = get_static_storage_key(field_name, &args);
         ConcreteSelection::LinkedField(ConcreteLinkedField {
-            alias: match field.alias {
-                Some(alias) => Some(alias.item),
-                None => None,
-            },
+            alias: field.alias.map(|alias| alias.item),
             name: field_name,
             args,
             selections: self.build_selections(&field.selections),

@@ -16,19 +16,7 @@ fragment Example on User {
 }
 ==================================== OUTPUT ===================================
 (function(){
-var v0 = [
-  {
-    "kind": "Variable",
-    "name": "after",
-    "variableName": "friendsAfter"
-  },
-  {
-    "kind": "Variable",
-    "name": "first",
-    "variableName": "friendsFirst"
-  }
-],
-v1 = {
+var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -70,7 +58,18 @@ return {
   "selections": [
     {
       "alias": null,
-      "args": (v0/*: any*/),
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "after",
+          "variableName": "friendsAfter"
+        },
+        {
+          "kind": "Variable",
+          "name": "first",
+          "variableName": "friendsFirst"
+        }
+      ],
       "concreteType": "FriendsConnection",
       "kind": "LinkedField",
       "name": "friends",
@@ -161,11 +160,11 @@ return {
           "name": "pageInfo",
           "plural": false,
           "selections": [
-            (v1/*: any*/),
+            (v0/*: any*/),
             {
               "kind": "InlineFragment",
               "selections": [
-                (v1/*: any*/),
+                (v0/*: any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -181,15 +180,6 @@ return {
         }
       ],
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": (v0/*: any*/),
-      "filters": null,
-      "handle": "connection",
-      "key": "Example_friends",
-      "kind": "LinkedHandle",
-      "name": "friends"
     }
   ],
   "type": "User"

@@ -141,26 +141,6 @@ fragment RefetchableConnection_feedback on Feedback
         }
       ],
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "after",
-          "variableName": "cursor"
-        },
-        {
-          "kind": "Variable",
-          "name": "first",
-          "variableName": "count"
-        }
-      ],
-      "filters": null,
-      "handle": "connection",
-      "key": "RefetchableConnection_comments",
-      "kind": "LinkedHandle",
-      "name": "comments"
     }
   ],
   "type": "Feedback"

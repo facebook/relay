@@ -155,26 +155,6 @@ fragment PaginationFragment on Node
             }
           ],
           "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "after",
-              "variableName": "cursor"
-            },
-            {
-              "kind": "Variable",
-              "name": "first",
-              "variableName": "count"
-            }
-          ],
-          "filters": null,
-          "handle": "connection",
-          "key": "PaginationFragment_friends",
-          "kind": "LinkedHandle",
-          "name": "friends"
         }
       ],
       "type": "User"

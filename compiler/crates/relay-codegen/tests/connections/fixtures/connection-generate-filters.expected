@@ -279,19 +279,7 @@ return {
                             "plural": false,
                             "selections": [
                               (v5/*: any*/),
-                              (v10/*: any*/),
-                              {
-                                "alias": null,
-                                "args": (v6/*: any*/),
-                                "filters": [
-                                  "isViewerFriend",
-                                  "traits"
-                                ],
-                                "handle": "connection",
-                                "key": "NodeQuery_friends",
-                                "kind": "LinkedHandle",
-                                "name": "friends"
-                              }
+                              (v10/*: any*/)
                             ],
                             "storageKey": null
                           }
@@ -305,17 +293,6 @@ return {
                   (v9/*: any*/)
                 ],
                 "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": (v4/*: any*/),
-                "filters": [
-                  "orderby"
-                ],
-                "handle": "connection",
-                "key": "NodeQuery_comments",
-                "kind": "LinkedHandle",
-                "name": "comments"
               }
             ],
             "type": "Story"
@@ -377,7 +354,19 @@ return {
                             "plural": false,
                             "selections": [
                               (v5/*: any*/),
-                              (v10/*: any*/)
+                              (v10/*: any*/),
+                              {
+                                "alias": null,
+                                "args": (v6/*: any*/),
+                                "filters": [
+                                  "isViewerFriend",
+                                  "traits"
+                                ],
+                                "handle": "connection",
+                                "key": "NodeQuery_friends",
+                                "kind": "LinkedHandle",
+                                "name": "friends"
+                              }
                             ],
                             "storageKey": null
                           }
@@ -391,6 +380,17 @@ return {
                   (v9/*: any*/)
                 ],
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": (v4/*: any*/),
+                "filters": [
+                  "orderby"
+                ],
+                "handle": "connection",
+                "key": "NodeQuery_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
               }
             ],
             "type": "Story"

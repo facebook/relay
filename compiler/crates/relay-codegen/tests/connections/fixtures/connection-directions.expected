@@ -319,6 +319,36 @@ return {
             "kind": "InlineFragment",
             "selections": [
               (v7/*: any*/),
+              (v11/*: any*/),
+              (v13/*: any*/)
+            ],
+            "type": "Story"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query"
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": (v0/*: any*/),
+    "kind": "Operation",
+    "name": "NodeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              (v7/*: any*/),
               {
                 "alias": "forwardComments",
                 "args": (v3/*: any*/),
@@ -348,36 +378,6 @@ return {
                 "kind": "LinkedHandle",
                 "name": "comments"
               }
-            ],
-            "type": "Story"
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query"
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": (v0/*: any*/),
-    "kind": "Operation",
-    "name": "NodeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          (v2/*: any*/),
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              (v7/*: any*/),
-              (v11/*: any*/),
-              (v13/*: any*/)
             ],
             "type": "Story"
           }

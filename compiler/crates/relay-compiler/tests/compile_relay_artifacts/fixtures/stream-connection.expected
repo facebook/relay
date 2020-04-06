@@ -170,21 +170,6 @@ query NodeQuery($id: ID!) {
                   }
                 ],
                 "storageKey": "comments(first:10)"
-              },
-              {
-                "alias": null,
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
-                "filters": null,
-                "handle": "connection",
-                "key": "NodeQuery_comments",
-                "kind": "LinkedHandle",
-                "name": "comments"
               }
             ],
             "type": "Story"
@@ -355,6 +340,21 @@ query NodeQuery($id: ID!) {
                   }
                 ],
                 "storageKey": "comments(first:10)"
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10
+                  }
+                ],
+                "filters": null,
+                "handle": "connection",
+                "key": "NodeQuery_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
               }
             ],
             "type": "Story"

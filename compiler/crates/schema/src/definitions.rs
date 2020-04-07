@@ -34,6 +34,9 @@ pub struct Schema {
     clientid_field_name: StringKey,
     typename_field_name: StringKey,
 
+    string_type: Type,
+    id_type: Type,
+
     directives: HashMap<StringKey, Directive>,
 
     enums: Vec<Enum>,
@@ -164,11 +167,7 @@ impl Schema {
     }
 
     pub fn is_string(&self, type_: Type) -> bool {
-        if let Type::Scalar(id) = type_ {
-            self.scalars[id.as_usize()].name == "String".intern()
-        } else {
-            false
-        }
+        type_ == self.string_type
     }
 
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
@@ -297,13 +296,7 @@ impl Schema {
     }
 
     pub fn is_id(&self, type_: Type) -> bool {
-        match type_ {
-            Type::Scalar(id) => {
-                let scalar = &self.scalars[id.as_usize()];
-                scalar.name == "ID".intern()
-            }
-            _ => false,
-        }
+        type_ == self.id_type
     }
 
     pub fn build(
@@ -362,6 +355,9 @@ impl Schema {
         }
 
         // Step 2: define operation types, directives, and types
+        let string_type = *type_map.get(&"String".intern()).unwrap();
+        let id_type = *type_map.get(&"ID".intern()).unwrap();
+
         let mut schema = Schema {
             query_type: None,
             mutation_type: None,
@@ -371,6 +367,8 @@ impl Schema {
             typename_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             typename_field_name: "__typename".intern(),
+            string_type,
+            id_type,
             directives: HashMap::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
             fields: Vec::with_capacity(field_count),
@@ -438,7 +436,7 @@ impl Schema {
             name: schema.typename_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::Named(*schema.type_map.get(&"String".intern()).unwrap()),
+            type_: TypeReference::Named(string_type),
         });
 
         let clientid_field_id = schema.fields.len();
@@ -447,7 +445,7 @@ impl Schema {
             name: schema.clientid_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::Named(*schema.type_map.get(&"ID".intern()).unwrap()),
+            type_: TypeReference::Named(id_type),
         });
 
         Ok(schema)
@@ -757,6 +755,8 @@ impl Schema {
             typename_field: _typename_field,
             clientid_field_name: _clientid_field_name,
             typename_field_name: _typename_field_name,
+            string_type: _string_type,
+            id_type: _id_type,
             type_map,
             enums,
             fields,

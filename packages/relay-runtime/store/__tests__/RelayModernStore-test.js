@@ -1047,6 +1047,38 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
+      describe('with queryCacheExpirationTime', () => {
+        it('returns available until query cache expiration time has passed', () => {
+          const QUERY_CACHE_EXPIRATION_TIME = 1000;
+          let currentTime = Date.now();
+          jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
+
+          store = new RelayModernStore(source, {
+            queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
+          });
+          const operation = createOperationDescriptor(UserQuery, {
+            id: '4',
+            size: 32,
+          });
+          store.retain(operation);
+          store.publish(source);
+          store.notify(operation);
+
+          const fetchTime = currentTime;
+          currentTime += QUERY_CACHE_EXPIRATION_TIME - 1;
+
+          expect(store.check(operation)).toEqual({
+            status: 'available',
+            fetchTime,
+          });
+
+          currentTime += 1;
+          expect(store.check(operation)).toEqual({
+            status: 'stale',
+          });
+        });
+      });
+
       describe('with global store invalidation', () => {
         describe("when query hasn't been written to the store before", () => {
           it('returns stale if data is cached and store has been invalidated', () => {
@@ -1805,6 +1837,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       let initialData;
       let source;
       let store;
+      const QUERY_CACHE_EXPIRATION_TIME = 1000;
 
       beforeEach(() => {
         data = {
@@ -1839,7 +1872,10 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         };
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source, {gcReleaseBufferSize: 1});
+        store = new RelayModernStore(source, {
+          gcReleaseBufferSize: 1,
+          queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
+        });
         ({UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
@@ -1869,6 +1905,55 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         // retained in the release buffer
         disposable.dispose();
         jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+      });
+
+      it('immediately releases disposed items that are stale', () => {
+        let fetchTime = Date.now();
+        jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '4',
+          size: 32,
+        });
+        const disposable = store.retain(operation);
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        store.publish(source);
+        store.notify(operation);
+
+        // Disposing will cause the operation to be immediately
+        // released and garbage collection scheduled, as the operation is stale.
+        fetchTime += QUERY_CACHE_EXPIRATION_TIME;
+        disposable.dispose();
+        jest.runAllTimers();
+
+        // After gc and immediate removal, the store is empty.
+        expect(source.toJSON()).toEqual({});
+      });
+
+      it('keeps published data retained in the release buffer if the data is not stale', () => {
+        let fetchTime = Date.now();
+        jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
+
+        const operation = createOperationDescriptor(UserQuery, {
+          id: '4',
+          size: 32,
+        });
+        const disposable = store.retain(operation);
+        jest.runAllTimers();
+        expect(source.toJSON()).toEqual(initialData);
+
+        store.publish(source);
+        store.notify(operation);
+
+        // The operation is not stale, therefore it will not be disposed when released.
+        fetchTime += QUERY_CACHE_EXPIRATION_TIME - 1;
+        disposable.dispose();
+        jest.runAllTimers();
+
+        // The item is retained in the release buffer, and not released from the source.
         expect(source.toJSON()).toEqual(initialData);
       });
 

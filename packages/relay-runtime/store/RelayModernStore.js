@@ -90,6 +90,7 @@ class RelayModernStore implements Store {
   _index: number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
+  _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
@@ -114,6 +115,7 @@ class RelayModernStore implements Store {
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
+      queryCacheExpirationTime?: ?number,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -138,6 +140,7 @@ class RelayModernStore implements Store {
     this._index = 0;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
+    this._queryCacheExpirationTime = options?.queryCacheExpirationTime;
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
     this._recordSource = source;
@@ -196,6 +199,7 @@ class RelayModernStore implements Store {
       operationAvailability,
       operationLastWrittenAt,
       rootEntry?.fetchTime,
+      this._queryCacheExpirationTime,
     );
   }
 
@@ -214,19 +218,31 @@ class RelayModernStore implements Store {
         return;
       }
       // Decrement the ref count: if it becomes zero it is eligible
-      // for release
+      // for release.
       rootEntry.refCount--;
-      if (rootEntry.refCount === 0) {
-        this._releaseBuffer.push(id);
-      }
 
-      // If the release buffer is now over-full, remove the least-recently
-      // added entry and schedule a GC. Note that all items in the release
-      // buffer have a refCount of 0.
-      if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-        const _id = this._releaseBuffer.shift();
-        this._roots.delete(_id);
-        this._scheduleGC();
+      if (rootEntry.refCount === 0) {
+        const {_queryCacheExpirationTime} = this;
+        const rootEntryIsStale =
+          rootEntry.fetchTime != null &&
+          _queryCacheExpirationTime != null &&
+          rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
+
+        if (rootEntryIsStale) {
+          this._roots.delete(id);
+          this._scheduleGC();
+        } else {
+          this._releaseBuffer.push(id);
+
+          // If the release buffer is now over-full, remove the least-recently
+          // added entry and schedule a GC. Note that all items in the release
+          // buffer have a refCount of 0.
+          if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
+            const _id = this._releaseBuffer.shift();
+            this._roots.delete(_id);
+            this._scheduleGC();
+          }
+        }
       }
     };
 
@@ -700,6 +716,7 @@ function getAvailabilityStatus(
   operationAvailability: Availability,
   operationLastWrittenAt: ?number,
   operationFetchTime: ?number,
+  queryCacheExpirationTime: ?number,
 ): OperationAvailability {
   const {mostRecentlyInvalidatedAt, status} = operationAvailability;
   if (typeof mostRecentlyInvalidatedAt === 'number') {
@@ -714,14 +731,20 @@ function getAvailabilityStatus(
     }
   }
 
+  if (status === 'missing') {
+    return {status: 'missing'};
+  }
+
+  if (operationFetchTime != null && queryCacheExpirationTime != null) {
+    const isStale = operationFetchTime <= Date.now() - queryCacheExpirationTime;
+    if (isStale) {
+      return {status: 'stale'};
+    }
+  }
+
   // There were no invalidations of any reachable records *or* the operation is known to have
   // been fetched after the most recent record invalidation.
-  return status === 'missing'
-    ? {status: 'missing'}
-    : {
-        status: 'available',
-        fetchTime: operationFetchTime ?? null,
-      };
+  return {status: 'available', fetchTime: operationFetchTime ?? null};
 }
 
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {

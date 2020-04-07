@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ... on PlainUserNameRenderer {
+      plaintext
+    }
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+Invalid @match selection: all selections should be fragment spreads with @module.:
+invalid-non-empty-selections.graphql:2:4:
+
+  nameRenderer @match {
+
+
+invalid-non-empty-selections.graphql:3:16:
+  nameRenderer @match {

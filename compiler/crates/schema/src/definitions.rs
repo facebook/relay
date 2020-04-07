@@ -163,6 +163,14 @@ impl Schema {
         type_.is_interface()
     }
 
+    pub fn is_string(&self, type_: Type) -> bool {
+        if let Type::Scalar(id) = type_ {
+            self.scalars[id.as_usize()].name == "String".intern()
+        } else {
+            false
+        }
+    }
+
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
         match type_ {
             TypeReference::Named(inner) => {
@@ -800,7 +808,7 @@ unions: {:#?}
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
         #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-        pub struct $name($type);
+        pub struct $name(pub $type);
         impl $name {
             #[allow(dead_code)]
             fn as_usize(&self) -> usize {

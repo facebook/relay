@@ -308,4 +308,32 @@ pub enum ValidationMessage {
 
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference { fragment_name: StringKey },
+
+    #[error("'{name}' should be defined on the server schema.")]
+    MissingServerSchemaDefinition { name: StringKey },
+
+    #[error("Direct use of the '{field_name}' field is not allowed, use '@match/@module instead.")]
+    InvalidDirectUseOfJSField { field_name: StringKey },
+    #[error("Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. '{document_name}_<localName>'.")]
+    InvalidMatchKeyArgument { document_name: StringKey },
+    #[error("@match used on incompatible field '{field_name}'. @match may only be used with fields that accept a 'supported: [String]' argument.")]
+    InvalidMatchNotOnNonNullListString { field_name: StringKey },
+    #[error("@match used on incompatible field '{field_name}'. @match may only be used with fields that return a union or interface.")]
+    InvalidMatchNotOnUnionOrInterface { field_name: StringKey },
+    #[error("Invalid @match selection: the '{supported_arg}' argument is automatically added and cannot be supplied explicitly.'")]
+    InvalidMatchNoUserSuppliedSupportedArg { supported_arg: StringKey },
+    #[error("Invalid @match selection: all selections should be fragment spreads with @module.")]
+    InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
+    #[error("Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.")]
+    InvalidMatchNoModuleSelection,
+
+    #[error("@module does not support @arguments.")]
+    InvalidModuleWithArguments,
+    #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]
+    InvalidModuleNonScalarJSField { js_field_type: StringKey },
+    #[error("@module used on invalid fragment spread '...{spread_name}'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type '{type_string}'.")]
+    InvalidModuleNotOnObject {
+        spread_name: StringKey,
+        type_string: StringKey,
+    },
 }

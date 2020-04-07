@@ -19,6 +19,7 @@ mod generate_typename;
 mod handle_fields;
 mod inline_fragments;
 mod mask;
+mod match_;
 mod node_identifier;
 mod remove_base_fragments;
 mod skip_client_extensions;
@@ -44,6 +45,7 @@ pub use handle_fields::{
 };
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
+pub use match_::match_;
 pub use node_identifier::NodeIdentifier;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;

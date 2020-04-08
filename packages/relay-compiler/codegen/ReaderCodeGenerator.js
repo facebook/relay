@@ -82,7 +82,6 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
         connection: refetch.connection,
         // $FlowFixMe
         fragmentPathInResult: refetch.fragmentPathInResult,
-        // $FlowFixMe
         operation: CodeMarker.moduleDependency(
           // $FlowFixMe
           refetch.operation + '.graphql',

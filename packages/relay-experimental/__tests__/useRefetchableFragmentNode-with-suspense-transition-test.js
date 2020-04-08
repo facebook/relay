@@ -65,7 +65,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         ...result
       } = useRefetchableFragmentNodeOriginal(
         fragmentNode,
-        // $FlowFixMe
         fragmentRef,
         'TestComponent',
       );

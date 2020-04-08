@@ -3073,6 +3073,263 @@ describe('useRefetchableFragmentNode', () => {
       });
     });
 
+    describe('refetching @fetchable types', () => {
+      beforeEach(() => {
+        const generated = generateAndCompile(
+          `
+            fragment UserFragment on NonNodeStory
+            @refetchable(queryName: "UserFragmentRefetchQuery") {
+              actor { name }
+            }
+
+            query UserQuery($id: ID!) {
+              nonNodeStory(id: $id) {
+                ...UserFragment
+              }
+            }
+          `,
+        );
+        variables = {id: 'a'};
+        gqlQuery = generated.UserQuery;
+        gqlRefetchQuery = generated.UserFragmentRefetchQuery;
+        gqlFragment = generated.UserFragment;
+        invariant(
+          gqlFragment.metadata?.refetch?.operation ===
+            '@@MODULE_START@@UserFragmentRefetchQuery.graphql@@MODULE_END@@',
+          'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
+        );
+        // Manually set the refetchable operation for the test.
+        gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
+
+        refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);
+        query = createOperationDescriptor(gqlQuery, variables);
+
+        environment.commitPayload(query, {
+          nonNodeStory: {
+            __typename: 'NonNodeStory',
+            id: 'a',
+            actor: {name: 'Alice', __typename: 'User', id: '1'},
+            fetch_id: 'fetch:a',
+          },
+        });
+      });
+
+      it('refetches new variables correctly when refetching new id', () => {
+        const renderer = renderFragment();
+        const initialUser = {
+          actor: {name: 'Alice'},
+          fetch_id: 'fetch:a',
+        };
+        expectFragmentResults([
+          {
+            data: initialUser,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          refetch({id: 'fetch:b'});
+        });
+
+        // Assert that fragment is refetching with the right variables and
+        // suspends upon refetch
+        const refetchVariables = {
+          id: 'fetch:b',
+        };
+        refetchQuery = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables,
+        );
+        expectFragmentIsRefetching(renderer, {
+          refetchVariables,
+          refetchQuery,
+        });
+
+        // Mock network response
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            fetch__NonNodeStory: {
+              __typename: 'NonNodeStory',
+              id: 'b',
+              actor: {name: 'Mark', __typename: 'User', id: '4'},
+              fetch_id: 'fetch:b',
+            },
+          },
+        });
+
+        // Assert fragment is rendered with new data
+        const refetchedUser = {
+          actor: {name: 'Mark'},
+          fetch_id: 'fetch:b',
+        };
+        expectFragmentResults([
+          {
+            data: refetchedUser,
+          },
+          {
+            data: refetchedUser,
+          },
+        ]);
+
+        // Assert refetch query was retained
+        expect(release).not.toBeCalled();
+        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      });
+
+      it('refetches new variables correctly when refetching same id', () => {
+        const renderer = renderFragment();
+        const initialUser = {
+          actor: {name: 'Alice'},
+          fetch_id: 'fetch:a',
+        };
+        expectFragmentResults([
+          {
+            data: initialUser,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          refetch({}, {fetchPolicy: 'network-only'});
+        });
+
+        // Assert that fragment is refetching with the right variables and
+        // suspends upon refetch
+        const refetchVariables = {
+          id: 'fetch:a',
+        };
+        refetchQuery = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables,
+        );
+        expectFragmentIsRefetching(renderer, {
+          refetchVariables,
+          refetchQuery,
+        });
+
+        // Mock network response
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            fetch__NonNodeStory: {
+              __typename: 'NonNodeStory',
+              id: 'a',
+              actor: {name: 'Alice (updated)', __typename: 'User', id: '1'},
+              fetch_id: 'fetch:a',
+            },
+          },
+        });
+
+        // Assert fragment is rendered with new data
+        const refetchedUser = {
+          actor: {name: 'Alice (updated)'},
+          fetch_id: 'fetch:a',
+        };
+        expectFragmentResults([
+          {
+            data: refetchedUser,
+          },
+          {
+            data: refetchedUser,
+          },
+        ]);
+
+        // Assert refetch query was retained
+        expect(release).not.toBeCalled();
+        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      });
+
+      it('refetches new variables correctly when refetching after the id from the parent has changed', () => {
+        // add data for second query
+        const query2 = createOperationDescriptor(gqlQuery, {
+          id: 'b',
+        });
+        environment.commitPayload(query2, {
+          nonNodeStory: {
+            __typename: 'NonNodeStory',
+            id: 'b',
+            actor: {name: 'Zuck', __typename: 'User', id: '4'},
+            fetch_id: 'fetch:b',
+          },
+        });
+
+        const renderer = renderFragment();
+        const initialUser = {
+          actor: {name: 'Alice'},
+          fetch_id: 'fetch:a',
+        };
+        expectFragmentResults([
+          {
+            data: initialUser,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          setOwner(query2);
+        });
+
+        const nextUser = {
+          actor: {name: 'Zuck'},
+          fetch_id: 'fetch:b',
+        };
+        expectFragmentResults([
+          {
+            data: nextUser,
+          },
+          {
+            data: nextUser,
+          },
+        ]);
+        TestRenderer.act(() => {
+          refetch({}, {fetchPolicy: 'network-only'});
+        });
+
+        // Assert that fragment is refetching with the right variables and
+        // suspends upon refetch
+        const refetchVariables = {
+          id: 'fetch:b',
+        };
+        refetchQuery = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables,
+        );
+        expectFragmentIsRefetching(renderer, {
+          refetchVariables,
+          refetchQuery,
+        });
+
+        // Mock network response
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            fetch__NonNodeStory: {
+              __typename: 'NonNodeStory',
+              id: 'b',
+              actor: {name: 'Zuck (updated)', __typename: 'User', id: '4'},
+              fetch_id: 'fetch:b',
+            },
+          },
+        });
+
+        // Assert fragment is rendered with new data
+        const refetchedUser = {
+          actor: {name: 'Zuck (updated)'},
+          fetch_id: 'fetch:b',
+        };
+        expectFragmentResults([
+          {
+            data: refetchedUser,
+          },
+          {
+            data: refetchedUser,
+          },
+        ]);
+
+        // Assert refetch query was retained
+        expect(release).not.toBeCalled();
+        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      });
+    });
+
     describe('when id variable has a different variable name in original query', () => {
       beforeEach(() => {
         const generated = generateAndCompile(

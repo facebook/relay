@@ -184,10 +184,11 @@ function useRefetchableFragmentNode<
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
-  const {refetchableRequest, fragmentRefPathInResponse} = getRefetchMetadata(
-    fragmentNode,
-    componentDisplayName,
-  );
+  const {
+    refetchableRequest,
+    fragmentRefPathInResponse,
+    identifierField,
+  } = getRefetchMetadata(fragmentNode, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(
     fragmentNode,
     parentFragmentRef,
@@ -339,6 +340,7 @@ function useRefetchableFragmentNode<
     dispatch,
     disposeFetch,
     componentDisplayName,
+    identifierField,
   );
   return {
     fragmentData,
@@ -358,11 +360,15 @@ function useRefetchFunction<TQuery: OperationType>(
   dispatch,
   disposeFetch,
   componentDisplayName,
+  identifierField,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
-  // $FlowFixMe
-  const dataID = fragmentData?.id;
-
+  const identifierValue =
+    identifierField != null &&
+    fragmentData != null &&
+    typeof fragmentData === 'object'
+      ? fragmentData[identifierField]
+      : null;
   return useCallback(
     (providedRefetchVariables, options) => {
       // Bail out and warn if we're trying to refetch after the component
@@ -440,24 +446,26 @@ function useRefetchFunction<TQuery: OperationType>(
         ...fragmentVariables,
         ...providedRefetchVariables,
       };
-      // TODO (T40777961): Tweak output of @refetchable transform to more
-      // easily tell if we need an $id in the refetch vars
+
+      // If the query needs an identifier value ('id' or similar) and one
+      // was not explicitly provided, read it from the fragment data.
       if (
-        fragmentRefPathInResponse.includes('node') &&
+        identifierField != null &&
         !providedRefetchVariables.hasOwnProperty('id')
       ) {
         // @refetchable fragments are guaranteed to have an `id` selection
-        // if the type is Node or implements Node. Double-check that there
-        // actually is a value at runtime.
-        if (typeof dataID !== 'string') {
+        // if the type is Node, implements Node, or is @fetchable. Double-check
+        // that there actually is a value at runtime.
+        if (typeof identifierValue !== 'string') {
           warning(
             false,
             'Relay: Expected result to have a string  ' +
-              '`id` in order to refetch, got `%s`.',
-            dataID,
+              '`%s` in order to refetch, got `%s`.',
+            identifierField,
+            identifierValue,
           );
         }
-        refetchVariables.id = dataID;
+        refetchVariables.id = identifierValue;
       }
 
       dispatch({
@@ -477,7 +485,7 @@ function useRefetchFunction<TQuery: OperationType>(
     //   - fragmentNode and parentFragmentRef are also captured by including
     //     fragmentIdentifier
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fragmentIdentifier, dataID, dispatch, disposeFetch],
+    [fragmentIdentifier, dispatch, disposeFetch, identifierValue],
   );
 }
 

@@ -4291,6 +4291,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "RefetchableFragment",
@@ -4318,6 +4319,262 @@ Fragment {
     },
   ],
   type: "Node",
+}
+
+Fragment {
+  argumentDefinitions: [
+    RootArgument {
+      name: "size",
+      type: "[Int]",
+    },
+  ],
+  metadata: null,
+  name: "ProfilePicture",
+  selections: [
+    LinkedField {
+      alias: null,
+      args: [
+        Variable {
+          name: "size",
+          variableName: "size",
+        },
+      ],
+      concreteType: "Image",
+      name: "profilePicture",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "uri",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+  ],
+  type: "User",
+}
+`;
+
+exports[`compileRelayArtifacts matches expected output: fragment-on-non-node-fetchable-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on NonNodeStory
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "size",
+        type: "[Int]",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+        type: "ID!",
+      },
+    ],
+    metadata: null,
+    name: "RefetchableFragmentQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input_fetch_id",
+            variableName: "id",
+          },
+        ],
+        concreteType: "NonNodeStory",
+        name: "fetch__NonNodeStory",
+        plural: false,
+        selections: [
+          FragmentSpread {
+            args: null,
+            name: "RefetchableFragment",
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "size",
+        type: "[Int]",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+        type: "ID!",
+      },
+    ],
+    name: "RefetchableFragmentQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input_fetch_id",
+            variableName: "id",
+          },
+        ],
+        concreteType: "NonNodeStory",
+        name: "fetch__NonNodeStory",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: null,
+            name: "actor",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "__typename",
+                storageKey: null,
+              },
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+              InlineFragment {
+                selections: [
+                  LinkedField {
+                    alias: null,
+                    args: [
+                      Variable {
+                        name: "size",
+                        variableName: "size",
+                      },
+                    ],
+                    concreteType: "Image",
+                    name: "profilePicture",
+                    plural: false,
+                    selections: [
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "uri",
+                        storageKey: null,
+                      },
+                    ],
+                    storageKey: null,
+                  },
+                ],
+                type: "User",
+              },
+            ],
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "fetch_id",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  fetch__NonNodeStory(input_fetch_id: $id) {
+    ...RefetchableFragment
+    id
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment RefetchableFragment on NonNodeStory {
+  actor {
+    __typename
+    ...ProfilePicture
+    id
+  }
+  fetch_id
+}
+
+
+Fragment {
+  argumentDefinitions: [
+    RootArgument {
+      name: "size",
+      type: "[Int]",
+    },
+  ],
+  metadata: {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "fetch__NonNodeStory",
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "fetch_id",
+    },
+  },
+  name: "RefetchableFragment",
+  selections: [
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: null,
+      name: "actor",
+      plural: false,
+      selections: [
+        FragmentSpread {
+          args: null,
+          name: "ProfilePicture",
+        },
+      ],
+      storageKey: null,
+    },
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "fetch_id",
+      storageKey: null,
+    },
+  ],
+  type: "NonNodeStory",
 }
 
 Fragment {
@@ -4529,6 +4786,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "RefetchableFragment",
@@ -13234,6 +13492,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableConnectionQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "RefetchableConnection_feedback",
@@ -13605,6 +13864,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableConnectionQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "RefetchableConnection_feedback",
@@ -13866,6 +14126,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "RefetchableFragment",
@@ -14239,6 +14500,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "PaginationFragment",
@@ -14710,6 +14972,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "PaginationFragment",
@@ -15146,6 +15409,7 @@ Fragment {
         "node",
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id",
     },
   },
   name: "PaginationFragment",

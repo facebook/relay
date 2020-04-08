@@ -58,6 +58,7 @@ function buildRefetchOperation(
     );
   }
   return {
+    identifierField: null,
     path: [VIEWER_FIELD_NAME],
     node: {
       argumentDefinitions: buildOperationArgumentDefinitions(

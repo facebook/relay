@@ -104,6 +104,10 @@ type InputBaseType = InputObjectType | ScalarType | EnumType;
 type InputTypeList = List<InputTypeID>;
 type InputTypeNonNull = NonNull<InputBaseType | InputTypeList>;
 
+type Fetchable = $ReadOnly<{|
+  field_name: string,
+|}>;
+
 export opaque type FieldID = Field;
 
 export type Argument = $ReadOnly<{|
@@ -1204,6 +1208,10 @@ class Schema {
     return this._typeMap.getPossibleTypeSet(type);
   }
 
+  getFetchableFieldName(type: ObjectTypeID): ?string {
+    return this._typeMap.getFetchableFieldName(type);
+  }
+
   parseLiteral(type: ScalarTypeID | EnumTypeID, valueNode: ValueNode): mixed {
     if (type instanceof EnumType && valueNode.kind === 'EnumValue') {
       return this.parseValue(type, valueNode.value);
@@ -1328,18 +1336,19 @@ class Schema {
 }
 
 class TypeMap {
-  +_source: Source;
+  _mutationTypeName: string;
+  _queryTypeName: string;
+  _subscriptionTypeName: string;
+  +_directives: InternalDirectiveMap;
   +_extensions: $ReadOnlyArray<ExtensionNode>;
-  +_types: Map<string, BaseType>;
-  +_typeInterfaces: Map<TypeID, $ReadOnlyArray<InterfaceType>>;
-  +_unionTypes: Map<TypeID, Set<ObjectType>>;
-  +_interfaceImplementations: Map<InterfaceType, Set<ObjectType>>;
+  +_fetchable: Map<TypeID, Fetchable>;
   +_fields: Map<InterfaceType | ObjectType, Map<string, FieldDefinition>>;
   +_inputFields: Map<InputObjectType, Map<string, TypeNode>>;
-  +_directives: InternalDirectiveMap;
-  _queryTypeName: string;
-  _mutationTypeName: string;
-  _subscriptionTypeName: string;
+  +_interfaceImplementations: Map<InterfaceType, Set<ObjectType>>;
+  +_source: Source;
+  +_typeInterfaces: Map<TypeID, $ReadOnlyArray<InterfaceType>>;
+  +_types: Map<string, BaseType>;
+  +_unionTypes: Map<TypeID, Set<ObjectType>>;
 
   constructor(source: Source, extensions: $ReadOnlyArray<ExtensionNode>) {
     this._types = new Map([
@@ -1409,6 +1418,7 @@ class TypeMap {
     this._subscriptionTypeName = 'Subscription';
     this._source = source;
     this._extensions = extensions;
+    this._fetchable = new Map();
     this._parse(source);
     this._extend(extensions);
   }
@@ -1540,8 +1550,28 @@ class TypeMap {
         this._interfaceImplementations.set(interfaceType, implementations);
         typeInterfaces.push(interfaceType);
       });
+    let fetchable = null;
+    node.directives &&
+      node.directives.forEach(directiveNode => {
+        if (directiveNode.name.value === 'fetchable') {
+          const field_name_arg =
+            directiveNode.arguments &&
+            directiveNode.arguments.find(
+              arg => arg.name.value === 'field_name',
+            );
+          if (
+            field_name_arg != null &&
+            field_name_arg.value.kind === 'StringValue'
+          ) {
+            fetchable = {field_name: field_name_arg.value.value};
+          }
+        }
+      });
     this._typeInterfaces.set(type, typeInterfaces);
     this._types.set(name, type);
+    if (fetchable != null) {
+      this._fetchable.set(type, fetchable);
+    }
     node.fields && this._handleTypeFieldsStrict(type, node.fields, isClient);
   }
 
@@ -1810,6 +1840,10 @@ class TypeMap {
       );
     }
     return set;
+  }
+
+  getFetchableFieldName(type: ObjectTypeID): ?string {
+    return this._fetchable.get(type)?.field_name ?? null;
   }
 
   getQueryType(): ?BaseType {

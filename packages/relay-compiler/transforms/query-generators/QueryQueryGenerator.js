@@ -32,6 +32,7 @@ function buildRefetchOperation(
   }
 
   return {
+    identifierField: null,
     path: [],
     node: {
       argumentDefinitions: buildOperationArgumentDefinitions(

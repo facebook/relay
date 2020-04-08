@@ -22,6 +22,8 @@ directive @stream(
   use_customized_batch: Boolean = false
 ) on FIELD
 
+directive @fetchable(field_name: String!) on OBJECT
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings
@@ -44,6 +46,8 @@ type Query {
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
   fetch__User(id: ID!): User
+  fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
+  nonNodeStory(id: ID!): NonNodeStory
 }
 
 interface MaybeNodeInterface {
@@ -672,11 +676,12 @@ type SegmentsEdge {
   node: String
 }
 
-type NonNodeStory implements FeedUnit {
+type NonNodeStory implements FeedUnit @fetchable(field_name: "fetch_id") {
   actor: Actor
   actorCount: Int
   feedback: Feedback
   id: ID!
+  fetch_id: ID!
   message: Text
   tracking: String
 }

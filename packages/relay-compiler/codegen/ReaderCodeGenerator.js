@@ -44,6 +44,7 @@ import type {
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
+  ReaderRefetchMetadata,
   ReaderScalarField,
   ReaderSelection,
 } from 'relay-runtime';
@@ -74,7 +75,7 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
       metadata = metadata ?? {};
       metadata.plural = plural;
     }
-    if (typeof refetch === 'object') {
+    if (refetch != null && typeof refetch === 'object') {
       metadata = metadata ?? {};
       metadata.refetch = {
         // $FlowFixMe
@@ -87,6 +88,12 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
           refetch.operation + '.graphql',
         ),
       };
+      if (typeof refetch.identifierField === 'string') {
+        metadata.refetch = {
+          ...metadata.refetch,
+          identifierField: refetch.identifierField,
+        };
+      }
     }
   }
   return {

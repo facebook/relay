@@ -25,8 +25,9 @@ function getRefetchMetadata(
   fragmentNode: ReaderFragment,
   componentDisplayName: string,
 ): {|
-  refetchableRequest: ConcreteRequest,
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  identifierField: ?string,
+  refetchableRequest: ConcreteRequest,
   refetchMetadata: ReaderRefetchMetadata,
 |} {
   invariant(
@@ -63,7 +64,17 @@ function getRefetchMetadata(
       'this is likely a bug in Relay.',
     componentDisplayName,
   );
-  return {refetchableRequest, fragmentRefPathInResponse, refetchMetadata};
+  const identifierField = refetchMetadata.identifierField;
+  invariant(
+    identifierField == null || typeof identifierField === 'string',
+    'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
+  );
+  return {
+    fragmentRefPathInResponse,
+    identifierField,
+    refetchableRequest,
+    refetchMetadata,
+  };
 }
 
 module.exports = getRefetchMetadata;

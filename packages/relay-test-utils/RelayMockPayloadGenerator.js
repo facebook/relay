@@ -183,6 +183,9 @@ class RelayMockPayloadGenerator {
     +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
+    /* $FlowFixMe(>=0.122.0) This comment suppresses an error found when Flow
+     * v0.122.0 was deployed. To see the error, delete this comment and run
+     * Flow. */
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow

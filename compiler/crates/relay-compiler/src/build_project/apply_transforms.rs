@@ -8,9 +8,10 @@
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
-    handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
-    skip_redundant_nodes, skip_unreachable_node, transform_connections, ConnectionInterface,
+    apply_fragment_arguments, client_extensions, defer_stream, flatten, generate_id_field,
+    generate_typename, handle_field_transform, inline_fragments, mask, remove_base_fragments,
+    skip_client_extensions, skip_redundant_nodes, skip_unreachable_node, transform_connections,
+    ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -31,7 +32,7 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     //  |- operation
     //     |- normalization
     //     |- operation_text
-    let common_program = apply_common_transforms(&program, connection_interface);
+    let common_program = apply_common_transforms(&program, connection_interface)?;
     let reader_program = apply_reader_transforms(&common_program, base_fragment_names);
     let operation_program = apply_operation_transforms(&common_program)?;
     let normalization_program = apply_normalization_transforms(&operation_program);
@@ -49,7 +50,7 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
 fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     program: &Program<'schema>,
     connection_interface: &TConnectionInterface,
-) -> Program<'schema> {
+) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // - DisallowIdAsAlias
     // - ConnectionTransform
@@ -60,7 +61,10 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // - DeferStreamTransform
 
     let program = transform_connections(program, connection_interface);
-    mask(&program)
+    let program = defer_stream(&program)?;
+    let program = mask(&program);
+
+    Ok(program)
 }
 
 /// Applies transforms only for generated reader code.

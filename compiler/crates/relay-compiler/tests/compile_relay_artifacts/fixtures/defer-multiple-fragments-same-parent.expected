@@ -62,14 +62,30 @@ fragment FeedbackText_feedback on Feedback {
             "storageKey": null
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "FeedbackComments_feedback"
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback",
+            "metadata": null,
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "FeedbackComments_feedback"
+              }
+            ]
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "FeedbackText_feedback"
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback",
+            "metadata": null,
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "FeedbackText_feedback"
+              }
+            ]
           }
         ],
         "storageKey": null
@@ -228,8 +244,8 @@ query QueryWithMultipeDeferredFragmentsOnSameParent(
   feedback: node(id: $id) {
     __typename
     id
-    ...FeedbackComments_feedback @defer
-    ...FeedbackText_feedback @defer
+    ...FeedbackComments_feedback @defer(label: "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback")
+    ...FeedbackText_feedback @defer(label: "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback")
   }
 }
 

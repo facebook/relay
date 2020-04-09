@@ -15,8 +15,9 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_relay_directive, extract_values_from_handle_field_directive, ConnectionConstants,
-    HandleFieldConstants, RELAY_DIRECTIVE_CONSTANTS,
+    extract_relay_directive, extract_values_from_handle_field_directive, find_argument,
+    find_directive, remove_directive, ConnectionConstants, HandleFieldConstants,
+    DEFER_STREAM_CONSTANTS, RELAY_DIRECTIVE_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -178,9 +179,18 @@ impl<'schema> CodegenBuilder<'schema> {
             Selection::Condition(cond) => {
                 vec![ConcreteSelection::Condition(self.build_condition(&cond))]
             }
-            Selection::FragmentSpread(frag_spread) => vec![ConcreteSelection::FragmentSpread(
-                self.build_fragment_spread(&frag_spread),
-            )],
+            Selection::FragmentSpread(frag_spread) => {
+                let defer =
+                    find_directive(&frag_spread.directives, DEFER_STREAM_CONSTANTS.defer_name);
+                match defer {
+                    Some(defer) => vec![ConcreteSelection::Defer(
+                        self.build_defer(&frag_spread, defer),
+                    )],
+                    None => vec![ConcreteSelection::FragmentSpread(
+                        self.build_fragment_spread(&frag_spread),
+                    )],
+                }
+            }
             Selection::InlineFragment(inline_frag) => {
                 vec![self.build_inline_fragment(&inline_frag)]
             }
@@ -343,6 +353,42 @@ impl<'schema> CodegenBuilder<'schema> {
         ConcreteFragmentSpread {
             name: frag_spread.fragment.item,
             args: self.build_arguments(&frag_spread.arguments),
+        }
+    }
+
+    fn build_defer(&self, frag_spread: &FragmentSpread, defer: &Directive) -> ConcreteDefer {
+        let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
+        let label_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.label_arg);
+        let if_variable_name = match if_arg {
+            Some(if_arg) => match &if_arg.value.item {
+                Value::Variable(var) => Some(var.name.item),
+                _ => None,
+            },
+            None => None,
+        };
+        // Label name expected from `defer_stream` transform
+        let label_name = match label_arg {
+            Some(label_arg) => match &label_arg.value.item {
+                Value::Constant(ConstantValue::String(val)) => Some(val),
+                _ => None,
+            },
+            None => None,
+        }
+        .unwrap();
+
+        ConcreteDefer {
+            if_: if_variable_name,
+            metadata: None,
+            label: label_name.to_owned(),
+            selections: vec![ConcreteSelection::FragmentSpread(
+                self.build_fragment_spread(&FragmentSpread {
+                    directives: remove_directive(
+                        &frag_spread.directives,
+                        DEFER_STREAM_CONSTANTS.defer_name,
+                    ),
+                    ..frag_spread.to_owned()
+                }),
+            )],
         }
     }
 

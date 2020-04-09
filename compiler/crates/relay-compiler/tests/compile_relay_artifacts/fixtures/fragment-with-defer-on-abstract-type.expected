@@ -37,9 +37,17 @@ fragment NodeFragment on Node {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "NodeFragment"
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithFragmentWithDefer$defer$node",
+            "metadata": null,
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "NodeFragment"
+              }
+            ]
           }
         ],
         "storageKey": "node(id:\"my-id\")"
@@ -126,7 +134,7 @@ QUERY:
 query QueryWithFragmentWithDefer {
   node(id: "my-id") {
     __typename
-    ...NodeFragment @defer(label: "node")
+    ...NodeFragment @defer(label: "QueryWithFragmentWithDefer$defer$node")
     id
   }
 }

@@ -146,6 +146,7 @@ pub enum ConcreteSelection {
     ClientExtension(ConcreteClientExtension),
     ScalarHandle(ConcreteNormalizationScalarHandle),
     LinkedHandle(ConcreteNormalizationLinkedHandle),
+    Defer(ConcreteDefer),
 }
 
 #[derive(Debug, Serialize)]
@@ -220,6 +221,17 @@ pub struct ConcreteNormalizationLinkedHandle {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dynamic_key: Option<ConcreteArgument>,
     pub filters: Option<Vec<StringKey>>,
+}
+
+pub type DeferMetadata = FnvHashMap<String, String>;
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConcreteDefer {
+    pub if_: Option<StringKey>,
+    pub label: StringKey,
+    pub selections: Vec<ConcreteSelection>,
+    pub metadata: Option<DeferMetadata>,
 }
 
 #[derive(Debug, Serialize)]

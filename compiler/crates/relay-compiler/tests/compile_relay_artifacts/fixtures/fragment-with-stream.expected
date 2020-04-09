@@ -166,7 +166,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+  actors @stream(initial_count: 1, label: "FeedbackFragment$stream$StreamedActorsLabel") {
     __typename
     name
     id

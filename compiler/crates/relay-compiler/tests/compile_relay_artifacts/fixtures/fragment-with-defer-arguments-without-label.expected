@@ -155,8 +155,8 @@ fragment DeferredFragment_QMvSr on User {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment_QMvSr @defer
-  ...DeferredFragment_1HMuo6 @defer
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_QMvSr")
+  ...DeferredFragment_1HMuo6 @defer(label: "UserFragment$defer$DeferredFragment_1HMuo6")
 }
 
 
@@ -236,26 +236,42 @@ fragment UserFragment on User {
       "storageKey": null
     },
     {
-      "args": [
+      "if": null,
+      "kind": "Defer",
+      "label": "UserFragment$defer$DeferredFragment_QMvSr",
+      "metadata": null,
+      "selections": [
         {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 1.5
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 1.5
+            }
+          ],
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment"
         }
-      ],
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment"
+      ]
     },
     {
-      "args": [
+      "if": null,
+      "kind": "Defer",
+      "label": "UserFragment$defer$DeferredFragment_1HMuo6",
+      "metadata": null,
+      "selections": [
         {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 2.0
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 2.0
+            }
+          ],
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment"
         }
-      ],
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment"
+      ]
     }
   ],
   "type": "User"

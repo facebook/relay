@@ -148,7 +148,7 @@ fragment DeferredFragment_QMvSr on User {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment_QMvSr @defer(label: "DeferredFragmentLabel")
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragmentLabel")
 }
 
 
@@ -228,15 +228,23 @@ fragment UserFragment on User {
       "storageKey": null
     },
     {
-      "args": [
+      "if": null,
+      "kind": "Defer",
+      "label": "UserFragment$defer$DeferredFragmentLabel",
+      "metadata": null,
+      "selections": [
         {
-          "kind": "Literal",
-          "name": "scale",
-          "value": 1.5
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "scale",
+              "value": 1.5
+            }
+          ],
+          "kind": "FragmentSpread",
+          "name": "DeferredFragment"
         }
-      ],
-      "kind": "FragmentSpread",
-      "name": "DeferredFragment"
+      ]
     }
   ],
   "type": "User"

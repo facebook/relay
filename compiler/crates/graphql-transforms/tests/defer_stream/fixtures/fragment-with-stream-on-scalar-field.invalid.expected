@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!, $label: String!) {
+  node(id: $id) {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  name @stream(initial_count: 1, label: $label)
+}
+==================================== ERROR ====================================
+Invalid use of @stream on scalar field 'name':
+fragment-with-stream-on-scalar-field.invalid.graphql:10:8:
+  name @stream(initial_count: 1, label: $label)

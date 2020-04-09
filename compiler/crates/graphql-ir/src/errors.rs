@@ -336,4 +336,22 @@ pub enum ValidationMessage {
         spread_name: StringKey,
         type_string: StringKey,
     },
+
+    #[error("Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string.")]
+    LabelNotUniqueForDeferStream { directive_name: StringKey },
+    #[error(
+        "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
+    )]
+    LiteralStringArgumentExpectedForDirective {
+        arg_name: StringKey,
+        directive_name: StringKey,
+    },
+    #[error("Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.")]
+    InvalidDeferOnInlineFragment,
+
+    #[error("Invalid use of @stream on scalar field '{field_name}'")]
+    InvalidStreamOnScalarField { field_name: StringKey },
+
+    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
+    StreamInitialCountRequired,
 }

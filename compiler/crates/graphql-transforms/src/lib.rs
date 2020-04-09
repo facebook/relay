@@ -10,13 +10,16 @@
 #![deny(clippy::all)]
 #![deny(clippy::clone_on_ref_ptr)]
 
+mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
+mod defer_stream;
 mod flatten;
 mod generate_id_field;
 mod generate_typename;
 mod handle_fields;
+mod hash_arguments;
 mod inline_fragments;
 mod mask;
 mod match_;
@@ -30,12 +33,14 @@ mod transform_connections;
 mod util;
 mod validations;
 
+pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::client_extensions;
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
     FBConnectionInterface, OSSConnectionInterface,
 };
+pub use defer_stream::defer_stream;
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;
@@ -43,6 +48,7 @@ pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,
     handle_field_transform, HandleFieldConstants,
 };
+pub use hash_arguments::hash_arguments;
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::match_;

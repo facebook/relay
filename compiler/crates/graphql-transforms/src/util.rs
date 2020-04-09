@@ -8,7 +8,7 @@
 use crate::client_extensions::ClientExtensionConstants;
 use crate::connections::ConnectionConstants;
 use crate::handle_fields::HandleFieldConstants;
-use graphql_ir::Argument;
+use graphql_ir::{Argument, Directive};
 use interner::StringKey;
 
 // A wrapper type that allows comparing pointer equality of references. Two
@@ -29,6 +29,37 @@ impl PointerAddress {
 
 pub fn find_argument(arguments: &[Argument], arg_name: StringKey) -> Option<&Argument> {
     arguments.iter().find(|arg| arg.name.item == arg_name)
+}
+
+pub fn find_directive(directives: &[Directive], directive_name: StringKey) -> Option<&Directive> {
+    directives
+        .iter()
+        .find(|directive| directive.name.item == directive_name)
+}
+
+pub fn remove_directive(
+    directives: &[Directive],
+    remove_directive_name: StringKey,
+) -> Vec<Directive> {
+    let mut next_directives = Vec::with_capacity(directives.len() - 1);
+    for directive in directives {
+        if directive.name.item != remove_directive_name {
+            next_directives.push(directive.clone());
+        }
+    }
+    next_directives
+}
+
+pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Vec<Directive> {
+    directives
+        .iter()
+        .map(|directive| {
+            if directive.name.item == replacement.name.item {
+                return replacement.to_owned();
+            }
+            directive.to_owned()
+        })
+        .collect()
 }
 
 pub struct CustomMetadataDirectives {

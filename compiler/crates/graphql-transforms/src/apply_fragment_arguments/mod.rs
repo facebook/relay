@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-mod hash_arguments;
 mod scope;
 
+use super::get_applied_fragment_name;
 use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -15,7 +15,7 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, TransformedMulti, TransformedValue,
     Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
-use interner::{Intern, StringKey};
+use interner::StringKey;
 use scope::Scope;
 use std::sync::Arc;
 
@@ -181,11 +181,8 @@ impl<'schema> ApplyFragmentArgumentsTransform<'schema> {
             .transform_arguments(&spread.arguments)
             .replace_or_else(|| spread.arguments.clone());
 
-        let arguments_hash = hash_arguments::hash_arguments(&transformed_arguments);
-        let applied_fragment_name = match arguments_hash {
-            Some(hash) => format!("{}_{}", spread.fragment.item, hash).intern(),
-            None => spread.fragment.item,
-        };
+        let applied_fragment_name =
+            get_applied_fragment_name(spread.fragment.item, &transformed_arguments);
         if let Some(applied_fragment) = self.fragments.get(&applied_fragment_name) {
             return match applied_fragment {
                 PendingFragment::Resolved(resolved) => resolved.clone(),

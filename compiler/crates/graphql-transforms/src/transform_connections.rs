@@ -96,7 +96,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
                     selections: Vec::new(),
                 }
             } else {
-                // Otherwise resue the existing edges field
+                // Otherwise reuse the existing edges field
                 edges_field.clone()
             }
         } else {
@@ -145,7 +145,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
                             selections: Vec::new(),
                         }
                     } else {
-                        // Otherwise resue the existing edges field
+                        // Otherwise reuse the existing edges field
                         page_info_field.clone()
                     }
                 } else {
@@ -228,7 +228,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
             .collect::<Vec<_>>();
 
         // Add an internal (untyped) directive to pass down the connection handle
-        // metada attached to this field.
+        // metadata attached to this field.
         // TODO(T63388023): Use typed directives/metadata instead
         next_directives.push(stripped_connection_directive);
         next_directives.push(connection_handle_directive);

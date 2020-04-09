@@ -434,7 +434,7 @@ pub fn extract_connection_directive(
 }
 
 /// Helper to get the default set of filters to be used for an @connection handle
-/// field when no filters are explictly specified in the input graphql.
+/// field when no filters are explicitly specified in the input graphql.
 /// By default, we will use all arguments that don't belong to the
 /// connection spec as part of the filters.
 pub fn get_default_filters(

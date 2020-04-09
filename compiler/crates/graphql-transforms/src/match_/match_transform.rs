@@ -40,7 +40,7 @@ impl<'s> MatchTransform<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
             program,
-            // Placesholders to make the types non-optional,
+            // Placeholders to make the types non-optional,
             parent_type: Type::Scalar(ScalarID(0)),
             document_name: "".intern(),
             module_key: None,

@@ -16,7 +16,7 @@ use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_relay_directive, extract_values_from_handle_field_directive, find_argument,
-    find_directive, remove_directive, ConnectionConstants, HandleFieldConstants,
+    find_directive, get_variable_name, remove_directive, ConnectionConstants, HandleFieldConstants,
     DEFER_STREAM_CONSTANTS, RELAY_DIRECTIVE_CONSTANTS,
 };
 use interner::{Intern, StringKey};
@@ -194,7 +194,16 @@ impl<'schema> CodegenBuilder<'schema> {
             Selection::InlineFragment(inline_frag) => {
                 vec![self.build_inline_fragment(&inline_frag)]
             }
-            Selection::LinkedField(field) => self.build_linked_field_and_handles(field),
+            Selection::LinkedField(field) => {
+                let stream = find_directive(&field.directives, DEFER_STREAM_CONSTANTS.stream_name);
+
+                match stream {
+                    Some(stream) => {
+                        vec![ConcreteSelection::Stream(self.build_stream(&field, stream))]
+                    }
+                    None => self.build_linked_field_and_handles(field),
+                }
+            }
             Selection::ScalarField(field) => self.build_scalar_field_and_handles(field),
         }
     }
@@ -359,14 +368,7 @@ impl<'schema> CodegenBuilder<'schema> {
     fn build_defer(&self, frag_spread: &FragmentSpread, defer: &Directive) -> ConcreteDefer {
         let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
         let label_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.label_arg);
-        let if_variable_name = match if_arg {
-            Some(if_arg) => match &if_arg.value.item {
-                Value::Variable(var) => Some(var.name.item),
-                _ => None,
-            },
-            None => None,
-        };
-        // Label name expected from `defer_stream` transform
+        let if_variable_name = get_variable_name(if_arg);
         let label_name = match label_arg {
             Some(label_arg) => match &label_arg.value.item {
                 Value::Constant(ConstantValue::String(val)) => Some(val),
@@ -389,6 +391,39 @@ impl<'schema> CodegenBuilder<'schema> {
                     ..frag_spread.to_owned()
                 }),
             )],
+        }
+    }
+
+    fn build_stream(&self, linked_field: &LinkedField, stream: &Directive) -> ConcreteStream {
+        let if_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.if_arg);
+        let label_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.label_arg);
+        let use_customized_batch_arg = find_argument(
+            &stream.arguments,
+            DEFER_STREAM_CONSTANTS.use_customized_batch_arg,
+        );
+        let if_variable_name = get_variable_name(if_arg);
+        let use_customized_batch_variable_name = get_variable_name(use_customized_batch_arg);
+        let label_name = match label_arg {
+            Some(label_arg) => match &label_arg.value.item {
+                Value::Constant(ConstantValue::String(val)) => Some(val),
+                _ => None,
+            },
+            None => None,
+        }
+        .unwrap();
+
+        ConcreteStream {
+            if_: if_variable_name,
+            metadata: None,
+            use_customized_batch: use_customized_batch_variable_name,
+            label: label_name.to_owned(),
+            selections: vec![self.build_linked_field(&LinkedField {
+                directives: remove_directive(
+                    &linked_field.directives,
+                    DEFER_STREAM_CONSTANTS.stream_name,
+                ),
+                ..linked_field.to_owned()
+            })],
         }
     }
 

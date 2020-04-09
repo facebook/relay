@@ -23,6 +23,7 @@ pub struct DeferStreamConstants {
     pub if_arg: StringKey,
     pub label_arg: StringKey,
     pub initial_count_arg: StringKey,
+    pub use_customized_batch_arg: StringKey,
 }
 
 impl Default for DeferStreamConstants {
@@ -33,6 +34,7 @@ impl Default for DeferStreamConstants {
             if_arg: "if".intern(),
             label_arg: "label".intern(),
             initial_count_arg: "initial_count".intern(),
+            use_customized_batch_arg: "use_customized_batch_arg".intern(),
         }
     }
 }

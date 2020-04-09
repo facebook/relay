@@ -8,7 +8,7 @@
 use crate::client_extensions::ClientExtensionConstants;
 use crate::connections::ConnectionConstants;
 use crate::handle_fields::HandleFieldConstants;
-use graphql_ir::{Argument, Directive};
+use graphql_ir::{Argument, Directive, Value};
 use interner::StringKey;
 
 // A wrapper type that allows comparing pointer equality of references. Two
@@ -27,16 +27,20 @@ impl PointerAddress {
     }
 }
 
+/// Will return an argument by name
 pub fn find_argument(arguments: &[Argument], arg_name: StringKey) -> Option<&Argument> {
     arguments.iter().find(|arg| arg.name.item == arg_name)
 }
 
+/// Will return a directive by name
 pub fn find_directive(directives: &[Directive], directive_name: StringKey) -> Option<&Directive> {
     directives
         .iter()
         .find(|directive| directive.name.item == directive_name)
 }
 
+/// This function will return a new Vec[...] of directives,
+/// where one will be missing. The one with `remove_directive_name` name
 pub fn remove_directive(
     directives: &[Directive],
     remove_directive_name: StringKey,
@@ -50,6 +54,9 @@ pub fn remove_directive(
     next_directives
 }
 
+/// Function will create a new Vec[...] of directives
+/// when one of them will be replaced with the `replacement`. If the name of
+/// `replacement` is matched with the item in the list
 pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Vec<Directive> {
     directives
         .iter()
@@ -60,6 +67,18 @@ pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Ve
             directive.to_owned()
         })
         .collect()
+}
+
+/// The function that will return a variable name for an argument
+/// it it uses a variable (and it the argument is available)
+pub fn get_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
+    match argument {
+        Some(if_arg) => match &if_arg.value.item {
+            Value::Variable(var) => Some(var.name.item),
+            _ => None,
+        },
+        None => None,
+    }
 }
 
 pub struct CustomMetadataDirectives {

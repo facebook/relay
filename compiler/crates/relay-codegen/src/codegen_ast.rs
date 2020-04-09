@@ -147,6 +147,7 @@ pub enum ConcreteSelection {
     ScalarHandle(ConcreteNormalizationScalarHandle),
     LinkedHandle(ConcreteNormalizationLinkedHandle),
     Defer(ConcreteDefer),
+    Stream(ConcreteStream),
 }
 
 #[derive(Debug, Serialize)]
@@ -230,6 +231,16 @@ pub type DeferMetadata = FnvHashMap<String, String>;
 pub struct ConcreteDefer {
     pub if_: Option<StringKey>,
     pub label: StringKey,
+    pub selections: Vec<ConcreteSelection>,
+    pub metadata: Option<DeferMetadata>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConcreteStream {
+    pub if_: Option<StringKey>,
+    pub label: StringKey,
+    pub use_customized_batch: Option<StringKey>,
     pub selections: Vec<ConcreteSelection>,
     pub metadata: Option<DeferMetadata>,
 }

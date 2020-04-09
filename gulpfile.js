@@ -307,9 +307,7 @@ const exportsFiles = gulp.series(
             fs.writeFileSync(
               path.join(DIST, build.package, exportName + '.js'),
               PRODUCTION_HEADER +
-                `\nmodule.exports = require('./lib/${
-                  build.exports[exportName]
-                }');\n`,
+                `\nmodule.exports = require('./lib/${build.exports[exportName]}');\n`,
             ),
           );
           done();

@@ -129,9 +129,7 @@ class Sources<T: ASTNode> {
         }
       } catch (error) {
         throw new Error(
-          `RelayCompiler: Sources module failed to parse ${file.name}:\n${
-            error.message
-          }`,
+          `RelayCompiler: Sources module failed to parse ${file.name}:\n${error.message}`,
         );
       }
       const hasEntry = state.hasOwnProperty(file.name);

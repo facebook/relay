@@ -199,17 +199,18 @@ function selectionsToBabel(
         ),
       );
     }
-    const selectionMapValues = groupRefs(Array.from(selectionMap.values())).map(
-      sel =>
-        isTypenameSelection(sel) && sel.concreteType
-          ? makeProp(
-              schema,
-              {...sel, conditional: false},
-              state,
-              unmasked,
-              sel.concreteType,
-            )
-          : makeProp(schema, sel, state, unmasked),
+    const selectionMapValues = groupRefs(
+      Array.from(selectionMap.values()),
+    ).map(sel =>
+      isTypenameSelection(sel) && sel.concreteType
+        ? makeProp(
+            schema,
+            {...sel, conditional: false},
+            state,
+            unmasked,
+            sel.concreteType,
+          )
+        : makeProp(schema, sel, state, unmasked),
     );
     types.push(selectionMapValues);
   }

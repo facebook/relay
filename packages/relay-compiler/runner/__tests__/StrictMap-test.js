@@ -27,7 +27,10 @@ describe('StrictMap', () => {
   });
 
   it('should return keys/values/entries', () => {
-    const input = [['k1', 'v1'], ['k2', 'v2']];
+    const input = [
+      ['k1', 'v1'],
+      ['k2', 'v2'],
+    ];
     const map = new StrictMap(input);
     expect(Array.from(map.keys())).toEqual(['k1', 'k2']);
     expect(Array.from(map.values())).toEqual(['v1', 'v2']);
@@ -36,7 +39,10 @@ describe('StrictMap', () => {
 
   it('should support forEach callback', () => {
     const test = [];
-    const input = [['k1', 'v1'], ['k2', 'v2']];
+    const input = [
+      ['k1', 'v1'],
+      ['k2', 'v2'],
+    ];
     const map = new StrictMap(input);
     map.forEach((v, k) => {
       test.push(`${k}:${v}`);
@@ -45,14 +51,26 @@ describe('StrictMap', () => {
   });
 
   test('map', () => {
-    const map = new StrictMap([['k1', 'ab'], ['k2', 'abc']]);
+    const map = new StrictMap([
+      ['k1', 'ab'],
+      ['k2', 'abc'],
+    ]);
     const mapped = map.map(str => str.length);
-    expect(Array.from(mapped.entries())).toEqual([['k1', 2], ['k2', 3]]);
+    expect(Array.from(mapped.entries())).toEqual([
+      ['k1', 2],
+      ['k2', 3],
+    ]);
   });
 
   test('asyncMap', async () => {
-    const map = new StrictMap([['k1', 'ab'], ['k2', 'abc']]);
+    const map = new StrictMap([
+      ['k1', 'ab'],
+      ['k2', 'abc'],
+    ]);
     const mapped = await map.asyncMap(str => Promise.resolve(str.length));
-    expect(Array.from(mapped.entries())).toEqual([['k1', 2], ['k2', 3]]);
+    expect(Array.from(mapped.entries())).toEqual([
+      ['k1', 2],
+      ['k2', 3],
+    ]);
   });
 });

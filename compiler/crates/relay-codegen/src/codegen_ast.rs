@@ -150,7 +150,10 @@ pub enum ConcreteSelection {
     DeferReaderVariant(DeferReaderNode),
     #[serde(rename = "Defer")]
     DeferNormalizationVariant(DeferNormalizationNode),
-    Stream(ConcreteStream),
+    #[serde(rename = "Stream")]
+    StreamReaderVariant(StreamReaderNode),
+    #[serde(rename = "Stream")]
+    StreamNormalizationVariant(StreamNormalizationNode),
 }
 
 #[derive(Debug, Serialize)]
@@ -246,12 +249,20 @@ pub struct DeferNormalizationNode {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ConcreteStream {
+pub struct StreamReaderNode {
+    pub selections: Vec<ConcreteSelection>,
+}
+
+pub type StreamMetadata = FnvHashMap<String, String>;
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StreamNormalizationNode {
     pub if_: Option<StringKey>,
     pub label: StringKey,
     pub use_customized_batch: Option<StringKey>,
     pub selections: Vec<ConcreteSelection>,
-    pub metadata: Option<DeferMetadata>,
+    pub metadata: Option<StreamMetadata>,
 }
 
 #[derive(Debug, Serialize)]

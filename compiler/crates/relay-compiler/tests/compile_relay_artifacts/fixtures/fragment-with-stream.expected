@@ -197,10 +197,7 @@ fragment FeedbackFragment on Feedback {
       "storageKey": null
     },
     {
-      "if": null,
       "kind": "Stream",
-      "label": "FeedbackFragment$stream$StreamedActorsLabel",
-      "metadata": null,
       "selections": [
         {
           "alias": null,
@@ -220,8 +217,7 @@ fragment FeedbackFragment on Feedback {
           ],
           "storageKey": null
         }
-      ],
-      "useCustomizedBatch": null
+      ]
     }
   ],
   "type": "Feedback"

@@ -196,9 +196,7 @@ impl<'schema> CodegenBuilder<'schema> {
                 let stream = find_directive(&field.directives, DEFER_STREAM_CONSTANTS.stream_name);
 
                 match stream {
-                    Some(stream) => {
-                        vec![ConcreteSelection::Stream(self.build_stream(&field, stream))]
-                    }
+                    Some(stream) => vec![self.build_stream(&field, stream)],
                     None => self.build_linked_field_and_handles(field),
                 }
             }
@@ -399,36 +397,45 @@ impl<'schema> CodegenBuilder<'schema> {
         }
     }
 
-    fn build_stream(&self, linked_field: &LinkedField, stream: &Directive) -> ConcreteStream {
-        let if_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.if_arg);
-        let label_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.label_arg);
-        let use_customized_batch_arg = find_argument(
-            &stream.arguments,
-            DEFER_STREAM_CONSTANTS.use_customized_batch_arg,
-        );
-        let if_variable_name = get_variable_name(if_arg);
-        let use_customized_batch_variable_name = get_variable_name(use_customized_batch_arg);
-        let label_name = match label_arg {
-            Some(label_arg) => match &label_arg.value.item {
-                Value::Constant(ConstantValue::String(val)) => Some(val),
-                _ => None,
-            },
-            None => None,
-        }
-        .unwrap();
+    fn build_stream(&self, linked_field: &LinkedField, stream: &Directive) -> ConcreteSelection {
+        let next_selections = vec![self.build_linked_field(&LinkedField {
+            directives: remove_directive(
+                &linked_field.directives,
+                DEFER_STREAM_CONSTANTS.stream_name,
+            ),
+            ..linked_field.to_owned()
+        })];
+        match self.variant {
+            CodegenVariant::Reader => ConcreteSelection::StreamReaderVariant(StreamReaderNode {
+                selections: next_selections,
+            }),
+            CodegenVariant::Normalization => {
+                let if_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.if_arg);
+                let label_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.label_arg);
+                let use_customized_batch_arg = find_argument(
+                    &stream.arguments,
+                    DEFER_STREAM_CONSTANTS.use_customized_batch_arg,
+                );
+                let if_variable_name = get_variable_name(if_arg);
+                let use_customized_batch_variable_name =
+                    get_variable_name(use_customized_batch_arg);
+                let label_name = match label_arg {
+                    Some(label_arg) => match &label_arg.value.item {
+                        Value::Constant(ConstantValue::String(val)) => Some(val),
+                        _ => None,
+                    },
+                    None => None,
+                }
+                .unwrap();
 
-        ConcreteStream {
-            if_: if_variable_name,
-            metadata: None,
-            use_customized_batch: use_customized_batch_variable_name,
-            label: label_name.to_owned(),
-            selections: vec![self.build_linked_field(&LinkedField {
-                directives: remove_directive(
-                    &linked_field.directives,
-                    DEFER_STREAM_CONSTANTS.stream_name,
-                ),
-                ..linked_field.to_owned()
-            })],
+                ConcreteSelection::StreamNormalizationVariant(StreamNormalizationNode {
+                    if_: if_variable_name,
+                    metadata: None,
+                    use_customized_batch: use_customized_batch_variable_name,
+                    label: label_name.to_owned(),
+                    selections: next_selections,
+                })
+            }
         }
     }
 

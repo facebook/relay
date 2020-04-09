@@ -64,10 +64,7 @@ fragment FeedbackFragment on Feedback {
   "name": "FeedbackFragment",
   "selections": [
     {
-      "if": null,
       "kind": "Stream",
-      "label": "FeedbackFragment$stream$actors",
-      "metadata": null,
       "selections": [
         {
           "alias": null,
@@ -87,8 +84,7 @@ fragment FeedbackFragment on Feedback {
           ],
           "storageKey": null
         }
-      ],
-      "useCustomizedBatch": null
+      ]
     },
     {
       "alias": null,

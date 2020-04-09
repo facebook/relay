@@ -236,10 +236,7 @@ fragment UserFragment on User {
       "storageKey": null
     },
     {
-      "if": null,
       "kind": "Defer",
-      "label": "UserFragment$defer$DeferredFragment_QMvSr",
-      "metadata": null,
       "selections": [
         {
           "args": [
@@ -255,10 +252,7 @@ fragment UserFragment on User {
       ]
     },
     {
-      "if": null,
       "kind": "Defer",
-      "label": "UserFragment$defer$DeferredFragment_1HMuo6",
-      "metadata": null,
       "selections": [
         {
           "args": [

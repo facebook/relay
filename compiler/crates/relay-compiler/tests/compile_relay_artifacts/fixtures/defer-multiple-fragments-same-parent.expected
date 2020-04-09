@@ -62,10 +62,7 @@ fragment FeedbackText_feedback on Feedback {
             "storageKey": null
           },
           {
-            "if": null,
             "kind": "Defer",
-            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback",
-            "metadata": null,
             "selections": [
               {
                 "args": null,
@@ -75,10 +72,7 @@ fragment FeedbackText_feedback on Feedback {
             ]
           },
           {
-            "if": null,
             "kind": "Defer",
-            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback",
-            "metadata": null,
             "selections": [
               {
                 "args": null,

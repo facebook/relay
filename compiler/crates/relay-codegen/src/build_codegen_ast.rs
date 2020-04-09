@@ -183,9 +183,7 @@ impl<'schema> CodegenBuilder<'schema> {
                 let defer =
                     find_directive(&frag_spread.directives, DEFER_STREAM_CONSTANTS.defer_name);
                 match defer {
-                    Some(defer) => vec![ConcreteSelection::Defer(
-                        self.build_defer(&frag_spread, defer),
-                    )],
+                    Some(defer) => vec![self.build_defer(&frag_spread, defer)],
                     None => vec![ConcreteSelection::FragmentSpread(
                         self.build_fragment_spread(&frag_spread),
                     )],
@@ -365,32 +363,39 @@ impl<'schema> CodegenBuilder<'schema> {
         }
     }
 
-    fn build_defer(&self, frag_spread: &FragmentSpread, defer: &Directive) -> ConcreteDefer {
-        let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
-        let label_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.label_arg);
-        let if_variable_name = get_variable_name(if_arg);
-        let label_name = match label_arg {
-            Some(label_arg) => match &label_arg.value.item {
-                Value::Constant(ConstantValue::String(val)) => Some(val),
-                _ => None,
-            },
-            None => None,
-        }
-        .unwrap();
-
-        ConcreteDefer {
-            if_: if_variable_name,
-            metadata: None,
-            label: label_name.to_owned(),
-            selections: vec![ConcreteSelection::FragmentSpread(
-                self.build_fragment_spread(&FragmentSpread {
-                    directives: remove_directive(
-                        &frag_spread.directives,
-                        DEFER_STREAM_CONSTANTS.defer_name,
-                    ),
-                    ..frag_spread.to_owned()
-                }),
-            )],
+    fn build_defer(&self, frag_spread: &FragmentSpread, defer: &Directive) -> ConcreteSelection {
+        let next_selections = vec![ConcreteSelection::FragmentSpread(
+            self.build_fragment_spread(&FragmentSpread {
+                directives: remove_directive(
+                    &frag_spread.directives,
+                    DEFER_STREAM_CONSTANTS.defer_name,
+                ),
+                ..frag_spread.to_owned()
+            }),
+        )];
+        match self.variant {
+            CodegenVariant::Reader => ConcreteSelection::DeferReaderVariant(DeferReaderNode {
+                selections: next_selections,
+            }),
+            CodegenVariant::Normalization => {
+                let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
+                let label_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.label_arg);
+                let if_variable_name = get_variable_name(if_arg);
+                let label_name = match label_arg {
+                    Some(label_arg) => match &label_arg.value.item {
+                        Value::Constant(ConstantValue::String(val)) => Some(val),
+                        _ => None,
+                    },
+                    None => None,
+                }
+                .unwrap();
+                ConcreteSelection::DeferNormalizationVariant(DeferNormalizationNode {
+                    if_: if_variable_name,
+                    metadata: None,
+                    label: label_name.to_owned(),
+                    selections: next_selections,
+                })
+            }
         }
     }
 

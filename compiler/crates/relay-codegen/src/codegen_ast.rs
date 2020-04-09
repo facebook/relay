@@ -146,7 +146,10 @@ pub enum ConcreteSelection {
     ClientExtension(ConcreteClientExtension),
     ScalarHandle(ConcreteNormalizationScalarHandle),
     LinkedHandle(ConcreteNormalizationLinkedHandle),
-    Defer(ConcreteDefer),
+    #[serde(rename = "Defer")]
+    DeferReaderVariant(DeferReaderNode),
+    #[serde(rename = "Defer")]
+    DeferNormalizationVariant(DeferNormalizationNode),
     Stream(ConcreteStream),
 }
 
@@ -224,11 +227,17 @@ pub struct ConcreteNormalizationLinkedHandle {
     pub filters: Option<Vec<StringKey>>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeferReaderNode {
+    pub selections: Vec<ConcreteSelection>,
+}
+
 pub type DeferMetadata = FnvHashMap<String, String>;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ConcreteDefer {
+pub struct DeferNormalizationNode {
     pub if_: Option<StringKey>,
     pub label: StringKey,
     pub selections: Vec<ConcreteSelection>,

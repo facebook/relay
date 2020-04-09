@@ -37,10 +37,7 @@ fragment NodeFragment on Node {
         "plural": false,
         "selections": [
           {
-            "if": null,
             "kind": "Defer",
-            "label": "QueryWithFragmentWithDefer$defer$node",
-            "metadata": null,
             "selections": [
               {
                 "args": null,

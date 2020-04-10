@@ -53,12 +53,12 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // - DisallowIdAsAlias
-    // - ConnectionTransform
+    // + ConnectionTransform
     // - RelayDirectiveTransform
-    // - MaskTransform
+    // + MaskTransform
     // - MatchTransform
     // - RefetchableFragmentTransform
-    // - DeferStreamTransform
+    // + DeferStreamTransform
 
     let program = transform_connections(program, connection_interface);
     let program = mask(&program);
@@ -74,10 +74,10 @@ fn apply_reader_transforms<'schema>(
     base_fragment_names: &FnvHashSet<StringKey>,
 ) -> Program<'schema> {
     // JS compiler
-    // - ClientExtensionsTransform
-    // - FieldHandleTransform
+    // + ClientExtensionsTransform
+    // + FieldHandleTransform
     // - InlineDataFragmentTransform
-    // - FlattenTransform, flattenAbstractTypes: true
+    // + FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
     let program = handle_field_transform(&program);
     let program = remove_base_fragments(&program, base_fragment_names);
@@ -92,9 +92,9 @@ fn apply_operation_transforms<'schema>(
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // - ValidateUnusedVariablesTransform
-    // - ApplyFragmentArgumentTransform
+    // + ApplyFragmentArgumentTransform
     // - ValidateGlobalVariablesTransform
-    // - GenerateIDFieldTransform
+    // + GenerateIDFieldTransform
     // - TestOperationTransform
     let program = apply_fragment_arguments(&program)?;
     let program = generate_id_field(&program);
@@ -108,13 +108,13 @@ fn apply_operation_transforms<'schema>(
 /// Corresponds to the "codegen transforms" in the JS compiler
 fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
     // JS compiler
-    // - SkipUnreachableNodeTransform
+    // + SkipUnreachableNodeTransform
     // - SplitModuleImportTransform
-    // - InlineFragmentsTransform
-    // - ClientExtensionsTransform
-    // - FlattenTransform, flattenAbstractTypes: true
-    // - SkipRedundantNodesTransform
-    // - GenerateTypeNameTransform
+    // + InlineFragmentsTransform
+    // + ClientExtensionsTransform
+    // + FlattenTransform, flattenAbstractTypes: true
+    // + SkipRedundantNodesTransform
+    // + GenerateTypeNameTransform
     // - ValidateServerOnlyDirectivesTransform
 
     let program = skip_unreachable_node(&program);
@@ -132,10 +132,10 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
 fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
     // JS compiler
     // - ClientExtensionsTransform
-    // - SkipClientExtensionsTransform
-    // - SkipUnreachableNodeTransform
-    // - FlattenTransform, flattenAbstractTypes: false
-    // - GenerateTypeNameTransform
+    // + SkipClientExtensionsTransform
+    // + SkipUnreachableNodeTransform
+    // + FlattenTransform, flattenAbstractTypes: false
+    // + GenerateTypeNameTransform
     // - SkipHandleFieldTransform
     // - FilterDirectivesTransform
     // - SkipUnusedVariablesTransform

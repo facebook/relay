@@ -15,9 +15,9 @@
 const CodeMarker = require('../util/CodeMarker');
 
 const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
-const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 
 const {RelayConcreteNode} = require('relay-runtime');
 
@@ -102,9 +102,7 @@ function writeRelayGeneratedFile(
         'writeRelayGeneratedFile: Expected `text` in order to persist query',
       );
 
-      const hasher = crypto.createHash('md5');
-      hasher.update(text);
-      hash = hasher.digest('hex');
+      hash = md5(text);
 
       let id = null;
       if (!shouldRepersist) {

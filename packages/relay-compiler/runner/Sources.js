@@ -14,6 +14,7 @@
 'use strict';
 
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 
 const {toASTRecord} = require('./extractAST');
 const {Source, parse} = require('graphql');
@@ -48,13 +49,6 @@ type SourcesState = {
   },
   ...,
 };
-
-function md5(x: string): string {
-  return require('crypto')
-    .createHash('md5')
-    .update(x, 'utf8')
-    .digest('hex');
-}
 
 class Sources<T: ASTNode> {
   _extractFromFile: GraphQLExtractor<T>;

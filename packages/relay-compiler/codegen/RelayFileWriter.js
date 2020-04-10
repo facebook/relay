@@ -19,9 +19,9 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 
 const compileRelayArtifacts = require('./compileRelayArtifacts');
-const crypto = require('crypto');
 const graphql = require('graphql');
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 const nullthrows = require('nullthrows');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
@@ -359,13 +359,6 @@ function writeAll({
 
     return allOutputDirectories;
   });
-}
-
-function md5(x: string): string {
-  return crypto
-    .createHash('md5')
-    .update(x, 'utf8')
-    .digest('hex');
 }
 
 module.exports = {

@@ -61,8 +61,8 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // - DeferStreamTransform
 
     let program = transform_connections(program, connection_interface);
-    let program = defer_stream(&program)?;
     let program = mask(&program);
+    let program = defer_stream(&program)?;
 
     Ok(program)
 }

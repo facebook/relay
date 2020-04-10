@@ -437,6 +437,7 @@ impl Schema {
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(string_type),
+            directives: Vec::new(),
         });
 
         let clientid_field_id = schema.fields.len();
@@ -446,6 +447,7 @@ impl Schema {
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(id_type),
+            directives: Vec::new(),
         });
 
         Ok(schema)
@@ -524,7 +526,7 @@ impl Schema {
                 name,
                 interfaces,
                 fields,
-                directives: _directives,
+                directives,
             } => {
                 let fields = if is_extension {
                     self.build_extend_fields(&fields, &mut HashSet::with_capacity(fields.len()))?
@@ -535,16 +537,18 @@ impl Schema {
                     .iter()
                     .map(|name| self.build_interface_id(*name))
                     .collect::<Result<Vec<_>>>()?;
+                let directives = self.build_directive_values(&directives);
                 self.objects.push(Object {
                     name: *name,
                     fields,
                     is_extension,
                     interfaces,
+                    directives,
                 });
             }
             ast::Definition::InterfaceTypeDefinition {
                 name,
-                directives: _directives,
+                directives,
                 fields,
             } => {
                 let fields = if is_extension {
@@ -552,11 +556,13 @@ impl Schema {
                 } else {
                     self.build_fields(&fields)?
                 };
+                let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
                     name: *name,
                     implementors: vec![],
                     is_extension,
                     fields,
+                    directives,
                 });
             }
             ast::Definition::UnionTypeDefinition {
@@ -587,13 +593,17 @@ impl Schema {
             }
             ast::Definition::EnumTypeDefinition {
                 name,
-                directives: _directives,
+                directives,
                 values,
-            } => self.enums.push(Enum {
-                name: *name,
-                is_extension,
-                values: values.iter().map(|enum_def| enum_def.name).collect(),
-            }),
+            } => {
+                let directives = self.build_directive_values(&directives);
+                self.enums.push(Enum {
+                    name: *name,
+                    is_extension,
+                    values: values.iter().map(|enum_def| enum_def.name).collect(),
+                    directives,
+                });
+            }
             ast::Definition::ScalarTypeDefinition {
                 name,
                 directives: _directives,
@@ -678,11 +688,13 @@ impl Schema {
             .map(|field_def| {
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let type_ = self.build_type_reference(&field_def.type_)?;
+                let directives = self.build_directive_values(&field_def.directives);
                 Ok(self.build_field(Field {
                     name: field_def.name,
                     is_extension: false,
                     arguments,
                     type_,
+                    directives,
                 }))
             })
             .collect()
@@ -699,12 +711,14 @@ impl Schema {
                 return Err(SchemaError::DuplicateField(field_def.name));
             }
             let arguments = self.build_arguments(&field_def.arguments)?;
+            let directives = self.build_directive_values(&field_def.directives);
             let type_ = self.build_type_reference(&field_def.type_)?;
             field_ids.push(self.build_field(Field {
                 name: field_def.name,
                 is_extension: true,
                 arguments,
                 type_,
+                directives,
             }));
         }
         Ok(field_ids)
@@ -743,6 +757,23 @@ impl Schema {
                 TypeReference::List(Box::new(self.build_type_reference(of_type)?))
             }
         })
+    }
+
+    fn build_directive_values(&mut self, directives: &[ast::Directive]) -> Vec<DirectiveValue> {
+        directives
+            .iter()
+            .map(|directive| DirectiveValue {
+                name: directive.name,
+                arguments: directive
+                    .arguments
+                    .iter()
+                    .map(|argument| ArgumentValue {
+                        name: argument.name,
+                        value: argument.value.clone(),
+                    })
+                    .collect(),
+            })
+            .collect()
     }
 
     pub fn snapshot_print(self) -> String {
@@ -960,6 +991,7 @@ pub struct Object {
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -973,6 +1005,7 @@ pub struct Enum {
     pub name: StringKey,
     pub is_extension: bool,
     pub values: Vec<StringKey>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -988,6 +1021,7 @@ pub struct Interface {
     pub is_extension: bool,
     pub implementors: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -996,6 +1030,7 @@ pub struct Field {
     pub is_extension: bool,
     pub arguments: ArgumentDefinitions,
     pub type_: TypeReference,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1003,6 +1038,18 @@ pub struct Argument {
     pub name: StringKey,
     pub type_: TypeReference,
     pub default_value: Option<ConstValue>,
+}
+
+#[derive(Debug)]
+pub struct ArgumentValue {
+    pub name: StringKey,
+    pub value: ConstValue,
+}
+
+#[derive(Debug)]
+pub struct DirectiveValue {
+    pub name: StringKey,
+    pub arguments: Vec<ArgumentValue>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

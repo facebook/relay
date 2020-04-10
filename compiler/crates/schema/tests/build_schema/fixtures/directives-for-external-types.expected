@@ -1,0 +1,443 @@
+==================================== INPUT ====================================
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @extern_type(schema: String, name: String) on INTERFACE
+directive @fetchable(field_name: String) on OBJECT
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+}
+
+# imported types
+type XIGStory
+  @fetchable(field_name: "id")
+  @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+==================================== OUTPUT ===================================
+Schema {
+query_type: Some(
+    ObjectID(
+        0,
+    ),
+)
+mutation_type: None
+subscription_type: None
+directives: [
+    Directive {
+        name: "extern_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Interface,
+        ],
+        is_extension: false,
+    },
+    Directive {
+        name: "fetchable",
+        arguments: [
+            Argument {
+                name: "field_name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Object,
+        ],
+        is_extension: false,
+    },
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        is_extension: false,
+    },
+    Directive {
+        name: "ref_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            FieldDefinition,
+        ],
+        is_extension: false,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        is_extension: false,
+    },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Object,
+            Interface,
+            Enum,
+        ],
+        is_extension: false,
+    },
+]
+type_map: {
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "Query": Object(0),
+    "String": Scalar(2),
+    "User": Object(1),
+    "XIGHuman": Interface(0),
+    "XIGStory": Object(2),
+}
+enums: []
+fields: [
+    Field {
+        name: "fetch__User",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(4),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(1),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "fetch__XIGStory",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(4),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(2),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "story",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(2),
+        ),
+        directives: [
+            DirectiveValue {
+                name: "ref_type",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            "instagram",
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            "Story",
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "__typename",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "__id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+    },
+]
+input_objects: []
+interfaces: [
+    Interface {
+        name: "XIGHuman",
+        is_extension: false,
+        implementors: [
+            ObjectID(
+                1,
+            ),
+        ],
+        fields: [
+            FieldID(
+                2,
+            ),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            "instagram",
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            "Human",
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
+objects: [
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+    Object {
+        name: "User",
+        is_extension: false,
+        fields: [
+            FieldID(
+                3,
+            ),
+            FieldID(
+                4,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            "id",
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+    Object {
+        name: "XIGStory",
+        is_extension: false,
+        fields: [
+            FieldID(
+                5,
+            ),
+            FieldID(
+                6,
+            ),
+        ],
+        interfaces: [],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            "id",
+                        ),
+                    },
+                ],
+            },
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            "instagram",
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            "Story",
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
+scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+    },
+]
+unions: []
+}

@@ -1,9 +1,16 @@
-// @generated SignedSource<<050955ad52fb02d71f5edca0258eb176>>
+// @generated SignedSource<<f486904fb3cb77c37e2f772670ffe174>>
 
 mod build_schema;
 
 use build_schema::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn directives_for_external_types() {
+    let input = include_str!("build_schema/fixtures/directives-for-external-types.graphql");
+    let expected = include_str!("build_schema/fixtures/directives-for-external-types.expected");
+    test_fixture(transform_fixture, "directives-for-external-types.graphql", "build_schema/fixtures/directives-for-external-types.expected", input, expected);
+}
 
 #[test]
 fn invalid_implements_non_interface() {

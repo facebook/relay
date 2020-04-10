@@ -74,6 +74,82 @@ describe('commitPayload()', () => {
     });
   });
 
+  it('applies null-stripped server updates with null stripping disabled (default)', () => {
+    const query = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name
+            birthdate {
+              day
+              month
+              year
+            }
+          }
+        }
+      `);
+    operation = createOperationDescriptor(query.ActorQuery, {});
+    const callback = jest.fn();
+    const snapshot = environment.lookup(operation.fragment);
+    environment.subscribe(snapshot, callback);
+
+    environment.commitPayload(operation, {
+      me: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+      },
+    });
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Zuck',
+        birthdate: undefined,
+      },
+    });
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
+  });
+
+  it('applies null-stripped server updates with null stripping enabled', () => {
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+      handleStrippedNulls: true,
+    });
+
+    const query = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name
+            birthdate {
+              day
+              month
+              year
+            }
+          }
+        }
+      `);
+    operation = createOperationDescriptor(query.ActorQuery, {});
+    const callback = jest.fn();
+    const snapshot = environment.lookup(operation.fragment);
+    environment.subscribe(snapshot, callback);
+
+    environment.commitPayload(operation, {
+      me: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+      },
+    });
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Zuck',
+        birthdate: null,
+      },
+    });
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
+  });
+
   it('rebases optimistic updates', () => {
     const callback = jest.fn();
     const snapshot = environment.lookup(operation.fragment);

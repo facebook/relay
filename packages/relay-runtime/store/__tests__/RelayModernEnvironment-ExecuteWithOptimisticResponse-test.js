@@ -338,4 +338,49 @@ describe('execute() with network that returns optimistic response', () => {
     );
     expect(callback).toBeCalledTimes(0);
   });
+
+  it('does not handle strip nulls on optimistic response, even when handling stripped nulls option is true', () => {
+    const selector = createReaderSelector(
+      query.fragment,
+      ROOT_ID,
+      {fetchSize: true},
+      operation.request,
+    );
+
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+      handleStrippedNulls: true,
+    });
+
+    const snapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    const subscription = environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        me: {
+          id: '842472',
+          __typename: 'User',
+          name: 'Joe',
+        },
+      },
+      extensions: {
+        isOptimistic: true,
+      },
+    });
+    jest.runAllTimers();
+
+    expect(next.mock.calls.length).toBe(1);
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Joe',
+      },
+    });
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
+  });
 });

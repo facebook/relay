@@ -460,4 +460,49 @@ describe('executeMutation()', () => {
         .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
+
+  it('does not handle stripped nulls on optimistic response, even when handling stripped nulls option is true', () => {
+    operation = createOperationDescriptor(
+      CreateCommentWithSpreadMutation,
+      variables,
+    );
+
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      queryOperation.request,
+    );
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+      handleStrippedNulls: true,
+    });
+
+    const snapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation,
+        optimisticResponse: {
+          commentCreate: {
+            comment: {
+              id: commentID,
+            },
+          },
+        },
+      })
+      .subscribe(callbacks);
+
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      id: commentID,
+      body: undefined,
+    });
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
+  });
 });

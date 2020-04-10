@@ -6,7 +6,7 @@
  */
 
 use crate::connections::{ConnectionConstants, ConnectionInterface};
-use crate::util::find_argument;
+use crate::util::{extract_variable_name, find_argument};
 use common::{Location, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
@@ -105,16 +105,6 @@ pub fn build_connection_metadata(
         direction,
         path: path.clone(),
         is_stream_connection,
-    }
-}
-
-fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
-    match argument {
-        Some(arg) => match &arg.value.item {
-            Value::Variable(var_value) => Some(var_value.name.item),
-            _ => None,
-        },
-        None => None,
     }
 }
 

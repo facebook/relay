@@ -15,8 +15,8 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_relay_directive, extract_values_from_handle_field_directive, find_argument,
-    find_directive, get_variable_name, remove_directive, ConnectionConstants, HandleFieldConstants,
+    extract_relay_directive, extract_values_from_handle_field_directive, extract_variable_name,
+    find_argument, find_directive, remove_directive, ConnectionConstants, HandleFieldConstants,
     DEFER_STREAM_CONSTANTS, RELAY_DIRECTIVE_CONSTANTS,
 };
 use interner::{Intern, StringKey};
@@ -378,7 +378,7 @@ impl<'schema> CodegenBuilder<'schema> {
             CodegenVariant::Normalization => {
                 let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
                 let label_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.label_arg);
-                let if_variable_name = get_variable_name(if_arg);
+                let if_variable_name = extract_variable_name(if_arg);
                 let label_name = match label_arg {
                     Some(label_arg) => match &label_arg.value.item {
                         Value::Constant(ConstantValue::String(val)) => Some(val),
@@ -416,9 +416,9 @@ impl<'schema> CodegenBuilder<'schema> {
                     &stream.arguments,
                     DEFER_STREAM_CONSTANTS.use_customized_batch_arg,
                 );
-                let if_variable_name = get_variable_name(if_arg);
+                let if_variable_name = extract_variable_name(if_arg);
                 let use_customized_batch_variable_name =
-                    get_variable_name(use_customized_batch_arg);
+                    extract_variable_name(use_customized_batch_arg);
                 let label_name = match label_arg {
                     Some(label_arg) => match &label_arg.value.item {
                         Value::Constant(ConstantValue::String(val)) => Some(val),

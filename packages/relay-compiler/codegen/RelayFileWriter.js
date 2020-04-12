@@ -19,9 +19,9 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 
 const compileRelayArtifacts = require('./compileRelayArtifacts');
-const crypto = require('crypto');
 const graphql = require('graphql');
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 const nullthrows = require('nullthrows');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
@@ -192,10 +192,6 @@ function writeAll({
       ]),
     );
 
-    const existingFragmentNames = new Set(
-      definitions.map(definition => definition.name),
-    );
-
     const definitionsMeta = new Map();
     const getDefinitionMeta = (definitionName: string) => {
       const artifact = nullthrows(artifactMap.get(definitionName));
@@ -217,12 +213,6 @@ function writeAll({
           });
         }
       });
-    });
-
-    // TODO(T22651734): improve this to correctly account for fragments that
-    // have generated flow types.
-    baseDefinitionNames.forEach(baseDefinitionName => {
-      existingFragmentNames.delete(baseDefinitionName);
     });
 
     const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
@@ -289,7 +279,6 @@ function writeAll({
                 {
                   customScalars: writerConfig.customScalars,
                   enumsHasteModule: writerConfig.enumsHasteModule,
-                  existingFragmentNames,
                   optionalInputFields: writerConfig.optionalInputFieldsForFlow,
                   useHaste: writerConfig.useHaste,
                   useSingleArtifactDirectory: !!writerConfig.outputDir,
@@ -370,13 +359,6 @@ function writeAll({
 
     return allOutputDirectories;
   });
-}
-
-function md5(x: string): string {
-  return crypto
-    .createHash('md5')
-    .update(x, 'utf8')
-    .digest('hex');
 }
 
 module.exports = {

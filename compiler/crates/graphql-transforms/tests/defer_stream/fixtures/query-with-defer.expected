@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+query QueryWithDefer {
+  me {
+    id
+    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+==================================== OUTPUT ===================================
+query QueryWithDefer {
+  me {
+    id
+    ...DeferredFragment @defer(label: "QueryWithDefer$defer$DeferredFragmentLabel")
+  }
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}

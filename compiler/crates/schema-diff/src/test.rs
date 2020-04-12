@@ -122,7 +122,7 @@ fn test_add_remove_enum_value() {
         ),
         SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
             name: "A".intern(),
-            added: vec!["ZUCK".intern(), "NOT_ZUCK".intern()],
+            added: vec!["NOT_ZUCK".intern(), "ZUCK".intern()],
             removed: vec!["MARK".intern(), "NOT_MARK".intern()],
         }])
     );

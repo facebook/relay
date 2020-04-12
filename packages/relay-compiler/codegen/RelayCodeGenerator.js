@@ -14,6 +14,7 @@
 
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
+const Rollout = require('../util/Rollout');
 
 const {createCompilerError} = require('../core/CompilerError');
 
@@ -52,15 +53,15 @@ function generate(
       return ReaderCodeGenerator.generate(schema, node);
     case 'Request':
       return {
-        kind: 'Request',
         fragment: ReaderCodeGenerator.generate(schema, node.fragment),
+        kind: 'Request',
         operation: NormalizationCodeGenerator.generate(schema, node.root),
         params: {
-          operationKind: node.root.operation,
-          name: node.name,
           id: node.id,
-          text: node.text,
           metadata: node.metadata,
+          name: node.name,
+          operationKind: node.root.operation,
+          text: node.text,
         },
       };
     case 'SplitOperation':

@@ -38,6 +38,7 @@ function skipUnreachableNodeTransform(
   const fragments: Map<string, ?Fragment> = new Map();
   const nextContext = IRTransformer.transform(context, {
     Root: node => transformNode(context, fragments, node),
+    SplitOperation: node => transformNode(context, fragments, node),
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.
     Fragment: id => null,

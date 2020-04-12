@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: "DeferredFragmentLabel") {
+    id
+    name
+  }
+}
+==================================== ERROR ====================================
+Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.:
+inline-fragment-with-defer.invalid.graphql:11:15:
+  ... on User @defer(label: "DeferredFragmentLabel") {

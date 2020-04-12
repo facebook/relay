@@ -1,0 +1,40 @@
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+  ... on User {
+    # ok: identical 3D selections can be repeated and should flatten together:
+    # the repetition is allowed to support cases where the same 3D field
+    # needs to be selected for each of several concrete parent types,
+    # such that the selection has to be repeated once per `... on ConcreteType`
+    # type condition.
+    nameRenderer @match {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    ... on PlainUserNameData {
+      text # should be flattened
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    ... on MarkdownUserNameData {
+      markup # should be flattened
+    }
+  }
+}

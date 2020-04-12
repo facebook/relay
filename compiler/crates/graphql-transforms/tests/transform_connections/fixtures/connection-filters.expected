@@ -1,0 +1,76 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $orderBy: String) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: ["orderby", "first"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+) @__connectionMetadata(__connectionMetadataArgument: [[null, "forward", null, null, false], [["node", "comments"], "forward", null, null, false]]) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handler: "connection", filters: ["orderby", "first"], dynamicKey_UNSTABLE: null) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection @__clientField(key: "NodeQuery_friends", handler: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+                edges {
+                  node {
+                    name
+                  }
+                  ... on FriendsEdge {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                }
+                pageInfo {
+                  ... on PageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

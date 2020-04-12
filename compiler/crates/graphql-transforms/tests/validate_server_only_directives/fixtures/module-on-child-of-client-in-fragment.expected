@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+fragment SomeUser on User {
+  nameRenderer {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  foo {
+    bar {
+      user {
+        ...SomeUser
+      }
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+query TestQuery {
+  node {
+    ...NameRendererFragment
+  }
+}
+
+# %extensions%
+extend type User {
+  foo: Foo
+}
+
+type Foo {
+  bar: Bar
+}
+
+type Bar {
+  user: User
+}
+==================================== OUTPUT ===================================
+OK

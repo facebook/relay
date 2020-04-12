@@ -8,10 +8,10 @@
 use common::WithLocation;
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
+use schema::Schema;
 use schema::{FieldID, Type, TypeReference};
 use std::fmt;
 use std::sync::Arc;
-
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -63,7 +63,7 @@ impl VariableDefinition {
 // Selections
 
 /// A selection within an operation or fragment
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Selection {
     FragmentSpread(Arc<FragmentSpread>),
     InlineFragment(Arc<InlineFragment>),
@@ -145,6 +145,16 @@ pub struct LinkedField {
     pub selections: Vec<Selection>,
 }
 
+impl LinkedField {
+    pub fn alias_or_name(&self, schema: &Schema) -> StringKey {
+        if let Some(name) = self.alias {
+            name.item
+        } else {
+            schema.field(self.definition.item).name
+        }
+    }
+}
+
 /// Name Arguments?
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ScalarField {
@@ -154,12 +164,22 @@ pub struct ScalarField {
     pub directives: Vec<Directive>,
 }
 
+impl ScalarField {
+    pub fn alias_or_name(&self, schema: &Schema) -> StringKey {
+        if let Some(name) = self.alias {
+            name.item
+        } else {
+            schema.field(self.definition.item).name
+        }
+    }
+}
+
 /// https://spec.graphql.org/June2018/#sec--skip
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Condition {
+    pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
-    pub selections: Vec<Selection>,
 }
 
 // Associated Types

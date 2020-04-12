@@ -81,7 +81,7 @@ function useMutation<TMutation: MutationParameters>(
         }
       }
     },
-    [environment, mutation], // eslint-disable-line react-hooks/exhaustive-deps
+    [environment, isMountedRef, mutation],
   );
 
   useEffect(() => {
@@ -96,8 +96,7 @@ function useMutation<TMutation: MutationParameters>(
       environmentRef.current = environment;
       mutationRef.current = mutation;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environment, mutation]);
+  }, [environment, isMountedRef, mutation]);
 
   const commit = useCallback(
     (config: UseMutationConfig<TMutation>) => {
@@ -123,8 +122,7 @@ function useMutation<TMutation: MutationParameters>(
       }
       return disposable;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [cleanup, commitMutationFn, environment, mutation],
+    [cleanup, commitMutationFn, environment, isMountedRef, mutation],
   );
 
   return [commit, isMutationInFlight];

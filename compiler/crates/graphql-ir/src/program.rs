@@ -66,6 +66,16 @@ impl<'s> Program<'s> {
         self.fragments.get(&name)
     }
 
+    /// Searches for an operation by name.
+    ///
+    /// NOTE: This is a linear search, we currently don't frequently search
+    ///       for operations by name, so this might be overall faster than
+    ///       using a HashMap internally.
+    pub fn operation(&self, name: StringKey) -> Option<&Arc<OperationDefinition>> {
+        self.operations()
+            .find(|operation| operation.name.item == name)
+    }
+
     pub fn insert_operation(&mut self, operation: Arc<OperationDefinition>) {
         self.operations.push(operation);
     }
@@ -80,5 +90,9 @@ impl<'s> Program<'s> {
 
     pub fn document_count(&self) -> usize {
         self.fragments.len() + self.operations.len()
+    }
+
+    pub fn fragment_map(&self) -> &HashMap<StringKey, Arc<FragmentDefinition>> {
+        &self.fragments
     }
 }

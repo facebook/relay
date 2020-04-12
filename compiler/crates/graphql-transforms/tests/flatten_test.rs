@@ -1,9 +1,30 @@
-// @generated SignedSource<<cf3fce8e023099de5e87ffebc1c4e233>>
+// @generated SignedSource<<6c6c88dc6a0dd0d4ec176290a7df100f>>
 
 mod flatten;
 
 use flatten::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn anonymous_inline_fragment_with_directives() {
+    let input = include_str!("flatten/fixtures/anonymous-inline-fragment-with-directives.graphql");
+    let expected = include_str!("flatten/fixtures/anonymous-inline-fragment-with-directives.expected");
+    test_fixture(transform_fixture, "anonymous-inline-fragment-with-directives.graphql", "flatten/fixtures/anonymous-inline-fragment-with-directives.expected", input, expected);
+}
+
+#[test]
+fn flatten_multiple_conditions() {
+    let input = include_str!("flatten/fixtures/flatten-multiple-conditions.graphql");
+    let expected = include_str!("flatten/fixtures/flatten-multiple-conditions.expected");
+    test_fixture(transform_fixture, "flatten-multiple-conditions.graphql", "flatten/fixtures/flatten-multiple-conditions.expected", input, expected);
+}
+
+#[test]
+fn flatten_same_conditions() {
+    let input = include_str!("flatten/fixtures/flatten-same-conditions.graphql");
+    let expected = include_str!("flatten/fixtures/flatten-same-conditions.expected");
+    test_fixture(transform_fixture, "flatten-same-conditions.graphql", "flatten/fixtures/flatten-same-conditions.expected", input, expected);
+}
 
 #[test]
 fn flatten_transform() {
@@ -31,6 +52,20 @@ fn flattens_matching_fragment_types() {
     let input = include_str!("flatten/fixtures/flattens-matching-fragment-types.graphql");
     let expected = include_str!("flatten/fixtures/flattens-matching-fragment-types.expected");
     test_fixture(transform_fixture, "flattens-matching-fragment-types.graphql", "flatten/fixtures/flattens-matching-fragment-types.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_with_directives() {
+    let input = include_str!("flatten/fixtures/inline-fragment-with-directives.graphql");
+    let expected = include_str!("flatten/fixtures/inline-fragment-with-directives.expected");
+    test_fixture(transform_fixture, "inline-fragment-with-directives.graphql", "flatten/fixtures/inline-fragment-with-directives.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_with_directives_text() {
+    let input = include_str!("flatten/fixtures/inline-fragment-with-directives-text.graphql");
+    let expected = include_str!("flatten/fixtures/inline-fragment-with-directives-text.expected");
+    test_fixture(transform_fixture, "inline-fragment-with-directives-text.graphql", "flatten/fixtures/inline-fragment-with-directives-text.expected", input, expected);
 }
 
 #[test]

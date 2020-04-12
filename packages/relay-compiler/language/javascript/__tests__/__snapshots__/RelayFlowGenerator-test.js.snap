@@ -142,10 +142,10 @@ fragment UserFrag2 on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // FragmentSpread.graphql
-type OtherFragment$ref = any;
-type PictureFragment$ref = any;
-type UserFrag1$ref = any;
-type UserFrag2$ref = any;
+import type { OtherFragment$ref } from "OtherFragment.graphql";
+import type { PictureFragment$ref } from "PictureFragment.graphql";
+import type { UserFrag1$ref } from "UserFrag1.graphql";
+import type { UserFrag2$ref } from "UserFrag2.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FragmentSpread$ref: FragmentReference;
 declare export opaque type FragmentSpread$fragmentType: FragmentSpread$ref;
@@ -169,7 +169,7 @@ export type FragmentSpread$key = {
 };
 
 // ConcreateTypes.graphql
-type PageFragment$ref = any;
+import type { PageFragment$ref } from "PageFragment.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type ConcreateTypes$ref: FragmentReference;
 declare export opaque type ConcreateTypes$fragmentType: ConcreateTypes$ref;
@@ -417,7 +417,7 @@ export type InlineFragmentConditionalID$key = {
 };
 
 // InlineFragmentKitchenSink.graphql
-type SomeFragment$ref = any;
+import type { SomeFragment$ref } from "SomeFragment.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$ref: FragmentReference;
 declare export opaque type InlineFragmentKitchenSink$fragmentType: InlineFragmentKitchenSink$ref;
@@ -566,8 +566,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // NameRendererFragment.graphql
-type MarkdownUserNameRenderer_name$ref = any;
-type PlainUserNameRenderer_name$ref = any;
+import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type NameRendererFragment$ref: FragmentReference;
 declare export opaque type NameRendererFragment$fragmentType: NameRendererFragment$ref;
@@ -652,8 +652,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // NameRendererQuery.graphql
-type MarkdownUserNameRenderer_name$ref = any;
-type PlainUserNameRenderer_name$ref = any;
+import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
 export type NameRendererQueryVariables = {||};
 export type NameRendererQueryResponse = {|
   +me: ?{|
@@ -793,7 +793,7 @@ fragment InlineFragmentWithOverlappingFields on Actor {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // TestMutation.graphql
-type InlineFragmentWithOverlappingFields$ref = any;
+import type { InlineFragmentWithOverlappingFields$ref } from "InlineFragmentWithOverlappingFields.graphql";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -999,7 +999,7 @@ fragment FriendFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // CommentCreateMutation.graphql
-type FriendFragment$ref = any;
+import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
@@ -1115,7 +1115,7 @@ fragment FeedbackFragment on Feedback {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // CommentCreateMutation.graphql
-type FriendFragment$ref = any;
+import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -1173,7 +1173,7 @@ export type CommentCreateMutation = {|
 |};
 
 // FriendFragment.graphql
-type FeedbackFragment$ref = any;
+import type { FeedbackFragment$ref } from "FeedbackFragment.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FriendFragment$ref: FragmentReference;
 declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
@@ -1342,7 +1342,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
 import type { Local3DPayload } from "relay-runtime";
-type NameRendererFragment$ref = any;
+import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -1398,8 +1398,8 @@ export type Test = {|
 |};
 
 // NameRendererFragment.graphql
-type MarkdownUserNameRenderer_name$ref = any;
-type PlainUserNameRenderer_name$ref = any;
+import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type NameRendererFragment$ref: FragmentReference;
 declare export opaque type NameRendererFragment$fragmentType: NameRendererFragment$ref;
@@ -1479,7 +1479,7 @@ fragment Test_userRenderer on PlainUserRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
 import type { Local3DPayload } from "relay-runtime";
-type Test_user$ref = any;
+import type { Test_user$ref } from "Test_user.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -1514,7 +1514,7 @@ export type Test = {|
 |};
 
 // Test_user.graphql
-type Test_userRenderer$ref = any;
+import type { Test_userRenderer$ref } from "Test_userRenderer.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type Test_user$ref: FragmentReference;
 declare export opaque type Test_user$fragmentType: Test_user$ref;
@@ -1605,8 +1605,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // Test.graphql
 import type { Local3DPayload } from "relay-runtime";
-type AnotherNameRendererFragment$ref = any;
-type NameRendererFragment$ref = any;
+import type { AnotherNameRendererFragment$ref } from "AnotherNameRendererFragment.graphql";
+import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -1699,8 +1699,8 @@ export type Test = {|
 |};
 
 // NameRendererFragment.graphql
-type MarkdownUserNameRenderer_name$ref = any;
-type PlainUserNameRenderer_name$ref = any;
+import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type NameRendererFragment$ref: FragmentReference;
 declare export opaque type NameRendererFragment$fragmentType: NameRendererFragment$ref;
@@ -1721,8 +1721,8 @@ export type NameRendererFragment$key = {
 };
 
 // AnotherNameRendererFragment.graphql
-type MarkdownUserNameRenderer_name$ref = any;
-type PlainUserNameRenderer_name$ref = any;
+import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type AnotherNameRendererFragment$ref: FragmentReference;
 declare export opaque type AnotherNameRendererFragment$fragmentType: AnotherNameRendererFragment$ref;
@@ -1800,7 +1800,7 @@ fragment FriendFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // ExampleQuery.graphql
-type FriendFragment$ref = any;
+import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type ExampleQueryVariables = {|
   id: string,
   condition: boolean,
@@ -1879,7 +1879,7 @@ fragment FriendFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // ExampleQuery.graphql
-type FriendFragment$ref = any;
+import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type ExampleQueryVariables = {|
   id: string
 |};

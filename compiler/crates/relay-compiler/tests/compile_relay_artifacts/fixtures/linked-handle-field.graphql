@@ -1,0 +1,11 @@
+# %TODO%
+
+query LinkedHandleField($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      friends(first: 10) @__clientField(handle: "clientFriends") {
+        count
+      }
+    }
+  }
+}

@@ -27,7 +27,7 @@ query LiteralObjectArgument3 {
   }
 }
 ==================================== ERROR ====================================
-Unknown field CheckinSearchInput.unknownField:
+Unknown field 'CheckinSearchInput.unknownField':
 literal-object-argument.invalid.graphql:3:12:
 
       unknownField: "Facebook" # error: unknown field

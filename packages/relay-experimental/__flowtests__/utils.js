@@ -72,6 +72,11 @@ declare export var keyAnotherNullable: ?{
   ...
 };
 
+declare export var fragmentData: {
+  +$refType: FragmentReference,
+  ...
+};
+
 export type QueryOperation = {|
   +variables: QueryVariables,
   +response: {...},

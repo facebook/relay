@@ -12,6 +12,7 @@
 
 'use strict';
 
+const FetchableQueryGenerator = require('./FetchableQueryGenerator');
 const NodeQueryGenerator = require('./NodeQueryGenerator');
 const QueryQueryGenerator = require('./QueryQueryGenerator');
 const ViewerQueryGenerator = require('./ViewerQueryGenerator');
@@ -22,6 +23,7 @@ import type {Fragment, Root} from '../../core/IR';
 import type {Schema} from '../../core/Schema';
 
 export type RefetchRoot = {|
+  identifierField: ?string,
   path: $ReadOnlyArray<string>,
   node: Root,
   transformedFragment: Fragment,
@@ -53,6 +55,7 @@ const GENERATORS = [
   ViewerQueryGenerator,
   QueryQueryGenerator,
   NodeQueryGenerator,
+  FetchableQueryGenerator,
 ];
 
 /**

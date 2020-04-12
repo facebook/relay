@@ -4,3 +4,4 @@ fragment User_fragment on User {
   __typename
 }
 ==================================== OUTPUT ===================================
+OK

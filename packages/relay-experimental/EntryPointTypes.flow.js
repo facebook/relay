@@ -54,6 +54,7 @@ export type PreloadedQuery<
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: ?string | ?number,
   +fetchPolicy: PreloadFetchPolicy,
+  +id: ?string,
   +name: string,
   +source: ?Observable<GraphQLResponse>,
   +variables: $ElementType<TQuery, 'variables'>,
@@ -171,7 +172,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   queries: $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
 |}>;
 
-type ThinQueryParams<
+export type ThinQueryParams<
   TQuery: OperationType,
   TEnvironmentProviderOptions,
 > = $ReadOnly<{|

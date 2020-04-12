@@ -14,10 +14,8 @@
 'use strict';
 
 const ProfilerContext = require('./ProfilerContext');
-// flowlint untyped-import:off
+// flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
 
 const getRefetchMetadata = require('./getRefetchMetadata');
 const getValueAtPath = require('./getValueAtPath');
@@ -37,7 +35,6 @@ const {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
 } = require('react');
 const {
   __internal: {fetchQuery},
@@ -137,6 +134,7 @@ type RefetchState = {|
   onComplete: ((Error | null) => void) | void,
   refetchEnvironment?: ?IEnvironment,
   refetchVariables: Variables | null,
+  refetchGeneration: number,
 |};
 
 type DebugIDandTypename = {
@@ -151,6 +149,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
       return {
         ...state,
         refetchVariables: action.refetchVariables,
+        refetchGeneration: state.refetchGeneration + 1,
         fetchPolicy: action.fetchPolicy,
         renderPolicy: action.renderPolicy,
         onComplete: action.onComplete,
@@ -164,6 +163,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
         renderPolicy: undefined,
         onComplete: undefined,
         refetchVariables: null,
+        refetchGeneration: 0,
         mirroredEnvironment: action.environment,
         mirroredFragmentIdentifier: action.fragmentIdentifier,
       };
@@ -184,10 +184,11 @@ function useRefetchableFragmentNode<
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
-  const {refetchableRequest, fragmentRefPathInResponse} = getRefetchMetadata(
-    fragmentNode,
-    componentDisplayName,
-  );
+  const {
+    refetchableRequest,
+    fragmentRefPathInResponse,
+    identifierField,
+  } = getRefetchMetadata(fragmentNode, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(
     fragmentNode,
     parentFragmentRef,
@@ -198,14 +199,15 @@ function useRefetchableFragmentNode<
     renderPolicy: undefined,
     onComplete: undefined,
     refetchVariables: null,
+    refetchGeneration: 0,
     refetchEnvironment: null,
     mirroredEnvironment: parentEnvironment,
     mirroredFragmentIdentifier: fragmentIdentifier,
   });
   const {startFetch, disposeFetch, completeFetch} = useFetchTrackingRef();
-  const refetchGenerationRef = useRef(0);
   const {
     refetchVariables,
+    refetchGeneration,
     refetchEnvironment,
     fetchPolicy,
     renderPolicy,
@@ -257,7 +259,7 @@ function useRefetchableFragmentNode<
       refetchQuery,
       fetchPolicy,
       renderPolicy,
-      refetchGenerationRef.current ?? 0,
+      refetchGeneration,
       componentDisplayName,
       {
         start: startFetch,
@@ -315,7 +317,7 @@ function useRefetchableFragmentNode<
     // in the useEffect cleanup.
     const queryDisposable =
       refetchedQueryResult != null
-        ? QueryResource.retain(refetchedQueryResult)
+        ? QueryResource.retain(refetchedQueryResult, profilerContext)
         : null;
 
     return () => {
@@ -327,7 +329,7 @@ function useRefetchableFragmentNode<
     // refetchedQueryResult is captured by including refetchQuery, which is
     // already capturing if the query or variables changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [QueryResource, fragmentIdentifier, refetchQuery]);
+  }, [QueryResource, fragmentIdentifier, refetchQuery, refetchGeneration]);
 
   const refetch = useRefetchFunction<TQuery>(
     fragmentNode,
@@ -335,10 +337,10 @@ function useRefetchableFragmentNode<
     fragmentIdentifier,
     fragmentRefPathInResponse,
     fragmentData,
-    refetchGenerationRef,
     dispatch,
     disposeFetch,
     componentDisplayName,
+    identifierField,
   );
   return {
     fragmentData,
@@ -355,15 +357,18 @@ function useRefetchFunction<TQuery: OperationType>(
   fragmentIdentifier,
   fragmentRefPathInResponse,
   fragmentData,
-  refetchGenerationRef,
   dispatch,
   disposeFetch,
   componentDisplayName,
+  identifierField,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
-  // $FlowFixMe
-  const dataID = fragmentData?.id;
-
+  const identifierValue =
+    identifierField != null &&
+    fragmentData != null &&
+    typeof fragmentData === 'object'
+      ? fragmentData[identifierField]
+      : null;
   return useCallback(
     (providedRefetchVariables, options) => {
       // Bail out and warn if we're trying to refetch after the component
@@ -410,7 +415,6 @@ function useRefetchFunction<TQuery: OperationType>(
           componentDisplayName,
         );
       }
-      refetchGenerationRef.current = (refetchGenerationRef.current ?? 0) + 1;
 
       const environment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;
@@ -442,24 +446,26 @@ function useRefetchFunction<TQuery: OperationType>(
         ...fragmentVariables,
         ...providedRefetchVariables,
       };
-      // TODO (T40777961): Tweak output of @refetchable transform to more
-      // easily tell if we need an $id in the refetch vars
+
+      // If the query needs an identifier value ('id' or similar) and one
+      // was not explicitly provided, read it from the fragment data.
       if (
-        fragmentRefPathInResponse.includes('node') &&
+        identifierField != null &&
         !providedRefetchVariables.hasOwnProperty('id')
       ) {
         // @refetchable fragments are guaranteed to have an `id` selection
-        // if the type is Node or implements Node. Double-check that there
-        // actually is a value at runtime.
-        if (typeof dataID !== 'string') {
+        // if the type is Node, implements Node, or is @fetchable. Double-check
+        // that there actually is a value at runtime.
+        if (typeof identifierValue !== 'string') {
           warning(
             false,
             'Relay: Expected result to have a string  ' +
-              '`id` in order to refetch, got `%s`.',
-            dataID,
+              '`%s` in order to refetch, got `%s`.',
+            identifierField,
+            identifierValue,
           );
         }
-        refetchVariables.id = dataID;
+        refetchVariables.id = identifierValue;
       }
 
       dispatch({
@@ -479,7 +485,7 @@ function useRefetchFunction<TQuery: OperationType>(
     //   - fragmentNode and parentFragmentRef are also captured by including
     //     fragmentIdentifier
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fragmentIdentifier, dataID, dispatch, disposeFetch],
+    [fragmentIdentifier, dispatch, disposeFetch, identifierValue],
   );
 }
 

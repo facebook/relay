@@ -22,7 +22,9 @@ pub struct Config {
     pub root_dir: PathBuf,
     pub sources: HashMap<PathBuf, SourceSetName>,
     pub blacklist: Vec<String>,
-    pub projects: HashMap<ProjectName, ConfigProject>,
+    pub projects: HashMap<ProjectName, ProjectConfig>,
+    pub header: Vec<String>,
+    pub codegen_command: Option<String>,
 }
 impl Config {
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
@@ -75,13 +77,15 @@ impl Config {
                         }),
                     }?;
 
-                let config_project = ConfigProject {
+                let project_config = ProjectConfig {
+                    name: project_name,
                     base: config_file_project.base,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
                     schema_location,
+                    persist: config_file_project.persist,
                 };
-                Ok((project_name, config_project))
+                Ok((project_name, project_config))
             })
             .collect::<Result<HashMap<_, _>>>()?;
         let config = Self {
@@ -89,6 +93,8 @@ impl Config {
             sources: config_file.sources,
             blacklist: config_file.blacklist,
             projects,
+            header: config_file.header,
+            codegen_command: config_file.codegen_command,
         };
 
         let mut validation_errors = Vec::new();
@@ -112,7 +118,7 @@ impl Config {
 
         for (&project_name, project_config) in &self.projects {
             // there should be a source for each project matching the project name
-            if !source_set_names.contains(&project_name.as_source_set_name()) {
+            if !source_set_names.contains(&project_name) {
                 errors.push(ConfigValidationError::ProjectSourceMissing { project_name });
             }
 
@@ -188,11 +194,13 @@ impl Config {
 }
 
 #[derive(Debug)]
-pub struct ConfigProject {
+pub struct ProjectConfig {
+    pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
+    pub persist: Option<PersistConfig>,
 }
 
 #[derive(Clone, Debug)]
@@ -203,8 +211,13 @@ pub enum SchemaLocation {
 
 /// Schema of the compiler configuration JSON file.
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    #[serde(default)]
+    header: Vec<String>,
+    #[serde(default)]
+    codegen_command: Option<String>,
+
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
@@ -245,4 +258,18 @@ struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+
+    /// If this option is set, the compiler will persist queries using this
+    /// config.
+    persist: Option<PersistConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PersistConfig {
+    /// URL to send a POST request to to persist.
+    pub url: String,
+    /// The document will be in a POST parameter `text`. This map can contain
+    /// additional parameters to send.
+    pub params: HashMap<String, String>,
 }

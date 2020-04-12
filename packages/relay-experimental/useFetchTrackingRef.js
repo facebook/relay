@@ -46,15 +46,10 @@ function useFetchTrackingRef(): {|
     isFetchingRef.current = false;
   }, []);
 
-  const startFetch = useCallback(
-    (subscription: Subscription) => {
-      // Dispose of fetch subscription in flight before starting a new one
-      disposeFetch();
-      subscriptionRef.current = subscription;
-      isFetchingRef.current = true;
-    },
-    [disposeFetch],
-  );
+  const startFetch = useCallback((subscription: Subscription) => {
+    subscriptionRef.current = subscription;
+    isFetchingRef.current = true;
+  }, []);
 
   const completeFetch = useCallback(() => {
     subscriptionRef.current = null;

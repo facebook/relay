@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# %TODO%
+
+# expected-to-throw
+query NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...NameRendererFragment
+  }
+}
+
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+TODO

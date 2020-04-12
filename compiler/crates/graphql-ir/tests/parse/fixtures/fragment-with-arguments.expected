@@ -83,7 +83,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-arguments.graphql":128:145,
                         item: FieldID(
-                            459,
+                            460,
                         ),
                     },
                     arguments: [
@@ -135,7 +135,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-arguments.graphql":198:212,
                         item: FieldID(
-                            459,
+                            460,
                         ),
                     },
                     arguments: [

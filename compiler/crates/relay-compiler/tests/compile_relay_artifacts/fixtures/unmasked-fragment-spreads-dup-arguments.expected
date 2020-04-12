@@ -1,0 +1,175 @@
+==================================== INPUT ====================================
+fragment UserUtil_user on User
+  # it should not strip exisiting local variable
+  @argumentDefinitions(
+    localIsRelative: {type: "Boolean", defaultValue: false}
+  ) {
+  # it should not strip existing global variable
+  profilePicture(size: $PictureSize) {
+    width
+    height
+  }
+  ...UserUtil2_user @relay(mask: false)
+  ...UserUtil3_user
+
+  # it should merge with the same existing global variable
+  url(relative: $globalIsRelative)
+  anotherUrl: url(relative: $localIsRelative)
+}
+
+fragment UserUtil2_user on User {
+  url(relative: $globalIsRelative)
+}
+
+fragment UserUtil3_user on User @relay(mask: false) {
+  url(relative: $globalIsRelative)
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserUtil2_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "mask": false
+  },
+  "name": "UserUtil3_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "PictureSize",
+      "type": "[Int]"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative",
+      "type": "Boolean"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "localIsRelative",
+      "type": "Boolean"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserUtil_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "PictureSize"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "globalIsRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "UserUtil3_user"
+    },
+    {
+      "alias": "anotherUrl",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "localIsRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}

@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+Found a circular reference from fragment 'Profile'.:
+rejects-cyclic-fragments.invalid.graphql:4:7:
+    ...Profile
+  }
+
+
+rejects-cyclic-fragments.invalid.graphql:17:11:
+        ...Profile
+      }

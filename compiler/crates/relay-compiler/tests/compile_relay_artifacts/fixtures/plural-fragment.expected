@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+fragment PluralFragment on User @relay(plural: true) {
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "plural": true
+  },
+  "name": "PluralFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}

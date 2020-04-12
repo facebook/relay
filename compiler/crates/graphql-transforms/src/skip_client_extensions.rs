@@ -5,34 +5,54 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::util::CustomMetadataDirectives;
+use graphql_ir::Selection;
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program, ScalarField,
-    Transformed, Transformer,
+    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
+    ScalarField, Transformed, Transformer,
 };
-use std::sync::Arc;
+use interner::StringKey;
 
-/// Transform to skip IR nodes if they are extensions
-pub fn skip_client_extensions<'s>(program: &'s Program<'s>) -> Program<'s> {
+/// Transform to skip IR nodes if they are client-defined extensions
+/// to the schema
+pub fn skip_client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = SkipClientExtensionsTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 struct SkipClientExtensionsTransform<'s> {
+    custom_metadata_directives: CustomMetadataDirectives,
     program: &'s Program<'s>,
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
     fn new(program: &'s Program<'s>) -> Self {
-        Self { program }
+        Self {
+            custom_metadata_directives: Default::default(),
+            program,
+        }
+    }
+}
+
+impl<'s> SkipClientExtensionsTransform<'s> {
+    fn is_client_directive(&self, name: StringKey) -> bool {
+        // Return true if:
+        // - directive is a custom internal directive used to hold
+        //   metadata in the IR
+        // - or, directive is a client-defined directive, not present
+        //   in the server schema
+        self.custom_metadata_directives
+            .is_custom_metadata_directive(name)
+            || self.program.schema().is_extension_directive(name)
     }
 }
 
 impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
+    const VISIT_DIRECTIVES: bool = true;
 
     fn transform_fragment(
         &mut self,
@@ -49,10 +69,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         }
     }
 
-    fn transform_fragment_spread(
-        &mut self,
-        spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if self
             .program
@@ -65,10 +82,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         }
     }
 
-    fn transform_inline_fragment(
-        &mut self,
-        fragment: &InlineFragment,
-    ) -> Transformed<Arc<InlineFragment>> {
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(type_condition) = fragment.type_condition {
             if self.program.schema().is_extension_type(type_condition) {
                 return Transformed::Delete;
@@ -77,7 +91,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         self.default_transform_inline_fragment(fragment)
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         if self
             .program
             .schema()
@@ -90,7 +104,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         }
     }
 
-    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         if self
             .program
             .schema()
@@ -99,7 +113,15 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         {
             Transformed::Delete
         } else {
-            Transformed::Keep
+            self.default_transform_scalar_field(field)
+        }
+    }
+
+    fn transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
+        if self.is_client_directive(directive.name.item) {
+            Transformed::Delete
+        } else {
+            self.default_transform_directive(directive)
         }
     }
 }

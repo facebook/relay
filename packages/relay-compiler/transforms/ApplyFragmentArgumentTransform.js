@@ -75,6 +75,9 @@ function applyFragmentArgumentTransform(
       const scope = getRootScope(node.argumentDefinitions);
       return transformNode(context, fragments, scope, node, [node]);
     },
+    SplitOperation: node => {
+      return transformNode(context, fragments, {}, node, [node]);
+    },
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.
     Fragment: () => null,

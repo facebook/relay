@@ -13,7 +13,6 @@
 
 'use strict';
 
-const ExecutionEnvironment = require('./ExecutionEnvironment');
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
@@ -46,6 +45,7 @@ export type QueryResource = QueryResourceImpl;
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
+  +id: number,
   +cacheKey: string,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
@@ -99,6 +99,8 @@ function getQueryResult(
   };
 }
 
+let nextID = 200000;
+
 function createCacheEntry(
   cacheKey: string,
   operation: OperationDescriptor,
@@ -137,6 +139,7 @@ function createCacheEntry(
 
   const cacheEntry = {
     cacheKey,
+    id: nextID++,
     getValue() {
       return currentValue;
     },
@@ -158,7 +161,7 @@ function createCacheEntry(
     temporaryRetain(environment: IEnvironment): Disposable {
       // NOTE: If we're executing in a server environment, there's no need
       // to create temporary retains, since the component will never commit.
-      if (ExecutionEnvironment.isServer) {
+      if (environment.isServer()) {
         return {dispose: () => {}};
       }
 
@@ -248,8 +251,9 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     maybeFetchPolicy: ?FetchPolicy,
     maybeRenderPolicy: ?RenderPolicy,
-    observer?: Observer<Snapshot>,
+    observer: ?Observer<Snapshot>,
     cacheKeyBuster: ?string | ?number,
+    profilerContext: mixed,
   ): QueryResult {
     const environment = this._environment;
     const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
@@ -274,6 +278,7 @@ class QueryResourceImpl {
         fetchObservable,
         fetchPolicy,
         renderPolicy,
+        profilerContext,
         {
           ...observer,
           unsubscribe(subscription) {
@@ -311,7 +316,7 @@ class QueryResourceImpl {
    * (e.g. inside useEffect), in order to retain the operation in the Relay store
    * and transfer ownership of the operation to the component lifecycle.
    */
-  retain(queryResult: QueryResult): Disposable {
+  retain(queryResult: QueryResult, profilerContext: mixed): Disposable {
     const environment = this._environment;
     const {cacheKey, operation} = queryResult;
     const cacheEntry = this._getOrCreateCacheEntry(
@@ -321,6 +326,11 @@ class QueryResourceImpl {
       null,
     );
     const disposable = cacheEntry.permanentRetain(environment);
+    environment.__log({
+      name: 'queryresource.retain',
+      profilerContext,
+      resourceID: cacheEntry.id,
+    });
 
     return {
       dispose: () => {
@@ -373,7 +383,8 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     fetchPolicy: FetchPolicy,
     renderPolicy: RenderPolicy,
-    observer?: Observer<Snapshot>,
+    profilerContext: mixed,
+    observer: Observer<Snapshot>,
   ): QueryResourceCacheEntry {
     const environment = this._environment;
 
@@ -429,15 +440,6 @@ class QueryResourceImpl {
       );
       this._cache.set(cacheKey, cacheEntry);
     }
-
-    environment.__log({
-      name: 'queryresource.fetch',
-      operation,
-      fetchPolicy,
-      renderPolicy,
-      queryAvailability,
-      shouldFetch,
-    });
 
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheKey);
@@ -525,6 +527,16 @@ class QueryResourceImpl {
       'Relay: Expected to have cached a result when attempting to fetch query.' +
         "If you're seeing this, this is likely a bug in Relay.",
     );
+    environment.__log({
+      name: 'queryresource.fetch',
+      resourceID: cacheEntry.id,
+      operation,
+      profilerContext,
+      fetchPolicy,
+      renderPolicy,
+      queryAvailability,
+      shouldFetch,
+    });
     return cacheEntry;
   }
 }

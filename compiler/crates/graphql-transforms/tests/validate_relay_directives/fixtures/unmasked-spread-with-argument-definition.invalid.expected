@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment UserProfile on User {
+  profilePicture {
+    ...PhotoFragment @relay(mask: false)
+  }
+}
+
+fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {
+  uri
+}
+==================================== ERROR ====================================
+Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.:
+unmasked-spread-with-argument-definition.invalid.graphql:3:7:
+    ...PhotoFragment @relay(mask: false)
+
+
+unmasked-spread-with-argument-definition.invalid.graphql:7:9:
+fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {

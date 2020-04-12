@@ -84,7 +84,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":148:165,
                         item: FieldID(
-                            459,
+                            460,
                         ),
                     },
                     arguments: [
@@ -136,7 +136,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-unnecessary-unchecked-arguments.invalid.graphql":218:232,
                         item: FieldID(
-                            459,
+                            460,
                         ),
                     },
                     arguments: [

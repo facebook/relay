@@ -32,20 +32,20 @@ import type {
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
-export type FlattenOptions = {flattenAbstractTypes?: boolean, ...};
+export type FlattenOptions = {|+isForCodegen?: boolean|};
 
-type State = {
-  flattenAbstractTypes: boolean,
+type State = {|
+  +isForCodegen: boolean,
   parentType: ?TypeID,
-  ...
-};
+|};
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
  *
  * Inline fragments are inlined (replaced with their selections) when:
- * - The fragment type matches the type of its parent.
- * - The fragment has an abstract type and the `flattenAbstractTypes` option has
+ * - The fragment type matches the type of its parent, and its `isForCodegen`,
+ *   or if it's for printing, there is no directive on the inline fragment.
+ * - The fragment has an abstract type and the `isForCodegen` option has
  *   been set.
  */
 function flattenTransformImpl(
@@ -53,7 +53,7 @@ function flattenTransformImpl(
   options?: FlattenOptions,
 ): CompilerContext {
   const state = {
-    flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
+    isForCodegen: !!(options && options.isForCodegen),
     parentType: null,
   };
   const visitorFn = memoizedFlattenSelection(new Map());
@@ -163,9 +163,7 @@ function flattenSelectionsInto(
     if (flattenedSelection.kind === 'InlineFragment') {
       if (selection.kind !== 'InlineFragment') {
         throw createCompilerError(
-          `FlattenTransform: Expected an InlineFragment, got a '${
-            selection.kind
-          }'`,
+          `FlattenTransform: Expected an InlineFragment, got a '${selection.kind}'`,
           [selection.loc],
         );
       }
@@ -199,9 +197,7 @@ function flattenSelectionsInto(
     } else if (flattenedSelection.kind === 'ClientExtension') {
       if (selection.kind !== 'ClientExtension') {
         throw createCompilerError(
-          `FlattenTransform: Expected a ClientExtension, got a '${
-            selection.kind
-          }'`,
+          `FlattenTransform: Expected a ClientExtension, got a '${selection.kind}'`,
           [selection.loc],
         );
       }
@@ -220,16 +216,14 @@ function flattenSelectionsInto(
     } else if (flattenedSelection.kind === 'ModuleImport') {
       if (selection.kind !== 'ModuleImport') {
         throw createCompilerError(
-          `FlattenTransform: Expected a ModuleImport, got a '${
-            selection.kind
-          }'`,
+          `FlattenTransform: Expected a ModuleImport, got a '${selection.kind}'`,
           [selection.loc],
         );
       }
       if (
         selection.name !== flattenedSelection.name ||
         selection.module !== flattenedSelection.module ||
-        selection.documentName !== flattenedSelection.documentName
+        selection.key !== flattenedSelection.key
       ) {
         throw createUserError(
           'Found conflicting @module selections: use a unique alias on the ' +
@@ -384,9 +378,9 @@ function shouldFlattenInlineFragment(
   type: TypeID,
 ): boolean {
   return (
-    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) ||
-    (state.flattenAbstractTypes &&
-      schema.isAbstractType(fragment.typeCondition))
+    (schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) &&
+      (state.isForCodegen || fragment.directives.length === 0)) ||
+    (state.isForCodegen && schema.isAbstractType(fragment.typeCondition))
   );
 }
 

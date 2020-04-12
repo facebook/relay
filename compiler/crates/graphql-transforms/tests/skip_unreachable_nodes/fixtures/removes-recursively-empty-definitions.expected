@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+query EmptyQuery($id: ID!) {
+  node(id: $id) {
+    id @skip(if: false)
+    ...E1
+  }
+}
+
+fragment E1 on User {
+  ...E2
+  ...E3
+}
+
+fragment E2 on User {
+  id @skip(if: true)
+}
+
+fragment E3 on User {
+  id @include(if: false)
+  ...E4
+}
+
+fragment E4 on User {
+  id @skip(if: true)
+}
+==================================== OUTPUT ===================================
+query EmptyQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+  }
+}

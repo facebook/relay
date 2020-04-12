@@ -21,6 +21,7 @@ import {
   keyAnotherNullable,
   keyNonNullable,
   keyNullable,
+  fragmentData,
 } from './utils';
 import type {
   FetchFn,
@@ -67,6 +68,15 @@ import type {IEnvironment} from 'relay-runtime';
   NullableData,
   FetchFn<QueryVariables>,
 ]);
+
+// $FlowExpectedError: Key should not be a user provided object
+useRefetchableFragment<QueryOperation, _>(fragmentInput, {abc: 123});
+
+// $FlowExpectedError: Key should not be an empty object
+useRefetchableFragment<QueryOperation, _>(fragmentInput, {});
+
+// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+useRefetchableFragment<QueryOperation, _>(fragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;

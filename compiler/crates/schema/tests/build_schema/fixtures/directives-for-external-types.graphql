@@ -1,0 +1,26 @@
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @extern_type(schema: String, name: String) on INTERFACE
+directive @fetchable(field_name: String) on OBJECT
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+}
+
+# imported types
+type XIGStory
+  @fetchable(field_name: "id")
+  @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}

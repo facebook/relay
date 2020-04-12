@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FileKey;
 use fixture_tests::Fixture;
 use graphql_syntax::parse;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    parse(fixture.content, fixture.file_name)
+    parse(fixture.content, FileKey::new(fixture.file_name))
         .map(|x| format!("{:#?}", x))
         .map_err(|errors| {
             errors

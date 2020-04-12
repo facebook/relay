@@ -9,8 +9,14 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod artifact_map;
+mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
 pub mod errors;
+mod parse_sources;
 mod watchman;
+
+pub use build_project::apply_transforms;
+pub use build_project::validate;

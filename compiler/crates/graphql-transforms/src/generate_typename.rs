@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::util::PointerAddress;
 use common::WithLocation;
 use graphql_ir::{
     FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
+    TransformedValue, Transformer,
 };
 use schema::{Schema, Type};
 use std::collections::HashMap;
@@ -16,17 +17,17 @@ use std::sync::Arc;
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an
 /// abstract type and b) does not already directly query `__typename`.
-pub fn generate_typename<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn generate_typename<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = GenerateTypenameTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 // Note on correctness: the PointerAddress here is calculated from addresses of the input
 // context. Because those value are still referenced, that memory cannot be freed/
 // reused for the lifetime of the transform.
-type Seen = HashMap<PointerAddress, Transformed<Arc<InlineFragment>>>;
+type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
 struct GenerateTypenameTransform<'s> {
     program: &'s Program<'s>,
@@ -47,7 +48,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Arc<LinkedField>> {
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = self.program.schema();
         let selections = self.transform_selections(&field.selections);
         let field_definition = schema.field(field.definition.item);
@@ -65,31 +66,30 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                 arguments: Default::default(),
                 directives: Default::default(),
             })));
-            if let Some(selections) = selections {
+            if let TransformedValue::Replace(selections) = selections {
                 next_selections.extend(selections.into_iter())
             } else {
                 next_selections.extend(field.selections.iter().cloned());
             }
-            Some(next_selections)
+            TransformedValue::Replace(next_selections)
         } else {
             selections
         };
         match selections {
-            None => Transformed::Keep,
-            Some(selections) => Transformed::Replace(Arc::new(LinkedField {
-                alias: field.alias,
-                definition: field.definition,
-                arguments: field.arguments.clone(),
-                directives: field.directives.clone(),
-                selections,
-            })),
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(selections) => {
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    alias: field.alias,
+                    definition: field.definition,
+                    arguments: field.arguments.clone(),
+                    directives: field.directives.clone(),
+                    selections,
+                })))
+            }
         }
     }
 
-    fn transform_inline_fragment(
-        &mut self,
-        fragment: &InlineFragment,
-    ) -> Transformed<Arc<InlineFragment>> {
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let key = PointerAddress::new(fragment);
         if let Some(prev) = self.seen.get(&key) {
             return prev.clone();
@@ -97,25 +97,24 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         self.seen.insert(key, Transformed::Delete);
         let selections = self.transform_selections(&fragment.selections);
         let result = match selections {
-            None => Transformed::Keep,
-            Some(selections) => Transformed::Replace(Arc::new(InlineFragment {
-                type_condition: fragment.type_condition,
-                directives: fragment.directives.clone(),
-                selections,
-            })),
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(selections) => {
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    type_condition: fragment.type_condition,
+                    directives: fragment.directives.clone(),
+                    selections,
+                })))
+            }
         };
         self.seen.insert(key, result.clone());
         result
     }
 
-    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Selection> {
         Transformed::Keep
     }
 
-    fn transform_fragment_spread(
-        &mut self,
-        _spread: &FragmentSpread,
-    ) -> Transformed<Arc<FragmentSpread>> {
+    fn transform_fragment_spread(&mut self, _spread: &FragmentSpread) -> Transformed<Selection> {
         Transformed::Keep
     }
 }
@@ -128,20 +127,4 @@ fn has_typename_field(schema: &Schema, selections: &[Selection]) -> bool {
         }
         _ => false,
     })
-}
-
-// A wrapper type that allows comparing pointer equality of references. Two
-// `PointerAddress` values are equal if they point to the same memory location.
-//
-// This type is _sound_, but misuse can easily lead to logical bugs if the memory
-// of one PointerAddress could not have been freed and reused for a subsequent
-// PointerAddress.
-#[derive(Hash, Eq, PartialEq, Clone, Copy)]
-struct PointerAddress(usize);
-
-impl PointerAddress {
-    pub fn new<T>(ptr: &T) -> Self {
-        let ptr_address: usize = unsafe { std::mem::transmute(ptr) };
-        Self(ptr_address)
-    }
 }

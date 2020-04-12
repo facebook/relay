@@ -35,13 +35,15 @@ import type {
   CacheConfig,
   ConcreteRequest,
   GraphQLSingularResponse,
+  GraphQLTaggedNode,
   IEnvironment,
+  LogFunction,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
   RequestParameters,
   Variables,
-  GraphQLTaggedNode,
+  EnvironmentConfig,
 } from 'relay-runtime';
 
 type PendingRequest = {|
@@ -182,14 +184,9 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
  * - rejectMostRecentOperation(...) - should reject the most recent operation
  *   with a specific error
  */
-function createMockEnvironment(config?: {|
-  +handlerProvider?: HandlerProvider,
-  +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
-  +operationTracker?: OperationTracker,
-  +operationLoader?: OperationLoader,
-  +store?: Store,
-  +options?: mixed,
-|}): RelayMockEnvironment {
+function createMockEnvironment(
+  config?: $Shape<EnvironmentConfig>,
+): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({
     size: MAX_SIZE,
@@ -441,11 +438,6 @@ function createMockEnvironment(config?: {|
   // $FlowExpectedError
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
-    loggerProvider: {
-      getLogger() {
-        return null;
-      },
-    },
     network: Network.create(execute, execute),
     store,
     ...config,

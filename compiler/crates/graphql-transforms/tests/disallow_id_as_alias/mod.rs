@@ -14,21 +14,24 @@ use graphql_transforms::disallow_id_as_alias;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let ast = parse(fixture.content, fixture.file_name).unwrap();
+    let file_key = FileKey::new(fixture.file_name);
+    let ast = parse(fixture.content, file_key).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let errors = disallow_id_as_alias(&program);
+    let validation_result = disallow_id_as_alias(&program);
 
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
-    let mut messages: Vec<String> = errors
-        .iter()
-        .map(|error| error.print(&sources))
-        .collect::<Vec<_>>();
 
-    // Ensure snapshots are stable; order of errors is not guaranteed
-    // since the order in which fragment definitions are visited is not guaranteed
-    messages.sort_unstable();
-
-    Ok(messages.join("\n\n"))
+    match validation_result {
+        Ok(_) => Ok("OK".to_owned()),
+        Err(errors) => {
+            let mut errs = errors
+                .into_iter()
+                .map(|err| err.print(&sources))
+                .collect::<Vec<_>>();
+            errs.sort();
+            Err(errs.join("\n\n"))
+        }
+    }
 }

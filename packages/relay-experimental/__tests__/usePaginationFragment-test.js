@@ -80,7 +80,6 @@ describe('usePaginationFragment', () => {
   function usePaginationFragment(fragmentNode, fragmentRef) {
     const {data, ...result} = usePaginationFragmentOriginal(
       fragmentNode,
-      // $FlowFixMe
       fragmentRef,
     );
     loadNext = result.loadNext;
@@ -486,6 +485,7 @@ describe('usePaginationFragment', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
+          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });
@@ -728,9 +728,6 @@ describe('usePaginationFragment', () => {
 
     beforeEach(() => {
       jest.resetModules();
-      jest.mock('../ExecutionEnvironment', () => ({
-        isServer: false,
-      }));
       jest.doMock('scheduler', () => {
         const original = jest.requireActual('scheduler/unstable_mock');
         return {

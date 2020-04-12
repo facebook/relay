@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+# %for_printing%
+fragment TestFragment on Node {
+  ... on Actor {
+    firstName
+    lastName
+    ... on Actor @defer(label: "1") {
+      lastName
+    }
+    ... on Actor @defer(label: "2") {
+      firstName
+    }
+
+    ... on Actor @serverInlineDirective {
+      firstName
+    }
+
+    ... on Actor {
+      lastName
+    }
+    ... on Actor @serverInlineDirective {
+      lastName
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment TestFragment on Node {
+  ... on Actor {
+    firstName
+    lastName
+    ... on Actor @defer(label: "1") {
+      lastName
+    }
+    ... on Actor @defer(label: "2") {
+      firstName
+    }
+    ... on Actor @serverInlineDirective {
+      firstName
+      lastName
+    }
+  }
+}

@@ -16,6 +16,17 @@ pub struct Timer {
     name: String,
 }
 impl Timer {
+    /// Measure a time of calling a callback.
+    pub fn time<T, F>(name: impl Into<String>, f: F) -> T
+    where
+        F: FnOnce() -> T,
+    {
+        let timer = Timer::start(name);
+        let res = f();
+        timer.stop();
+        res
+    }
+
     /// Create a new timer with the given name used when printing.
     pub fn start(name: impl Into<String>) -> Timer {
         Self {

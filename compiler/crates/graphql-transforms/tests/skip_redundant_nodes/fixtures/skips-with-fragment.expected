@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+fragment ProfilePicture on User {
+  profile_picture(scale: 1) {
+    uri
+  }
+}
+
+query UserQuery {
+  viewer {
+    actor {
+      ...ProfilePicture
+      friends {
+        edges {
+          node {
+            ... on User {
+              id
+              # In this case - even that we have the profile picture in
+              # ...ProfilePicture we still will use `profile_picture` with
+              # scale = 2 in final query
+              profile_picture(scale: 2) {
+                uri
+              }
+              ...ProfilePicture
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query UserQuery {
+  viewer {
+    actor {
+      friends {
+        edges {
+          node {
+            ... on User {
+              id
+              profile_picture(scale: 2) {
+                uri
+              }
+            }
+          }
+        }
+      }
+      ... on User {
+        profile_picture(scale: 1) {
+          uri
+        }
+      }
+    }
+  }
+}

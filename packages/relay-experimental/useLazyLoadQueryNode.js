@@ -72,6 +72,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
       renderPolicy,
       {start: startFetch, complete: completeFetch, error: completeFetch},
       fetchKey,
+      profilerContext,
     );
   });
 
@@ -103,7 +104,10 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
         return;
       }
     }
-    const disposable = QueryResource.retain(preparedQueryResult);
+    const disposable = QueryResource.retain(
+      preparedQueryResult,
+      profilerContext,
+    );
     return () => {
       disposable.dispose();
     };

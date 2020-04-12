@@ -13,10 +13,8 @@
 
 'use strict';
 
-// flowlint untyped-import:off
+// flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
 
 const getPaginationMetadata = require('./getPaginationMetadata');
 const invariant = require('invariant');
@@ -31,6 +29,7 @@ const {getFragment, getFragmentIdentifier} = require('relay-runtime');
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
+  FragmentReference,
   GraphQLResponse,
   GraphQLTaggedNode,
   Observer,
@@ -48,7 +47,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function useBlockingPaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,

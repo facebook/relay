@@ -1,0 +1,19 @@
+query QueryWithFragmentWithStream($id: ID!, $useCustomizedBatch: Boolean) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors
+    @stream(
+      if: true
+      initial_count: 1
+      label: "StreamedActorsLabel"
+      use_customized_batch: $useCustomizedBatch
+    ) {
+    name
+  }
+}

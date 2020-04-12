@@ -13,10 +13,8 @@
 
 'use strict';
 
-// flowlint untyped-import:off
+// flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
 
 const getPaginationVariables = require('./getPaginationVariables');
 const getValueAtPath = require('./getValueAtPath');
@@ -195,6 +193,9 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
+        /* $FlowFixMe(>=0.120.0) This comment suppresses an error found when
+         * Flow v0.120 was deployed. To see the error, delete this comment and
+         * run Flow. */
         ...extraVariables,
       };
       const paginationVariables = getPaginationVariables(

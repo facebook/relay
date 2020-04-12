@@ -428,6 +428,69 @@ fragment UserFragment on User @argumentDefinitions(
 
 `;
 
+exports[`IRPrinter matches expected output: nested_conditions.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment QueryFragment2 on Query {
+  viewer {
+    ... @include(if: $sentinel) @skip(if: $foo) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment QueryFragment on Query {
+  viewer {
+    ... on Viewer @include(if: $sentinel) {
+      account_user {
+        name
+        ... on User @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... on Viewer @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment QueryFragment2 on Query {
+  viewer {
+    ... on Viewer @skip(if: $foo) @include(if: $sentinel) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}
+
+`;
+
 exports[`IRPrinter matches expected output: single-value-array-of-objects.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SingleValueArrayQuery {

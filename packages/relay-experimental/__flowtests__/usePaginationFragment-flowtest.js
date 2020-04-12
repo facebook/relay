@@ -18,6 +18,7 @@ const usePaginationFragment = require('../usePaginationFragment');
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import {
   fragmentInput,
+  fragmentData,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
@@ -77,6 +78,15 @@ type ExpectedReturnType<
   fragmentInput,
   keyAnotherNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
+
+// $FlowExpectedError: Key should not be a user provided object
+usePaginationFragment<QueryOperation, _>(fragmentInput, {abc: 123});
+
+// $FlowExpectedError: Key should not be an empty object
+usePaginationFragment<QueryOperation, _>(fragmentInput, {});
+
+// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+usePaginationFragment<QueryOperation, _>(fragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;

@@ -28,6 +28,7 @@ import type {
   Stream,
   Condition,
   InlineFragment,
+  ModuleImport,
   LocalArgumentDefinition,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
@@ -76,12 +77,12 @@ function generate(
 
 function generateRoot(schema: Schema, node: Root): NormalizationOperation {
   return {
-    kind: 'Operation',
-    name: node.name,
     argumentDefinitions: generateArgumentDefinitions(
       schema,
       node.argumentDefinitions,
     ),
+    kind: 'Operation',
+    name: node.name,
     selections: generateSelections(schema, node.selections),
   };
 }
@@ -92,8 +93,8 @@ function generateSplitOperation(
 ): NormalizationSplitOperation {
   return {
     kind: 'SplitOperation',
-    name: node.name,
     metadata: node.metadata,
+    name: node.name,
     selections: generateSelections(schema, node.selections),
   };
 }
@@ -151,10 +152,10 @@ function generateArgumentDefinitions(
 ): $ReadOnlyArray<NormalizationLocalArgumentDefinition> {
   return nodes.map(node => {
     return {
+      defaultValue: node.defaultValue,
       kind: 'LocalArgument',
       name: node.name,
       type: schema.getTypeString(node.type),
-      defaultValue: node.defaultValue,
     };
   });
 }
@@ -181,9 +182,9 @@ function generateCondition(
     );
   }
   return {
+    condition: node.condition.variableName,
     kind: 'Condition',
     passingValue: node.passingValue,
-    condition: node.condition.variableName,
     selections: generateSelections(schema, node.selections),
   };
 }
@@ -220,8 +221,8 @@ function generateInlineFragment(
 ): NormalizationSelection {
   return {
     kind: 'InlineFragment',
-    type: schema.getTypeString(node.typeCondition),
     selections: generateSelections(schema, node.selections),
+    type: schema.getTypeString(node.typeCondition),
   };
 }
 
@@ -236,13 +237,13 @@ function generateLinkedField(
     (node.handles &&
       node.handles.map(handle => {
         let handleNode: NormalizationLinkedHandle = {
-          kind: 'LinkedHandle',
           alias: node.alias === node.name ? null : node.alias,
-          name: node.name,
           args: generateArgs(node.args),
+          filters: handle.filters,
           handle: handle.name,
           key: handle.key,
-          filters: handle.filters,
+          kind: 'LinkedHandle',
+          name: node.name,
         };
         // T45504512: new connection model
         // NOTE: this intentionally adds a dynamic key in order to avoid
@@ -264,16 +265,16 @@ function generateLinkedField(
     [];
   const type = schema.getRawType(node.type);
   let field: NormalizationLinkedField = {
-    kind: 'LinkedField',
     alias: node.alias === node.name ? null : node.alias,
-    name: node.name,
-    storageKey: null,
     args: generateArgs(node.args),
     concreteType: !schema.isAbstractType(type)
       ? schema.getTypeString(type)
       : null,
+    kind: 'LinkedField',
+    name: node.name,
     plural: isPlural(schema, node.type),
     selections: generateSelections(schema, node.selections),
+    storageKey: null,
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
@@ -283,7 +284,7 @@ function generateLinkedField(
   return [field].concat(handles);
 }
 
-function generateModuleImport(node, key): NormalizationModuleImport {
+function generateModuleImport(node: ModuleImport): NormalizationModuleImport {
   const fragmentName = node.name;
   const regExpMatch = fragmentName.match(
     /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
@@ -304,10 +305,10 @@ function generateModuleImport(node, key): NormalizationModuleImport {
     );
   }
   return {
-    kind: 'ModuleImport',
-    documentName: node.documentName,
+    documentName: node.key,
     fragmentName,
     fragmentPropName,
+    kind: 'ModuleImport',
   };
 }
 
@@ -329,21 +330,21 @@ function generateScalarField(node): Array<NormalizationSelection> {
           );
         }
         return {
-          kind: 'ScalarHandle',
           alias: node.alias === node.name ? null : node.alias,
-          name: node.name,
           args: generateArgs(node.args),
+          filters: handle.filters,
           handle: handle.name,
           key: handle.key,
-          filters: handle.filters,
+          kind: 'ScalarHandle',
+          name: node.name,
         };
       })) ||
     [];
   let field: NormalizationScalarField = {
-    kind: 'ScalarField',
     alias: node.alias === node.name ? null : node.alias,
-    name: node.name,
     args: generateArgs(node.args),
+    kind: 'ScalarField',
+    name: node.name,
     storageKey: null,
   };
   // Precompute storageKey if possible
@@ -374,14 +375,14 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
         ? node.if.variableName
         : null,
     kind: 'Stream',
+    label: node.label,
+    metadata: node.metadata,
+    selections: generateSelections(schema, node.selections),
     useCustomizedBatch:
       node.useCustomizedBatch != null &&
       node.useCustomizedBatch.kind === 'Variable'
         ? node.useCustomizedBatch.variableName
         : null,
-    label: node.label,
-    metadata: node.metadata,
-    selections: generateSelections(schema, node.selections),
   };
 }
 
@@ -412,8 +413,6 @@ function generateArgumentValue(
         }),
       );
       return {
-        kind: 'ObjectValue',
-        name: name,
         fields: objectKeys.map(fieldName => {
           const fieldValue = objectValues.get(fieldName);
           if (fieldValue == null) {
@@ -427,15 +426,17 @@ function generateArgumentValue(
             }
           );
         }),
+        kind: 'ObjectValue',
+        name: name,
       };
     }
     case 'ListValue': {
       return {
-        kind: 'ListValue',
-        name: name,
         items: value.items.map((item, index) => {
           return generateArgumentValue(`${name}.${index}`, item);
         }),
+        kind: 'ListValue',
+        name: name,
       };
     }
     default:

@@ -1,0 +1,10 @@
+# %TODO% T64079961
+
+# expected-to-throw
+query TestQuery {
+  node {
+    hometown {
+      nameWithArgs
+    }
+  }
+}

@@ -7,30 +7,36 @@
 
 use crate::util::PointerAddress;
 use graphql_ir::{
-    Condition, ConditionValue, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection,
+    Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
+    Program, Selection,
 };
-use graphql_printer::{write_arguments, write_directives};
-use schema::{Schema, Type, TypeReference};
-use std::fmt::Write;
+use schema::{Schema, TypeReference};
 
-use std::collections::HashMap;
+use crate::node_identifier::NodeIdentifier;
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use indexmap::IndexMap;
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use std::sync::Arc;
 
-type FlattenedSelectionMap = HashMap<String, Selection>;
-type SeenLinkedFields = HashMap<PointerAddress, Arc<LinkedField>>;
+type FlattenedSelectionMap = IndexMap<NodeIdentifier, Selection, FnvBuildHasher>;
+type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 
 ///
 /// Transform that flattens inline fragments, fragment spreads, merges linked fields selections.
 ///
 /// Inline fragments are inlined (replaced with their selections) when:
-/// - The fragment type matches the type of its parent.
-/// - The fragment has an abstract type and the `flattenAbstractTypes` option has
-/// been set.
+/// - The fragment type matches the type of its parent, and it `is_for_codegen`,
+///   or the inline fragment doesn't have directives .
+/// - The fragment has an abstract type and the `is_for_codegen` option has
+///   been set.
 ///
-pub fn flatten<'s>(program: &'s Program<'s>, should_flatten_abstract_types: bool) -> Program<'s> {
+/// with the exception that it never falttens the inline fragment with relay
+/// directives (@defer, @__clientExtensions).
+///
+pub fn flatten<'s>(program: &Program<'s>, is_for_codegen: bool) -> Program<'s> {
     let mut next_program = Program::new(program.schema());
-    let mut transform = FlattenTransform::new(program, should_flatten_abstract_types);
+    let mut transform = FlattenTransform::new(program, is_for_codegen);
 
     for operation in program.operations() {
         next_program.insert_operation(Arc::new(transform.transform_operation(operation)));
@@ -43,15 +49,15 @@ pub fn flatten<'s>(program: &'s Program<'s>, should_flatten_abstract_types: bool
 
 struct FlattenTransform<'s> {
     program: &'s Program<'s>,
-    should_flatten_abstract_types: bool,
+    is_for_codegen: bool,
     seen_linked_fields: SeenLinkedFields,
 }
 
 impl<'s> FlattenTransform<'s> {
-    fn new(program: &'s Program<'s>, should_flatten_abstract_types: bool) -> Self {
+    fn new(program: &'s Program<'s>, is_for_codegen: bool) -> Self {
         Self {
             program,
-            should_flatten_abstract_types,
+            is_for_codegen,
             seen_linked_fields: Default::default(),
         }
     }
@@ -162,9 +168,9 @@ impl<'s> FlattenTransform<'s> {
             if let Selection::InlineFragment(inline_fragment) = selection {
                 if should_flatten_inline_fragment(
                     self.program.schema(),
-                    inline_fragment.type_condition,
+                    inline_fragment,
                     parent_type,
-                    self.should_flatten_abstract_types,
+                    self.is_for_codegen,
                 ) {
                     self.flatten_selections(
                         flattened_selections_map,
@@ -175,7 +181,7 @@ impl<'s> FlattenTransform<'s> {
                 }
             }
 
-            let node_identifier = get_identifier_for_selection(self.program.schema(), &selection);
+            let node_identifier = NodeIdentifier::from_selection(self.program.schema(), &selection);
             let flattened_selection_value = flattened_selections_map.get(&node_identifier);
 
             match flattened_selection_value {
@@ -198,8 +204,8 @@ impl<'s> FlattenTransform<'s> {
                             type_condition: flattened_node.type_condition,
                             directives: flattened_node.directives.clone(),
                             selections: self.merge_selections(
-                                &node_selections,
                                 &flattened_node.selections,
+                                &node_selections,
                                 &type_condition,
                             ),
                         }));
@@ -216,8 +222,8 @@ impl<'s> FlattenTransform<'s> {
                             arguments: flattened_node.arguments.clone(),
                             directives: flattened_node.directives.clone(),
                             selections: self.merge_selections(
-                                &node_selections,
                                 &flattened_node.selections,
+                                &node_selections,
                                 &self
                                     .program
                                     .schema()
@@ -237,8 +243,8 @@ impl<'s> FlattenTransform<'s> {
                             value: flattened_node.value.clone(),
                             passing_value: flattened_node.passing_value,
                             selections: self.merge_selections(
-                                &node_selections,
                                 &flattened_node.selections,
+                                &node_selections,
                                 parent_type,
                             ),
                         }));
@@ -270,99 +276,50 @@ impl<'s> FlattenTransform<'s> {
     }
 }
 
-fn get_identifier_for_selection<'s>(schema: &'s Schema, selection: &Selection) -> String {
-    let mut writer = String::new();
-    match selection {
-        Selection::InlineFragment(node) => {
-            write!(writer, "InlineFragment:").unwrap();
-            if let Some(type_condition) = node.type_condition {
-                write!(writer, "{}", schema.get_type_name(type_condition).lookup()).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::LinkedField(node) => {
-            write!(writer, "LinkedField:").unwrap();
-            match node.alias {
-                Some(alias) => write!(writer, "{}", alias.item.lookup()),
-                None => write!(
-                    writer,
-                    "{}",
-                    schema.field(node.definition.item).name.lookup()
-                ),
-            }
-            .unwrap();
-            if !node.arguments.is_empty() {
-                write_arguments(schema, &node.arguments, &mut writer).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::ScalarField(node) => {
-            write!(writer, "ScalarField:").unwrap();
-            match node.alias {
-                Some(alias) => write!(writer, "{}", alias.item.lookup()),
-                None => write!(
-                    writer,
-                    "{}",
-                    schema.field(node.definition.item).name.lookup()
-                ),
-            }
-            .unwrap();
-            if !node.arguments.is_empty() {
-                write_arguments(schema, &node.arguments, &mut writer).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::FragmentSpread(node) => {
-            write!(writer, "FragmentSpread: {}", node.fragment.item.lookup()).unwrap();
-            if !node.arguments.is_empty() {
-                write_arguments(schema, &node.arguments, &mut writer).unwrap();
-            }
-            if !node.directives.is_empty() {
-                write_directives(schema, &node.directives, &mut writer).unwrap();
-            }
-        }
-        Selection::Condition(node) => {
-            write!(writer, "Condition:",).unwrap();
-            match &node.value {
-                ConditionValue::Constant(value) => {
-                    write!(writer, "{}", if *value { "true" } else { "false" }).unwrap();
-                }
-                ConditionValue::Variable(variable) => {
-                    write!(writer, "${}", variable.name.item.lookup()).unwrap();
-                }
-            };
-            write!(
-                writer,
-                "{}",
-                if node.passing_value {
-                    "include"
-                } else {
-                    "skip"
-                }
-            )
-            .unwrap();
-        }
-    };
-    writer
+lazy_static! {
+    static ref RELAY_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> =
+        vec!["__clientExtension".intern(), "defer".intern()]
+            .into_iter()
+            .collect();
+}
+
+fn should_flatten_inline_with_directives(
+    directives: &[Directive],
+    is_for_codegen: bool,
+    should_flatten_for_printing: bool,
+) -> bool {
+    if is_for_codegen {
+        !directives
+            .iter()
+            .any(|directive| RELAY_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item))
+    } else {
+        should_flatten_for_printing && directives.is_empty()
+    }
 }
 
 fn should_flatten_inline_fragment<'s>(
     schema: &'s Schema,
-    inline_fragment_type_condition: Option<Type>,
+    inline_fragment: &InlineFragment,
     parent_type: &TypeReference,
-    should_flatten_abstract_types: bool,
+    is_for_codegen: bool,
 ) -> bool {
-    match inline_fragment_type_condition {
-        None => true,
+    match inline_fragment.type_condition {
+        None => {
+            should_flatten_inline_with_directives(&inline_fragment.directives, is_for_codegen, true)
+        }
         Some(type_condition) => {
-            (schema.is_abstract_type(type_condition) && should_flatten_abstract_types)
-                || &TypeReference::Named(type_condition) == parent_type
+            (type_condition == parent_type.inner()
+                && should_flatten_inline_with_directives(
+                    &inline_fragment.directives,
+                    is_for_codegen,
+                    true,
+                ))
+                || (schema.is_abstract_type(type_condition)
+                    && should_flatten_inline_with_directives(
+                        &inline_fragment.directives,
+                        is_for_codegen,
+                        false,
+                    ))
         }
     }
 }

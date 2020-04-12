@@ -401,13 +401,24 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
 export type LogEvent =
   | {|
       +name: 'queryresource.fetch',
+      // ID of this query resource request and will be the same
+      // if there is an associated queryresource.retain event.
+      +resourceID: number,
       +operation: OperationDescriptor,
+      // value from ProfilerContext
+      +profilerContext: mixed,
       // FetchPolicy from relay-experimental
       +fetchPolicy: string,
       // RenderPolicy from relay-experimental
       +renderPolicy: string,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
+    |}
+  | {|
+      +name: 'queryresource.retain',
+      +resourceID: number,
+      // value from ProfilerContext
+      +profilerContext: mixed,
     |}
   | {|
       +name: 'execute.info',
@@ -596,6 +607,13 @@ export interface IEnvironment {
    * active GraphQL subscription
    */
   isRequestActive(requestIdentifier: string): boolean;
+
+  /**
+   * Returns true if the environment is for use during server side rendering.
+   * functions like getQueryResource key off of this in order to determine
+   * whether we need to set up certain caches and timeout's.
+   */
+  isServer(): boolean;
 }
 
 /**

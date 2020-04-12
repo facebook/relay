@@ -170,7 +170,10 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
-      expect(unhandled.mock.calls).toEqual([[error, true], [error, true]]);
+      expect(unhandled.mock.calls).toEqual([
+        [error, true],
+        [error, true],
+      ]);
     });
 
     it('Error from next handler is unhandled (async)', () => {
@@ -201,7 +204,10 @@ describe('RelayObservable', () => {
       sink.complete();
 
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
-      expect(unhandled.mock.calls).toEqual([[error, true], [error, true]]);
+      expect(unhandled.mock.calls).toEqual([
+        [error, true],
+        [error, true],
+      ]);
     });
 
     it('Error from error handler is unhandled', () => {
@@ -603,7 +609,10 @@ describe('RelayObservable', () => {
       sink.next(2);
 
       expect(list).toEqual(['next:1', 'next:2']);
-      expect(unhandled.mock.calls).toEqual([[error, true], [error, true]]);
+      expect(unhandled.mock.calls).toEqual([
+        [error, true],
+        [error, true],
+      ]);
     });
 
     it('Allows returning a Subscription as cleanup', () => {
@@ -2382,8 +2391,7 @@ describe('RelayObservable', () => {
         err => list.push(err),
       );
 
-      // Due to Promise resolving at the end of the frame, cleanup occurs first.
-      expect(list).toEqual(['cleanup', 'resolve:1']);
+      expect(list).toEqual(['resolve:1']);
     });
 
     it('Converts an Observable error into a rejected Promise', async () => {

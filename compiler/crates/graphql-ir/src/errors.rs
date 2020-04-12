@@ -10,9 +10,12 @@ use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Type, TypeReference};
+use std::fmt;
 use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
+
+pub type Sources<'a> = FnvHashMap<FileKey, &'a str>;
 
 impl From<ValidationError> for Vec<ValidationError> {
     fn from(error: ValidationError) -> Self {
@@ -20,8 +23,6 @@ impl From<ValidationError> for Vec<ValidationError> {
     }
 }
 
-// TODO: printing of error messages
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ValidationError {
     /// One of a fixed set of validation errors
@@ -38,6 +39,24 @@ pub struct ValidationError {
 impl ValidationError {
     pub fn new(message: ValidationMessage, locations: Vec<Location>) -> Self {
         Self { message, locations }
+    }
+
+    /// Attaches sources to the error to allow it to be printed with a code
+    /// listing without requring additional context.
+    pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
+        let sources = self
+            .locations
+            .iter()
+            .map(|location| {
+                sources
+                    .get(&location.file())
+                    .map(|source| (*source).to_string())
+            })
+            .collect();
+        ValidationErrorWithSources {
+            error: self,
+            sources,
+        }
     }
 
     pub fn print(&self, sources: &FnvHashMap<FileKey, &str>) -> String {
@@ -59,6 +78,31 @@ impl ValidationError {
     }
 }
 
+#[derive(Debug)]
+pub struct ValidationErrorWithSources {
+    error: ValidationError,
+    sources: Vec<Option<String>>,
+}
+impl fmt::Display for ValidationErrorWithSources {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}:\n{}",
+            self.error.message,
+            self.error
+                .locations
+                .iter()
+                .zip(&self.sources)
+                .map(|(location, source)| match source {
+                    Some(source) => location.print(&source),
+                    None => "<source not found>".to_string(),
+                })
+                .collect::<Vec<_>>()
+                .join("\n\n")
+        )
+    }
+}
+
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {
@@ -72,7 +116,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("Unknown field {type_}.{field}")]
+    #[error("Unknown field '{type_}.{field}'")]
     UnknownField { type_: StringKey, field: StringKey },
     #[error("Expected no selections on scalar field '{0:?}.{1}'")]
     InvalidSelectionsOnScalarField(Type, StringKey),
@@ -84,7 +128,7 @@ pub enum ValidationMessage {
     UnknownDirective(StringKey),
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
-    #[error("The schema does not support {0} operations")]
+    #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
     #[error("Nested lists ('[[T]]' etc) are not supported")]
     UnsupportedNestListType(),
@@ -102,7 +146,7 @@ pub enum ValidationMessage {
     ExpectedOneArgumentDefinitionsDirective(),
     #[error("{0}")]
     SyntaxError(graphql_syntax::SyntaxError),
-    #[error("Expected @argumentDefinitions value to have a 'type' with a literal string value (e.g. 'type: \"Int!\"')")]
+    #[error("Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')")]
     ExpectedArgumentDefinitionLiteralType(),
     #[error("Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties")]
     ExpectedArgumentDefinitionToBeObject(),
@@ -144,4 +188,170 @@ pub enum ValidationMessage {
 
     #[error("Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.")]
     DisallowIdAsAliasError(),
+
+    #[error("Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.")]
+    InvalidServerOnlyDirectiveInClientFields(StringKey),
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the return type to be a non-plural interface or object, got '{connection_type_string}'.")]
+    InvalidConnectionFieldType {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_string: String,
+    },
+
+    #[error("Expected field '{connection_field_name}' to have a '{first_arg}' or '{last_arg}' argument.")]
+    ExpectedConnectionToHaveCountArgs {
+        connection_field_name: StringKey,
+        first_arg: StringKey,
+        last_arg: StringKey,
+    },
+
+    #[error("Expected '{connection_field_name}' to have a '{edges_selection_name}' selection.")]
+    ExpectedConnectionToHaveEdgesSelection {
+        connection_field_name: StringKey,
+        edges_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name}' field that returns a list of objects.")]
+    ExpectedConnectionToExposeValidEdgesField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        edges_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {node_selection_name} }}' field that returns an object, interface or union.")]
+    ExpectedConnectionToExposeValidNodeField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        edges_selection_name: StringKey,
+        node_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {cursor_selection_name} }}' field that returns a scalar.")]
+    ExpectedConnectionToExposeValidCursorField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        cursor_selection_name: StringKey,
+        edges_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name}' field that returns an object.")]
+    ExpectedConnectionToExposeValidPageInfoField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        page_info_selection_name: StringKey,
+    },
+
+    #[error("@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name} {{ {page_info_sub_field_name} }}' field that returns a scalar.")]
+    ExpectedConnectionToExposeValidPageInfoSubField {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        connection_type_name: StringKey,
+        page_info_selection_name: StringKey,
+        page_info_sub_field_name: StringKey,
+    },
+
+    #[error("Expected the {handler_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'.")]
+    InvalidConnectionHandlerArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        handler_arg_name: StringKey,
+    },
+
+    #[error("Expected the {key_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'.")]
+    InvalidConnectionKeyArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        key_arg_name: StringKey,
+    },
+
+    #[error("Expected the {dynamic_key_arg_name} argument to @{connection_directive_name} to be a variable for field '{connection_field_name}'.")]
+    InvalidConnectionDynamicKeyArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        dynamic_key_arg_name: StringKey,
+    },
+
+    #[error("Expected the {key_arg_name} argument to @{connection_directive_name} to be of form '<SomeName>_{postfix}', got '{key_arg_value}'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection")]
+    InvalidConnectionKeyArgPostfix {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        key_arg_name: StringKey,
+        key_arg_value: StringKey,
+        postfix: String,
+    },
+
+    #[error("Expected the {filters_arg_name} argument to @{connection_directive_name} to be a list of string literals for field '{connection_field_name}'.")]
+    InvalidConnectionFiltersArg {
+        connection_directive_name: StringKey,
+        connection_field_name: StringKey,
+        filters_arg_name: StringKey,
+    },
+
+    #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
+    InvalidRelayDirectiveArg(StringKey),
+    #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
+    InvalidUnmaskOnFragmentWithDirectives(),
+    #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.")]
+    InvalidUnmaskOnFragmentWithArguments(),
+    #[error("Cannot combine global and local variables when applying @relay(mask: false")]
+    InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+    #[error("Cannot combine variables with incompatible types {prev_arg_type} and {next_arg_type} when applying @relay(mask: false")]
+    InvalidUnmaskOnVariablesOfIncompatibleTypesWithSameName {
+        prev_arg_type: String,
+        next_arg_type: String,
+    },
+
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
+
+    #[error("'{name}' should be defined on the server schema.")]
+    MissingServerSchemaDefinition { name: StringKey },
+
+    #[error("Direct use of the '{field_name}' field is not allowed, use '@match/@module instead.")]
+    InvalidDirectUseOfJSField { field_name: StringKey },
+    #[error("Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. '{document_name}_<localName>'.")]
+    InvalidMatchKeyArgument { document_name: StringKey },
+    #[error("@match used on incompatible field '{field_name}'. @match may only be used with fields that accept a 'supported: [String]' argument.")]
+    InvalidMatchNotOnNonNullListString { field_name: StringKey },
+    #[error("@match used on incompatible field '{field_name}'. @match may only be used with fields that return a union or interface.")]
+    InvalidMatchNotOnUnionOrInterface { field_name: StringKey },
+    #[error("Invalid @match selection: the '{supported_arg}' argument is automatically added and cannot be supplied explicitly.'")]
+    InvalidMatchNoUserSuppliedSupportedArg { supported_arg: StringKey },
+    #[error("Invalid @match selection: all selections should be fragment spreads with @module.")]
+    InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
+    #[error("Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.")]
+    InvalidMatchNoModuleSelection,
+
+    #[error("@module does not support @arguments.")]
+    InvalidModuleWithArguments,
+    #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]
+    InvalidModuleNonScalarJSField { js_field_type: StringKey },
+    #[error("@module used on invalid fragment spread '...{spread_name}'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type '{type_string}'.")]
+    InvalidModuleNotOnObject {
+        spread_name: StringKey,
+        type_string: StringKey,
+    },
+
+    #[error("Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string.")]
+    LabelNotUniqueForDeferStream { directive_name: StringKey },
+    #[error(
+        "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
+    )]
+    LiteralStringArgumentExpectedForDirective {
+        arg_name: StringKey,
+        directive_name: StringKey,
+    },
+    #[error("Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.")]
+    InvalidDeferOnInlineFragment,
+
+    #[error("Invalid use of @stream on scalar field '{field_name}'")]
+    InvalidStreamOnScalarField { field_name: StringKey },
+
+    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
+    StreamInitialCountRequired,
 }

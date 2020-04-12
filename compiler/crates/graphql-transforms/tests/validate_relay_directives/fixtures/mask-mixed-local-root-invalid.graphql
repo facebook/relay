@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
+  ...NonNullIDFragment @relay(mask: false)
+}
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}

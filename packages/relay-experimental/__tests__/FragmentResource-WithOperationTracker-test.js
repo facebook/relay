@@ -109,7 +109,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           ...MarkdownUserNameRenderer_name
             @module(name: "MarkdownUserNameRenderer.react")
         }
-        plainNameRenderer: nameRenderer @match {
+        plainNameRenderer: nameRenderer @match(key: "UserFragment_plainNameRenderer") {
           ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
         }
       }
@@ -217,8 +217,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           },
           plainNameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment: 'PlainUserNameRenderer.react',
-            __module_operation_UserFragment:
+            __module_component_UserFragment_plainNameRenderer:
+              'PlainUserNameRenderer.react',
+            __module_operation_UserFragment_plainNameRenderer:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
@@ -296,8 +297,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           },
           plainNameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment: 'PlainUserNameRenderer.react',
-            __module_operation_UserFragment:
+            __module_component_UserFragment_plainNameRenderer:
+              'PlainUserNameRenderer.react',
+            __module_operation_UserFragment_plainNameRenderer:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
@@ -370,9 +372,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                   },
                   plainNameRenderer: {
                     __typename: 'PlainUserNameRenderer',
-                    __module_component_UserFragment:
+                    __module_component_UserFragment_plainNameRenderer:
                       'PlainUserNameRenderer.react',
-                    __module_operation_UserFragment:
+                    __module_operation_UserFragment_plainNameRenderer:
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {

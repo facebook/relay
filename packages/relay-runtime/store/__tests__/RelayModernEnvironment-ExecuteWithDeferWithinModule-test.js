@@ -105,7 +105,7 @@ describe('execute() a query with @defer', () => {
           ...User_user @module(name: "User.react")
         }
         viewer {
-          actor {
+          actor @match(key: "UserQuery_actor") {
             ...Actor_actor @module(name: "Actor.react")
           }
         }
@@ -182,8 +182,9 @@ describe('execute() a query with @defer', () => {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery: 'Actor.react',
-            __module_operation_UserQuery: 'Actor_actor$normalization.graphql',
+            __module_component_UserQuery_actor: 'Actor.react',
+            __module_operation_UserQuery_actor:
+              'Actor_actor$normalization.graphql',
           },
         },
       },
@@ -232,8 +233,9 @@ describe('execute() a query with @defer', () => {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery: 'Actor.react',
-            __module_operation_UserQuery: 'Actor_actor$normalization.graphql',
+            __module_component_UserQuery_actor: 'Actor.react',
+            __module_operation_UserQuery_actor:
+              'Actor_actor$normalization.graphql',
           },
         },
       },
@@ -309,8 +311,9 @@ describe('execute() a query with @defer', () => {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery: 'Actor.react',
-            __module_operation_UserQuery: 'Actor_actor$normalization.graphql',
+            __module_component_UserQuery_actor: 'Actor.react',
+            __module_operation_UserQuery_actor:
+              'Actor_actor$normalization.graphql',
           },
         },
       },

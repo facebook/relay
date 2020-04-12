@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
+  ...NonNullIDFragment @relay(mask: false)
+}
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+==================================== ERROR ====================================
+Cannot combine global and local variables when applying @relay(mask: false:
+mask-mixed-local-root-invalid.graphql:1:51:
+fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
+
+
+mask-mixed-local-root-invalid.graphql:6:23:
+  node_id_required(id: $id) {

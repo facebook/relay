@@ -9,38 +9,43 @@ use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::*;
 use interner::StringKey;
 
+pub struct ReachableAst {
+    /// The definitions that need to be compiled, includes the project
+    /// definitions plus the fragment definitions in the base definitions
+    /// reachable from the project definitions.
+    pub definitions: Vec<ExecutableDefinition>,
+    /// The fragment names added from the base definitions.
+    pub base_fragment_names: FnvHashSet<StringKey>,
+}
+
 pub fn get_reachable_ast(
     project_definitions: Vec<ExecutableDefinition>,
-    base_definitions: Vec<Vec<ExecutableDefinition>>,
-) -> Result<(Vec<ExecutableDefinition>, FnvHashSet<StringKey>), String> {
-    let base_len = base_definitions
-        .iter()
-        .map(|definition| definition.len())
-        .sum();
-    if base_len == 0 {
-        return Ok((project_definitions, FnvHashSet::default()));
+    base_definitions: Vec<ExecutableDefinition>,
+) -> Result<ReachableAst, String> {
+    if base_definitions.is_empty() {
+        return Ok(ReachableAst {
+            definitions: project_definitions,
+            base_fragment_names: FnvHashSet::default(),
+        });
     }
 
     let mut reachable_base_asts = FnvHashSet::default();
-    let mut base_definitions_map =
-        FnvHashMap::with_capacity_and_hasher(base_len, Default::default());
+    let mut base_definitions_map = FnvHashMap::default();
 
     // Duplicate between base defnitions are allowed until they are referenced by the project definition
     let mut duplicate_base_definitions = FnvHashSet::default();
 
     // Preprocess all base fragment definitions
     // Skipping operations because project definitions can't reference base operations
-    for definitions in base_definitions {
-        for definition in definitions {
-            match &definition {
-                ExecutableDefinition::Fragment(fragment) => {
-                    let key = fragment.name.value;
-                    if base_definitions_map.insert(key, definition).is_some() {
-                        duplicate_base_definitions.insert(key);
-                    }
+    for base_definition in base_definitions {
+        match &base_definition {
+            ExecutableDefinition::Fragment(fragment) => {
+                let key = fragment.name.value;
+                if base_definitions_map.insert(key, base_definition).is_some() {
+                    duplicate_base_definitions.insert(key);
                 }
-                ExecutableDefinition::Operation(_) => {}
             }
+            ExecutableDefinition::Operation(_) => {}
         }
     }
 
@@ -66,7 +71,10 @@ pub fn get_reachable_ast(
         result.push(value);
     }
 
-    Ok((result, reachable_base_asts))
+    Ok(ReachableAst {
+        definitions: result,
+        base_fragment_names: reachable_base_asts,
+    })
 }
 
 fn visit_selections(

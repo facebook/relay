@@ -5,11 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::{build_project, WrittenArtifacts};
+use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
-use crate::watchman::GraphQLFinder;
-use common::Timer;
-use dependency_analyzer::get_reachable_ast;
+use crate::errors::{Error, Result};
+use crate::parse_sources::parse_sources;
+use crate::watchman::{FileSource, FileSourceResult, QueryParams};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 pub struct Compiler {
     config: Config,
@@ -20,105 +23,124 @@ impl Compiler {
         Self { config }
     }
 
-    pub async fn compile(&self) {
-        let finder = GraphQLFinder::connect(&self.config).await.unwrap();
+    /// This function will create an instance of CompilerState:
+    ///
+    /// - if the state is restored from the local saved state (see `optional_serialized_state_path`),
+    /// the files_source_result should contain only files changed
+    /// since the creation of the saved_state.
+    ///
+    /// - otherwise, it will send a base watchman query
+    /// (to fetch all files, currently)
+    async fn create_compiler_state_and_file_source_result(
+        &self,
+        file_source: &FileSource<'_>,
+        optional_serialized_state_path: Option<PathBuf>,
+    ) -> Result<(CompilerState, FileSourceResult)> {
+        match optional_serialized_state_path {
+            Some(saved_state_path) => {
+                let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
+                let metadata = compiler_state.metadata.clone();
+                let initial_file_source_result = file_source
+                    .query(metadata.map(|metadata| QueryParams {
+                        since: metadata.clock,
+                    }))
+                    .await?;
 
-        let compiler_state = finder.query().await.unwrap();
+                compiler_state
+                    .add_pending_file_source_changes(&self.config, &initial_file_source_result)?;
 
-        for (source_set_name, source_set) in &compiler_state.source_sets {
-            let definition_count: usize = source_set
-                .0
-                .values()
-                .map(|file_definitions| file_definitions.len())
-                .sum();
-            let file_count = source_set.0.len();
-            println!(
-                "{} has {} definitions from {} files",
-                source_set_name.0, definition_count, file_count
-            );
+                Ok((compiler_state, initial_file_source_result))
+            }
+            None => {
+                let initial_file_source_result = file_source.query(None).await?;
+                let compiler_state = CompilerState::from_file_source_changes(
+                    &self.config,
+                    &initial_file_source_result,
+                )?;
+
+                Ok((compiler_state, initial_file_source_result))
+            }
+        }
+    }
+
+    pub async fn compile(
+        &self,
+        optional_serialized_state_path: Option<PathBuf>,
+    ) -> Result<CompilerState> {
+        let file_source = FileSource::connect(&self.config).await?;
+        let (mut compiler_state, _) = self
+            .create_compiler_state_and_file_source_result(
+                &file_source,
+                optional_serialized_state_path,
+            )
+            .await?;
+        self.build_projects(&mut compiler_state).await?;
+
+        Ok(compiler_state)
+    }
+
+    pub async fn watch(&self, optional_serialized_state_path: Option<PathBuf>) -> Result<()> {
+        let file_source = FileSource::connect(&self.config).await?;
+        let (mut compiler_state, initial_file_source_result) = self
+            .create_compiler_state_and_file_source_result(
+                &file_source,
+                optional_serialized_state_path,
+            )
+            .await?;
+
+        if let Err(errors) = self.build_projects(&mut compiler_state).await {
+            // TODO correctly print errors
+            println!("Errors: {:#?}", errors)
         }
 
-        let ast_sets_timer = Timer::start("ast_sets");
-        let ast_sets: HashMap<_, _> = compiler_state
-            .source_sets
-            .iter()
-            .map(|(source_set_name, source_set)| {
-                (
-                    source_set_name,
-                    source_set
-                        .0
-                        .iter()
-                        .flat_map(|(file_name, file_sources)| {
-                            file_sources
-                                .iter()
-                                .enumerate()
-                                .flat_map(move |(index, file_source)| {
-                                    graphql_syntax::parse(
-                                        &file_source,
-                                        &format!("{}:{}", file_name.to_string_lossy(), index),
-                                    )
-                                    .unwrap()
-                                    .definitions
-                                })
-                        })
-                        .collect::<Vec<_>>(),
-                )
-            })
-            .collect();
-        ast_sets_timer.stop();
+        let mut subscription = file_source.subscribe(initial_file_source_result).await?;
+        loop {
+            if let Some(file_source_changes) = subscription.next_change().await? {
+                // TODO Single change to file in VSCode sometimes produces
+                // 2 watchman change events for the same file
 
-        for (project_name, project_config) in &self.config.projects {
-            // TODO avoid cloned() here
-            let project_document_asts = ast_sets[&project_name.as_source_set_name()].to_vec();
+                println!("\n\n[watch-mode] Change detected");
+                let had_new_changes = compiler_state
+                    .add_pending_file_source_changes(&self.config, &file_source_changes)?;
 
-            let mut extensions = Vec::new();
-            if let Some(project_extensions) = compiler_state.extensions.get(&project_name) {
-                extensions.extend(project_extensions);
+                if had_new_changes {
+                    if let Err(errors) = self.build_projects(&mut compiler_state).await {
+                        // TODO correctly print errors
+                        println!("Errors: {:#?}", errors)
+                    }
+                } else {
+                    println!("[watch-mode] No re-compilation required");
+                }
             }
+        }
+    }
 
-            let mut base_document_asts = Vec::new();
+    async fn build_projects(&self, compiler_state: &mut CompilerState) -> Result<()> {
+        let graphql_asts = parse_sources(&compiler_state)?;
+        let mut build_project_errors = vec![];
+        let mut next_artifacts: HashMap<ProjectName, WrittenArtifacts> = Default::default();
 
-            // if we have base project, add their asts and extensions.
-            // TODO: this should probably work recursively
-            if let Some(base_project_name) = project_config.base {
-                // TODO avoid cloned() here
-                base_document_asts.extend(
-                    ast_sets[&base_project_name.as_source_set_name()]
-                        .iter()
-                        .cloned(),
-                );
-
-                if let Some(base_project_extensions) =
-                    compiler_state.extensions.get(&base_project_name)
+        for project_config in self.config.projects.values() {
+            if compiler_state.project_has_pending_changes(project_config.name) {
+                // TODO: consider running all projects in parallel
+                match build_project(&self.config, project_config, compiler_state, &graphql_asts)
+                    .await
                 {
-                    extensions.extend(base_project_extensions);
+                    Ok(written_artifacts) => {
+                        next_artifacts.insert(project_config.name, written_artifacts);
+                    }
+                    Err(err) => build_project_errors.push(err),
                 }
             }
+        }
 
-            let build_schema_timer = Timer::start(format!("build_schema {}", project_name));
-            let mut schema_sources = vec![schema::RELAY_EXTENSIONS];
-            schema_sources.extend(
-                compiler_state.schemas[&project_name]
-                    .iter()
-                    .map(String::as_str),
-            );
-            let schema =
-                schema::build_schema_with_extensions(&schema_sources, &extensions).unwrap();
-            build_schema_timer.stop();
-
-            let build_ir_timer = Timer::start(format!("build_ir {}", project_name));
-            let reachable_ast = get_reachable_ast(project_document_asts, vec![base_document_asts])
-                .unwrap()
-                .0;
-            let ir: Vec<_> = match graphql_ir::build(&schema, &reachable_ast) {
-                Ok(ir) => ir,
-                Err(errors) => {
-                    println!("IR errors: {:#?}", errors);
-                    continue;
-                }
-            };
-            build_ir_timer.stop();
-            println!("[{}] IR node count {}", project_name, ir.len());
+        if build_project_errors.is_empty() {
+            compiler_state.complete_compilation(next_artifacts);
+            Ok(())
+        } else {
+            Err(Error::BuildProjectsErrors {
+                errors: build_project_errors,
+            })
         }
     }
 }

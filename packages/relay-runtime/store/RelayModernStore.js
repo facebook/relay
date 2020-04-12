@@ -90,6 +90,7 @@ class RelayModernStore implements Store {
   _index: number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
+  _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
@@ -114,6 +115,7 @@ class RelayModernStore implements Store {
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
+      queryCacheExpirationTime?: ?number,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -138,6 +140,7 @@ class RelayModernStore implements Store {
     this._index = 0;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
+    this._queryCacheExpirationTime = options?.queryCacheExpirationTime;
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
     this._recordSource = source;
@@ -173,10 +176,10 @@ class RelayModernStore implements Store {
         operationLastWrittenAt == null ||
         operationLastWrittenAt <= globalInvalidationEpoch
       ) {
-        // If the operation was written /before/ global invalidation ocurred,
+        // If the operation was written /before/ global invalidation occurred,
         // or if this operation has never been written to the store before,
         // we will consider the data for this operation to be stale
-        //  (i.e. not resolvable from the store).
+        // (i.e. not resolvable from the store).
         return {status: 'stale'};
       }
     }
@@ -192,10 +195,11 @@ class RelayModernStore implements Store {
       this._getDataID,
     );
 
-    return getAvailablityStatus(
+    return getAvailabilityStatus(
       operationAvailability,
       operationLastWrittenAt,
       rootEntry?.fetchTime,
+      this._queryCacheExpirationTime,
     );
   }
 
@@ -214,19 +218,31 @@ class RelayModernStore implements Store {
         return;
       }
       // Decrement the ref count: if it becomes zero it is eligible
-      // for release
+      // for release.
       rootEntry.refCount--;
-      if (rootEntry.refCount === 0) {
-        this._releaseBuffer.push(id);
-      }
 
-      // If the release buffer is now over-full, remove the least-recently
-      // added entry and schedule a GC. Note that all items in the release
-      // buffer have a refCount of 0.
-      if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-        const _id = this._releaseBuffer.shift();
-        this._roots.delete(_id);
-        this._scheduleGC();
+      if (rootEntry.refCount === 0) {
+        const {_queryCacheExpirationTime} = this;
+        const rootEntryIsStale =
+          rootEntry.fetchTime != null &&
+          _queryCacheExpirationTime != null &&
+          rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
+
+        if (rootEntryIsStale) {
+          this._roots.delete(id);
+          this._scheduleGC();
+        } else {
+          this._releaseBuffer.push(id);
+
+          // If the release buffer is now over-full, remove the least-recently
+          // added entry and schedule a GC. Note that all items in the release
+          // buffer have a refCount of 0.
+          if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
+            const _id = this._releaseBuffer.shift();
+            this._roots.delete(_id);
+            this._scheduleGC();
+          }
+        }
       }
     };
 
@@ -238,7 +254,7 @@ class RelayModernStore implements Store {
         // all release buffer entries have a refCount of 0.
         this._releaseBuffer = this._releaseBuffer.filter(_id => _id !== id);
       }
-      // If we've previously retained this operation, inrement the refCount
+      // If we've previously retained this operation, increment the refCount
       rootEntry.refCount += 1;
     } else {
       // Otherwise create a new entry for the operation
@@ -262,7 +278,7 @@ class RelayModernStore implements Store {
     return snapshot;
   }
 
-  // This method will return a list of updated owners form the subscriptions
+  // This method will return a list of updated owners from the subscriptions
   notify(
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
@@ -305,7 +321,7 @@ class RelayModernStore implements Store {
       const rootEntry = this._roots.get(id);
       if (rootEntry != null) {
         rootEntry.epoch = this._currentWriteEpoch;
-        rootEntry.fetchTime = rootEntry.fetchTime ?? Date.now();
+        rootEntry.fetchTime = Date.now();
       } else if (
         sourceOperation.request.node.params.operationKind === 'query' &&
         this._gcReleaseBufferSize > 0 &&
@@ -690,18 +706,19 @@ function updateTargetFromSource(
 /**
  * Returns an OperationAvailability given the Availability returned
  * by checking an operation, and when that operation was last written to the store.
- * Specifically, the provided Availablity of a an operation will contain the
+ * Specifically, the provided Availability of an operation will contain the
  * value of when a record referenced by the operation was most recently
  * invalidated; given that value, and given when this operation was last
  * written to the store, this function will return the overall
  * OperationAvailability for the operation.
  */
-function getAvailablityStatus(
-  opearionAvailability: Availability,
+function getAvailabilityStatus(
+  operationAvailability: Availability,
   operationLastWrittenAt: ?number,
   operationFetchTime: ?number,
+  queryCacheExpirationTime: ?number,
 ): OperationAvailability {
-  const {mostRecentlyInvalidatedAt, status} = opearionAvailability;
+  const {mostRecentlyInvalidatedAt, status} = operationAvailability;
   if (typeof mostRecentlyInvalidatedAt === 'number') {
     // If some record referenced by this operation is stale, then the operation itself is stale
     // if either the operation itself was never written *or* the operation was last written
@@ -714,14 +731,20 @@ function getAvailablityStatus(
     }
   }
 
+  if (status === 'missing') {
+    return {status: 'missing'};
+  }
+
+  if (operationFetchTime != null && queryCacheExpirationTime != null) {
+    const isStale = operationFetchTime <= Date.now() - queryCacheExpirationTime;
+    if (isStale) {
+      return {status: 'stale'};
+    }
+  }
+
   // There were no invalidations of any reachable records *or* the operation is known to have
   // been fetched after the most recent record invalidation.
-  return status === 'missing'
-    ? {status: 'missing'}
-    : {
-        status: 'available',
-        fetchTime: operationFetchTime ?? null,
-      };
+  return {status: 'available', fetchTime: operationFetchTime ?? null};
 }
 
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {

@@ -183,6 +183,9 @@ class RelayMockPayloadGenerator {
     +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
+    /* $FlowFixMe(>=0.122.0) This comment suppresses an error found when Flow
+     * v0.122.0 was deployed. To see the error, delete this comment and run
+     * Flow. */
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
@@ -292,7 +295,6 @@ class RelayMockPayloadGenerator {
           }
           break;
 
-        case CLIENT_EXTENSION:
         case DEFER:
         case STREAM: {
           mockData = this._traverseSelections(
@@ -450,6 +452,10 @@ class RelayMockPayloadGenerator {
               ),
             };
           }
+          break;
+        case CLIENT_EXTENSION:
+          // We do not expect to receive data for the client extensions
+          // from the server. MockPayloadGenerator should not generate it too.
           break;
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
@@ -678,11 +684,11 @@ class RelayMockPayloadGenerator {
           args,
         },
         [...path, applicationName],
-        /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This comment suppresses an
-         * error found when Flow v0.98 was deployed. To see the error delete
-         * this comment and run Flow. */
         typeof data[applicationName] === 'object'
-          ? data[applicationName]
+          ? /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This
+             * comment suppresses an error found when Flow v0.98 was deployed.
+             * To see the error delete this comment and run Flow. */
+            data[applicationName]
           : null,
         /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This comment suppresses an
          * error found when Flow v0.98 was deployed. To see the error delete

@@ -80,6 +80,7 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
+  +isServer?: boolean,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -96,6 +97,7 @@ class RelayModernEnvironment implements IEnvironment {
   _getDataID: GetDataID;
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
+  +_isServer: boolean;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -133,6 +135,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
     this.options = config.options;
+    this._isServer = config.isServer ?? false;
 
     (this: any).__setNet = newNet => (this._network = newNet);
 
@@ -281,6 +284,10 @@ class RelayModernEnvironment implements IEnvironment {
 
   retain(operation: OperationDescriptor): Disposable {
     return this._store.retain(operation);
+  }
+
+  isServer(): boolean {
+    return this._isServer;
   }
 
   _checkSelectorAndHandleMissingFields(

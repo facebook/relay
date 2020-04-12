@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.:
+invalid-no-matches.graphql:3:16:
+  nameRenderer @match {

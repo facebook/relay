@@ -17,6 +17,7 @@ const useBlockingPaginationFragment = require('../useBlockingPaginationFragment'
 
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import {
+  fragmentData,
   fragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
@@ -75,6 +76,15 @@ type ExpectedReturnType<
   fragmentInput,
   keyAnotherNullable,
 ): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
+
+// $FlowExpectedError: Key should not be a user provided object
+useBlockingPaginationFragment<QueryOperation, _>(fragmentInput, {abc: 123});
+
+// $FlowExpectedError: Key should not be an empty object
+useBlockingPaginationFragment<QueryOperation, _>(fragmentInput, {});
+
+// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+useBlockingPaginationFragment<QueryOperation, _>(fragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;

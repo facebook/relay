@@ -29,8 +29,8 @@ impl fmt::Debug for Node {
 
 pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
-    base_definitions: FnvHashSet<StringKey>,
-    changed_names: Vec<StringKey>,
+    base_definition_names: FnvHashSet<StringKey>,
+    changed_names: FnvHashSet<StringKey>,
 ) -> Vec<ExecutableDefinition> {
     if changed_names.is_empty() {
         return vec![];
@@ -47,7 +47,7 @@ pub fn get_reachable_ir(
                 &mut visited,
                 &mut filtered_definitions,
                 &mut trees,
-                &base_definitions,
+                &base_definition_names,
                 key,
             );
         }
@@ -154,7 +154,7 @@ fn add_related_nodes(
     visited: &mut FnvHashSet<StringKey>,
     result: &mut FnvHashMap<StringKey, ExecutableDefinition>,
     trees: &mut FnvHashMap<StringKey, Node>,
-    base_definitions: &FnvHashSet<StringKey>,
+    base_definition_names: &FnvHashSet<StringKey>,
     key: StringKey,
 ) {
     if !visited.insert(key) {
@@ -168,9 +168,9 @@ fn add_related_nodes(
         Some(node) => node.parents.clone(),
     };
     for parent in parents.into_iter() {
-        add_related_nodes(visited, result, trees, base_definitions, parent);
+        add_related_nodes(visited, result, trees, base_definition_names, parent);
     }
-    if !base_definitions.contains(&key) {
+    if !base_definition_names.contains(&key) {
         add_descendants(visited, result, trees, key);
     }
 }

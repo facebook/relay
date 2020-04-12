@@ -28,6 +28,7 @@ import type {
   GraphQLTaggedNode,
   Observer,
   OperationType,
+  FragmentReference,
 } from 'relay-runtime';
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
@@ -43,7 +44,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function usePaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,

@@ -58,11 +58,12 @@ function refetchableFragmentTransform(
   const refetchOperations = buildRefetchMap(context);
   let nextContext = context;
   eachWithCombinedError(refetchOperations, ([refetchName, fragment]) => {
-    const {path, node, transformedFragment} = buildRefetchOperation(
-      schema,
-      fragment,
-      refetchName,
-    );
+    const {
+      identifierField,
+      path,
+      node,
+      transformedFragment,
+    } = buildRefetchOperation(schema, fragment, refetchName);
     const connectionMetadata = extractConnectionMetadata(
       context.getSchema(),
       transformedFragment,
@@ -75,6 +76,7 @@ function refetchableFragmentTransform(
           connection: connectionMetadata ?? null,
           operation: refetchName,
           fragmentPathInResult: path,
+          identifierField,
         },
       },
     });
@@ -108,9 +110,7 @@ function buildRefetchMap(context: CompilerContext): Map<string, Fragment> {
     const previousOperation = refetchOperations.get(refetchName);
     if (previousOperation != null) {
       throw createUserError(
-        `Duplicate definition for @refetchable operation '${refetchName}' from fragments '${
-          node.name
-        }' and '${previousOperation.name}'`,
+        `Duplicate definition for @refetchable operation '${refetchName}' from fragments '${node.name}' and '${previousOperation.name}'`,
         [node.loc, previousOperation.loc],
       );
     }
@@ -153,9 +153,7 @@ function extractConnectionMetadata(
           // Disallow multiple @connections
           if (connectionField != null) {
             throw createUserError(
-              `Invalid use of @refetchable with @connection in fragment '${
-                fragment.name
-              }', at most once @connection can appear in a refetchable fragment.`,
+              `Invalid use of @refetchable with @connection in fragment '${fragment.name}', at most once @connection can appear in a refetchable fragment.`,
               [field.loc],
             );
           }
@@ -165,9 +163,7 @@ function extractConnectionMetadata(
           );
           if (pluralOnPath) {
             throw createUserError(
-              `Invalid use of @refetchable with @connection in fragment '${
-                fragment.name
-              }', refetchable connections cannot appear inside plural fields.`,
+              `Invalid use of @refetchable with @connection in fragment '${fragment.name}', refetchable connections cannot appear inside plural fields.`,
               [field.loc, pluralOnPath.loc],
             );
           }
@@ -196,9 +192,7 @@ function extractConnectionMetadata(
       last.value.kind !== 'Variable'
     ) {
       throw createUserError(
-        `Invalid use of @refetchable with @connection in fragment '${
-          fragment.name
-        }', refetchable connections must use variables for the before and last arguments.`,
+        `Invalid use of @refetchable with @connection in fragment '${fragment.name}', refetchable connections must use variables for the before and last arguments.`,
         [
           connectionField.loc,
           before && before.value.kind !== 'Variable' ? before.value.loc : null,
@@ -224,9 +218,7 @@ function extractConnectionMetadata(
       first.value.kind !== 'Variable'
     ) {
       throw createUserError(
-        `Invalid use of @refetchable with @connection in fragment '${
-          fragment.name
-        }', refetchable connections must use variables for the after and first arguments.`,
+        `Invalid use of @refetchable with @connection in fragment '${fragment.name}', refetchable connections must use variables for the after and first arguments.`,
         [
           connectionField.loc,
           after && after.value.kind !== 'Variable' ? after.value.loc : null,

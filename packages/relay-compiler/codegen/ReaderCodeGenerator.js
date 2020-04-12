@@ -44,6 +44,7 @@ import type {
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
+  ReaderRefetchMetadata,
   ReaderScalarField,
   ReaderSelection,
 } from 'relay-runtime';
@@ -74,29 +75,37 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
       metadata = metadata ?? {};
       metadata.plural = plural;
     }
-    if (typeof refetch === 'object') {
+    if (refetch != null && typeof refetch === 'object') {
       metadata = metadata ?? {};
       metadata.refetch = {
         // $FlowFixMe
         connection: refetch.connection,
         // $FlowFixMe
-        operation: CodeMarker.moduleDependency(refetch.operation + '.graphql'),
-        // $FlowFixMe
         fragmentPathInResult: refetch.fragmentPathInResult,
+        operation: CodeMarker.moduleDependency(
+          // $FlowFixMe
+          refetch.operation + '.graphql',
+        ),
       };
+      if (typeof refetch.identifierField === 'string') {
+        metadata.refetch = {
+          ...metadata.refetch,
+          identifierField: refetch.identifierField,
+        };
+      }
     }
   }
   return {
-    kind: 'Fragment',
-    name: node.name,
-    type: schema.getTypeString(node.type),
-    // $FlowFixMe
-    metadata,
     argumentDefinitions: generateArgumentDefinitions(
       schema,
       node.argumentDefinitions,
     ),
+    kind: 'Fragment',
+    // $FlowFixMe
+    metadata,
+    name: node.name,
     selections: generateSelections(schema, node.selections),
+    type: schema.getTypeString(node.type),
   };
 }
 
@@ -143,10 +152,10 @@ function generateArgumentDefinitions(
     switch (node.kind) {
       case 'LocalArgumentDefinition':
         return {
+          defaultValue: node.defaultValue,
           kind: 'LocalArgument',
           name: node.name,
           type: schema.getTypeString(node.type),
-          defaultValue: node.defaultValue,
         };
       case 'RootArgumentDefinition':
         return {
@@ -193,9 +202,9 @@ function generateCondition(schema: Schema, node: Condition): ReaderSelection {
     );
   }
   return {
+    condition: node.condition.variableName,
     kind: 'Condition',
     passingValue: node.passingValue,
-    condition: node.condition.variableName,
     selections: generateSelections(schema, node.selections),
   };
 }
@@ -205,9 +214,9 @@ function generateFragmentSpread(
   node: FragmentSpread,
 ): ReaderSelection {
   return {
+    args: generateArgs(node.args),
     kind: 'FragmentSpread',
     name: node.name,
-    args: generateArgs(node.args),
   };
 }
 
@@ -217,8 +226,8 @@ function generateInlineFragment(
 ): ReaderSelection {
   return {
     kind: 'InlineFragment',
-    type: schema.getTypeString(node.typeCondition),
     selections: generateSelections(schema, node.selections),
+    type: schema.getTypeString(node.typeCondition),
   };
 }
 
@@ -251,16 +260,16 @@ function generateLinkedField(
   //   );
   const rawType = schema.getRawType(node.type);
   let field: ReaderLinkedField = {
-    kind: 'LinkedField',
     alias: node.alias === node.name ? null : node.alias,
-    name: node.name,
-    storageKey: null,
     args: generateArgs(node.args),
     concreteType: !schema.isAbstractType(rawType)
       ? schema.getTypeString(rawType)
       : null,
+    kind: 'LinkedField',
+    name: node.name,
     plural: isPlural(schema, node.type),
     selections: generateSelections(schema, node.selections),
+    storageKey: null,
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
@@ -294,10 +303,10 @@ function generateModuleImport(
     );
   }
   return {
-    kind: 'ModuleImport',
-    documentName: node.documentName,
+    documentName: node.key,
     fragmentName,
     fragmentPropName,
+    kind: 'ModuleImport',
   };
 }
 
@@ -319,10 +328,10 @@ function generateScalarField(
   //   );
 
   let field: ReaderScalarField = {
-    kind: 'ScalarField',
     alias: node.alias === node.name ? null : node.alias,
-    name: node.name,
     args: generateArgs(node.args),
+    kind: 'ScalarField',
+    name: node.name,
     storageKey: null,
   };
   // Precompute storageKey if possible
@@ -360,8 +369,6 @@ function generateArgument(
         }),
       );
       return {
-        kind: 'ObjectValue',
-        name: name,
         fields: objectKeys.map(fieldName => {
           const fieldValue = objectValues.get(fieldName);
           if (fieldValue == null) {
@@ -375,15 +382,17 @@ function generateArgument(
             }
           );
         }),
+        kind: 'ObjectValue',
+        name: name,
       };
     }
     case 'ListValue': {
       return {
-        kind: 'ListValue',
-        name: name,
         items: value.items.map((item, index) => {
           return generateArgument(`${name}.${index}`, item);
         }),
+        kind: 'ListValue',
+        name: name,
       };
     }
     default:

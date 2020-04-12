@@ -13,11 +13,11 @@ use interner::StringKey;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub fn inline_fragments<'s>(program: &'s Program<'s>) -> Program<'s> {
+pub fn inline_fragments<'s>(program: &Program<'s>) -> Program<'s> {
     let mut transform = InlineFragmentsTransform::new(program);
     transform
         .transform_program(program)
-        .unwrap_or_else(|| program.clone())
+        .replace_or_else(|| program.clone())
 }
 
 type Seen = HashMap<StringKey, Arc<InlineFragment>>;
@@ -52,12 +52,20 @@ impl<'s> InlineFragmentsTransform<'s> {
                 selections: Default::default(),
             }),
         );
-        let fragment = self.program.fragment(spread.fragment.item).unwrap();
+        let fragment = self
+            .program
+            .fragment(spread.fragment.item)
+            .unwrap_or_else(|| {
+                panic!(
+                    "Fragment spread unable to resolve fragment `{}`.",
+                    spread.fragment.item
+                )
+            });
         let selections = self.transform_selections(&fragment.selections);
         let result = Arc::new(InlineFragment {
             type_condition: Some(fragment.type_condition),
             directives: fragment.directives.clone(),
-            selections: selections.unwrap_or_else(|| fragment.selections.clone()),
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
         });
         self.seen.insert(spread.fragment.item, Arc::clone(&result));
         result
@@ -85,7 +93,7 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
         }
     }
 
-    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Arc<ScalarField>> {
+    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Selection> {
         Transformed::Keep
     }
 }

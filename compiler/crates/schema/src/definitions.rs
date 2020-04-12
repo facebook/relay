@@ -11,6 +11,7 @@ use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
 use std::fmt;
+use std::fmt::{Result as FormatResult, Write};
 use std::slice::Iter;
 
 // TODO: consider a common Value representation with the IR
@@ -30,7 +31,13 @@ pub struct Schema {
     clientid_field: FieldID,
     typename_field: FieldID,
 
-    directives: Vec<Directive>,
+    clientid_field_name: StringKey,
+    typename_field_name: StringKey,
+
+    string_type: Type,
+    id_type: Type,
+
+    directives: HashMap<StringKey, Directive>,
 
     enums: Vec<Enum>,
     fields: Vec<Field>,
@@ -151,12 +158,39 @@ impl Schema {
         type_.is_abstract_type()
     }
 
-    pub fn get_type_string(&self, type_: &TypeReference) -> String {
+    pub fn is_object(&self, type_: Type) -> bool {
+        type_.is_object()
+    }
+
+    pub fn is_interface(&self, type_: Type) -> bool {
+        type_.is_interface()
+    }
+
+    pub fn is_string(&self, type_: Type) -> bool {
+        type_ == self.string_type
+    }
+
+    fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
         match type_ {
-            TypeReference::Named(inner) => self.get_type_name(inner.clone()).lookup().to_string(),
-            TypeReference::NonNull(of) => format!("{}!", self.get_type_string(of)),
-            TypeReference::List(of) => format!("[{}]", self.get_type_string(of)),
+            TypeReference::Named(inner) => {
+                write!(writer, "{}", self.get_type_name(inner.clone()).lookup())
+            }
+            TypeReference::NonNull(of) => {
+                self.write_type_string(writer, of)?;
+                write!(writer, "!")
+            }
+            TypeReference::List(of) => {
+                write!(writer, "[")?;
+                self.write_type_string(writer, of)?;
+                write!(writer, "]")
+            }
         }
+    }
+
+    pub fn get_type_string(&self, type_: &TypeReference) -> String {
+        let mut result = String::new();
+        self.write_type_string(&mut result, type_).unwrap();
+        result
     }
 
     pub fn get_type_name(&self, type_: Type) -> StringKey {
@@ -182,10 +216,30 @@ impl Schema {
     }
 
     pub fn get_directive(&self, name: StringKey) -> Option<&Directive> {
-        self.directives.iter().find(|x| x.name == name)
+        self.directives.get(&name)
+    }
+
+    pub fn is_extension_directive(&self, name: StringKey) -> bool {
+        if let Some(directive) = self.get_directive(name) {
+            directive.is_extension
+        } else {
+            panic!("Unknown directive {}.", name.lookup())
+        }
     }
 
     pub fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
+        // Special case for __typename and __id fields, which should not be in the list of type fields
+        // but should be fine to select.
+        let can_have_typename = parent_type.is_object() || parent_type.is_abstract_type();
+        if can_have_typename {
+            if name == self.typename_field_name {
+                return Some(self.typename_field);
+            }
+            if name == self.clientid_field_name {
+                return Some(self.clientid_field);
+            }
+        }
+
         let fields = match parent_type {
             Type::Object(id) => {
                 let object = &self.objects[id.as_usize()];
@@ -242,13 +296,7 @@ impl Schema {
     }
 
     pub fn is_id(&self, type_: Type) -> bool {
-        match type_ {
-            Type::Scalar(id) => {
-                let scalar = &self.scalars[id.as_usize()];
-                scalar.name == "ID".intern()
-            }
-            _ => false,
-        }
+        type_ == self.id_type
     }
 
     pub fn build(
@@ -307,6 +355,9 @@ impl Schema {
         }
 
         // Step 2: define operation types, directives, and types
+        let string_type = *type_map.get(&"String".intern()).unwrap();
+        let id_type = *type_map.get(&"ID".intern()).unwrap();
+
         let mut schema = Schema {
             query_type: None,
             mutation_type: None,
@@ -314,7 +365,11 @@ impl Schema {
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
-            directives: Vec::with_capacity(directive_count),
+            clientid_field_name: "__id".intern(),
+            typename_field_name: "__typename".intern(),
+            string_type,
+            id_type,
+            directives: HashMap::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
             fields: Vec::with_capacity(field_count),
             input_objects: Vec::with_capacity(next_input_object_id.try_into().unwrap()),
@@ -378,19 +433,21 @@ impl Schema {
         let typename_field_id = schema.fields.len();
         schema.typename_field = FieldID(typename_field_id.try_into().unwrap());
         schema.fields.push(Field {
-            name: "__typename".intern(),
+            name: schema.typename_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::Named(*schema.type_map.get(&"String".intern()).unwrap()),
+            type_: TypeReference::Named(string_type),
+            directives: Vec::new(),
         });
 
         let clientid_field_id = schema.fields.len();
         schema.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         schema.fields.push(Field {
-            name: "__id".intern(),
+            name: schema.clientid_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::Named(*schema.type_map.get(&"ID".intern()).unwrap()),
+            type_: TypeReference::Named(id_type),
+            directives: Vec::new(),
         });
 
         Ok(schema)
@@ -447,18 +504,29 @@ impl Schema {
                 repeatable: _repeatable,
                 locations,
             } => {
+                if self.directives.contains_key(name) {
+                    let str_name = name.lookup();
+                    if str_name != "skip" && str_name != "include" {
+                        // TODO(T63941319) @skip and @include directives are duplicated in our schema
+                        return Err(SchemaError::DuplicateDirectiveDefinition(*name));
+                    }
+                }
                 let arguments = self.build_arguments(arguments)?;
-                self.directives.push(Directive {
-                    name: *name,
-                    arguments,
-                    locations: locations.clone(),
-                });
+                self.directives.insert(
+                    *name,
+                    Directive {
+                        name: *name,
+                        arguments,
+                        locations: locations.clone(),
+                        is_extension,
+                    },
+                );
             }
             ast::Definition::ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
-                directives: _directives,
+                directives,
             } => {
                 let fields = if is_extension {
                     self.build_extend_fields(&fields, &mut HashSet::with_capacity(fields.len()))?
@@ -469,16 +537,18 @@ impl Schema {
                     .iter()
                     .map(|name| self.build_interface_id(*name))
                     .collect::<Result<Vec<_>>>()?;
+                let directives = self.build_directive_values(&directives);
                 self.objects.push(Object {
                     name: *name,
                     fields,
                     is_extension,
                     interfaces,
+                    directives,
                 });
             }
             ast::Definition::InterfaceTypeDefinition {
                 name,
-                directives: _directives,
+                directives,
                 fields,
             } => {
                 let fields = if is_extension {
@@ -486,11 +556,13 @@ impl Schema {
                 } else {
                     self.build_fields(&fields)?
                 };
+                let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
                     name: *name,
                     implementors: vec![],
                     is_extension,
                     fields,
+                    directives,
                 });
             }
             ast::Definition::UnionTypeDefinition {
@@ -521,13 +593,17 @@ impl Schema {
             }
             ast::Definition::EnumTypeDefinition {
                 name,
-                directives: _directives,
+                directives,
                 values,
-            } => self.enums.push(Enum {
-                name: *name,
-                is_extension,
-                values: values.iter().map(|enum_def| enum_def.name).collect(),
-            }),
+            } => {
+                let directives = self.build_directive_values(&directives);
+                self.enums.push(Enum {
+                    name: *name,
+                    is_extension,
+                    values: values.iter().map(|enum_def| enum_def.name).collect(),
+                    directives,
+                });
+            }
             ast::Definition::ScalarTypeDefinition {
                 name,
                 directives: _directives,
@@ -612,11 +688,13 @@ impl Schema {
             .map(|field_def| {
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let type_ = self.build_type_reference(&field_def.type_)?;
+                let directives = self.build_directive_values(&field_def.directives);
                 Ok(self.build_field(Field {
                     name: field_def.name,
                     is_extension: false,
                     arguments,
                     type_,
+                    directives,
                 }))
             })
             .collect()
@@ -633,12 +711,14 @@ impl Schema {
                 return Err(SchemaError::DuplicateField(field_def.name));
             }
             let arguments = self.build_arguments(&field_def.arguments)?;
+            let directives = self.build_directive_values(&field_def.directives);
             let type_ = self.build_type_reference(&field_def.type_)?;
             field_ids.push(self.build_field(Field {
                 name: field_def.name,
                 is_extension: true,
                 arguments,
                 type_,
+                directives,
             }));
         }
         Ok(field_ids)
@@ -679,6 +759,23 @@ impl Schema {
         })
     }
 
+    fn build_directive_values(&mut self, directives: &[ast::Directive]) -> Vec<DirectiveValue> {
+        directives
+            .iter()
+            .map(|directive| DirectiveValue {
+                name: directive.name,
+                arguments: directive
+                    .arguments
+                    .iter()
+                    .map(|argument| ArgumentValue {
+                        name: argument.name,
+                        value: argument.value.clone(),
+                    })
+                    .collect(),
+            })
+            .collect()
+    }
+
     pub fn snapshot_print(self) -> String {
         let Self {
             query_type,
@@ -687,6 +784,10 @@ impl Schema {
             directives,
             clientid_field: _clientid_field,
             typename_field: _typename_field,
+            clientid_field_name: _clientid_field_name,
+            typename_field_name: _typename_field_name,
+            string_type: _string_type,
+            id_type: _id_type,
             type_map,
             enums,
             fields,
@@ -700,6 +801,9 @@ impl Schema {
             .into_iter()
             .map(|(key, value)| (key.lookup().to_owned(), value))
             .collect();
+
+        let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
+        ordered_directives.sort_by_key(|dir| dir.name.lookup());
 
         format!(
             r#"Schema {{
@@ -719,7 +823,7 @@ unions: {:#?}
             query_type,
             mutation_type,
             subscription_type,
-            directives,
+            ordered_directives,
             ordered_type_map,
             enums,
             fields,
@@ -735,7 +839,7 @@ unions: {:#?}
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
         #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-        pub struct $name($type);
+        pub struct $name(pub $type);
         impl $name {
             #[allow(dead_code)]
             fn as_usize(&self) -> usize {
@@ -745,12 +849,12 @@ macro_rules! type_id {
     };
 }
 
-type_id!(EnumID, u16);
-type_id!(InputObjectID, u16);
-type_id!(InterfaceID, u16);
-type_id!(ObjectID, u16);
-type_id!(ScalarID, u16);
-type_id!(UnionID, u16);
+type_id!(EnumID, u32);
+type_id!(InputObjectID, u32);
+type_id!(InterfaceID, u32);
+type_id!(ObjectID, u32);
+type_id!(ScalarID, u32);
+type_id!(UnionID, u32);
 type_id!(FieldID, u32);
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -788,6 +892,20 @@ impl Type {
     pub fn is_abstract_type(self) -> bool {
         match self {
             Type::Union(_) | Type::Interface(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_object(self) -> bool {
+        match self {
+            Type::Object(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_interface(self) -> bool {
+        match self {
+            Type::Interface(_) => true,
             _ => false,
         }
     }
@@ -844,6 +962,13 @@ impl TypeReference {
             _ => false,
         }
     }
+
+    pub fn is_list(&self) -> bool {
+        match self.nullable_type() {
+            TypeReference::List(_) => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -851,6 +976,7 @@ pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
+    pub is_extension: bool,
 }
 
 #[derive(Debug)]
@@ -865,6 +991,7 @@ pub struct Object {
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -878,6 +1005,7 @@ pub struct Enum {
     pub name: StringKey,
     pub is_extension: bool,
     pub values: Vec<StringKey>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -893,6 +1021,7 @@ pub struct Interface {
     pub is_extension: bool,
     pub implementors: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -901,6 +1030,7 @@ pub struct Field {
     pub is_extension: bool,
     pub arguments: ArgumentDefinitions,
     pub type_: TypeReference,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -908,6 +1038,18 @@ pub struct Argument {
     pub name: StringKey,
     pub type_: TypeReference,
     pub default_value: Option<ConstValue>,
+}
+
+#[derive(Debug)]
+pub struct ArgumentValue {
+    pub name: StringKey,
+    pub value: ConstValue,
+}
+
+#[derive(Debug)]
+pub struct DirectiveValue {
+    pub name: StringKey,
+    pub arguments: Vec<ArgumentValue>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

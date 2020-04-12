@@ -1,0 +1,76 @@
+==================================== INPUT ====================================
+query StableLiteralsTest {
+  me {
+    # Note: these object fields are not defined in alphabetical order.
+    # The generated artifacts will be produced in alphabetical order.
+    storyCommentSearch(query: {text: "foo", limit: 2, offset: 10}) {
+      id
+    }
+
+    aliased: storyCommentSearch(query: {text: "foo", limit: 2, offset: 10}) {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+Operation:
+(function(){
+var v0 = [
+  {
+    "kind": "Literal",
+    "name": "query",
+    "value": {
+      "limit": 2,
+      "offset": 10,
+      "text": "foo"
+    }
+  }
+],
+v1 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "id",
+    "storageKey": null
+  }
+];
+return {
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "StableLiteralsTest",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": (v0/*: any*/),
+          "concreteType": "Comment",
+          "kind": "LinkedField",
+          "name": "storyCommentSearch",
+          "plural": true,
+          "selections": (v1/*: any*/),
+          "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
+        },
+        {
+          "alias": "aliased",
+          "args": (v0/*: any*/),
+          "concreteType": "Comment",
+          "kind": "LinkedField",
+          "name": "storyCommentSearch",
+          "plural": true,
+          "selections": (v1/*: any*/),
+          "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+};
+})()

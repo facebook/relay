@@ -553,6 +553,68 @@ describe('validateOptimisticResponse', () => {
       variables: null,
       shouldWarn: true,
     },
+    {
+      name: 'Does not log a warning for client-side schema extensions',
+      mutation: generateAndCompile(
+        `
+          extend type Feedback {
+            isSavingLike: Boolean
+          }
+          mutation FeedbackLikeMutation(
+            $input: FeedbackLikeInput
+          ) {
+            feedbackLike(input: $input) {
+              feedback {
+                doesViewerLike
+                isSavingLike
+              }
+            }
+          }
+      `,
+      ).FeedbackLikeMutation,
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            doesViewerLike: true,
+            isSavingLike: true,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: 'Logs a warning for invalid client-side schema extension fields',
+      mutation: generateAndCompile(
+        `
+          extend type Feedback {
+            isSavingLike: Boolean
+          }
+          mutation FeedbackLikeMutation(
+            $input: FeedbackLikeInput
+          ) {
+            feedbackLike(input: $input) {
+              feedback {
+                doesViewerLike
+                isSavingLike
+              }
+            }
+          }
+      `,
+      ).FeedbackLikeMutation,
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            doesViewerLike: true,
+            someInvalidField: true,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: true,
+    },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
     it(name, () => {
       jest.clearAllMocks();

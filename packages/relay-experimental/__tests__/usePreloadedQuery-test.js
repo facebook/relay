@@ -13,10 +13,6 @@
 
 'use strict';
 
-jest.mock('../ExecutionEnvironment', () => ({
-  isServer: false,
-}));
-
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 

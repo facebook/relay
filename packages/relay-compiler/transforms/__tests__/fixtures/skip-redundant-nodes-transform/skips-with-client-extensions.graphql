@@ -1,0 +1,23 @@
+query SkipWithClientExtensions {
+  viewer {
+    actor {
+      ... on Actor {
+        clientName
+        clientUser {
+          name
+        }
+        clientName
+        clientUser {
+          ... on User {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+extend interface Actor {
+  clientName: String
+  clientUser: User
+}

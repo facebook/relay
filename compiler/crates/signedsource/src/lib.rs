@@ -9,9 +9,8 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-use crypto::digest::Digest;
-use crypto::md5::Md5;
 use lazy_static::lazy_static;
+use md5::{Digest, Md5};
 use regex::Regex;
 
 lazy_static! {
@@ -20,8 +19,8 @@ lazy_static! {
 
 fn hash(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input_str(data);
-    md5.result_str()
+    md5.input(data);
+    hex::encode(md5.result())
 }
 fn sign(data: &str) -> String {
     data.replace(NEWTOKEN, &format!("SignedSource<<{}>>", hash(data)))

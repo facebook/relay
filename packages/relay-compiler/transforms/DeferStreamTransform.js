@@ -221,9 +221,7 @@ function getLiteralStringArgument(
   const value = arg.value.kind === 'Literal' ? arg.value.value : null;
   if (value == null || typeof value !== 'string') {
     throw createUserError(
-      `Expected the '${argName}' value to @${
-        directive.name
-      } to be a string literal if provided.`,
+      `Expected the '${argName}' value to @${directive.name} to be a string literal if provided.`,
       [arg.value.loc],
     );
   }

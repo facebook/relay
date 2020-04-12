@@ -17,7 +17,6 @@ const mockWarning = jest.fn();
 jest.mock('warning', () => mockWarning);
 
 const React = require('react');
-// $FlowFixMe
 const TestRenderer = require('react-test-renderer');
 
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');

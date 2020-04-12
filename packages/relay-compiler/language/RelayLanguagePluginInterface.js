@@ -213,12 +213,6 @@ export type TypeGeneratorOptions = {|
   +customScalars: ScalarTypeMapping,
 
   /**
-   * Lists all other fragments relay-compiler knows about. Use this to know when
-   * to import/reference other artifacts.
-   */
-  +existingFragmentNames: Set<string>,
-
-  /**
    * Whether or not relay-compiler will store artifacts next to the module that
    * they originate from or all together in a single directory.
    *

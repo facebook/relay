@@ -325,9 +325,7 @@ class RelayParser {
       const type = this._schema.asInputType(typeFromAST);
       if (type == null) {
         throw createUserError(
-          `Expected type "${typeString}" to be an input type in the "${
-            arg.name.value
-          }" argument definitions.`,
+          `Expected type "${typeString}" to be an input type in the "${arg.name.value}" argument definitions.`,
           null,
           [arg.value],
         );
@@ -1236,9 +1234,7 @@ class GraphQLDefinitionParser {
       }
       if (!(arg.value.kind === 'Variable' || arg.value.kind === 'Literal')) {
         throw createUserError(
-          `Expected the 'if' argument to @${
-            directive.name
-          } to be a variable or literal.`,
+          `Expected the 'if' argument to @${directive.name} to be a variable or literal.`,
           [directive.loc],
         );
       }

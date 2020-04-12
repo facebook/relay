@@ -235,7 +235,9 @@ function buildConnectionArguments(
     filters: literalFilters,
   } = getLiteralArgumentValues(connectionDirective.args);
   if (handler != null && typeof handler !== 'string') {
-    const handleArg = connectionDirective.args.find(arg => arg.name === 'key');
+    const handleArg = connectionDirective.args.find(
+      arg => arg.name === 'handler',
+    );
     throw createUserError(
       `Expected the ${HANDLER} argument to @${connectionDirective.name} to ` +
         `be a string literal for field ${field.name}.`,
@@ -304,9 +306,7 @@ function buildConnectionArguments(
         arg => arg.name === 'label',
       );
       throw createUserError(
-        `Expected the 'label' argument to @${
-          connectionDirective.name
-        } to be a string literal for field ${field.name}.`,
+        `Expected the 'label' argument to @${connectionDirective.name} to be a string literal for field ${field.name}.`,
         [labelArg?.value?.loc ?? connectionDirective.loc],
       );
     }
@@ -331,9 +331,7 @@ function buildConnectionArguments(
       dynamicKey = dynamicKeyArg.value;
     } else {
       throw createUserError(
-        `Unsupported 'dynamicKey_UNSTABLE' argument to @${
-          connectionDirective.name
-        }. This argument is only valid when the feature flag is enabled and ` +
+        `Unsupported 'dynamicKey_UNSTABLE' argument to @${connectionDirective.name}. This argument is only valid when the feature flag is enabled and ` +
           'the variable must be a variable',
         [connectionDirective.loc],
       );

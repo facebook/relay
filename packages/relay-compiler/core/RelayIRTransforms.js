@@ -33,6 +33,7 @@ const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
 const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
 const SkipHandleFieldTransform = require('../transforms/SkipHandleFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
+const SkipSplitOperationTransform = require('../transforms/SkipSplitOperationTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 const SkipUnusedVariablesTransform = require('../transforms/SkipUnusedVariablesTransform');
 const SplitModuleImportTransform = require('../transforms/SplitModuleImportTransform');
@@ -73,13 +74,14 @@ const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
   ClientExtensionsTransform.transform,
   FieldHandleTransform.transform,
   InlineDataFragmentTransform.transform,
-  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+  FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
+  SplitModuleImportTransform.transform,
   DisallowTypenameOnRoot.transform,
   ValidateUnusedVariablesTransform.transform,
   ApplyFragmentArgumentTransform.transform,
@@ -91,13 +93,12 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   SkipUnreachableNodeTransform.transform,
-  SplitModuleImportTransform.transform,
   InlineFragmentsTransform.transform,
   // NOTE: For the codegen context, we make sure to run ClientExtensions
   // transform after we've inlined fragment spreads (i.e. InlineFragmentsTransform)
   // This will ensure that we don't generate nested ClientExtension nodes
   ClientExtensionsTransform.transform,
-  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+  FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
   GenerateTypeNameTransform.transform,
   ValidateServerOnlyDirectivesTransform.transform,
@@ -105,6 +106,7 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
+  SkipSplitOperationTransform.transform,
   // NOTE: Skipping client extensions might leave empty selections, which we
   // skip by running SkipUnreachableNodeTransform immediately after.
   ClientExtensionsTransform.transform,

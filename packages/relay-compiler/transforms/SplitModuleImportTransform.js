@@ -74,7 +74,7 @@ function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
   const normalizationName = getNormalizationOperationName(node.name);
   const createdSplitOperation = state.splitOperations.get(normalizationName);
   if (createdSplitOperation) {
-    createdSplitOperation.parentSources.add(node.documentName);
+    createdSplitOperation.parentSources.add(node.sourceDocument);
     return node;
   }
   const transformedNode = this.traverse(node, state);
@@ -83,7 +83,7 @@ function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
     name: normalizationName,
     selections: transformedNode.selections,
     loc: {kind: 'Derived', source: node.loc},
-    parentSources: new Set([node.documentName]),
+    parentSources: new Set([node.sourceDocument]),
     metadata: {
       derivedFrom: transformedNode.name,
     },

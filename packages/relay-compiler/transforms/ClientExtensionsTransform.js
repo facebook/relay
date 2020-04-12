@@ -70,9 +70,7 @@ function traverseDefinition<T: Definition>(node: T): T {
   }
   if (rootType == null) {
     throw createUserError(
-      `ClientExtensionTransform: Expected the type of \`${
-        node.name
-      }\` to have been defined in the schema. Make sure both server and ` +
+      `ClientExtensionTransform: Expected the type of \`${node.name}\` to have been defined in the schema. Make sure both server and ` +
         'client schema are up to date.',
       [node.loc],
     );
@@ -149,24 +147,12 @@ function traverseSelections<T: Node>(
         );
       }
       case 'FragmentSpread': {
-        const fragment = compilerContext.getFragment(
-          selection.name,
-          selection.loc,
-        );
-        const isClientType = !schema.isServerType(fragment.type);
-
-        if (isClientType) {
-          clientSelections.push(selection);
-          return null;
-        }
         return selection;
       }
       default:
         (selection: empty);
         throw createCompilerError(
-          `ClientExtensionTransform: Unexpected selection of kind \`${
-            selection.kind
-          }\`.`,
+          `ClientExtensionTransform: Unexpected selection of kind \`${selection.kind}\`.`,
           [selection.loc],
         );
     }

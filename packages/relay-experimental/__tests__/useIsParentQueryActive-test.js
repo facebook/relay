@@ -15,7 +15,6 @@
 
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-// $FlowFixMe
 const TestRenderer = require('react-test-renderer');
 
 const useIsParentQueryActive = require('../useIsParentQueryActive');

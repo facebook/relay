@@ -12,7 +12,7 @@ use interner::StringKey;
 use std::fmt;
 
 pub type SyntaxResult<T> = Result<T, Vec<SyntaxError>>;
-pub type ParseResult<T> = Result<T, SyntaxError>;
+pub type ParseResult<T> = Result<T, ()>;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Document {

@@ -133,6 +133,7 @@ function buildRefetchOperation(
     },
   ];
   return {
+    identifierField: 'id',
     path: [NODE_FIELD_NAME],
     node: {
       argumentDefinitions: argumentDefinitionsWithId,

@@ -1,0 +1,18 @@
+query QueryWithFragmentWithDefer {
+  ...ValidFragment @defer
+}
+
+fragment UserFragment on User {
+  clientField
+}
+
+fragment ValidFragment on Query {
+  me {
+    ...UserFragment
+  }
+}
+
+# %extensions%
+extend type User {
+  clientField: String
+}

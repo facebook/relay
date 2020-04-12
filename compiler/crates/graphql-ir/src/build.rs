@@ -10,8 +10,9 @@ use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignatures};
 use common::{Location, Span, WithLocation};
 use errors::{try2, try3, try_map};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::OperationKind;
+use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
 use schema::{
@@ -57,7 +58,7 @@ pub fn build_constant_value(
 // Helper Types
 
 type VariableDefinitions = FnvHashMap<StringKey, VariableDefinition>;
-type UsedVariables = FnvHashMap<StringKey, VariableUsage>;
+type UsedVariables = IndexMap<StringKey, VariableUsage, FnvBuildHasher>;
 
 #[derive(Debug)]
 struct VariableUsage {
@@ -84,7 +85,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             signatures,
             location,
             defined_variables: Default::default(),
-            used_variabales: Default::default(),
+            used_variabales: UsedVariables::default(),
         }
     }
 
@@ -325,7 +326,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             // Now, let's look into selection directives, and split them into two
             // categories: conditions and other directives
             let (conditions, directives) =
-                split_conditions_and_directivs(&next_selection.directives());
+                split_conditions_and_directives(&next_selection.directives());
 
             // If conditions are empty -> return the original selection
             if conditions.is_empty() {
@@ -1351,7 +1352,7 @@ pub enum ValidationLevel {
     Loose,
 }
 
-fn split_conditions_and_directivs(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
+fn split_conditions_and_directives(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
     directives.iter().cloned().partition(|directive| {
         directive.name.item.lookup() == "skip" || directive.name.item.lookup() == "include"
     })

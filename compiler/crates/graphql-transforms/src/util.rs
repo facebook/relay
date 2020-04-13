@@ -27,18 +27,6 @@ impl PointerAddress {
     }
 }
 
-/// Will return an argument by name
-pub fn find_argument(arguments: &[Argument], arg_name: StringKey) -> Option<&Argument> {
-    arguments.iter().find(|arg| arg.name.item == arg_name)
-}
-
-/// Will return a directive by name
-pub fn find_directive(directives: &[Directive], directive_name: StringKey) -> Option<&Directive> {
-    directives
-        .iter()
-        .find(|directive| directive.name.item == directive_name)
-}
-
 /// This function will return a new Vec[...] of directives,
 /// where one will be missing. The one with `remove_directive_name` name
 pub fn remove_directive(

@@ -9,7 +9,9 @@
 
 use common::Location;
 use fnv::FnvHashMap;
-use graphql_ir::{Argument, ConstantValue, FragmentDefinition, FragmentSpread, Value, Variable};
+use graphql_ir::{
+    Argument, ConstantValue, FragmentDefinition, FragmentSpread, NamedItem, Value, Variable,
+};
 use interner::StringKey;
 
 #[derive(Default)]
@@ -46,7 +48,7 @@ impl Scope {
         let mut bindings = FnvHashMap::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
-            let arg_value = match arguments.iter().find(|arg| arg.name.item == arg_name) {
+            let arg_value = match arguments.named(arg_name) {
                 Some(arg_from_spread) => {
                     if arg_from_spread.value.item == Value::Constant(ConstantValue::Null()) {
                         if let Some(default_value) = &variable_definition.default_value {

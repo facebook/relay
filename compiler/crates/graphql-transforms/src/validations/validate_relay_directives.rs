@@ -7,10 +7,10 @@
 
 use errors::validate;
 use fnv::FnvHashMap;
-use graphql_ir::FragmentSpread;
 use graphql_ir::{
-    ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program, ValidationError,
-    ValidationMessage, ValidationResult, Validator, Value, VariableDefinition,
+    ConstantValue, Directive, FragmentDefinition, FragmentSpread, NamedItem, OperationDefinition,
+    Program, ValidationError, ValidationMessage, ValidationResult, Validator, Value,
+    VariableDefinition,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -52,10 +52,8 @@ lazy_static! {
     pub static ref RELAY_DIRECTIVE_CONSTANTS: RelayDirectiveConstants = Default::default();
 }
 
-pub fn extract_relay_directive(directives: &'_ [Directive]) -> Option<&'_ Directive> {
-    directives
-        .iter()
-        .find(|directive| directive.name.item == RELAY_DIRECTIVE_CONSTANTS.relay_directive_name)
+pub fn extract_relay_directive(directives: &[Directive]) -> Option<&Directive> {
+    directives.named(RELAY_DIRECTIVE_CONSTANTS.relay_directive_name)
 }
 
 impl<'s> RelayDirectiveValidation<'s> {
@@ -215,8 +213,7 @@ impl<'s> Validator for RelayDirectiveValidation<'s> {
             if let Some(directive) = extract_relay_directive(&spread.directives) {
                 let mask_argument = directive
                     .arguments
-                    .iter()
-                    .find(|arg| arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name);
+                    .named(RELAY_DIRECTIVE_CONSTANTS.mask_arg_name);
                 if let Some(arg) = mask_argument {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(val)) => {

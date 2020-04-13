@@ -6,12 +6,12 @@
  */
 
 use super::get_applied_fragment_name;
-use crate::util::{find_argument, find_directive, remove_directive, replace_directive};
+use crate::util::{remove_directive, replace_directive};
 use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult, Value,
+    LinkedField, NamedItem, OperationDefinition, Program, ScalarField, Selection, Transformed,
+    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -114,10 +114,9 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         &mut self,
         inline_fragment: &InlineFragment,
     ) -> Transformed<Selection> {
-        let defer_directive = find_directive(
-            &inline_fragment.directives,
-            DEFER_STREAM_CONSTANTS.defer_name,
-        );
+        let defer_directive = inline_fragment
+            .directives
+            .named(DEFER_STREAM_CONSTANTS.defer_name);
         if let Some(directive) = defer_directive {
             self.errors.push(ValidationError::new(
                 ValidationMessage::InvalidDeferOnInlineFragment,
@@ -129,10 +128,10 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        let defer_directive = find_directive(&spread.directives, DEFER_STREAM_CONSTANTS.defer_name);
+        let defer_directive = spread.directives.named(DEFER_STREAM_CONSTANTS.defer_name);
         match defer_directive {
             Some(defer) => {
-                let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
+                let if_arg = &defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
                 if let Some(arg) = if_arg {
                     if is_literal_false(arg) {
                         return Transformed::Replace(Selection::FragmentSpread(Arc::new(
@@ -204,8 +203,9 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     }
 
     fn transform_scalar_field(&mut self, scalar_field: &ScalarField) -> Transformed<Selection> {
-        let stream_directive =
-            find_directive(&scalar_field.directives, DEFER_STREAM_CONSTANTS.stream_name);
+        let stream_directive = &scalar_field
+            .directives
+            .named(DEFER_STREAM_CONSTANTS.stream_name);
         if let Some(directive) = stream_directive {
             self.errors.push(ValidationError::new(
                 ValidationMessage::InvalidStreamOnScalarField {
@@ -219,11 +219,12 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     }
 
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
-        let stream_directive =
-            find_directive(&linked_field.directives, DEFER_STREAM_CONSTANTS.stream_name);
+        let stream_directive = linked_field
+            .directives
+            .named(DEFER_STREAM_CONSTANTS.stream_name);
         match stream_directive {
             Some(stream) => {
-                let if_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.if_arg);
+                let if_arg = &stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
                 if let Some(arg) = if_arg {
                     if is_literal_false(arg) {
                         return Transformed::Replace(Selection::LinkedField(Arc::new(
@@ -238,8 +239,9 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
                     }
                 }
 
-                let initial_count_arg =
-                    find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.initial_count_arg);
+                let initial_count_arg = stream
+                    .arguments
+                    .named(DEFER_STREAM_CONSTANTS.initial_count_arg);
                 if initial_count_arg == None {
                     self.errors.push(ValidationError::new(
                         ValidationMessage::StreamInitialCountRequired,
@@ -330,7 +332,7 @@ fn get_literal_string_argument(
     directive: &Directive,
     arg_name: StringKey,
 ) -> Result<Option<StringKey>, ValidationError> {
-    let argument = find_argument(&directive.arguments, arg_name);
+    let argument = directive.arguments.named(arg_name);
     match argument {
         Some(arg) => match arg.value.item {
             Value::Constant(ConstantValue::String(val)) => Ok(Some(val)),

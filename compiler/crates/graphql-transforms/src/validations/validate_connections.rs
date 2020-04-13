@@ -7,11 +7,10 @@
 
 use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
 use crate::handle_fields::{extract_handle_field_directive_args, HandleFieldConstants};
-use crate::util::find_argument;
 use errors::{validate, validate_map};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
-    ValidationMessage, ValidationResult, Validator, Value,
+    Argument, ConstantValue, Directive, LinkedField, NamedItem, Program, Selection,
+    ValidationError, ValidationMessage, ValidationResult, Validator, Value,
 };
 use interner::StringKey;
 use schema::{Field, Type, TypeReference};
@@ -80,14 +79,12 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
     ) -> ValidationResult<&'s LinkedField> {
         let schema = self.program.schema();
 
-        let first_arg = find_argument(
-            &connection_field.arguments,
-            self.connection_constants.first_arg_name,
-        );
-        let last_arg = find_argument(
-            &connection_field.arguments,
-            self.connection_constants.last_arg_name,
-        );
+        let first_arg = connection_field
+            .arguments
+            .named(self.connection_constants.first_arg_name);
+        let last_arg = connection_field
+            .arguments
+            .named(self.connection_constants.last_arg_name);
         if first_arg.is_none() && last_arg.is_none() {
             return Err(vec![ValidationError::new(
                 ValidationMessage::ExpectedConnectionToHaveCountArgs {

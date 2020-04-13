@@ -59,5 +59,5 @@ pub use skip_redundant_nodes::skip_redundant_nodes;
 pub use skip_unreachable_node::skip_unreachable_node;
 pub use sort_selections::sort_selections;
 pub use transform_connections::transform_connections;
-pub use util::{extract_variable_name, find_argument, find_directive, remove_directive};
+pub use util::{extract_variable_name, remove_directive};
 pub use validations::*;

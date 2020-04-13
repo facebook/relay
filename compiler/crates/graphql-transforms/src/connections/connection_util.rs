@@ -6,10 +6,11 @@
  */
 
 use crate::connections::{ConnectionConstants, ConnectionInterface};
-use crate::util::{extract_variable_name, find_argument};
+use crate::util::extract_variable_name;
 use common::{Location, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
+    Argument, ConstantValue, Directive, InlineFragment, LinkedField, NamedItem, ScalarField,
+    Selection, Value,
 };
 use interner::StringKey;
 use schema::{Schema, Type};
@@ -65,14 +66,12 @@ pub fn build_connection_metadata(
     path: &Option<Vec<StringKey>>,
     is_stream_connection: bool,
 ) -> ConnectionMetadata {
-    let first_arg = find_argument(
-        &connection_field.arguments,
-        connection_constants.first_arg_name,
-    );
-    let last_arg = find_argument(
-        &connection_field.arguments,
-        connection_constants.last_arg_name,
-    );
+    let first_arg = connection_field
+        .arguments
+        .named(connection_constants.first_arg_name);
+    let last_arg = connection_field
+        .arguments
+        .named(connection_constants.last_arg_name);
 
     let (direction, count_variable, cursor_variable) = match first_arg {
         Some(first_arg) => match last_arg {
@@ -80,8 +79,8 @@ pub fn build_connection_metadata(
             None => (
                 connection_constants.direction_forward,
                 extract_variable_name(Some(first_arg)),
-                extract_variable_name(find_argument(
-                    &connection_field.arguments,
+                extract_variable_name(
+                    connection_field.arguments.named(
                     connection_constants.after_arg_name,
                 )),
             ),
@@ -90,8 +89,7 @@ pub fn build_connection_metadata(
             Some(last_arg) => (
                 connection_constants.direction_backward,
                 extract_variable_name(Some(last_arg)),
-                extract_variable_name(find_argument(
-                    &connection_field.arguments,
+                extract_variable_name(connection_field.arguments.named(
                     connection_constants.before_arg_name,
                 )),
             ),
@@ -167,9 +165,8 @@ pub fn extract_connection_metadata_from_directive(
     directives: &[Directive],
     connection_constants: ConnectionConstants,
 ) -> Option<Vec<ConnectionMetadata>> {
-    let connection_metadata_directive = directives.iter().find(|directive| {
-        directive.name.item == connection_constants.connection_metadata_directive_name
-    });
+    let connection_metadata_directive =
+        directives.named(connection_constants.connection_metadata_directive_name);
 
     if let Some(connection_metadata_directive) = connection_metadata_directive {
         debug_assert!(
@@ -178,8 +175,7 @@ pub fn extract_connection_metadata_from_directive(
         );
         let metadata_arg = connection_metadata_directive
             .arguments
-            .iter()
-            .find(|arg| arg.name.item == connection_constants.connection_metadata_argument_name);
+            .named(connection_constants.connection_metadata_argument_name);
 
         if let Some(metadata_arg) = metadata_arg {
             let metadata_values = match &metadata_arg.value.item {

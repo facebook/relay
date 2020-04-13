@@ -9,9 +9,9 @@ use crate::match_::MATCH_CONSTANTS;
 use common::{Location, WithLocation};
 use fnv::FnvHashSet;
 use graphql_ir::{
-    Argument, ConstantValue, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, ScalarField, Selection, Transformed, Transformer, ValidationError, ValidationMessage,
-    ValidationResult, Value,
+    Argument, ConstantValue, FragmentDefinition, InlineFragment, LinkedField, NamedItem,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
+    ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
 use schema::{ScalarID, Type, TypeReference};
@@ -125,18 +125,12 @@ impl<'s> Transformer for MatchTransform<'s> {
     // Validate and transform `@match`
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let field_definition = self.program.schema().field(field.definition.item);
-        let match_directive = field
-            .directives
-            .iter()
-            .find(|directive| directive.name.item == MATCH_CONSTANTS.match_directive_name);
+        let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
 
         // Only process fields with @match
         if let Some(match_directive) = match_directive {
             // Validate and keep track of the module key
-            let key_arg = match_directive
-                .arguments
-                .iter()
-                .find(|arg| arg.name.item == MATCH_CONSTANTS.key_arg);
+            let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
             if let Some(arg) = key_arg {
                 if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
                     self.module_key = Some(str);
@@ -187,10 +181,7 @@ impl<'s> Transformer for MatchTransform<'s> {
             }
 
             // The supported arg shouldn't be defined by the user
-            let supported_arg = field
-                .arguments
-                .iter()
-                .find(|argument| argument.name.item == MATCH_CONSTANTS.supported_arg);
+            let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg);
             if let Some(supported_arg) = supported_arg {
                 self.errors.push(ValidationError::new(
                     ValidationMessage::InvalidMatchNoUserSuppliedSupportedArg {

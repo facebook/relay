@@ -14,6 +14,11 @@ use std::fmt;
 use std::sync::Arc;
 // Definitions
 
+/// Represents a node that has a name such as an `Argument` or `Directive`.
+pub trait Named {
+    fn name(&self) -> StringKey;
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ExecutableDefinition {
     Operation(OperationDefinition),
@@ -190,12 +195,22 @@ pub struct Directive {
     pub name: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
 }
+impl Named for Directive {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
+}
 
 /// Name : Value
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
     pub name: WithLocation<StringKey>,
     pub value: WithLocation<Value>,
+}
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

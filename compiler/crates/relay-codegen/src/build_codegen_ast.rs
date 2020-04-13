@@ -9,15 +9,15 @@ use crate::codegen_ast::*;
 use common::WithLocation;
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection,
-    Value, VariableDefinition,
+    FragmentSpread, InlineFragment, LinkedField, NamedItem, OperationDefinition, ScalarField,
+    Selection, Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_relay_directive, extract_values_from_handle_field_directive, extract_variable_name,
-    find_argument, find_directive, remove_directive, ConnectionConstants, HandleFieldConstants,
-    DEFER_STREAM_CONSTANTS, RELAY_DIRECTIVE_CONSTANTS,
+    remove_directive, ConnectionConstants, HandleFieldConstants, DEFER_STREAM_CONSTANTS,
+    RELAY_DIRECTIVE_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -180,8 +180,9 @@ impl<'schema> CodegenBuilder<'schema> {
                 vec![ConcreteSelection::Condition(self.build_condition(&cond))]
             }
             Selection::FragmentSpread(frag_spread) => {
-                let defer =
-                    find_directive(&frag_spread.directives, DEFER_STREAM_CONSTANTS.defer_name);
+                let defer = frag_spread
+                    .directives
+                    .named(DEFER_STREAM_CONSTANTS.defer_name);
                 match defer {
                     Some(defer) => vec![self.build_defer(&frag_spread, defer)],
                     None => vec![ConcreteSelection::FragmentSpread(
@@ -193,7 +194,7 @@ impl<'schema> CodegenBuilder<'schema> {
                 vec![self.build_inline_fragment(&inline_frag)]
             }
             Selection::LinkedField(field) => {
-                let stream = find_directive(&field.directives, DEFER_STREAM_CONSTANTS.stream_name);
+                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
 
                 match stream {
                     Some(stream) => vec![self.build_stream(&field, stream)],
@@ -376,8 +377,8 @@ impl<'schema> CodegenBuilder<'schema> {
                 selections: next_selections,
             }),
             CodegenVariant::Normalization => {
-                let if_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.if_arg);
-                let label_arg = find_argument(&defer.arguments, DEFER_STREAM_CONSTANTS.label_arg);
+                let if_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+                let label_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
                 let if_variable_name = extract_variable_name(if_arg);
                 let label_name = match label_arg {
                     Some(label_arg) => match &label_arg.value.item {
@@ -410,12 +411,11 @@ impl<'schema> CodegenBuilder<'schema> {
                 selections: next_selections,
             }),
             CodegenVariant::Normalization => {
-                let if_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.if_arg);
-                let label_arg = find_argument(&stream.arguments, DEFER_STREAM_CONSTANTS.label_arg);
-                let use_customized_batch_arg = find_argument(
-                    &stream.arguments,
-                    DEFER_STREAM_CONSTANTS.use_customized_batch_arg,
-                );
+                let if_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+                let label_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
+                let use_customized_batch_arg = stream
+                    .arguments
+                    .named(DEFER_STREAM_CONSTANTS.use_customized_batch_arg);
                 let if_variable_name = extract_variable_name(if_arg);
                 let use_customized_batch_variable_name =
                     extract_variable_name(use_customized_batch_arg);

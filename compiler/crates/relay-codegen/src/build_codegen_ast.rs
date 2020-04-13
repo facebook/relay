@@ -17,7 +17,7 @@ use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_relay_directive, extract_values_from_handle_field_directive, extract_variable_name,
     remove_directive, ConnectionConstants, HandleFieldConstants, DEFER_STREAM_CONSTANTS,
-    RELAY_DIRECTIVE_CONSTANTS,
+    MATCH_CONSTANTS, RELAY_DIRECTIVE_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -457,10 +457,23 @@ impl<'schema> CodegenBuilder<'schema> {
                     );
                 }
             }
-            Some(type_condition) => ConcreteSelection::InlineFragment(ConcreteInlineFragment {
-                type_: self.schema.get_type_name(type_condition),
-                selections: self.build_selections(&inline_frag.selections),
-            }),
+            Some(type_condition) => {
+                if inline_frag
+                    .directives
+                    .named(MATCH_CONSTANTS.custom_module_directive_name)
+                    .is_some()
+                {
+                    ConcreteSelection::InlineFragment(ConcreteInlineFragment {
+                        type_: self.schema.get_type_name(type_condition),
+                        selections: vec![build_module_import_selection(&inline_frag.directives[0])],
+                    })
+                } else {
+                    ConcreteSelection::InlineFragment(ConcreteInlineFragment {
+                        type_: self.schema.get_type_name(type_condition),
+                        selections: self.build_selections(&inline_frag.selections),
+                    })
+                }
+            }
         }
     }
 
@@ -719,4 +732,35 @@ fn get_static_storage_key(
     } else {
         None
     }
+}
+
+fn build_module_import_selection(directive: &Directive) -> ConcreteSelection {
+    let fragment_name = directive
+        .arguments
+        .named(MATCH_CONSTANTS.name_arg)
+        .unwrap()
+        .value
+        .item
+        .get_string_literal()
+        .unwrap();
+    let key = directive
+        .arguments
+        .named(MATCH_CONSTANTS.key_arg)
+        .unwrap()
+        .value
+        .item
+        .get_string_literal()
+        .unwrap();
+    let fragment_name_str = fragment_name.lookup();
+    let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
+        panic!(
+            "@module fragments should be named 'FragmentName_propName', got '{}'.",
+            fragment_name
+        )
+    });
+    ConcreteSelection::ModuleImport(ConcreteModuleImport {
+        document_name: key,
+        fragment_name,
+        fragment_prop_name: fragment_name_str[underscore_idx + 1..].intern(),
+    })
 }

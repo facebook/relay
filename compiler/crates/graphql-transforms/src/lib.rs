@@ -51,7 +51,7 @@ pub use handle_fields::{
 pub use hash_arguments::hash_arguments;
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
-pub use match_::match_;
+pub use match_::{match_, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;

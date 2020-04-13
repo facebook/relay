@@ -154,6 +154,7 @@ pub enum ConcreteSelection {
     StreamReaderVariant(StreamReaderNode),
     #[serde(rename = "Stream")]
     StreamNormalizationVariant(StreamNormalizationNode),
+    ModuleImport(ConcreteModuleImport),
 }
 
 #[derive(Debug, Serialize)]
@@ -204,6 +205,14 @@ pub struct ConcreteScalarField {
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteClientExtension {
     pub selections: Vec<ConcreteSelection>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConcreteModuleImport {
+    pub document_name: StringKey,
+    pub fragment_name: StringKey,
+    pub fragment_prop_name: StringKey,
 }
 
 #[derive(Debug, Serialize)]

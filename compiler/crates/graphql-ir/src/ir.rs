@@ -220,6 +220,15 @@ pub enum Value {
     List(Vec<Value>),
     Object(Vec<Argument>),
 }
+impl Value {
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        if let Value::Constant(ConstantValue::String(val)) = self {
+            Some(*val)
+        } else {
+            None
+        }
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Variable {

@@ -123,72 +123,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "markdown",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "MarkdownUserNameData",
-                        "kind": "LinkedField",
-                        "name": "data",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "markup",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "id",
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      },
-                      {
-                        "alias": "__module_operation_NameRendererFragment",
-                        "args": [
-                          {
-                            "kind": "Literal",
-                            "name": "id",
-                            "value": "NameRendererFragment.nameRenderer"
-                          },
-                          {
-                            "kind": "Literal",
-                            "name": "module",
-                            "value": "MarkdownUserNameRenderer_name$normalization.graphql"
-                          }
-                        ],
-                        "kind": "ScalarField",
-                        "name": "js",
-                        "storageKey": "js(id:\"NameRendererFragment.nameRenderer\",module:\"MarkdownUserNameRenderer_name$normalization.graphql\")"
-                      },
-                      {
-                        "alias": "__module_component_NameRendererFragment",
-                        "args": [
-                          {
-                            "kind": "Literal",
-                            "name": "id",
-                            "value": "NameRendererFragment.nameRenderer"
-                          },
-                          {
-                            "kind": "Literal",
-                            "name": "module",
-                            "value": "MarkdownUserNameRenderer.react"
-                          }
-                        ],
-                        "kind": "ScalarField",
-                        "name": "js",
-                        "storageKey": "js(id:\"NameRendererFragment.nameRenderer\",module:\"MarkdownUserNameRenderer.react\")"
+                        "documentName": "NameRendererFragment",
+                        "fragmentName": "MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
                       }
                     ],
                     "type": "MarkdownUserNameRenderer"
@@ -306,45 +244,10 @@ fragment NameRendererFragment on User {
           "kind": "InlineFragment",
           "selections": [
             {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "MarkdownUserNameRenderer_name"
-            },
-            {
-              "alias": "__module_operation_NameRendererFragment",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "id",
-                  "value": "NameRendererFragment.nameRenderer"
-                },
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "MarkdownUserNameRenderer_name$normalization.graphql"
-                }
-              ],
-              "kind": "ScalarField",
-              "name": "js",
-              "storageKey": "js(id:\"NameRendererFragment.nameRenderer\",module:\"MarkdownUserNameRenderer_name$normalization.graphql\")"
-            },
-            {
-              "alias": "__module_component_NameRendererFragment",
-              "args": [
-                {
-                  "kind": "Literal",
-                  "name": "id",
-                  "value": "NameRendererFragment.nameRenderer"
-                },
-                {
-                  "kind": "Literal",
-                  "name": "module",
-                  "value": "MarkdownUserNameRenderer.react"
-                }
-              ],
-              "kind": "ScalarField",
-              "name": "js",
-              "storageKey": "js(id:\"NameRendererFragment.nameRenderer\",module:\"MarkdownUserNameRenderer.react\")"
+              "documentName": "NameRendererFragment",
+              "fragmentName": "MarkdownUserNameRenderer_name",
+              "fragmentPropName": "name",
+              "kind": "ModuleImport"
             }
           ],
           "type": "MarkdownUserNameRenderer"

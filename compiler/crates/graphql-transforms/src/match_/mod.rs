@@ -7,8 +7,10 @@
 
 mod constants;
 mod match_transform;
+mod split_module_import;
 mod utils;
 
 pub use constants::MATCH_CONSTANTS;
 pub use match_transform::match_;
+pub use split_module_import::split_module_import;
 pub use utils::get_normalization_operation_name;

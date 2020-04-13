@@ -11,7 +11,7 @@ use graphql_transforms::{
     apply_fragment_arguments, client_extensions, defer_stream, flatten, generate_id_field,
     generate_typename, handle_field_transform, inline_fragments, mask, match_,
     remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_unreachable_node,
-    transform_connections, ConnectionInterface,
+    split_module_import, transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -90,11 +90,13 @@ fn apply_operation_transforms<'schema>(
     program: &Program<'schema>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
+    // + SplitModuleImportTransform
     // - ValidateUnusedVariablesTransform
     // + ApplyFragmentArgumentTransform
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // - TestOperationTransform
+    let program = split_module_import(&program);
     let program = apply_fragment_arguments(&program)?;
     let program = generate_id_field(&program);
 
@@ -108,7 +110,6 @@ fn apply_operation_transforms<'schema>(
 fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
     // JS compiler
     // + SkipUnreachableNodeTransform
-    // - SplitModuleImportTransform
     // + InlineFragmentsTransform
     // + ClientExtensionsTransform
     // + FlattenTransform, flattenAbstractTypes: true

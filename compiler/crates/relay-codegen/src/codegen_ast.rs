@@ -44,6 +44,7 @@ pub enum ConcreteOperationKind {
 pub enum ConcreteDefinition {
     Operation(ConcreteOperation),
     Fragment(ConcreteFragment),
+    SplitOperation(ConcreteSplitOperation),
 }
 
 #[derive(Debug, Serialize)]
@@ -63,6 +64,20 @@ pub struct ConcreteFragment {
     pub metadata: Option<FragmentMetadata>,
     pub argument_definitions: Vec<ConcreteVariableDefinition>,
     pub selections: Vec<ConcreteSelection>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SplitOperationMetadata {
+    pub derived_from: StringKey,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConcreteSplitOperation {
+    pub name: StringKey,
+    pub selections: Vec<ConcreteSelection>,
+    pub metadata: SplitOperationMetadata,
 }
 
 #[derive(Debug, Serialize)]

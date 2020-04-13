@@ -56,6 +56,168 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     ],
     "kind": "Fragment",
     "metadata": null,
+    "name": "BarNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "BarNameRendererFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query"
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "kind": "Operation",
+    "name": "BarNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "documentName": "BarNameRendererFragment",
+                        "fragmentName": "MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer"
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "BarNameRendererQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query BarNameRendererQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...BarNameRendererFragment
+    id
+  }
+}
+
+fragment BarNameRendererFragment on User {
+  nameRenderer {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...MarkdownUserNameRenderer_name
+      __module_operation_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "BarNameRendererFragment.nameRenderer")
+      __module_component_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "BarNameRendererFragment.nameRenderer")
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
     "name": "FooNameRendererQuery",
     "selections": [
       {
@@ -233,166 +395,88 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 
 {
-  "fragment": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
-      }
-    ],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "BarNameRendererQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id"
-          }
-        ],
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "BarNameRendererFragment"
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query"
+  "kind": "SplitOperation",
+  "metadata": {
+    "derivedFrom": "MarkdownUserNameRenderer_name"
   },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
-      }
-    ],
-    "kind": "Operation",
-    "name": "BarNameRendererQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id"
-          }
-        ],
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": null,
-                "kind": "LinkedField",
-                "name": "nameRenderer",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__typename",
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "InlineFragment",
-                    "selections": [
-                      {
-                        "documentName": "BarNameRendererFragment",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
-                        "kind": "ModuleImport"
-                      }
-                    ],
-                    "type": "MarkdownUserNameRenderer"
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "type": "User"
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "BarNameRendererQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
-
-QUERY:
-
-query BarNameRendererQuery(
-  $id: ID!
-) {
-  node(id: $id) {
-    __typename
-    ...BarNameRendererFragment
-    id
-  }
-}
-
-fragment BarNameRendererFragment on User {
-  nameRenderer {
-    __typename
-    ... on MarkdownUserNameRenderer {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "BarNameRendererFragment.nameRenderer")
-      __module_component_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "BarNameRendererFragment.nameRenderer")
+  "name": "MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
     }
-  }
+  ]
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-  markdown
-  data {
-    markup
-    id
-  }
+{
+  "kind": "SplitOperation",
+  "metadata": {
+    "derivedFrom": "PlainUserNameRenderer_name"
+  },
+  "name": "PlainUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
 }
-
 
 {
   "argumentDefinitions": [],

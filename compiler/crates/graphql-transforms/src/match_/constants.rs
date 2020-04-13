@@ -22,6 +22,8 @@ pub struct MatchConstants {
     pub module_operation_key_prefix: &'static str,
     pub custom_module_directive_name: StringKey,
     pub source_document_arg: StringKey,
+    pub parent_sources_arg: StringKey,
+    pub derived_from_arg: StringKey,
 }
 
 impl Default for MatchConstants {
@@ -40,6 +42,8 @@ impl Default for MatchConstants {
             module_operation_key_prefix: "__module_operation_",
             custom_module_directive_name: "__module".intern(),
             source_document_arg: "sourceDocuement".intern(),
+            parent_sources_arg: "parentSources".intern(),
+            derived_from_arg: "derivedFrom".intern(),
         }
     }
 }

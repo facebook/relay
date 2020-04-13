@@ -86,12 +86,32 @@ impl<'schema> CodegenBuilder<'schema> {
     }
 
     fn build_operation(&self, operation: &OperationDefinition) -> ConcreteDefinition {
-        ConcreteDefinition::Operation(ConcreteOperation {
-            name: operation.name.item,
-            argument_definitions: self
-                .build_operation_variable_definitions(&operation.variable_definitions),
-            selections: self.build_selections(&operation.selections),
-        })
+        match operation
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+        {
+            Some(split_directive) => {
+                let derived_from = split_directive
+                    .arguments
+                    .named(MATCH_CONSTANTS.derived_from_arg)
+                    .unwrap()
+                    .value
+                    .item
+                    .get_string_literal()
+                    .unwrap();
+                ConcreteDefinition::SplitOperation(ConcreteSplitOperation {
+                    name: operation.name.item,
+                    selections: self.build_selections(&operation.selections),
+                    metadata: SplitOperationMetadata { derived_from },
+                })
+            }
+            None => ConcreteDefinition::Operation(ConcreteOperation {
+                name: operation.name.item,
+                argument_definitions: self
+                    .build_operation_variable_definitions(&operation.variable_definitions),
+                selections: self.build_selections(&operation.selections),
+            }),
+        }
     }
 
     fn build_fragment(&self, fragment: &FragmentDefinition) -> ConcreteDefinition {

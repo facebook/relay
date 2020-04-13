@@ -339,19 +339,29 @@ describe('execute() with network that returns optimistic response', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('does not handle strip nulls on optimistic response, even when handling stripped nulls option is true', () => {
-    const selector = createReaderSelector(
-      query.fragment,
-      ROOT_ID,
-      {fetchSize: true},
-      operation.request,
-    );
+  it('does not fill missing fields from server sent optimistic response with nulls, even when treatMissingFieldsAsNull is enabled', () => {
+    const query = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name
+            lastName
+          }
+        }
+      `);
+    operation = createOperationDescriptor(query.ActorQuery, {});
 
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       store,
-      handleStrippedNulls: true,
+      treatMissingFieldsAsNull: true,
     });
+
+    const selector = createReaderSelector(
+      query.ActorQuery.fragment,
+      ROOT_ID,
+      {},
+      operation.request,
+    );
 
     const snapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -364,6 +374,7 @@ describe('execute() with network that returns optimistic response', () => {
           id: '842472',
           __typename: 'User',
           name: 'Joe',
+          // lastName is missing in the response
         },
       },
       extensions: {
@@ -379,8 +390,10 @@ describe('execute() with network that returns optimistic response', () => {
     expect(callback.mock.calls[0][0].data).toEqual({
       me: {
         name: 'Joe',
+        lastName: undefined, // even if treatMissingFieldsAsNull is enabled, this is not filled with null
       },
     });
+    // and thus the snapshot has missing data
     expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
   });
 });

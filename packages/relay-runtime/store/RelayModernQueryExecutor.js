@@ -63,7 +63,7 @@ import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
-  +handleStrippedNulls: boolean,
+  +treatMissingFieldsAsNull: boolean,
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
@@ -114,7 +114,7 @@ function execute(config: ExecuteConfig): Executor {
  */
 class Executor {
   _getDataID: GetDataID;
-  _handleStrippedNulls: boolean;
+  _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
@@ -150,12 +150,12 @@ class Executor {
     store,
     updater,
     operationTracker,
-    handleStrippedNulls,
+    treatMissingFieldsAsNull,
     getDataID,
     isClientPayload,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
-    this._handleStrippedNulls = handleStrippedNulls;
+    this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
@@ -442,7 +442,7 @@ class Executor {
           getDataID: this._getDataID,
           path: [],
           request: this._operation.request,
-          handleStrippedNulls: false,
+          treatMissingFieldsAsNull: false,
         },
       );
       validateOptimisticResponsePayload(payload);
@@ -520,7 +520,7 @@ class Executor {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
         request: this._operation.request,
-        handleStrippedNulls: this._handleStrippedNulls,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
   }
@@ -593,7 +593,7 @@ class Executor {
         ROOT_TYPE,
         {
           getDataID: this._getDataID,
-          handleStrippedNulls: this._handleStrippedNulls,
+          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           path: [],
           request: this._operation.request,
         },
@@ -972,7 +972,7 @@ class Executor {
         getDataID: this._getDataID,
         path: placeholder.path,
         request: this._operation.request,
-        handleStrippedNulls: this._handleStrippedNulls,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
@@ -1187,7 +1187,7 @@ class Executor {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
       request: this._operation.request,
-      handleStrippedNulls: this._handleStrippedNulls,
+      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {
       fieldPayloads,

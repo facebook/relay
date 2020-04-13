@@ -461,7 +461,7 @@ describe('executeMutation()', () => {
     ).toBe(null);
   });
 
-  it('does not handle stripped nulls on optimistic response, even when handling stripped nulls option is true', () => {
+  it('does not fill missing fields from optimistic response with nulls, even when treatMissingFieldsAsNull is enabled', () => {
     operation = createOperationDescriptor(
       CreateCommentWithSpreadMutation,
       variables,
@@ -476,7 +476,7 @@ describe('executeMutation()', () => {
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       store,
-      handleStrippedNulls: true,
+      treatMissingFieldsAsNull: true,
     });
 
     const snapshot = environment.lookup(selector);
@@ -490,6 +490,7 @@ describe('executeMutation()', () => {
           commentCreate: {
             comment: {
               id: commentID,
+              // body is missing in this response
             },
           },
         },
@@ -501,8 +502,9 @@ describe('executeMutation()', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(callback.mock.calls[0][0].data).toEqual({
       id: commentID,
-      body: undefined,
+      body: undefined, // even if treatMissingFieldsAsNull is enabled, this is not filled with null
     });
+    // and thus the snapshot has missing data
     expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
   });
 });

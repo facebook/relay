@@ -74,7 +74,7 @@ describe('commitPayload()', () => {
     });
   });
 
-  it('applies null-stripped server updates with null stripping disabled (default)', () => {
+  it('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
     const query = generateAndCompile(`
         query ActorQuery {
           me {
@@ -97,23 +97,25 @@ describe('commitPayload()', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        // birthdate is missing in this response
       },
     });
     expect(callback.mock.calls.length).toBe(1);
     expect(callback.mock.calls[0][0].data).toEqual({
       me: {
         name: 'Zuck',
-        birthdate: undefined,
+        birthdate: undefined, // with treatMissingFieldsAsNull disabled this is left missing
       },
     });
+    // and thus the snapshot has missing data
     expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
   });
 
-  it('applies null-stripped server updates with null stripping enabled', () => {
+  it('fills missing fields from server updates with null when treatMissingFieldsAsNull is enabled', () => {
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
-      handleStrippedNulls: true,
+      treatMissingFieldsAsNull: true,
     });
 
     const query = generateAndCompile(`
@@ -138,15 +140,17 @@ describe('commitPayload()', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        // birthdate is missing in this response
       },
     });
     expect(callback.mock.calls.length).toBe(1);
     expect(callback.mock.calls[0][0].data).toEqual({
       me: {
         name: 'Zuck',
-        birthdate: null,
+        birthdate: null, // with treatMissingFieldsAsNull enabled this is filled with null
       },
     });
+    // and thus the snapshot does not have missing data
     expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
   });
 

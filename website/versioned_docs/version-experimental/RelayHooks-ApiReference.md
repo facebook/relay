@@ -589,6 +589,36 @@ Tuple containing the following values:
         * disposable: Object containing a dispose function. Calling disposable.dispose() will revert the optimistic update, and Relay won’t update the store or call any success/error callback, but the network request is not guaranteed to be cancelled. If the dispose is called after the mutation has succeeded, it will not rollback the update in Relay store.
 * [1] `areMutationsInFlight`: Will be true if any mutation triggered by calling `commit` is still in flight. If you call `commit` multiple times, there can be multiple mutations in flight at once.
 
+### `useSubscription`
+
+Hook used to subscribe and unsubscribe to a subscription.
+
+```javascript
+import {graphql, useSubscription} from 'RelayHooks';
+import {useMemo} from 'react';
+
+const subscription = graphql`subscription ...`;
+function MyFunctionalComponent({ id }) {
+  // IMPORTANT: your config should be memoized, or at least not re-computed
+  // every render. Otherwise, useSubscription will re-render too frequently.
+  const config = useMemo(() => { variables: { id }, subscription }, [id]);
+  useSubscription(config);
+  return (
+    <div>Move Fast</div>
+  );
+}
+```
+
+This is a thin wrapper around the `requestSubscription` API. Its behavior:
+
+* Create a subscription when the component is mounted with the given config
+* Unsubscribe from that subscription when the component is unmounted
+
+If you have the need to do something more complicated, such as imperatively requesting a subscription, please use the `requestSubscription` API directly.
+
+#### Arguments
+
+* `config`: the same config passed to `requestSubscription`
 
 
 ## Non-React APIs

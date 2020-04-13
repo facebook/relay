@@ -98,6 +98,11 @@ const options = {
     type: 'string',
     array: false,
   },
+  repersist: {
+    describe: 'Run the persist function even if the query has not changed.',
+    type: 'boolean',
+    default: false,
+  },
   noFutureProofEnums: {
     describe:
       'This option controls whether or not a catch-all entry is added to enum type definitions ' +

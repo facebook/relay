@@ -270,6 +270,21 @@ describe('RelayCompilerMain', () => {
         }),
       );
     });
+
+    it('configures the file writer with repersist', () => {
+      const codegenRunner = getCodegenRunner({
+        ...options,
+        repersist: true,
+      });
+      const config = codegenRunner.writerConfigs.js;
+      const writeFiles = config.writeFiles;
+      writeFiles({onlyValidate: true});
+      expect(RelayFileWriter.writeAll).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({repersist: true}),
+        }),
+      );
+    });
   });
 
   describe('getLanguagePlugin', () => {

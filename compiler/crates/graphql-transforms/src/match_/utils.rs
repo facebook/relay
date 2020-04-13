@@ -5,10 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-mod constants;
-mod match_transform;
-mod utils;
+use interner::StringKey;
+use std::fmt::Write;
 
-pub use constants::MATCH_CONSTANTS;
-pub use match_transform::match_;
-pub use utils::get_normalization_operation_name;
+pub fn get_normalization_operation_name<W: Write>(writer: &mut W, name: StringKey) {
+    write!(writer, "{}$normalization", name).unwrap();
+}

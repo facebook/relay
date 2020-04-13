@@ -53,9 +53,51 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "plural": false,
             "selections": [
               {
-                "args": null,
-                "kind": "FragmentSpread",
-                "name": "MarkdownUserNameRenderer_name"
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "MarkdownUserNameRenderer_name"
+                  },
+                  {
+                    "alias": "__module_operation_MatchQuery",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "id",
+                        "value": "MatchQuery.node.nameRenderer"
+                      },
+                      {
+                        "kind": "Literal",
+                        "name": "module",
+                        "value": "MarkdownUserNameRenderer_name$normalization.graphql"
+                      }
+                    ],
+                    "kind": "ScalarField",
+                    "name": "js",
+                    "storageKey": "js(id:\"MatchQuery.node.nameRenderer\",module:\"MarkdownUserNameRenderer_name$normalization.graphql\")"
+                  },
+                  {
+                    "alias": "__module_component_MatchQuery",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "id",
+                        "value": "MatchQuery.node.nameRenderer"
+                      },
+                      {
+                        "kind": "Literal",
+                        "name": "module",
+                        "value": "MarkdownUserNameRenderer.react"
+                      }
+                    ],
+                    "kind": "ScalarField",
+                    "name": "js",
+                    "storageKey": "js(id:\"MatchQuery.node.nameRenderer\",module:\"MarkdownUserNameRenderer.react\")"
+                  }
+                ],
+                "type": "MarkdownUserNameRenderer"
               }
             ],
             "storageKey": null
@@ -72,9 +114,51 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 "plural": false,
                 "selections": [
                   {
-                    "args": null,
-                    "kind": "FragmentSpread",
-                    "name": "MarkdownUserNameRenderer_name"
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "kind": "FragmentSpread",
+                        "name": "MarkdownUserNameRenderer_name"
+                      },
+                      {
+                        "alias": "__module_operation_MatchQuery",
+                        "args": [
+                          {
+                            "kind": "Literal",
+                            "name": "id",
+                            "value": "MatchQuery.node.nameRenderer"
+                          },
+                          {
+                            "kind": "Literal",
+                            "name": "module",
+                            "value": "MarkdownUserNameRenderer_name$normalization.graphql"
+                          }
+                        ],
+                        "kind": "ScalarField",
+                        "name": "js",
+                        "storageKey": "js(id:\"MatchQuery.node.nameRenderer\",module:\"MarkdownUserNameRenderer_name$normalization.graphql\")"
+                      },
+                      {
+                        "alias": "__module_component_MatchQuery",
+                        "args": [
+                          {
+                            "kind": "Literal",
+                            "name": "id",
+                            "value": "MatchQuery.node.nameRenderer"
+                          },
+                          {
+                            "kind": "Literal",
+                            "name": "module",
+                            "value": "MarkdownUserNameRenderer.react"
+                          }
+                        ],
+                        "kind": "ScalarField",
+                        "name": "js",
+                        "storageKey": "js(id:\"MatchQuery.node.nameRenderer\",module:\"MarkdownUserNameRenderer.react\")"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer"
                   }
                 ],
                 "storageKey": null
@@ -164,6 +248,42 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                       }
                     ],
                     "storageKey": null
+                  },
+                  {
+                    "alias": "__module_operation_MatchQuery",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "id",
+                        "value": "MatchQuery.node.nameRenderer"
+                      },
+                      {
+                        "kind": "Literal",
+                        "name": "module",
+                        "value": "MarkdownUserNameRenderer_name$normalization.graphql"
+                      }
+                    ],
+                    "kind": "ScalarField",
+                    "name": "js",
+                    "storageKey": "js(id:\"MatchQuery.node.nameRenderer\",module:\"MarkdownUserNameRenderer_name$normalization.graphql\")"
+                  },
+                  {
+                    "alias": "__module_component_MatchQuery",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "id",
+                        "value": "MatchQuery.node.nameRenderer"
+                      },
+                      {
+                        "kind": "Literal",
+                        "name": "module",
+                        "value": "MarkdownUserNameRenderer.react"
+                      }
+                    ],
+                    "kind": "ScalarField",
+                    "name": "js",
+                    "storageKey": "js(id:\"MatchQuery.node.nameRenderer\",module:\"MarkdownUserNameRenderer.react\")"
                   }
                 ],
                 "type": "MarkdownUserNameRenderer"
@@ -200,13 +320,21 @@ query MatchQuery {
     ... on Actor {
       nameRenderer {
         __typename
-        ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+        ... on MarkdownUserNameRenderer {
+          ...MarkdownUserNameRenderer_name
+          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
+          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
+        }
       }
     }
     ... on User {
       nameRenderer {
         __typename
-        ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+        ... on MarkdownUserNameRenderer {
+          ...MarkdownUserNameRenderer_name
+          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
+          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
+        }
       }
     }
     id

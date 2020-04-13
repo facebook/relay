@@ -63,14 +63,98 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "plural": false,
           "selections": [
             {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "PlainUserNameRenderer_name"
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "PlainUserNameRenderer_name"
+                },
+                {
+                  "alias": "__module_operation_ActorsRendererFragment",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "id",
+                      "value": "ActorsRendererFragment.actors.nameRenderer"
+                    },
+                    {
+                      "kind": "Literal",
+                      "name": "module",
+                      "value": "PlainUserNameRenderer_name$normalization.graphql"
+                    }
+                  ],
+                  "kind": "ScalarField",
+                  "name": "js",
+                  "storageKey": "js(id:\"ActorsRendererFragment.actors.nameRenderer\",module:\"PlainUserNameRenderer_name$normalization.graphql\")"
+                },
+                {
+                  "alias": "__module_component_ActorsRendererFragment",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "id",
+                      "value": "ActorsRendererFragment.actors.nameRenderer"
+                    },
+                    {
+                      "kind": "Literal",
+                      "name": "module",
+                      "value": "PlainUserNameRenderer.react"
+                    }
+                  ],
+                  "kind": "ScalarField",
+                  "name": "js",
+                  "storageKey": "js(id:\"ActorsRendererFragment.actors.nameRenderer\",module:\"PlainUserNameRenderer.react\")"
+                }
+              ],
+              "type": "PlainUserNameRenderer"
             },
             {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "MarkdownUserNameRenderer_name"
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "MarkdownUserNameRenderer_name"
+                },
+                {
+                  "alias": "__module_operation_ActorsRendererFragment",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "id",
+                      "value": "ActorsRendererFragment.actors.nameRenderer"
+                    },
+                    {
+                      "kind": "Literal",
+                      "name": "module",
+                      "value": "MarkdownUserNameRenderer_name$normalization.graphql"
+                    }
+                  ],
+                  "kind": "ScalarField",
+                  "name": "js",
+                  "storageKey": "js(id:\"ActorsRendererFragment.actors.nameRenderer\",module:\"MarkdownUserNameRenderer_name$normalization.graphql\")"
+                },
+                {
+                  "alias": "__module_component_ActorsRendererFragment",
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "id",
+                      "value": "ActorsRendererFragment.actors.nameRenderer"
+                    },
+                    {
+                      "kind": "Literal",
+                      "name": "module",
+                      "value": "MarkdownUserNameRenderer.react"
+                    }
+                  ],
+                  "kind": "ScalarField",
+                  "name": "js",
+                  "storageKey": "js(id:\"ActorsRendererFragment.actors.nameRenderer\",module:\"MarkdownUserNameRenderer.react\")"
+                }
+              ],
+              "type": "MarkdownUserNameRenderer"
             }
           ],
           "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"

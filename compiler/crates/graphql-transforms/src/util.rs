@@ -8,6 +8,7 @@
 use crate::client_extensions::ClientExtensionConstants;
 use crate::connections::ConnectionConstants;
 use crate::handle_fields::HandleFieldConstants;
+use crate::match_::MATCH_CONSTANTS;
 use graphql_ir::{Argument, Directive, Value};
 use interner::StringKey;
 
@@ -92,5 +93,6 @@ impl CustomMetadataDirectives {
             .client_extension_directive_name
             || name == self.connection_constants.connection_metadata_directive_name
             || name == self.handle_field_constants.handle_field_directive_name
+            || name == MATCH_CONSTANTS.custom_module_directive_name
     }
 }

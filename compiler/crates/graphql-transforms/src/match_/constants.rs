@@ -20,6 +20,8 @@ pub struct MatchConstants {
     pub name_arg: StringKey,
     pub module_component_key_prefix: &'static str,
     pub module_operation_key_prefix: &'static str,
+    pub custom_module_directive_name: StringKey,
+    pub source_document_arg: StringKey,
 }
 
 impl Default for MatchConstants {
@@ -36,6 +38,8 @@ impl Default for MatchConstants {
             name_arg: "name".intern(),
             module_component_key_prefix: "__module_component_",
             module_operation_key_prefix: "__module_operation_",
+            custom_module_directive_name: "__module".intern(),
+            source_document_arg: "sourceDocuement".intern(),
         }
     }
 }

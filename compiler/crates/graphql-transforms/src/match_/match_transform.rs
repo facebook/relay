@@ -7,14 +7,15 @@
 
 use crate::match_::MATCH_CONSTANTS;
 use common::{Location, WithLocation};
-use fnv::FnvHashSet;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, FragmentDefinition, InlineFragment, LinkedField, NamedItem,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult, Value,
+    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
+    LinkedField, NamedItem, OperationDefinition, Program, ScalarField, Selection, Transformed,
+    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
-use schema::{ScalarID, Type, TypeReference};
+use schema::{FieldID, ScalarID, Type, TypeReference};
+use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 /// Transform and validate @match and @module
@@ -28,12 +29,40 @@ pub fn match_<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
     }
 }
 
+#[derive(Eq, Clone, Debug)]
+struct Path {
+    item: StringKey,
+    location: Location,
+}
+impl PartialEq for Path {
+    fn eq(&self, other: &Self) -> bool {
+        self.item == other.item
+    }
+}
+impl Hash for Path {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.item.hash(state);
+    }
+}
+
+struct TypeMatch {
+    fragment: WithLocation<StringKey>,
+    module: StringKey,
+}
+struct Matches {
+    key: StringKey,
+    types: FnvHashMap<Type, TypeMatch>,
+}
+type MatchesForPath = FnvHashMap<Vec<Path>, Matches>;
+
 pub struct MatchTransform<'s> {
     program: &'s Program<'s>,
     parent_type: Type,
     document_name: StringKey,
     module_key: Option<StringKey>,
     errors: Vec<ValidationError>,
+    path: Vec<Path>,
+    matches_for_path: MatchesForPath,
 }
 
 impl<'s> MatchTransform<'s> {
@@ -45,6 +74,8 @@ impl<'s> MatchTransform<'s> {
             document_name: "".intern(),
             module_key: None,
             errors: Vec::new(),
+            path: Default::default(),
+            matches_for_path: Default::default(),
         }
     }
 
@@ -57,6 +88,238 @@ impl<'s> MatchTransform<'s> {
             ValidationMessage::InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
             vec![selection_location, match_location],
         ))
+    }
+
+    // Get and validate that `JSDependency` is a server scalar type in the schema
+    fn get_js_module_type(&self, spread_location: Location) -> Result<Type, ValidationError> {
+        match self
+            .program
+            .schema()
+            .get_type(MATCH_CONSTANTS.js_field_type)
+        {
+            Some(js_module_type) => match js_module_type {
+                Type::Scalar(id) => {
+                    if self.program.schema().scalar(id).is_extension {
+                        return Err(ValidationError::new(
+                            ValidationMessage::MissingServerSchemaDefinition {
+                                name: MATCH_CONSTANTS.js_field_name,
+                            },
+                            vec![spread_location],
+                        ));
+                    }
+                    Ok(js_module_type)
+                }
+                _ => Err(ValidationError::new(
+                    ValidationMessage::InvalidModuleNonScalarJSField {
+                        js_field_type: MATCH_CONSTANTS.js_field_type,
+                    },
+                    vec![spread_location],
+                )),
+            },
+            None => Err(ValidationError::new(
+                ValidationMessage::MissingServerSchemaDefinition {
+                    name: MATCH_CONSTANTS.js_field_name,
+                },
+                vec![spread_location],
+            )),
+        }
+    }
+
+    // Get and validate the `js(module: String!, id: String): JSDependency` field in the object
+    fn get_js_field_args(
+        &self,
+        fragment: &FragmentDefinition,
+        spread: &FragmentSpread,
+    ) -> Result<(FieldID, bool /* has_js_field_id_arg */), ValidationError> {
+        match fragment.type_condition {
+            Type::Object(id) => {
+                let object = self.program.schema().object(id);
+                let js_field_id = object.fields.iter().find(|field_id| {
+                    let field = self.program.schema().field(**field_id);
+                    field.name == MATCH_CONSTANTS.js_field_name
+                });
+                if let Some(js_field_id) = js_field_id {
+                    let js_field_id = *js_field_id;
+                    let js_field = self.program.schema().field(js_field_id);
+
+                    let js_field_module_arg = js_field
+                        .arguments
+                        .iter()
+                        .find(|argument| argument.name == MATCH_CONSTANTS.js_field_module_arg);
+                    let is_module_valid = {
+                        if let Some(js_field_module_arg) = js_field_module_arg {
+                            if let Some(non_list_type) = js_field_module_arg.type_.non_list_type() {
+                                self.program.schema().is_string(non_list_type)
+                            } else {
+                                false
+                            }
+                        } else {
+                            false
+                        }
+                    };
+
+                    let js_field_id_arg = js_field
+                        .arguments
+                        .iter()
+                        .find(|argument| argument.name == MATCH_CONSTANTS.js_field_id_arg);
+                    let is_id_valid = {
+                        if let Some(js_field_id_arg) = js_field_id_arg {
+                            if let Some(id_non_list_type) = js_field_id_arg.type_.non_list_type() {
+                                self.program.schema().is_string(id_non_list_type)
+                            } else {
+                                false
+                            }
+                        } else {
+                            // `id` field is optional
+                            true
+                        }
+                    };
+
+                    if is_module_valid && is_id_valid {
+                        return Ok((js_field_id, js_field_id_arg.is_some()));
+                    }
+                }
+                Err(ValidationError::new(
+                    ValidationMessage::InvalidModuleInvalidSchemaArguments {
+                        spread_name: spread.fragment.item,
+                        type_string: self.program.schema().get_type_name(fragment.type_condition),
+                        js_field_name: MATCH_CONSTANTS.js_field_name,
+                        js_field_module_arg: MATCH_CONSTANTS.js_field_module_arg,
+                        js_field_id_arg: MATCH_CONSTANTS.js_field_id_arg,
+                        js_field_type: MATCH_CONSTANTS.js_field_type,
+                    },
+                    vec![spread.fragment.location, fragment.name.location],
+                ))
+            }
+            // @module should only be used on `Object`
+            _ => Err(ValidationError::new(
+                ValidationMessage::InvalidModuleNotOnObject {
+                    spread_name: spread.fragment.item,
+                    type_string: self.program.schema().get_type_name(fragment.type_condition),
+                },
+                vec![spread.fragment.location, fragment.name.location],
+            )),
+        }
+    }
+
+    fn validate_transform_fragment_spread(
+        &mut self,
+        spread: &FragmentSpread,
+    ) -> Result<Transformed<Selection>, ValidationError> {
+        let module_directive = spread
+            .directives
+            .named(MATCH_CONSTANTS.module_directive_name);
+
+        // Only process the fragment spread with @module
+        if let Some(module_directive) = module_directive {
+            // @argument on the fragment spread is not allowed
+            if !spread.arguments.is_empty() {
+                return Err(ValidationError::new(
+                    ValidationMessage::InvalidModuleWithArguments,
+                    vec![spread.arguments[0].name.location],
+                ));
+            }
+
+            // no other directives are allowed
+            if spread.directives.len() != 1 {
+                return Err(ValidationError::new(
+                    ValidationMessage::InvalidModuleWithAdditionalDirectives {
+                        spread_name: spread.fragment.item,
+                    },
+                    vec![spread.arguments[0].name.location],
+                ));
+            }
+
+            let fragment = self.program.fragment(spread.fragment.item).unwrap();
+            let module_name = get_module_name(module_directive, spread.fragment.location)?;
+            let _js_module_type = self.get_js_module_type(spread.fragment.location)?;
+            let (_js_field_module_arg, _js_field_id_arg) =
+                self.get_js_field_args(fragment, spread)?;
+
+            let parent_name = self.path.last();
+            let module_key = self.module_key.unwrap_or(self.document_name);
+
+            let _module_id = if self.path.is_empty() {
+                self.document_name
+            } else {
+                let mut str = String::new();
+                str.push_str(self.document_name.lookup());
+                for path in &self.path {
+                    str.push_str(".");
+                    str.push_str(path.item.lookup());
+                }
+                str.intern()
+            };
+
+            let matches = match self.matches_for_path.get_mut(&self.path) {
+                None => {
+                    let existing_match_with_key = self
+                        .matches_for_path
+                        .values()
+                        .any(|entry| entry.key == module_key);
+                    if existing_match_with_key {
+                        let parent_name = parent_name.expect("Cannot have @module selections at multiple paths unless the selections are within fields.");
+                        return Err(ValidationError::new(
+                            ValidationMessage::InvalidModuleSelectionWithoutKey {
+                                document_name: self.document_name,
+                                parent_name: parent_name.item,
+                            },
+                            vec![parent_name.location],
+                        ));
+                    }
+                    self.matches_for_path.insert(
+                        self.path.clone(),
+                        Matches {
+                            key: module_key,
+                            types: Default::default(),
+                        },
+                    );
+                    self.matches_for_path.get_mut(&self.path).unwrap()
+                }
+                Some(matches) => matches,
+            };
+
+            if module_key != matches.key {
+                // The user can't override the key locally (per @module),
+                // so this is just an internal sanity check
+                panic!(format!("Invalid @module selection: expected all selections at path '{:?} to have the same 'key', got '{}' and '{}'.", &self.path, module_key, matches.key));
+            }
+
+            let previous_match_for_type = matches.types.get(&fragment.type_condition);
+            if let Some(previous_match_for_type) = previous_match_for_type {
+                if previous_match_for_type.fragment.item != spread.fragment.item
+                    || previous_match_for_type.module != module_name
+                {
+                    return Err(ValidationError::new(
+                        ValidationMessage::InvalidModuleSelectionMultipleMatches {
+                            type_name: self.program.schema().get_type_name(fragment.type_condition),
+                            alias_path: self
+                                .path
+                                .iter()
+                                .map(|with_loc| with_loc.item.lookup())
+                                .collect::<Vec<&str>>()
+                                .join("."),
+                        },
+                        vec![
+                            spread.fragment.location,
+                            previous_match_for_type.fragment.location,
+                        ],
+                    ));
+                }
+            }
+            matches.types.insert(
+                fragment.type_condition,
+                TypeMatch {
+                    fragment: spread.fragment,
+                    module: module_name,
+                },
+            );
+
+            // TODO: transform the @module
+            Ok(Transformed::Keep)
+        } else {
+            Ok(Transformed::Keep)
+        }
     }
 }
 
@@ -71,6 +334,8 @@ impl<'s> Transformer for MatchTransform<'s> {
     ) -> Transformed<FragmentDefinition> {
         self.parent_type = fragment.type_condition;
         self.document_name = fragment.name.item;
+        self.path = Default::default();
+        self.matches_for_path = Default::default();
         self.default_transform_fragment(fragment)
     }
 
@@ -80,14 +345,21 @@ impl<'s> Transformer for MatchTransform<'s> {
     ) -> Transformed<OperationDefinition> {
         self.parent_type = operation.type_;
         self.document_name = operation.name.item;
+        self.path = Default::default();
+        self.matches_for_path = Default::default();
         self.default_transform_operation(operation)
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(type_) = fragment.type_condition {
+            let previous_parent_type = self.parent_type;
             self.parent_type = type_;
+            let result = self.default_transform_inline_fragment(fragment);
+            self.parent_type = previous_parent_type;
+            result
+        } else {
+            self.default_transform_inline_fragment(fragment)
         }
-        self.default_transform_inline_fragment(fragment)
     }
 
     // Validate `js` field
@@ -126,6 +398,7 @@ impl<'s> Transformer for MatchTransform<'s> {
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let field_definition = self.program.schema().field(field.definition.item);
         let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
+        self.module_key = None;
 
         // Only process fields with @match
         if let Some(match_directive) = match_directive {
@@ -133,21 +406,20 @@ impl<'s> Transformer for MatchTransform<'s> {
             let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
             if let Some(arg) = key_arg {
                 if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
-                    self.module_key = Some(str);
-                    if !str.lookup().starts_with(self.document_name.lookup()) {
-                        self.errors.push(ValidationError::new(
-                            ValidationMessage::InvalidMatchKeyArgument {
-                                document_name: self.document_name,
-                            },
-                            vec![arg.name.location],
-                        ));
-                        return Transformed::Keep;
+                    if str.lookup().starts_with(self.document_name.lookup()) {
+                        self.module_key = Some(str);
                     }
-                } else {
-                    self.module_key = None;
+                }
+                if self.module_key.is_none() {
+                    self.errors.push(ValidationError::new(
+                        ValidationMessage::InvalidMatchKeyArgument {
+                            document_name: self.document_name,
+                        },
+                        vec![match_directive.name.location],
+                    ));
+                    return Transformed::Keep;
                 }
             }
-
             // The linked field should be an abstract type
             if !field_definition.type_.inner().is_abstract_type() {
                 self.errors.push(ValidationError::new(
@@ -243,16 +515,14 @@ impl<'s> Transformer for MatchTransform<'s> {
                 name: WithLocation::new(field.definition.location, MATCH_CONSTANTS.supported_arg),
                 value: WithLocation::new(
                     field.definition.location,
-                    Value::List(
+                    Value::Constant(ConstantValue::List(
                         seen_types
                             .drain()
                             .map(|type_| {
-                                Value::Constant(ConstantValue::String(
-                                    self.program.schema().get_type_name(type_),
-                                ))
+                                ConstantValue::String(self.program.schema().get_type_name(type_))
                             })
                             .collect(),
-                    ),
+                    )),
                 ),
             });
             let mut next_directives = Vec::with_capacity(field.directives.len() - 1);
@@ -261,9 +531,17 @@ impl<'s> Transformer for MatchTransform<'s> {
                     next_directives.push(directive.clone());
                 }
             }
+            let previous_parent_type = self.parent_type;
+            self.parent_type = field_definition.type_.inner();
+            self.path.push(Path {
+                location: field.definition.location,
+                item: field.alias_or_name(self.program.schema()),
+            });
             let next_selections = self
                 .transform_selections(&field.selections)
                 .replace_or_else(|| field.selections.clone());
+            self.path.pop();
+            self.parent_type = previous_parent_type;
             Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
                 alias: field.alias,
                 definition: field.definition,
@@ -272,10 +550,51 @@ impl<'s> Transformer for MatchTransform<'s> {
                 selections: next_selections,
             })))
         } else {
+            let previous_parent_type = self.parent_type;
             self.parent_type = field_definition.type_.inner();
-            self.default_transform_linked_field(field)
+            self.path.push(Path {
+                location: field.definition.location,
+                item: field.alias_or_name(self.program.schema()),
+            });
+            let result = self.default_transform_linked_field(field);
+            self.path.pop();
+            self.parent_type = previous_parent_type;
+            result
         }
     }
 
-    // TODO: validate and transform `@module` into a custom directive for codegen
+    // validate and transform `@module` into a custom directive for codegen
+    fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
+        match self.validate_transform_fragment_spread(spread) {
+            Ok(result) => result,
+            Err(err) => {
+                self.errors.push(err);
+                Transformed::Keep
+            }
+        }
+    }
+}
+
+fn get_module_name(
+    module_directive: &Directive,
+    spread_location: Location,
+) -> Result<StringKey, ValidationError> {
+    let argument = module_directive.arguments.named(MATCH_CONSTANTS.name_arg);
+    if let Some(argument) = argument {
+        match argument.value.item {
+            Value::Constant(ConstantValue::String(value)) => {
+                return Ok(value);
+            }
+            _ => {
+                return Err(ValidationError::new(
+                    ValidationMessage::InvalidModuleNonLiteralName,
+                    vec![argument.name.location],
+                ));
+            }
+        };
+    }
+    Err(ValidationError::new(
+        ValidationMessage::InvalidModuleNoName,
+        vec![spread_location],
+    ))
 }

@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderer {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "OtherMarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.:
+multiple-modules-different-component.invalid.graphql:11:11:
+        ...MarkdownUserNameRenderer_name
+          @module(name: "OtherMarkdownUserNameRenderer.react")
+
+
+multiple-modules-different-component.invalid.graphql:5:11:
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")

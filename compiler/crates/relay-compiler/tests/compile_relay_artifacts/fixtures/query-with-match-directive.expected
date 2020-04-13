@@ -113,7 +113,16 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "selections": [
               {
                 "alias": null,
-                "args": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": [
+                      "PlainUserNameRenderer",
+                      "MarkdownUserNameRenderer"
+                    ]
+                  }
+                ],
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
@@ -203,7 +212,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "type": "MarkdownUserNameRenderer"
                   }
                 ],
-                "storageKey": null
+                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
               }
             ],
             "type": "User"
@@ -244,7 +253,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 fragment NameRendererFragment on User {
   id
-  nameRenderer {
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     __typename
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
@@ -310,7 +319,16 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
     },
     {
       "alias": null,
-      "args": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": [
+            "PlainUserNameRenderer",
+            "MarkdownUserNameRenderer"
+          ]
+        }
+      ],
       "concreteType": null,
       "kind": "LinkedField",
       "name": "nameRenderer",
@@ -327,7 +345,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "name": "MarkdownUserNameRenderer_name"
         }
       ],
-      "storageKey": null
+      "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
     }
   ],
   "type": "User"

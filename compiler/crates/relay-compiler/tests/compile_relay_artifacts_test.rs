@@ -1,4 +1,4 @@
-// @generated SignedSource<<af060c740cb1b66fcc256cc3fc4f5e45>>
+// @generated SignedSource<<5017de08d0f6489d8f0a1d320ef46e2d>>
 
 mod compile_relay_artifacts;
 
@@ -286,6 +286,20 @@ fn match_on_child_of_plural() {
 }
 
 #[test]
+fn match_with_invalid_key_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/match-with-invalid-key.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/match-with-invalid-key.invalid.expected");
+    test_fixture(transform_fixture, "match-with-invalid-key.invalid.graphql", "compile_relay_artifacts/fixtures/match-with-invalid-key.invalid.expected", input, expected);
+}
+
+#[test]
+fn match_with_variable_key_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/match-with-variable-key.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/match-with-variable-key.invalid.expected");
+    test_fixture(transform_fixture, "match-with-variable-key.invalid.graphql", "compile_relay_artifacts/fixtures/match-with-variable-key.invalid.expected", input, expected);
+}
+
+#[test]
 fn missing_argument_on_field_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.expected");
@@ -304,6 +318,41 @@ fn module_overlap_within_document_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected");
     test_fixture(transform_fixture, "module-overlap-within-document.invalid.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected", input, expected);
+}
+
+#[test]
+fn multiple_modules_different_component_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-modules-different-component.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-modules-different-component.invalid.expected");
+    test_fixture(transform_fixture, "multiple-modules-different-component.invalid.graphql", "compile_relay_artifacts/fixtures/multiple-modules-different-component.invalid.expected", input, expected);
+}
+
+#[test]
+fn multiple_modules_different_fragment_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-modules-different-fragment.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-modules-different-fragment.invalid.expected");
+    test_fixture(transform_fixture, "multiple-modules-different-fragment.invalid.graphql", "compile_relay_artifacts/fixtures/multiple-modules-different-fragment.invalid.expected", input, expected);
+}
+
+#[test]
+fn multiple_modules_same_selections() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-modules-same-selections.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-modules-same-selections.expected");
+    test_fixture(transform_fixture, "multiple-modules-same-selections.graphql", "compile_relay_artifacts/fixtures/multiple-modules-same-selections.expected", input, expected);
+}
+
+#[test]
+fn multiple_modules_with_key() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-modules-with-key.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-modules-with-key.expected");
+    test_fixture(transform_fixture, "multiple-modules-with-key.graphql", "compile_relay_artifacts/fixtures/multiple-modules-with-key.expected", input, expected);
+}
+
+#[test]
+fn multiple_modules_without_key_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-modules-without-key.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-modules-without-key.invalid.expected");
+    test_fixture(transform_fixture, "multiple-modules-without-key.invalid.graphql", "compile_relay_artifacts/fixtures/multiple-modules-without-key.invalid.expected", input, expected);
 }
 
 #[test]

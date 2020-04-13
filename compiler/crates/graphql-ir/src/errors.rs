@@ -336,6 +336,31 @@ pub enum ValidationMessage {
         spread_name: StringKey,
         type_string: StringKey,
     },
+    #[error("@module used on invalid fragment spread '...{spread_name}'. @module requires the fragment type '{type_string}' to have a '{js_field_name}({js_field_module_arg}: String!, {js_field_id_arg}: String): {js_field_type}' field (your schema may choose to omit the 'id'  argument but if present it must accept a 'String').")]
+    InvalidModuleInvalidSchemaArguments {
+        spread_name: StringKey,
+        type_string: StringKey,
+        js_field_name: StringKey,
+        js_field_module_arg: StringKey,
+        js_field_id_arg: StringKey,
+        js_field_type: StringKey,
+    },
+    #[error("@module used on invalid fragment spread '...{spread_name}'. @module may not have additional directives.")]
+    InvalidModuleWithAdditionalDirectives { spread_name: StringKey },
+    #[error("Expected the 'name' argument of @module to be a literal string.")]
+    InvalidModuleNonLiteralName,
+    #[error("Expected the 'name' argument to be defined.")]
+    InvalidModuleNoName,
+    #[error("Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use '{parent_name} @match(key: \"{document_name}_<localName>\")'.")]
+    InvalidModuleSelectionWithoutKey {
+        document_name: StringKey,
+        parent_name: StringKey,
+    },
+    #[error("Invalid @module selection: concrete type '{type_name}' was matched multiple times at path '{alias_path}' but with a different fragment or module name.")]
+    InvalidModuleSelectionMultipleMatches {
+        type_name: StringKey,
+        alias_path: String,
+    },
 
     #[error("Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string.")]
     LabelNotUniqueForDeferStream { directive_name: StringKey },

@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query MatchWithVariableName {
+  me {
+    nameRenderer @match(key: "error-not-prefixed-with-document-name") {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+==================================== ERROR ====================================
+Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. 'MatchWithVariableName_<localName>'.:
+match-with-invalid-key.invalid.graphql:3:18:
+    nameRenderer @match(key: "error-not-prefixed-with-document-name") {

@@ -72,7 +72,16 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     },
     {
       "alias": null,
-      "args": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": [
+            "PlainUserNameRenderer",
+            "MarkdownUserNameRenderer"
+          ]
+        }
+      ],
       "concreteType": null,
       "kind": "LinkedField",
       "name": "nameRenderer",
@@ -89,7 +98,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "name": "MarkdownUserNameRenderer_name"
         }
       ],
-      "storageKey": null
+      "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
     }
   ],
   "type": "User"

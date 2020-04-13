@@ -969,6 +969,15 @@ impl TypeReference {
             _ => false,
         }
     }
+
+    // Return None if the type is a List, otherwise return the inner type
+    pub fn non_list_type(&self) -> Option<Type> {
+        match self {
+            TypeReference::List(_) => None,
+            TypeReference::Named(type_) => Some(*type_),
+            TypeReference::NonNull(of) => of.non_list_type(),
+        }
+    }
 }
 
 #[derive(Debug)]

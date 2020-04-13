@@ -25,7 +25,7 @@ directive @__clientField(
 ) on FIELD
 
 # MatchTransform
-directive @match on FIELD
+directive @match(key: String) on FIELD
 
 directive @module(name: String!) on FRAGMENT_SPREAD
 

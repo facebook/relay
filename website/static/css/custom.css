@@ -82,6 +82,7 @@
 .exampleSection .wrapperInner > div {
   background: #fff;
   padding: 0 1em;
+  overflow: auto;
 }
 .exampleSection .radiusRight {
   border-radius: 0 60px 0 0;
@@ -264,14 +265,12 @@
 }
 .logosHomepage a {
   display: flex;
+  color: #000;
 }
 .logosHomepage img {
   flex: 1;
   max-width: 50px;
   height: 50px;
-}
-.logosHomepage a {
-  color: #000;
 }
 .logosHomepage a div {
   padding-left: 1em;
@@ -393,5 +392,11 @@
   .logos {
     grid-template-columns: 1fr;
     grid-gap: 2em;
+  }
+}
+
+@media only screen and (max-width: 734px) {
+  .logosHomepage {
+    grid-template-columns: 1fr;
   }
 }

@@ -159,7 +159,7 @@ type Props = {|
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserComponent</span>(<span class="hljs-params">props: Props</span>) </span>{
   <span class="hljs-keyword">const</span> userData = useFragment(
     graphql<span class="hljs-string">`
-      fragment UserComponent_user on User {
+      fragment UserComponent_user on User(id: $ID!) {
         name
         profile_picture(scale: 2) {
           uri
@@ -961,7 +961,7 @@ function App() {
           &lt;ErrorUI error={error} /&gt;
           {/* Render a button to retry; this will attempt to re-render the
             content inside the boundary, i.e. the query component */}
-          &lt;Button onPress={retry}&gt;Retry&lt;/Button&gt;
+          &lt;Button onClick={retry}&gt;Retry&lt;/Button&gt;
         &lt;/&gt;
       }&gt;
       &lt;MainContent /&gt;
@@ -2731,75 +2731,106 @@ type Props = {|
 <ul>
 <li>Note that mutations can also reference GraphQL <a href="#variables">Variables</a> in the same way queries or fragments do.</li>
 </ul>
-<p>In order to <em>execute</em> a mutation against the server in Relay, we can use the <strong><code>commitMutation</code></strong> API:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<p>In order to <em>execute</em> a mutation against the server in Relay, we can use the <strong><code>useMutation</code></strong> hook.</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {commitMutation, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commitLikePostMutation</span>(<span class="hljs-params">
-  environment: Environment,
-  input: LikePostData,
-</span>) </span>{
-  <span class="hljs-keyword">return</span> commitMutation&lt;LikePostMutation&gt;(environment, {
-    <span class="hljs-attr">mutation</span>: graphql<span class="hljs-string">`
-      mutation LikePostMutation($input: LikePostData!) {
-        like_post(data: $input) {
-          post {
-            id
-            viewer_does_like
-            like_count
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">LikeButton</span>(<span class="hljs-params">props: Props</span>) </span>{
+  <span class="hljs-keyword">const</span> [commit, isInFlight] = useMutation&lt;LikePostMutation&gt;(graphql<span class="hljs-string">`
+    mutation LikePostMutation($input: LikePostData!)
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `</span>,
-    <span class="hljs-attr">variables</span>: {input},
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation completed */</span>,
-    <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation errored */</span>,
-  });
+    }
+  `</span>);
+
+  <span class="hljs-keyword">const</span> mutationConfig = {
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: props.likePostData,
+    },
+  };
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">disabled</span>=<span class="hljs-string">{isInFlight}</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> commit(mutationConfig)}&gt;
+      Like
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span></span>
+  );
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">commit</span>: commitLikePostMutation};
+<span class="hljs-built_in">module</span>.exports = LikeButton;
 </code></pre>
 <p>Let's distill what's happening here:</p>
 <ul>
-<li><code>commitMutation</code> takes an environment, the <code>graphql</code> tagged  mutation, and the variables to use for sending the mutation request to the server.</li>
-<li>Note that the <code>input</code> for the mutation can be Flow typed with the autogenerated type available from the <em><code>LikePostMutation.graphql</code></em> module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: <code>&lt;mutation_name&gt;.graphql.js</code>.</li>
-<li>Note that the <code>variables</code>, <code>response</code> in <code>onComplete</code> and <code>optimisticResponse</code> in <code>commitMutation</code> will be typed altogether by providing the autogenerated type <code>LikePostMutation</code> from the <em><code>LikePostMutation.graphql</code></em> module. To include the type for the <code>optimisticResponse</code>, a <code>@raw_response_type</code> directive should be added to the mutation query root.</li>
-<li><code>commitMutation</code> also takes an <code>onCompleted</code> and <code>onError</code> callbacks, which will respectively be called when the request completes successfully or when an error occurs.</li>
-<li>When the mutation response is received, <strong><em>if the objects in the mutation response have IDs, the records in the local store will <em>automatically</em> be updated with the new field values from the response.</em></strong> In this case, it would automatically find the existing <code>Post</code> object matching the given ID in the store, and update the values for its <code>viewer_does_like</code> and <code>like_count</code> fields.</li>
-<li>Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.</li>
+<li><code>useMutation</code> takes a mutation <code>GraphQLTaggedNode</code> (the result of using the <code>graphql</code> template tag), and an optional <code>commitMutationFn</code>.</li>
+<li><code>useMutation</code> returns <code>[commit, isInFlight]: [(UseMutationConfig&lt;TMutation&gt;) =&gt; Disposable, boolean]</code>.</li>
+<li><code>isInFlight</code> will be true if any mutation triggered by calling <code>commit</code> is still in flight. If you call <code>commit</code> multiple times, there can be multiple mutations in flight at once.</li>
+<li><code>commit</code> is a function that accepts a <code>UseMutationConfig</code>. The type of <code>UseMutationConfig</code> is as follows:</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="updater-functions"></a><a href="#updater-functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Updater Functions</h4>
-<p>However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>, you can provide an <strong><code>updater</code></strong> function to <code>commitMutation</code> for full control over how to update the store:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {CommentCreateData, CreateCommentMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'CreateCommentMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript">type UseMutationConfig&lt;TMutation: MutationParameters&gt; = {|
+  configs?: <span class="hljs-built_in">Array</span>&lt;DeclarativeMutationConfig&gt;,
+  onError?: ?<span class="hljs-function">(<span class="hljs-params">error: <span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
+  onCompleted?: ?(
+    response: $ElementType&lt;TMutation, <span class="hljs-string">'response'</span>&gt;,
+    <span class="hljs-attr">errors</span>: ?<span class="hljs-built_in">Array</span>&lt;PayloadError&gt;,
+  ) =&gt; <span class="hljs-keyword">void</span>,
+  onUnsubscribe?: ?<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">void</span>,
+  optimisticResponse?: $ElementType&lt;
+    {
+      +rawResponse?: {...},
+      ...TMutation,
+      ...
+    },
+    <span class="hljs-string">'rawResponse'</span>,
+  &gt;,
+  optimisticUpdater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater,
+  uploadables?: UploadableMap,
+  <span class="hljs-attr">variables</span>: $ElementType&lt;TMutation, <span class="hljs-string">'variables'</span>&gt;,
+|};
+</code></pre>
+<ul>
+<li>The only required property in the <code>UseMutationConfig</code> object is <code>variables</code>, which is an object containing the parameters to the mutation.</li>
+<li>You can also include <code>onCompleted</code> and <code>onError</code> callbacks, which are called when the mutation completes or errors out, respectively.</li>
+<li>Note that the input for the mutation can be Flow typed with the autogenerated type available from the <code>LikePostMutation.graphql</code> module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: <code>&lt;mutation_name&gt;.graphql.js</code>.</li>
+<li>Note that <code>variables</code> and <code>response</code> in <code>onComplete</code> will be typed altogether by providing the autogenerated type <code>LikePostMutation</code> to <code>useMutation</code> from the <code>LikePostMutation.graphql</code> module.</li>
+<li>When the mutation response is received, <strong><em>if the objects in the mutation response have IDs, the records in the local store will automatically be updated with the new field values from the response</em></strong>. In this case, it would automatically find the existing <code>Post</code> object matching the given ID in the store, and update the values for its <code>viewer_does_like</code> and <code>like_count</code> fields.</li>
+<li>Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.</li>
+<li>Calling <code>commit</code> results in a call to <code>commitMutation</code>, which you can learn about <a href="https://relay.dev/docs/en/experimental/api-reference#commitMutation">here</a>.</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="updater-functions"></a><a href="#updater-functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Updater functions</h4>
+<p>However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>, you can provide an <strong><code>updater</code></strong> function to <code>commit</code> for full control over how to update the store:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {commitMutation, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commitCommentCreateMutation</span>(<span class="hljs-params">
-  environment: Environment,
-  postID: string,
-  input: CommentCreateData,
-</span>) </span>{
-  <span class="hljs-keyword">return</span> commitMutation&lt;CreateCommentMutation&gt;(environment, {
-    <span class="hljs-attr">mutation</span>: graphql<span class="hljs-string">`
-      mutation CreateCommentMutation($input: CommentCreateData!) {
-        comment_create(input: $input) {
-          comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">LikeButton</span>(<span class="hljs-params">props: Props</span>) </span>{
+  <span class="hljs-keyword">const</span> [commit, isInFlight] = useMutation&lt;LikePostMutation&gt;(graphql<span class="hljs-string">`
+    mutation LikePostMutation($input: LikePostData!) {
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `</span>,
-    <span class="hljs-attr">variables</span>: {input},
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {},
-    <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {},
+    }
+  `</span>);
+
+  <span class="hljs-keyword">const</span> mutationConfig = {
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: props.likePostData,
+    },
     <span class="hljs-attr">updater</span>: <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
       <span class="hljs-keyword">const</span> postRecord = store.get(postID);
 
@@ -2828,10 +2859,16 @@ type Props = {|
         newEdge,
       );
     },
-  });
+  };
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">disabled</span>=<span class="hljs-string">{isInFlight}</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> commit(mutationConfig)}&gt;
+      Like
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span></span>
+  );
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">commit</span>: commitCommentCreateMutation};
+<span class="hljs-built_in">module</span>.exports = LikeButton;
 </code></pre>
 <p>Let's distill this example:</p>
 <ul>
@@ -2846,29 +2883,31 @@ type Props = {|
 <p>In order to do this, Relay provides 2 APIs to specify an optimistic update when executing a mutation:</p>
 <p><em><strong>Optimistic Response</strong></em></p>
 <p>When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an <strong><code>optimisticResponse</code></strong> to <code>commitMutation</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {commitMutation, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commitLikePostMutation</span>(<span class="hljs-params">
-  environment: Environment,
-  postID: string,
-  input: LikePostData,
-</span>) </span>{
-  <span class="hljs-keyword">return</span> commitMutation&lt;LikePostMutation&gt;(environment, {
-    <span class="hljs-attr">mutation</span>: graphql<span class="hljs-string">`
-      mutation LikePostMutation($input: LikePostData!)
-        @raw_response_type {
-        like_post(data: $input) {
-          post {
-            id
-            viewer_does_like
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">LikeButton</span>(<span class="hljs-params">props: Props</span>) </span>{
+  <span class="hljs-keyword">const</span> [commit, isInFlight] = useMutation&lt;LikePostMutation&gt;(graphql<span class="hljs-string">`
+    mutation LikePostMutation($input: LikePostData!)            
+      @raw_response_type {
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `</span>,
-    <span class="hljs-attr">variables</span>: {input},
+    }
+  `</span>);
+
+  <span class="hljs-keyword">const</span> mutationConfig = {
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: props.likePostData,
+    },
     <span class="hljs-attr">optimisticResponse</span>: {
       <span class="hljs-attr">like_post</span>: {
         <span class="hljs-attr">post</span>: {
@@ -2877,12 +2916,18 @@ type Props = {|
         },
       },
     },
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation completed */</span>,
+    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation completed */</span>,
     <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation errored */</span>,
-  });
+  };
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">disabled</span>=<span class="hljs-string">{isInFlight}</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> commit(mutationConfig)}&gt;
+      Like
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span></span>
+  );
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">commit</span>: commitLikePostMutation};
+<span class="hljs-built_in">module</span>.exports = LikeButton;
 </code></pre>
 <p>Let's see what's happening in this example.</p>
 <ul>
@@ -2896,29 +2941,30 @@ type Props = {|
 </ul>
 <p><em><strong>Optimistic Updater</strong></em></p>
 <p>However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>. In these cases we can provide an <strong><code>optimisticUpdater</code></strong> function to <code>commitMutation</code>. For example, we can rewrite the above example using an <code>optimisticUpdater</code> instead of an <code>optimisticResponse</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {LikePostData} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {commitMutation, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commitLikePostMutation</span>(<span class="hljs-params">
-  environment: Environment,
-  postID: string,
-  input: LikePostData,
-</span>) </span>{
-  <span class="hljs-keyword">return</span> commitMutation(environment, {
-    <span class="hljs-attr">mutation</span>: graphql<span class="hljs-string">`
-      mutation LikePostMutation($input: LikePostData!) {
-        like_post(data: $input) {
-          post {
-            id
-            like_count
-            viewer_does_like
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">LikeButton</span>(<span class="hljs-params">props: Props</span>) </span>{
+  <span class="hljs-keyword">const</span> [commit, isInFlight] = useMutation&lt;LikePostMutation&gt;(graphql<span class="hljs-string">`
+    mutation LikePostMutation($input: LikePostData!) {
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `</span>,
-    <span class="hljs-attr">variables</span>: {input},
+    }
+  `</span>);
+
+  <span class="hljs-keyword">const</span> mutationConfig = {
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: props.likePostData,
+    },
     <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
       <span class="hljs-comment">// Get the record for the Post object</span>
       <span class="hljs-keyword">const</span> postRecord = store.get(postID);
@@ -2932,12 +2978,16 @@ type Props = {|
       <span class="hljs-comment">// Optimistically set viewer_does_like to true</span>
       postRecord.setValue(<span class="hljs-literal">true</span>, <span class="hljs-string">'viewer_does_like'</span>);
     },
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation completed */</span>,
-    <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {} <span class="hljs-comment">/* Mutation errored */</span>,
-  });
+  };
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">disabled</span>=<span class="hljs-string">{isInFlight}</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> commit(mutationConfig)}&gt;
+      Like
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span></span>
+  );
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">commit</span>: commitLikePostMutation};
+<span class="hljs-built_in">module</span>.exports = LikeButton;
 </code></pre>
 <p>Let's see what's happening here:</p>
 <ul>
@@ -2972,18 +3022,16 @@ type Props = {|
 </ul>
 <p><em><strong>Full Example</strong></em></p>
 <p>This means that in more complicated scenarios you can still provide all 3 options: <code>optimisticResponse</code>, <code>optimisticUpdater</code> and <code>updater</code>. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a> guide):</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {CommentCreateData, CreateCommentMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'CreateCommentMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentCreateData, CreateCommentMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'CreateCommentMutation.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {commitMutation, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commitCommentCreateMutation</span>(<span class="hljs-params">
-  environment: Environment,
-  postID: string,
-  input: CommentCreateData,
-</span>) </span>{
-  <span class="hljs-keyword">return</span> commitMutation&lt;CreateCommentMutation&gt;(environment, {
-    <span class="hljs-attr">mutation</span>: graphql<span class="hljs-string">`
+type Props = {|
+  commentCreateData: CommentCreateData,
+  <span class="hljs-attr">postID</span>: string,
+|};
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">CreateCommentButton</span>(<span class="hljs-params">props: Props</span>) </span>{
+  <span class="hljs-keyword">const</span> [commit, isInFlight] = useMutation&lt;CreateCommentMutation&gt;(graphql<span class="hljs-string">`
       mutation CreateCommentMutation($input: CommentCreateData!) {
         comment_create(input: $input) {
           post {
@@ -3000,19 +3048,19 @@ type Props = {|
           }
         }
       }
-    `</span>,
-    <span class="hljs-attr">variables</span>: {input},
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {},
-    <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {},
+    `</span>);
 
+  <span class="hljs-keyword">const</span> mutationConfig = {
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: props.commentCreateData,
+    },
     <span class="hljs-comment">// Optimistically set the value for `viewer_has_commented`</span>
     <span class="hljs-attr">optimisticResponse</span>: {
       <span class="hljs-attr">post</span>: {
-        <span class="hljs-attr">id</span>: postID,
+        <span class="hljs-attr">id</span>: props.postID,
         <span class="hljs-attr">viewer_has_commented</span>: <span class="hljs-literal">true</span>,
       },
     },
-
     <span class="hljs-comment">// Optimistically add a new comment to the comments connection</span>
     <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
       <span class="hljs-keyword">const</span> postRecord = store.get(postID);
@@ -3054,10 +3102,12 @@ type Props = {|
       <span class="hljs-comment">// Add edge to the end of the connection</span>
       ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
     },
-  });
+  };
+
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> commit(mutationConfig)}&gt;Create Comment<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span></span>;
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">commit</span>: commitCommentCreateMutation};
+<span class="hljs-built_in">module</span>.exports = CreateCommentButton;
 </code></pre>
 <p>Let's distill this example, according to the execution order of the updaters:</p>
 <ul>
@@ -3119,18 +3169,30 @@ type Props = {|
 <ul>
 <li>Note that subscriptions can also reference GraphQL <a href="#variables">Variables</a> in the same way queries or fragments do.</li>
 </ul>
-<p>In order to <em>execute</em> a subscription against the server in Relay, we can use the <strong><code>requestSubscription</code></strong> API:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {LikePostSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostSubscription.graphql'</span>;
+<p>In order to <em>execute</em> a subscription against the server in Relay, we can use the <strong><code>useSubscription</code></strong> hook:</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostSubscription.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {graphql, requestSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">postLikeSubscribe</span>(<span class="hljs-params">
-  environment: Environment,
-  postID: string,
-  input: LikePostSubscribeData,
-</span>) </span>{
-  <span class="hljs-keyword">return</span> requestSubscription(environment, {
+<span class="hljs-keyword">const</span> {graphql, useSubscription, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+
+type Props = {|
+  likePostSubscribeData: LikePostSubscribeData,
+  <span class="hljs-attr">postId</span>: string,
+|};
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">LikeCount</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> data = useFragment(
+    graphql<span class="hljs-string">`
+      query LikeCount_likes($id: ID!) {
+        post(id: $id) {
+          id
+          like_count
+        }
+      }
+    `</span>,
+    {<span class="hljs-attr">id</span>: props.postId},
+  );
+  <span class="hljs-keyword">const</span> subscriptionConfig = useMemo(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ({
     <span class="hljs-attr">subscription</span>: graphql<span class="hljs-string">`
       subscription LikePostSubscription(
         $input: LikePostSubscribeData!
@@ -3143,36 +3205,42 @@ type Props = {|
         }
       }
     `</span>,
-    <span class="hljs-attr">variables</span>: {input},
+    <span class="hljs-attr">variables</span>: {<span class="hljs-attr">input</span>: props.likePostSubscribeData},
     <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription established */</span>,
     <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription errored */</span>,
-    <span class="hljs-attr">onNext</span>: <span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription payload received */</span>
-  });
+    <span class="hljs-attr">onNext</span>: <span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription payload received */</span>,
+  }));
+
+  useSubscription(subscriptionConfig);
+
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+      This post has been liked {data?.post?.like_count ?? "an unknown number of"} times.
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+  );
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">subscribe</span>: postLikeSubscribe};
+<span class="hljs-built_in">module</span>.exports = LikeCount;
 </code></pre>
 <p>Let's distill what's happening here:</p>
 <ul>
-<li><code>requestSubscription</code> takes an environment, the <code>graphql</code> tagged subscription, and the variables to use.</li>
-<li>Note that the <code>input</code> for the subscription can be Flow typed with the autogenerated type available from the <em><code>LikePostSubscription.graphql</code></em> module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: <code>&lt;subscription_name&gt;.graphql.js</code>.</li>
-<li><code>requestSubscription</code> also takes an <code>onCompleted</code> and <code>onError</code> callbacks, which will respectively be called when the subscription is successfully established, or when an error occurs.</li>
-<li><code>requestSubscription</code> also takes an <code>onNext</code> callback, which will be called whenever a subscription payload is received.</li>
+<li><code>useSubscription</code> takes a config object containing the subscription and the variables that the GraphQL query expects.</li>
+<li>Note that the <code>input</code> for the subscription can be Flow typed with the autogenerated type available from the <code>LikePostSubscription.graphql</code> module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: <code>&lt;subscription_name&gt;.graphql.js</code>.</li>
+<li><code>useSubscription</code> also take <code>onCompleted</code> and <code>onError</code> callbacks, which will be called respectively when the subscription is successfully established, or when an error occurs.</li>
+<li><code>useSubscription</code> also takes an <code>onNext</code> callback, which will be called whenever a subscription payload is received.</li>
 <li>When the subscription payload is received, <strong><em>if the objects in the subscription payload have IDs, the records in the local store will <em>automatically</em> be updated with the new field values from the payload.</em></strong> In this case, it would automatically find the existing <code>Post</code> object matching the given ID in the store, and update the values for the <code>like_count</code> field.</li>
 <li>Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.</li>
 </ul>
-<p>However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>, you can provide an <code>**updater**</code> function to <strong><code>requestSubscription</code></strong> for full control over how to update the store:</p>
+<p>However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>, you can provide an <code>**updater**</code> function to <strong><code>useSubscription</code></strong> for full control over how to update the store:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
 <span class="hljs-keyword">import</span> type {CommentCreateSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">'CommentCreateSubscription.graphql'</span>;
 
-<span class="hljs-keyword">const</span> {graphql, requestSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commentCreateSubscribe</span>(<span class="hljs-params">
-  environment: Environment,
-  postID: string,
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">useCommentCreateSubscription</span>(<span class="hljs-params">
   input: CommentCreateSubscribeData,
 </span>) </span>{
-  <span class="hljs-keyword">return</span> requestSubscription(environment, {
+  <span class="hljs-keyword">const</span> subscriptionConfig = useMemo(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ({
     <span class="hljs-attr">subscription</span>: graphql<span class="hljs-string">`
       subscription CommentCreateSubscription(
         $input: CommentCreateSubscribeData!
@@ -3215,13 +3283,11 @@ type Props = {|
       <span class="hljs-comment">// Add edge to the end of the connection</span>
       ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
     },
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription established */</span>,
-    <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription errored */</span>,
-    <span class="hljs-attr">onNext</span>: <span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription payload received */</span>,
-  });
+  }));
+  useSubscription(subscriptionConfig);
 }
 
-<span class="hljs-built_in">module</span>.exports = {<span class="hljs-attr">subscribe</span>: commentCreateSubscribe};
+<span class="hljs-built_in">module</span>.exports = useCommentCreateSubscription;
 </code></pre>
 <p>Let's distill this example:</p>
 <ul>
@@ -3476,7 +3542,7 @@ disposable.dispose();
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="testing"></a><a href="#testing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing</h2>
 <p>See this guide for <a href="https://relay.dev/docs/en/testing-relay-components">Testing Relay Components</a>, which also applies for any components built using Relay Hooks.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 1/13/2020 by Jordan Eldredge</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#example-app">Example App</a></li><li><a href="#setup-and-workflow">Setup and Workflow</a><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#babel-plugin">Babel plugin</a></li><li><a href="#relay-compiler">Relay Compiler</a></li><li><a href="#config-file">Config file</a></li></ul></li><li><a href="#rendering-data-basics">Rendering Data Basics</a><ul class="toc-headings"><li><a href="#fragments">Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#queries">Queries</a></li><li><a href="#variables">Variables</a></li><li><a href="#arguments-and-argumentdefinitions"><code>@arguments</code> and <code>@argumentDefinitions</code></a></li><li><a href="#loading-states-with-suspense">Loading States with Suspense</a></li><li><a href="#error-states-with-error-boundaries">Error States with Error Boundaries</a></li><li><a href="#environment">Environment</a></li></ul></li><li><a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a><ul class="toc-headings"><li><a href="#fetch-policies">Fetch Policies</a></li><li><a href="#availability-of-cached-data">Availability of Cached Data</a></li><li><a href="#presence-of-data">Presence of Data</a></li><li><a href="#staleness-of-data">Staleness of Data</a></li><li><a href="#rendering-partially-cached-data-highly-experimental">Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</a></li><li><a href="#filling-in-missing-data-missing-data-handlers">Filling in Missing Data (Missing Data Handlers)</a></li></ul></li><li><a href="#fetching-rendering-different-data">Fetching Rendering <em>Different</em> Data</a><ul class="toc-headings"><li><a href="#refreshing-rendered-data">Refreshing Rendered Data</a></li><li><a href="#re-rendering-with-different-data">Re-rendering with Different Data</a></li></ul></li><li><a href="#rendering-list-data-and-pagination">Rendering List Data and Pagination</a><ul class="toc-headings"><li><a href="#connections">Connections</a></li><li><a href="#rendering-connections">Rendering Connections</a></li><li><a href="#pagination">Pagination</a></li><li><a href="#blocking-all-at-once-pagination">Blocking (&quot;all-at-once&quot;) Pagination</a></li><li><a href="#using-and-changing-filters">Using and Changing Filters</a></li><li><a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a></li><li><a href="#connection-records">Connection Records</a></li><li><a href="#adding-edges">Adding Edges</a></li><li><a href="#removing-edges">Removing Edges</a></li><li><a href="#connection-identity-with-filters">Connection Identity With Filters</a></li><li><a href="#advanced-pagination-use-cases">Advanced Pagination Use Cases</a></li></ul></li><li><a href="#advanced-data-fetching">Advanced Data Fetching</a><ul class="toc-headings"><li><a href="#preloading-data">Preloading Data</a></li><li><a href="#incremental-data-delivery">Incremental Data Delivery</a></li><li><a href="#data-driven-dependencies">Data-driven Dependencies</a></li><li><a href="#image-prefetching">Image Prefetching</a></li></ul></li><li><a href="#updating-data">Updating Data</a><ul class="toc-headings"><li><a href="#graphql-mutations">GraphQL Mutations</a></li><li><a href="#graphql-subscriptions">GraphQL Subscriptions</a></li><li><a href="#local-data-updates">Local Data Updates</a></li><li><a href="#client-only-data-client-schema-extensions">Client-Only Data (Client Schema Extensions)</a></li></ul></li><li><a href="#local-application-state-management">Local Application State Management</a></li><li><a href="#accessing-data-outside-react">Accessing Data Outside React</a><ul class="toc-headings"><li><a href="#fetching-queries">Fetching Queries</a></li><li><a href="#prefetching-queries">Prefetching Queries</a></li><li><a href="#subscribing-to-queries">Subscribing to Queries</a></li><li><a href="#reading-queries-from-local-cache">Reading Queries from Local Cache</a></li><li><a href="#reading-fragments-from-local-cache">Reading Fragments from Local Cache</a></li><li><a href="#retaining-queries">Retaining Queries</a></li></ul></li><li><a href="#testing">Testing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 4/13/2020 by Robert Balicki</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#example-app">Example App</a></li><li><a href="#setup-and-workflow">Setup and Workflow</a><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#babel-plugin">Babel plugin</a></li><li><a href="#relay-compiler">Relay Compiler</a></li><li><a href="#config-file">Config file</a></li></ul></li><li><a href="#rendering-data-basics">Rendering Data Basics</a><ul class="toc-headings"><li><a href="#fragments">Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#queries">Queries</a></li><li><a href="#variables">Variables</a></li><li><a href="#arguments-and-argumentdefinitions"><code>@arguments</code> and <code>@argumentDefinitions</code></a></li><li><a href="#loading-states-with-suspense">Loading States with Suspense</a></li><li><a href="#error-states-with-error-boundaries">Error States with Error Boundaries</a></li><li><a href="#environment">Environment</a></li></ul></li><li><a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a><ul class="toc-headings"><li><a href="#fetch-policies">Fetch Policies</a></li><li><a href="#availability-of-cached-data">Availability of Cached Data</a></li><li><a href="#presence-of-data">Presence of Data</a></li><li><a href="#staleness-of-data">Staleness of Data</a></li><li><a href="#rendering-partially-cached-data-highly-experimental">Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</a></li><li><a href="#filling-in-missing-data-missing-data-handlers">Filling in Missing Data (Missing Data Handlers)</a></li></ul></li><li><a href="#fetching-rendering-different-data">Fetching Rendering <em>Different</em> Data</a><ul class="toc-headings"><li><a href="#refreshing-rendered-data">Refreshing Rendered Data</a></li><li><a href="#re-rendering-with-different-data">Re-rendering with Different Data</a></li></ul></li><li><a href="#rendering-list-data-and-pagination">Rendering List Data and Pagination</a><ul class="toc-headings"><li><a href="#connections">Connections</a></li><li><a href="#rendering-connections">Rendering Connections</a></li><li><a href="#pagination">Pagination</a></li><li><a href="#blocking-all-at-once-pagination">Blocking (&quot;all-at-once&quot;) Pagination</a></li><li><a href="#using-and-changing-filters">Using and Changing Filters</a></li><li><a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a></li><li><a href="#connection-records">Connection Records</a></li><li><a href="#adding-edges">Adding Edges</a></li><li><a href="#removing-edges">Removing Edges</a></li><li><a href="#connection-identity-with-filters">Connection Identity With Filters</a></li><li><a href="#advanced-pagination-use-cases">Advanced Pagination Use Cases</a></li></ul></li><li><a href="#advanced-data-fetching">Advanced Data Fetching</a><ul class="toc-headings"><li><a href="#preloading-data">Preloading Data</a></li><li><a href="#incremental-data-delivery">Incremental Data Delivery</a></li><li><a href="#data-driven-dependencies">Data-driven Dependencies</a></li><li><a href="#image-prefetching">Image Prefetching</a></li></ul></li><li><a href="#updating-data">Updating Data</a><ul class="toc-headings"><li><a href="#graphql-mutations">GraphQL Mutations</a></li><li><a href="#graphql-subscriptions">GraphQL Subscriptions</a></li><li><a href="#local-data-updates">Local Data Updates</a></li><li><a href="#client-only-data-client-schema-extensions">Client-Only Data (Client Schema Extensions)</a></li></ul></li><li><a href="#local-application-state-management">Local Application State Management</a></li><li><a href="#accessing-data-outside-react">Accessing Data Outside React</a><ul class="toc-headings"><li><a href="#fetching-queries">Fetching Queries</a></li><li><a href="#prefetching-queries">Prefetching Queries</a></li><li><a href="#subscribing-to-queries">Subscribing to Queries</a></li><li><a href="#reading-queries-from-local-cache">Reading Queries from Local Cache</a></li><li><a href="#reading-fragments-from-local-cache">Reading Fragments from Local Cache</a></li><li><a href="#retaining-queries">Retaining Queries</a></li></ul></li><li><a href="#testing">Testing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

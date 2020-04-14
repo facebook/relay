@@ -10,8 +10,8 @@ use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, defer_stream, flatten, generate_id_field,
     generate_typename, handle_field_transform, inline_fragments, mask, match_,
-    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_unreachable_node,
-    split_module_import, transform_connections, ConnectionInterface,
+    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
+    skip_unreachable_node, split_module_import, transform_connections, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -131,6 +131,7 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
 /// Corresponds to the "print transforms" in the JS compiler
 fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
     // JS compiler
+    // + SkipSplitOperationTransform
     // - ClientExtensionsTransform
     // + SkipClientExtensionsTransform
     // + SkipUnreachableNodeTransform
@@ -141,6 +142,7 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     // - SkipUnusedVariablesTransform
     // - ValidateRequiredArgumentsTransform
 
+    let program = skip_split_operation(&program);
     let program = skip_client_extensions(&program);
     let program = skip_unreachable_node(&program);
     let program = flatten(&program, false);

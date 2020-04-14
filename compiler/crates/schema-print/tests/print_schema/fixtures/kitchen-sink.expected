@@ -1,0 +1,109 @@
+==================================== INPUT ====================================
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @extern_type(schema: String, name: String) on INTERFACE
+directive @fetchable(field_name: String) on OBJECT
+
+schema {
+  query: Query
+}
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+}
+
+type XIGStory
+  @fetchable(field_name: "id")
+  @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+
+union Actor = User | Page
+
+enum AppStoreSectionContentTypeEnum {
+  DEFAULT
+  CONCEPTS
+  EARLY_ACCESS
+}
+
+input AppVersions {
+  app_id: ID!
+  version_code: Int
+}
+
+type Page {
+  id: ID
+}
+==================================== OUTPUT ===================================
+schema {
+  query: Query
+}
+
+directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fetchable(field_name: String) on OBJECT
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+
+union Actor = User | Page
+
+enum AppStoreSectionContentTypeEnum {
+  DEFAULT
+  CONCEPTS
+  EARLY_ACCESS
+}
+
+input AppVersions {
+  app_id: ID!
+  version_code: Int
+}
+
+scalar Boolean
+
+scalar Float
+
+scalar ID
+
+scalar Int
+
+type Page {
+  id: ID
+}
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+scalar String
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}

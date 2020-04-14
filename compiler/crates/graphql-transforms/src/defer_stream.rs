@@ -43,7 +43,7 @@ lazy_static! {
     pub static ref DEFER_STREAM_CONSTANTS: DeferStreamConstants = Default::default();
 }
 
-pub fn defer_stream<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn transform_defer_stream<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
     let mut transformer = DeferStreamTransform {
         program,
         current_document_name: None,

@@ -41,7 +41,7 @@ pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
     FBConnectionInterface, OSSConnectionInterface,
 };
-pub use defer_stream::{defer_stream, DEFER_STREAM_CONSTANTS};
+pub use defer_stream::{transform_defer_stream, DEFER_STREAM_CONSTANTS};
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;
@@ -52,7 +52,7 @@ pub use handle_fields::{
 pub use hash_arguments::hash_arguments;
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
-pub use match_::{match_, split_module_import, MATCH_CONSTANTS};
+pub use match_::{split_module_import, transform_match, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;

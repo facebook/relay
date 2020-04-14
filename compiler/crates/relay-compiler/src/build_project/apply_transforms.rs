@@ -8,10 +8,10 @@
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, defer_stream, flatten, generate_id_field,
-    generate_typename, handle_field_transform, inline_fragments, mask, match_,
-    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
-    skip_unreachable_node, split_module_import, transform_connections, ConnectionInterface,
+    apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
+    handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
+    skip_redundant_nodes, skip_split_operation, skip_unreachable_node, split_module_import,
+    transform_connections, transform_defer_stream, transform_match, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -62,8 +62,8 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
 
     let program = transform_connections(program, connection_interface);
     let program = mask(&program);
-    let program = match_(&program)?;
-    defer_stream(&program)
+    let program = transform_match(&program)?;
+    transform_defer_stream(&program)
 }
 
 /// Applies transforms only for generated reader code.

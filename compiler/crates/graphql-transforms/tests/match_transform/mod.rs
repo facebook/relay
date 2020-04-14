@@ -11,7 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::{print_fragment, print_operation};
-use graphql_transforms::match_;
+use graphql_transforms::transform_match;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -35,7 +35,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     };
 
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let next_program = match_(&program).map_err(|errors| {
+    let next_program = transform_match(&program).map_err(|errors| {
         let mut errors = errors
             .into_iter()
             .map(|err| err.print(&sources))

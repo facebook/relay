@@ -19,7 +19,7 @@ use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 /// Transform and validate @match and @module
-pub fn match_<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn transform_match<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
     let mut transformer = MatchTransform::new(program);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
@@ -403,6 +403,160 @@ impl<'s> MatchTransform<'s> {
             Ok(Transformed::Keep)
         }
     }
+
+    fn validate_transform_linked_field_with_match_directive(
+        &mut self,
+        field: &LinkedField,
+        match_directive: &Directive,
+    ) -> Result<Transformed<Selection>, ValidationError> {
+        // Validate and keep track of the module key
+        let field_definition = self.program.schema().field(field.definition.item);
+        let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
+        if let Some(arg) = key_arg {
+            if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
+                if str.lookup().starts_with(self.document_name.lookup()) {
+                    self.module_key = Some(str);
+                }
+            }
+            if self.module_key.is_none() {
+                return Err(ValidationError::new(
+                    ValidationMessage::InvalidMatchKeyArgument {
+                        document_name: self.document_name,
+                    },
+                    vec![match_directive.name.location],
+                ));
+            }
+        }
+        // The linked field should be an abstract type
+        if !field_definition.type_.inner().is_abstract_type() {
+            return Err(ValidationError::new(
+                ValidationMessage::InvalidMatchNotOnUnionOrInterface {
+                    field_name: field_definition.name,
+                },
+                vec![field.definition.location],
+            ));
+        }
+
+        // The linked field definition should have: 'supported: [String]'
+        let has_supported_string = field_definition.arguments.iter().any(|argument| {
+            if argument.name == MATCH_CONSTANTS.supported_arg {
+                if let TypeReference::List(of) = argument.type_.nullable_type() {
+                    if let TypeReference::Named(of) = of.nullable_type() {
+                        return self.program.schema().is_string(*of);
+                    }
+                }
+            }
+            false
+        });
+        if !has_supported_string {
+            return Err(ValidationError::new(
+                ValidationMessage::InvalidMatchNotOnNonNullListString {
+                    field_name: field_definition.name,
+                },
+                vec![field.definition.location],
+            ));
+        }
+
+        // The supported arg shouldn't be defined by the user
+        let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg);
+        if let Some(supported_arg) = supported_arg {
+            return Err(ValidationError::new(
+                ValidationMessage::InvalidMatchNoUserSuppliedSupportedArg {
+                    supported_arg: MATCH_CONSTANTS.supported_arg,
+                },
+                vec![supported_arg.name.location],
+            ));
+        }
+
+        // Track fragment spread types that has @module
+        // Validate that there are only `__typename`, and `...spread @module` selections
+        let mut seen_types = FnvHashSet::default();
+        for selection in &field.selections {
+            match selection {
+                Selection::FragmentSpread(field) => {
+                    let has_directive_with_module = field.directives.iter().any(|directive| {
+                        directive.name.item == MATCH_CONSTANTS.module_directive_name
+                    });
+                    if has_directive_with_module {
+                        let fragment = self.program.fragment(field.fragment.item).unwrap();
+                        seen_types.insert(fragment.type_condition);
+                    } else {
+                        self.push_fragment_spread_with_module_selection_err(
+                            field.fragment.location,
+                            match_directive.name.location,
+                        );
+                    }
+                }
+                Selection::ScalarField(field) => {
+                    if field.definition.item != self.program.schema().typename_field() {
+                        self.push_fragment_spread_with_module_selection_err(
+                            field.definition.location,
+                            match_directive.name.location,
+                        );
+                    }
+                }
+                Selection::LinkedField(field) => self
+                    .push_fragment_spread_with_module_selection_err(
+                        field.definition.location,
+                        match_directive.name.location,
+                    ),
+                // TODO: no location on InlineFragment and Condition yet
+                _ => self.push_fragment_spread_with_module_selection_err(
+                    field.definition.location,
+                    match_directive.name.location,
+                ),
+            }
+        }
+        if seen_types.is_empty() {
+            return Err(ValidationError::new(
+                ValidationMessage::InvalidMatchNoModuleSelection,
+                vec![match_directive.name.location],
+            ));
+        }
+
+        let mut next_arguments = field.arguments.clone();
+        next_arguments.push(Argument {
+            name: WithLocation::new(field.definition.location, MATCH_CONSTANTS.supported_arg),
+            value: WithLocation::new(
+                field.definition.location,
+                Value::Constant(ConstantValue::List(
+                    seen_types
+                        .drain()
+                        .map(|type_| {
+                            ConstantValue::String(self.program.schema().get_type_name(type_))
+                        })
+                        .collect(),
+                )),
+            ),
+        });
+        let mut next_directives = Vec::with_capacity(field.directives.len() - 1);
+        for directive in &field.directives {
+            if directive.name.item != MATCH_CONSTANTS.match_directive_name {
+                next_directives.push(directive.clone());
+            }
+        }
+        let previous_parent_type = self.parent_type;
+        self.parent_type = field_definition.type_.inner();
+        self.path.push(Path {
+            location: field.definition.location,
+            item: field.alias_or_name(self.program.schema()),
+        });
+        let next_selections = self
+            .transform_selections(&field.selections)
+            .replace_or_else(|| field.selections.clone());
+        self.path.pop();
+        self.parent_type = previous_parent_type;
+
+        Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
+            LinkedField {
+                alias: field.alias,
+                definition: field.definition,
+                arguments: next_arguments,
+                directives: next_directives,
+                selections: next_selections,
+            },
+        ))))
+    }
 }
 
 impl<'s> Transformer for MatchTransform<'s> {
@@ -478,162 +632,27 @@ impl<'s> Transformer for MatchTransform<'s> {
 
     // Validate and transform `@match`
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let field_definition = self.program.schema().field(field.definition.item);
         let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
         self.module_key = None;
 
         // Only process fields with @match
         if let Some(match_directive) = match_directive {
-            // Validate and keep track of the module key
-            let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
-            if let Some(arg) = key_arg {
-                if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
-                    if str.lookup().starts_with(self.document_name.lookup()) {
-                        self.module_key = Some(str);
-                    }
-                }
-                if self.module_key.is_none() {
-                    self.errors.push(ValidationError::new(
-                        ValidationMessage::InvalidMatchKeyArgument {
-                            document_name: self.document_name,
-                        },
-                        vec![match_directive.name.location],
-                    ));
-                    return Transformed::Keep;
+            match self.validate_transform_linked_field_with_match_directive(field, match_directive)
+            {
+                Ok(result) => result,
+                Err(error) => {
+                    self.errors.push(error);
+                    Transformed::Keep
                 }
             }
-            // The linked field should be an abstract type
-            if !field_definition.type_.inner().is_abstract_type() {
-                self.errors.push(ValidationError::new(
-                    ValidationMessage::InvalidMatchNotOnUnionOrInterface {
-                        field_name: field_definition.name,
-                    },
-                    vec![field.definition.location],
-                ));
-                return Transformed::Keep;
-            }
-
-            // The linked field definition should have: 'supported: [String]'
-            let has_supported_string = field_definition.arguments.iter().any(|argument| {
-                if argument.name == MATCH_CONSTANTS.supported_arg {
-                    if let TypeReference::List(of) = argument.type_.nullable_type() {
-                        if let TypeReference::Named(of) = of.nullable_type() {
-                            return self.program.schema().is_string(*of);
-                        }
-                    }
-                }
-                false
-            });
-            if !has_supported_string {
-                self.errors.push(ValidationError::new(
-                    ValidationMessage::InvalidMatchNotOnNonNullListString {
-                        field_name: field_definition.name,
-                    },
-                    vec![field.definition.location],
-                ));
-                return Transformed::Keep;
-            }
-
-            // The supported arg shouldn't be defined by the user
-            let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg);
-            if let Some(supported_arg) = supported_arg {
-                self.errors.push(ValidationError::new(
-                    ValidationMessage::InvalidMatchNoUserSuppliedSupportedArg {
-                        supported_arg: MATCH_CONSTANTS.supported_arg,
-                    },
-                    vec![supported_arg.name.location],
-                ));
-                return Transformed::Keep;
-            }
-
-            // Track fragment spread types that has @module
-            // Validate that there are only `__typename`, and `...spread @module` selections
-            let mut seen_types = FnvHashSet::default();
-            for selection in &field.selections {
-                match selection {
-                    Selection::FragmentSpread(field) => {
-                        let has_directive_with_module = field.directives.iter().any(|directive| {
-                            directive.name.item == MATCH_CONSTANTS.module_directive_name
-                        });
-                        if has_directive_with_module {
-                            let fragment = self.program.fragment(field.fragment.item).unwrap();
-                            seen_types.insert(fragment.type_condition);
-                        } else {
-                            self.push_fragment_spread_with_module_selection_err(
-                                field.fragment.location,
-                                match_directive.name.location,
-                            );
-                        }
-                    }
-                    Selection::ScalarField(field) => {
-                        if field.definition.item != self.program.schema().typename_field() {
-                            self.push_fragment_spread_with_module_selection_err(
-                                field.definition.location,
-                                match_directive.name.location,
-                            );
-                        }
-                    }
-                    Selection::LinkedField(field) => self
-                        .push_fragment_spread_with_module_selection_err(
-                            field.definition.location,
-                            match_directive.name.location,
-                        ),
-                    // TODO: no location on InlineFragment and Condition yet
-                    _ => self.push_fragment_spread_with_module_selection_err(
-                        field.definition.location,
-                        match_directive.name.location,
-                    ),
-                }
-            }
-            if seen_types.is_empty() {
-                self.errors.push(ValidationError::new(
-                    ValidationMessage::InvalidMatchNoModuleSelection,
-                    vec![match_directive.name.location],
-                ));
-                return Transformed::Keep;
-            }
-            let mut next_arguments = field.arguments.clone();
-            next_arguments.push(Argument {
-                name: WithLocation::new(field.definition.location, MATCH_CONSTANTS.supported_arg),
-                value: WithLocation::new(
-                    field.definition.location,
-                    Value::Constant(ConstantValue::List(
-                        seen_types
-                            .drain()
-                            .map(|type_| {
-                                ConstantValue::String(self.program.schema().get_type_name(type_))
-                            })
-                            .collect(),
-                    )),
-                ),
-            });
-            let mut next_directives = Vec::with_capacity(field.directives.len() - 1);
-            for directive in &field.directives {
-                if directive.name.item != MATCH_CONSTANTS.match_directive_name {
-                    next_directives.push(directive.clone());
-                }
-            }
-            let previous_parent_type = self.parent_type;
-            self.parent_type = field_definition.type_.inner();
-            self.path.push(Path {
-                location: field.definition.location,
-                item: field.alias_or_name(self.program.schema()),
-            });
-            let next_selections = self
-                .transform_selections(&field.selections)
-                .replace_or_else(|| field.selections.clone());
-            self.path.pop();
-            self.parent_type = previous_parent_type;
-            Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
-                alias: field.alias,
-                definition: field.definition,
-                arguments: next_arguments,
-                directives: next_directives,
-                selections: next_selections,
-            })))
         } else {
             let previous_parent_type = self.parent_type;
-            self.parent_type = field_definition.type_.inner();
+            self.parent_type = self
+                .program
+                .schema()
+                .field(field.definition.item)
+                .type_
+                .inner();
             self.path.push(Path {
                 location: field.definition.location,
                 item: field.alias_or_name(self.program.schema()),

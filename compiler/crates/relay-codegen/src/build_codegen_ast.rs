@@ -521,7 +521,7 @@ impl<'schema> CodegenBuilder<'schema> {
         &self,
         variable_definitions: &[VariableDefinition],
     ) -> Vec<ConcreteVariableDefinition> {
-        let mut var_defs = variable_definitions
+        variable_definitions
             .iter()
             .map(|def| {
                 ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
@@ -534,10 +534,7 @@ impl<'schema> CodegenBuilder<'schema> {
                     },
                 })
             })
-            .collect::<Vec<_>>();
-
-        var_defs.sort_by_key(|var_def| var_def.name().lookup());
-        var_defs
+            .collect::<Vec<_>>()
     }
 
     fn build_fragment_variable_definitions(
@@ -563,9 +560,8 @@ impl<'schema> CodegenBuilder<'schema> {
                 type_: self.build_variable_type(&def.type_),
             })
         });
-        let mut var_defs = local_vars_iter.chain(global_vars_iter).collect::<Vec<_>>();
-        var_defs.sort_by_key(|var_def| var_def.name().lookup());
-        var_defs
+
+        local_vars_iter.chain(global_vars_iter).collect::<Vec<_>>()
     }
 
     fn build_arguments(&self, arguments: &[Argument]) -> Option<Vec<ConcreteArgument>> {

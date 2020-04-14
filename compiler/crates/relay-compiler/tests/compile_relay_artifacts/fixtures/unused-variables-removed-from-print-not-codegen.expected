@@ -33,14 +33,14 @@ fragment ConnectionFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedAfter",
-        "type": "ID"
+        "name": "unusedFirst",
+        "type": "Int"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedFirst",
-        "type": "Int"
+        "name": "unusedAfter",
+        "type": "ID"
       }
     ],
     "kind": "Fragment",
@@ -97,14 +97,14 @@ fragment ConnectionFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedAfter",
-        "type": "ID"
+        "name": "unusedFirst",
+        "type": "Int"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedFirst",
-        "type": "Int"
+        "name": "unusedAfter",
+        "type": "ID"
       }
     ],
     "kind": "Operation",

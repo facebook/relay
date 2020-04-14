@@ -48,8 +48,8 @@ fragment UserFragment on User
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "PictureSize",
-      "type": "[Int]!"
+      "name": "id",
+      "type": "ID!"
     },
     {
       "defaultValue": null,
@@ -60,8 +60,8 @@ fragment UserFragment on User
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID!"
+      "name": "PictureSize",
+      "type": "[Int]!"
     }
   ],
   "kind": "Operation",
@@ -135,11 +135,6 @@ fragment UserFragment on User
 {
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "[Int]"
-    },
-    {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "after",
@@ -158,15 +153,20 @@ fragment UserFragment on User
       "type": "Int"
     },
     {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "[Int]"
+    },
+    {
       "defaultValue": 2.0,
       "kind": "LocalArgument",
       "name": "scale",
       "type": "Float"
     },
     {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "size",
+      "kind": "RootArgument",
+      "name": "PictureSize",
       "type": "[Int]"
     }
   ],

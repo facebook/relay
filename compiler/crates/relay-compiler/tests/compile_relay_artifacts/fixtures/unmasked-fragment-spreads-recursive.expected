@@ -209,17 +209,17 @@ fragment UserProfile_user on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
+      "name": "showFirstName",
+      "type": "Boolean"
+    },
+    {
+      "kind": "RootArgument",
       "name": "ProfilePicture_SIZE",
       "type": "[Int]"
     },
     {
       "kind": "RootArgument",
       "name": "isRelative",
-      "type": "Boolean"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "showFirstName",
       "type": "Boolean"
     }
   ],

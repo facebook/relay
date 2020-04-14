@@ -46,14 +46,14 @@ type ClientUser {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "arg",
-      "type": "String"
+      "name": "id",
+      "type": "ID!"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID!"
+      "name": "arg",
+      "type": "String"
     }
   ],
   "kind": "Operation",

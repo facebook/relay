@@ -43,8 +43,8 @@ fragment UserFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "PictureSize",
-        "type": "[Int]!"
+        "name": "id",
+        "type": "ID!"
       },
       {
         "defaultValue": null,
@@ -55,8 +55,8 @@ fragment UserFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "PictureSize",
+        "type": "[Int]!"
       }
     ],
     "kind": "Fragment",
@@ -127,8 +127,8 @@ fragment UserFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "PictureSize",
-        "type": "[Int]!"
+        "name": "id",
+        "type": "ID!"
       },
       {
         "defaultValue": null,
@@ -139,8 +139,8 @@ fragment UserFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "PictureSize",
+        "type": "[Int]!"
       }
     ],
     "kind": "Operation",
@@ -380,11 +380,6 @@ fragment UserFragment_3M2EvT on User {
 {
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "[Int]"
-    },
-    {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "after",
@@ -406,6 +401,11 @@ fragment UserFragment_3M2EvT on User {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "size",
+      "type": "[Int]"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "PictureSize",
       "type": "[Int]"
     }
   ],

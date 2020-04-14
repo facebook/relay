@@ -152,12 +152,12 @@ fragment QueryFragment2 on Query {
     },
     {
       "kind": "RootArgument",
-      "name": "foo",
+      "name": "sentinel",
       "type": "Boolean!"
     },
     {
       "kind": "RootArgument",
-      "name": "sentinel",
+      "name": "foo",
       "type": "Boolean!"
     }
   ],

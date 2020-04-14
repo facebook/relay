@@ -49,8 +49,8 @@ Operation:
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "PictureSize",
-      "type": "[Int]!"
+      "name": "id",
+      "type": "ID!"
     },
     {
       "defaultValue": null,
@@ -61,8 +61,8 @@ Operation:
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID!"
+      "name": "PictureSize",
+      "type": "[Int]!"
     }
   ],
   "kind": "Operation",
@@ -162,11 +162,6 @@ var v0 = [
 return {
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "[Int]"
-    },
-    {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "after",
@@ -185,15 +180,20 @@ return {
       "type": "Int"
     },
     {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "[Int]"
+    },
+    {
       "defaultValue": 2.0,
       "kind": "LocalArgument",
       "name": "scale",
       "type": "Float"
     },
     {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "size",
+      "kind": "RootArgument",
+      "name": "PictureSize",
       "type": "[Int]"
     }
   ],

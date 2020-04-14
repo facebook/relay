@@ -16,13 +16,13 @@ fragment Example on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "friendsAfter",
-      "type": "ID"
+      "name": "friendsFirst",
+      "type": "Int"
     },
     {
       "kind": "RootArgument",
-      "name": "friendsFirst",
-      "type": "Int"
+      "name": "friendsAfter",
+      "type": "ID"
     },
     {
       "kind": "RootArgument",

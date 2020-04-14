@@ -42,14 +42,14 @@ fragment FeedbackFragment on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "commentsKey",
-        "type": "String"
+        "name": "id",
+        "type": "ID!"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "commentsKey",
+        "type": "String"
       }
     ],
     "kind": "Fragment",
@@ -87,14 +87,14 @@ fragment FeedbackFragment on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "commentsKey",
-        "type": "String"
+        "name": "id",
+        "type": "ID!"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "commentsKey",
+        "type": "String"
       }
     ],
     "kind": "Operation",
@@ -302,6 +302,12 @@ fragment FeedbackFragment on Feedback {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
         "name": "commentsKey",
         "type": "String"
       },
@@ -315,12 +321,6 @@ fragment FeedbackFragment on Feedback {
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "cursor",
-        "type": "ID!"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "id",
         "type": "ID!"
       }
     ],
@@ -370,6 +370,12 @@ fragment FeedbackFragment on Feedback {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
         "name": "commentsKey",
         "type": "String"
       },
@@ -383,12 +389,6 @@ fragment FeedbackFragment on Feedback {
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "cursor",
-        "type": "ID!"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "id",
         "type": "ID!"
       }
     ],
@@ -606,11 +606,6 @@ fragment FeedbackFragment_1G22uz on Feedback {
 {
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "commentsKey",
-      "type": "String"
-    },
-    {
       "defaultValue": 2,
       "kind": "LocalArgument",
       "name": "count",
@@ -621,6 +616,11 @@ fragment FeedbackFragment_1G22uz on Feedback {
       "kind": "LocalArgument",
       "name": "cursor",
       "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "commentsKey",
+      "type": "String"
     }
   ],
   "kind": "Fragment",

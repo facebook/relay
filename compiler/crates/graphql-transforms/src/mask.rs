@@ -6,12 +6,14 @@
  */
 
 use crate::RELAY_DIRECTIVE_CONSTANTS;
-use fnv::FnvHashMap;
+use fnv::FnvBuildHasher;
 use graphql_ir::{
     ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField,
     Selection, Transformed, Transformer, Value, VariableDefinition,
 };
-use std::collections::hash_map::Entry;
+use indexmap::{map::Entry, IndexMap};
+use interner::StringKey;
+use std::ops::RangeFull;
 use std::sync::Arc;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
@@ -21,6 +23,8 @@ pub fn mask<'s>(program: &Program<'s>) -> Program<'s> {
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
+
+type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildHasher>;
 
 struct Mask<'s> {
     program: &'s Program<'s>,
@@ -36,7 +40,7 @@ impl<'s> Mask<'s> {
     }
 
     fn join_current_arguments_to_fragment(&mut self, fragment: &mut FragmentDefinition) {
-        let mut joined_arguments = FnvHashMap::default();
+        let mut joined_arguments = JoinedArguments::default();
         for variable in &fragment.used_global_variables {
             joined_arguments.insert(variable.name.item, variable);
         }
@@ -57,8 +61,12 @@ impl<'s> Mask<'s> {
                 }
             }
         }
-        fragment.used_global_variables =
-            joined_arguments.drain().map(|(_, v)| v).cloned().collect();
+        let range = RangeFull;
+        fragment.used_global_variables = joined_arguments
+            .drain(range)
+            .map(|(_, v)| v)
+            .cloned()
+            .collect();
     }
 }
 

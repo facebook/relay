@@ -26,11 +26,6 @@ fragment PaginationFragment on Node
 {
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "beforeCursor",
-      "type": "ID"
-    },
-    {
       "defaultValue": 10,
       "kind": "LocalArgument",
       "name": "count",
@@ -40,6 +35,11 @@ fragment PaginationFragment on Node
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "cursor",
+      "type": "ID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "beforeCursor",
       "type": "ID"
     },
     {

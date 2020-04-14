@@ -29,14 +29,14 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "id",
+        "type": "ID!"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "cond",
+        "type": "Boolean!"
       },
       {
         "defaultValue": [
@@ -107,14 +107,14 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "id",
+        "type": "ID!"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "cond",
+        "type": "Boolean!"
       },
       {
         "defaultValue": [

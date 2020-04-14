@@ -36,12 +36,6 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "first",
-    "type": "Int"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
     "name": "id",
     "type": "ID!"
   },
@@ -49,6 +43,12 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "last",
+    "type": "Int"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "first",
     "type": "Int"
   }
 ],

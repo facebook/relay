@@ -296,15 +296,6 @@ pub enum ConcreteVariableDefinition {
     LocalArgument(ConcreteLocalVariableDefinition),
 }
 
-impl ConcreteVariableDefinition {
-    pub fn name(&self) -> StringKey {
-        match self {
-            ConcreteVariableDefinition::RootArgument(var_def) => var_def.name,
-            ConcreteVariableDefinition::LocalArgument(var_def) => var_def.name,
-        }
-    }
-}
-
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConcreteGlobalVariableDefinition {

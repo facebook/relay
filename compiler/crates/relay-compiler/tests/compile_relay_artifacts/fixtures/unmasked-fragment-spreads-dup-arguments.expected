@@ -88,6 +88,12 @@ fragment UserUtil3_user on User @relay(mask: false) {
 {
   "argumentDefinitions": [
     {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "localIsRelative",
+      "type": "Boolean"
+    },
+    {
       "kind": "RootArgument",
       "name": "PictureSize",
       "type": "[Int]"
@@ -95,12 +101,6 @@ fragment UserUtil3_user on User @relay(mask: false) {
     {
       "kind": "RootArgument",
       "name": "globalIsRelative",
-      "type": "Boolean"
-    },
-    {
-      "defaultValue": false,
-      "kind": "LocalArgument",
-      "name": "localIsRelative",
       "type": "Boolean"
     }
   ],

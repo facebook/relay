@@ -22,14 +22,18 @@ import type {GraphQLSubscriptionConfig} from 'relay-runtime';
 
 function useSubscription<TSubscriptionPayload>(
   config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
-) {
-  // N.B. this will re-subscribe every render if config is not memoized. Please
-  // do not pass an object defined in-line.
+  requestSubscriptionFn?: typeof requestSubscription,
+): void {
+  // N.B. this will re-subscribe every render if config or requestSubscriptionFn
+  // are not memoized.
+  // Please do not pass an object defined in-line.
+  const actualRequestSubscription =
+    requestSubscriptionFn ?? requestSubscription;
   const environment = useRelayEnvironment();
   React.useEffect(() => {
     const {dispose} = requestSubscription(environment, config);
     return dispose;
-  }, [environment, config]);
+  }, [environment, config, actualRequestSubscription]);
 }
 
 module.exports = useSubscription;

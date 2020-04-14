@@ -167,6 +167,12 @@ const users = [
     infoLink: 'https://domonda.com/',
     pinned: false,
   },
+  {
+    caption: 'SwissDev JavaScript Jobs',
+    image: '/img/logos/swissdev-javascript-jobs.png',
+    infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

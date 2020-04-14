@@ -299,6 +299,14 @@ impl Schema {
         type_ == self.id_type
     }
 
+    pub fn get_type_map(&self) -> impl Iterator<Item = (&StringKey, &Type)> {
+        self.type_map.iter()
+    }
+
+    pub fn get_directives(&self) -> impl Iterator<Item = &Directive> {
+        self.directives.values()
+    }
+
     pub fn build(
         schema_definitions: &[ast::Definition],
         client_definitions: &[ast::Definition],
@@ -1079,6 +1087,10 @@ impl ArgumentDefinitions {
 
     pub fn iter(&self) -> Iter<'_, Argument> {
         self.0.iter()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 

@@ -8,6 +8,7 @@
 #![deny(clippy::all)]
 
 use interner::StringKey;
+use std::fmt;
 
 #[derive(PartialEq, Debug, Ord, PartialOrd, Eq, Clone)]
 pub enum Type {
@@ -106,6 +107,40 @@ pub enum DirectiveLocation {
     VariableDefinition,
 }
 
+impl fmt::Display for DirectiveLocation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            DirectiveLocation::Query => f.write_fmt(format_args!("QUERY")),
+            DirectiveLocation::Mutation => f.write_fmt(format_args!("MUTATION")),
+            DirectiveLocation::Subscription => f.write_fmt(format_args!("SUBSCRIPTION")),
+            DirectiveLocation::Field => f.write_fmt(format_args!("FIELD")),
+            DirectiveLocation::FragmentDefinition => {
+                f.write_fmt(format_args!("FRAGMENT_DEFINITION"))
+            }
+            DirectiveLocation::FragmentSpread => f.write_fmt(format_args!("FRAGMENT_SPREAD")),
+            DirectiveLocation::InlineFragment => f.write_fmt(format_args!("INLINE_FRAGMENT")),
+            DirectiveLocation::Schema => f.write_fmt(format_args!("SCHEMA")),
+            DirectiveLocation::Scalar => f.write_fmt(format_args!("SCALAR")),
+            DirectiveLocation::Object => f.write_fmt(format_args!("OBJECT")),
+            DirectiveLocation::FieldDefinition => f.write_fmt(format_args!("FIELD_DEFINITION")),
+            DirectiveLocation::ArgumentDefinition => {
+                f.write_fmt(format_args!("ARGUMENT_DEFINITION"))
+            }
+            DirectiveLocation::Interface => f.write_fmt(format_args!("INTERFACE")),
+            DirectiveLocation::Union => f.write_fmt(format_args!("UNION")),
+            DirectiveLocation::Enum => f.write_fmt(format_args!("ENUM")),
+            DirectiveLocation::EnumValue => f.write_fmt(format_args!("ENUM_VALUE")),
+            DirectiveLocation::InputObject => f.write_fmt(format_args!("INPUT_OBJECT")),
+            DirectiveLocation::InputFieldDefinition => {
+                f.write_fmt(format_args!("INPUT_FIELD_DEFINITION"))
+            }
+            DirectiveLocation::VariableDefinition => {
+                f.write_fmt(format_args!("VARIABLE_DEFINITION"))
+            }
+        }
+    }
+}
+
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum OperationType {
     Query,
@@ -139,6 +174,17 @@ pub enum Value {
     Float(String),
     List(ListValue),
     Object(ObjectValue),
+}
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &*self {
+            Value::String(value) | Value::Int(value) | Value::Float(value) => {
+                f.write_fmt(format_args!("{:?}", value))
+            }
+            Value::Enum(value) => f.write_fmt(format_args!("{}", value.lookup())),
+            _ => f.write_fmt(format_args!("{}", *self)),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

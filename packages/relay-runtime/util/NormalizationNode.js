@@ -167,7 +167,6 @@ export type NormalizationDefer = {|
   +if: string | null,
   +kind: 'Defer',
   +label: string,
-  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 

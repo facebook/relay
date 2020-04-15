@@ -210,7 +210,6 @@ function generateDefer(schema: Schema, node: Defer): NormalizationDefer {
         : null,
     kind: 'Defer',
     label: node.label,
-    metadata: node.metadata,
     selections: generateSelections(schema, node.selections),
   };
 }

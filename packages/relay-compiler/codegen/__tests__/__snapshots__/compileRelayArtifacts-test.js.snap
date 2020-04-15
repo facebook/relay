@@ -3630,7 +3630,6 @@ Request {
           Defer {
             if: null,
             label: "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback",
-            metadata: null,
             selections: [
               InlineFragment {
                 selections: [
@@ -3699,7 +3698,6 @@ Request {
           Defer {
             if: null,
             label: "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback",
-            metadata: null,
             selections: [
               InlineFragment {
                 selections: [
@@ -5486,7 +5484,6 @@ Request {
           Defer {
             if: null,
             label: "UserFragment$defer$DeferredFragmentLabel",
-            metadata: null,
             selections: [
               ScalarField {
                 alias: null,
@@ -5717,7 +5714,6 @@ Request {
           Defer {
             if: null,
             label: "UserFragment$defer$DeferredFragment_4edD5n",
-            metadata: null,
             selections: [
               ScalarField {
                 alias: null,
@@ -5757,7 +5753,6 @@ Request {
           Defer {
             if: null,
             label: "UserFragment$defer$DeferredFragment_2gdat4",
-            metadata: null,
             selections: [
               ScalarField {
                 alias: null,
@@ -6012,7 +6007,6 @@ Request {
           Defer {
             if: null,
             label: "QueryWithFragmentWithDefer$defer$node",
-            metadata: null,
             selections: [
               ScalarField {
                 alias: null,
@@ -15274,9 +15268,6 @@ Request {
                   Defer {
                     if: null,
                     label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo",
-                    metadata: {
-                      "fragmentTypeCondition": "FriendsConnection",
-                    },
                     selections: [
                       LinkedField {
                         alias: null,
@@ -16641,9 +16632,6 @@ Request {
                   Defer {
                     if: null,
                     label: "NodeQuery$defer$comments$pageInfo",
-                    metadata: {
-                      "fragmentTypeCondition": "CommentsConnection",
-                    },
                     selections: [
                       LinkedField {
                         alias: null,

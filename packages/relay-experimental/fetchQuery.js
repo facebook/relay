@@ -67,7 +67,7 @@ import type {
  * from the server.
  *
  * ```
- * fetchQuery(environment, query, variables).then((data) => {
+ * fetchQuery(environment, query, variables).toPromise().then((data) => {
  *   // ...
  * });
  * ```

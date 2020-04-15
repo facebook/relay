@@ -18,10 +18,6 @@
  * the same objects for the duplicate subtrees.
  */
 function dedupeJSONStringify(jsonValue: mixed): string {
-  // Clone the object to convert references to the same object instance into
-  // copies. This is needed for the WeakMap/Map to recognize them as duplicates.
-  // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
-  jsonValue = JSON.parse(JSON.stringify(jsonValue));
   const metadataForHash = new Map();
   const metadataForVal = new WeakMap();
   const varDefs = [];
@@ -36,8 +32,9 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   // equivalent values have the *same reference* to the same metadata. Note that
   // the hashes generated are not exactly JSON, but still identify equivalent
   // values. Runs in linear time due to hashing in a bottom-up recursion.
-  function collectMetadata(value) {
+  function collectMetadata(value): string {
     if (value == null || typeof value !== 'object') {
+      // $FlowFixMe - JSON.stringify can return undefined
       return JSON.stringify(value);
     }
     let hash;
@@ -56,7 +53,12 @@ function dedupeJSONStringify(jsonValue: mixed): string {
     }
     let metadata = metadataForHash.get(hash);
     if (!metadata) {
-      metadata = {value, hash, isDuplicate: false};
+      metadata = ({value, hash, count: 0}: {|
+        value: mixed,
+        hash: string,
+        count: number,
+        varName?: string,
+      |});
       metadataForHash.set(hash, metadata);
     }
     metadataForVal.set(value, metadata);
@@ -71,9 +73,11 @@ function dedupeJSONStringify(jsonValue: mixed): string {
     }
     const metadata = metadataForVal.get(value);
     // Only consider duplicates with hashes longer than 2 (excludes [] and {}).
-    if (metadata && metadata.value !== value && metadata.hash.length > 2) {
-      metadata.isDuplicate = true;
-      return;
+    if (metadata && metadata.hash.length > 2) {
+      metadata.count++;
+      if (metadata.count > 1) {
+        return;
+      }
     }
     if (Array.isArray(value)) {
       for (let i = 0; i < value.length; i++) {
@@ -89,20 +93,22 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   }
 
   // Stringify JS, replacing duplicates with variable references.
-  function printJSCode(isDupedVar, depth, value) {
+  function printJSCode(isDupedVar, depth, value): string {
     if (value == null || typeof value !== 'object') {
+      // $FlowFixMe: JSON.stringify can return undefined
       return JSON.stringify(value);
     }
     // Only use variable references at depth beyond the top level.
     if (depth !== '') {
       const metadata = metadataForVal.get(value);
-      if (metadata && metadata.isDuplicate) {
-        if (!metadata.varName) {
+      if (metadata && metadata.count > 1) {
+        let varName = metadata.varName;
+        if (varName == null) {
           const refCode = printJSCode(true, '', value);
-          metadata.varName = 'v' + varDefs.length;
+          varName = metadata.varName = 'v' + varDefs.length;
           varDefs.push(metadata.varName + ' = ' + refCode);
         }
-        return '(' + metadata.varName + '/*: any*/)';
+        return '(' + varName + '/*: any*/)';
       }
     }
     let str;

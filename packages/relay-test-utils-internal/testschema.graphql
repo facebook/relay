@@ -684,6 +684,13 @@ type NonNodeStory implements FeedUnit @fetchable(field_name: "fetch_id") {
   fetch_id: ID!
   message: Text
   tracking: String
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
 }
 
 type PhotoStory implements FeedUnit & Node {

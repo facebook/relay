@@ -74,6 +74,7 @@ function useBlockingPaginationFragment<
   const {
     connectionPathInFragmentData,
     fragmentRefPathInResponse,
+    identifierField,
     paginationRequest,
     paginationMetadata,
     stream,
@@ -100,35 +101,37 @@ function useBlockingPaginationFragment<
   // Backward pagination
   const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore<TQuery>(
     {
-      direction: 'backward',
-      fragmentNode,
-      fragmentRef,
-      fragmentIdentifier,
-      fragmentData,
+      componentDisplayName,
       connectionPathInFragmentData,
-      fragmentRefPathInResponse,
-      paginationRequest,
-      paginationMetadata,
+      direction: 'backward',
       disableStoreUpdates,
       enableStoreUpdates,
-      componentDisplayName,
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      fragmentRefPathInResponse,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
     },
   );
 
   // Forward pagination
   const [loadNext, hasNext, disposeFetchNext] = useLoadMore<TQuery>({
-    direction: 'forward',
-    fragmentNode,
-    fragmentRef,
-    fragmentIdentifier,
-    fragmentData,
+    componentDisplayName,
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
-    paginationRequest,
-    paginationMetadata,
+    direction: 'forward',
     disableStoreUpdates,
     enableStoreUpdates,
-    componentDisplayName,
+    fragmentData,
+    fragmentIdentifier,
+    fragmentNode,
+    fragmentRef,
+    fragmentRefPathInResponse,
+    identifierField,
+    paginationMetadata,
+    paginationRequest,
   });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(

@@ -437,13 +437,24 @@ describe('usePaginationFragment', () => {
       const [owner, _setOwner] = useState(props.owner);
       const [_, _setCount] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
-      const artificialUserRef = useMemo(
+      const nodeUserRef = useMemo(
         () => environment.lookup(owner.fragment).data?.node,
         [owner],
       );
+      const ownerOperationRef = useMemo(
+        () => ({
+          [ID_KEY]:
+            owner.request.variables.id ?? owner.request.variables.nodeID,
+          [FRAGMENTS_KEY]: {
+            [fragment.name]: {},
+          },
+          [FRAGMENT_OWNER_KEY]: owner.request,
+        }),
+        [owner, fragment.name],
+      );
       const userRef = props.hasOwnProperty('userRef')
         ? props.userRef
-        : artificialUserRef;
+        : nodeUserRef ?? ownerOperationRef;
 
       setOwner = _setOwner;
 
@@ -3987,6 +3998,186 @@ describe('usePaginationFragment', () => {
             hasPrevious: false,
           },
         ]);
+      });
+    });
+
+    describe('paginating @fetchable types', () => {
+      let gqlRefetchQuery;
+
+      beforeEach(() => {
+        const generated = generateAndCompile(
+          `
+            fragment StoryFragment on NonNodeStory
+            @argumentDefinitions(
+              count: {type: "Int", defaultValue: 10},
+              cursor: {type: "ID"}
+            )
+            @refetchable(queryName: "StoryFragmentRefetchQuery") {
+              comments(first: $count, after: $cursor) @connection(key: "StoryFragment_comments") {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+
+            query StoryQuery($id: ID!) {
+              nonNodeStory(id: $id) {
+                ...StoryFragment
+              }
+            }
+          `,
+        );
+        const fetchVariables = {id: 'a'};
+        gqlQuery = generated.StoryQuery;
+        gqlRefetchQuery = generated.StoryFragmentRefetchQuery;
+        gqlPaginationQuery = generated.StoryFragmentRefetchQuery;
+        gqlFragment = generated.StoryFragment;
+        invariant(
+          gqlFragment.metadata?.refetch?.operation ===
+            '@@MODULE_START@@StoryFragmentRefetchQuery.graphql@@MODULE_END@@',
+          'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
+        );
+        // Manually set the refetchable operation for the test.
+        gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
+
+        query = createOperationDescriptor(gqlQuery, fetchVariables);
+
+        environment.commitPayload(query, {
+          nonNodeStory: {
+            __typename: 'NonNodeStory',
+            id: 'a',
+            fetch_id: 'fetch:a',
+            comments: {
+              edges: [
+                {
+                  cursor: 'edge:0',
+                  node: {
+                    __typename: 'Comment',
+                    id: 'comment:0',
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'edge:0',
+                hasNextPage: true,
+              },
+            },
+          },
+        });
+      });
+
+      it('loads and renders next items in connection', () => {
+        const callback = jest.fn();
+        const renderer = renderFragment();
+        const initialData = {
+          fetch_id: 'fetch:a',
+          comments: {
+            edges: [
+              {
+                cursor: 'edge:0',
+                node: {
+                  __typename: 'Comment',
+                  id: 'comment:0',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'edge:0',
+              hasNextPage: true,
+            },
+          },
+        };
+        expectFragmentResults([
+          {
+            data: initialData,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          loadNext(1, {onComplete: callback});
+        });
+        const paginationVariables = {
+          id: 'fetch:a',
+          cursor: 'edge:0',
+          count: 1,
+        };
+        expectFragmentIsLoadingMore(renderer, 'forward', {
+          data: initialData,
+          hasNext: true,
+          hasPrevious: false,
+          paginationVariables,
+          gqlPaginationQuery,
+        });
+        expect(callback).toBeCalledTimes(0);
+
+        environment.mock.resolve(gqlPaginationQuery, {
+          data: {
+            fetch__NonNodeStory: {
+              id: 'a',
+              fetch_id: 'fetch:a',
+              comments: {
+                edges: [
+                  {
+                    cursor: 'edge:1',
+                    node: {
+                      __typename: 'Comment',
+                      id: 'comment:1',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'edge:1',
+                  hasNextPage: true,
+                },
+              },
+            },
+          },
+        });
+
+        const expectedData = {
+          ...initialData,
+          comments: {
+            edges: [
+              ...initialData.comments.edges,
+              {
+                cursor: 'edge:1',
+                node: {
+                  __typename: 'Comment',
+                  id: 'comment:1',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'edge:1',
+              hasNextPage: true,
+            },
+          },
+        };
+        expectFragmentResults([
+          {
+            // First update has updated connection
+            data: expectedData,
+            isLoadingNext: true,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+          {
+            // Second update sets isLoading flag back to false
+            data: expectedData,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
       });
     });
   });

@@ -61,6 +61,7 @@ export type UseLoadMoreFunctionArgs = {|
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -84,6 +85,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
     componentDisplayName,
     observer,
     onReset,
+    identifierField,
   } = args;
   const environment = useRelayEnvironment();
   const {
@@ -93,7 +95,12 @@ function useLoadMoreFunction<TQuery: OperationType>(
     completeFetch,
   } = useFetchTrackingRef();
   // $FlowFixMe
-  const dataID = fragmentData?.id;
+  const identifierValue =
+    identifierField != null &&
+    fragmentData != null &&
+    typeof fragmentData === 'object'
+      ? fragmentData[identifierField]
+      : null;
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
   const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] = useState(
@@ -206,21 +213,22 @@ function useLoadMoreFunction<TQuery: OperationType>(
         paginationMetadata,
       );
 
-      // TODO (T40777961): Tweak output of @refetchable transform to more
-      // easily tell if we need an $id in the refetch vars
-      if (fragmentRefPathInResponse.includes('node')) {
+      // If the query needs an identifier value ('id' or similar) and one
+      // was not explicitly provided, read it from the fragment data.
+      if (identifierField != null) {
         // @refetchable fragments are guaranteed to have an `id` selection
-        // if the type is Node or implements Node. Double-check that there
-        // actually is a value at runtime.
-        if (typeof dataID !== 'string') {
+        // if the type is Node, implements Node, or is @fetchable. Double-check
+        // that there actually is a value at runtime.
+        if (typeof identifierValue !== 'string') {
           warning(
             false,
             'Relay: Expected result to have a string  ' +
-              '`id` in order to refetch/paginate, got `%s`.',
-            dataID,
+              '`%s` in order to refetch, got `%s`.',
+            identifierField,
+            identifierValue,
           );
         }
-        paginationVariables.id = dataID;
+        paginationVariables.id = identifierValue;
       }
 
       const paginationQuery = createOperationDescriptor(
@@ -253,7 +261,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       environment,
-      dataID,
+      identifierValue,
       direction,
       cursor,
       startFetch,

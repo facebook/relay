@@ -73,6 +73,7 @@ function usePaginationFragment<
     fragmentRefPathInResponse,
     paginationRequest,
     paginationMetadata,
+    identifierField,
   } = getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
@@ -88,16 +89,17 @@ function usePaginationFragment<
     isLoadingPrevious,
     disposeFetchPrevious,
   ] = useLoadMore<TQuery>({
+    componentDisplayName,
+    connectionPathInFragmentData,
     direction: 'backward',
+    fragmentData,
+    fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    fragmentIdentifier,
-    fragmentData,
-    connectionPathInFragmentData,
     fragmentRefPathInResponse,
-    paginationRequest,
+    identifierField,
     paginationMetadata,
-    componentDisplayName,
+    paginationRequest,
   });
 
   // Forward pagination
@@ -107,16 +109,17 @@ function usePaginationFragment<
     isLoadingNext,
     disposeFetchNext,
   ] = useLoadMore<TQuery>({
+    componentDisplayName,
+    connectionPathInFragmentData,
     direction: 'forward',
+    fragmentData,
+    fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    fragmentIdentifier,
-    fragmentData,
-    connectionPathInFragmentData,
     fragmentRefPathInResponse,
-    paginationRequest,
+    identifierField,
     paginationMetadata,
-    componentDisplayName,
+    paginationRequest,
   });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(

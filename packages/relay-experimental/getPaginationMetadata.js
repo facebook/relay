@@ -28,6 +28,7 @@ function getPaginationMetadata(
 ): {|
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   stream: boolean,
@@ -58,9 +59,15 @@ function getPaginationMetadata(
     componentDisplayName,
     fragmentNode.name,
   );
+  const identifierField = refetchMetadata.identifierField;
+  invariant(
+    identifierField == null || typeof identifierField === 'string',
+    'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
+  );
   return {
     connectionPathInFragmentData,
     fragmentRefPathInResponse,
+    identifierField,
     paginationRequest,
     paginationMetadata,
     stream: connectionMetadata.stream === true,

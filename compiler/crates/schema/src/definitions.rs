@@ -444,7 +444,7 @@ impl Schema {
             name: schema.typename_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::Named(string_type),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
         });
 
@@ -454,7 +454,7 @@ impl Schema {
             name: schema.clientid_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::Named(id_type),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
         });
 

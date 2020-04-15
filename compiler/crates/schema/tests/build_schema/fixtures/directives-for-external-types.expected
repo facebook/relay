@@ -277,8 +277,10 @@ fields: [
         name: "__typename",
         is_extension: false,
         arguments: [],
-        type_: Named(
-            Scalar(2),
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
         ),
         directives: [],
     },
@@ -286,8 +288,10 @@ fields: [
         name: "__id",
         is_extension: false,
         arguments: [],
-        type_: Named(
-            Scalar(4),
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
         ),
         directives: [],
     },

@@ -27,10 +27,15 @@ import type {
   IEnvironment,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 
 export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
   subscription: GraphQLTaggedNode,
   variables: Variables,
   onCompleted?: ?() => void,
@@ -47,7 +52,14 @@ function requestSubscription<TSubscriptionPayload>(
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error('requestSubscription: Must use Subscription operation');
   }
-  const {configs, onCompleted, onError, onNext, variables} = config;
+  const {
+    configs,
+    onCompleted,
+    onError,
+    onNext,
+    variables,
+    cacheConfig,
+  } = config;
   const operation = createOperationDescriptor(subscription, variables);
 
   warning(
@@ -68,6 +80,7 @@ function requestSubscription<TSubscriptionPayload>(
     .execute({
       operation,
       updater,
+      cacheConfig,
     })
     .map(() => {
       const data = environment.lookup(operation.fragment).data;

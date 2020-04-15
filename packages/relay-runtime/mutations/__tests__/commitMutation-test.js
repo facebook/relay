@@ -1420,3 +1420,96 @@ describe('commitMutation()', () => {
     expect(onError.mock.calls[0][0]).toBe(error);
   });
 });
+
+describe('commitMutation() cacheConfig', () => {
+  let cacheConfig;
+  let environment;
+  let fragment;
+  let mutation;
+  let variables;
+
+  beforeEach(() => {
+    ({
+      CreateCommentMutation: mutation,
+      CommentFragment: fragment,
+    } = generateAndCompile(`
+        mutation CreateCommentMutation($input: CommentCreateInput!) {
+          commentCreate(input: $input) {
+            comment {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+        fragment CommentFragment on Comment {
+          id
+          body {
+            text
+          }
+        }
+      `));
+    variables = {
+      input: {
+        clientMutationId: '0',
+        feedbackId: '1',
+      },
+    };
+
+    cacheConfig = undefined;
+    const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      cacheConfig = _cacheConfig;
+      return RelayObservable.create(() => {});
+    });
+    const source = RelayRecordSource.create({});
+    const store = new RelayModernStore(source);
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+    });
+  });
+
+  it('with cacheConfig', () => {
+    const operation = createOperationDescriptor(mutation, variables);
+    const initialSnapshot = environment.lookup(
+      createReaderSelector(fragment, '1', {}, operation.request),
+    );
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    const metadata = {
+      text: 'Gave Relay',
+    };
+
+    commitMutation(environment, {
+      cacheConfig: {
+        force: false, // should be overriden with false
+        metadata,
+      },
+      mutation,
+      variables,
+    });
+
+    expect(cacheConfig).toEqual({
+      force: true,
+      metadata,
+    });
+  });
+
+  it('without cacheConfig', () => {
+    const operation = createOperationDescriptor(mutation, variables);
+    const initialSnapshot = environment.lookup(
+      createReaderSelector(fragment, '1', {}, operation.request),
+    );
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    commitMutation(environment, {
+      mutation,
+      variables,
+    });
+
+    expect(cacheConfig).toEqual({force: true});
+  });
+});

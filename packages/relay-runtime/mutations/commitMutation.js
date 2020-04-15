@@ -32,11 +32,16 @@ import type {
   IEnvironment,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
 export type DEPRECATED_MutationConfig<T> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
@@ -56,6 +61,7 @@ export type MutationParameters = {|
 
 export type MutationConfig<T: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
@@ -98,7 +104,14 @@ function commitMutation<T: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {configs, onError, onUnsubscribe, variables, uploadables} = config;
+  const {
+    configs,
+    cacheConfig,
+    onError,
+    onUnsubscribe,
+    variables,
+    uploadables,
+  } = config;
   const operation = createOperationDescriptor(
     mutation,
     variables,
@@ -131,6 +144,7 @@ function commitMutation<T: MutationParameters>(
   const errors = [];
   const subscription = environment
     .executeMutation({
+      cacheConfig,
       operation,
       optimisticResponse,
       optimisticUpdater,

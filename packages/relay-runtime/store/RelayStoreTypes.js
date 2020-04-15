@@ -578,6 +578,7 @@ export interface IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({|
+    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,

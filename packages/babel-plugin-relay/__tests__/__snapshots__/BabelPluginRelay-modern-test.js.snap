@@ -213,7 +213,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: BabelPluginRelay: Expected exactly one definition per graphql tag.
+Error: /test.js: BabelPluginRelay: Expected exactly one definition per graphql tag.
 `;
 
 exports[`matches expected output: unexpected-fragment.error.txt 1`] = `
@@ -249,7 +249,7 @@ const testMutation = graphql\`
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: BabelPluginRelay: Expected exactly one definition per graphql tag.
+Error: /test.js: BabelPluginRelay: Expected exactly one definition per graphql tag.
 `;
 
 exports[`matches expected output: unexpected-operation.error.txt 1`] = `
@@ -278,5 +278,5 @@ const testFragment = graphql\`
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: BabelPluginRelay: Expected exactly one definition per graphql tag.
+Error: /test.js: BabelPluginRelay: Expected exactly one definition per graphql tag.
 `;

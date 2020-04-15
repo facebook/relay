@@ -26,7 +26,8 @@ function transformerWithOptions(
       process.env.BABEL_ENV = environment;
       const code = babel.transform(text, {
         compact: false,
-        filename: filename || providedFileName,
+        cwd: '/',
+        filename: filename || providedFileName || 'test.js',
         highlightCode: false,
         parserOpts: {plugins: ['jsx']},
         plugins: [[BabelPluginRelay, options]],

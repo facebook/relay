@@ -8,7 +8,7 @@
 use crate::handle_fields::HandleFieldConstants;
 use common::{Location, WithLocation};
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use interner::StringKey;
+use interner::{Intern, StringKey};
 
 pub struct HandleFieldDirectiveArgs<'s> {
     pub handler_arg: Option<(&'s Argument, &'s ConstantValue)>,
@@ -90,7 +90,7 @@ pub fn extract_values_from_handle_field_directive(
             ConstantValue::String(string_val) => *string_val,
             _ => unreachable!("Expected key_arg to have been previously validated."),
         },
-        None => unreachable!("Expected key_arg to have been previously validated."),
+        None => "".intern(),
     };
     let handle= match handler_arg {
         Some((_, value)) => match value {
@@ -142,6 +142,7 @@ pub fn extract_values_from_handle_field_directive(
 pub fn build_handle_field_directive(
     handle_field_directive: &Directive,
     handle_field_constants: HandleFieldConstants,
+    handle_field_constants_for_extracting: HandleFieldConstants,
     // TODO(T63626569): Add support for derived locations
     empty_location: &Location,
     default_handler: Option<StringKey>,
@@ -154,7 +155,7 @@ pub fn build_handle_field_directive(
         dynamic_key,
     } = extract_values_from_handle_field_directive(
         handle_field_directive,
-        handle_field_constants,
+        handle_field_constants_for_extracting,
         default_handler,
         default_filters,
     );

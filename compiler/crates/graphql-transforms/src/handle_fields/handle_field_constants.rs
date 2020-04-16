@@ -22,7 +22,7 @@ impl Default for HandleFieldConstants {
         Self {
             handle_field_directive_name: "__clientField".intern(),
 
-            handler_arg_name: "handler".intern(),
+            handler_arg_name: "handle".intern(),
             filters_arg_name: "filters".intern(),
             key_arg_name: "key".intern(),
             dynamic_key_arg_name: "dynamicKey_UNSTABLE".intern(),

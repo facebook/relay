@@ -17,7 +17,7 @@ use graphql_ir::{
     Directive, FragmentDefinition, LinkedField, OperationDefinition, Program, Selection,
     Transformed, Transformer,
 };
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use std::sync::Arc;
 
 pub fn transform_connections<'s, TConnectionInterface: ConnectionInterface>(
@@ -37,18 +37,24 @@ struct ConnectionTransform<'s, TConnectionInterface: ConnectionInterface> {
     current_connection_metadata: Vec<ConnectionMetadata>,
     empty_location: Location,
     handle_field_constants: HandleFieldConstants,
+    handle_field_constants_for_connection: HandleFieldConstants,
     program: &'s Program<'s>,
 }
 
 impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TConnectionInterface> {
     fn new(program: &'s Program<'s>, connection_interface: &'s TConnectionInterface) -> Self {
+        let handle_field_constants = HandleFieldConstants::default();
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
             current_path: None,
             current_connection_metadata: Vec::new(),
             empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
-            handle_field_constants: HandleFieldConstants::default(),
+            handle_field_constants,
+            handle_field_constants_for_connection: HandleFieldConstants {
+                handler_arg_name: "handler".intern(),
+                ..handle_field_constants
+            },
             program,
         }
     }
@@ -211,6 +217,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
         let connection_handle_directive = build_handle_field_directive(
             connection_directive,
             self.handle_field_constants,
+            self.handle_field_constants_for_connection,
             &self.empty_location,
             Some(self.connection_constants.connection_directive_name),
             get_default_filters(connection_field, self.connection_constants),

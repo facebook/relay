@@ -13,7 +13,7 @@ fragment Example on User {
 }
 ==================================== OUTPUT ===================================
 fragment Example on User @__connectionMetadata(__connectionMetadataArgument: [[["friends"], "forward", "friendsAfter", "friendsFirst", false]]) {
-  friends(first: $friendsFirst, after: $friendsAfter) @connection @__clientField(key: "Example_friends", handler: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+  friends(first: $friendsFirst, after: $friendsAfter) @connection @__clientField(key: "Example_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
     edges {
       node {
         profilePicture(preset: $preset) {

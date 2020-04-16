@@ -24,7 +24,7 @@ query NodeQuery(
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handler: "connection", filters: , dynamicKey_UNSTABLE: null) {
+      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handle: "connection", filters: , dynamicKey_UNSTABLE: null) {
         edges {
           node {
             actor {

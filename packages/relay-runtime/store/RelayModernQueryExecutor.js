@@ -29,7 +29,7 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
   GraphQLResponse,
-  GraphQLResponseWithoutData,
+  GraphQLSingularResponse,
   GraphQLResponseWithData,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
@@ -301,16 +301,26 @@ class Executor {
   }
 
   _handleErrorResponse(
-    responses: $ReadOnlyArray<
-      GraphQLResponseWithData | GraphQLResponseWithoutData,
-    >,
+    responses: $ReadOnlyArray<GraphQLSingularResponse>,
   ): $ReadOnlyArray<GraphQLResponseWithData> {
-    // Once thing to notice here: if one of the responses in array has errors
-    // All batch will be ignored.
-    return responses.map(response => {
-      if (response.data == null) {
-        const messages = response.errors
-          ? response.errors.map(({message}) => message).join('\n')
+    const results = [];
+    responses.forEach(response => {
+      if (
+        response.data === null &&
+        response.extensions != null &&
+        !response.hasOwnProperty('errors')
+      ) {
+        // Skip extensions-only payloads
+        return;
+      } else if (response.data == null) {
+        // Error if any other payload in the batch is missing data, regardless of whether
+        // it had `errors` or not.
+        const errors =
+          response.hasOwnProperty('errors') && response.errors != null
+            ? response.errors
+            : null;
+        const messages = errors
+          ? errors.map(({message}) => message).join('\n')
           : '(No errors)';
         const error = RelayError.create(
           'RelayNetwork',
@@ -321,15 +331,17 @@ class Executor {
             '\n\nSee the error `source` property for more information.',
         );
         (error: $FlowFixMe).source = {
-          errors: response.errors,
+          errors,
           operation: this._operation.request.node,
           variables: this._operation.request.variables,
         };
         throw error;
+      } else {
+        const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
+        results.push(responseWithData);
       }
-      const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
-      return responseWithData;
     });
+    return results;
   }
 
   /**
@@ -370,9 +382,21 @@ class Executor {
       return;
     }
 
-    const responsesWithData = this._handleErrorResponse(
-      Array.isArray(response) ? response : [response],
-    );
+    const responses = Array.isArray(response) ? response : [response];
+    const responsesWithData = this._handleErrorResponse(responses);
+
+    if (responsesWithData.length === 0) {
+      // no results with data, nothing to process
+      // this can occur with extensions-only payloads
+      const isFinal = responses.some(x => x.extensions?.is_final === true);
+      if (isFinal) {
+        this._state = 'loading_final';
+        this._updateActiveState();
+        this._incrementalPayloadsPending = false;
+      }
+      this._sink.next(response);
+      return;
+    }
 
     // Next, handle optimistic responses
     const isOptimistic = this._handleOptimisticResponses(responsesWithData);

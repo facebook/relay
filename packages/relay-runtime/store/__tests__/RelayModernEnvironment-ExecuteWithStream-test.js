@@ -210,6 +210,54 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
+  it('processes streamed payloads mixed with extensions-only payloads', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    const extensionsPayload = {data: null, extensions: {foo: 'foo'}};
+    dataSource.next(extensionsPayload);
+    expect(next).toBeCalledTimes(1);
+    expect(next.mock.calls[0][0]).toBe(extensionsPayload);
+    expect(callback).toBeCalledTimes(0);
+    next.mockClear();
+
+    dataSource.next({
+      data: {
+        __typename: 'User',
+        id: '2',
+        name: 'Alice',
+      },
+      label: 'FeedbackFragment$stream$actors',
+      path: ['node', 'actors', 0],
+    });
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      actors: [{name: 'ALICE'}],
+    });
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+  });
+
   it('processes batched streamed payloads (with use_customized_batch)', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
@@ -1070,6 +1118,42 @@ describe('execute() a query with @stream', () => {
     expect(complete).toBeCalledTimes(1);
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+  });
+
+  it('calls next() with extensions-only payloads', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '1',
+          actors: [],
+        },
+      },
+    });
+    jest.runAllTimers();
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    next.mockClear();
+
+    const payload = {
+      data: null,
+      extensions: {},
+    };
+    dataSource.next(payload);
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(payload);
     expect(callback).toBeCalledTimes(1);
   });
 

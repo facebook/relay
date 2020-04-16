@@ -206,4 +206,26 @@ describe('execute() with Observable network', () => {
       },
     });
   });
+
+  it('calls next() with extensions-only payloads', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    const payload1 = {data: null, extensions: {}};
+    const payload2 = {data: null, extensions: {is_final: true}};
+    subject.next(payload1);
+    jest.runAllTimers();
+    expect(error).not.toBeCalled();
+    expect(complete).not.toBeCalled();
+    expect(next.mock.calls.length).toBe(1);
+    const response = next.mock.calls[0][0];
+    expect(response).toBe(payload1);
+    next.mockClear();
+
+    subject.next(payload2);
+    jest.runAllTimers();
+    expect(error).not.toBeCalled();
+    expect(complete).not.toBeCalled();
+    expect(next.mock.calls.length).toBe(1);
+    const response2 = next.mock.calls[0][0];
+    expect(response2).toBe(payload2);
+  });
 });

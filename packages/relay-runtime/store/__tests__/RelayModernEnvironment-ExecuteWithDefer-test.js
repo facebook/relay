@@ -171,6 +171,53 @@ describe('execute() a query with @defer', () => {
     });
   });
 
+  it('processes deferred payloads mixed with extensions-only payloads', () => {
+    const initialSnapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        node: {
+          id: '1',
+          __typename: 'User',
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    const extensionsPayload = {data: null, extensions: {foo: 'foo'}};
+    dataSource.next(extensionsPayload);
+    expect(callback).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+    expect(next.mock.calls[0][0]).toBe(extensionsPayload);
+    next.mockClear();
+
+    dataSource.next({
+      data: {
+        id: '1',
+        __typename: 'User',
+        name: 'joe',
+      },
+      label: 'UserQuery$defer$UserFragment',
+      path: ['node'],
+    });
+
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      id: '1',
+      name: 'JOE',
+    });
+  });
+
   it('processes deferred payloads with scheduling', () => {
     let taskID = 0;
     const tasks = new Map();

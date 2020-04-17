@@ -438,6 +438,9 @@ function useRefetchFunction<TQuery: OperationType>(
       // all variables required by the fragment when calling `refetch()`.
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
+      /* $FlowFixMe(>=0.123.0) This comment suppresses an error found
+       * when Flow v0.123.0 was deployed. To see the error delete this comment
+       * and run Flow. */
       const refetchVariables = {
         ...parentVariables,
         /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when

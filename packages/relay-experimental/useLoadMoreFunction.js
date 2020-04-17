@@ -197,6 +197,9 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
       const extraVariables = options?.UNSTABLE_extraVariables;
+      /* $FlowFixMe(>=0.123.0) This comment suppresses an error found
+       * when Flow v0.123.0 was deployed. To see the error delete this comment
+       * and run Flow. */
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,

@@ -432,6 +432,9 @@ class RelayMockPayloadGenerator {
             if (mockData == null) {
               mockData = {};
             }
+            /* $FlowFixMe(>=0.123.0) This comment suppresses an error
+             * found when Flow v0.123.0 was deployed. To see the error delete
+             * this comment and run Flow. */
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,

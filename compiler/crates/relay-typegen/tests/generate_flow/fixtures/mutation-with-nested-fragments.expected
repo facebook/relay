@@ -1,0 +1,123 @@
+==================================== INPUT ====================================
+mutation CommentCreateMutation(
+  $input: CommentCreateInput!
+  $first: Int
+  $orderBy: [String!]
+) @raw_response_type {
+  commentCreate(input: $input) {
+    comment {
+      friends(first: $first, orderby: $orderBy) {
+        edges {
+          node {
+            lastName
+            ...FriendFragment
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment FriendFragment on User {
+  name
+  lastName
+  feedback {
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  name
+}
+==================================== OUTPUT ===================================
+import type { FriendFragment$ref } from "FriendFragment.graphql";
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type CommentCreateMutationVariables = {|
+  input: CommentCreateInput,
+  first?: ?number,
+  orderBy?: ?$ReadOnlyArray<string>,
+|};
+export type CommentCreateMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +friends: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +lastName: ?string,
+            +$fragmentRefs: FriendFragment$ref,
+          |}
+        |}>
+      |}
+    |}
+  |}
+|};
+export type CommentCreateMutationRawResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +friends: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +lastName: ?string,
+            +name: ?string,
+            +feedback: ?{|
+              +id: string,
+              +name: ?string,
+            |},
+            +id: ?string,
+          |}
+        |}>
+      |},
+      +id: ?string,
+    |}
+  |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+  rawResponse: CommentCreateMutationRawResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FeedbackFragment$ref: FragmentReference;
+declare export opaque type FeedbackFragment$fragmentType: FeedbackFragment$ref;
+export type FeedbackFragment = {|
+  +id: string,
+  +name: ?string,
+  +$refType: FeedbackFragment$ref,
+|};
+export type FeedbackFragment$data = FeedbackFragment;
+export type FeedbackFragment$key = {
+  +$data?: FeedbackFragment$data,
+  +$fragmentRefs: FeedbackFragment$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FeedbackFragment$ref } from "FeedbackFragment.graphql";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FriendFragment$ref: FragmentReference;
+declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
+export type FriendFragment = {|
+  +name: ?string,
+  +lastName: ?string,
+  +feedback: ?{|
+    +$fragmentRefs: FeedbackFragment$ref
+  |},
+  +$refType: FriendFragment$ref,
+|};
+export type FriendFragment$data = FriendFragment;
+export type FriendFragment$key = {
+  +$data?: FriendFragment$data,
+  +$fragmentRefs: FriendFragment$ref,
+  ...
+};

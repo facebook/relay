@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+fragment ScalarField on User {
+  id
+  name
+  websites
+  traits
+  aliasedLinkedField: birthdate {
+    aliasedField: year
+  }
+  screennames {
+    name
+    service
+  }
+}
+==================================== OUTPUT ===================================
+export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type ScalarField$ref: FragmentReference;
+declare export opaque type ScalarField$fragmentType: ScalarField$ref;
+export type ScalarField = {|
+  +id: string,
+  +name: ?string,
+  +websites: ?$ReadOnlyArray<?string>,
+  +traits: ?$ReadOnlyArray<?PersonalityTraits>,
+  +aliasedLinkedField: ?{|
+    +aliasedField: ?number
+  |},
+  +screennames: ?$ReadOnlyArray<?{|
+    +name: ?string,
+    +service: ?string,
+  |}>,
+  +$refType: ScalarField$ref,
+|};
+export type ScalarField$data = ScalarField;
+export type ScalarField$key = {
+  +$data?: ScalarField$data,
+  +$fragmentRefs: ScalarField$ref,
+  ...
+};

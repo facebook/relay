@@ -1,0 +1,7 @@
+mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
+  viewerNotificationsUpdateAllSeenState(input: $input) {
+    stories {
+      actorCount
+    }
+  }
+}

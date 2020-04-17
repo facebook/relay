@@ -20,6 +20,7 @@ pub struct Programs<'schema> {
     pub reader: Program<'schema>,
     pub normalization: Program<'schema>,
     pub operation_text: Program<'schema>,
+    pub typegen: Program<'schema>,
 }
 
 pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
@@ -37,12 +38,14 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     let operation_program = apply_operation_transforms(&common_program)?;
     let normalization_program = apply_normalization_transforms(&operation_program);
     let operation_text_program = apply_operation_text_transforms(&operation_program);
+    let typegen_program = apply_typegen_transforms(&program, base_fragment_names);
 
     Ok(Programs {
         source: program,
         reader: reader_program,
         normalization: normalization_program,
         operation_text: operation_text_program,
+        typegen: typegen_program,
     })
 }
 
@@ -147,4 +150,19 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     let program = skip_unreachable_node(&program);
     let program = flatten(&program, false);
     generate_typename(&program)
+}
+
+fn apply_typegen_transforms<'schema>(
+    program: &Program<'schema>,
+    base_fragment_names: &FnvHashSet<StringKey>,
+) -> Program<'schema> {
+    // JS compiler
+    // - RelayDirectiveTransform,
+    // - MaskTransform
+    // - MatchTransform
+    // + FlattenTransform, flattenAbstractTypes: false
+    // - RefetchableFragmentTransform,
+
+    let program = remove_base_fragments(&program, base_fragment_names);
+    flatten(&program, false)
 }

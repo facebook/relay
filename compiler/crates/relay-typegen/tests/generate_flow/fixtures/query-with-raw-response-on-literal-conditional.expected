@@ -1,0 +1,68 @@
+==================================== INPUT ====================================
+query ExampleQuery($id: ID!) @raw_response_type {
+  node(id: $id) {
+    username
+    ...FriendFragment
+    ... @include(if: false) {
+      friends(first: 0) {
+        count
+      }
+    }
+  }
+}
+
+fragment FriendFragment on User {
+  ... @include(if: false) {
+    name
+    lastName
+    feedback {
+      id
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import type { FriendFragment$ref } from "FriendFragment.graphql";
+export type ExampleQueryVariables = {|
+  id: string
+|};
+export type ExampleQueryResponse = {|
+  +node: ?{|
+    +username: ?string,
+    +friends?: ?{|
+      +count: ?number
+    |},
+    +$fragmentRefs: FriendFragment$ref,
+  |}
+|};
+export type ExampleQueryRawResponse = {|
+  +node: ?{|
+    +__typename: ?string,
+    +username: ?string,
+    +id: ?string,
+  |}
+|};
+export type ExampleQuery = {|
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+  rawResponse: ExampleQueryRawResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FriendFragment$ref: FragmentReference;
+declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
+export type FriendFragment = {|
+  +name?: ?string,
+  +lastName?: ?string,
+  +feedback?: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +$refType: FriendFragment$ref,
+|};
+export type FriendFragment$data = FriendFragment;
+export type FriendFragment$key = {
+  +$data?: FriendFragment$data,
+  +$fragmentRefs: FriendFragment$ref,
+  ...
+};

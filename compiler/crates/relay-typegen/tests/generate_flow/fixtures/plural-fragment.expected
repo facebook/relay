@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+fragment PluralFragment on Node @relay(plural: true) {
+  id
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type PluralFragment$ref: FragmentReference;
+declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;
+export type PluralFragment = $ReadOnlyArray<{|
+  +id: string,
+  +$refType: PluralFragment$ref,
+|}>;
+export type PluralFragment$data = PluralFragment;
+export type PluralFragment$key = $ReadOnlyArray<{
+  +$data?: PluralFragment$data,
+  +$fragmentRefs: PluralFragment$ref,
+  ...
+}>;

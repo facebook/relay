@@ -1,0 +1,106 @@
+==================================== INPUT ====================================
+mutation TestMutation($input: CommentCreateInput!) @raw_response_type {
+  commentCreate(input: $input) {
+    viewer {
+      actor {
+        ...InlineFragmentWithOverlappingFields
+      }
+    }
+  }
+}
+
+fragment InlineFragmentWithOverlappingFields on Actor {
+  ... on User {
+    hometown {
+      id
+      name
+    }
+  }
+  ... on Page {
+    name
+    hometown {
+      id
+      message {
+        text
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import type { InlineFragmentWithOverlappingFields$ref } from "InlineFragmentWithOverlappingFields.graphql";
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type TestMutationVariables = {|
+  input: CommentCreateInput
+|};
+export type TestMutationResponse = {|
+  +commentCreate: ?{|
+    +viewer: ?{|
+      +actor: ?{|
+        +$fragmentRefs: InlineFragmentWithOverlappingFields$ref
+      |}
+    |}
+  |}
+|};
+export type TestMutationRawResponse = {|
+  +commentCreate: ?{|
+    +viewer: ?{|
+      +actor: ?({|
+        +__typename: "User",
+        +id: ?string,
+        +hometown: ?{|
+          +id: string,
+          +name: ?string,
+        |},
+      |} | {|
+        +__typename: "Page",
+        +id: ?string,
+        +name: ?string,
+        +hometown: ?{|
+          +id: string,
+          +message: ?{|
+            +text: ?string
+          |},
+        |},
+      |} | {|
+        +__typename: ?string,
+        +id: ?string,
+      |})
+    |}
+  |}
+|};
+export type TestMutation = {|
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+  rawResponse: TestMutationRawResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
+declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: InlineFragmentWithOverlappingFields$ref;
+export type InlineFragmentWithOverlappingFields = {|
+  +hometown?: ?{|
+    +id: string,
+    +name: ?string,
+    +message?: ?{|
+      +text: ?string
+    |},
+  |},
+  +name?: ?string,
+  +$refType: InlineFragmentWithOverlappingFields$ref,
+|};
+export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
+export type InlineFragmentWithOverlappingFields$key = {
+  +$data?: InlineFragmentWithOverlappingFields$data,
+  +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+  ...
+};

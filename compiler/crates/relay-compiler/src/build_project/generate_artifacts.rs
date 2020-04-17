@@ -17,6 +17,7 @@ use interner::StringKey;
 use md5::{Digest, Md5};
 use persist_query::persist;
 use relay_codegen::build_request_params;
+use relay_typegen::{generate_fragment_type, generate_operation_type};
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::Write;
 
@@ -142,7 +143,16 @@ async fn generate_normalization_artifact(
     if let Some(id) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}\n", id).unwrap();
     }
-    writeln!(content, "/*::\nTODO flow\n*/\n").unwrap();
+    let typegen_node = programs
+        .typegen
+        .operation(name)
+        .expect("a type fragment should be generated for this operation");
+    writeln!(
+        content,
+        "/*::\nimport type {{ ConcreteRequest }} from 'relay-runtime';\n{}*/\n",
+        generate_operation_type(typegen_node, programs.typegen.schema())
+    )
+    .unwrap();
     writeln!(content, "/*\n{}*/\n", text).unwrap();
     writeln!(
         content,
@@ -173,6 +183,7 @@ fn generate_reader_artifact(
     node: &FragmentDefinition,
     hash: &str,
 ) -> Artifact {
+    let name = node.name.item;
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
     writeln!(content, " * @flow").unwrap();
@@ -184,7 +195,16 @@ fn generate_reader_artifact(
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
-    writeln!(content, "/*::\nTODO flow\n*/\n").unwrap();
+    let typegen_node = programs
+        .typegen
+        .fragment(name)
+        .expect("a type fragment should be generated for this fragment");
+    writeln!(
+        content,
+        "/*::\nimport type {{ ReaderFragment }} from 'relay-runtime';\n{}*/\n",
+        generate_fragment_type(typegen_node, programs.typegen.schema())
+    )
+    .unwrap();
     writeln!(
         content,
         "var node/*: ReaderFragment*/ = {};\n",
@@ -197,7 +217,7 @@ fn generate_reader_artifact(
     writeln!(content, "module.exports = node;").unwrap();
 
     Artifact {
-        name: node.name.item,
+        name,
         content: sign_file(&content),
         hash: hash.to_string(),
     }

@@ -27,6 +27,7 @@ graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 persist-query = { path = "../persist-query" }
 relay-codegen = { path = "../relay-codegen" }
+relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }
 fnv = "1.0"

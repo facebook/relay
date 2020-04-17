@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+fragment LinkedField on User {
+  profilePicture {
+    uri
+    width
+    height
+  }
+  hometown {
+    # object
+    id
+    profilePicture {
+      uri
+    }
+  }
+  actor {
+    # interface
+    id
+  }
+}
+
+query UnionTypeTest {
+  neverNode {
+    __typename
+    ... on FakeNode {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type UnionTypeTestVariables = {||};
+export type UnionTypeTestResponse = {|
+  +neverNode: ?({|
+    +__typename: "FakeNode",
+    +id: string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other"
+  |})
+|};
+export type UnionTypeTest = {|
+  variables: UnionTypeTestVariables,
+  response: UnionTypeTestResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type LinkedField$ref: FragmentReference;
+declare export opaque type LinkedField$fragmentType: LinkedField$ref;
+export type LinkedField = {|
+  +profilePicture: ?{|
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
+  +hometown: ?{|
+    +id: string,
+    +profilePicture: ?{|
+      +uri: ?string
+    |},
+  |},
+  +actor: ?{|
+    +id: string
+  |},
+  +$refType: LinkedField$ref,
+|};
+export type LinkedField$data = LinkedField;
+export type LinkedField$key = {
+  +$data?: LinkedField$data,
+  +$fragmentRefs: LinkedField$ref,
+  ...
+};

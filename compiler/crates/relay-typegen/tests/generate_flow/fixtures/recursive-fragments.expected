@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment FragmentSpread on Node {
+  id
+  ... @include(if: $condition) {
+    ...FragmentSpread
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FragmentSpread$ref: FragmentReference;
+declare export opaque type FragmentSpread$fragmentType: FragmentSpread$ref;
+export type FragmentSpread = {|
+  +id: string,
+  +$fragmentRefs: FragmentSpread$ref,
+  +$refType: FragmentSpread$ref,
+|};
+export type FragmentSpread$data = FragmentSpread;
+export type FragmentSpread$key = {
+  +$data?: FragmentSpread$data,
+  +$fragmentRefs: FragmentSpread$ref,
+  ...
+};

@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+query Test @raw_response_type {
+  node(id: "1") {
+    ...Test_user
+  }
+}
+
+fragment Test_user on User {
+  plainUserRenderer {
+    ...Test_userRenderer @module(name: "Renderer.react")
+  }
+}
+
+fragment Test_userRenderer on PlainUserRenderer {
+  user {
+    username
+  }
+}
+==================================== OUTPUT ===================================
+import type { Local3DPayload } from "relay-runtime";
+import type { Test_user$ref } from "Test_user.graphql";
+export type TestVariables = {||};
+export type TestResponse = {|
+  +node: ?{|
+    +$fragmentRefs: Test_user$ref
+  |}
+|};
+export type Test_userRenderer = {|
+  +user: ?{|
+    +username: ?string,
+    +id: ?string,
+  |}
+|};
+export type TestRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +plainUserRenderer: ?({|
+      +__module_operation_Test_user: ?any,
+      +__module_component_Test_user: ?any,
+      ...Test_userRenderer,
+    |} | Local3DPayload<"Test_user", {| ...Test_userRenderer
+    |}>),
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+|};
+-------------------------------------------------------------------------------
+import type { Test_userRenderer$ref } from "Test_userRenderer.graphql";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type Test_user$ref: FragmentReference;
+declare export opaque type Test_user$fragmentType: Test_user$ref;
+export type Test_user = {|
+  +plainUserRenderer: ?{|
+    +__fragmentPropName?: ?string,
+    +__module_component?: ?string,
+    +$fragmentRefs: Test_userRenderer$ref,
+  |},
+  +$refType: Test_user$ref,
+|};
+export type Test_user$data = Test_user;
+export type Test_user$key = {
+  +$data?: Test_user$data,
+  +$fragmentRefs: Test_user$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type Test_userRenderer$ref: FragmentReference;
+declare export opaque type Test_userRenderer$fragmentType: Test_userRenderer$ref;
+export type Test_userRenderer = {|
+  +user: ?{|
+    +username: ?string
+  |},
+  +$refType: Test_userRenderer$ref,
+|};
+export type Test_userRenderer$data = Test_userRenderer;
+export type Test_userRenderer$key = {
+  +$data?: Test_userRenderer$data,
+  +$fragmentRefs: Test_userRenderer$ref,
+  ...
+};

@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+query TestStream @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10)
+        @stream_connection(
+          key: "PaginationFragment_friends"
+          initial_count: 1
+        ) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type TestStreamVariables = {||};
+export type TestStreamResponse = {|
+  +node: ?{|
+    +name?: ?string,
+    +friends?: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +id: string
+        |}
+      |}>
+    |},
+  |}
+|};
+export type TestStreamRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: ?string,
+    +name: ?string,
+    +friends: ?{|
+      +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +id: string,
+          +__typename: "User",
+        |},
+        +cursor: ?string,
+      |}>,
+      +pageInfo: ?{|
+        +endCursor: ?string,
+        +hasNextPage: ?boolean,
+      |},
+    |},
+  |} | {|
+    +__typename: ?string,
+    +id: ?string,
+  |})
+|};
+export type TestStream = {|
+  variables: TestStreamVariables,
+  response: TestStreamResponse,
+  rawResponse: TestStreamRawResponse,
+|};

@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
+  viewerNotificationsUpdateAllSeenState(input: $input) {
+    stories {
+      foos {
+        bar
+      }
+    }
+  }
+}
+
+extend type Story {
+  foos: [Foo]
+}
+
+type Foo {
+  bar: String
+}
+==================================== OUTPUT ===================================
+export type UpdateAllSeenStateInput = {|
+  clientMutationId?: ?string,
+  storyIds?: ?$ReadOnlyArray<?string>,
+|};
+export type TestVariables = {|
+  input?: ?UpdateAllSeenStateInput
+|};
+export type TestResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +foos: ?$ReadOnlyArray<?{|
+        +bar: ?string
+      |}>
+    |}>
+  |}
+|};
+export type TestRawResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +id: ?string,
+      +foos?: ?$ReadOnlyArray<?{|
+        +bar: ?string
+      |}>,
+    |}>
+  |}
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+|};

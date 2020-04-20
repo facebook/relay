@@ -5,7 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+#![allow(warnings)]
+#[allow(unused_imports)]
+use crate::ast::{Ast, AstBuilder, AstKey, Primitive};
 use crate::codegen_ast::*;
+use crate::constants::CODEGEN_CONSTANTS;
 use common::WithLocation;
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -24,6 +28,7 @@ use schema::{Schema, TypeReference};
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
 use std::iter;
 
+/* TODO
 pub fn build_request(
     schema: &Schema,
     operation: &OperationDefinition,
@@ -37,6 +42,7 @@ pub fn build_request(
         params: request_parameters,
     }
 }
+*/
 
 pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters {
     RequestParameters {
@@ -52,21 +58,30 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
     }
 }
 
-pub fn build_operation(schema: &Schema, operation: &OperationDefinition) -> ConcreteDefinition {
-    let builder = CodegenBuilder::new(schema, CodegenVariant::Normalization);
+pub fn build_operation(
+    schema: &Schema,
+    ast_builder: &mut AstBuilder,
+    operation: &OperationDefinition,
+) -> AstKey {
+    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
     builder.build_operation(operation)
 }
 
-pub fn build_fragment(schema: &Schema, fragment: &FragmentDefinition) -> ConcreteDefinition {
-    let builder = CodegenBuilder::new(schema, CodegenVariant::Reader);
+pub fn build_fragment(
+    schema: &Schema,
+    ast_builder: &mut AstBuilder,
+    fragment: &FragmentDefinition,
+) -> ConcreteDefinition {
+    let builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
     builder.build_fragment(fragment)
 }
 
-struct CodegenBuilder<'schema> {
+struct CodegenBuilder<'schema, 'builder> {
     connection_constants: ConnectionConstants,
     handle_field_constants: HandleFieldConstants,
     schema: &'schema Schema,
     variant: CodegenVariant,
+    ast_builder: &'builder mut AstBuilder,
 }
 
 #[derive(PartialEq)]
@@ -75,17 +90,30 @@ enum CodegenVariant {
     Normalization,
 }
 
-impl<'schema> CodegenBuilder<'schema> {
-    fn new(schema: &'schema Schema, variant: CodegenVariant) -> Self {
+impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
+    fn new(
+        schema: &'schema Schema,
+        variant: CodegenVariant,
+        ast_builder: &'builder mut AstBuilder,
+    ) -> Self {
         Self {
             connection_constants: Default::default(),
             handle_field_constants: Default::default(),
             schema,
             variant,
+            ast_builder,
         }
     }
 
-    fn build_operation(&self, operation: &OperationDefinition) -> ConcreteDefinition {
+    pub fn object(&mut self, object: Vec<(StringKey, Primitive)>) -> AstKey {
+        self.ast_builder.intern(Ast::Object(object))
+    }
+
+    pub fn array(&mut self, array: Vec<Primitive>) -> AstKey {
+        self.ast_builder.intern(Ast::Array(array))
+    }
+
+    fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
         match operation
             .directives
             .named(MATCH_CONSTANTS.custom_module_directive_name)
@@ -99,18 +127,46 @@ impl<'schema> CodegenBuilder<'schema> {
                     .item
                     .get_string_literal()
                     .unwrap();
-                ConcreteDefinition::SplitOperation(ConcreteSplitOperation {
-                    name: operation.name.item,
-                    selections: self.build_selections(&operation.selections),
-                    metadata: SplitOperationMetadata { derived_from },
-                })
+                let metadata = Primitive::Key(self.object(vec![(
+                    CODEGEN_CONSTANTS.derived_from,
+                    Primitive::String(derived_from),
+                )]));
+                self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.split_operation),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.name,
+                        Primitive::String(operation.name.item),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.selections,
+                        Primitive::Null,
+                        // TODO: self.build_selections(&operation.selections),
+                    ),
+                    (CODEGEN_CONSTANTS.metadata, metadata),
+                ])
             }
-            None => ConcreteDefinition::Operation(ConcreteOperation {
-                name: operation.name.item,
-                argument_definitions: self
-                    .build_operation_variable_definitions(&operation.variable_definitions),
-                selections: self.build_selections(&operation.selections),
-            }),
+            None => {
+                let argument_definitions =
+                    self.build_operation_variable_definitions(&operation.variable_definitions);
+                self.object(vec![
+                    (CODEGEN_CONSTANTS.argument_definitions, argument_definitions),
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String("Operation".intern()),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.name,
+                        Primitive::String(operation.name.item),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.selections,
+                        Primitive::Null, // TODO: self.build_selections(&operation.selections),
+                    ),
+                ])
+            }
         }
     }
 
@@ -518,26 +574,37 @@ impl<'schema> CodegenBuilder<'schema> {
     }
 
     fn build_operation_variable_definitions(
-        &self,
+        &mut self,
         variable_definitions: &[VariableDefinition],
-    ) -> Vec<ConcreteVariableDefinition> {
+    ) -> Primitive {
         let mut var_defs = variable_definitions
             .iter()
             .map(|def| {
-                ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
-                    name: def.name.item,
-                    type_: self.build_variable_type(&def.type_),
-                    default_value: if let Some(const_val) = &def.default_value {
-                        self.build_constant_value(&const_val)
-                    } else {
-                        json!(null)
-                    },
-                })
+                let default_value = if let Some(const_val) = &def.default_value {
+                    self.build_constant_value(&const_val)
+                } else {
+                    Primitive::Null
+                };
+                (
+                    def.name.item,
+                    Primitive::Key(self.object(vec![
+                        (CODEGEN_CONSTANTS.default_value, default_value),
+                        (
+                            CODEGEN_CONSTANTS.kind,
+                            Primitive::String("LocalArgument".intern()),
+                        ),
+                        (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
+                        (
+                            CODEGEN_CONSTANTS.type_,
+                            Primitive::String(self.build_variable_type(&def.type_)),
+                        ),
+                    ])),
+                )
             })
             .collect::<Vec<_>>();
 
-        var_defs.sort_by_key(|var_def| var_def.name().lookup());
-        var_defs
+        var_defs.sort_by_key(|var_def| var_def.0.lookup());
+        Primitive::Key(self.array(var_defs.into_iter().map(|v| v.1).collect::<Vec<_>>()))
     }
 
     fn build_fragment_variable_definitions(
@@ -550,8 +617,8 @@ impl<'schema> CodegenBuilder<'schema> {
             ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
                 name: def.name.item,
                 type_: self.build_variable_type(&def.type_),
-                default_value: if let Some(const_val) = &def.default_value {
-                    self.build_constant_value(&const_val)
+                default_value: if let Some(_const_val) = &def.default_value {
+                    json!(null) // TODO: self.build_constant_value(&const_val)
                 } else {
                     json!(null)
                 },
@@ -563,17 +630,16 @@ impl<'schema> CodegenBuilder<'schema> {
                 type_: self.build_variable_type(&def.type_),
             })
         });
-        let mut var_defs = local_vars_iter.chain(global_vars_iter).collect::<Vec<_>>();
-        var_defs.sort_by_key(|var_def| var_def.name().lookup());
-        var_defs
+        local_vars_iter.chain(global_vars_iter).collect::<Vec<_>>()
+        // TODO: var_defs.sort_by_key(|var_def| var_def.name().lookup());
     }
 
     fn build_arguments(&self, arguments: &[Argument]) -> Option<Vec<ConcreteArgument>> {
         let mut args = arguments
-            .iter()
-            // We are filtering out "null" arguments matching JS behavior
-            .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
-            .collect::<Vec<_>>();
+             .iter()
+             // We are filtering out "null" arguments matching JS behavior
+             .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
+             .collect::<Vec<_>>();
         args.sort_by_key(|arg| arg.name().lookup());
         match args.len() {
             0 => None,
@@ -650,34 +716,32 @@ impl<'schema> CodegenBuilder<'schema> {
             _ => Some(ConcreteLiteralArgument {
                 name: arg_name,
                 type_: None,
-                value: self.build_constant_value(arg_value),
+                value: json!(null), // TODO: self.build_constant_value(arg_value),
             }),
         }
     }
 
-    fn build_constant_value(&self, value: &ConstantValue) -> SerdeValue {
+    fn build_constant_value(&mut self, value: &ConstantValue) -> Primitive {
         match value {
-            ConstantValue::Int(val) => json!(val),
-            ConstantValue::Float(val) => json!(val.as_float()),
-            ConstantValue::String(val) => json!(val),
-            ConstantValue::Boolean(val) => json!(val),
-            ConstantValue::Null() => json!(null),
-            ConstantValue::Enum(val) => json!(val),
+            ConstantValue::Int(val) => Primitive::Int(*val),
+            ConstantValue::Float(val) => Primitive::Float(*val),
+            ConstantValue::String(val) => Primitive::String(*val),
+            ConstantValue::Boolean(val) => Primitive::Bool(*val),
+            ConstantValue::Null() => Primitive::Null,
+            ConstantValue::Enum(val) => Primitive::String(*val),
             ConstantValue::List(val_list) => {
                 let json_values = val_list
                     .iter()
                     .map(|val| self.build_constant_value(val))
-                    .collect::<Vec<SerdeValue>>();
-                json!(json_values)
+                    .collect::<Vec<_>>();
+                Primitive::Key(self.array(json_values))
             }
             ConstantValue::Object(val_object) => {
-                let mut map: SerdeMap<String, SerdeValue> =
-                    SerdeMap::with_capacity(val_object.len());
-                for arg in val_object.iter() {
-                    let field_name = String::from(arg.name.item.lookup());
-                    map.insert(field_name, self.build_constant_value(&arg.value.item));
-                }
-                json!(map)
+                let json_values = val_object
+                    .iter()
+                    .map(|arg| (arg.name.item, self.build_constant_value(&arg.value.item)))
+                    .collect::<Vec<_>>();
+                Primitive::Key(self.object(json_values))
             }
         }
     }

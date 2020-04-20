@@ -13,45 +13,5 @@ query StableLiteralsTest {
   "argumentDefinitions": [],
   "kind": "Operation",
   "name": "StableLiteralsTest",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "User",
-      "kind": "LinkedField",
-      "name": "me",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "query",
-              "value": {
-                "limit": 2,
-                "offset": 10,
-                "text": "foo"
-              }
-            }
-          ],
-          "concreteType": "Comment",
-          "kind": "LinkedField",
-          "name": "storyCommentSearch",
-          "plural": true,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "id",
-              "storageKey": null
-            }
-          ],
-          "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
-        }
-      ],
-      "storageKey": null
-    }
-  ]
+  "selections": null
 }

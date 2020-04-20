@@ -131,6 +131,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     CODEGEN_CONSTANTS.derived_from,
                     Primitive::String(derived_from),
                 )]));
+                let selections = self.build_selections(&operation.selections);
                 self.object(vec![
                     (
                         CODEGEN_CONSTANTS.kind,
@@ -140,31 +141,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         CODEGEN_CONSTANTS.name,
                         Primitive::String(operation.name.item),
                     ),
-                    (
-                        CODEGEN_CONSTANTS.selections,
-                        Primitive::Null,
-                        // TODO: self.build_selections(&operation.selections),
-                    ),
+                    (CODEGEN_CONSTANTS.selections, selections),
                     (CODEGEN_CONSTANTS.metadata, metadata),
                 ])
             }
             None => {
                 let argument_definitions =
                     self.build_operation_variable_definitions(&operation.variable_definitions);
+                let selections = self.build_selections(&operation.selections);
                 self.object(vec![
                     (CODEGEN_CONSTANTS.argument_definitions, argument_definitions),
                     (
                         CODEGEN_CONSTANTS.kind,
-                        Primitive::String("Operation".intern()),
+                        Primitive::String(CODEGEN_CONSTANTS.operation),
                     ),
                     (
                         CODEGEN_CONSTANTS.name,
                         Primitive::String(operation.name.item),
                     ),
-                    (
-                        CODEGEN_CONSTANTS.selections,
-                        Primitive::Null, // TODO: self.build_selections(&operation.selections),
-                    ),
+                    (CODEGEN_CONSTANTS.selections, selections),
                 ])
             }
         }
@@ -236,26 +231,27 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 &fragment.variable_definitions,
                 &fragment.used_global_variables,
             ),
-            selections: self.build_selections(&fragment.selections),
+            selections: vec![], //TODO: self.build_selections(&fragment.selections),
             // TODO(T63303840) include correct fragment metadata
             metadata,
         })
     }
 
-    fn build_selections(&self, selections: &[Selection]) -> Vec<ConcreteSelection> {
-        selections
+    fn build_selections(&mut self, selections: &[Selection]) -> Primitive {
+        let selections = selections
             .iter()
             .flat_map(|selection| self.build_selections_from_selection(selection))
-            .collect()
+            .collect();
+        Primitive::Key(self.array(selections))
     }
 
-    fn build_selections_from_selection(&self, selection: &Selection) -> Vec<ConcreteSelection> {
+    fn build_selections_from_selection(&mut self, selection: &Selection) -> Vec<Primitive> {
         match selection {
             // TODO(T63303873) Normalization handles
-            Selection::Condition(cond) => {
-                vec![ConcreteSelection::Condition(self.build_condition(&cond))]
-            }
+            Selection::Condition(cond) => vec![self.build_condition(&cond)],
             Selection::FragmentSpread(frag_spread) => {
+                vec![Primitive::Null]
+                /* TODO
                 let defer = frag_spread
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
@@ -265,15 +261,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         self.build_fragment_spread(&frag_spread),
                     )],
                 }
+                */
             }
             Selection::InlineFragment(inline_frag) => {
-                vec![self.build_inline_fragment(&inline_frag)]
+                vec![Primitive::Null]
+                // TODO: vec![self.build_inline_fragment(&inline_frag)]
             }
             Selection::LinkedField(field) => {
                 let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
 
                 match stream {
-                    Some(stream) => vec![self.build_stream(&field, stream)],
+                    Some(stream) => vec![Primitive::Null], // TODO: vec![self.build_stream(&field, stream)],
                     None => self.build_linked_field_and_handles(field),
                 }
             }
@@ -281,28 +279,41 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_scalar_field_and_handles(&self, field: &ScalarField) -> Vec<ConcreteSelection> {
+    fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
         // TODO(T63303873) check for skipNormalizationNode metadata
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
-            CodegenVariant::Normalization => iter::once(self.build_scalar_field(field))
+            CodegenVariant::Normalization => vec![self.build_scalar_field(field)],
+            /* TODO:
+            iter::once(self.build_scalar_field(field))
                 .chain(self.build_scalar_handles(field))
                 .collect(),
+            */
         }
     }
 
-    fn build_scalar_field(&self, field: &ScalarField) -> ConcreteSelection {
+    fn build_scalar_field(&mut self, field: &ScalarField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let storage_key = get_static_storage_key(name, &args);
-        ConcreteSelection::ScalarField(ConcreteScalarField {
-            alias,
-            name,
-            args,
-            storage_key,
-        })
+        // TODO: let storage_key = get_static_storage_key(name, &args);
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.alias,
+                match alias {
+                    None => Primitive::Null,
+                    Some(alias) => Primitive::String(alias),
+                },
+            ),
+            (CODEGEN_CONSTANTS.args, args),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.scalar_field),
+            ),
+            (CODEGEN_CONSTANTS.name, Primitive::String(name)),
+            (CODEGEN_CONSTANTS.storage_key, Primitive::Null),
+        ]))
     }
 
     fn build_scalar_handles(
@@ -328,7 +339,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     None => None,
                 },
                 name: field_name,
-                args: self.build_arguments(&field.arguments),
+                args: None, // TODO: self.build_arguments(&field.arguments),
                 handle: values.handle,
                 key: values.key,
                 filters: values.filters,
@@ -336,34 +347,54 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         })
     }
 
-    fn build_linked_field_and_handles(&self, field: &LinkedField) -> Vec<ConcreteSelection> {
+    fn build_linked_field_and_handles(&mut self, field: &LinkedField) -> Vec<Primitive> {
         match self.variant {
             CodegenVariant::Reader => vec![self.build_linked_field(field)],
-            CodegenVariant::Normalization => iter::once(self.build_linked_field(field))
+            CodegenVariant::Normalization => vec![self.build_linked_field(field)],
+            /* TODO:
+            iter::once(self.build_linked_field(field))
                 .chain(self.build_linked_handles(field))
                 .collect(),
+                */
         }
     }
 
-    fn build_linked_field(&self, field: &LinkedField) -> ConcreteSelection {
+    fn build_linked_field(&mut self, field: &LinkedField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let storage_key = get_static_storage_key(name, &args);
-        ConcreteSelection::LinkedField(ConcreteLinkedField {
-            alias,
-            name,
-            args,
-            selections: self.build_selections(&field.selections),
-            concrete_type: if self.schema.is_abstract_type(schema_field.type_.inner()) {
-                None
-            } else {
-                Some(self.schema.get_type_name(schema_field.type_.inner()))
-            },
-            storage_key,
-            plural: schema_field.type_.is_list(),
-        })
+        let storage_key = Primitive::Null; // TODO: get_static_storage_key(name, &args);
+        let selections = self.build_selections(&field.selections);
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.alias,
+                match alias {
+                    None => Primitive::Null,
+                    Some(alias) => Primitive::String(alias),
+                },
+            ),
+            (CODEGEN_CONSTANTS.args, args),
+            (
+                CODEGEN_CONSTANTS.concrete_type,
+                if self.schema.is_abstract_type(schema_field.type_.inner()) {
+                    Primitive::Null
+                } else {
+                    Primitive::String(self.schema.get_type_name(schema_field.type_.inner()))
+                },
+            ),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.linked_field),
+            ),
+            (CODEGEN_CONSTANTS.name, Primitive::String(name)),
+            (
+                CODEGEN_CONSTANTS.plural,
+                Primitive::Bool(schema_field.type_.is_list()),
+            ),
+            (CODEGEN_CONSTANTS.selections, selections),
+            (CODEGEN_CONSTANTS.storage_key, storage_key),
+        ]))
     }
 
     fn build_linked_handles(
@@ -389,12 +420,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     None => None,
                 },
                 name: field_name,
-                args: self.build_arguments(&field.arguments),
+                args: None, // TODO: self.build_arguments(&field.arguments),
                 handle: values.handle,
                 key: values.key,
                 filters: values.filters,
                 dynamic_key: match &values.dynamic_key {
-                    Some(val) => self.build_argument("__dynamicKey".intern(), val),
+                    Some(val) => None, // TODO: self.build_argument("__dynamicKey".intern(), val),
                     None => None,
                 },
             })
@@ -434,7 +465,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_fragment_spread(&self, frag_spread: &FragmentSpread) -> ConcreteFragmentSpread {
         ConcreteFragmentSpread {
             name: frag_spread.fragment.item,
-            args: self.build_arguments(&frag_spread.arguments),
+            args: None, // TODO: self.build_arguments(&frag_spread.arguments),
         }
     }
 
@@ -474,7 +505,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_stream(&self, linked_field: &LinkedField, stream: &Directive) -> ConcreteSelection {
+    fn build_stream(
+        &mut self,
+        linked_field: &LinkedField,
+        stream: &Directive,
+    ) -> ConcreteSelection {
         let next_selections = vec![self.build_linked_field(&LinkedField {
             directives: remove_directive(
                 &linked_field.directives,
@@ -484,7 +519,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         })];
         match self.variant {
             CodegenVariant::Reader => ConcreteSelection::StreamReaderVariant(StreamReaderNode {
-                selections: next_selections,
+                selections: vec![], //TODO: next_selections,
             }),
             CodegenVariant::Normalization => {
                 let if_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
@@ -509,7 +544,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     metadata: None,
                     use_customized_batch: use_customized_batch_variable_name,
                     label: label_name.to_owned(),
-                    selections: next_selections,
+                    selections: vec![], //TODO: next_selections,
                 })
             }
         }
@@ -523,7 +558,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     && inline_frag.directives[0].name.item == "__clientExtension".intern()
                 {
                     ConcreteSelection::ClientExtension(ConcreteClientExtension {
-                        selections: self.build_selections(&inline_frag.selections),
+                        selections: vec![], //TODO: self.build_selections(&inline_frag.selections),
                     })
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
@@ -546,24 +581,35 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 } else {
                     ConcreteSelection::InlineFragment(ConcreteInlineFragment {
                         type_: self.schema.get_type_name(type_condition),
-                        selections: self.build_selections(&inline_frag.selections),
+                        selections: vec![], //TODO: self.build_selections(&inline_frag.selections),
                     })
                 }
             }
         }
     }
 
-    fn build_condition(&self, condition: &Condition) -> ConcreteCondition {
-        ConcreteCondition {
-            passing_value: condition.passing_value,
-            condition: match &condition.value {
-                ConditionValue::Variable(variable) => variable.name.item,
-                ConditionValue::Constant(_) => {
-                    panic!("Expected Condition with static value to have been pruned or inlined.")
-                }
-            },
-            selections: self.build_selections(&condition.selections),
-        }
+    fn build_condition(&mut self, condition: &Condition) -> Primitive {
+        let selections = self.build_selections(&condition.selections);
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.condition,
+                Primitive::String(match &condition.value {
+                    ConditionValue::Variable(variable) => variable.name.item,
+                    ConditionValue::Constant(_) => panic!(
+                        "Expected Condition with static value to have been pruned or inlined."
+                    ),
+                }),
+            ),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.condition_value),
+            ),
+            (
+                CODEGEN_CONSTANTS.passing_value,
+                Primitive::Bool(condition.passing_value),
+            ),
+            (CODEGEN_CONSTANTS.selections, selections),
+        ]))
     }
 
     fn build_variable_type(&self, type_: &TypeReference) -> StringKey {
@@ -591,7 +637,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         (CODEGEN_CONSTANTS.default_value, default_value),
                         (
                             CODEGEN_CONSTANTS.kind,
-                            Primitive::String("LocalArgument".intern()),
+                            Primitive::String(CODEGEN_CONSTANTS.local_argument),
                         ),
                         (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
                         (
@@ -634,90 +680,122 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         // TODO: var_defs.sort_by_key(|var_def| var_def.name().lookup());
     }
 
-    fn build_arguments(&self, arguments: &[Argument]) -> Option<Vec<ConcreteArgument>> {
-        let mut args = arguments
-             .iter()
+    fn build_arguments(&mut self, arguments: &[Argument]) -> Primitive {
+        let mut sorted_args: Vec<&Argument> = arguments.iter().map(|arg| arg).collect();
+        sorted_args.sort_unstable_by_key(|arg| arg.name.item.lookup());
+
+        let args = sorted_args
+             .into_iter()
              // We are filtering out "null" arguments matching JS behavior
              .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
+             .map(Primitive::Key)
              .collect::<Vec<_>>();
-        args.sort_by_key(|arg| arg.name().lookup());
-        match args.len() {
-            0 => None,
-            _ => Some(args),
+        if args.is_empty() {
+            Primitive::Null
+        } else {
+            Primitive::Key(self.array(args))
         }
     }
 
-    fn build_argument(&self, arg_name: StringKey, arg_value: &Value) -> Option<ConcreteArgument> {
+    fn build_argument(&mut self, arg_name: StringKey, arg_value: &Value) -> Option<AstKey> {
         match arg_value {
             Value::Constant(const_val) => {
                 if let Some(concrete_const_val) = self.build_constant_argument(arg_name, &const_val)
                 {
-                    Some(ConcreteArgument::Literal(concrete_const_val))
+                    Some(concrete_const_val)
                 } else {
                     None
                 }
             }
             Value::Variable(variable) => {
-                Some(ConcreteArgument::Variable(ConcreteVariableArgument {
-                    name: arg_name,
-                    // TODO(T63303966) this is always skipped in JS compiler
-                    type_: None,
-                    variable_name: variable.name.item,
-                }))
+                let name = Primitive::String(arg_name);
+                let variable_name = Primitive::String(variable.name.item);
+                Some(self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.variable),
+                    ),
+                    (CODEGEN_CONSTANTS.name, name),
+                    // TODO(T63303966) type is always skipped in JS compiler
+                    (CODEGEN_CONSTANTS.variable_name, variable_name),
+                ]))
             }
-            Value::List(list) => Some(ConcreteArgument::ListValue(ConcreteListArgument {
-                name: arg_name,
-                items: list
+            Value::List(list) => {
+                let items = list
                     .iter()
                     .enumerate()
-                    .map(|(i, val)| {
+                    .filter_map(|(i, val)| {
                         let item_name = format!("{}.{}", arg_name, i).as_str().intern();
                         self.build_argument(item_name, val)
                     })
-                    .collect::<Vec<_>>(),
-            })),
+                    .map(Primitive::Key)
+                    .collect::<Vec<_>>();
+                let object = vec![
+                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.list_value),
+                    ),
+                    (CODEGEN_CONSTANTS.items, Primitive::Key(self.array(items))),
+                ];
+                Some(self.object(object))
+            }
             Value::Object(object) => {
                 let mut sorted_object = object.clone();
                 sorted_object.sort_by_key(|arg| arg.name);
-                Some(ConcreteArgument::ObjectValue(ConcreteObjectArgument {
-                    name: arg_name,
-                    fields: sorted_object
-                        .iter()
-                        .map(|arg| {
-                            let field_name = arg.name.item;
-                            if let Some(concrete_arg) =
-                                self.build_argument(field_name, &arg.value.item)
-                            {
-                                concrete_arg
-                            } else {
-                                // For object types, we do want to keep the literal argument
-                                // for null, instead of filtering it out, matching JS behavior
-                                ConcreteArgument::Literal(ConcreteLiteralArgument {
-                                    name: field_name,
-                                    type_: None,
-                                    value: json!(null),
-                                })
-                            }
-                        })
-                        .collect::<Vec<_>>(),
-                }))
+                let fields = sorted_object
+                    .into_iter()
+                    .map(|arg| {
+                        let field_name = arg.name.item;
+                        if let Some(concrete_arg) = self.build_argument(field_name, &arg.value.item)
+                        {
+                            Primitive::Key(concrete_arg)
+                        } else {
+                            // For object types, we do want to keep the literal argument
+                            // for null, instead of filtering it out, matching JS behavior
+                            Primitive::Key(self.object(vec![
+                                (
+                                    CODEGEN_CONSTANTS.kind,
+                                    Primitive::String(CODEGEN_CONSTANTS.literal),
+                                ),
+                                (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
+                                (CODEGEN_CONSTANTS.value, Primitive::Null),
+                            ]))
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                let object = vec![
+                    (CODEGEN_CONSTANTS.fields, Primitive::Key(self.array(fields))),
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.object_value),
+                    ),
+                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
+                ];
+                Some(self.object(object))
             }
         }
     }
 
     fn build_constant_argument(
-        &self,
+        &mut self,
         arg_name: StringKey,
         arg_value: &ConstantValue,
-    ) -> Option<ConcreteLiteralArgument> {
+    ) -> Option<AstKey> {
         match arg_value {
             // We return None here to filter out "null" arguments, matching JS behavior
             ConstantValue::Null() => None,
-            _ => Some(ConcreteLiteralArgument {
-                name: arg_name,
-                type_: None,
-                value: json!(null), // TODO: self.build_constant_value(arg_value),
-            }),
+            _ => {
+                let value = self.build_constant_value(arg_value);
+                Some(self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.literal),
+                    ),
+                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
+                    (CODEGEN_CONSTANTS.value, value),
+                ]))
+            }
         }
     }
 
@@ -737,8 +815,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 Primitive::Key(self.array(json_values))
             }
             ConstantValue::Object(val_object) => {
-                let json_values = val_object
-                    .iter()
+                let mut sorted_val_object: Vec<&_> = val_object.iter().collect();
+                sorted_val_object.sort_unstable_by_key(|arg| arg.name.item.lookup());
+
+                let json_values = sorted_val_object
+                    .into_iter()
                     .map(|arg| (arg.name.item, self.build_constant_value(&arg.value.item)))
                     .collect::<Vec<_>>();
                 Primitive::Key(self.object(json_values))

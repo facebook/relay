@@ -66,7 +66,48 @@ fragment UserFragment on User
   ],
   "kind": "Operation",
   "name": "NodeQuery",
-  "selections": null
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "condition": "cond",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            null
+          ]
+        },
+        {
+          "condition": "cond",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            null
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ]
 }
 
 TODO

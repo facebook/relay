@@ -419,7 +419,7 @@ function FriendsList(props: Props) {
           );
         }}
       </List>
-      <Button onClick={() => loadMore(10)}>Load more friends</Button>
+      <Button onClick={() => loadNext(10)}>Load more friends</Button>
     </>
   );
 }
@@ -576,7 +576,7 @@ Tuple containing the following values:
 
 * [0] `commit`: The function that will execute the mutation
     * The parameter that `commit` accepts is almost the same as the second parameter to `commitMutation`.
-        * `variables`: Object containing the variables needed for the mutation. For example, if the mutation defines an `$input` variable, this object should contain an `input` key, whose shape must match the shape of the data expected by the mutation as defined by the GraphQL schema. 
+        * `variables`: Object containing the variables needed for the mutation. For example, if the mutation defines an `$input` variable, this object should contain an `input` key, whose shape must match the shape of the data expected by the mutation as defined by the GraphQL schema.
         * `onCompleted`: Callback function executed when the request is completed and the in-memory Relay store is updated with the `updater` function. Takes a `response` object, which is the "raw" server response.
         * `onError`: Callback function executed if Relay encounters an error while executing the request.
         * `optimisticResponse`: Object containing the data to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. This object must have the same shape as the mutation's response type, as defined by the GraphQL schema. If provided, Relay will use the `optimisticResponse` data to update the fields on the relevant records in the local data store, *before* `optimisticUpdater` is executed. If an error occurs during the mutation request, the optimistic update will be rolled back.

@@ -19,5 +19,5 @@ signedsource = { path = "../signedsource" }
 colored = "1.9"
 diff = "0.1"
 lazy_static = "1.0"
-parking_lot = "0.10.0"
+parking_lot = "0.10.2"
 structopt = "0.3.7"

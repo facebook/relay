@@ -65,6 +65,7 @@ import type {
 export type EnvironmentConfig = {|
   +configName?: string,
   +handlerProvider?: ?HandlerProvider,
+  +treatMissingFieldsAsNull?: boolean,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
   +network: INetwork,
@@ -95,6 +96,7 @@ class RelayModernEnvironment implements IEnvironment {
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
+  _treatMissingFieldsAsNull: boolean;
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
@@ -104,6 +106,7 @@ class RelayModernEnvironment implements IEnvironment {
     const handlerProvider = config.handlerProvider
       ? config.handlerProvider
       : RelayDefaultHandlerProvider;
+    this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
     const operationLoader = config.operationLoader;
     if (__DEV__) {
       if (operationLoader != null) {
@@ -222,6 +225,7 @@ class RelayModernEnvironment implements IEnvironment {
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -261,6 +265,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         isClientPayload: true,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -346,6 +351,7 @@ class RelayModernEnvironment implements IEnvironment {
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     }).do(logObserver);
@@ -412,6 +418,7 @@ class RelayModernEnvironment implements IEnvironment {
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     }).do(logObserver);
@@ -446,6 +453,7 @@ class RelayModernEnvironment implements IEnvironment {
         source,
         store: this._store,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     });

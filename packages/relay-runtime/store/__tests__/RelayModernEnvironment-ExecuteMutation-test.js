@@ -36,6 +36,7 @@ describe('executeMutation()', () => {
   let environment;
   let error;
   let fetch;
+  let next;
   let operation;
   let queryOperation;
   let source;
@@ -112,7 +113,8 @@ describe('executeMutation()', () => {
     });
     complete = jest.fn();
     error = jest.fn();
-    callbacks = {complete, error};
+    next = jest.fn();
+    callbacks = {complete, error, next};
   });
 
   it('fetches the mutation with the provided fetch function', () => {
@@ -459,5 +461,53 @@ describe('executeMutation()', () => {
         .getOperationTracker()
         .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
+  });
+
+  it('does not fill missing fields from optimistic response with nulls, even when treatMissingFieldsAsNull is enabled', () => {
+    operation = createOperationDescriptor(
+      CreateCommentWithSpreadMutation,
+      variables,
+    );
+
+    const selector = createReaderSelector(
+      CommentFragment,
+      commentID,
+      {},
+      queryOperation.request,
+    );
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+      treatMissingFieldsAsNull: true,
+    });
+
+    const snapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation,
+        optimisticResponse: {
+          commentCreate: {
+            comment: {
+              id: commentID,
+              // body is missing in this response
+            },
+          },
+        },
+      })
+      .subscribe(callbacks);
+
+    expect(complete).not.toBeCalled();
+    expect(next).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      id: commentID,
+      body: undefined, // even if treatMissingFieldsAsNull is enabled, this is not filled with null since this is an optimistic update
+    });
+    // and thus the snapshot has missing data
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
   });
 });

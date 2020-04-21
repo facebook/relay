@@ -74,6 +74,86 @@ describe('commitPayload()', () => {
     });
   });
 
+  it('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
+    const query = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name
+            birthdate {
+              day
+              month
+              year
+            }
+          }
+        }
+      `);
+    operation = createOperationDescriptor(query.ActorQuery, {});
+    const callback = jest.fn();
+    const snapshot = environment.lookup(operation.fragment);
+    environment.subscribe(snapshot, callback);
+
+    environment.commitPayload(operation, {
+      me: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+        // birthdate is missing in this response
+      },
+    });
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Zuck',
+        birthdate: undefined, // with treatMissingFieldsAsNull disabled this is left missing
+      },
+    });
+    // and thus the snapshot has missing data
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
+  });
+
+  it('fills missing fields from server updates with null when treatMissingFieldsAsNull is enabled', () => {
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+      treatMissingFieldsAsNull: true,
+    });
+
+    const query = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name
+            birthdate {
+              day
+              month
+              year
+            }
+          }
+        }
+      `);
+    operation = createOperationDescriptor(query.ActorQuery, {});
+    const callback = jest.fn();
+    const snapshot = environment.lookup(operation.fragment);
+    environment.subscribe(snapshot, callback);
+
+    environment.commitPayload(operation, {
+      me: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+        // birthdate is missing in this response
+      },
+    });
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Zuck',
+        birthdate: null, // with treatMissingFieldsAsNull enabled this is filled with null
+      },
+    });
+    // and thus the snapshot does not have missing data
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
+  });
+
   it('rebases optimistic updates', () => {
     const callback = jest.fn();
     const snapshot = environment.lookup(operation.fragment);

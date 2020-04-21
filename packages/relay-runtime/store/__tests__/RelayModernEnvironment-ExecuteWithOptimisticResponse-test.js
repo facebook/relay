@@ -338,4 +338,63 @@ describe('execute() with network that returns optimistic response', () => {
     );
     expect(callback).toBeCalledTimes(0);
   });
+
+  it('does fill missing fields from server-sent optimistic response with nulls when treatMissingFieldsAsNull is enabled', () => {
+    ({ActorQuery: query} = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name
+            lastName
+          }
+        }
+      `));
+    operation = createOperationDescriptor(query, {});
+
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+      treatMissingFieldsAsNull: true,
+    });
+
+    const selector = createReaderSelector(
+      query.fragment,
+      ROOT_ID,
+      {},
+      operation.request,
+    );
+
+    const snapshot = environment.lookup(selector);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        me: {
+          id: '842472',
+          __typename: 'User',
+          name: 'Joe',
+          // lastName is missing in the response
+        },
+      },
+      extensions: {
+        isOptimistic: true,
+      },
+    });
+    jest.runAllTimers();
+
+    expect(next.mock.calls.length).toBe(1);
+    expect(complete).not.toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Joe',
+        // this field becomes null since treatMissingFieldsAsNull is enabled, which affects server-sent optimistic responses
+        lastName: null,
+      },
+    });
+    // and thus the snapshot does not have missing data
+    expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
+  });
 });

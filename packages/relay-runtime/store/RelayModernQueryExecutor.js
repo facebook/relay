@@ -63,6 +63,7 @@ import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
+  +treatMissingFieldsAsNull: boolean,
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
@@ -113,6 +114,7 @@ function execute(config: ExecuteConfig): Executor {
  */
 class Executor {
   _getDataID: GetDataID;
+  _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
@@ -148,10 +150,12 @@ class Executor {
     store,
     updater,
     operationTracker,
+    treatMissingFieldsAsNull,
     getDataID,
     isClientPayload,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
+    this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
@@ -192,6 +196,7 @@ class Executor {
           ? {data: optimisticConfig.response}
           : null,
         optimisticConfig.updater,
+        false,
       );
     }
   }
@@ -370,7 +375,11 @@ class Executor {
       );
     }
     if (isOptimistic) {
-      this._processOptimisticResponse(response, null);
+      this._processOptimisticResponse(
+        response,
+        null,
+        this._treatMissingFieldsAsNull,
+      );
       this._sink.next(response);
       return true;
     }
@@ -443,6 +452,7 @@ class Executor {
   _processOptimisticResponse(
     response: ?GraphQLResponseWithData,
     updater: ?SelectorStoreUpdater,
+    treatMissingFieldsAsNull: boolean,
   ): void {
     invariant(
       this._optimisticUpdates === null,
@@ -462,6 +472,7 @@ class Executor {
           getDataID: this._getDataID,
           path: [],
           request: this._operation.request,
+          treatMissingFieldsAsNull,
         },
       );
       validateOptimisticResponsePayload(payload);
@@ -539,6 +550,7 @@ class Executor {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
         request: this._operation.request,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
   }
@@ -600,6 +612,7 @@ class Executor {
       );
       this._optimisticUpdates = null;
     }
+
     this._incrementalPayloadsPending = false;
     this._incrementalResults.clear();
     this._source.clear();
@@ -610,6 +623,7 @@ class Executor {
         ROOT_TYPE,
         {
           getDataID: this._getDataID,
+          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           path: [],
           request: this._operation.request,
         },
@@ -988,6 +1002,7 @@ class Executor {
         getDataID: this._getDataID,
         path: placeholder.path,
         request: this._operation.request,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
@@ -1202,6 +1217,7 @@ class Executor {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
       request: this._operation.request,
+      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {
       fieldPayloads,

@@ -70,6 +70,7 @@ export type GetDataID = (
 
 export type NormalizationOptions = {|
   +getDataID: GetDataID,
+  +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
   +request: RequestDescriptor,
 |};
@@ -101,6 +102,7 @@ function normalize(
 class RelayResponseNormalizer {
   _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
+  _treatMissingFieldsAsNull: boolean;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _isClientExtension: boolean;
   _moduleImportPayloads: Array<ModuleImportPayload>;
@@ -116,6 +118,7 @@ class RelayResponseNormalizer {
   ) {
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
+    this._treatMissingFieldsAsNull = options.treatMissingFieldsAsNull;
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
     this._moduleImportPayloads = [];
@@ -351,7 +354,7 @@ class RelayResponseNormalizer {
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
     if (fieldValue == null) {
-      if (fieldValue === undefined) {
+      if (!this._treatMissingFieldsAsNull && fieldValue === undefined) {
         // Fields that are missing in the response are not set on the record.
         // There are three main cases where this can occur:
         // - Inside a client extension: the server will not generally return

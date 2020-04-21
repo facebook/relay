@@ -6,9 +6,9 @@
  */
 
 use crate::ast::{Ast, AstBuilder, Primitive};
-use crate::build_ast::build_operation;
+use crate::build_ast::{build_fragment, build_operation};
 
-use graphql_ir::OperationDefinition;
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::Schema;
 
 use std::fmt::{Result as FmtResult, Write};
@@ -28,6 +28,14 @@ impl Default for Printer {
 impl Printer {
     pub fn print_operation(&mut self, schema: &Schema, operation: &OperationDefinition) -> String {
         let key = build_operation(schema, &mut self.builder, operation);
+        let root = self.builder.lookup(key);
+        let mut result = String::new();
+        self.print(&mut result, root, 0).unwrap();
+        result
+    }
+
+    pub fn print_fragment(&mut self, schema: &Schema, fragment: &FragmentDefinition) -> String {
+        let key = build_fragment(schema, &mut self.builder, fragment);
         let root = self.builder.lookup(key);
         let mut result = String::new();
         self.print(&mut result, root, 0).unwrap();

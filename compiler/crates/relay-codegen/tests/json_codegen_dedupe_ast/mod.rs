@@ -23,7 +23,9 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                     ExecutableDefinition::Operation(operation) => {
                         printer.print_operation(&TEST_SCHEMA, operation)
                     }
-                    ExecutableDefinition::Fragment(_) => "TODO".to_string(),
+                    ExecutableDefinition::Fragment(fragment) => {
+                        printer.print_fragment(&TEST_SCHEMA, fragment)
+                    }
                 })
                 .collect::<Vec<_>>()
                 .join("\n\n")

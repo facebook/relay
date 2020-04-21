@@ -71,8 +71,8 @@ pub fn build_fragment(
     schema: &Schema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
-) -> ConcreteDefinition {
-    let builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+) -> AstKey {
+    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
     builder.build_fragment(fragment)
 }
 
@@ -165,7 +165,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_fragment(&self, fragment: &FragmentDefinition) -> ConcreteDefinition {
+    fn build_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
         let connection_metadata = if let Some(metadata_values) =
             extract_connection_metadata_from_directive(
                 &fragment.directives,
@@ -207,34 +207,51 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
         }
 
-        let refetch = None;
+        let mut metadata = vec![];
+        // TODO: connection metadata
+        if let Some(mask) = mask {
+            metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(mask)))
+        }
+        if let Some(plural) = mask {
+            metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(plural)))
+        }
+        // TODO: refetch metadata
 
-        let metadata = if connection_metadata.is_some()
-            || mask.is_some()
-            || plural.is_some()
-            || refetch.is_some()
-        {
-            Some(FragmentMetadata {
-                connection: connection_metadata,
-                mask,
-                plural,
-                refetch,
-            })
-        } else {
-            None
-        };
-
-        ConcreteDefinition::Fragment(ConcreteFragment {
-            name: fragment.name.item,
-            type_: self.schema.get_type_name(fragment.type_condition),
-            argument_definitions: self.build_fragment_variable_definitions(
-                &fragment.variable_definitions,
-                &fragment.used_global_variables,
+        let object = vec![
+            (
+                CODEGEN_CONSTANTS.argument_definitions,
+                self.build_fragment_variable_definitions(
+                    &fragment.variable_definitions,
+                    &fragment.used_global_variables,
+                ),
             ),
-            selections: vec![], //TODO: self.build_selections(&fragment.selections),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.fragment),
+            ),
             // TODO(T63303840) include correct fragment metadata
-            metadata,
-        })
+            (
+                CODEGEN_CONSTANTS.metadata,
+                if metadata.is_empty() {
+                    Primitive::Null
+                } else {
+                    Primitive::Key(self.object(metadata))
+                },
+            ),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(fragment.name.item),
+            ),
+            (
+                CODEGEN_CONSTANTS.selections,
+                self.build_selections(&fragment.selections),
+            ),
+            (
+                CODEGEN_CONSTANTS.type_,
+                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
+            ),
+        ];
+        self.object(object)
     }
 
     fn build_selections(&mut self, selections: &[Selection]) -> Primitive {
@@ -250,7 +267,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             // TODO(T63303873) Normalization handles
             Selection::Condition(cond) => vec![self.build_condition(&cond)],
             Selection::FragmentSpread(frag_spread) => {
-                vec![Primitive::Null]
+                vec![self.build_fragment_spread(&frag_spread)]
                 /* TODO
                 let defer = frag_spread
                     .directives
@@ -264,8 +281,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 */
             }
             Selection::InlineFragment(inline_frag) => {
-                vec![Primitive::Null]
-                // TODO: vec![self.build_inline_fragment(&inline_frag)]
+                vec![self.build_inline_fragment(&inline_frag)]
             }
             Selection::LinkedField(field) => {
                 let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
@@ -462,13 +478,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         (name, alias)
     }
 
-    fn build_fragment_spread(&self, frag_spread: &FragmentSpread) -> ConcreteFragmentSpread {
-        ConcreteFragmentSpread {
-            name: frag_spread.fragment.item,
-            args: None, // TODO: self.build_arguments(&frag_spread.arguments),
-        }
+    fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+        let args = self.build_arguments(&frag_spread.arguments);
+        Primitive::Key(self.object(vec![
+            (CODEGEN_CONSTANTS.args, args),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+            ),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(frag_spread.fragment.item),
+            ),
+        ]))
     }
-
+    /* TODO
     fn build_defer(&self, frag_spread: &FragmentSpread, defer: &Directive) -> ConcreteSelection {
         let next_selections = vec![ConcreteSelection::FragmentSpread(
             self.build_fragment_spread(&FragmentSpread {
@@ -504,6 +528,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
         }
     }
+    */
 
     fn build_stream(
         &mut self,
@@ -550,16 +575,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_inline_fragment(&self, inline_frag: &InlineFragment) -> ConcreteSelection {
+    fn build_inline_fragment(&mut self, inline_frag: &InlineFragment) -> Primitive {
         match inline_frag.type_condition {
             None => {
                 // TODO(T63388023): Use typed custom directives
                 if inline_frag.directives.len() == 1
                     && inline_frag.directives[0].name.item == "__clientExtension".intern()
                 {
-                    ConcreteSelection::ClientExtension(ConcreteClientExtension {
-                        selections: vec![], //TODO: self.build_selections(&inline_frag.selections),
-                    })
+                    let selections = self.build_selections(&inline_frag.selections);
+                    Primitive::Key(self.object(vec![
+                        (
+                            CODEGEN_CONSTANTS.kind,
+                            Primitive::String(CODEGEN_CONSTANTS.client_extension),
+                        ),
+                        (CODEGEN_CONSTANTS.selections, selections),
+                    ]))
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
                     panic!(
@@ -569,21 +599,26 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             }
             Some(type_condition) => {
-                if inline_frag
+                let selections = if inline_frag
                     .directives
                     .named(MATCH_CONSTANTS.custom_module_directive_name)
                     .is_some()
                 {
-                    ConcreteSelection::InlineFragment(ConcreteInlineFragment {
-                        type_: self.schema.get_type_name(type_condition),
-                        selections: vec![build_module_import_selection(&inline_frag.directives[0])],
-                    })
+                    Primitive::Null // TODO: build_module_import_selection(&inline_frag.directives[0])])
                 } else {
-                    ConcreteSelection::InlineFragment(ConcreteInlineFragment {
-                        type_: self.schema.get_type_name(type_condition),
-                        selections: vec![], //TODO: self.build_selections(&inline_frag.selections),
-                    })
-                }
+                    self.build_selections(&inline_frag.selections)
+                };
+                Primitive::Key(self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
+                    ),
+                    (CODEGEN_CONSTANTS.selections, selections),
+                    (
+                        CODEGEN_CONSTANTS.type_,
+                        Primitive::String(self.schema.get_type_name(type_condition)),
+                    ),
+                ]))
             }
         }
     }
@@ -612,18 +647,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_variable_type(&self, type_: &TypeReference) -> StringKey {
-        match type_ {
+    fn build_variable_type(&self, type_: &TypeReference) -> Primitive {
+        Primitive::String(match type_ {
             TypeReference::Named(inner) => self.schema.get_type_name(inner.clone()),
             _ => self.schema.get_type_string(type_).intern(),
-        }
+        })
     }
 
     fn build_operation_variable_definitions(
         &mut self,
         variable_definitions: &[VariableDefinition],
     ) -> Primitive {
-        let mut var_defs = variable_definitions
+        let var_defs = variable_definitions
             .iter()
             .map(|def| {
                 let default_value = if let Some(const_val) = &def.default_value {
@@ -631,53 +666,69 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 } else {
                     Primitive::Null
                 };
-                (
-                    def.name.item,
-                    Primitive::Key(self.object(vec![
-                        (CODEGEN_CONSTANTS.default_value, default_value),
-                        (
-                            CODEGEN_CONSTANTS.kind,
-                            Primitive::String(CODEGEN_CONSTANTS.local_argument),
-                        ),
-                        (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                        (
-                            CODEGEN_CONSTANTS.type_,
-                            Primitive::String(self.build_variable_type(&def.type_)),
-                        ),
-                    ])),
-                )
+                Primitive::Key(self.object(vec![
+                    (CODEGEN_CONSTANTS.default_value, default_value),
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.local_argument),
+                    ),
+                    (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
+                    (
+                        CODEGEN_CONSTANTS.type_,
+                        self.build_variable_type(&def.type_),
+                    ),
+                ]))
             })
             .collect::<Vec<_>>();
 
-        var_defs.sort_by_key(|var_def| var_def.0.lookup());
-        Primitive::Key(self.array(var_defs.into_iter().map(|v| v.1).collect::<Vec<_>>()))
+        Primitive::Key(self.array(var_defs))
     }
 
     fn build_fragment_variable_definitions(
-        &self,
+        &mut self,
         local_variable_definitions: &[VariableDefinition],
         global_variable_definitions: &[VariableDefinition],
-    ) -> Vec<ConcreteVariableDefinition> {
+    ) -> Primitive {
         // TODO(T63164787) this will produce argument_definitions in a different order than our JS codegen
-        let local_vars_iter = local_variable_definitions.iter().map(|def| {
-            ConcreteVariableDefinition::LocalArgument(ConcreteLocalVariableDefinition {
-                name: def.name.item,
-                type_: self.build_variable_type(&def.type_),
-                default_value: if let Some(_const_val) = &def.default_value {
-                    json!(null) // TODO: self.build_constant_value(&const_val)
-                } else {
-                    json!(null)
-                },
-            })
-        });
-        let global_vars_iter = global_variable_definitions.iter().map(|def| {
-            ConcreteVariableDefinition::RootArgument(ConcreteGlobalVariableDefinition {
-                name: def.name.item,
-                type_: self.build_variable_type(&def.type_),
-            })
-        });
-        local_vars_iter.chain(global_vars_iter).collect::<Vec<_>>()
-        // TODO: var_defs.sort_by_key(|var_def| var_def.name().lookup());
+        let mut var_defs = Vec::with_capacity(
+            local_variable_definitions.len() + global_variable_definitions.len(),
+        );
+        for def in local_variable_definitions {
+            let object = vec![
+                (
+                    CODEGEN_CONSTANTS.default_value,
+                    if let Some(const_val) = &def.default_value {
+                        self.build_constant_value(&const_val)
+                    } else {
+                        Primitive::Null
+                    },
+                ),
+                (
+                    CODEGEN_CONSTANTS.kind,
+                    Primitive::String(CODEGEN_CONSTANTS.local_argument),
+                ),
+                (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
+                (
+                    CODEGEN_CONSTANTS.type_,
+                    self.build_variable_type(&def.type_),
+                ),
+            ];
+            var_defs.push(Primitive::Key(self.object(object)));
+        }
+        for def in global_variable_definitions {
+            var_defs.push(Primitive::Key(self.object(vec![
+                (
+                    CODEGEN_CONSTANTS.kind,
+                    Primitive::String(CODEGEN_CONSTANTS.root_argument),
+                ),
+                (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
+                (
+                    CODEGEN_CONSTANTS.type_,
+                    self.build_variable_type(&def.type_),
+                ),
+            ])));
+        }
+        Primitive::Key(self.array(var_defs))
     }
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Primitive {

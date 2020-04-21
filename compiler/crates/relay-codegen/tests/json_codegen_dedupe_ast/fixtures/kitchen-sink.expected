@@ -48,8 +48,8 @@ fragment UserFragment on User
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "PictureSize",
-      "type": "[Int]!"
+      "name": "id",
+      "type": "ID!"
     },
     {
       "defaultValue": null,
@@ -60,8 +60,8 @@ fragment UserFragment on User
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID!"
+      "name": "PictureSize",
+      "type": "[Int]!"
     }
   ],
   "kind": "Operation",
@@ -93,7 +93,19 @@ fragment UserFragment on User
           "kind": "Condition",
           "passingValue": true,
           "selections": [
-            null
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User"
+            }
           ]
         },
         {
@@ -101,7 +113,17 @@ fragment UserFragment on User
           "kind": "Condition",
           "passingValue": true,
           "selections": [
-            null
+            {
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "size",
+                  "variableName": "PictureSize"
+                }
+              ],
+              "kind": "FragmentSpread",
+              "name": "UserFragment"
+            }
           ]
         }
       ],
@@ -110,4 +132,243 @@ fragment UserFragment on User
   ]
 }
 
-TODO
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "after",
+      "type": "ID"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "cond",
+      "type": "Boolean!"
+    },
+    {
+      "defaultValue": 5,
+      "kind": "LocalArgument",
+      "name": "first",
+      "type": "Int"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "size",
+      "type": "[Int]"
+    },
+    {
+      "defaultValue": 2,
+      "kind": "LocalArgument",
+      "name": "scale",
+      "type": "Float"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "PictureSize",
+      "type": "[Int]"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "after",
+          "variableName": "after"
+        },
+        {
+          "kind": "Variable",
+          "name": "first",
+          "variableName": "first"
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "kind": "LinkedField",
+      "name": "friends",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "count",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "condition": "cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "alias": "thumbnail",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": 32
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": "src",
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": "src",
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "scale"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": "src",
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "scaled",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "PictureSize"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User"
+}

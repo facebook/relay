@@ -11,7 +11,7 @@ use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, NamedItem, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    TransformedValue, Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
 use schema::{FieldID, ScalarID, Type, TypeReference};
@@ -427,30 +427,65 @@ impl<'s> MatchTransform<'s> {
                 ));
             }
         }
+
+        let previous_parent_type = self.parent_type;
+        self.parent_type = field_definition.type_.inner();
+        self.path.push(Path {
+            location: field.definition.location,
+            item: field.alias_or_name(self.program.schema()),
+        });
+        let next_selections = self.transform_selections(&field.selections);
+        self.path.pop();
+        self.parent_type = previous_parent_type;
+
+        // The linked field definition should have: 'supported: [String]'
+        let supported_arg_definition = field_definition
+            .arguments
+            .iter()
+            .find(|argument| argument.name == MATCH_CONSTANTS.supported_arg);
+        match supported_arg_definition {
+            None => {
+                // Return early if no `supported` arg definition on the field
+                return Ok(if let TransformedValue::Keep = next_selections {
+                    Transformed::Keep
+                } else {
+                    Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                        alias: field.alias,
+                        definition: field.definition,
+                        arguments: field.arguments.clone(),
+                        directives: field.directives.clone(),
+                        selections: next_selections.replace_or_else(|| field.selections.clone()),
+                    })))
+                });
+            }
+            Some(supported_arg_definition) => {
+                let is_supported_string = {
+                    if let TypeReference::List(of) = supported_arg_definition.type_.nullable_type()
+                    {
+                        if let TypeReference::Named(of) = of.nullable_type() {
+                            self.program.schema().is_string(*of)
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                };
+                if !is_supported_string {
+                    return Err(ValidationError::new(
+                        ValidationMessage::InvalidMatchNotOnNonNullListString {
+                            field_name: field_definition.name,
+                        },
+                        vec![field.definition.location],
+                    ));
+                }
+            }
+        }
+
         // The linked field should be an abstract type
         if !field_definition.type_.inner().is_abstract_type() {
             return Err(ValidationError::new(
                 ValidationMessage::InvalidMatchNotOnUnionOrInterface {
-                    field_name: field_definition.name,
-                },
-                vec![field.definition.location],
-            ));
-        }
-
-        // The linked field definition should have: 'supported: [String]'
-        let has_supported_string = field_definition.arguments.iter().any(|argument| {
-            if argument.name == MATCH_CONSTANTS.supported_arg {
-                if let TypeReference::List(of) = argument.type_.nullable_type() {
-                    if let TypeReference::Named(of) = of.nullable_type() {
-                        return self.program.schema().is_string(*of);
-                    }
-                }
-            }
-            false
-        });
-        if !has_supported_string {
-            return Err(ValidationError::new(
-                ValidationMessage::InvalidMatchNotOnNonNullListString {
                     field_name: field_definition.name,
                 },
                 vec![field.definition.location],
@@ -535,17 +570,6 @@ impl<'s> MatchTransform<'s> {
                 next_directives.push(directive.clone());
             }
         }
-        let previous_parent_type = self.parent_type;
-        self.parent_type = field_definition.type_.inner();
-        self.path.push(Path {
-            location: field.definition.location,
-            item: field.alias_or_name(self.program.schema()),
-        });
-        let next_selections = self
-            .transform_selections(&field.selections)
-            .replace_or_else(|| field.selections.clone());
-        self.path.pop();
-        self.parent_type = previous_parent_type;
 
         Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
             LinkedField {
@@ -553,7 +577,7 @@ impl<'s> MatchTransform<'s> {
                 definition: field.definition,
                 arguments: next_arguments,
                 directives: next_directives,
-                selections: next_selections,
+                selections: next_selections.replace_or_else(|| field.selections.clone()),
             },
         ))))
     }

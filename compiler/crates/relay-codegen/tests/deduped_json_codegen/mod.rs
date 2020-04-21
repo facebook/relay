@@ -9,10 +9,11 @@ use common::FileKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_syntax::parse;
-use relay_codegen::{print_fragment_deduped, print_operation_deduped};
+use relay_codegen::Printer;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+    let mut printer = Printer::default();
     let ast = parse(fixture.content, FileKey::new(fixture.file_name)).unwrap();
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|definitions| {
@@ -21,11 +22,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 .map(|def| match def {
                     graphql_ir::ExecutableDefinition::Operation(operation) => format!(
                         "Operation:\n{}\n",
-                        print_operation_deduped(&TEST_SCHEMA, operation)
+                        printer.print_operation_deduped(&TEST_SCHEMA, operation)
                     ),
                     graphql_ir::ExecutableDefinition::Fragment(fragment) => format!(
                         "Fragment:\n{}\n",
-                        print_fragment_deduped(&TEST_SCHEMA, fragment)
+                        printer.print_fragment_deduped(&TEST_SCHEMA, fragment)
                     ),
                 })
                 .collect::<Vec<_>>()

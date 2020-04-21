@@ -49,7 +49,7 @@ Operation:
               "storageKey": null
             }
           ],
-          "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
+          "storageKey": null
         }
       ],
       "storageKey": null

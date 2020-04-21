@@ -186,7 +186,7 @@ return {
       "type": "[Int]"
     },
     {
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "kind": "LocalArgument",
       "name": "scale",
       "type": "Float"
@@ -272,7 +272,7 @@ return {
       "name": "profilePicture",
       "plural": false,
       "selections": (v0/*: any*/),
-      "storageKey": "profilePicture(size:32)"
+      "storageKey": null
     },
     {
       "alias": null,

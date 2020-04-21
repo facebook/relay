@@ -11,6 +11,7 @@ use crate::ast::{Ast, AstBuilder, AstKey, Primitive};
 use crate::codegen_ast::*;
 use crate::constants::CODEGEN_CONSTANTS;
 use common::WithLocation;
+use fnv::FnvHashSet;
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
     FragmentSpread, InlineFragment, LinkedField, NamedItem, OperationDefinition, ScalarField,
@@ -62,18 +63,18 @@ pub fn build_operation(
     schema: &Schema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
-) -> AstKey {
+) -> (AstKey, FnvHashSet<AstKey>) {
     let mut builder = CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
-    builder.build_operation(operation)
+    (builder.build_operation(operation), builder.duplicates)
 }
 
 pub fn build_fragment(
     schema: &Schema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
-) -> AstKey {
+) -> (AstKey, FnvHashSet<AstKey>) {
     let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
-    builder.build_fragment(fragment)
+    (builder.build_fragment(fragment), builder.duplicates)
 }
 
 struct CodegenBuilder<'schema, 'builder> {
@@ -82,6 +83,8 @@ struct CodegenBuilder<'schema, 'builder> {
     schema: &'schema Schema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
+    duplicates: FnvHashSet<AstKey>,
+    interned_keys: FnvHashSet<AstKey>,
 }
 
 #[derive(PartialEq)]
@@ -102,15 +105,31 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             schema,
             variant,
             ast_builder,
+            duplicates: Default::default(),
+            interned_keys: Default::default(),
         }
     }
 
+    fn intern_and_collect_duplicates(&mut self, ast: Ast) -> AstKey {
+        let key = self.ast_builder.intern(ast);
+        if self.interned_keys.contains(&key) {
+            self.duplicates.insert(key);
+        } else {
+            self.interned_keys.insert(key);
+        }
+        key
+    }
+
+    pub fn duplicates(&self) -> &FnvHashSet<AstKey> {
+        &self.duplicates
+    }
+
     pub fn object(&mut self, object: Vec<(StringKey, Primitive)>) -> AstKey {
-        self.ast_builder.intern(Ast::Object(object))
+        self.intern_and_collect_duplicates(Ast::Object(object))
     }
 
     pub fn array(&mut self, array: Vec<Primitive>) -> AstKey {
-        self.ast_builder.intern(Ast::Array(array))
+        self.intern_and_collect_duplicates(Ast::Array(array))
     }
 
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {

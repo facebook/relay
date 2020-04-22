@@ -11,7 +11,8 @@ use graphql_transforms::{
     apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
     handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
     skip_redundant_nodes, skip_split_operation, skip_unreachable_node, split_module_import,
-    transform_connections, transform_defer_stream, transform_match, ConnectionInterface,
+    transform_connections, transform_defer_stream, transform_match, validate_module_conflicts,
+    ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -36,7 +37,7 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     let common_program = apply_common_transforms(&program, connection_interface)?;
     let reader_program = apply_reader_transforms(&common_program, base_fragment_names);
     let operation_program = apply_operation_transforms(&common_program)?;
-    let normalization_program = apply_normalization_transforms(&operation_program);
+    let normalization_program = apply_normalization_transforms(&operation_program)?;
     let operation_text_program = apply_operation_text_transforms(&operation_program);
     let typegen_program = apply_typegen_transforms(&program, base_fragment_names);
 
@@ -110,7 +111,9 @@ fn apply_operation_transforms<'schema>(
 /// apply to the generated normalization code.
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
-fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
+fn apply_normalization_transforms<'schema>(
+    program: &Program<'schema>,
+) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
@@ -123,9 +126,10 @@ fn apply_normalization_transforms<'schema>(program: &Program<'schema>) -> Progra
     let program = skip_unreachable_node(&program);
     let program = inline_fragments(&program);
     let program = flatten(&program, true);
+    validate_module_conflicts(&program)?;
     let program = skip_redundant_nodes(&program);
     let program = client_extensions(&program);
-    generate_typename(&program)
+    Ok(generate_typename(&program))
 }
 
 /// After the operation transforms, this applies further transforms that only

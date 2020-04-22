@@ -361,6 +361,8 @@ pub enum ValidationMessage {
         type_name: StringKey,
         alias_path: String,
     },
+    #[error("Found conflicting @module selections: use a unique alias on the parent fields")]
+    ConflictingModuleSelections,
 
     #[error("Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string.")]
     LabelNotUniqueForDeferStream { directive_name: StringKey },

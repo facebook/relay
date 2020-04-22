@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 # expected-to-throw
 query NameRendererQuery($id: ID!) {
   node(id: $id) {
@@ -15,4 +13,6 @@ fragment NameRendererFragment on User {
   }
 }
 ==================================== ERROR ====================================
-TODO
+Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.:
+query-with-match-directive-no-modules.invalid.graphql:9:16:
+  nameRenderer @match {

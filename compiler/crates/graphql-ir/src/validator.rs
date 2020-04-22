@@ -219,14 +219,6 @@ pub trait Validator {
         F: Fn(&mut Self, &T) -> ValidationResult<()>,
         T: Clone,
     {
-        Self::validate_map(list, |item| f(self, item))
-    }
-
-    fn validate_map<T, E, U, I, F>(items: I, f: F) -> Result<(), Vec<E>>
-    where
-        I: IntoIterator<Item = U>,
-        F: FnMut(U) -> Result<T, Vec<E>>,
-    {
-        validate_map(items, f)
+        validate_map(list, |item| f(self, item))
     }
 }

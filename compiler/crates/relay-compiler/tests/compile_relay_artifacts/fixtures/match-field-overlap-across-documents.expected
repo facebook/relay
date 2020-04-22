@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 # expected-to-throw
 query MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
@@ -40,4 +38,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== ERROR ====================================
-TODO
+Found conflicting @module selections: use a unique alias on the parent fields:
+match-field-overlap-across-documents.graphql:21:7:
+      @module(name: "BarMarkdownUserNameRenderer.react")
+
+
+match-field-overlap-across-documents.graphql:12:7:
+      @module(name: "FooMarkdownUserNameRenderer.react")

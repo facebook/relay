@@ -9,8 +9,10 @@ mod constants;
 mod match_transform;
 mod split_module_import;
 mod utils;
+mod validate_module_conflicts;
 
 pub use constants::MATCH_CONSTANTS;
 pub use match_transform::transform_match;
 pub use split_module_import::split_module_import;
 pub use utils::get_normalization_operation_name;
+pub use validate_module_conflicts::validate_module_conflicts;

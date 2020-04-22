@@ -52,7 +52,9 @@ pub use handle_fields::{
 pub use hash_arguments::hash_arguments;
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
-pub use match_::{split_module_import, transform_match, MATCH_CONSTANTS};
+pub use match_::{
+    split_module_import, transform_match, validate_module_conflicts, MATCH_CONSTANTS,
+};
 pub use node_identifier::NodeIdentifier;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;

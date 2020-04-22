@@ -1,7 +1,7 @@
 {
   "name": "relay-test-utils",
   "description": "Utilities for testing Relay applications.",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "keywords": [
     "graphql",
     "relay"
@@ -13,7 +13,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
-    "relay-runtime": "9.0.0"
+    "relay-runtime": "9.1.0"
   },
   "peerDependencies": {
     "graphql": "^14.2.0"

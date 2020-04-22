@@ -267,7 +267,7 @@ fragment UserFragment on User
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "profilePicture(size:32)"
     },
     {
       "alias": null,

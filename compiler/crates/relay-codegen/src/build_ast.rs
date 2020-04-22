@@ -332,7 +332,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        // TODO: let storage_key = get_static_storage_key(name, &args);
         Primitive::Key(self.object(vec![
             (
                 CODEGEN_CONSTANTS.alias,
@@ -341,13 +340,31 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Some(alias) => Primitive::String(alias),
                 },
             ),
-            (CODEGEN_CONSTANTS.args, args),
+            (
+                CODEGEN_CONSTANTS.args,
+                match args {
+                    None => Primitive::Null,
+                    Some(key) => Primitive::Key(key),
+                },
+            ),
             (
                 CODEGEN_CONSTANTS.kind,
                 Primitive::String(CODEGEN_CONSTANTS.scalar_field),
             ),
             (CODEGEN_CONSTANTS.name, Primitive::String(name)),
-            (CODEGEN_CONSTANTS.storage_key, Primitive::Null),
+            (
+                CODEGEN_CONSTANTS.storage_key,
+                match args {
+                    None => Primitive::Null,
+                    Some(key) => {
+                        if is_static_storage_key_available(&field.arguments) {
+                            Primitive::StorageKey(name, key)
+                        } else {
+                            Primitive::Null
+                        }
+                    }
+                },
+            ),
         ]))
     }
 
@@ -399,7 +416,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let storage_key = Primitive::Null; // TODO: get_static_storage_key(name, &args);
         let selections = self.build_selections(&field.selections);
         Primitive::Key(self.object(vec![
             (
@@ -409,7 +425,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Some(alias) => Primitive::String(alias),
                 },
             ),
-            (CODEGEN_CONSTANTS.args, args),
+            (
+                CODEGEN_CONSTANTS.args,
+                match args {
+                    None => Primitive::Null,
+                    Some(key) => Primitive::Key(key),
+                },
+            ),
             (
                 CODEGEN_CONSTANTS.concrete_type,
                 if self.schema.is_abstract_type(schema_field.type_.inner()) {
@@ -428,7 +450,19 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 Primitive::Bool(schema_field.type_.is_list()),
             ),
             (CODEGEN_CONSTANTS.selections, selections),
-            (CODEGEN_CONSTANTS.storage_key, storage_key),
+            (
+                CODEGEN_CONSTANTS.storage_key,
+                match args {
+                    None => Primitive::Null,
+                    Some(key) => {
+                        if is_static_storage_key_available(&field.arguments) {
+                            Primitive::StorageKey(name, key)
+                        } else {
+                            Primitive::Null
+                        }
+                    }
+                },
+            ),
         ]))
     }
 
@@ -500,7 +534,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
         let args = self.build_arguments(&frag_spread.arguments);
         Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.args, args),
+            (
+                CODEGEN_CONSTANTS.args,
+                match args {
+                    None => Primitive::Null,
+                    Some(key) => Primitive::Key(key),
+                },
+            ),
             (
                 CODEGEN_CONSTANTS.kind,
                 Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
@@ -750,7 +790,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         Primitive::Key(self.array(var_defs))
     }
 
-    fn build_arguments(&mut self, arguments: &[Argument]) -> Primitive {
+    fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
         let mut sorted_args: Vec<&Argument> = arguments.iter().map(|arg| arg).collect();
         sorted_args.sort_unstable_by_key(|arg| arg.name.item.lookup());
 
@@ -761,9 +801,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
              .map(Primitive::Key)
              .collect::<Vec<_>>();
         if args.is_empty() {
-            Primitive::Null
+            None
         } else {
-            Primitive::Key(self.array(args))
+            Some(self.array(args))
         }
     }
 
@@ -898,74 +938,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 }
 
-/// Tries to convert a `ConcreteArgument` into a `serde_json::Value`.
-/// Returns `None`, if it contains a `Variable` somewhere
-fn try_argument_value_to_serde(arg: &ConcreteArgument) -> Option<SerdeValue> {
-    match arg {
-        ConcreteArgument::Variable(_) => {
-            // Unable to print a static storage key, abort.
-            None
-        }
-        ConcreteArgument::Literal(val) => Some(val.value.clone()),
-        ConcreteArgument::ListValue(list_arg) => {
-            let mut json_values = Vec::with_capacity(list_arg.items.len());
-            for item in &list_arg.items {
-                if let Some(item_value) = item {
-                    let item_json = try_argument_value_to_serde(item_value)?;
-                    json_values.push(item_json);
-                } else {
-                    json_values.push(json!(null));
-                }
-            }
-            Some(json!(json_values))
-        }
-        ConcreteArgument::ObjectValue(object_arg) => {
-            let mut map = SerdeMap::with_capacity(object_arg.fields.len());
-            for arg in &object_arg.fields {
-                let field_value = try_argument_value_to_serde(arg)?;
-                let field_name = arg.name().lookup().to_string();
-                map.insert(field_name, field_value);
-            }
-            Some(json!(map))
-        }
-    }
+// Storage key is only pre-computable if the arguments don't contain variables
+fn is_static_storage_key_available(arguments: &[Argument]) -> bool {
+    !arguments
+        .iter()
+        .any(|arg| value_contains_variable(&arg.value.item))
 }
 
-/// Pre-computes storage key if possible and advantageous. Storage keys are
-/// generated for fields with supplied arguments that are all statically known
-/// (ie. literals, no variables) at build time.
-fn get_static_storage_key(
-    field_name: StringKey,
-    arguments: &Option<Vec<ConcreteArgument>>, /*_metadata: ?*/
-) -> Option<String> {
-    // TODO (T64585375): JS compiler has an option to force a storageKey.
-    if let Some(arguments) = arguments {
-        let mut static_args = Vec::new();
-        for arg in arguments {
-            // Abort if the argument cannot be converted statically.
-            let arg_value = try_argument_value_to_serde(arg)?;
-            static_args.push((arg.name(), arg_value));
-        }
-        if static_args.is_empty() {
-            None
-        } else {
-            let mut key = format!("{}(", field_name);
-            let mut first = true;
-            for (arg_name, arg_value) in static_args {
-                if first {
-                    first = false;
-                } else {
-                    key.push(',');
-                }
-                key.push_str(arg_name.lookup());
-                key.push(':');
-                key.push_str(&serde_json::to_string(&arg_value).unwrap());
-            }
-            key.push(')');
-            Some(key)
-        }
-    } else {
-        None
+fn value_contains_variable(value: &Value) -> bool {
+    match value {
+        Value::Variable(_) => true,
+        Value::Constant(_) => false,
+        Value::List(vals) => vals.iter().any(value_contains_variable),
+        Value::Object(objs) => objs
+            .iter()
+            .any(|arg| value_contains_variable(&arg.value.item)),
     }
 }
 

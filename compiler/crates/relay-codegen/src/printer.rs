@@ -7,12 +7,14 @@
 
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive};
 use crate::build_ast::{build_fragment, build_operation};
+use crate::constants::CODEGEN_CONSTANTS;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::Schema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use indexmap::IndexMap;
+use interner::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
 pub struct Printer {
@@ -109,9 +111,9 @@ impl<'b> DedupedJSONPrinter<'b> {
         }
     }
 
-    fn print_ast<W: Write>(
+    fn print_ast(
         &mut self,
-        f: &mut W,
+        f: &mut String,
         key: AstKey,
         indent: usize,
         is_dedupe_var: bool,
@@ -181,9 +183,9 @@ impl<'b> DedupedJSONPrinter<'b> {
         }
     }
 
-    fn print_primitive<W: Write>(
+    fn print_primitive(
         &mut self,
-        f: &mut W,
+        f: &mut String,
         primitive: &Primitive,
         indent: usize,
         is_dedupe_var: bool,
@@ -195,6 +197,9 @@ impl<'b> DedupedJSONPrinter<'b> {
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
             Primitive::Key(key) => self.print_ast(f, *key, indent, is_dedupe_var),
+            Primitive::StorageKey(field_name, key) => {
+                print_static_storage_key(f, &self.builder, *field_name, *key)
+            }
         }
     }
 }
@@ -258,7 +263,7 @@ impl Printer {
         }
     }
 
-    fn print<W: Write>(&self, f: &mut W, ast: &Ast, indent: usize) -> FmtResult {
+    fn print(&self, f: &mut String, ast: &Ast, indent: usize) -> FmtResult {
         match ast {
             Ast::Object(object) => {
                 if object.is_empty() {
@@ -302,12 +307,7 @@ impl Printer {
         }
     }
 
-    fn print_primitive<W: Write>(
-        &self,
-        f: &mut W,
-        primitive: &Primitive,
-        indent: usize,
-    ) -> FmtResult {
+    fn print_primitive(&self, f: &mut String, primitive: &Primitive, indent: usize) -> FmtResult {
         match primitive {
             Primitive::Null => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
@@ -315,6 +315,9 @@ impl Printer {
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
             Primitive::Key(key) => self.print(f, self.builder.lookup(*key), indent),
+            Primitive::StorageKey(field_name, key) => {
+                print_static_storage_key(f, &self.builder, *field_name, *key)
+            }
         }
     }
 }
@@ -324,4 +327,147 @@ fn print_indentation<W: Write>(dest_buffer: &mut W, indent: usize) -> FmtResult 
         write!(dest_buffer, "  ")?;
     }
     Ok(())
+}
+
+/// Pre-computes storage key if possible and advantageous. Storage keys are
+/// generated for fields with supplied arguments that are all statically known
+/// (ie. literals, no variables) at build time.
+fn print_static_storage_key(
+    f: &mut String,
+    builder: &AstBuilder,
+    field_name: StringKey,
+    args_key: AstKey,
+) -> FmtResult {
+    // TODO (T64585375): JS compiler has an option to force a storageKey.
+    let args = builder.lookup(args_key).assert_array();
+    write_static_storage_key(f, builder, field_name, args)
+}
+
+fn write_static_storage_key(
+    f: &mut String,
+    builder: &AstBuilder,
+    field_name: StringKey,
+    args: &[Primitive],
+) -> FmtResult {
+    write!(f, "\"{}(", field_name)?;
+    for arg_key in args {
+        let arg = builder.lookup(arg_key.assert_key()).assert_object();
+        let (_, name) = arg
+            .iter()
+            .find(|(key, _)| *key == CODEGEN_CONSTANTS.name)
+            .expect("Expected `name` to exist");
+        let name = name.assert_string();
+        write!(f, "{}:", name)?;
+        write_argument_value(f, builder, arg)?;
+        f.push(',');
+    }
+    f.pop(); // args won't be empty
+    f.push_str(")\"");
+    Ok(())
+}
+
+fn write_argument_value(
+    f: &mut String,
+    builder: &AstBuilder,
+    arg: &[(StringKey, Primitive)],
+) -> FmtResult {
+    let (_, key) = arg
+        .iter()
+        .find(|(key, _)| *key == CODEGEN_CONSTANTS.kind)
+        .expect("Expected `kind` to exist");
+    let key = key.assert_string();
+    // match doesn't allow `CODEGEN_CONSTANTS.<>` on the match arm, falling back to if statements
+    if key == CODEGEN_CONSTANTS.literal {
+        let (_, literal) = arg
+            .iter()
+            .find(|(key, _)| *key == CODEGEN_CONSTANTS.value)
+            .expect("Expected `name` to exist");
+        write_constant_value(f, builder, literal)?;
+    } else if key == CODEGEN_CONSTANTS.list_value {
+        let (_, items) = arg
+            .iter()
+            .find(|(key, _)| *key == CODEGEN_CONSTANTS.items)
+            .expect("Expected `items` to exist");
+        let array = builder.lookup(items.assert_key()).assert_array();
+
+        f.push('[');
+        for key in array {
+            let object = builder.lookup(key.assert_key()).assert_object();
+            write_argument_value(f, builder, object)?;
+            f.push(',');
+        }
+        if !array.is_empty() {
+            f.pop();
+        }
+        f.push(']');
+    } else {
+        // We filtered out Variables, here it should only be ObjectValue
+        let (_, value) = arg
+            .iter()
+            .find(|(key, _)| *key == CODEGEN_CONSTANTS.fields)
+            .expect("Expected `fields` to exist");
+        let array = builder.lookup(value.assert_key()).assert_array();
+
+        f.push('{');
+        for key in array {
+            let (_, name) = arg
+                .iter()
+                .find(|(key, _)| *key == CODEGEN_CONSTANTS.name)
+                .expect("Expected `name` to exist");
+            let name = name.assert_string();
+            write!(f, "\\\"{}\\\":", name)?;
+            let object = builder.lookup(key.assert_key()).assert_object();
+            write_argument_value(f, builder, object)?;
+            f.push(',');
+        }
+        if !array.is_empty() {
+            f.pop();
+        }
+        f.push('}');
+    }
+    Ok(())
+}
+
+fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive) -> FmtResult {
+    match value {
+        Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
+        Primitive::String(key) => write!(f, "\\\"{}\\\"", key),
+        Primitive::Float(value) => write!(f, "{}", value.as_float()),
+        Primitive::Int(value) => write!(f, "{}", value),
+        Primitive::Key(key) => {
+            let ast = builder.lookup(*key);
+            match ast {
+                Ast::Array(arr) => {
+                    f.push('[');
+                    for value in arr {
+                        write_constant_value(f, builder, value)?;
+                        f.push(',');
+                    }
+                    if !arr.is_empty() {
+                        f.pop();
+                    }
+                    f.push(']');
+                    Ok(())
+                }
+                Ast::Object(obj) => {
+                    f.push('{');
+                    for (name, value) in obj {
+                        write!(f, "\\\"{}\\\":", name)?;
+                        write_constant_value(f, builder, value)?;
+                        f.push(',');
+                    }
+                    if !obj.is_empty() {
+                        f.pop();
+                    }
+                    f.push('}');
+                    Ok(())
+                }
+            }
+        }
+        Primitive::Null => {
+            f.push_str("null");
+            Ok(())
+        }
+        Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
+    }
 }

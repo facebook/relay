@@ -17,6 +17,22 @@ pub enum Ast {
     Array(Vec<Primitive>),
 }
 
+impl Ast {
+    pub fn assert_object(&self) -> &[(StringKey, Primitive)] {
+        match self {
+            Ast::Object(result) => result,
+            Ast::Array(_) => panic!("Expected an object"),
+        }
+    }
+
+    pub fn assert_array(&self) -> &[Primitive] {
+        match self {
+            Ast::Object(_) => panic!("Expected an array"),
+            Ast::Array(result) => result,
+        }
+    }
+}
+
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
@@ -25,6 +41,25 @@ pub enum Primitive {
     Int(i64),
     Bool(bool),
     Null,
+    StorageKey(StringKey, AstKey),
+}
+
+impl Primitive {
+    pub fn assert_string(&self) -> StringKey {
+        if let Primitive::String(key) = self {
+            *key
+        } else {
+            panic!("Expected a string");
+        }
+    }
+
+    pub fn assert_key(&self) -> AstKey {
+        if let Primitive::Key(key) = self {
+            *key
+        } else {
+            panic!("Expected a key");
+        }
+    }
 }
 
 type Table = IndexMap<Ast, usize, FnvBuildHasher>;

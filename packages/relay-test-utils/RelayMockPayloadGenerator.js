@@ -188,9 +188,6 @@ class RelayMockPayloadGenerator {
      * Flow. */
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
-      /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-       * v0.111.0 was deployed. To see the error, delete this comment and run
-       * Flow. */
       ...(options.mockResolvers ?? {}),
     };
     this._selectionMetadata = options.selectionMetadata ?? {};
@@ -442,9 +439,6 @@ class RelayMockPayloadGenerator {
               [getModuleComponentKey(
                 documentName,
               )]: defaultValues.__module_component,
-              /* $FlowFixMe(>=0.111.0) This comment suppresses an error found
-               * when Flow v0.111.0 was deployed. To see the error, delete this
-               * comment and run Flow. */
               ...this._traverseSelections(
                 splitOperation.selections,
                 typeName,

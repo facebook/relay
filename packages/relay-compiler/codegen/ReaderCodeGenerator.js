@@ -78,9 +78,7 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
     if (refetch != null && typeof refetch === 'object') {
       metadata = metadata ?? {};
       metadata.refetch = {
-        // $FlowFixMe
         connection: refetch.connection,
-        // $FlowFixMe
         fragmentPathInResult: refetch.fragmentPathInResult,
         operation: CodeMarker.moduleDependency(
           // $FlowFixMe

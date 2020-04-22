@@ -34,7 +34,7 @@
     "@babel/runtime": "^7.0.0",
     "@babel/traverse": "^7.0.0",
     "@babel/types": "^7.0.0",
-    "babel-eslint": "9.0.0",
+    "babel-eslint": "^10.1.0",
     "babel-plugin-macros": "^2.0.0",
     "babel-plugin-tester": "^6.0.1",
     "babel-preset-fbjs": "^3.3.0",

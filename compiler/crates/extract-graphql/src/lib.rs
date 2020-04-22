@@ -9,6 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
@@ -16,7 +17,7 @@ type IndexedCharIter<'a> = Peekable<CharIndices<'a>>;
 
 /// Extract graphql`text` literals from JS-like code. This should work for Flow
 /// or TypeScript alike.
-pub fn parse_chunks(input: &str) -> Result<Vec<&str>, String> {
+pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
     if !input.contains("graphql`") {
         return Ok(vec![]);
     }
@@ -38,7 +39,8 @@ pub fn parse_chunks(input: &str) -> Result<Vec<&str>, String> {
                     match c {
                         '`' => {
                             let end = i;
-                            res.push(&input[start + 8..end]);
+                            let text = &input[start + 8..end];
+                            res.push(GraphQLSource::new(text));
                             continue 'code;
                         }
                         '$' => {

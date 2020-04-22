@@ -59,31 +59,31 @@ impl<'state> GraphQLAsts<'state> {
                 // this file, and prefer those for parsing if they're
                 // available
                 let mut used_pending_sources = false;
-                let graphql_strings = if let Some(pending_source_set) = pending_source_set {
+                let graphql_sources = if let Some(pending_source_set) = pending_source_set {
                     if let Some(pending_file_state) = pending_source_set.get(file_name) {
                         used_pending_sources = true;
-                        &pending_file_state.graphql_strings
+                        &pending_file_state.graphql_sources
                     } else {
-                        &file_state.graphql_strings
+                        &file_state.graphql_sources
                     }
                 } else {
-                    &file_state.graphql_strings
+                    &file_state.graphql_sources
                 };
 
-                for (index, graphql_string) in graphql_strings.iter().enumerate() {
+                for (index, graphql_source) in graphql_sources.iter().enumerate() {
                     let file_key =
                         FileKey::new(&format!("{}:{}", file_name.to_string_lossy(), index));
-                    match graphql_syntax::parse(&graphql_string, file_key) {
+                    match graphql_syntax::parse(&graphql_source.text, file_key) {
                         Ok(document) => {
                             definitions_for_file.extend(document.definitions);
                         }
                         Err(errors) => syntax_errors.extend(
                             errors
                                 .into_iter()
-                                .map(|error| error.with_source(graphql_string.into())),
+                                .map(|error| error.with_source(graphql_source.clone())),
                         ),
                     }
-                    graphql_source_strings.insert(file_key, &graphql_string);
+                    graphql_source_strings.insert(file_key, &graphql_source);
                 }
 
                 // If we used any pending sources for the current file, collect the
@@ -118,20 +118,20 @@ impl<'state> GraphQLAsts<'state> {
                 // Only parse the file if it isn't already been parsed.
                 if !parsed_files.contains(file_name) {
                     let mut definitions_for_file = Vec::new();
-                    for (index, graphql_string) in file_state.graphql_strings.iter().enumerate() {
+                    for (index, graphql_source) in file_state.graphql_sources.iter().enumerate() {
                         let file_key =
                             FileKey::new(&format!("{}:{}", file_name.to_string_lossy(), index));
-                        match graphql_syntax::parse(&graphql_string, file_key) {
+                        match graphql_syntax::parse(&graphql_source.text, file_key) {
                             Ok(document) => {
                                 definitions_for_file.extend(document.definitions);
                             }
                             Err(errors) => syntax_errors.extend(
                                 errors
                                     .into_iter()
-                                    .map(|error| error.with_source(graphql_string.into())),
+                                    .map(|error| error.with_source(graphql_source.clone())),
                             ),
                         }
-                        graphql_source_strings.insert(file_key, &graphql_string);
+                        graphql_source_strings.insert(file_key, &graphql_source);
                     }
                     asts.extend(definitions_for_file);
                 }

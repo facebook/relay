@@ -14,6 +14,7 @@ use crate::watchman::{
     read_to_string, Clock, FileGroup, FileSourceResult,
 };
 use common::Timer;
+use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
@@ -31,7 +32,7 @@ pub type SourceSetName = StringKey;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileState {
-    pub graphql_strings: Vec<String>,
+    pub graphql_sources: Vec<GraphQLSource>,
     pub exists: bool,
 }
 
@@ -180,7 +181,7 @@ impl CompilerState {
                                 return Some(Ok((
                                     (*file.name).to_owned(),
                                     FileState {
-                                        graphql_strings: Vec::new(),
+                                        graphql_sources: Vec::new(),
                                         exists,
                                     },
                                 )));
@@ -198,7 +199,7 @@ impl CompilerState {
                                 Ok(graphql_strings) => Some(Ok((
                                     (*file.name).to_owned(),
                                     FileState {
-                                        graphql_strings,
+                                        graphql_sources: graphql_strings,
                                         exists,
                                     },
                                 ))),

@@ -17,6 +17,7 @@ path = "tests/parse_test.rs"
 [dependencies]
 common = { path = "../common" }
 interner = { path = "../interner" }
+serde = { version = "1.0", features = ["derive", "rc"] }
 thiserror = "1.0"
 
 [dev-dependencies]

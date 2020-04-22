@@ -16,5 +16,7 @@ const string = `
 graphql`some graphql`;
 ==================================== OUTPUT ===================================
 [
-    "some graphql",
+    GraphQLSource {
+        text: "some graphql",
+    },
 ]

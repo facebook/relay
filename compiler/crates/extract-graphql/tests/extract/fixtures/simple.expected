@@ -9,5 +9,7 @@ function MyComponent() {
 }
 ==================================== OUTPUT ===================================
 [
-    "\n    fragment Test on User {\n      __typename\n    }\n  ",
+    GraphQLSource {
+        text: "\n    fragment Test on User {\n      __typename\n    }\n  ",
+    },
 ]

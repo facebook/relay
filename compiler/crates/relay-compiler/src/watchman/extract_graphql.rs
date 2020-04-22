@@ -7,21 +7,19 @@
 
 use super::errors::{Error, Result};
 use super::{read_to_string, WatchmanFile};
+use graphql_syntax::GraphQLSource;
 use watchman_client::prelude::*;
 
 /// Reads and extracts `graphql` tagged literals from a file.
 pub fn extract_graphql_strings_from_file(
     resolved_root: &ResolvedRoot,
     file: &WatchmanFile,
-) -> Result<Vec<String>> {
+) -> Result<Vec<GraphQLSource>> {
     if !(*file.exists) {
         unreachable!("Can't read from non-existent file: {:?}", *file.name);
     }
     let contents = read_to_string(resolved_root, file)?;
     let definitions =
         extract_graphql::parse_chunks(&contents).map_err(|err| Error::Syntax { error: err })?;
-    Ok(definitions
-        .iter()
-        .map(|chunk| (*chunk).to_string())
-        .collect())
+    Ok(definitions)
 }

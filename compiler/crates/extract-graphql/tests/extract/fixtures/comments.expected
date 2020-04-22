@@ -20,6 +20,10 @@ graphql`ignored`
 graphql`not ignored 2`
 ==================================== OUTPUT ===================================
 [
-    "not ignored 1",
-    "not ignored 2",
+    GraphQLSource {
+        text: "not ignored 1",
+    },
+    GraphQLSource {
+        text: "not ignored 2",
+    },
 ]

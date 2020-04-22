@@ -6,6 +6,7 @@
  */
 
 use crate::token_kind::TokenKind;
+use crate::GraphQLSource;
 use common::Location;
 use std::fmt;
 use thiserror::Error;
@@ -28,7 +29,7 @@ impl SyntaxError {
 
     /// Attaches a source string to the error to allow it to be printed with a
     /// code listing without requring additional context.
-    pub fn with_source(self, source: String) -> SyntaxErrorWithSource {
+    pub fn with_source(self, source: GraphQLSource) -> SyntaxErrorWithSource {
         SyntaxErrorWithSource {
             error: self,
             source,
@@ -51,11 +52,11 @@ impl From<SyntaxError> for Vec<SyntaxError> {
 #[derive(Debug)]
 pub struct SyntaxErrorWithSource {
     error: SyntaxError,
-    source: String,
+    source: GraphQLSource,
 }
 impl SyntaxErrorWithSource {
     pub fn print(&self) -> String {
-        self.error.print(&self.source)
+        self.error.print(&self.source.text)
     }
 }
 

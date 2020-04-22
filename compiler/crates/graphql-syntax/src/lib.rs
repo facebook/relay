@@ -14,10 +14,11 @@ mod char_constants;
 mod lexer;
 mod lexer_position;
 mod parser;
+mod source;
 mod syntax_error;
 mod syntax_node;
 mod token_kind;
-
+pub use source::GraphQLSource;
 pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource};
 pub use syntax_node::*;
 

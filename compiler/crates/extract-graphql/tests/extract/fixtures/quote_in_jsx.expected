@@ -10,5 +10,7 @@
 graphql`fragment on User`
 ==================================== OUTPUT ===================================
 [
-    "fragment on User",
+    GraphQLSource {
+        text: "fragment on User",
+    },
 ]

@@ -7,7 +7,7 @@
 
 use common::{FileKey, Location};
 use fnv::FnvHashMap;
-use graphql_syntax::OperationKind;
+use graphql_syntax::{GraphQLSource, OperationKind};
 use interner::StringKey;
 use schema::{Type, TypeReference};
 use std::fmt;
@@ -15,7 +15,7 @@ use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
 
-pub type Sources<'a> = FnvHashMap<FileKey, &'a str>;
+pub type Sources<'a> = FnvHashMap<FileKey, &'a GraphQLSource>;
 
 impl From<ValidationError> for Vec<ValidationError> {
     fn from(error: ValidationError) -> Self {
@@ -47,11 +47,8 @@ impl ValidationError {
         let sources = self
             .locations
             .iter()
-            .map(|location| {
-                sources
-                    .get(&location.file())
-                    .map(|source| (*source).to_string())
-            })
+            .map(|location| sources.get(&location.file()))
+            .map(|source| source.map(|source| (**source).clone()))
             .collect();
         ValidationErrorWithSources {
             error: self,
@@ -81,7 +78,7 @@ impl ValidationError {
 #[derive(Debug)]
 pub struct ValidationErrorWithSources {
     error: ValidationError,
-    sources: Vec<Option<String>>,
+    sources: Vec<Option<GraphQLSource>>,
 }
 impl fmt::Display for ValidationErrorWithSources {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -94,7 +91,7 @@ impl fmt::Display for ValidationErrorWithSources {
                 .iter()
                 .zip(&self.sources)
                 .map(|(location, source)| match source {
-                    Some(source) => location.print(&source),
+                    Some(source) => location.print(&source.text),
                     None => "<source not found>".to_string(),
                 })
                 .collect::<Vec<_>>()

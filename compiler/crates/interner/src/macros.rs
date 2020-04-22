@@ -31,8 +31,8 @@ macro_rules! intern {
         use crate::{Intern, InternKey, InternTable, RawInternKey};
         use lazy_static::lazy_static;
 
-        /// Global interning table for this type
         lazy_static! {
+            /// Global interning table for this type
             static ref INTERN_TABLE: InternTable<$alias, $name> = InternTable::new();
         }
 

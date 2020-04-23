@@ -102,7 +102,7 @@ impl<'b> DedupedJSONPrinter<'b> {
                 )
                 .unwrap();
             }
-            writeln!(&mut with_variables, "return {};\n}})()", result).unwrap();
+            write!(&mut with_variables, "return {};\n}})()", result).unwrap();
             with_variables
         }
     }

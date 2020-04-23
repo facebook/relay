@@ -16,7 +16,7 @@ use graphql_transforms::MATCH_CONSTANTS;
 use interner::StringKey;
 use md5::{Digest, Md5};
 use persist_query::persist;
-use relay_codegen::build_request_params;
+use relay_codegen::{build_request_params, Printer};
 use relay_typegen::{generate_fragment_type, generate_operation_type};
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::Write;
@@ -35,6 +35,7 @@ pub async fn generate_artifacts(
     programs: &Programs<'_>,
 ) -> Result<Vec<Artifact>, BuildProjectError> {
     let mut artifacts = Vec::new();
+    let mut printer = Printer::default();
     for node in programs.normalization.operations() {
         if let Some(directive) = node
             .directives
@@ -57,7 +58,11 @@ pub async fn generate_artifacts(
             let source_string = print_fragment(programs.source.schema(), &source_node);
             let hash = md5(&source_string);
             artifacts.push(generate_split_operation_artifact(
-                config, programs, node, &hash,
+                &mut printer,
+                config,
+                programs,
+                node,
+                &hash,
             ));
         } else {
             let source_node = programs.source.operation(node.name.item).unwrap();
@@ -74,8 +79,15 @@ pub async fn generate_artifacts(
             .unwrap();
             let hash = md5(&source_string);
             artifacts.push(
-                generate_normalization_artifact(config, project_config, programs, node, &hash)
-                    .await?,
+                generate_normalization_artifact(
+                    &mut printer,
+                    config,
+                    project_config,
+                    programs,
+                    node,
+                    &hash,
+                )
+                .await?,
             );
         }
     }
@@ -84,13 +96,20 @@ pub async fn generate_artifacts(
         // Same as for operation hashing above.
         let source_string = print_fragment(programs.source.schema(), &source_node);
         let hash = md5(&source_string);
-        artifacts.push(generate_reader_artifact(config, programs, node, &hash));
+        artifacts.push(generate_reader_artifact(
+            &mut printer,
+            config,
+            programs,
+            node,
+            &hash,
+        ));
     }
 
     Ok(artifacts)
 }
 
 async fn generate_normalization_artifact(
+    printer: &mut Printer,
     config: &Config,
     project_config: &ProjectConfig,
     programs: &Programs<'_>,
@@ -157,7 +176,7 @@ async fn generate_normalization_artifact(
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",
-        relay_codegen::print_request_deduped(
+        printer.print_request_deduped(
             programs.normalization.schema(),
             node,
             &operation_fragment,
@@ -178,6 +197,7 @@ async fn generate_normalization_artifact(
 }
 
 fn generate_reader_artifact(
+    printer: &mut Printer,
     config: &Config,
     programs: &Programs<'_>,
     node: &FragmentDefinition,
@@ -208,7 +228,7 @@ fn generate_reader_artifact(
     writeln!(
         content,
         "var node/*: ReaderFragment*/ = {};\n",
-        relay_codegen::print_fragment_deduped(programs.normalization.schema(), node)
+        printer.print_fragment_deduped(programs.normalization.schema(), node)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
@@ -224,6 +244,7 @@ fn generate_reader_artifact(
 }
 
 fn generate_split_operation_artifact(
+    printer: &mut Printer,
     config: &Config,
     programs: &Programs<'_>,
     node: &OperationDefinition,
@@ -248,7 +269,7 @@ fn generate_split_operation_artifact(
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        relay_codegen::print_operation_deduped(programs.normalization.schema(), node)
+        printer.print_operation_deduped(programs.normalization.schema(), node)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();

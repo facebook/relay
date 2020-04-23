@@ -146,12 +146,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         CODEGEN_CONSTANTS.kind,
                         Primitive::String(CODEGEN_CONSTANTS.split_operation),
                     ),
+                    (CODEGEN_CONSTANTS.metadata, metadata),
                     (
                         CODEGEN_CONSTANTS.name,
                         Primitive::String(operation.name.item),
                     ),
                     (CODEGEN_CONSTANTS.selections, selections),
-                    (CODEGEN_CONSTANTS.metadata, metadata),
                 ])
             }
             None => {
@@ -704,7 +704,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .named(MATCH_CONSTANTS.custom_module_directive_name)
                     .is_some()
                 {
-                    Primitive::Null // TODO: build_module_import_selection(&inline_frag.directives[0])])
+                    self.build_module_import_selections(&inline_frag.directives[0])
                 } else {
                     self.build_selections(&inline_frag.selections)
                 };
@@ -977,6 +977,48 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
         }
     }
+
+    fn build_module_import_selections(&mut self, directive: &Directive) -> Primitive {
+        let fragment_name = directive
+            .arguments
+            .named(MATCH_CONSTANTS.name_arg)
+            .unwrap()
+            .value
+            .item
+            .get_string_literal()
+            .unwrap();
+        let key = directive
+            .arguments
+            .named(MATCH_CONSTANTS.key_arg)
+            .unwrap()
+            .value
+            .item
+            .get_string_literal()
+            .unwrap();
+        let fragment_name_str = fragment_name.lookup();
+        let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
+            panic!(
+                "@module fragments should be named 'FragmentName_propName', got '{}'.",
+                fragment_name
+            )
+        });
+        let selection = Primitive::Key(self.object(vec![
+            (CODEGEN_CONSTANTS.document_name, Primitive::String(key)),
+            (
+                CODEGEN_CONSTANTS.fragment_name,
+                Primitive::String(fragment_name),
+            ),
+            (
+                CODEGEN_CONSTANTS.fragment_prop_name,
+                Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
+            ),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.module_import),
+            ),
+        ]));
+        Primitive::Key(self.array(vec![selection]))
+    }
 }
 
 // Storage key is only pre-computable if the arguments don't contain variables
@@ -995,37 +1037,6 @@ fn value_contains_variable(value: &Value) -> bool {
             .iter()
             .any(|arg| value_contains_variable(&arg.value.item)),
     }
-}
-
-fn build_module_import_selection(directive: &Directive) -> ConcreteSelection {
-    let fragment_name = directive
-        .arguments
-        .named(MATCH_CONSTANTS.name_arg)
-        .unwrap()
-        .value
-        .item
-        .get_string_literal()
-        .unwrap();
-    let key = directive
-        .arguments
-        .named(MATCH_CONSTANTS.key_arg)
-        .unwrap()
-        .value
-        .item
-        .get_string_literal()
-        .unwrap();
-    let fragment_name_str = fragment_name.lookup();
-    let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
-        panic!(
-            "@module fragments should be named 'FragmentName_propName', got '{}'.",
-            fragment_name
-        )
-    });
-    ConcreteSelection::ModuleImport(ConcreteModuleImport {
-        document_name: key,
-        fragment_name,
-        fragment_prop_name: fragment_name_str[underscore_idx + 1..].intern(),
-    })
 }
 
 fn intern_request_parameters(

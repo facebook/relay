@@ -61,6 +61,13 @@ impl Primitive {
             panic!("Expected a key");
         }
     }
+
+    pub fn string_or_null(str: Option<StringKey>) -> Primitive {
+        match str {
+            None => Primitive::Null,
+            Some(str) => Primitive::String(str),
+        }
+    }
 }
 
 type Table = IndexMap<Ast, usize, FnvBuildHasher>;

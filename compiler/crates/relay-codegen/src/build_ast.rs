@@ -192,17 +192,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     let object = vec![
                         (
                             CODEGEN_CONSTANTS.count,
-                            match metadata.count {
-                                None => Primitive::Null,
-                                Some(key) => Primitive::String(key),
-                            },
+                            Primitive::string_or_null(metadata.count),
                         ),
                         (
                             CODEGEN_CONSTANTS.cursor,
-                            match metadata.cursor {
-                                None => Primitive::Null,
-                                Some(key) => Primitive::String(key),
-                            },
+                            Primitive::string_or_null(metadata.cursor),
                         ),
                         (
                             CODEGEN_CONSTANTS.direction,
@@ -296,18 +290,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             // TODO(T63303873) Normalization handles
             Selection::Condition(cond) => vec![self.build_condition(&cond)],
             Selection::FragmentSpread(frag_spread) => {
-                vec![self.build_fragment_spread(&frag_spread)]
-                /* TODO
                 let defer = frag_spread
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 match defer {
                     Some(defer) => vec![self.build_defer(&frag_spread, defer)],
-                    None => vec![ConcreteSelection::FragmentSpread(
-                        self.build_fragment_spread(&frag_spread),
-                    )],
+                    None => vec![self.build_fragment_spread(&frag_spread)],
                 }
-                */
             }
             Selection::InlineFragment(inline_frag) => {
                 vec![self.build_inline_fragment(&inline_frag)]
@@ -316,7 +305,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
 
                 match stream {
-                    Some(stream) => vec![Primitive::Null], // TODO: vec![self.build_stream(&field, stream)],
+                    Some(stream) => vec![self.build_stream(&field, stream)],
                     None => self.build_linked_field_and_handles(field),
                 }
             }
@@ -342,13 +331,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.alias,
-                match alias {
-                    None => Primitive::Null,
-                    Some(alias) => Primitive::String(alias),
-                },
-            ),
+            (CODEGEN_CONSTANTS.alias, Primitive::string_or_null(alias)),
             (
                 CODEGEN_CONSTANTS.args,
                 match args {
@@ -439,13 +422,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let args = self.build_arguments(&field.arguments);
         let selections = self.build_selections(&field.selections);
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.alias,
-                match alias {
-                    None => Primitive::Null,
-                    Some(alias) => Primitive::String(alias),
-                },
-            ),
+            (CODEGEN_CONSTANTS.alias, Primitive::string_or_null(alias)),
             (
                 CODEGEN_CONSTANTS.args,
                 match args {
@@ -594,49 +571,55 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
         ]))
     }
-    /* TODO
-    fn build_defer(&self, frag_spread: &FragmentSpread, defer: &Directive) -> ConcreteSelection {
-        let next_selections = vec![ConcreteSelection::FragmentSpread(
-            self.build_fragment_spread(&FragmentSpread {
-                directives: remove_directive(
-                    &frag_spread.directives,
-                    DEFER_STREAM_CONSTANTS.defer_name,
+
+    fn build_defer(&mut self, frag_spread: &FragmentSpread, defer: &Directive) -> Primitive {
+        let next_selections = vec![self.build_fragment_spread(&FragmentSpread {
+            directives: remove_directive(
+                &frag_spread.directives,
+                DEFER_STREAM_CONSTANTS.defer_name,
+            ),
+            ..frag_spread.to_owned()
+        })];
+        let next_selections = Primitive::Key(self.array(next_selections));
+        Primitive::Key(match self.variant {
+            CodegenVariant::Reader => self.object(vec![
+                (
+                    CODEGEN_CONSTANTS.kind,
+                    Primitive::String(CODEGEN_CONSTANTS.defer),
                 ),
-                ..frag_spread.to_owned()
-            }),
-        )];
-        match self.variant {
-            CodegenVariant::Reader => ConcreteSelection::DeferReaderVariant(DeferReaderNode {
-                selections: next_selections,
-            }),
+                (CODEGEN_CONSTANTS.selections, next_selections),
+            ]),
             CodegenVariant::Normalization => {
                 let if_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
                 let label_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
                 let if_variable_name = extract_variable_name(if_arg);
                 let label_name = match label_arg {
-                    Some(label_arg) => match &label_arg.value.item {
+                    Some(label_arg) => match label_arg.value.item {
                         Value::Constant(ConstantValue::String(val)) => Some(val),
                         _ => None,
                     },
                     None => None,
                 }
                 .unwrap();
-                ConcreteSelection::DeferNormalizationVariant(DeferNormalizationNode {
-                    if_: if_variable_name,
-                    metadata: None,
-                    label: label_name.to_owned(),
-                    selections: next_selections,
-                })
-            }
-        }
-    }
-    */
 
-    fn build_stream(
-        &mut self,
-        linked_field: &LinkedField,
-        stream: &Directive,
-    ) -> ConcreteSelection {
+                self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.if_,
+                        Primitive::string_or_null(if_variable_name),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.defer),
+                    ),
+                    (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
+                    (CODEGEN_CONSTANTS.metadata, Primitive::Null),
+                    (CODEGEN_CONSTANTS.selections, next_selections),
+                ])
+            }
+        })
+    }
+
+    fn build_stream(&mut self, linked_field: &LinkedField, stream: &Directive) -> Primitive {
         let next_selections = vec![self.build_linked_field(&LinkedField {
             directives: remove_directive(
                 &linked_field.directives,
@@ -644,10 +627,15 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
             ..linked_field.to_owned()
         })];
-        match self.variant {
-            CodegenVariant::Reader => ConcreteSelection::StreamReaderVariant(StreamReaderNode {
-                selections: vec![], //TODO: next_selections,
-            }),
+        let next_selections = Primitive::Key(self.array(next_selections));
+        Primitive::Key(match self.variant {
+            CodegenVariant::Reader => self.object(vec![
+                (
+                    CODEGEN_CONSTANTS.kind,
+                    Primitive::String(CODEGEN_CONSTANTS.stream),
+                ),
+                (CODEGEN_CONSTANTS.selections, next_selections),
+            ]),
             CodegenVariant::Normalization => {
                 let if_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
                 let label_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
@@ -658,7 +646,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let use_customized_batch_variable_name =
                     extract_variable_name(use_customized_batch_arg);
                 let label_name = match label_arg {
-                    Some(label_arg) => match &label_arg.value.item {
+                    Some(label_arg) => match label_arg.value.item {
                         Value::Constant(ConstantValue::String(val)) => Some(val),
                         _ => None,
                     },
@@ -666,15 +654,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
                 .unwrap();
 
-                ConcreteSelection::StreamNormalizationVariant(StreamNormalizationNode {
-                    if_: if_variable_name,
-                    metadata: None,
-                    use_customized_batch: use_customized_batch_variable_name,
-                    label: label_name.to_owned(),
-                    selections: vec![], //TODO: next_selections,
-                })
+                self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.if_,
+                        Primitive::string_or_null(if_variable_name),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.stream),
+                    ),
+                    (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
+                    (CODEGEN_CONSTANTS.metadata, Primitive::Null),
+                    (CODEGEN_CONSTANTS.selections, next_selections),
+                    (
+                        CODEGEN_CONSTANTS.use_customized_batch,
+                        Primitive::string_or_null(use_customized_batch_variable_name),
+                    ),
+                ])
             }
-        }
+        })
     }
 
     fn build_inline_fragment(&mut self, inline_frag: &InlineFragment) -> Primitive {

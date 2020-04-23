@@ -6,7 +6,7 @@
  */
 
 use crate::match_::MATCH_CONSTANTS;
-use common::Location;
+use common::{is_feature_flag_enabled, FeatureFlags, Location};
 use errors::{validate, validate_map};
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -50,6 +50,10 @@ impl Validator for ValidateModuleConflicts {
 }
 
 fn validate_selection(selection: &Selection, seen_types: &mut SeenTypes) -> ValidationResult<()> {
+    // TODO (T65951035): Remove this flag
+    if is_feature_flag_enabled(FeatureFlags::IgnoreConflictingModuleSelections) {
+        return Ok(());
+    }
     if let Selection::InlineFragment(inline_frag) = selection {
         if let Some(type_) = inline_frag.type_condition {
             if let Some(module_directive) = inline_frag

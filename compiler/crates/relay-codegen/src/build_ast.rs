@@ -29,21 +29,29 @@ use schema::{Schema, TypeReference};
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
 use std::iter;
 
-/* TODO
 pub fn build_request(
     schema: &Schema,
+    ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters,
-) -> ConcreteRequest {
-    ConcreteRequest {
-        kind: "Request",
-        fragment: build_fragment(schema, fragment),
-        operation: build_operation(schema, operation),
-        params: request_parameters,
-    }
+) -> AstKey {
+    let mut operation_builder =
+        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let operation = Primitive::Key(operation_builder.build_operation(operation));
+    let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
+    let params = intern_request_parameters(ast_builder, request_parameters);
+    ast_builder.intern(Ast::Object(vec![
+        (CODEGEN_CONSTANTS.fragment, fragment),
+        (
+            CODEGEN_CONSTANTS.kind,
+            Primitive::String(CODEGEN_CONSTANTS.request),
+        ),
+        (CODEGEN_CONSTANTS.operation, operation),
+        (CODEGEN_CONSTANTS.params, params),
+    ]))
 }
-*/
 
 pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters {
     RequestParameters {
@@ -154,7 +162,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     (CODEGEN_CONSTANTS.argument_definitions, argument_definitions),
                     (
                         CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.operation),
+                        Primitive::String(CODEGEN_CONSTANTS.operation_value),
                     ),
                     (
                         CODEGEN_CONSTANTS.name,
@@ -172,22 +180,40 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 &fragment.directives,
                 self.connection_constants,
             ) {
-            Some(
-                metadata_values
-                    .iter()
-                    .map(|metadata| ConnectionMetadata {
-                        path: metadata.path.clone(),
-                        direction: Some(metadata.direction),
-                        cursor: metadata.cursor,
-                        count: metadata.count,
-                        stream: if metadata.is_stream_connection {
-                            Some(metadata.is_stream_connection)
-                        } else {
-                            None
-                        },
-                    })
-                    .collect::<Vec<_>>(),
-            )
+            let array = metadata_values
+                .iter()
+                .map(|metadata| {
+                    let path = match &metadata.path {
+                        None => Primitive::Null,
+                        Some(path) => Primitive::Key(
+                            self.array(path.iter().cloned().map(Primitive::String).collect()),
+                        ),
+                    };
+                    let object = vec![
+                        (
+                            CODEGEN_CONSTANTS.count,
+                            match metadata.count {
+                                None => Primitive::Null,
+                                Some(key) => Primitive::String(key),
+                            },
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.cursor,
+                            match metadata.cursor {
+                                None => Primitive::Null,
+                                Some(key) => Primitive::String(key),
+                            },
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.direction,
+                            Primitive::String(metadata.direction),
+                        ),
+                        (CODEGEN_CONSTANTS.path, path),
+                    ];
+                    Primitive::Key(self.object(object))
+                })
+                .collect::<Vec<_>>();
+            Some(Primitive::Key(self.array(array)))
         } else {
             None
         };
@@ -209,7 +235,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
 
         let mut metadata = vec![];
-        // TODO: connection metadata
+        if let Some(connection_metadata) = connection_metadata {
+            metadata.push((CODEGEN_CONSTANTS.connection, connection_metadata))
+        }
         if let Some(mask) = mask {
             metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(mask)))
         }
@@ -228,7 +256,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
             (
                 CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.fragment),
+                Primitive::String(CODEGEN_CONSTANTS.fragment_value),
             ),
             // TODO(T63303840) include correct fragment metadata
             (
@@ -1000,4 +1028,53 @@ fn build_module_import_selection(directive: &Directive) -> ConcreteSelection {
         fragment_name,
         fragment_prop_name: fragment_name_str[underscore_idx + 1..].intern(),
     })
+}
+
+fn intern_request_parameters(
+    ast_builder: &mut AstBuilder,
+    mut request_parameters: RequestParameters,
+) -> Primitive {
+    let mut metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
+    metadata_values.sort_unstable_by(|l, r| l.0.cmp(&r.0));
+
+    let object = vec![
+        (
+            CODEGEN_CONSTANTS.id,
+            match request_parameters.id {
+                None => Primitive::Null,
+                Some(str) => Primitive::RawString(str),
+            },
+        ),
+        (
+            CODEGEN_CONSTANTS.metadata,
+            Primitive::Key(
+                ast_builder.intern(Ast::Object(
+                    metadata_values
+                        .into_iter()
+                        .map(|v| (v.0.intern(), Primitive::RawString(v.1)))
+                        .collect(),
+                )),
+            ),
+        ),
+        (
+            CODEGEN_CONSTANTS.name,
+            Primitive::String(request_parameters.name),
+        ),
+        (
+            CODEGEN_CONSTANTS.operation_kind,
+            Primitive::String(match request_parameters.operation_kind {
+                ConcreteOperationKind::Query => CODEGEN_CONSTANTS.query,
+                ConcreteOperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
+                ConcreteOperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
+            }),
+        ),
+        (
+            CODEGEN_CONSTANTS.text,
+            match request_parameters.text {
+                None => Primitive::Null,
+                Some(text) => Primitive::RawString(text),
+            },
+        ),
+    ];
+    Primitive::Key(ast_builder.intern(Ast::Object(object)))
 }

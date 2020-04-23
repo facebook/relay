@@ -42,6 +42,7 @@ pub enum Primitive {
     Bool(bool),
     Null,
     StorageKey(StringKey, AstKey),
+    RawString(String),
 }
 
 impl Primitive {

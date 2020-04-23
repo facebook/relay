@@ -6,7 +6,8 @@
  */
 
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive};
-use crate::build_ast::{build_fragment, build_operation};
+use crate::build_ast::{build_fragment, build_operation, build_request};
+use crate::codegen_ast::RequestParameters;
 use crate::constants::CODEGEN_CONSTANTS;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
@@ -188,6 +189,7 @@ impl<'b> DedupedJSONPrinter<'b> {
         match primitive {
             Primitive::Null => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
+            Primitive::RawString(str) => write!(f, "\"{}\"", str),
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
@@ -222,6 +224,24 @@ impl Printer {
         let mut result = String::new();
         self.print(&mut result, root, 0).unwrap();
         result
+    }
+
+    pub fn print_request_deduped(
+        &mut self,
+        schema: &Schema,
+        operation: &OperationDefinition,
+        fragment: &FragmentDefinition,
+        request_parameters: RequestParameters,
+    ) -> String {
+        let key = build_request(
+            schema,
+            &mut self.builder,
+            operation,
+            fragment,
+            request_parameters,
+        );
+        let deduped_printer = DedupedJSONPrinter::new(&self.builder, key);
+        deduped_printer.print()
     }
 
     pub fn print_operation_deduped(
@@ -292,6 +312,7 @@ impl Printer {
         match primitive {
             Primitive::Null => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
+            Primitive::RawString(str) => write!(f, "\"{}\"", str),
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
@@ -450,5 +471,6 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
             Ok(())
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
+        Primitive::RawString(_) => panic!("Unexpected RawString"),
     }
 }

@@ -11,10 +11,11 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, FragmentDefinition, Program};
 use graphql_syntax::parse;
 use graphql_transforms::{transform_connections, validate_connections, OSSConnectionInterface};
-use relay_codegen::{build_request_params, print_fragment_deduped, print_request_deduped};
+use relay_codegen::{build_request_params, Printer};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+    let mut printer = Printer::default();
     let file_key = FileKey::new(fixture.file_name);
 
     let mut sources = FnvHashMap::default();
@@ -63,14 +64,17 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 type_condition: def.type_,
             };
             let request_parameters = build_request_params(&def);
-            print_request_deduped(&TEST_SCHEMA, def, &operation_fragment, request_parameters)
+            printer.print_request_deduped(
+                &TEST_SCHEMA,
+                def,
+                &operation_fragment,
+                request_parameters,
+            )
         })
-        .chain(
-            next_program
-                .fragments()
-                .map(|def| print_fragment_deduped(&TEST_SCHEMA, def)),
-        )
         .collect::<Vec<_>>();
+    for def in next_program.fragments() {
+        printed.push(printer.print_fragment_deduped(&TEST_SCHEMA, def));
+    }
     printed.sort();
     Ok(printed.join("\n\n"))
 }

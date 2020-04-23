@@ -13,7 +13,58 @@ use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-type IndexedCharIter<'a> = Peekable<CharIndices<'a>>;
+/// A wrapper around a peekable char iterator that tracks
+/// the column and line indicies.
+pub struct CharReader<'a> {
+    chars: Peekable<CharIndices<'a>>,
+    line_index: usize,
+    column_index: usize,
+}
+
+impl<'a> CharReader<'a> {
+    pub fn new(input: &'a str) -> Self {
+        let chars = input.char_indices().peekable();
+        CharReader {
+            chars,
+            line_index: 0,
+            column_index: 0,
+        }
+    }
+
+    // Manually implement `peek` since `Peekable` would call next()
+    // and increment the line/column indicies
+    fn peek(&mut self) -> Option<&(usize, char)> {
+        self.chars.peek()
+    }
+}
+
+impl<'a> Iterator for CharReader<'a> {
+    type Item = (usize, char);
+    fn next(&mut self) -> Option<Self::Item> {
+        let pair = self.chars.next();
+        if let Some((_index, ch)) = pair {
+            match ch {
+                // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
+                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
+                    // <CRLF>
+                    if ch == '\u{000D}' {
+                        if let Some((_, ch)) = self.chars.peek() {
+                            if ch == &'\u{00A}' {
+                                return pair;
+                            }
+                        }
+                    }
+                    self.line_index += 1;
+                    self.column_index = 0;
+                }
+                _ => {
+                    self.column_index += 1;
+                }
+            }
+        }
+        pair
+    }
+}
 
 /// Extract graphql`text` literals from JS-like code. This should work for Flow
 /// or TypeScript alike.
@@ -22,7 +73,7 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
         return Ok(vec![]);
     }
     let mut res = vec![];
-    let mut it = input.char_indices().peekable();
+    let mut it = CharReader::new(input);
     'code: while let Some((i, c)) = it.next() {
         match c {
             'g' => {
@@ -35,12 +86,14 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
                     }
                 }
                 let start = i;
+                let line_index = it.line_index;
+                let column_index = it.column_index;
                 while let Some((i, c)) = it.next() {
                     match c {
                         '`' => {
                             let end = i;
                             let text = &input[start + 8..end];
-                            res.push(GraphQLSource::new(text));
+                            res.push(GraphQLSource::new(text, line_index, column_index));
                             continue 'code;
                         }
                         '$' => {
@@ -49,6 +102,7 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
                                     .to_string());
                             }
                         }
+
                         _ => {}
                     }
                 }
@@ -89,7 +143,7 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
     Ok(res)
 }
 
-fn consume_identifier(it: &mut IndexedCharIter<'_>) {
+fn consume_identifier(it: &mut CharReader<'_>) {
     for (_, c) in it {
         match c {
             'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {}
@@ -100,7 +154,7 @@ fn consume_identifier(it: &mut IndexedCharIter<'_>) {
     }
 }
 
-fn consume_line_comment(it: &mut IndexedCharIter<'_>) {
+fn consume_line_comment(it: &mut CharReader<'_>) {
     for (_, c) in it {
         match c {
             '\n' | '\r' => {
@@ -111,7 +165,7 @@ fn consume_line_comment(it: &mut IndexedCharIter<'_>) {
     }
 }
 
-fn consume_block_comment(it: &mut IndexedCharIter<'_>) {
+fn consume_block_comment(it: &mut CharReader<'_>) {
     while let Some((_, c)) = it.next() {
         if c == '*' {
             if let Some((_, '/')) = it.peek() {
@@ -122,7 +176,7 @@ fn consume_block_comment(it: &mut IndexedCharIter<'_>) {
     }
 }
 
-fn consume_string(it: &mut IndexedCharIter<'_>, quote: char) {
+fn consume_string(it: &mut CharReader<'_>, quote: char) {
     while let Some((_, c)) = it.next() {
         match c {
             '\\' => {

@@ -18,5 +18,7 @@ graphql`some graphql`;
 [
     GraphQLSource {
         text: "some graphql",
+        line_index: 14,
+        column_index: 8,
     },
 ]

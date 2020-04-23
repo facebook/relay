@@ -12,5 +12,7 @@ graphql`fragment on User`
 [
     GraphQLSource {
         text: "fragment on User",
+        line_index: 8,
+        column_index: 8,
     },
 ]

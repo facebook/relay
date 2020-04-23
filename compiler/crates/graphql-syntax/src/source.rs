@@ -13,10 +13,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GraphQLSource {
     pub text: String,
+    pub line_index: usize,
+    pub column_index: usize,
 }
 
 impl GraphQLSource {
-    pub fn new(text: impl Into<String>) -> Self {
-        GraphQLSource { text: text.into() }
+    pub fn new(text: impl Into<String>, line_index: usize, column_index: usize) -> Self {
+        GraphQLSource {
+            text: text.into(),
+            line_index,
+            column_index,
+        }
     }
 }

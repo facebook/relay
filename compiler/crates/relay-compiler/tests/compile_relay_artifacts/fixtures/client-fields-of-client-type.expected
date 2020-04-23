@@ -58,7 +58,7 @@ type Foo {
                 {
                   "kind": "Literal",
                   "name": "scale",
-                  "value": 2.0
+                  "value": 2
                 }
               ],
               "concreteType": "Image",
@@ -74,7 +74,7 @@ type Foo {
                   "storageKey": null
                 }
               ],
-              "storageKey": "profile_picture(scale:2.0)"
+              "storageKey": "profile_picture(scale:2)"
             }
           ],
           "storageKey": null

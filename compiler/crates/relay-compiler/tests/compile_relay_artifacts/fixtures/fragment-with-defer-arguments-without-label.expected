@@ -259,7 +259,7 @@ fragment UserFragment on User {
             {
               "kind": "Literal",
               "name": "scale",
-              "value": 2.0
+              "value": 2
             }
           ],
           "kind": "FragmentSpread",

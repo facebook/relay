@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvBuildHasher;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_syntax::FloatValue;
+use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use interner::StringKey;
 
@@ -100,4 +101,12 @@ impl AstBuilder {
     pub fn lookup(&self, key: AstKey) -> &Ast {
         self.table.get_index(key.as_usize()).unwrap().0
     }
+}
+
+pub struct RequestParameters {
+    pub id: Option<String>,
+    pub metadata: FnvHashMap<String, String>,
+    pub name: StringKey,
+    pub operation_kind: OperationKind,
+    pub text: Option<String>,
 }

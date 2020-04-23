@@ -159,7 +159,7 @@ fragment UserFragment on User
       "type": "[Int]"
     },
     {
-      "defaultValue": 2.0,
+      "defaultValue": 2,
       "kind": "LocalArgument",
       "name": "scale",
       "type": "Float"

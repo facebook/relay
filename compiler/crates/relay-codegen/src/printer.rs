@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, Primitive};
+use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::build_ast::{build_fragment, build_operation, build_request};
-use crate::codegen_ast::RequestParameters;
 use crate::constants::CODEGEN_CONSTANTS;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
@@ -38,6 +37,15 @@ impl<'b> DedupedJSONPrinter<'b> {
         Self {
             variable_definitions: Default::default(),
             duplicates,
+            builder,
+            root_key,
+        }
+    }
+
+    fn new_without_dedupe(builder: &'b AstBuilder, root_key: AstKey) -> Self {
+        Self {
+            variable_definitions: Default::default(),
+            duplicates: Default::default(),
             builder,
             root_key,
         }
@@ -209,23 +217,39 @@ impl Default for Printer {
     }
 }
 
+pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
+    let mut builder = AstBuilder::default();
+    let key = build_operation(schema, &mut builder, operation);
+    let printer = DedupedJSONPrinter::new_without_dedupe(&builder, key);
+    printer.print()
+}
+
+pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
+    let mut builder = AstBuilder::default();
+    let key = build_fragment(schema, &mut builder, fragment);
+    let printer = DedupedJSONPrinter::new_without_dedupe(&builder, key);
+    printer.print()
+}
+
+pub fn print_request(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    fragment: &FragmentDefinition,
+    request_parameters: RequestParameters,
+) -> String {
+    let mut builder = AstBuilder::default();
+    let key = build_request(
+        schema,
+        &mut builder,
+        operation,
+        fragment,
+        request_parameters,
+    );
+    let printer = DedupedJSONPrinter::new_without_dedupe(&builder, key);
+    printer.print()
+}
+
 impl Printer {
-    pub fn print_operation(&mut self, schema: &Schema, operation: &OperationDefinition) -> String {
-        let key = build_operation(schema, &mut self.builder, operation);
-        let root = self.builder.lookup(key);
-        let mut result = String::new();
-        self.print(&mut result, root, 0).unwrap();
-        result
-    }
-
-    pub fn print_fragment(&mut self, schema: &Schema, fragment: &FragmentDefinition) -> String {
-        let key = build_fragment(schema, &mut self.builder, fragment);
-        let root = self.builder.lookup(key);
-        let mut result = String::new();
-        self.print(&mut result, root, 0).unwrap();
-        result
-    }
-
     pub fn print_request_deduped(
         &mut self,
         schema: &Schema,
@@ -262,65 +286,6 @@ impl Printer {
         let key = build_fragment(schema, &mut self.builder, fragment);
         let deduped_printer = DedupedJSONPrinter::new(&self.builder, key);
         deduped_printer.print()
-    }
-
-    fn print(&self, f: &mut String, ast: &Ast, indent: usize) -> FmtResult {
-        match ast {
-            Ast::Object(object) => {
-                if object.is_empty() {
-                    write!(f, "{{}}")
-                } else {
-                    let next_indent = indent + 1;
-                    writeln!(f, "{{")?;
-                    for (i, (key, value)) in object.iter().enumerate() {
-                        print_indentation(f, next_indent)?;
-                        write!(f, "\"{}\": ", key.lookup(),)?;
-                        self.print_primitive(f, value, next_indent)?;
-                        if i < object.len() - 1 {
-                            writeln!(f, ",")?;
-                        } else {
-                            writeln!(f)?;
-                        }
-                    }
-                    print_indentation(f, indent)?;
-                    write!(f, "}}")
-                }
-            }
-            Ast::Array(array) => {
-                if array.is_empty() {
-                    write!(f, "[]")
-                } else {
-                    writeln!(f, "[")?;
-                    let next_indent = indent + 1;
-                    for (i, value) in array.iter().enumerate() {
-                        print_indentation(f, indent + 1)?;
-                        self.print_primitive(f, value, next_indent)?;
-                        if i < array.len() - 1 {
-                            writeln!(f, ",")?;
-                        } else {
-                            writeln!(f)?;
-                        }
-                    }
-                    print_indentation(f, indent)?;
-                    write!(f, "]")
-                }
-            }
-        }
-    }
-
-    fn print_primitive(&self, f: &mut String, primitive: &Primitive, indent: usize) -> FmtResult {
-        match primitive {
-            Primitive::Null => write!(f, "null"),
-            Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
-            Primitive::RawString(str) => write!(f, "\"{}\"", str),
-            Primitive::String(key) => write!(f, "\"{}\"", key),
-            Primitive::Float(value) => write!(f, "{}", value.as_float()),
-            Primitive::Int(value) => write!(f, "{}", value),
-            Primitive::Key(key) => self.print(f, self.builder.lookup(*key), indent),
-            Primitive::StorageKey(field_name, key) => {
-                print_static_storage_key(f, &self.builder, *field_name, *key)
-            }
-        }
     }
 }
 

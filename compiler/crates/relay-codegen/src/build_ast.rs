@@ -5,13 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![allow(warnings)]
-#[allow(unused_imports)]
-use crate::ast::{Ast, AstBuilder, AstKey, Primitive};
-use crate::codegen_ast::*;
+use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use common::WithLocation;
-use fnv::FnvHashSet;
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
     FragmentSpread, InlineFragment, LinkedField, NamedItem, OperationDefinition, ScalarField,
@@ -26,8 +22,6 @@ use graphql_transforms::{
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
-use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
-use std::iter;
 
 pub fn build_request(
     schema: &Schema,
@@ -56,11 +50,7 @@ pub fn build_request(
 pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters {
     RequestParameters {
         name: operation.name.item,
-        operation_kind: match operation.kind {
-            OperationKind::Query => ConcreteOperationKind::Query,
-            OperationKind::Mutation => ConcreteOperationKind::Mutation,
-            OperationKind::Subscription => ConcreteOperationKind::Subscription,
-        },
+        operation_kind: operation.kind,
         metadata: Default::default(),
         id: None,
         text: None,
@@ -235,7 +225,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if let Some(mask) = mask {
             metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(mask)))
         }
-        if let Some(plural) = mask {
+        if let Some(plural) = plural {
             metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(plural)))
         }
         // TODO: refetch metadata
@@ -875,19 +865,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let items = list
                     .iter()
                     .enumerate()
-                    .filter_map(|(i, val)| {
+                    .map(|(i, val)| {
                         let item_name = format!("{}.{}", arg_name, i).as_str().intern();
-                        self.build_argument(item_name, val)
+                        match self.build_argument(item_name, val) {
+                            None => Primitive::Null,
+                            Some(key) => Primitive::Key(key),
+                        }
                     })
-                    .map(Primitive::Key)
                     .collect::<Vec<_>>();
                 let object = vec![
-                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
+                    (CODEGEN_CONSTANTS.items, Primitive::Key(self.array(items))),
                     (
                         CODEGEN_CONSTANTS.kind,
                         Primitive::String(CODEGEN_CONSTANTS.list_value),
                     ),
-                    (CODEGEN_CONSTANTS.items, Primitive::Key(self.array(items))),
+                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
                 ];
                 Some(self.object(object))
             }
@@ -1072,9 +1064,9 @@ fn intern_request_parameters(
         (
             CODEGEN_CONSTANTS.operation_kind,
             Primitive::String(match request_parameters.operation_kind {
-                ConcreteOperationKind::Query => CODEGEN_CONSTANTS.query,
-                ConcreteOperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
-                ConcreteOperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
+                OperationKind::Query => CODEGEN_CONSTANTS.query,
+                OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
+                OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
             }),
         ),
         (

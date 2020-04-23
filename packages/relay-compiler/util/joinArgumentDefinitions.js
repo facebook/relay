@@ -85,11 +85,17 @@ function joinArgumentDefinition(
   } else if (schema.isTypeSubTypeOf(prevArgDef.type, nextArgDef.type)) {
     return prevArgDef;
   } else {
+    const prevArgType =
+      prevArgDef.type != null
+        ? schema.getTypeString(prevArgDef.type)
+        : 'unknown';
+    const nextArgType =
+      nextArgDef.type != null
+        ? schema.getTypeString(nextArgDef.type)
+        : 'unknown';
     throw createUserError(
       'Cannot combine variables with incompatible types ' +
-        `${schema.getTypeString(prevArgDef.type)} and ${schema.getTypeString(
-          nextArgDef.type,
-        )} ` +
+        `${prevArgType} and ${nextArgType} ` +
         `when applying ${directiveName}.`,
       [prevArgDef.loc, nextArgDef.loc],
     );

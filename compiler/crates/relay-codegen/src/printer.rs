@@ -30,9 +30,10 @@ struct DedupedJSONPrinter<'b> {
 }
 
 impl<'b> DedupedJSONPrinter<'b> {
-    fn new(full_duplicates: FnvHashSet<AstKey>, builder: &'b AstBuilder, root_key: AstKey) -> Self {
+    fn new(builder: &'b AstBuilder, root_key: AstKey) -> Self {
+        let mut visited = Default::default();
         let mut duplicates = Default::default();
-        Self::collect_value_duplicates(&mut duplicates, &full_duplicates, builder, root_key);
+        Self::collect_value_duplicates(&mut visited, &mut duplicates, builder, root_key);
         Self {
             variable_definitions: Default::default(),
             duplicates,
@@ -53,33 +54,27 @@ impl<'b> DedupedJSONPrinter<'b> {
     /// v0 = {b: 2};
     /// v1 = [{a: 1}, v0];
     fn collect_value_duplicates(
-        result: &mut FnvHashSet<AstKey>,
-        full_duplicates: &FnvHashSet<AstKey>,
+        visited: &mut FnvHashSet<AstKey>,
+        duplicates: &mut FnvHashSet<AstKey>,
         builder: &AstBuilder,
         key: AstKey,
     ) {
-        if full_duplicates.contains(&key) {
-            result.insert(key);
+        if !visited.insert(key) {
+            duplicates.insert(key);
             return;
         }
         match builder.lookup(key) {
             Ast::Array(array) => {
-                if array.is_empty() {
-                    return;
-                }
                 for val in array {
                     if let Primitive::Key(key) = val {
-                        Self::collect_value_duplicates(result, full_duplicates, builder, *key);
+                        Self::collect_value_duplicates(visited, duplicates, builder, *key);
                     }
                 }
             }
             Ast::Object(object) => {
-                if object.is_empty() {
-                    return;
-                }
                 for (_, val) in object {
                     if let Primitive::Key(key) = val {
-                        Self::collect_value_duplicates(result, full_duplicates, builder, *key);
+                        Self::collect_value_duplicates(visited, duplicates, builder, *key);
                     }
                 }
             }
@@ -214,7 +209,7 @@ impl Default for Printer {
 
 impl Printer {
     pub fn print_operation(&mut self, schema: &Schema, operation: &OperationDefinition) -> String {
-        let key = build_operation(schema, &mut self.builder, operation).0;
+        let key = build_operation(schema, &mut self.builder, operation);
         let root = self.builder.lookup(key);
         let mut result = String::new();
         self.print(&mut result, root, 0).unwrap();
@@ -222,7 +217,7 @@ impl Printer {
     }
 
     pub fn print_fragment(&mut self, schema: &Schema, fragment: &FragmentDefinition) -> String {
-        let key = build_fragment(schema, &mut self.builder, fragment).0;
+        let key = build_fragment(schema, &mut self.builder, fragment);
         let root = self.builder.lookup(key);
         let mut result = String::new();
         self.print(&mut result, root, 0).unwrap();
@@ -234,16 +229,9 @@ impl Printer {
         schema: &Schema,
         operation: &OperationDefinition,
     ) -> String {
-        let (key, duplicates) = build_operation(schema, &mut self.builder, operation);
-        if duplicates.is_empty() {
-            let root = self.builder.lookup(key);
-            let mut result = String::new();
-            self.print(&mut result, root, 0).unwrap();
-            result
-        } else {
-            let deduped_printer = DedupedJSONPrinter::new(duplicates, &self.builder, key);
-            deduped_printer.print()
-        }
+        let key = build_operation(schema, &mut self.builder, operation);
+        let deduped_printer = DedupedJSONPrinter::new(&self.builder, key);
+        deduped_printer.print()
     }
 
     pub fn print_fragment_deduped(
@@ -251,16 +239,9 @@ impl Printer {
         schema: &Schema,
         fragment: &FragmentDefinition,
     ) -> String {
-        let (key, duplicates) = build_fragment(schema, &mut self.builder, fragment);
-        if duplicates.is_empty() {
-            let root = self.builder.lookup(key);
-            let mut result = String::new();
-            self.print(&mut result, root, 0).unwrap();
-            result
-        } else {
-            let deduped_printer = DedupedJSONPrinter::new(duplicates, &self.builder, key);
-            deduped_printer.print()
-        }
+        let key = build_fragment(schema, &mut self.builder, fragment);
+        let deduped_printer = DedupedJSONPrinter::new(&self.builder, key);
+        deduped_printer.print()
     }
 
     fn print(&self, f: &mut String, ast: &Ast, indent: usize) -> FmtResult {

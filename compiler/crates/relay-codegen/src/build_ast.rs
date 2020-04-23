@@ -318,12 +318,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         // TODO(T63303873) check for skipNormalizationNode metadata
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
-            CodegenVariant::Normalization => vec![self.build_scalar_field(field)],
-            /* TODO:
-            iter::once(self.build_scalar_field(field))
-                .chain(self.build_scalar_handles(field))
-                .collect(),
-            */
+            CodegenVariant::Normalization => {
+                let mut result = vec![self.build_scalar_field(field)];
+                self.build_scalar_handles(&mut result, field);
+                result
+            }
         }
     }
 
@@ -368,46 +367,58 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_scalar_handles(
-        &self,
-        field: &'schema ScalarField,
-    ) -> impl IntoIterator<Item = ConcreteSelection> + '_ {
+    fn build_scalar_handles(&mut self, result: &mut Vec<Primitive>, field: &ScalarField) {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
         let handle_field_directives =
             extract_handle_field_directives(&field.directives, self.handle_field_constants);
 
-        handle_field_directives.map(move |directive| {
+        for directive in handle_field_directives {
             let values = extract_values_from_handle_field_directive(
                 &directive,
                 self.handle_field_constants,
                 None,
                 None,
             );
-
-            ConcreteSelection::ScalarHandle(ConcreteNormalizationScalarHandle {
-                alias: match field.alias {
-                    Some(alias) => Some(alias.item),
-                    None => None,
-                },
-                name: field_name,
-                args: None, // TODO: self.build_arguments(&field.arguments),
-                handle: values.handle,
-                key: values.key,
-                filters: values.filters,
-            })
-        })
+            let filters = match values.filters {
+                None => Primitive::Null,
+                Some(strs) => {
+                    Primitive::Key(self.array(strs.into_iter().map(Primitive::String).collect()))
+                }
+            };
+            let arguments = match self.build_arguments(&field.arguments) {
+                None => Primitive::Null,
+                Some(key) => Primitive::Key(key),
+            };
+            result.push(Primitive::Key(self.object(vec![
+                (
+                    CODEGEN_CONSTANTS.alias,
+                    match field.alias {
+                        None => Primitive::Null,
+                        Some(alias) => Primitive::String(alias.item),
+                    },
+                ),
+                (CODEGEN_CONSTANTS.args, arguments),
+                (CODEGEN_CONSTANTS.filters, filters),
+                (
+                    CODEGEN_CONSTANTS.kind,
+                    Primitive::String(CODEGEN_CONSTANTS.scalar_handle),
+                ),
+                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
+                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
+                (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
+            ])))
+        }
     }
 
     fn build_linked_field_and_handles(&mut self, field: &LinkedField) -> Vec<Primitive> {
         match self.variant {
             CodegenVariant::Reader => vec![self.build_linked_field(field)],
-            CodegenVariant::Normalization => vec![self.build_linked_field(field)],
-            /* TODO:
-            iter::once(self.build_linked_field(field))
-                .chain(self.build_linked_handles(field))
-                .collect(),
-                */
+            CodegenVariant::Normalization => {
+                let mut result = vec![self.build_linked_field(field)];
+                self.build_linked_handles(&mut result, field);
+                result
+            }
         }
     }
 
@@ -466,16 +477,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_linked_handles(
-        &self,
-        field: &'schema LinkedField,
-    ) -> impl IntoIterator<Item = ConcreteSelection> + '_ {
+    fn build_linked_handles(&mut self, result: &mut Vec<Primitive>, field: &LinkedField) {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
         let handle_field_directives =
             extract_handle_field_directives(&field.directives, self.handle_field_constants);
-
-        handle_field_directives.map(move |directive| {
+        for directive in handle_field_directives {
             let values = extract_values_from_handle_field_directive(
                 &directive,
                 self.handle_field_constants,
@@ -483,22 +490,48 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 None,
             );
 
-            ConcreteSelection::LinkedHandle(ConcreteNormalizationLinkedHandle {
-                alias: match field.alias {
-                    Some(alias) => Some(alias.item),
-                    None => None,
-                },
-                name: field_name,
-                args: None, // TODO: self.build_arguments(&field.arguments),
-                handle: values.handle,
-                key: values.key,
-                filters: values.filters,
-                dynamic_key: match &values.dynamic_key {
-                    Some(val) => None, // TODO: self.build_argument("__dynamicKey".intern(), val),
-                    None => None,
-                },
-            })
-        })
+            let dynamic_key = match &values.dynamic_key {
+                Some(val) => self.build_argument(CODEGEN_CONSTANTS.dynamic_key_argument, val),
+                None => None,
+            };
+            let filters = match values.filters {
+                None => Primitive::Null,
+                Some(strs) => {
+                    Primitive::Key(self.array(strs.into_iter().map(Primitive::String).collect()))
+                }
+            };
+            let mut object = vec![
+                (
+                    CODEGEN_CONSTANTS.alias,
+                    match field.alias {
+                        Some(alias) => Primitive::String(alias.item),
+                        None => Primitive::Null,
+                    },
+                ),
+                (
+                    CODEGEN_CONSTANTS.args,
+                    match self.build_arguments(&field.arguments) {
+                        None => Primitive::Null,
+                        Some(key) => Primitive::Key(key),
+                    },
+                ),
+                (CODEGEN_CONSTANTS.filters, filters),
+                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
+                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
+                (
+                    CODEGEN_CONSTANTS.kind,
+                    Primitive::String(CODEGEN_CONSTANTS.linked_handle),
+                ),
+                (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
+            ];
+            if let Some(dynamic_key) = dynamic_key {
+                object.insert(
+                    2,
+                    (CODEGEN_CONSTANTS.dynamic_key, Primitive::Key(dynamic_key)),
+                );
+            };
+            result.push(Primitive::Key(self.object(object)))
+        }
     }
 
     fn build_field_name_and_alias(

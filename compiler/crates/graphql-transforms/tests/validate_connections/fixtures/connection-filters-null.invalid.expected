@@ -19,10 +19,10 @@ query NodeQuery($id: ID!, $orderBy: String) {
 }
 ==================================== ERROR ====================================
 Expected the filters argument to @connection to be a list of string literals for field 'comments'.:
-connection-filters-null.invalid.graphql:6:56:
+connection-filters-null.invalid.graphql:6:57:
         @connection(key: "NodeQuery_comments", filters: null) {
 
 
-connection-filters-null.invalid.graphql:4:18:
-
+connection-filters-null.invalid.graphql:4:19:
+    ... on Story {
       comments(first: 10, orderby: $orderBy)

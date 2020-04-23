@@ -11,5 +11,5 @@ fragment ChildFragment on User {
 }
 ==================================== ERROR ====================================
 Unknown argument 'pictureSize':
-fragment-with-undefined-literal-arguments.invalid.graphql:2:30:
+fragment-with-undefined-literal-arguments.invalid.graphql:2:31:
   ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined

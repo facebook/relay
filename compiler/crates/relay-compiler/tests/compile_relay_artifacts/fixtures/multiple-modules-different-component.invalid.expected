@@ -25,11 +25,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== ERROR ====================================
 Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.:
-multiple-modules-different-component.invalid.graphql:11:11:
+multiple-modules-different-component.invalid.graphql:11:12:
         ...MarkdownUserNameRenderer_name
           @module(name: "OtherMarkdownUserNameRenderer.react")
 
 
-multiple-modules-different-component.invalid.graphql:5:11:
+multiple-modules-different-component.invalid.graphql:5:12:
         ...MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")

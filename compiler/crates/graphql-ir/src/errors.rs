@@ -67,7 +67,7 @@ impl ValidationError {
                         Some(source) => source,
                         None => "<source not found>",
                     };
-                    location.print(source)
+                    location.print(source, 0, 0)
                 })
                 .collect::<Vec<_>>()
                 .join("\n\n")
@@ -91,7 +91,7 @@ impl fmt::Display for ValidationErrorWithSources {
                 .iter()
                 .zip(&self.sources)
                 .map(|(location, source)| match source {
-                    Some(source) => location.print(&source.text),
+                    Some(source) => location.print(&source.text, source.line_index + 1, source.column_index + 1),
                     None => "<source not found>".to_string(),
                 })
                 .collect::<Vec<_>>()

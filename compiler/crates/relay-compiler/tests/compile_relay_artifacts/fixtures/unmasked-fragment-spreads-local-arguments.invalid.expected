@@ -13,9 +13,9 @@ fragment User_user on User
 }
 ==================================== ERROR ====================================
 Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.:
-unmasked-fragment-spreads-local-arguments.invalid.graphql:4:7:
+unmasked-fragment-spreads-local-arguments.invalid.graphql:4:8:
     ...User_user @relay(mask: false)
 
 
-unmasked-fragment-spreads-local-arguments.invalid.graphql:8:9:
+unmasked-fragment-spreads-local-arguments.invalid.graphql:8:10:
 fragment User_user on User

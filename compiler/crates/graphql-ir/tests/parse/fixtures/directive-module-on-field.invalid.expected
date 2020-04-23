@@ -13,5 +13,5 @@ fragment Example on User {
 }
 ==================================== ERROR ====================================
 Directive 'module' not supported in this location:
-directive-module-on-field.invalid.graphql:5:24:
+directive-module-on-field.invalid.graphql:5:25:
         profilePicture @module(preset: $preset) {

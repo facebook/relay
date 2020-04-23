@@ -7,5 +7,5 @@ query TestQuery {
 }
 ==================================== ERROR ====================================
 Unknown argument 'task_id':
-field-unknown-argument.invalid.graphql:2:7:
+field-unknown-argument.invalid.graphql:2:8:
   task(task_id: 123) {

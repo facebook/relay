@@ -7,7 +7,7 @@
 
 use common::FileKey;
 use fixture_tests::Fixture;
-use graphql_syntax::parse;
+use graphql_syntax::{parse, GraphQLSource};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     parse(fixture.content, FileKey::new(fixture.file_name))
@@ -15,7 +15,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map_err(|errors| {
             errors
                 .into_iter()
-                .map(|error| error.print(fixture.content))
+                .map(|error| error.print(&GraphQLSource::new(fixture.content, 0, 0)))
                 .collect::<Vec<_>>()
                 .join("\n\n")
         })

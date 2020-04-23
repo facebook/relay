@@ -7,8 +7,8 @@ fragment InlineFragment on Node {
 }
 ==================================== ERROR ====================================
 Invalid type 'Image' in inline fragment, this type can never occur for parent type 'Node':
-inline-fragment-on-wrong-type.invalid.graphql:1:33:
-
+inline-fragment-on-wrong-type.invalid.graphql:1:34:
+fragment InlineFragment on Node {
   ... on Image {
     url
   }

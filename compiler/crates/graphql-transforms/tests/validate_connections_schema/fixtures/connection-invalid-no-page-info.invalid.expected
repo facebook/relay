@@ -43,12 +43,12 @@ type BadConnectionPageInfo {
 }
 ==================================== ERROR ====================================
 @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'pageInfo' field that returns an object.:
-connection-invalid-no-page-info.invalid.graphql:4:17:
-
+connection-invalid-no-page-info.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {
 
 
 Expected the key argument to @connection to be a string literal for field 'badConnection'.:
-connection-invalid-no-page-info.invalid.graphql:4:17:
-
+connection-invalid-no-page-info.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {

@@ -14,5 +14,5 @@ fragment NameRendererFragment on User {
 }
 ==================================== ERROR ====================================
 Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.:
-query-with-match-directive-no-modules.invalid.graphql:9:16:
+query-with-match-directive-no-modules.invalid.graphql:9:17:
   nameRenderer @match {

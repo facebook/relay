@@ -32,10 +32,10 @@ extend type Story {
 }
 ==================================== ERROR ====================================
 Unexpected directive: 'stream_connection'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.:
-stream-connection-on-client.invalid.graphql:6:9:
+stream-connection-on-client.invalid.graphql:6:10:
         @stream_connection(
 
 
-stream-connection-on-client.invalid.graphql:4:18:
-
+stream-connection-on-client.invalid.graphql:4:19:
+    ... on Story {
       clientComments(first: 10)

@@ -11,9 +11,9 @@ fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {
 }
 ==================================== ERROR ====================================
 Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.:
-unmasked-spread-with-argument-definition.invalid.graphql:3:7:
+unmasked-spread-with-argument-definition.invalid.graphql:3:8:
     ...PhotoFragment @relay(mask: false)
 
 
-unmasked-spread-with-argument-definition.invalid.graphql:7:9:
+unmasked-spread-with-argument-definition.invalid.graphql:7:10:
 fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {

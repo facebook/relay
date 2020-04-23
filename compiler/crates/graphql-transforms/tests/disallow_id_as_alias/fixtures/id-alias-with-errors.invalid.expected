@@ -14,18 +14,18 @@ fragment Page_fragment on Node {
 }
 ==================================== ERROR ====================================
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-alias-with-errors.invalid.graphql:1:32:
-
+id-alias-with-errors.invalid.graphql:1:33:
+fragment User_fragment on User {
   id: name
 
 
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-alias-with-errors.invalid.graphql:6:15:
-
+id-alias-with-errors.invalid.graphql:6:16:
+  ... on Page {
     id: author {
 
 
 Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-alias-with-errors.invalid.graphql:8:10:
-
+id-alias-with-errors.invalid.graphql:8:11:
+      name
       id: canViewerComment

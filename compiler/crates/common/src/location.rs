@@ -67,8 +67,12 @@ impl Location {
         }
     }
 
-    pub fn print(&self, source: &str) -> String {
-        format!("{}:{}", self.file.lookup(), self.span.print(source))
+    pub fn print(&self, source: &str, line_offset: usize, column_offset: usize) -> String {
+        format!(
+            "{}:{}",
+            self.file.lookup(),
+            self.span.print(source, line_offset, column_offset)
+        )
     }
 }
 

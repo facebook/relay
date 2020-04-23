@@ -5,5 +5,5 @@ fragment Foo on UnknownType {
 }
 ==================================== ERROR ====================================
 Unknown type 'UnknownType':
-unknown-fragment-type.invalid.graphql:1:16:
+unknown-fragment-type.invalid.graphql:1:17:
 fragment Foo on UnknownType {

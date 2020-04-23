@@ -13,5 +13,5 @@ fragment Example on User @match(key: "Example") {
 }
 ==================================== ERROR ====================================
 Directive 'match' not supported in this location:
-directive-match-on-fragment.invalid.graphql:1:26:
+directive-match-on-fragment.invalid.graphql:1:27:
 fragment Example on User @match(key: "Example") {

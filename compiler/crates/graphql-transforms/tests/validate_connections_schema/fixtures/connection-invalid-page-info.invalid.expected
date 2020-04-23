@@ -44,18 +44,18 @@ type BadConnectionPageInfo {
 }
 ==================================== ERROR ====================================
 @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'pageInfo { endCursor }' field that returns a scalar.:
-connection-invalid-page-info.invalid.graphql:4:17:
-
+connection-invalid-page-info.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {
 
 
 @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'pageInfo { hasPreviousPage }' field that returns a scalar.:
-connection-invalid-page-info.invalid.graphql:4:17:
-
+connection-invalid-page-info.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {
 
 
 Expected the key argument to @connection to be a string literal for field 'badConnection'.:
-connection-invalid-page-info.invalid.graphql:4:17:
-
+connection-invalid-page-info.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {

@@ -11,9 +11,9 @@ fragment PhotoFragment on Image @inline {
 }
 ==================================== ERROR ====================================
 Cannot use @relay(mask: false) on fragment spreads for fragments with directives.:
-unmasked-spread-with-directive.invalid.graphql:3:7:
+unmasked-spread-with-directive.invalid.graphql:3:8:
     ...PhotoFragment @relay(mask: false)
 
 
-unmasked-spread-with-directive.invalid.graphql:7:9:
+unmasked-spread-with-directive.invalid.graphql:7:10:
 fragment PhotoFragment on Image @inline {

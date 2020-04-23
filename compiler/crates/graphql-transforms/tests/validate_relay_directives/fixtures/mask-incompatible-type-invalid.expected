@@ -18,9 +18,9 @@ fragment StringFragment on Query {
 }
 ==================================== ERROR ====================================
 Cannot combine variables with incompatible types Int and ID when applying @relay(mask: false:
-mask-incompatible-type-invalid.graphql:13:15:
+mask-incompatible-type-invalid.graphql:13:16:
   task(number: $id) {
 
 
-mask-incompatible-type-invalid.graphql:7:11:
+mask-incompatible-type-invalid.graphql:7:12:
   node(id: $id) {

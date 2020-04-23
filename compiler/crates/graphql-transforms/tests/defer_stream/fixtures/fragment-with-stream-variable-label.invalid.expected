@@ -15,5 +15,5 @@ fragment FeedbackFragment on Feedback {
 }
 ==================================== ERROR ====================================
 Expected the 'label' value to @stream to be a string literal if provided.:
-fragment-with-stream-variable-label.invalid.graphql:10:10:
+fragment-with-stream-variable-label.invalid.graphql:10:11:
   actors @stream(initial_count: 1, label: $label) {

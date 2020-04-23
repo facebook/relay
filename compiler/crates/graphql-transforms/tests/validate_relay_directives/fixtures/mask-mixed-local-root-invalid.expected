@@ -11,9 +11,9 @@ fragment NonNullIDFragment on Query {
 }
 ==================================== ERROR ====================================
 Cannot combine global and local variables when applying @relay(mask: false:
-mask-mixed-local-root-invalid.graphql:1:51:
+mask-mixed-local-root-invalid.graphql:1:52:
 fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
 
 
-mask-mixed-local-root-invalid.graphql:6:23:
+mask-mixed-local-root-invalid.graphql:6:24:
   node_id_required(id: $id) {

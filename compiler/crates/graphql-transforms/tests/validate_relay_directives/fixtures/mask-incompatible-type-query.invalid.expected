@@ -18,9 +18,9 @@ fragment NullableIDListFragment on Query {
 }
 ==================================== ERROR ====================================
 Cannot combine variables with incompatible types ID and [ID!] when applying @relay(mask: false:
-mask-incompatible-type-query.invalid.graphql:1:18:
+mask-incompatible-type-query.invalid.graphql:1:19:
 query ParentQuery($id: ID) {
 
 
-mask-incompatible-type-query.invalid.graphql:13:13:
+mask-incompatible-type-query.invalid.graphql:13:14:
   nodes(ids: $id) {

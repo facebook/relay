@@ -26,10 +26,10 @@ query NodeQuery($id: ID!) {
 }
 ==================================== ERROR ====================================
 Expected a value of type 'String':
-connection-with-invalid-custom-handler.invalid.graphql:11:63:
+connection-with-invalid-custom-handler.invalid.graphql:11:64:
                 @connection(key: "NodeQuery_friends", handler: false) {
 
 
 Expected a value of type 'String':
-connection-with-invalid-custom-handler.invalid.graphql:5:74:
+connection-with-invalid-custom-handler.invalid.graphql:5:75:
       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {

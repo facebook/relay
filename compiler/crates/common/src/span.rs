@@ -6,6 +6,7 @@
  */
 
 use colored::Colorize;
+use std::cmp;
 use std::convert::TryFrom;
 use std::fmt;
 
@@ -38,44 +39,49 @@ impl Span {
         (self.start as usize, self.length as usize)
     }
 
-    pub fn print(self, source: &str) -> String {
+    pub fn print(
+        self,
+        source: &str,
+        start_line_count_offset: usize,
+        start_line_offset: usize,
+    ) -> String {
         let start = self.start as usize;
         let end = start + self.length as usize;
 
         let mut index = 0;
-        let mut start_line = 0;
-        let mut start_line_count = 0;
+        let mut line_offset = start_line_offset;
+        let mut start_offset = start_line_offset;
+        let mut start_line_count = start_line_count_offset;
         let mut line_start = 0;
         let mut slice_start = start;
         let mut slice_end = end;
         for chr in source.chars() {
+            if index == start {
+                slice_start = line_start;
+                start_offset = line_offset;
+            }
+
             if chr == '\n' {
                 line_start = index + 1;
+                line_offset = 1;
                 if index < start {
-                    start_line = line_start;
                     start_line_count += 1;
                 }
                 if index > end {
                     slice_end = line_start;
                     break;
                 }
-            }
-            if index == start {
-                slice_start = line_start;
+            } else {
+                line_offset += 1;
             }
             index += chr.len_utf8();
         }
-        slice_start = if start < slice_start {
-            start
-        } else {
-            slice_start
-        };
-        slice_end = if end > slice_end { end } else { slice_end };
-
+        slice_start = cmp::min(start, slice_start);
+        slice_end = cmp::max(end, slice_end);
         format!(
             "{}:{}:\n{}{}{}",
             start_line_count,
-            start - start_line,
+            start_offset,
             &source[slice_start..start],
             source[start..end].color("red"),
             &source[end..slice_end]

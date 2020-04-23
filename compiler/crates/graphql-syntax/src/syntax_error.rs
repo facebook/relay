@@ -23,8 +23,13 @@ impl SyntaxError {
         Self { kind, location }
     }
 
-    pub fn print(&self, source: &str) -> String {
-        format!("Error: {} at {}", self.kind, self.location.print(source))
+    pub fn print(&self, source: &GraphQLSource) -> String {
+        format!(
+            "Error: {} at {}",
+            self.kind,
+            self.location
+                .print(&source.text, source.line_index + 1, source.column_index + 1)
+        )
     }
 
     /// Attaches a source string to the error to allow it to be printed with a
@@ -56,7 +61,7 @@ pub struct SyntaxErrorWithSource {
 }
 impl SyntaxErrorWithSource {
     pub fn print(&self) -> String {
-        self.error.print(&self.source.text)
+        self.error.print(&self.source)
     }
 }
 

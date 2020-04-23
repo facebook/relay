@@ -19,5 +19,5 @@ fragment DeferredFragment on User {
 }
 ==================================== ERROR ====================================
 Expected the 'label' value to @defer to be a string literal if provided.:
-fragment-with-variable-label.invalid.graphql:11:23:
+fragment-with-variable-label.invalid.graphql:11:24:
   ...DeferredFragment @defer(label: $label)

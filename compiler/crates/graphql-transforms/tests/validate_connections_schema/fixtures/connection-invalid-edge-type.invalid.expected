@@ -44,28 +44,28 @@ type BadConnectionPageInfo {
 }
 ==================================== ERROR ====================================
 @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { cursor }' field that returns a scalar.:
-connection-invalid-edge-type.invalid.graphql:4:17:
-
+connection-invalid-edge-type.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {
 
 
-connection-invalid-edge-type.invalid.graphql:5:63:
-
+connection-invalid-edge-type.invalid.graphql:5:64:
+      badConnection(first: $first, after: $after) @connection {
         edges {
 
 
 @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { node }' field that returns an object, interface or union.:
-connection-invalid-edge-type.invalid.graphql:4:17:
-
+connection-invalid-edge-type.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {
 
 
-connection-invalid-edge-type.invalid.graphql:5:63:
-
+connection-invalid-edge-type.invalid.graphql:5:64:
+      badConnection(first: $first, after: $after) @connection {
         edges {
 
 
 Expected the key argument to @connection to be a string literal for field 'badConnection'.:
-connection-invalid-edge-type.invalid.graphql:4:17:
-
+connection-invalid-edge-type.invalid.graphql:4:18:
+    ... on User {
       badConnection(first: $first, after: $after) @connection {

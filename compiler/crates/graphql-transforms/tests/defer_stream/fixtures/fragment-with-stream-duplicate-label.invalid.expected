@@ -19,9 +19,9 @@ fragment FeedbackFragment on Feedback {
 }
 ==================================== ERROR ====================================
 Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.:
-fragment-with-stream-duplicate-label.invalid.graphql:10:10:
+fragment-with-stream-duplicate-label.invalid.graphql:10:11:
   actors @stream(initial_count: 1, label: "actors") {
 
 
-fragment-with-stream-duplicate-label.invalid.graphql:13:23:
+fragment-with-stream-duplicate-label.invalid.graphql:13:24:
   otherActors: actors @stream(initial_count: 1, label: "actors") {

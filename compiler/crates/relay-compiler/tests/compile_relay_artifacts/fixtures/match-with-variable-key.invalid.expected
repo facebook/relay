@@ -16,5 +16,5 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 }
 ==================================== ERROR ====================================
 Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. 'MatchWithVariableName_<localName>'.:
-match-with-variable-key.invalid.graphql:3:18:
+match-with-variable-key.invalid.graphql:3:19:
     nameRenderer @match(key: $key) {

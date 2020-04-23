@@ -7,5 +7,5 @@ query InvalidQueryArgument($user: User!) {
 }
 ==================================== ERROR ====================================
 Expected variable definition to have an input type (scalar, enum, or input object), found type 'User':
-invalid-argument-type.invalid.graphql:1:27:
+invalid-argument-type.invalid.graphql:1:28:
 query InvalidQueryArgument($user: User!) {

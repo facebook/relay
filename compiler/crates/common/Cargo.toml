@@ -10,3 +10,4 @@ include = ["src/**/*.rs"]
 [dependencies]
 interner = { path = "../interner" }
 colored = "1.9"
+lazy_static = "1.0"

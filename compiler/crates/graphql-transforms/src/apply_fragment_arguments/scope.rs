@@ -14,7 +14,7 @@ use graphql_ir::{
 };
 use interner::StringKey;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Scope {
     bindings: Vec<(Location, FnvHashMap<StringKey, Value>)>,
 }

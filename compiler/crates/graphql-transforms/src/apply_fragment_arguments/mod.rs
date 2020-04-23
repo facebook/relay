@@ -8,7 +8,7 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::WithLocation;
+use common::{is_feature_flag_enabled, FeatureFlags, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
@@ -165,7 +165,12 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
                         TransformedValue::Keep
                     }
                     Some(other_binding) => {
-                        panic!("Invalid variable value for condition: {:?}", other_binding);
+                        // TODO (T65915950): Remove this flag
+                        if is_feature_flag_enabled(FeatureFlags::IgnoreInvalidConditionVariables) {
+                            TransformedValue::Keep
+                        } else {
+                            panic!("Invalid variable value for condition: {:?}", other_binding);
+                        }
                     }
                 }
             }

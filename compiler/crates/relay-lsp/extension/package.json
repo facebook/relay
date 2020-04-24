@@ -1,0 +1,24 @@
+{
+    "name": "relay-lsp",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.22.0"
+    },
+    "activationEvents": [
+        "onLanguage:javascript",
+        "onCommand:extension.runRelayCompiler"
+    ],
+    "main": "./extension",
+    "dependencies": {
+        "vscode-languageclient": "^6.1.3"
+    },
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.runRelayCompiler",
+                "title": "Run Relay Compiler",
+                "category": "Compiler"
+            }
+        ]
+    }
+}

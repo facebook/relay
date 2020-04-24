@@ -56,7 +56,7 @@ THROWN EXCEPTION:
 
 Invalid use of @refetchable on fragment 'UserName', only supported are fragments on:
  - the Viewer type
- - the query type
+ - the Query type
  - the Node interface or types implementing the Node interface
  - @fetchable types
 

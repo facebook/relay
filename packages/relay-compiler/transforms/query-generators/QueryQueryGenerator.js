@@ -52,6 +52,6 @@ function buildRefetchOperation(
 }
 
 module.exports = ({
-  description: 'the query type',
+  description: 'the Query type',
   buildRefetchOperation,
 }: QueryGenerator);

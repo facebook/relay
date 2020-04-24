@@ -358,10 +358,16 @@ fn write_argument_value(
         let array = builder.lookup(items.assert_key()).assert_array();
 
         f.push('[');
-        for key in array {
-            let object = builder.lookup(key.assert_key()).assert_object();
-            write_argument_value(f, builder, object)?;
-            f.push(',');
+        for key_or_null in array {
+            match key_or_null {
+                Primitive::Null => f.push_str("null,"),
+                Primitive::Key(key) => {
+                    let object = builder.lookup(*key).assert_object();
+                    write_argument_value(f, builder, object)?;
+                    f.push(',');
+                }
+                _ => panic!("Expected an object key or null"),
+            }
         }
         if !array.is_empty() {
             f.pop();

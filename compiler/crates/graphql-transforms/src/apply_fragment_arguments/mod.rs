@@ -8,7 +8,7 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::{is_feature_flag_enabled, FeatureFlags, WithLocation};
+use common::{print_warning, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
@@ -16,8 +16,17 @@ use graphql_ir::{
     Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::StringKey;
+use lazy_static::lazy_static;
 use scope::Scope;
 use std::sync::Arc;
+
+lazy_static! {
+    // TODO (T65915950): Remove this flag once the issue is fixed:
+    static ref IGNORE_INVALID_CONDITION_VARIABLE_VALUES: bool =
+        std::env::var("DEPRECATED__IGNORE_INVALID_CONDITION_VARIABLE_VALUES").is_ok();
+     // TODO: (T65959551) Remove this feature flag
+    static ref IGNORE_MISSING_FRAGMENTS: bool = std::env::var("DEPRECATED__IGNORE_MISSING_FRAGMENT").is_ok();
+}
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -166,7 +175,8 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
                     }
                     Some(other_binding) => {
                         // TODO (T65915950): Remove this flag
-                        if is_feature_flag_enabled(FeatureFlags::IgnoreInvalidConditionVariables) {
+                        if *IGNORE_INVALID_CONDITION_VARIABLE_VALUES {
+                            print_warning(format!("ApplyFragmentArgumentsTransform.transform_condition_value: Invalid variable value for condition: {:?}", other_binding));
                             TransformedValue::Keep
                         } else {
                             panic!("Invalid variable value for condition: {:?}", other_binding);
@@ -181,7 +191,20 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
 
 impl<'schema> ApplyFragmentArgumentsTransform<'schema> {
     fn apply_fragment(&mut self, spread: &FragmentSpread) -> Option<Arc<FragmentDefinition>> {
-        let fragment = self.program.fragment(spread.fragment.item).unwrap();
+        let fragment = match self.program.fragment(spread.fragment.item) {
+            Some(fragment) => fragment,
+            None => {
+                if *IGNORE_MISSING_FRAGMENTS {
+                    return None;
+                } else {
+                    panic!(
+                        "Tried to spread missing fragment: `{}`.",
+                        spread.fragment.item
+                    );
+                }
+            }
+        };
+
         let transformed_arguments = self
             .transform_arguments(&spread.arguments)
             .replace_or_else(|| spread.arguments.clone());

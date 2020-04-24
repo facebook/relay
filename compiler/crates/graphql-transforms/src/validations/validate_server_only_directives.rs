@@ -13,7 +13,13 @@ use graphql_ir::{
     ValidationError, ValidationMessage, ValidationResult, Validator,
 };
 use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use std::iter::FromIterator;
+
+lazy_static! {
+    // TODO: (T65959551) Remove this feature flag
+    static ref IGNORE_MISSING_FRAGMENTS: bool = std::env::var("DEPRECATED__IGNORE_MISSING_FRAGMENT").is_ok();
+}
 
 pub fn validate_server_only_directives<'s>(program: &Program<'s>) -> ValidationResult<()> {
     let mut validator = ServerOnlyDirectivesValidation::new(program);
@@ -148,6 +154,9 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
     }
 
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
+        if self.program.fragment(spread.fragment.item).is_none() && *IGNORE_MISSING_FRAGMENTS {
+            return Ok(());
+        }
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         let state = self.validate_fragment_impl(fragment)?.clone();
         let FragmentState {

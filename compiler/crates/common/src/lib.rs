@@ -9,14 +9,14 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod feature_flags;
 mod location;
 mod murmurhash;
+mod print_message;
 mod span;
 mod timer;
 
-pub use feature_flags::{is_feature_flag_enabled, FeatureFlags};
 pub use location::{FileKey, Location, WithLocation};
 pub use murmurhash::murmurhash;
+pub use print_message::{print_error, print_info, print_warning};
 pub use span::{Span, Spanned};
 pub use timer::Timer;

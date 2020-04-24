@@ -41,17 +41,20 @@ pub async fn persist(
     uri: &str,
     params: impl IntoIterator<Item = (&String, &String)>,
 ) -> Result<String, PersistError> {
-    let mut request_body = form_urlencoded::Serializer::new(String::new());
-    for param in params {
-        request_body.append_pair(&param.0, &param.1);
-    }
-    request_body.append_pair("text", &document);
+    let request_body = {
+        let mut request_body = form_urlencoded::Serializer::new(String::new());
+        for param in params {
+            request_body.append_pair(&param.0, &param.1);
+        }
+        request_body.append_pair("text", &document);
+        request_body.finish()
+    };
 
     let req = Request::builder()
         .method(Method::POST)
         .uri(uri)
         .header("content-type", "application/x-www-form-urlencoded")
-        .body(Body::from(request_body.finish()))
+        .body(Body::from(request_body))
         .map_err(|err| PersistError::NetworkCreateError {
             error: Box::new(err),
         })?;

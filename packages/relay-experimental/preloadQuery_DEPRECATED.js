@@ -135,15 +135,6 @@ function preloadQueryDeduped<TQuery: OperationType>(
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
-  } else if (
-    // TODO(T62200461): Need to still check for previouss version of
-    // generated artifacts for push safety. Remove when fully
-    // rolled out.
-    (preloadableRequest: $FlowFixMe).queryResource != null
-  ) {
-    const preloadableConcreteRequest = (preloadableRequest: $FlowFixMe);
-    params = (preloadableConcreteRequest.params: RequestParameters);
-    query = preloadableConcreteRequest.queryResource.getModuleIfRequired();
   } else {
     query = getRequest((preloadableRequest: $FlowFixMe));
     params = query.params;

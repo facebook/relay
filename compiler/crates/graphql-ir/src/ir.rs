@@ -65,6 +65,12 @@ impl VariableDefinition {
     }
 }
 
+impl Named for VariableDefinition {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
+}
+
 // Selections
 
 /// A selection within an operation or fragment

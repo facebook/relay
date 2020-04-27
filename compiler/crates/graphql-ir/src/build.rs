@@ -7,7 +7,10 @@
 
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
-use crate::signatures::{build_signatures, FragmentSignatures};
+use crate::{
+    signatures::{build_signatures, FragmentSignatures},
+    NamedItem,
+};
 use common::{Location, Span, WithLocation};
 use errors::{try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
@@ -439,33 +442,30 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .items
                     .iter()
                     .map(|arg| {
-                        let argument_definition = signature
-                            .variable_definitions
-                            .iter()
-                            .find(|x| x.name.item == arg.name.value);
-                        match argument_definition {
-                            Some(argument_definition) => {
-                                // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
-                                // in a lot of code that is technically valid but doesn't type-check. Specifically,
-                                // many fragment @argDefs are typed as non-null but used in places that accept a
-                                // nullable value. Similarly, the corresponding @args pass nullable values. This
-                                // works since ultimately a nullable T flows into a nullable T, but isn't
-                                // technically correct. There are also @argDefs are typed with different types,
-                                // but the persist query allowed them as the types are the same underlyingly.
-                                // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
-                                // types of variables passed to @args at all
-                                Ok(self.build_argument(
-                                    arg,
-                                    &argument_definition.type_,
-                                    ValidationLevel::Loose,
-                                )?)
-                            }
-                            None => Err(self
+                        if let Some(argument_definition) =
+                            signature.variable_definitions.named(arg.name.value)
+                        {
+                            // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
+                            // in a lot of code that is technically valid but doesn't type-check. Specifically,
+                            // many fragment @argDefs are typed as non-null but used in places that accept a
+                            // nullable value. Similarly, the corresponding @args pass nullable values. This
+                            // works since ultimately a nullable T flows into a nullable T, but isn't
+                            // technically correct. There are also @argDefs are typed with different types,
+                            // but the persist query allowed them as the types are the same underlyingly.
+                            // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
+                            // types of variables passed to @args at all
+                            Ok(self.build_argument(
+                                arg,
+                                &argument_definition.type_,
+                                ValidationLevel::Loose,
+                            )?)
+                        } else {
+                            Err(self
                                 .record_error(ValidationError::new(
                                     ValidationMessage::UnknownArgument(arg.name.value),
                                     vec![self.location.with_span(arg.span)],
                                 ))
-                                .into()),
+                                .into())
                         }
                     })
                     .collect()

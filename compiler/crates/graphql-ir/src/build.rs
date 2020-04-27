@@ -8,23 +8,17 @@
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignatures};
-use common::{print_warning, Location, Span, WithLocation};
+use common::{Location, Span, WithLocation};
 use errors::{try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
-use lazy_static::lazy_static;
 use schema::{
     ArgumentDefinitions, DirectiveLocation, Enum, FieldID, InputObject, Scalar, Schema, Type,
     TypeReference,
 };
-
-lazy_static! {
-    // TODO: (T65959551) Remove this feature flag
-    static ref IGNORE_MISSING_FRAGMENTS: bool = std::env::var("DEPRECATED__IGNORE_MISSING_FRAGMENT").is_ok();
-}
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
@@ -377,21 +371,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None => {
-                if *IGNORE_MISSING_FRAGMENTS {
-                    print_warning(format!("{} {}", "Undefined fragment", spread.name.value));
-                    return Ok(FragmentSpread {
-                        fragment: spread.name.name_with_location(self.location.file()),
-                        arguments: vec![],
-                        directives: vec![],
-                    });
-                } else {
-                    return Err(self
-                        .record_error(ValidationError::new(
-                            ValidationMessage::UndefinedFragment(spread.name.value),
-                            vec![self.location.with_span(spread.span)],
-                        ))
-                        .into());
-                }
+                return Err(self
+                    .record_error(ValidationError::new(
+                        ValidationMessage::UndefinedFragment(spread.name.value),
+                        vec![self.location.with_span(spread.span)],
+                    ))
+                    .into());
             }
         };
 

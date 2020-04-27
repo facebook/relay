@@ -24,8 +24,6 @@ lazy_static! {
     // TODO (T65915950): Remove this flag once the issue is fixed:
     static ref IGNORE_INVALID_CONDITION_VARIABLE_VALUES: bool =
         std::env::var("DEPRECATED__IGNORE_INVALID_CONDITION_VARIABLE_VALUES").is_ok();
-     // TODO: (T65959551) Remove this feature flag
-    static ref IGNORE_MISSING_FRAGMENTS: bool = std::env::var("DEPRECATED__IGNORE_MISSING_FRAGMENT").is_ok();
 }
 
 /// A transform that converts a set of documents containing fragments/fragment
@@ -191,19 +189,15 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
 
 impl<'schema> ApplyFragmentArgumentsTransform<'schema> {
     fn apply_fragment(&mut self, spread: &FragmentSpread) -> Option<Arc<FragmentDefinition>> {
-        let fragment = match self.program.fragment(spread.fragment.item) {
-            Some(fragment) => fragment,
-            None => {
-                if *IGNORE_MISSING_FRAGMENTS {
-                    return None;
-                } else {
-                    panic!(
-                        "Tried to spread missing fragment: `{}`.",
-                        spread.fragment.item
-                    );
-                }
-            }
-        };
+        let fragment = self
+            .program
+            .fragment(spread.fragment.item)
+            .unwrap_or_else(|| {
+                panic!(
+                    "Tried to spread missing fragment: `{}`.",
+                    spread.fragment.item
+                );
+            });
 
         let transformed_arguments = self
             .transform_arguments(&spread.arguments)

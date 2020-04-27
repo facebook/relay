@@ -166,7 +166,12 @@ fn consume_line_comment(it: &mut CharReader<'_>) {
 }
 
 fn consume_block_comment(it: &mut CharReader<'_>) {
+    let mut first = true;
     while let Some((_, c)) = it.next() {
+        if first && c == '`' {
+            break;
+        }
+        first = false;
         if c == '*' {
             if let Some((_, '/')) = it.peek() {
                 it.next();

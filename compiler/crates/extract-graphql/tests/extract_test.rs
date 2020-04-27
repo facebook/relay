@@ -1,4 +1,4 @@
-// @generated SignedSource<<dda7c5e1f339db012adc95e21545acca>>
+// @generated SignedSource<<98a4ddbdb0819f0e1468298b6f6f480b>>
 
 mod extract;
 
@@ -45,4 +45,11 @@ fn simple() {
     let input = include_str!("extract/fixtures/simple.flow");
     let expected = include_str!("extract/fixtures/simple.expected");
     test_fixture(transform_fixture, "simple.flow", "extract/fixtures/simple.expected", input, expected);
+}
+
+#[test]
+fn template_literal() {
+    let input = include_str!("extract/fixtures/template_literal.js");
+    let expected = include_str!("extract/fixtures/template_literal.expected");
+    test_fixture(transform_fixture, "template_literal.js", "extract/fixtures/template_literal.expected", input, expected);
 }

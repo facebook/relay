@@ -1,4 +1,4 @@
-# TODO: should fail
+# expected-to-throw
 fragment TestFragment on User
   @argumentDefinitions(
     id: {type: "ID!"}

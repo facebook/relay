@@ -37,6 +37,8 @@ pub struct Schema {
     string_type: Type,
     id_type: Type,
 
+    unchecked_argument_type_sentinel: TypeReference,
+
     directives: HashMap<StringKey, Directive>,
 
     enums: Vec<Enum>,
@@ -71,6 +73,14 @@ impl Schema {
 
     pub fn get_type(&self, type_name: StringKey) -> Option<Type> {
         self.type_map.get(&type_name).cloned()
+    }
+
+    /// A value that represents a type of unchecked arguments where we don't
+    /// have a type to instantiate the argument.
+    ///
+    /// TODO: we probably want to replace this with a proper `Unknown` type.
+    pub fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+        &self.unchecked_argument_type_sentinel
     }
 
     pub fn is_type_subtype_of(
@@ -366,6 +376,9 @@ impl Schema {
         let string_type = *type_map.get(&"String".intern()).unwrap();
         let id_type = *type_map.get(&"ID".intern()).unwrap();
 
+        let unchecked_argument_type_sentinel =
+            TypeReference::Named(*type_map.get(&"Boolean".intern()).unwrap());
+
         let mut schema = Schema {
             query_type: None,
             mutation_type: None,
@@ -377,6 +390,7 @@ impl Schema {
             typename_field_name: "__typename".intern(),
             string_type,
             id_type,
+            unchecked_argument_type_sentinel,
             directives: HashMap::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
             fields: Vec::with_capacity(field_count),
@@ -794,8 +808,9 @@ impl Schema {
             typename_field: _typename_field,
             clientid_field_name: _clientid_field_name,
             typename_field_name: _typename_field_name,
-            string_type: _string_type,
-            id_type: _id_type,
+            string_type: _,
+            id_type: _,
+            unchecked_argument_type_sentinel: _,
             type_map,
             enums,
             fields,

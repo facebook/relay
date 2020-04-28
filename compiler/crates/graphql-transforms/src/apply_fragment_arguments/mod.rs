@@ -8,7 +8,7 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::{print_warning, WithLocation};
+use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
@@ -16,15 +16,8 @@ use graphql_ir::{
     Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::StringKey;
-use lazy_static::lazy_static;
 use scope::Scope;
 use std::sync::Arc;
-
-lazy_static! {
-    // TODO (T65915950): Remove this flag once the issue is fixed:
-    static ref IGNORE_INVALID_CONDITION_VARIABLE_VALUES: bool =
-        std::env::var("DEPRECATED__IGNORE_INVALID_CONDITION_VARIABLE_VALUES").is_ok();
-}
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -172,13 +165,7 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
                         TransformedValue::Keep
                     }
                     Some(other_binding) => {
-                        // TODO (T65915950): Remove this flag
-                        if *IGNORE_INVALID_CONDITION_VARIABLE_VALUES {
-                            print_warning(format!("ApplyFragmentArgumentsTransform.transform_condition_value: Invalid variable value for condition: {:?}", other_binding));
-                            TransformedValue::Keep
-                        } else {
-                            panic!("Invalid variable value for condition: {:?}", other_binding);
-                        }
+                        panic!("Invalid variable value for condition: {:?}", other_binding);
                     }
                 }
             }

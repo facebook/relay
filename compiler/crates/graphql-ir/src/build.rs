@@ -8,13 +8,13 @@
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::{
-    signatures::{build_signatures, FragmentSignatures},
+    signatures::{build_signatures, FragmentSignature, FragmentSignatures},
     NamedItem,
 };
 use common::{Location, Span, WithLocation};
 use errors::{try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_syntax::OperationKind;
+use graphql_syntax::{List, OperationKind};
 use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
@@ -365,6 +365,63 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
     }
 
+    fn build_fragment_spread_arguments(
+        &mut self,
+        signature: &FragmentSignature,
+        arg_list: &List<graphql_syntax::Argument>,
+        check_arguments: bool,
+    ) -> ValidationResult<Vec<Argument>> {
+        let mut has_unused_args = false;
+        let result: ValidationResult<Vec<Argument>> = arg_list
+            .items
+            .iter()
+            .map(|arg| {
+                if let Some(argument_definition) =
+                    signature.variable_definitions.named(arg.name.value)
+                {
+                    // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
+                    // in a lot of code that is technically valid but doesn't type-check. Specifically,
+                    // many fragment @argDefs are typed as non-null but used in places that accept a
+                    // nullable value. Similarly, the corresponding @args pass nullable values. This
+                    // works since ultimately a nullable T flows into a nullable T, but isn't
+                    // technically correct. There are also @argDefs are typed with different types,
+                    // but the persist query allowed them as the types are the same underlyingly.
+                    // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
+                    // types of variables passed to @args at all
+                    Ok(self.build_argument(
+                        arg,
+                        &argument_definition.type_,
+                        ValidationLevel::Loose,
+                    )?)
+                } else if !check_arguments {
+                    // TODO: fully handle uncheckedArguments_DEPRECATED. Currently, this just creates
+                    // a fake Boolean type.
+                    has_unused_args = true;
+                    Ok(self.build_argument(
+                        arg,
+                        self.schema.unchecked_argument_type_sentinel(),
+                        ValidationLevel::Loose,
+                    )?)
+                } else {
+                    Err(self
+                        .record_error(ValidationError::new(
+                            ValidationMessage::UnknownArgument(arg.name.value),
+                            vec![self.location.with_span(arg.span)],
+                        ))
+                        .into())
+                }
+            })
+            .collect();
+        if !check_arguments && !has_unused_args {
+            Err(vec![ValidationError::new(
+                ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
+                vec![self.location.with_span(arg_list.span)],
+            )])
+        } else {
+            result
+        }
+    }
+
     fn build_fragment_spread(
         &mut self,
         spread: &graphql_syntax::FragmentSpread,
@@ -413,8 +470,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .iter()
             .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "arguments");
 
-        // TODO: fully handle uncheckedArguments_DEPRECATED
-        let (unchecked_argument_directives, other_directives) = other_directives
+        let (mut unchecked_argument_directives, other_directives) = other_directives
             .into_iter()
             .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "uncheckedArguments_DEPRECATED");
 
@@ -431,46 +487,20 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .into());
         }
 
-        let argument_directive = argument_directives.pop();
-
-        let arguments: ValidationResult<Vec<Argument>> = match argument_directive {
-            Some(graphql_syntax::Directive {
-                arguments: Some(arg_list),
-                ..
-            }) => {
-                arg_list
-                    .items
-                    .iter()
-                    .map(|arg| {
-                        if let Some(argument_definition) =
-                            signature.variable_definitions.named(arg.name.value)
-                        {
-                            // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
-                            // in a lot of code that is technically valid but doesn't type-check. Specifically,
-                            // many fragment @argDefs are typed as non-null but used in places that accept a
-                            // nullable value. Similarly, the corresponding @args pass nullable values. This
-                            // works since ultimately a nullable T flows into a nullable T, but isn't
-                            // technically correct. There are also @argDefs are typed with different types,
-                            // but the persist query allowed them as the types are the same underlyingly.
-                            // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
-                            // types of variables passed to @args at all
-                            Ok(self.build_argument(
-                                arg,
-                                &argument_definition.type_,
-                                ValidationLevel::Loose,
-                            )?)
-                        } else {
-                            Err(self
-                                .record_error(ValidationError::new(
-                                    ValidationMessage::UnknownArgument(arg.name.value),
-                                    vec![self.location.with_span(arg.span)],
-                                ))
-                                .into())
-                        }
-                    })
-                    .collect()
-            }
-            _ => Ok(Default::default()),
+        let arguments = if let Some(graphql_syntax::Directive {
+            arguments: Some(arg_list),
+            ..
+        }) = argument_directives.pop()
+        {
+            self.build_fragment_spread_arguments(&signature, arg_list, true)
+        } else if let Some(graphql_syntax::Directive {
+            arguments: Some(arg_list),
+            ..
+        }) = unchecked_argument_directives.pop()
+        {
+            self.build_fragment_spread_arguments(&signature, arg_list, false)
+        } else {
+            Ok(Default::default())
         };
 
         let directives = self.build_directives(other_directives, DirectiveLocation::FragmentSpread);

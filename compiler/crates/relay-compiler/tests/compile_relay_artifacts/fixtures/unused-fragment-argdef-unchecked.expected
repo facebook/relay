@@ -180,15 +180,15 @@ fragment Profile on User {
   ...ProfilePhotoWrapper_18PEfK
 }
 
-fragment ProfilePhoto on User {
+fragment ProfilePhotoWrapper_18PEfK on User {
+  __typename
+  ...ProfilePhoto_18PEfK
+}
+
+fragment ProfilePhoto_18PEfK on User {
   profilePicture(size: [100]) {
     uri
   }
-}
-
-fragment ProfilePhotoWrapper_18PEfK on User {
-  __typename
-  ...ProfilePhoto
 }
 
 
@@ -290,7 +290,13 @@ fragment ProfilePhotoWrapper_18PEfK on User {
       "storageKey": null
     },
     {
-      "args": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
       "kind": "FragmentSpread",
       "name": "ProfilePhoto"
     }

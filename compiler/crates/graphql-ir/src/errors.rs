@@ -123,6 +123,8 @@ pub enum ValidationMessage {
     UnknownArgument(StringKey),
     #[error("Unknown directive '{0}'")]
     UnknownDirective(StringKey),
+    #[error("Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead.")]
+    UnnecessaryUncheckedArgumentsDirective,
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
     #[error("The schema does not support '{0}' operations")]

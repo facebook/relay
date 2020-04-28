@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::match_::MATCH_CONSTANTS;
 use crate::util::PointerAddress;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
@@ -277,10 +278,13 @@ impl<'s> FlattenTransform<'s> {
 }
 
 lazy_static! {
-    static ref RELAY_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> =
-        vec!["__clientExtension".intern(), "defer".intern()]
-            .into_iter()
-            .collect();
+    static ref RELAY_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
+        "__clientExtension".intern(),
+        "defer".intern(),
+        MATCH_CONSTANTS.custom_module_directive_name
+    ]
+    .into_iter()
+    .collect();
 }
 
 fn should_flatten_inline_with_directives(

@@ -6,21 +6,14 @@
  */
 
 use crate::match_::MATCH_CONSTANTS;
-use common::{print_warning, Location};
+use common::Location;
 use errors::{validate, validate_map};
 use fnv::FnvHashMap;
 use graphql_ir::{
     LinkedField, NamedItem, Program, Selection, ValidationError, ValidationMessage,
     ValidationResult, Validator,
 };
-use lazy_static::lazy_static;
 use schema::Type;
-
-lazy_static! {
-    // TODO (T65951035): Remove this flag
-    static ref IGNORE_CONFLICTING_MODULE_SELECTIONS: bool =
-        std::env::var("DEPRECATED__IGNORE_CONFLICTING_MODULE_SELECTIONS").is_ok();
-}
 
 /// Validate that after flattening, there are no @module selections on the same type, and
 /// under the same linked field, but have different arguments.
@@ -68,10 +61,6 @@ fn validate_selection(selection: &Selection, seen_types: &mut SeenTypes) -> Vali
                         ValidationMessage::ConflictingModuleSelections,
                         vec![module_directive.name.location, *location],
                     );
-                    if *IGNORE_CONFLICTING_MODULE_SELECTIONS {
-                        print_warning(format!("{:?}", error));
-                        return Ok(());
-                    }
                     return Err(vec![error]);
                 } else {
                     seen_types.insert(type_, module_directive.name.location);

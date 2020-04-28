@@ -25,6 +25,8 @@ pub struct Config {
     pub projects: HashMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
+    /// If this is false, the compiler won't write any artifact files.
+    pub write_artifacts: bool,
 }
 impl Config {
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
@@ -95,6 +97,7 @@ impl Config {
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
+            write_artifacts: true,
         };
 
         let mut validation_errors = Vec::new();

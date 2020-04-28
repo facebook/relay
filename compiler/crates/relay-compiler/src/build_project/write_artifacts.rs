@@ -19,11 +19,6 @@ pub fn write_artifacts(
     project_config: &ProjectConfig,
     artifacts: &[Artifact],
 ) -> Result<WrittenArtifacts, BuildProjectError> {
-    // For now, just write test projects
-    if !project_config.name.lookup().ends_with("-test") {
-        return Ok(vec![]);
-    }
-
     let mut written_artifacts: WrittenArtifacts = vec![];
 
     for artifact in artifacts {

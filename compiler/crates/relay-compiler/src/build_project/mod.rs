@@ -88,10 +88,13 @@ pub async fn build_project(
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts to avoid partial writes in case of errors as
     // much as possible.
-    let written_artifacts =
+    let written_artifacts = if config.write_artifacts {
         Timer::time(format!("write_artifacts {}", project_config.name), || {
             write_artifacts::write_artifacts(config, project_config, &artifacts)
-        })?;
+        })?
+    } else {
+        Vec::new()
+    };
 
     println!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",

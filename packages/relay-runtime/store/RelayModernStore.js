@@ -34,6 +34,7 @@ import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
+  LogFunction,
   MutableRecordSource,
   OperationAvailability,
   OperationDescriptor,
@@ -90,6 +91,7 @@ class RelayModernStore implements Store {
   _index: number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
+  _log: ?LogFunction;
   _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
@@ -112,6 +114,7 @@ class RelayModernStore implements Store {
     source: MutableRecordSource,
     options?: {|
       gcScheduler?: ?Scheduler,
+      log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
@@ -140,6 +143,7 @@ class RelayModernStore implements Store {
     this._index = 0;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
+    this._log = options?.log ?? null;
     this._queryCacheExpirationTime = options?.queryCacheExpirationTime;
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
@@ -283,6 +287,13 @@ class RelayModernStore implements Store {
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor> {
+    const log = this._log;
+    if (log != null) {
+      log({
+        name: 'store.notify.start',
+      });
+    }
+
     // Increment the current write when notifying after executing
     // a set of changes to the store.
     this._currentWriteEpoch++;
@@ -305,6 +316,14 @@ class RelayModernStore implements Store {
         invalidateStore === true,
       );
     });
+    if (log != null) {
+      log({
+        name: 'store.notify.complete',
+        updatedRecordIDs: this._updatedRecordIDs,
+        invalidatedRecordIDs: this._invalidatedRecordIDs,
+      });
+    }
+
     this._updatedRecordIDs = {};
     this._invalidatedRecordIDs.clear();
 
@@ -356,6 +375,16 @@ class RelayModernStore implements Store {
       this._updatedRecordIDs,
       this._invalidatedRecordIDs,
     );
+    // NOTE: log *after* processing the source so that even if a bad log function
+    // mutates the source, it doesn't affect Relay processing of it.
+    const log = this._log;
+    if (log != null) {
+      log({
+        name: 'store.publish',
+        source,
+        optimistic: target === this._optimisticSource,
+      });
+    }
   }
 
   subscribe(
@@ -502,6 +531,12 @@ class RelayModernStore implements Store {
       'RelayModernStore: Unexpected call to snapshot() while a previous ' +
         'snapshot exists.',
     );
+    const log = this._log;
+    if (log != null) {
+      log({
+        name: 'store.snapshot',
+      });
+    }
     this._subscriptions.forEach(subscription => {
       // Backup occurs after writing a new "final" payload(s) and before (re)applying
       // optimistic changes. Each subscription's `snapshot` represents what was *last
@@ -536,6 +571,12 @@ class RelayModernStore implements Store {
       'RelayModernStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
+    const log = this._log;
+    if (log != null) {
+      log({
+        name: 'store.restore',
+      });
+    }
     this._optimisticSource = null;
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
@@ -575,6 +616,12 @@ class RelayModernStore implements Store {
     // Don't run GC while there are optimistic updates applied
     if (this._optimisticSource != null) {
       return;
+    }
+    const log = this._log;
+    if (log != null) {
+      log({
+        name: 'store.gc',
+      });
     }
     const references = new Set();
     // Mark all records that are traversable from a root

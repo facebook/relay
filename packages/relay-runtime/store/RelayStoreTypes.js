@@ -448,6 +448,28 @@ export type LogEvent =
   | {|
       +name: 'execute.unsubscribe',
       +transactionID: number,
+    |}
+  | {|
+      +name: 'store.publish',
+      +source: RecordSource,
+      +optimistic: boolean,
+    |}
+  | {|
+      +name: 'store.snapshot',
+    |}
+  | {|
+      +name: 'store.restore',
+    |}
+  | {|
+      +name: 'store.gc',
+    |}
+  | {|
+      +name: 'store.notify.start',
+    |}
+  | {|
+      +name: 'store.notify.complete',
+      +updatedRecordIDs: UpdatedRecords,
+      +invalidatedRecordIDs: Set<DataID>,
     |};
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;

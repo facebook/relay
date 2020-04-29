@@ -365,6 +365,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       let data;
       let source;
       let store;
+      let logEvents;
 
       beforeEach(() => {
         data = {
@@ -387,8 +388,13 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             me: {__ref: '4'},
           },
         };
+        logEvents = [];
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {
+          log: event => {
+            logEvents.push(event);
+          },
+        });
         ({UserFragment, UserQuery} = generateAndCompile(`
           fragment UserFragment on User {
             name
@@ -944,6 +950,60 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           expect(record[INVALIDATED_AT_KEY]).toEqual(1);
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
+      });
+
+      it('emits log events for publish and notify', () => {
+        const owner = createOperationDescriptor(UserQuery, {});
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {size: 32},
+          owner.request,
+        );
+        const snapshot = store.lookup(selector);
+        const callback = jest.fn(nextSnapshot => {
+          logEvents.push({
+            kind: 'test_only_callback',
+            data: nextSnapshot.data,
+          });
+        });
+        store.subscribe(snapshot, callback);
+
+        const nextSource = getRecordSourceImplementation({
+          'client:1': {
+            __id: 'client:1',
+            uri: 'https://photo2.jpg',
+          },
+        });
+        store.publish(nextSource);
+        expect(logEvents).toEqual([
+          {name: 'store.publish', source: nextSource, optimistic: false},
+        ]);
+        expect(callback).toBeCalledTimes(0);
+        logEvents.length = 0;
+        store.notify();
+        expect(logEvents).toEqual([
+          {
+            name: 'store.notify.start',
+          },
+          // callbacks occur after notify.start...
+          {
+            // not a real LogEvent, this is for testing only
+            kind: 'test_only_callback',
+            data: {
+              emailAddresses: ['a@b.com'],
+              name: 'Zuck',
+              profilePicture: {uri: 'https://photo2.jpg'},
+            },
+          },
+          // ...and before notify.complete
+          {
+            name: 'store.notify.complete',
+            updatedRecordIDs: {'client:1': true},
+            invalidatedRecordIDs: new Set(),
+          },
+        ]);
+        expect(callback).toBeCalledTimes(1);
       });
     });
 

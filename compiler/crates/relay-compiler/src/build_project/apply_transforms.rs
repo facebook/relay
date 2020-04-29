@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::Timer;
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
@@ -63,11 +64,16 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // + MatchTransform
     // - RefetchableFragmentTransform
     // + DeferStreamTransform
+    println!("apply_common_transforms");
 
-    let program = transform_connections(program, connection_interface);
-    let program = mask(&program);
-    let program = transform_match(&program)?;
-    transform_defer_stream(&program)
+    let program = Timer::time("transform_connections", || {
+        transform_connections(program, connection_interface)
+    });
+    let program = Timer::time("mask", || mask(&program));
+    let program = Timer::time("transform_match", || transform_match(&program))?;
+    Timer::time("transform_defer_stream", || {
+        transform_defer_stream(&program)
+    })
 }
 
 /// Applies transforms only for generated reader code.
@@ -82,10 +88,17 @@ fn apply_reader_transforms<'schema>(
     // - InlineDataFragmentTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
-    let program = handle_field_transform(&program);
-    let program = remove_base_fragments(&program, base_fragment_names);
-    let program = flatten(&program, true);
-    client_extensions(&program)
+    println!("apply_reader_transforms");
+
+    let program = Timer::time("handle_field_transform", || {
+        handle_field_transform(&program)
+    });
+    let program = Timer::time("remove_base_fragments", || {
+        remove_base_fragments(&program, base_fragment_names)
+    });
+    let program = Timer::time("flatten", || flatten(&program, true));
+
+    Timer::time("client_extensions", || client_extensions(&program))
 }
 
 /// Applies transforms that apply to all operation artifacts.
@@ -100,9 +113,12 @@ fn apply_operation_transforms<'schema>(
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // - TestOperationTransform
-    let program = split_module_import(&program);
-    let program = apply_fragment_arguments(&program)?;
-    let program = generate_id_field(&program);
+    println!("apply_operation_transforms");
+    let program = Timer::time("split_module_import", || split_module_import(&program));
+    let program = Timer::time("apply_fragment_arguments", || {
+        apply_fragment_arguments(&program)
+    })?;
+    let program = Timer::time("generate_id_field", || generate_id_field(&program));
 
     Ok(program)
 }
@@ -122,14 +138,19 @@ fn apply_normalization_transforms<'schema>(
     // + SkipRedundantNodesTransform
     // + GenerateTypeNameTransform
     // - ValidateServerOnlyDirectivesTransform
+    println!("apply_normalization_transforms");
+    let program = Timer::time("skip_unreachable_node", || skip_unreachable_node(&program));
+    let program = Timer::time("inline_fragments", || inline_fragments(&program));
+    let program = Timer::time("inline_fragments", || flatten(&program, true));
+    Timer::time("validate_module_conflicts", || {
+        validate_module_conflicts(&program)
+    })?;
+    let program = Timer::time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = Timer::time("client_extensions", || client_extensions(&program));
 
-    let program = skip_unreachable_node(&program);
-    let program = inline_fragments(&program);
-    let program = flatten(&program, true);
-    validate_module_conflicts(&program)?;
-    let program = skip_redundant_nodes(&program);
-    let program = client_extensions(&program);
-    Ok(generate_typename(&program))
+    let program = Timer::time("generate_typename", || generate_typename(&program));
+
+    Ok(program)
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -148,12 +169,15 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     // - FilterDirectivesTransform
     // - SkipUnusedVariablesTransform
     // - ValidateRequiredArgumentsTransform
+    println!("apply_operation_text_transforms");
+    let program = Timer::time("skip_split_operation", || skip_split_operation(&program));
+    let program = Timer::time("skip_client_extensions", || {
+        skip_client_extensions(&program)
+    });
+    let program = Timer::time("skip_unreachable_node", || skip_unreachable_node(&program));
+    let program = Timer::time("flatten", || flatten(&program, false));
 
-    let program = skip_split_operation(&program);
-    let program = skip_client_extensions(&program);
-    let program = skip_unreachable_node(&program);
-    let program = flatten(&program, false);
-    generate_typename(&program)
+    Timer::time("generate_typename", || generate_typename(&program))
 }
 
 fn apply_typegen_transforms<'schema>(
@@ -166,7 +190,10 @@ fn apply_typegen_transforms<'schema>(
     // - MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false
     // - RefetchableFragmentTransform,
+    println!("apply_typegen_transforms");
+    let program = Timer::time("remove_base_fragments", || {
+        remove_base_fragments(&program, base_fragment_names)
+    });
 
-    let program = remove_base_fragments(&program, base_fragment_names);
-    flatten(&program, false)
+    Timer::time("flatten", || flatten(&program, false))
 }

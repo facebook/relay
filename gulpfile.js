@@ -46,7 +46,7 @@ if (RELEASE_COMMIT_SHA && RELEASE_COMMIT_SHA.length !== 40) {
 }
 
 const VERSION = RELEASE_COMMIT_SHA
-  ? `0.0.0-master-${RELEASE_COMMIT_SHA.substr(0, 8)}`
+  ? `0.0.0-experimental-${RELEASE_COMMIT_SHA.substr(0, 8)}`
   : process.env.npm_package_version;
 
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
@@ -140,6 +140,7 @@ const builds = [
     package: 'react-relay',
     exports: {
       index: 'index.js',
+      hooks: 'hooks.js',
       ReactRelayContext: 'ReactRelayContext.js',
     },
     bundles: [
@@ -147,6 +148,12 @@ const builds = [
         entry: 'index.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'hooks.js',
+        output: 'react-relay-hooks',
+        libraryName: 'ReactRelayHooks',
         libraryTarget: 'umd',
       },
     ],
@@ -266,6 +273,17 @@ const flowDefs = gulp.parallel(
       },
   ),
 );
+const copyRelayExperimental = [
+  function copyRelayExperimental() {
+    return gulp
+      .src(INCLUDE_GLOBS, {
+        cwd: path.join(PACKAGES, 'relay-experimental'),
+      })
+      .pipe(once())
+      .pipe(babel(babelOptions))
+      .pipe(gulp.dest(path.join(DIST, 'react-relay', 'lib', 'relay-experimental')));
+  }
+]
 
 const copyFilesTasks = [];
 builds.forEach(build => {
@@ -299,6 +317,7 @@ const exportsFiles = gulp.series(
   copyFiles,
   flowDefs,
   modules,
+  copyRelayExperimental,
   gulp.parallel(
     ...builds.map(
       build =>
@@ -375,27 +394,15 @@ const watch = gulp.series(dist, () =>
  * Updates the package.json files `/dist/` with a version to release to npm under
  * the master tag.
  */
-const setMasterVersion = async () => {
+const setExperimentalVersion = async () => {
   if (!RELEASE_COMMIT_SHA) {
     throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
   }
-  const packages = builds.map(build => build.package);
+  const packages = ['react-relay'];
   packages.forEach(pkg => {
     const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
     packageJson.version = VERSION;
-    for (const depKind of [
-      'dependencies',
-      'devDependencies',
-      'peerDependencies',
-    ]) {
-      const deps = packageJson[depKind];
-      for (const dep in deps) {
-        if (packages.includes(dep)) {
-          deps[dep] = VERSION;
-        }
-      }
-    }
     fs.writeFileSync(
       pkgJsonPath,
       JSON.stringify(packageJson, null, 2) + '\n',
@@ -404,11 +411,11 @@ const setMasterVersion = async () => {
   });
 };
 
-const cleanbuild = gulp.series(clean, dist);
+const cleanbuild = gulp.series(clean, dist, setExperimentalVersion);
 
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.masterrelease = gulp.series(cleanbuild, setMasterVersion);
+exports.masterrelease = gulp.series(cleanbuild, setExperimentalVersion);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;

@@ -397,15 +397,15 @@ fn typename_on_union() {
     );
 }
 
-// #[test]
-// fn unmasked_fragment_spreads() {
-//     let input = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.graphql");
-//     let expected = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.expected");
-//     test_fixture(
-//         transform_fixture,
-//         "unmasked-fragment-spreads.graphql",
-//         "generate_flow/fixtures/unmasked-fragment-spreads.expected",
-//         input,
-//         expected,
-//     );
-// }
+#[test]
+fn unmasked_fragment_spreads() {
+    let input = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.expected");
+    test_fixture(
+        transform_fixture,
+        "unmasked-fragment-spreads.graphql",
+        "generate_flow/fixtures/unmasked-fragment-spreads.expected",
+        input,
+        expected,
+    );
+}

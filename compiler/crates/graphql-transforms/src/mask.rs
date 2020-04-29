@@ -117,7 +117,7 @@ impl<'s> Transformer for Mask<'s> {
                 .extend(&fragment.used_global_variables);
             Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition: Some(fragment.type_condition),
-                directives: fragment.directives.clone(),
+                directives: vec![],
                 selections: self
                     .transform_selections(&fragment.selections)
                     .replace_or_else(|| fragment.selections.to_vec()),

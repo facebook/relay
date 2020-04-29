@@ -17,6 +17,7 @@ path = "tests/generate_flow_test.rs"
 [dependencies]
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
+graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 schema = { path = "../schema" }
 fnv = "1.0"
@@ -25,6 +26,5 @@ indexmap = { version = "1.3", features = ["serde-1", "rayon"] }
 [dev-dependencies]
 common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
-graphql-transforms = { path = "../graphql-transforms" }
 relay-compiler = { path = "../relay-compiler" }
 test-schema = { path = "../test-schema" }

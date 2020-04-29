@@ -186,11 +186,14 @@ fn apply_typegen_transforms<'schema>(
 ) -> Program<'schema> {
     // JS compiler
     // - RelayDirectiveTransform,
-    // - MaskTransform
+    // + MaskTransform
     // - MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false
     // - RefetchableFragmentTransform,
     println!("apply_typegen_transforms");
+
+    let program = Timer::time("mask", || mask(&program));
+
     let program = Timer::time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });

@@ -160,7 +160,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -253,7 +253,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -333,7 +333,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -418,7 +418,7 @@ Request {
         ],
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -527,7 +527,7 @@ Request {
         ],
       },
     ],
-    type: "Mutation",
+    concreteType: "Mutation",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -629,7 +629,7 @@ Request {
         ],
       },
     ],
-    type: "Subscription",
+    concreteType: "Subscription",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -740,7 +740,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -759,7 +759,7 @@ Fragment {
       ],
     },
   ],
-  type: "ClientType",
+  concreteType: "ClientType",
 }
 `;
 
@@ -823,7 +823,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -938,7 +938,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -957,7 +957,7 @@ Fragment {
       ],
     },
   ],
-  type: "ClientType",
+  concreteType: "ClientType",
 }
 `;
 
@@ -1013,7 +1013,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -1075,7 +1075,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -1198,7 +1198,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -1303,7 +1303,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -1376,7 +1376,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -1428,7 +1428,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -1578,7 +1578,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -1767,7 +1767,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -2078,7 +2078,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -2561,7 +2561,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -2885,7 +2885,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -3126,7 +3126,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -3448,7 +3448,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Feedback",
+  concreteType: "Feedback",
 }
 `;
 
@@ -3591,7 +3591,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -3825,7 +3825,7 @@ Fragment {
       storageKey: "comments(first:10)",
     },
   ],
-  type: "Feedback",
+  concreteType: "Feedback",
 }
 
 Fragment {
@@ -3850,7 +3850,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Feedback",
+  concreteType: "Feedback",
 }
 `;
 
@@ -3887,7 +3887,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -3997,7 +3997,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -4068,7 +4068,7 @@ Fragment {
       name: "MyNestedViewer",
     },
   ],
-  type: "Viewer",
+  concreteType: "Viewer",
 }
 
 Fragment {
@@ -4081,7 +4081,7 @@ Fragment {
       name: "MyNestedViewer",
     },
   ],
-  type: "Viewer",
+  concreteType: "Viewer",
 }
 
 Fragment {
@@ -4108,7 +4108,7 @@ Fragment {
       ],
     },
   ],
-  type: "Viewer",
+  concreteType: "Viewer",
 }
 `;
 
@@ -4167,7 +4167,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4316,7 +4316,7 @@ Fragment {
       type: "User",
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 
 Fragment {
@@ -4351,7 +4351,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -4408,7 +4408,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4572,7 +4572,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "NonNodeStory",
+  concreteType: "NonNodeStory",
 }
 
 Fragment {
@@ -4607,7 +4607,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -4664,7 +4664,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4806,7 +4806,7 @@ Fragment {
       name: "ProfilePicture",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -4841,7 +4841,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -4893,7 +4893,7 @@ Request {
         name: "RefetchableFragment",
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -5059,7 +5059,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Query",
+  concreteType: "Query",
 }
 
 Fragment {
@@ -5094,7 +5094,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -5213,7 +5213,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -5364,7 +5364,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Viewer",
+  concreteType: "Viewer",
 }
 
 Fragment {
@@ -5399,7 +5399,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -5456,7 +5456,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -5582,7 +5582,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -5630,7 +5630,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -5686,7 +5686,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -5873,7 +5873,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -5921,7 +5921,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -5974,7 +5974,7 @@ Request {
         storageKey: "node(id:\\"my-id\\")",
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -6100,7 +6100,7 @@ Fragment {
       type: "Page",
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 `;
 
@@ -6304,7 +6304,7 @@ Fragment {
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -6335,7 +6335,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -6366,7 +6366,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -6460,7 +6460,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -6651,7 +6651,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -6797,7 +6797,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -6828,7 +6828,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -6887,7 +6887,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -7025,7 +7025,7 @@ Fragment {
       ],
     },
   ],
-  type: "Feedback",
+  concreteType: "Feedback",
 }
 `;
 
@@ -7138,7 +7138,7 @@ Request {
         name: "ParentFragment",
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -7413,7 +7413,7 @@ Fragment {
       storageKey: "username(name:\\"test\\")",
     },
   ],
-  type: "Query",
+  concreteType: "Query",
 }
 
 InlineDataFragment {
@@ -7598,7 +7598,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -7988,7 +7988,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -8054,7 +8054,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -8376,7 +8376,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 
 Fragment {
@@ -8407,7 +8407,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -8438,7 +8438,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -8614,7 +8614,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -8776,7 +8776,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -8998,7 +8998,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -9027,7 +9027,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -9058,7 +9058,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -9089,7 +9089,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -9322,7 +9322,7 @@ Request {
         storageKey: "node(id:\\"<user-id>\\")",
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -9488,7 +9488,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -9600,7 +9600,7 @@ Request {
         storageKey: "node(id:\\"<user-id>\\")",
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -9849,7 +9849,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -9880,7 +9880,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -10060,7 +10060,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Query",
+  concreteType: "Query",
 }
 
 Fragment {
@@ -10126,7 +10126,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Query",
+  concreteType: "Query",
 }
 `;
 
@@ -10223,7 +10223,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -10397,7 +10397,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -10487,7 +10487,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -10502,7 +10502,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 
 Fragment {
@@ -10521,7 +10521,7 @@ Fragment {
       ],
     },
   ],
-  type: "Foo",
+  concreteType: "Foo",
 }
 `;
 
@@ -10546,7 +10546,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -10613,7 +10613,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -10812,7 +10812,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -10843,7 +10843,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -10939,7 +10939,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -11181,7 +11181,7 @@ Fragment {
       storageKey: "friends(first:10)",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -11217,7 +11217,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -11285,7 +11285,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -11547,7 +11547,7 @@ Fragment {
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -11578,7 +11578,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -11609,7 +11609,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -11677,7 +11677,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -11939,7 +11939,7 @@ Fragment {
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -11970,7 +11970,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -12001,7 +12001,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -12098,7 +12098,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -12368,7 +12368,7 @@ Fragment {
       storageKey: "nameRendererForContext(context:\\"HEADER\\",supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -12399,7 +12399,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -12430,7 +12430,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -12499,7 +12499,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -12767,7 +12767,7 @@ Fragment {
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -12798,7 +12798,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "PlainUserNameRenderer",
+  concreteType: "PlainUserNameRenderer",
 }
 
 Fragment {
@@ -12829,7 +12829,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -12890,7 +12890,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -13066,7 +13066,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -13097,7 +13097,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "MarkdownUserNameRenderer",
+  concreteType: "MarkdownUserNameRenderer",
 }
 `;
 
@@ -13145,7 +13145,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -13263,7 +13263,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -13568,7 +13568,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Feedback",
+  concreteType: "Feedback",
 }
 `;
 
@@ -13635,7 +13635,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -13940,7 +13940,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "Feedback",
+  concreteType: "Feedback",
 }
 `;
 
@@ -13998,7 +13998,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -14147,7 +14147,7 @@ Fragment {
       type: "User",
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 
 Fragment {
@@ -14182,7 +14182,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -14260,7 +14260,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -14587,7 +14587,7 @@ Fragment {
       type: "User",
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 `;
 
@@ -14679,7 +14679,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -15071,7 +15071,7 @@ Fragment {
       type: "User",
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 `;
 
@@ -15149,7 +15149,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -15501,7 +15501,7 @@ Fragment {
       type: "User",
     },
   ],
-  type: "Node",
+  concreteType: null,
 }
 `;
 
@@ -15713,7 +15713,7 @@ Request {
         ],
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -15971,7 +15971,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -16207,7 +16207,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -16226,7 +16226,7 @@ Fragment {
       ],
     },
   ],
-  type: "ClientType",
+  concreteType: "ClientType",
 }
 `;
 
@@ -16285,7 +16285,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -16505,7 +16505,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -16790,7 +16790,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -17016,7 +17016,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -17041,7 +17041,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -17098,7 +17098,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -17247,7 +17247,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -17272,7 +17272,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -17377,7 +17377,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -17559,7 +17559,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -17615,7 +17615,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -17640,7 +17640,7 @@ Fragment {
       storageKey: null,
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -17746,7 +17746,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -17891,7 +17891,7 @@ Fragment {
       name: "ProfilePhotoWrapper",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -17921,7 +17921,7 @@ Fragment {
       name: "ProfilePhoto",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 
 Fragment {
@@ -17953,7 +17953,7 @@ Fragment {
       storageKey: "profilePicture(size:[100])",
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -18035,7 +18035,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [
@@ -18171,7 +18171,7 @@ Fragment {
       ],
     },
   ],
-  type: "User",
+  concreteType: "User",
 }
 `;
 
@@ -18219,7 +18219,7 @@ Request {
         storageKey: null,
       },
     ],
-    type: "Query",
+    concreteType: "Query",
   },
   operation: Operation {
     argumentDefinitions: [],

@@ -93,6 +93,7 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
       }
     }
   }
+  const rawType = schema.getRawType(node.type);
   return {
     argumentDefinitions: generateArgumentDefinitions(
       schema,
@@ -103,7 +104,9 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
     metadata,
     name: node.name,
     selections: generateSelections(schema, node.selections),
-    type: schema.getTypeString(node.type),
+    concreteType: !schema.isAbstractType(rawType)
+      ? schema.getTypeString(rawType)
+      : null,
   };
 }
 

@@ -30,7 +30,7 @@ export type ReaderInlineDataFragmentSpread = {|
 export type ReaderFragment = {|
   +kind: 'Fragment',
   +name: string,
-  +type: string,
+  +concreteType: ?string,
   +metadata: ?{|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
     +mask?: boolean,

@@ -67,6 +67,7 @@ pub async fn generate_artifacts(
                 programs,
                 node,
                 &hash,
+                source_node.name.location.file(),
             ));
         } else {
             let source_node = programs.source.operation(node.name.item).unwrap();
@@ -255,6 +256,7 @@ fn generate_split_operation_artifact(
     programs: &Programs<'_>,
     node: &OperationDefinition,
     hash: &str,
+    source_file: FileKey,
 ) -> Artifact {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
@@ -287,7 +289,7 @@ fn generate_split_operation_artifact(
         name: node.name.item,
         content: sign_file(&content),
         hash: hash.to_string(),
-        source_file: node.name.location.file(),
+        source_file,
     }
 }
 

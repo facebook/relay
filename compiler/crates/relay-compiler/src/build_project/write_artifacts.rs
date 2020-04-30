@@ -22,11 +22,14 @@ pub fn write_artifacts(
     let mut written_artifacts: WrittenArtifacts = vec![];
 
     for artifact in artifacts {
-        let generated_relative_path = &project_config
-            .output
-            .as_ref()
-            .expect("TODO: implement source relative generated files")
-            .join(format!("{}.graphql.js", artifact.name));
+        let generated_relative_path: &PathBuf = &match project_config.output {
+            Some(ref output) => output.join(format!("{}.graphql.js", artifact.name)),
+            None => {
+                let path = artifact.file.get_dir();
+                path.join(format!("__generated__/{}.graphql.js", artifact.name))
+            }
+        };
+
         let generated_path = &config.root_dir.join(generated_relative_path);
 
         write_file(generated_path, &artifact.content).map_err(|error| {

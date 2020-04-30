@@ -23,6 +23,12 @@ impl FileKey {
     pub fn lookup(self) -> &'static str {
         self.0.lookup()
     }
+
+    pub fn get_dir(self) -> PathBuf {
+        let mut path = PathBuf::from(self.0.lookup());
+        path.pop();
+        path
+    }
 }
 
 /// An absolute source location describing both the file and position (span)

@@ -8,6 +8,7 @@
 use super::apply_transforms::Programs;
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
+use common::FileKey;
 use graphql_ir::{FragmentDefinition, NamedItem, OperationDefinition};
 use graphql_text_printer::{
     print_fragment, print_full_operation, write_operation_with_graphqljs_formatting,
@@ -27,6 +28,7 @@ pub struct Artifact {
     pub name: StringKey,
     pub content: String,
     pub hash: String,
+    pub file: FileKey,
 }
 
 pub async fn generate_artifacts(
@@ -193,6 +195,7 @@ async fn generate_normalization_artifact(
         name: node.name.item,
         content: sign_file(&content),
         hash: source_hash.to_string(),
+        file: node.name.location.file(),
     })
 }
 
@@ -240,6 +243,7 @@ fn generate_reader_artifact(
         name,
         content: sign_file(&content),
         hash: hash.to_string(),
+        file: node.name.location.file(),
     }
 }
 
@@ -281,6 +285,7 @@ fn generate_split_operation_artifact(
         name: node.name.item,
         content: sign_file(&content),
         hash: hash.to_string(),
+        file: node.name.location.file(),
     }
 }
 

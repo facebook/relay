@@ -11,12 +11,10 @@
 
 mod location;
 mod murmurhash;
-mod print_message;
 mod span;
 mod timer;
 
 pub use location::{FileKey, Location, WithLocation};
 pub use murmurhash::murmurhash;
-pub use print_message::{print_error, print_info, print_warning};
 pub use span::{Span, Spanned};
 pub use timer::Timer;

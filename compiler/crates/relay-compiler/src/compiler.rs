@@ -69,8 +69,6 @@ impl Compiler {
         &self,
         optional_serialized_state_path: Option<PathBuf>,
     ) -> Result<CompilerState> {
-        use env_logger::Env;
-        env_logger::from_env(Env::default().default_filter_or("info, error, warn")).init();
         let file_source = FileSource::connect(&self.config).await?;
         let (mut compiler_state, _) = self
             .create_compiler_state_and_file_source_result(

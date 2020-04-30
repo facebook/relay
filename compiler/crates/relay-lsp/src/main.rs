@@ -12,11 +12,17 @@ mod server;
 use lsp_server::Connection;
 use std::error::Error;
 
+use env_logger::Env;
+use log::info;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Sync + Send>> {
+    env_logger::from_env(Env::default().default_filter_or("info, warn, error, debug")).init();
     let (connection, io_handles) = Connection::stdio();
+    info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
-    server::run(&connection, params).await?;
+    info!("JSON-RPC handshake completed");
+    server::run(connection, params).await?;
     io_handles.join()?;
     Ok(())
 }

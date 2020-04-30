@@ -56,8 +56,8 @@ impl From<SyntaxError> for Vec<SyntaxError> {
 
 #[derive(Debug)]
 pub struct SyntaxErrorWithSource {
-    error: SyntaxError,
-    source: GraphQLSource,
+    pub error: SyntaxError,
+    pub source: GraphQLSource,
 }
 impl SyntaxErrorWithSource {
     pub fn print(&self) -> String {

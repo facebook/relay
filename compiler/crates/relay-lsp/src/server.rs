@@ -7,17 +7,21 @@
 
 use std::error::Error;
 
+use std::collections::HashSet;
+
 use lsp_types::{
-    notification::{DidOpenTextDocument, Notification, ShowMessage},
-    InitializeParams, MessageType, ServerCapabilities, ShowMessageParams,
-    TextDocumentSyncCapability, TextDocumentSyncKind,
+    notification::{DidOpenTextDocument, Notification, PublishDiagnostics, ShowMessage},
+    Diagnostic, DiagnosticSeverity, InitializeParams, MessageType, PublishDiagnosticsParams, Range,
+    ServerCapabilities, ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
 };
 
 use lsp_server::{Connection, Message, Notification as ServerNotification};
 
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
+use relay_compiler::errors::{Error as CompilerError, SyntaxErrorWithSource};
 
+use std::fs;
 use std::path::PathBuf;
 
 use log::info;
@@ -103,20 +107,88 @@ pub async fn run(
                     let root_dir = PathBuf::from(format!("{}/fbsource", home));
                     let mut config = Config::load(root_dir, config_path).unwrap();
 
+                    info!("Compiler config {:?}", config);
+
+                    // Clone the root_dir so we can use it for file resolution later
+                    let root_dir = config.root_dir.clone();
+
                     // Don't write artifacts by default
                     config.write_artifacts = false;
 
                     let compiler = Compiler::new(config);
+
+                    let mut urls_with_diagnostics = HashSet::new();
 
                     compiler
                         .watch_with_callback(|result| {
                             match result {
                                 Ok(_) => {
                                     info!("Compiled successfully");
-                                    // Clear diagnostics
+                                    // Clear all diagnostics
+                                    for url in urls_with_diagnostics.drain() {
+                                        let params = PublishDiagnosticsParams {
+                                            diagnostics: vec![],
+                                            uri: url,
+                                            version: None,
+                                        };
+                                        publish_diagnostic(params, &connection).unwrap();
+                                    }
                                 }
                                 Err(err) => {
-                                    info!("Failed to compile: {:?}", err);
+                                    match err {
+                                        CompilerError::SyntaxErrors { errors } => {
+                                            for SyntaxErrorWithSource { error, source } in errors {
+                                                // Remove the index from the end of the path, resolve the absolute path
+                                                let file_path = {
+                                                    let file_path_and_index =
+                                                        error.location.file().lookup();
+                                                    let file_path_and_index: Vec<&str> =
+                                                        file_path_and_index.split(':').collect();
+                                                    let file_path =
+                                                        PathBuf::from(file_path_and_index[0]);
+                                                    fs::canonicalize(root_dir.join(file_path))
+                                                        .unwrap()
+                                                };
+
+                                                let url = Url::from_file_path(file_path).unwrap();
+
+                                                // Track the url we're reporting diagnostics for so we can
+                                                // clear them out later.
+                                                urls_with_diagnostics.insert(url.clone());
+
+                                                // TODO(brandondail) derive Range from error.location
+                                                let range = Range::default();
+
+                                                let diagnostic = Diagnostic {
+                                                    code: None,
+                                                    message: "Syntax error".to_owned(),
+                                                    range,
+                                                    related_information: None,
+                                                    severity: Some(DiagnosticSeverity::Error),
+                                                    source: Some(source.text),
+                                                    tags: None,
+                                                };
+
+                                                let params = PublishDiagnosticsParams {
+                                                    diagnostics: vec![diagnostic],
+                                                    uri: url,
+                                                    version: None,
+                                                };
+
+                                                publish_diagnostic(params, &connection).unwrap();
+                                            }
+                                        }
+                                        // Ignore the rest of these errors for now
+                                        CompilerError::ConfigFileRead { .. } => {}
+                                        CompilerError::ConfigFileParse { .. } => {}
+                                        CompilerError::ConfigFileValidation { .. } => {}
+                                        CompilerError::WatchmanError { .. } => {}
+                                        CompilerError::BuildProjectsErrors { .. } => {}
+                                        CompilerError::ReadFileError { .. } => {}
+                                        CompilerError::WriteFileError { .. } => {}
+                                        CompilerError::SerializationError { .. } => {}
+                                        CompilerError::DeserializationError { .. } => {}
+                                    }
                                     // Report new diagnostics
                                 }
                             }
@@ -141,6 +213,15 @@ fn show_info_message(
             message: message.into(),
         },
     );
+    connection.sender.send(Message::Notification(notif))?;
+    Ok(())
+}
+
+fn publish_diagnostic(
+    diagnostic_params: PublishDiagnosticsParams,
+    connection: &Connection,
+) -> Result<(), Box<dyn Error + Sync + Send>> {
+    let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
     connection.sender.send(Message::Notification(notif))?;
     Ok(())
 }

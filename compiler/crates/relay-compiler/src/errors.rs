@@ -7,7 +7,7 @@
 
 use crate::compiler_state::ProjectName;
 use crate::watchman::errors::Error as WatchmanError;
-use graphql_syntax::SyntaxErrorWithSource;
+pub use graphql_syntax::SyntaxErrorWithSource;
 use persist_query::PersistError;
 use serde_json::error::Error as SerdeError;
 use std::io;

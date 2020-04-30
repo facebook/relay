@@ -81,6 +81,36 @@ impl Compiler {
         Ok(compiler_state)
     }
 
+    pub async fn watch_with_callback<F: FnMut(Result<()>)>(&self, mut callback: F) -> Result<()> {
+        let file_source = FileSource::connect(&self.config).await?;
+        let (mut compiler_state, initial_file_source_result) = self
+            .create_compiler_state_and_file_source_result(&file_source, None)
+            .await?;
+
+        callback(self.build_projects(&mut compiler_state).await);
+
+        let mut subscription = file_source.subscribe(initial_file_source_result).await?;
+        loop {
+            if let Some(file_source_changes) = subscription.next_change().await? {
+                // TODO Single change to file in VSCode sometimes produces
+                // 2 watchman change events for the same file
+
+                info!("\n\n[watch-mode] Change detected");
+                let had_new_changes = compiler_state
+                    .add_pending_file_source_changes(&self.config, &file_source_changes)?;
+
+                if had_new_changes {
+                    // Clear out existing errors
+                    callback(Ok(()));
+                    // Report any new errors
+                    callback(self.build_projects(&mut compiler_state).await);
+                } else {
+                    info!("[watch-mode] No re-compilation required");
+                }
+            }
+        }
+    }
+
     pub async fn watch(&self, optional_serialized_state_path: Option<PathBuf>) -> Result<()> {
         let file_source = FileSource::connect(&self.config).await?;
         let (mut compiler_state, initial_file_source_result) = self

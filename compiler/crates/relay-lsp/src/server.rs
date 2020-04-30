@@ -71,8 +71,6 @@ pub async fn run(
                     info!("Request: {:#?}", resp);
                 }
                 Message::Notification(notif) => {
-                    info!("Got a notification: {:#?}", notif);
-
                     if notif.method == DidOpenTextDocument::METHOD {
                         // Lazily start the compiler once a relevant file is opened
                         if tx.send(CompilerMessage::Initialize).await.is_err() {
@@ -110,13 +108,21 @@ pub async fn run(
 
                     let compiler = Compiler::new(config);
 
-                    match compiler.compile(None).await {
-                        Ok(_) => info!("Compiled successfully"),
-                        Err(_) => {
-                            show_info_message("Failed to compile", &connection)?;
-                            info!("Error!");
-                        }
-                    }
+                    compiler
+                        .watch_with_callback(|result| {
+                            match result {
+                                Ok(_) => {
+                                    info!("Compiled successfully");
+                                    // Clear diagnostics
+                                }
+                                Err(err) => {
+                                    info!("Failed to compile: {:?}", err);
+                                    // Report new diagnostics
+                                }
+                            }
+                        })
+                        .await
+                        .unwrap();
                 }
             }
         }

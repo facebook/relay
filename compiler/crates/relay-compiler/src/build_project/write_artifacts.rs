@@ -25,8 +25,11 @@ pub fn write_artifacts(
         let generated_relative_path: &PathBuf = &match project_config.output {
             Some(ref output) => {
                 if project_config.shard_output {
-                    if let Some(ref prefix) = project_config.shard_strip_prefix {
-                        output.join(artifact.source_file.get_dir().strip_prefix(prefix).unwrap())
+                    if let Some(ref regex) = project_config.shard_strip_regex {
+                        let full_source_path = regex.replace_all(artifact.source_file.lookup(), "");
+                        let mut output = output.join(full_source_path.to_string());
+                        output.pop();
+                        output
                     } else {
                         output.join(artifact.source_file.get_dir())
                     }

@@ -7,6 +7,7 @@
 
 use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::errors::{ConfigValidationError, Error, Result};
+use regex::Regex;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -79,13 +80,29 @@ impl Config {
                         }),
                     }?;
 
+                let shard_strip_regex = match config_file_project.shard_strip_regex {
+                    None => Ok(None),
+                    Some(ref val) => match Regex::new(val) {
+                        Ok(val) => Ok(Some(val)),
+                        Err(error) => Err(Error::ConfigFileValidation {
+                            config_path: config_path.clone(),
+                            validation_errors: vec![
+                                ConfigValidationError::InvalidShardPathStripRegex {
+                                    project_name,
+                                    error,
+                                },
+                            ],
+                        }),
+                    },
+                }?;
+
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
                     shard_output: config_file_project.shard_output,
-                    shard_strip_prefix: config_file_project.shard_strip_prefix,
+                    shard_strip_regex,
                     schema_location,
                     persist: config_file_project.persist,
                 };
@@ -204,7 +221,7 @@ pub struct ProjectConfig {
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
     pub shard_output: bool,
-    pub shard_strip_prefix: Option<String>,
+    pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
     pub persist: Option<PersistConfig>,
@@ -261,9 +278,9 @@ struct ConfigFileProject {
     #[serde(default)]
     shard_output: bool,
 
-    /// Stip the prefix of the `source_relative_path`
+    /// Regex to match and stip parts of the `source_relative_path`
     #[serde(default)]
-    shard_strip_prefix: Option<String>,
+    shard_strip_regex: Option<String>,
 
     /// Directory containing *.graphql files with schema extensions.
     #[serde(default)]

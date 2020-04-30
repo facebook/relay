@@ -136,6 +136,12 @@ pub enum ConfigValidationError {
         project_name: ProjectName,
         schema_dir: PathBuf,
     },
+
+    #[error("The Regex in `shardPathStrip` for project `{project_name}` is invalid.\n {error}.")]
+    InvalidShardPathStripRegex {
+        project_name: ProjectName,
+        error: regex::Error,
+    },
 }
 
 #[derive(Debug, Error)]

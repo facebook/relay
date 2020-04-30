@@ -1305,7 +1305,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // $FlowFixMe
       const warningCalls = warning.mock.calls.filter(call => call[0] === false);
-      expect(warningCalls.length).toEqual(4); // the other warnings are from FragmentResource.js
+      expect(warningCalls.length).toEqual(2); // the other warnings are from FragmentResource.js
       expect(
         warningCalls[1][1].includes(
           'Relay: Call to `refetch` returned data with a different __typename:',

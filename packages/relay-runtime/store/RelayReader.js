@@ -37,6 +37,7 @@ const {
   getArgumentValues,
   getStorageKey,
   getModuleComponentKey,
+  ROOT_ID,
 } = require('./RelayStoreUtils');
 
 import type {
@@ -89,6 +90,38 @@ class RelayReader {
   read(): Snapshot {
     const {node, dataID} = this._selector;
     const data = this._traverse(node, dataID, null);
+
+    // Handle an edge-case in missing data-detection. Fragments
+    // with a concrete type can be spread anywhere that type *might*
+    // appear (ie, on parents that return an abstract type whose
+    // possible types include the concrete type). In this case, Relay
+    // allows trying to read the fragment data even if the actual type
+    // didn't match, and returns whatever data happened to be present.
+    // However, in this case it is entirely expected that fields may
+    // be missing, since the concrete types don't match.
+    // In this case, reset isMissingData back to false.
+    // Quickly skip this check in the common case that no data was
+    // missing or fragments on abstract types.
+    if (this._isMissingData && node.concreteType != null) {
+      const record = this._recordSource.get(dataID);
+      if (record != null) {
+        const recordType = RelayModernRecord.getType(record);
+        if (recordType !== node.concreteType && dataID !== ROOT_ID) {
+          // The record exists and its (concrete) type differs
+          // from the fragment's concrete type: data is
+          // expected to be missing, so don't flag it as such
+          // since doing so could incorrectly trigger suspense.
+          // NOTE `isMissingData` is really more "is missing
+          // *expected* data", and the data isn't expected here.
+          // Also note that the store uses a hard-code __typename
+          // for the root object, while fragments on the Query
+          // type will use whatever the schema names the Query type.
+          // Assume fragments read on the root object have the right
+          // type and trust isMissingData.
+          this._isMissingData = false;
+        }
+      }
+    }
     return {
       data,
       isMissingData: this._isMissingData,

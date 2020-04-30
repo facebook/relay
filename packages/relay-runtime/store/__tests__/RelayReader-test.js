@@ -1445,6 +1445,119 @@ describe('RelayReader', () => {
         expect(data.id).toBe('1');
         expect(isMissingData).toBe(false);
       });
+
+      it('should not consider data missing if the fragment type does not match the data', () => {
+        const {ActorQuery, UserProfile} = generateAndCompile(`
+          query ActorQuery {
+            viewer {
+              actor {
+                ...UserProfile
+              }
+            }
+          }
+          fragment UserProfile on User {
+            name
+          }
+        `);
+        source = new RelayRecordSource({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            viewer: {__ref: 'client:root:viewer'},
+          },
+          'client:root:viewer': {
+            __id: 'client:root:viewer',
+            __typename: 'Viewer',
+            actor: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            __typename: 'Page',
+            // NOTE: no 'name' value, server would not return one since
+            // name is only selected if viewer.actor is a User, and it's
+            // a Page
+          },
+        });
+        const owner = createOperationDescriptor(ActorQuery, {});
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(UserProfile, '1', {}, owner.request),
+        );
+        expect(data).toEqual({
+          name: undefined,
+        });
+        expect(isMissingData).toBe(false);
+      });
+
+      it('should consider data missing if the fragment type is abstract', () => {
+        const {ActorQuery, ActorProfile} = generateAndCompile(`
+          query ActorQuery {
+            viewer {
+              actor {
+                ...ActorProfile
+              }
+            }
+          }
+          fragment ActorProfile on Actor {
+            name
+          }
+        `);
+        source = new RelayRecordSource({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            viewer: {__ref: 'client:root:viewer'},
+          },
+          'client:root:viewer': {
+            __id: 'client:root:viewer',
+            __typename: 'Viewer',
+            actor: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            __typename: 'Page',
+            // NOTE: no 'name' value
+          },
+        });
+        const owner = createOperationDescriptor(ActorQuery, {});
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(ActorProfile, '1', {}, owner.request),
+        );
+        expect(data).toEqual({
+          name: undefined,
+        });
+        expect(isMissingData).toBe(true);
+      });
+
+      it('should consider data missing if the fragment is concrete but on the root', () => {
+        const {Query, RootFragment} = generateAndCompile(`
+          query Query {
+            ...RootFragment
+          }
+          fragment RootFragment on Query {
+            me {
+              name
+            }
+          }
+        `);
+        source = new RelayRecordSource({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            // No 'me' value
+          },
+        });
+        const owner = createOperationDescriptor(Query, {});
+        const {data, isMissingData} = read(
+          source,
+          createReaderSelector(RootFragment, 'client:root', {}, owner.request),
+        );
+        expect(data).toEqual({
+          me: undefined,
+        });
+        expect(isMissingData).toBe(true);
+      });
     });
 
     describe('@stream_connection', () => {

@@ -30,8 +30,10 @@ relay-codegen = { path = "../relay-codegen" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }
+env_logger = "0.7"
 fnv = "1.0"
 hex = "0.4"
+log = "0.4.8"
 md-5 = "0.8"
 rayon = "1.2"
 serde = { version = "1.0", features = ["derive", "rc"] }

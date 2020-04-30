@@ -6,6 +6,7 @@
  */
 
 use colored::*;
+use log::info;
 use std::time::Instant;
 
 /// A simple utility to log wall time spent in a section of code.
@@ -48,6 +49,6 @@ impl Timer {
         } else {
             elapsed_str.red()
         };
-        println!("{} {}", elapsed_color, self.name.dimmed());
+        info!("{} {}", elapsed_color, self.name.dimmed());
     }
 }

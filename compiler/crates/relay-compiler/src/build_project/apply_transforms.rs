@@ -17,6 +17,8 @@ use graphql_transforms::{
 };
 use interner::StringKey;
 
+use log::info;
+
 pub struct Programs<'schema> {
     pub source: Program<'schema>,
     pub reader: Program<'schema>,
@@ -64,7 +66,7 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // + MatchTransform
     // - RefetchableFragmentTransform
     // + DeferStreamTransform
-    println!("apply_common_transforms");
+    info!("apply_common_transforms");
 
     let program = Timer::time("transform_connections", || {
         transform_connections(program, connection_interface)
@@ -88,7 +90,7 @@ fn apply_reader_transforms<'schema>(
     // - InlineDataFragmentTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
-    println!("apply_reader_transforms");
+    info!("apply_reader_transforms");
 
     let program = Timer::time("handle_field_transform", || {
         handle_field_transform(&program)
@@ -113,7 +115,7 @@ fn apply_operation_transforms<'schema>(
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // - TestOperationTransform
-    println!("apply_operation_transforms");
+    info!("apply_operation_transforms");
     let program = Timer::time("split_module_import", || split_module_import(&program));
     let program = Timer::time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
@@ -138,7 +140,7 @@ fn apply_normalization_transforms<'schema>(
     // + SkipRedundantNodesTransform
     // + GenerateTypeNameTransform
     // - ValidateServerOnlyDirectivesTransform
-    println!("apply_normalization_transforms");
+    info!("apply_normalization_transforms");
     let program = Timer::time("skip_unreachable_node", || skip_unreachable_node(&program));
     let program = Timer::time("inline_fragments", || inline_fragments(&program));
     let program = Timer::time("inline_fragments", || flatten(&program, true));
@@ -169,7 +171,7 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     // - FilterDirectivesTransform
     // - SkipUnusedVariablesTransform
     // - ValidateRequiredArgumentsTransform
-    println!("apply_operation_text_transforms");
+    info!("apply_operation_text_transforms");
     let program = Timer::time("skip_split_operation", || skip_split_operation(&program));
     let program = Timer::time("skip_client_extensions", || {
         skip_client_extensions(&program)
@@ -190,7 +192,7 @@ fn apply_typegen_transforms<'schema>(
     // - MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false
     // - RefetchableFragmentTransform,
-    println!("apply_typegen_transforms");
+    info!("apply_typegen_transforms");
 
     let program = Timer::time("mask", || mask(&program));
 

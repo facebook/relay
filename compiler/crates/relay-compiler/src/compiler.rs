@@ -14,6 +14,8 @@ use crate::watchman::{FileSource, FileSourceResult, QueryParams};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use log::{error, info};
+
 pub struct Compiler {
     config: Config,
 }
@@ -67,6 +69,8 @@ impl Compiler {
         &self,
         optional_serialized_state_path: Option<PathBuf>,
     ) -> Result<CompilerState> {
+        use env_logger::Env;
+        env_logger::from_env(Env::default().default_filter_or("info, error, warn")).init();
         let file_source = FileSource::connect(&self.config).await?;
         let (mut compiler_state, _) = self
             .create_compiler_state_and_file_source_result(
@@ -90,7 +94,7 @@ impl Compiler {
 
         if let Err(errors) = self.build_projects(&mut compiler_state).await {
             // TODO correctly print errors
-            println!("Errors: {:#?}", errors)
+            error!("Errors: {:#?}", errors)
         }
 
         let mut subscription = file_source.subscribe(initial_file_source_result).await?;
@@ -99,17 +103,17 @@ impl Compiler {
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
 
-                println!("\n\n[watch-mode] Change detected");
+                info!("\n\n[watch-mode] Change detected");
                 let had_new_changes = compiler_state
                     .add_pending_file_source_changes(&self.config, &file_source_changes)?;
 
                 if had_new_changes {
                     if let Err(errors) = self.build_projects(&mut compiler_state).await {
                         // TODO correctly print errors
-                        println!("Errors: {:#?}", errors)
+                        error!("Errors: {:#?}", errors)
                     }
                 } else {
-                    println!("[watch-mode] No re-compilation required");
+                    info!("[watch-mode] No re-compilation required");
                 }
             }
         }

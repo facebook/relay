@@ -25,6 +25,7 @@ use common::Timer;
 pub use generate_artifacts::Artifact;
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FBConnectionInterface;
+use log::info;
 use std::path::PathBuf;
 pub use validate::validate;
 
@@ -96,7 +97,7 @@ pub async fn build_project(
         Vec::new()
     };
 
-    println!(
+    info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",
         project_config.name,
         programs.reader.document_count(),

@@ -8,6 +8,8 @@
 #![warn(clippy::all)]
 
 mod client;
+mod error_reporting;
+mod lsp;
 mod server;
 use lsp_server::Connection;
 use std::error::Error;

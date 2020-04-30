@@ -5,33 +5,54 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::error::Error;
 
-use std::collections::HashSet;
-
-use lsp_types::{
-    notification::{DidOpenTextDocument, Notification, PublishDiagnostics, ShowMessage},
-    Diagnostic, DiagnosticSeverity, InitializeParams, MessageType, PublishDiagnosticsParams,
-    ServerCapabilities, ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
+use crate::lsp::{
+    Connection, DidOpenTextDocument, InitializeParams, Message, Notification,
+    PublishDiagnosticsParams, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
+    Url,
 };
-
-use lsp_server::{Connection, Message, Notification as ServerNotification};
 
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
-use relay_compiler::errors::{
-    BuildProjectError, Error as CompilerError, SyntaxErrorWithSource, ValidationError,
-    ValidationErrorWithSources,
-};
+use relay_compiler::errors::Error as CompilerError;
 
-use common::Location;
-
-use std::fs;
-use std::path::PathBuf;
+use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
+use crate::lsp::{publish_diagnostic, show_info_message};
 
 use log::info;
-
+use std::path::PathBuf;
 use tokio::sync::mpsc;
+
+pub struct ServerState {
+    urls_with_active_diagnostics: HashSet<Url>,
+    pub root_dir: PathBuf,
+}
+
+impl ServerState {
+    pub fn new(root_dir: PathBuf) -> Self {
+        ServerState {
+            urls_with_active_diagnostics: HashSet::default(),
+            root_dir,
+        }
+    }
+
+    pub fn register_url_with_diagnostics(&mut self, url: Url) {
+        self.urls_with_active_diagnostics.insert(url);
+    }
+
+    pub fn clear_diagnostics(&mut self, connection: &Connection) {
+        for url in self.urls_with_active_diagnostics.drain() {
+            let params = PublishDiagnosticsParams {
+                diagnostics: vec![],
+                uri: url,
+                version: None,
+            };
+            publish_diagnostic(params, &connection).unwrap();
+        }
+    }
+}
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
@@ -113,8 +134,6 @@ pub async fn run(
                     let mut config = Config::load(root_dir, config_path).unwrap();
 
                     info!("Compiler config {:?}", config);
-
-                    // Clone the root_dir so we can use it for file resolution later
                     let root_dir = config.root_dir.clone();
 
                     // Don't write artifacts by default
@@ -122,7 +141,7 @@ pub async fn run(
 
                     let compiler = Compiler::new(config);
 
-                    let mut urls_with_diagnostics = HashSet::new();
+                    let mut server_state = ServerState::new(root_dir);
 
                     compiler
                         .watch_with_callback(|result| {
@@ -130,147 +149,23 @@ pub async fn run(
                                 Ok(_) => {
                                     info!("Compiled successfully");
                                     // Clear all diagnostics
-                                    for url in urls_with_diagnostics.drain() {
-                                        let params = PublishDiagnosticsParams {
-                                            diagnostics: vec![],
-                                            uri: url,
-                                            version: None,
-                                        };
-                                        publish_diagnostic(params, &connection).unwrap();
-                                    }
+                                    server_state.clear_diagnostics(&connection);
                                 }
                                 Err(err) => {
                                     match err {
                                         CompilerError::SyntaxErrors { errors } => {
-                                            for SyntaxErrorWithSource { error, source } in errors {
-                                                // Remove the index from the end of the path, resolve the absolute path
-                                                let file_path = {
-                                                    let file_path_and_index =
-                                                        error.location.file().lookup();
-                                                    let file_path_and_index: Vec<&str> =
-                                                        file_path_and_index.split(':').collect();
-                                                    let file_path =
-                                                        PathBuf::from(file_path_and_index[0]);
-                                                    fs::canonicalize(root_dir.join(file_path))
-                                                        .unwrap()
-                                                };
-
-                                                let url = Url::from_file_path(file_path).unwrap();
-
-                                                // Track the url we're reporting diagnostics for so we can
-                                                // clear them out later.
-                                                urls_with_diagnostics.insert(url.clone());
-
-                                                let message = format!("{}", error.kind);
-
-                                                let range = error.location.span().to_range(
-                                                    &source.text,
-                                                    source.line_index,
-                                                    source.column_index,
-                                                );
-
-                                                let diagnostic = Diagnostic {
-                                                    code: None,
-                                                    message,
-                                                    range,
-                                                    related_information: None,
-                                                    severity: Some(DiagnosticSeverity::Error),
-                                                    source: Some(source.text),
-                                                    tags: None,
-                                                };
-
-                                                let params = PublishDiagnosticsParams {
-                                                    diagnostics: vec![diagnostic],
-                                                    uri: url,
-                                                    version: None,
-                                                };
-
-                                                publish_diagnostic(params, &connection).unwrap();
-                                            }
+                                            report_syntax_errors(
+                                                errors,
+                                                &connection,
+                                                &mut server_state,
+                                            )
                                         }
                                         CompilerError::BuildProjectsErrors { errors } => {
-                                            for error in errors {
-                                                match error {
-                                                    BuildProjectError::ValidationErrors {
-                                                        errors,
-                                                    } => {
-                                                        for ValidationErrorWithSources {
-                                                            error,
-                                                            sources,
-                                                        } in errors
-                                                        {
-                                                            let ValidationError {
-                                                                message,
-                                                                locations,
-                                                            } = error;
-
-                                                            let message = format!("{}", message);
-
-                                                            let (source, location) = match (
-                                                                sources.first(),
-                                                                locations.first(),
-                                                            ) {
-                                                                (
-                                                                    Some(Some(source)),
-                                                                    Some(location),
-                                                                ) => (source, location),
-                                                                _ => {
-                                                                    // If we can't get the source and location we can't report the error, so
-                                                                    // exit early.
-                                                                    // TODO(brandondail) we should always have at least one source and location, so log here when we don't
-                                                                    return;
-                                                                }
-                                                            };
-
-                                                            let url = match url_from_location(
-                                                                location, &root_dir,
-                                                            ) {
-                                                                Some(url) => url,
-                                                                None => {
-                                                                    // If we can't parse the location as a Url we can't report the error
-                                                                    // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
-                                                                    return;
-                                                                }
-                                                            };
-
-                                                            urls_with_diagnostics
-                                                                .insert(url.clone());
-
-                                                            let range = location.span().to_range(
-                                                                &source.text,
-                                                                source.line_index,
-                                                                source.column_index,
-                                                            );
-
-                                                            let diagnostic = Diagnostic {
-                                                                code: None,
-                                                                message,
-                                                                range,
-                                                                related_information: None,
-                                                                severity: Some(
-                                                                    DiagnosticSeverity::Error,
-                                                                ),
-                                                                source: None,
-                                                                tags: None,
-                                                            };
-
-                                                            let params = PublishDiagnosticsParams {
-                                                                diagnostics: vec![diagnostic],
-                                                                uri: url,
-                                                                version: None,
-                                                            };
-
-                                                            publish_diagnostic(params, &connection)
-                                                                .unwrap();
-                                                        }
-                                                    }
-                                                    // We ignore persist/write errors for now. In the future we can potentially show a notification.
-                                                    BuildProjectError::PersistError(_) => {}
-                                                    BuildProjectError::WriteFileError {
-                                                        ..
-                                                    } => {}
-                                                }
-                                            }
+                                            report_build_project_errors(
+                                                errors,
+                                                &connection,
+                                                &mut server_state,
+                                            )
                                         }
                                         // Ignore the rest of these errors for now
                                         CompilerError::ConfigFileRead { .. } => {}
@@ -282,7 +177,6 @@ pub async fn run(
                                         CompilerError::SerializationError { .. } => {}
                                         CompilerError::DeserializationError { .. } => {}
                                     }
-                                    // Report new diagnostics
                                 }
                             }
                         })
@@ -292,43 +186,5 @@ pub async fn run(
             }
         }
     }
-    Ok(())
-}
-
-/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
-// Returns None if we are unable to do the conversion
-fn url_from_location(location: &Location, root_dir: &PathBuf) -> Option<Url> {
-    let file_key = location.file().lookup();
-    // Strip the index from the file key to get the path
-    let file_path_and_index: Vec<&str> = file_key.split(':').collect();
-    let file_path = PathBuf::from(file_path_and_index[0]);
-    if let Ok(canonical_path) = fs::canonicalize(root_dir.join(file_path)) {
-        Url::from_file_path(canonical_path).ok()
-    } else {
-        None
-    }
-}
-
-fn show_info_message(
-    message: impl Into<String>,
-    connection: &Connection,
-) -> Result<(), Box<dyn Error + Sync + Send>> {
-    let notif = ServerNotification::new(
-        ShowMessage::METHOD.into(),
-        ShowMessageParams {
-            typ: MessageType::Info,
-            message: message.into(),
-        },
-    );
-    connection.sender.send(Message::Notification(notif))?;
-    Ok(())
-}
-
-fn publish_diagnostic(
-    diagnostic_params: PublishDiagnosticsParams,
-    connection: &Connection,
-) -> Result<(), Box<dyn Error + Sync + Send>> {
-    let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    connection.sender.send(Message::Notification(notif))?;
     Ok(())
 }

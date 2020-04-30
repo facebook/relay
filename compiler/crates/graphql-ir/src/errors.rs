@@ -26,14 +26,14 @@ impl From<ValidationError> for Vec<ValidationError> {
 #[derive(Debug)]
 pub struct ValidationError {
     /// One of a fixed set of validation errors
-    message: ValidationMessage,
+    pub message: ValidationMessage,
 
     /// A set of locations associated with the error. By convention
     /// the list should always be non-empty, with the first location
     /// indicating the primary source of the error and subsequent
     /// locations indicating related source code that provide
     /// context as to why the primary location is problematic.
-    locations: Vec<Location>,
+    pub locations: Vec<Location>,
 }
 
 impl ValidationError {
@@ -77,8 +77,8 @@ impl ValidationError {
 
 #[derive(Debug)]
 pub struct ValidationErrorWithSources {
-    error: ValidationError,
-    sources: Vec<Option<GraphQLSource>>,
+    pub error: ValidationError,
+    pub sources: Vec<Option<GraphQLSource>>,
 }
 impl fmt::Display for ValidationErrorWithSources {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

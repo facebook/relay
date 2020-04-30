@@ -19,7 +19,12 @@ use lsp_server::{Connection, Message, Notification as ServerNotification};
 
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
-use relay_compiler::errors::{Error as CompilerError, SyntaxErrorWithSource};
+use relay_compiler::errors::{
+    BuildProjectError, Error as CompilerError, SyntaxErrorWithSource, ValidationError,
+    ValidationErrorWithSources,
+};
+
+use common::Location;
 
 use std::fs;
 use std::path::PathBuf;
@@ -183,12 +188,95 @@ pub async fn run(
                                                 publish_diagnostic(params, &connection).unwrap();
                                             }
                                         }
+                                        CompilerError::BuildProjectsErrors { errors } => {
+                                            for error in errors {
+                                                match error {
+                                                    BuildProjectError::ValidationErrors {
+                                                        errors,
+                                                    } => {
+                                                        for ValidationErrorWithSources {
+                                                            error,
+                                                            sources,
+                                                        } in errors
+                                                        {
+                                                            let ValidationError {
+                                                                message,
+                                                                locations,
+                                                            } = error;
+
+                                                            let message = format!("{}", message);
+
+                                                            let (source, location) = match (
+                                                                sources.first(),
+                                                                locations.first(),
+                                                            ) {
+                                                                (
+                                                                    Some(Some(source)),
+                                                                    Some(location),
+                                                                ) => (source, location),
+                                                                _ => {
+                                                                    // If we can't get the source and location we can't report the error, so
+                                                                    // exit early.
+                                                                    // TODO(brandondail) we should always have at least one source and location, so log here when we don't
+                                                                    return;
+                                                                }
+                                                            };
+
+                                                            let url = match url_from_location(
+                                                                location, &root_dir,
+                                                            ) {
+                                                                Some(url) => url,
+                                                                None => {
+                                                                    // If we can't parse the location as a Url we can't report the error
+                                                                    // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
+                                                                    return;
+                                                                }
+                                                            };
+
+                                                            urls_with_diagnostics
+                                                                .insert(url.clone());
+
+                                                            let range = location.span().to_range(
+                                                                &source.text,
+                                                                source.line_index,
+                                                                source.column_index,
+                                                            );
+
+                                                            let diagnostic = Diagnostic {
+                                                                code: None,
+                                                                message,
+                                                                range,
+                                                                related_information: None,
+                                                                severity: Some(
+                                                                    DiagnosticSeverity::Error,
+                                                                ),
+                                                                source: None,
+                                                                tags: None,
+                                                            };
+
+                                                            let params = PublishDiagnosticsParams {
+                                                                diagnostics: vec![diagnostic],
+                                                                uri: url,
+                                                                version: None,
+                                                            };
+
+                                                            publish_diagnostic(params, &connection)
+                                                                .unwrap();
+                                                        }
+                                                    }
+                                                    // We ignore persist/write errors for now. In the future we can potentially show a notification.
+                                                    BuildProjectError::PersistError(_) => {}
+                                                    BuildProjectError::WriteFileError {
+                                                        ..
+                                                    } => {}
+                                                }
+                                            }
+                                        }
                                         // Ignore the rest of these errors for now
                                         CompilerError::ConfigFileRead { .. } => {}
                                         CompilerError::ConfigFileParse { .. } => {}
                                         CompilerError::ConfigFileValidation { .. } => {}
                                         CompilerError::WatchmanError { .. } => {}
-                                        CompilerError::BuildProjectsErrors { .. } => {}
                                         CompilerError::ReadFileError { .. } => {}
                                         CompilerError::WriteFileError { .. } => {}
                                         CompilerError::SerializationError { .. } => {}
@@ -205,6 +293,20 @@ pub async fn run(
         }
     }
     Ok(())
+}
+
+/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
+// Returns None if we are unable to do the conversion
+fn url_from_location(location: &Location, root_dir: &PathBuf) -> Option<Url> {
+    let file_key = location.file().lookup();
+    // Strip the index from the file key to get the path
+    let file_path_and_index: Vec<&str> = file_key.split(':').collect();
+    let file_path = PathBuf::from(file_path_and_index[0]);
+    if let Ok(canonical_path) = fs::canonicalize(root_dir.join(file_path)) {
+        Url::from_file_path(canonical_path).ok()
+    } else {
+        None
+    }
 }
 
 fn show_info_message(

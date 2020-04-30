@@ -109,5 +109,5 @@ extend type FriendsEdge {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

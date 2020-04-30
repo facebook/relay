@@ -140,7 +140,7 @@ fragment QueryFragment2 on Query {
       "storageKey": null
     }
   ],
-  "type": "Query"
+  "concreteType": "Query"
 }
 
 {
@@ -216,5 +216,5 @@ fragment QueryFragment2 on Query {
       "storageKey": null
     }
   ],
-  "type": "Query"
+  "concreteType": "Query"
 }

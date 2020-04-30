@@ -149,5 +149,5 @@ fragment PaginationFragment on Node
       "type": "User"
     }
   ],
-  "type": "Node"
+  "concreteType": null
 }

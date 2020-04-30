@@ -79,7 +79,7 @@ fragment FeedbackFragment on Feedback
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -362,7 +362,7 @@ fragment FeedbackFragment on Feedback {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -736,5 +736,5 @@ fragment FeedbackFragment_1G22uz on Feedback {
       "storageKey": null
     }
   ],
-  "type": "Feedback"
+  "concreteType": "Feedback"
 }

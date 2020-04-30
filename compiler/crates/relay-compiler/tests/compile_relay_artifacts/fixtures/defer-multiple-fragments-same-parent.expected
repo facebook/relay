@@ -85,7 +85,7 @@ fragment FeedbackText_feedback on Feedback {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -334,7 +334,7 @@ fragment FeedbackText_feedback on Feedback {
       "storageKey": "comments(first:10)"
     }
   ],
-  "type": "Feedback"
+  "concreteType": "Feedback"
 }
 
 {
@@ -362,5 +362,5 @@ fragment FeedbackText_feedback on Feedback {
       "storageKey": null
     }
   ],
-  "type": "Feedback"
+  "concreteType": "Feedback"
 }

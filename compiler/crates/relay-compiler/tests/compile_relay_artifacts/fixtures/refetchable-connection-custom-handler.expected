@@ -132,5 +132,5 @@ fragment RefetchableConnection_feedback on Feedback
       "storageKey": null
     }
   ],
-  "type": "Feedback"
+  "concreteType": "Feedback"
 }

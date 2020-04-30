@@ -219,6 +219,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if plural {
             metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(true)))
         }
+        let concrete_type = if self.schema.is_abstract_type(fragment.type_condition) {
+            Primitive::Null
+        } else {
+            Primitive::String(self.schema.get_type_name(fragment.type_condition))
+        };
+
         // TODO: refetch metadata
 
         let object = vec![
@@ -250,10 +256,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 CODEGEN_CONSTANTS.selections,
                 self.build_selections(&fragment.selections),
             ),
-            (
-                CODEGEN_CONSTANTS.type_,
-                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
-            ),
+            (CODEGEN_CONSTANTS.concrete_type, concrete_type),
         ];
         self.object(object)
     }

@@ -83,7 +83,7 @@ fragment ConnectionFragment on User
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -248,5 +248,5 @@ query QueryWithUnusedVariables(
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

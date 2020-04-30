@@ -157,7 +157,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "storageKey": "node(id:\"<user-id>\")"
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -401,7 +401,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "MarkdownUserNameRenderer"
+  "concreteType": "MarkdownUserNameRenderer"
 }
 
 {
@@ -436,5 +436,5 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "PlainUserNameRenderer"
+  "concreteType": "PlainUserNameRenderer"
 }

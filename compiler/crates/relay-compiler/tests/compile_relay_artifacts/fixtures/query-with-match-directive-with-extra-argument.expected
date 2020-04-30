@@ -107,7 +107,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -346,7 +346,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "MarkdownUserNameRenderer"
+  "concreteType": "MarkdownUserNameRenderer"
 }
 
 {
@@ -412,7 +412,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": "nameRendererForContext(context:\"HEADER\",supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -447,5 +447,5 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "PlainUserNameRenderer"
+  "concreteType": "PlainUserNameRenderer"
 }

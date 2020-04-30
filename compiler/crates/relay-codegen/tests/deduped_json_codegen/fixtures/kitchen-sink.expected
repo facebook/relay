@@ -331,6 +331,6 @@ return {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 };
 })()

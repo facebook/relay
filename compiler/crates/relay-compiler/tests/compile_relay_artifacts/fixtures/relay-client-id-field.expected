@@ -203,7 +203,7 @@ query RelayClientIDFieldQuery($id: ID!) {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {

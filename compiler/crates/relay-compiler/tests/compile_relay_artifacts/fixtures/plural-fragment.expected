@@ -19,5 +19,5 @@ fragment PluralFragment on User @relay(plural: true) {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

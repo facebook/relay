@@ -97,5 +97,5 @@ extend type Page {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

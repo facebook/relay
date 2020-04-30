@@ -39,7 +39,7 @@ fragment Profile on User @inline {
         "name": "ParentFragment"
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -288,7 +288,7 @@ fragment Profile on User {
       "storageKey": "username(name:\"test\")"
     }
   ],
-  "type": "Query"
+  "concreteType": "Query"
 }
 
 {
@@ -329,5 +329,5 @@ fragment Profile on User {
       "storageKey": "profilePicture(size:100)"
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

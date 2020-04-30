@@ -119,7 +119,7 @@ fragment UserFragment on User
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -571,5 +571,5 @@ fragment UserFragment_3M2EvT on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

@@ -99,7 +99,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -354,7 +354,7 @@ fragment Profile_4CNNX6 on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -420,5 +420,5 @@ fragment Profile_4CNNX6 on User {
       "storageKey": "friends(first:10)"
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

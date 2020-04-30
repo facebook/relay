@@ -50,7 +50,7 @@ query TestQuery($date: String) {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {

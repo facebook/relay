@@ -97,7 +97,7 @@ type Foo implements Named {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -374,7 +374,7 @@ fragment OnlyClientFields on User
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -396,7 +396,7 @@ fragment OnlyClientFields on User
       ]
     }
   ],
-  "type": "Foo"
+  "concreteType": "Foo"
 }
 
 {
@@ -413,7 +413,7 @@ fragment OnlyClientFields on User
       "storageKey": null
     }
   ],
-  "type": "Node"
+  "concreteType": null
 }
 
 {
@@ -446,5 +446,5 @@ fragment OnlyClientFields on User
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

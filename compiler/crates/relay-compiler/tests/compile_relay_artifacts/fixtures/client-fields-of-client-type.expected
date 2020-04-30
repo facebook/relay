@@ -82,5 +82,5 @@ type Foo {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

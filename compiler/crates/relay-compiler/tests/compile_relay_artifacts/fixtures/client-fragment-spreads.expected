@@ -39,7 +39,7 @@ type ClientType {
       ]
     }
   ],
-  "type": "ClientType"
+  "concreteType": "ClientType"
 }
 
 {
@@ -77,5 +77,5 @@ type ClientType {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

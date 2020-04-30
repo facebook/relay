@@ -50,7 +50,7 @@ fragment ProfilePicture on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -78,5 +78,5 @@ fragment ProfilePicture on User {
       "type": "User"
     }
   ],
-  "type": "Node"
+  "concreteType": null
 }

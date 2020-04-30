@@ -80,7 +80,7 @@ interface ClientNamed {
       ]
     }
   ],
-  "type": "ClientType"
+  "concreteType": "ClientType"
 }
 
 {
@@ -221,7 +221,7 @@ interface ClientNamed {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {

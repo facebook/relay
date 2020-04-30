@@ -108,7 +108,7 @@ extend type Page {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {

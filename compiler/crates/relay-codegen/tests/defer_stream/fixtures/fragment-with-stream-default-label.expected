@@ -94,5 +94,5 @@ fragment FeedbackFragment on Feedback {
       "storageKey": null
     }
   ],
-  "type": "Feedback"
+  "concreteType": "Feedback"
 }

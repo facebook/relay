@@ -177,7 +177,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "Node"
+  "concreteType": null
 }
 
 {
@@ -212,7 +212,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "MarkdownUserNameRenderer"
+  "concreteType": "MarkdownUserNameRenderer"
 }
 
 {
@@ -247,5 +247,5 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "storageKey": null
     }
   ],
-  "type": "PlainUserNameRenderer"
+  "concreteType": "PlainUserNameRenderer"
 }

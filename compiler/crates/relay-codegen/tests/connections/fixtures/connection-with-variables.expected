@@ -176,5 +176,5 @@ fragment Example on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

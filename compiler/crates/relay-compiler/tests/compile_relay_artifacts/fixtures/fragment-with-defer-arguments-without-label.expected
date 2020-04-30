@@ -52,7 +52,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -212,7 +212,7 @@ fragment UserFragment on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -268,5 +268,5 @@ fragment UserFragment on User {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

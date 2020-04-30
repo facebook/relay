@@ -75,5 +75,5 @@ extend type FriendsConnection {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

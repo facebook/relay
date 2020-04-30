@@ -75,7 +75,7 @@ interface ClientNamed {
       ]
     }
   ],
-  "type": "ClientType"
+  "concreteType": "ClientType"
 }
 
 {
@@ -192,5 +192,5 @@ interface ClientNamed {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

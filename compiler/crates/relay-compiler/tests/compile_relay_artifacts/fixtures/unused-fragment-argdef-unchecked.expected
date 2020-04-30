@@ -59,7 +59,7 @@ fragment ProfilePhoto on User {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -230,7 +230,7 @@ fragment ProfilePhoto_18PEfK on User {
       "name": "ProfilePhotoWrapper"
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -266,7 +266,7 @@ fragment ProfilePhoto_18PEfK on User {
       "storageKey": "profilePicture(size:[100])"
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -301,5 +301,5 @@ fragment ProfilePhoto_18PEfK on User {
       "name": "ProfilePhoto"
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

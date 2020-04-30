@@ -50,7 +50,7 @@ fragment NodeFragment on Node {
         "storageKey": "node(id:\"my-id\")"
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -187,5 +187,5 @@ fragment NodeFragment on Node {
       "type": "Page"
     }
   ],
-  "type": "Node"
+  "concreteType": null
 }

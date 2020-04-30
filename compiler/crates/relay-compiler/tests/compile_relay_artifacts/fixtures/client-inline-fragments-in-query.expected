@@ -61,7 +61,7 @@ interface ClientNamed {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -208,5 +208,5 @@ fragment Foo_user on User {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

@@ -69,7 +69,7 @@ fragment UserUtil2_user on User {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {
@@ -285,7 +285,7 @@ fragment UserProfile_user on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -314,7 +314,7 @@ fragment UserProfile_user on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -379,5 +379,5 @@ fragment UserProfile_user on User {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

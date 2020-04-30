@@ -51,7 +51,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -82,7 +82,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {
@@ -171,5 +171,5 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

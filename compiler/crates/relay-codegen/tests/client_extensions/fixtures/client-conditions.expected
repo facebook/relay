@@ -214,7 +214,7 @@ interface ClientNamed {
       ]
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }
 
 {

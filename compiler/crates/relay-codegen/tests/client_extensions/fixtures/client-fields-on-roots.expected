@@ -133,7 +133,7 @@ type ClientUser {
       ]
     }
   ],
-  "type": "ClientUser"
+  "concreteType": "ClientUser"
 }
 
 {

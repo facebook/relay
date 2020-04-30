@@ -56,7 +56,7 @@ query StableLiteralsTest {
         "storageKey": null
       }
     ],
-    "type": "Query"
+    "concreteType": "Query"
   },
   "kind": "Request",
   "operation": {

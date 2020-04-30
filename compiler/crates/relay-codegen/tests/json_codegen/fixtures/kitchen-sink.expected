@@ -370,5 +370,5 @@ fragment UserFragment on User
       "storageKey": null
     }
   ],
-  "type": "User"
+  "concreteType": "User"
 }

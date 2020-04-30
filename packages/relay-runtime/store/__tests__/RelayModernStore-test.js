@@ -1452,7 +1452,6 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
     });
 
     describe('invalidation state', () => {
-      let UserQuery;
       let data;
       let source;
       let store;
@@ -1490,20 +1489,6 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
-            name
-            profilePicture(size: $size) {
-              uri
-            }
-          }
-
-          query UserQuery($id: ID!, $size: [Int]) {
-            node(id: $id) {
-              ...UserFragment
-            }
-          }
-        `));
         environment = createMockEnvironment({store});
       });
 

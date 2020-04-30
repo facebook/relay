@@ -11,7 +11,7 @@ use std::collections::HashSet;
 
 use lsp_types::{
     notification::{DidOpenTextDocument, Notification, PublishDiagnostics, ShowMessage},
-    Diagnostic, DiagnosticSeverity, InitializeParams, MessageType, PublishDiagnosticsParams, Range,
+    Diagnostic, DiagnosticSeverity, InitializeParams, MessageType, PublishDiagnosticsParams,
     ServerCapabilities, ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
 };
 
@@ -156,12 +156,17 @@ pub async fn run(
                                                 // clear them out later.
                                                 urls_with_diagnostics.insert(url.clone());
 
-                                                // TODO(brandondail) derive Range from error.location
-                                                let range = Range::default();
+                                                let message = format!("{}", error.kind);
+
+                                                let range = error.location.span().to_range(
+                                                    &source.text,
+                                                    source.line_index,
+                                                    source.column_index,
+                                                );
 
                                                 let diagnostic = Diagnostic {
                                                     code: None,
-                                                    message: "Syntax error".to_owned(),
+                                                    message,
                                                     range,
                                                     related_information: None,
                                                     severity: Some(DiagnosticSeverity::Error),

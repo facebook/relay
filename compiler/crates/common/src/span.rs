@@ -10,6 +10,8 @@ use std::cmp;
 use std::convert::TryFrom;
 use std::fmt;
 
+use lsp_types::{Position, Range};
+
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Span {
     pub length: u32,
@@ -37,6 +39,50 @@ impl Span {
 
     pub fn as_usize(self) -> (usize, usize) {
         (self.start as usize, self.length as usize)
+    }
+
+    pub fn to_range(self, source: &str, line_offset: usize, character_offset: usize) -> Range {
+        let start = self.start as usize;
+        let end = (self.start + self.length) as usize;
+        // Zero-indexed line offset in the document
+        let mut line = line_offset;
+        // Zero-indexed character offset on the line
+        let mut character = character_offset;
+        let mut start_position = Position::default();
+        let mut end_position = Position::default();
+        let mut chars = source.chars().enumerate().peekable();
+
+        while let Some((index, chr)) = chars.next() {
+            let is_newline = match chr {
+                // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
+                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => match (chr, chars.peek()) {
+                    // <CLRF>
+                    ('\u{000D}', Some((_, '\u{000D}'))) => false,
+                    _ => true,
+                },
+                _ => false,
+            };
+
+            if is_newline {
+                // New line, increment the line offset and reset the
+                // character offset.
+                line += 1;
+                character = 0;
+            }
+            if index == start {
+                start_position = Position::new(line as u64, character as u64);
+            }
+            if index == end {
+                end_position = Position::new(line as u64, character as u64);
+                break;
+            }
+            // Make sure to only increment the character offset if this
+            // isn't a newline.
+            if !is_newline {
+                character += 1;
+            }
+        }
+        Range::new(start_position, end_position)
     }
 
     pub fn print(

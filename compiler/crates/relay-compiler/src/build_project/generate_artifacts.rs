@@ -28,7 +28,9 @@ pub struct Artifact {
     pub name: StringKey,
     pub content: String,
     pub hash: String,
-    pub file: FileKey,
+    /// The source file responsible for generating this file.
+    /// For example: `my_project/Component.react.js`
+    pub source_file: FileKey,
 }
 
 pub async fn generate_artifacts(
@@ -195,7 +197,7 @@ async fn generate_normalization_artifact(
         name: node.name.item,
         content: sign_file(&content),
         hash: source_hash.to_string(),
-        file: node.name.location.file(),
+        source_file: node.name.location.file(),
     })
 }
 
@@ -243,7 +245,7 @@ fn generate_reader_artifact(
         name,
         content: sign_file(&content),
         hash: hash.to_string(),
-        file: node.name.location.file(),
+        source_file: node.name.location.file(),
     }
 }
 
@@ -285,7 +287,7 @@ fn generate_split_operation_artifact(
         name: node.name.item,
         content: sign_file(&content),
         hash: hash.to_string(),
-        file: node.name.location.file(),
+        source_file: node.name.location.file(),
     }
 }
 

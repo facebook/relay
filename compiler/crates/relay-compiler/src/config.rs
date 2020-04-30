@@ -84,6 +84,8 @@ impl Config {
                     base: config_file_project.base,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
+                    shard_output: config_file_project.shard_output,
+                    shard_strip_prefix: config_file_project.shard_strip_prefix,
                     schema_location,
                     persist: config_file_project.persist,
                 };
@@ -201,6 +203,8 @@ pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
+    pub shard_output: bool,
+    pub shard_strip_prefix: Option<String>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
     pub persist: Option<PersistConfig>,
@@ -236,7 +240,7 @@ struct ConfigFile {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
     /// referenced, but won't produce output artifacts.
@@ -251,6 +255,15 @@ struct ConfigFileProject {
     /// compiler, so that the compiler can cleanup extra files.
     #[serde(default)]
     output: Option<PathBuf>,
+
+    /// If `output` is provided and `shard_output` is `true`, shard the files
+    /// by putting them under `{output_dir}/{source_relative_path}`
+    #[serde(default)]
+    shard_output: bool,
+
+    /// Stip the prefix of the `source_relative_path`
+    #[serde(default)]
+    shard_strip_prefix: Option<String>,
 
     /// Directory containing *.graphql files with schema extensions.
     #[serde(default)]

@@ -23,9 +23,20 @@ pub fn write_artifacts(
 
     for artifact in artifacts {
         let generated_relative_path: &PathBuf = &match project_config.output {
-            Some(ref output) => output.join(format!("{}.graphql.js", artifact.name)),
+            Some(ref output) => {
+                if project_config.shard_output {
+                    if let Some(ref prefix) = project_config.shard_strip_prefix {
+                        output.join(artifact.source_file.get_dir().strip_prefix(prefix).unwrap())
+                    } else {
+                        output.join(artifact.source_file.get_dir())
+                    }
+                    .join(format!("{}.graphql.js", artifact.name))
+                } else {
+                    output.join(format!("{}.graphql.js", artifact.name))
+                }
+            }
             None => {
-                let path = artifact.file.get_dir();
+                let path = artifact.source_file.get_dir();
                 path.join(format!("__generated__/{}.graphql.js", artifact.name))
             }
         };

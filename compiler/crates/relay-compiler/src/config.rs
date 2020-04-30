@@ -7,6 +7,7 @@
 
 use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::errors::{ConfigValidationError, Error, Result};
+use interner::StringKey;
 use regex::Regex;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
@@ -28,6 +29,8 @@ pub struct Config {
     pub codegen_command: Option<String>,
     /// If this is false, the compiler won't write any artifact files.
     pub write_artifacts: bool,
+    /// If set, the compiler will only compile the given project
+    pub only_project: Option<StringKey>,
 }
 impl Config {
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
@@ -117,6 +120,7 @@ impl Config {
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             write_artifacts: true,
+            only_project: None,
         };
 
         let mut validation_errors = Vec::new();

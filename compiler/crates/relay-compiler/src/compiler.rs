@@ -152,16 +152,40 @@ impl Compiler {
         let mut build_project_errors = vec![];
         let mut next_artifacts: HashMap<ProjectName, WrittenArtifacts> = Default::default();
 
-        for project_config in self.config.projects.values() {
-            if compiler_state.project_has_pending_changes(project_config.name) {
-                // TODO: consider running all projects in parallel
-                match build_project(&self.config, project_config, compiler_state, &graphql_asts)
-                    .await
-                {
-                    Ok(written_artifacts) => {
-                        next_artifacts.insert(project_config.name, written_artifacts);
+        let mut process_build_result = |result, name| match result {
+            Ok(written_artifacts) => {
+                next_artifacts.insert(name, written_artifacts);
+            }
+            Err(err) => build_project_errors.push(err),
+        };
+
+        match self.config.only_project {
+            Some(project_key) => {
+                let project_config =
+                    self.config.projects.get(&project_key).unwrap_or_else(|| {
+                        panic!("Expected the project {} to exist", &project_key)
+                    });
+                process_build_result(
+                    build_project(&self.config, project_config, compiler_state, &graphql_asts)
+                        .await,
+                    project_config.name,
+                )
+            }
+            None => {
+                for project_config in self.config.projects.values() {
+                    if compiler_state.project_has_pending_changes(project_config.name) {
+                        // TODO: consider running all projects in parallel
+                        process_build_result(
+                            build_project(
+                                &self.config,
+                                project_config,
+                                compiler_state,
+                                &graphql_asts,
+                            )
+                            .await,
+                            project_config.name,
+                        )
                     }
-                    Err(err) => build_project_errors.push(err),
                 }
             }
         }

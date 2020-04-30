@@ -12,10 +12,11 @@ mod server;
 use lsp_server::Connection;
 use std::error::Error;
 
-fn main() -> Result<(), Box<dyn Error + Sync + Send>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error + Sync + Send>> {
     let (connection, io_handles) = Connection::stdio();
     let params = server::initialize(&connection)?;
-    server::run(&connection, params)?;
+    server::run(&connection, params).await?;
     io_handles.join()?;
     Ok(())
 }

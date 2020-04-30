@@ -14,6 +14,13 @@ use lsp_types::{
 
 use lsp_server::{Connection, Message, Notification as ServerNotification};
 
+use relay_compiler::compiler::Compiler;
+use relay_compiler::config::Config;
+
+use std::path::PathBuf;
+
+use log::info;
+
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
 pub fn initialize(
@@ -26,16 +33,49 @@ pub fn initialize(
 }
 
 /// Run the main server loop
-pub fn run(
+pub async fn run(
     connection: &Connection,
     _params: InitializeParams,
 ) -> Result<(), Box<dyn Error + Sync + Send>> {
     show_info_message("Relay Language Server Started", connection)?;
+
+    // TODO(brandondail) don't hardcode the test project config here
+    let home = std::env::var("HOME").unwrap();
+    let config_path = PathBuf::from(format!(
+        "{}/fbsource/fbcode/relay/config/config.test.json",
+        home
+    ));
+
+    let root_dir = PathBuf::from(format!("{}/fbsource", home));
+    let mut config = Config::load(root_dir, config_path).unwrap();
+
+    // Don't write artifacts by default
+    config.write_artifacts = false;
+
+    info!("Compiler config: {:#?}", config);
+
+    let compiler = Compiler::new(config);
+
+    match compiler.compile(None).await {
+        Ok(_) => {
+            info!("Compiled project successfully");
+        }
+        Err(_) => {
+            info!("Failed to compile project");
+        }
+    }
+
     for msg in &connection.receiver {
         match msg {
-            Message::Request(_req) => {}
-            Message::Response(_resp) => {}
-            Message::Notification(_not) => {}
+            Message::Request(req) => {
+                info!("Request: {:?}", req);
+            }
+            Message::Response(resp) => {
+                info!("Request: {:?}", resp);
+            }
+            Message::Notification(notif) => {
+                info!("Notification: {:?}", notif);
+            }
         }
     }
     Ok(())

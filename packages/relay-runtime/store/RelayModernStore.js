@@ -796,9 +796,6 @@ function getAvailabilityStatus(
 
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {
   lookup: 'RelayModernStore.prototype.lookup',
-  notify: 'RelayModernStore.prototype.notify',
-  publish: 'RelayModernStore.prototype.publish',
-  __gc: 'RelayModernStore.prototype.__gc',
 });
 
 module.exports = RelayModernStore;

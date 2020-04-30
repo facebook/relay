@@ -16,9 +16,9 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_relay_directive, extract_values_from_handle_field_directive, extract_variable_name,
-    remove_directive, ConnectionConstants, HandleFieldConstants, DEFER_STREAM_CONSTANTS,
-    MATCH_CONSTANTS, RELAY_DIRECTIVE_CONSTANTS,
+    extract_values_from_handle_field_directive, extract_variable_name, remove_directive,
+    ConnectionConstants, HandleFieldConstants, RelayDirective, DEFER_STREAM_CONSTANTS,
+    MATCH_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -202,31 +202,22 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             None
         };
 
-        let mut plural = None;
-        let mut mask = None;
-        if let Some(directive) = extract_relay_directive(&fragment.directives) {
-            for arg in &directive.arguments {
-                if arg.name.item == RELAY_DIRECTIVE_CONSTANTS.plural_arg_name {
-                    if let Value::Constant(ConstantValue::Boolean(value)) = arg.value.item {
-                        plural = Some(value);
-                    }
-                } else if arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name {
-                    if let Value::Constant(ConstantValue::Boolean(value)) = arg.value.item {
-                        mask = Some(value);
-                    }
-                }
-            }
-        }
+        let mut plural = false;
+        let mut unmask = false;
+        if let Some(relay_directive) = RelayDirective::find(&fragment.directives) {
+            plural = relay_directive.plural;
+            unmask = relay_directive.unmask;
+        };
 
         let mut metadata = vec![];
         if let Some(connection_metadata) = connection_metadata {
             metadata.push((CODEGEN_CONSTANTS.connection, connection_metadata))
         }
-        if let Some(mask) = mask {
-            metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(mask)))
+        if unmask {
+            metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(false)))
         }
-        if let Some(plural) = plural {
-            metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(plural)))
+        if plural {
+            metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(true)))
         }
         // TODO: refetch metadata
 

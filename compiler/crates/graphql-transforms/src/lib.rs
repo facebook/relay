@@ -24,6 +24,7 @@ mod inline_fragments;
 mod mask;
 mod match_;
 mod node_identifier;
+mod relay_directive;
 mod remove_base_fragments;
 mod skip_client_extensions;
 mod skip_redundant_nodes;
@@ -56,6 +57,7 @@ pub use match_::{
     split_module_import, transform_match, validate_module_conflicts, MATCH_CONSTANTS,
 };
 pub use node_identifier::NodeIdentifier;
+pub use relay_directive::RelayDirective;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_redundant_nodes::skip_redundant_nodes;

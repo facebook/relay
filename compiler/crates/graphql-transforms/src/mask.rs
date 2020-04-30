@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::RELAY_DIRECTIVE_CONSTANTS;
+use crate::relay_directive::RelayDirective;
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField,
-    Selection, Transformed, Transformer, Value, VariableDefinition,
+    FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
+    Transformed, Transformer, VariableDefinition,
 };
 use indexmap::{map::Entry, IndexMap};
 use interner::StringKey;
@@ -101,17 +101,7 @@ impl<'s> Transformer for Mask<'s> {
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        let is_relay_mask_false = spread.directives.iter().any(|directive| {
-            directive.name.item == RELAY_DIRECTIVE_CONSTANTS.relay_directive_name
-                && directive.arguments.iter().any(|arg| {
-                    arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name
-                        && match arg.value.item {
-                            Value::Constant(ConstantValue::Boolean(val)) => !val,
-                            _ => false,
-                        }
-                })
-        });
-        if is_relay_mask_false {
+        if RelayDirective::is_unmasked_fragment_spread(spread) {
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
             self.current_reachable_arguments
                 .extend(&fragment.used_global_variables);

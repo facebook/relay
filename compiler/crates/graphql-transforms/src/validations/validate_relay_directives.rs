@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
 use errors::validate;
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -12,8 +13,7 @@ use graphql_ir::{
     Program, ValidationError, ValidationMessage, ValidationResult, Validator, Value,
     VariableDefinition,
 };
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use interner::StringKey;
 
 pub fn validate_relay_directives<'s>(program: &Program<'s>) -> ValidationResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);
@@ -32,28 +32,8 @@ struct RelayDirectiveValidation<'s> {
     current_reachable_arguments: Vec<&'s VariableDefinition>,
 }
 
-pub struct RelayDirectiveConstants {
-    pub relay_directive_name: StringKey,
-    pub plural_arg_name: StringKey,
-    pub mask_arg_name: StringKey,
-}
-
-impl Default for RelayDirectiveConstants {
-    fn default() -> Self {
-        Self {
-            relay_directive_name: "relay".intern(),
-            plural_arg_name: "plural".intern(),
-            mask_arg_name: "mask".intern(),
-        }
-    }
-}
-
-lazy_static! {
-    pub static ref RELAY_DIRECTIVE_CONSTANTS: RelayDirectiveConstants = Default::default();
-}
-
-pub fn extract_relay_directive(directives: &[Directive]) -> Option<&Directive> {
-    directives.named(RELAY_DIRECTIVE_CONSTANTS.relay_directive_name)
+fn find_relay_directive(directives: &[Directive]) -> Option<&Directive> {
+    directives.named(*RELAY_DIRECTIVE_NAME)
 }
 
 impl<'s> RelayDirectiveValidation<'s> {
@@ -70,8 +50,7 @@ impl<'s> RelayDirectiveValidation<'s> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if !(fragment.directives.is_empty()
             || fragment.directives.len() == 1
-                && fragment.directives[0].name.item
-                    == RELAY_DIRECTIVE_CONSTANTS.relay_directive_name)
+                && fragment.directives[0].name.item == *RELAY_DIRECTIVE_NAME)
         {
             errs.push(ValidationError::new(
                 ValidationMessage::InvalidUnmaskOnFragmentWithDirectives(),
@@ -141,11 +120,9 @@ impl<'s> RelayDirectiveValidation<'s> {
 
     fn validate_relay_directives(&self, directives: &[Directive]) -> ValidationResult<()> {
         let mut errs = vec![];
-        if let Some(directive) = extract_relay_directive(directives) {
+        if let Some(directive) = find_relay_directive(directives) {
             for arg in &directive.arguments {
-                if arg.name.item == RELAY_DIRECTIVE_CONSTANTS.plural_arg_name
-                    || arg.name.item == RELAY_DIRECTIVE_CONSTANTS.mask_arg_name
-                {
+                if arg.name.item == *PLURAL_ARG_NAME || arg.name.item == *MASK_ARG_NAME {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(_))
                         | Value::Constant(ConstantValue::Null()) => {}
@@ -210,10 +187,8 @@ impl<'s> Validator for RelayDirectiveValidation<'s> {
 
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
         validate!(
-            if let Some(directive) = extract_relay_directive(&spread.directives) {
-                let mask_argument = directive
-                    .arguments
-                    .named(RELAY_DIRECTIVE_CONSTANTS.mask_arg_name);
+            if let Some(directive) = find_relay_directive(&spread.directives) {
+                let mask_argument = directive.arguments.named(*MASK_ARG_NAME);
                 if let Some(arg) = mask_argument {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(val)) => {

@@ -14,10 +14,10 @@ mod flow;
 use flow::{print_type, Prop, AST};
 use fnv::FnvHashSet;
 use graphql_ir::{
-    Condition, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    NamedItem, OperationDefinition, ScalarField, Selection, Value,
+    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::{extract_relay_directive, RELAY_DIRECTIVE_CONSTANTS};
+use graphql_transforms::RelayDirective;
 use indexmap::{IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
@@ -161,22 +161,7 @@ impl<'schema> TypeGenerator<'schema> {
         let data_type_name = format!("{}$data", node.name.item);
         let data_type = node.name.item.lookup();
 
-        let mut unmasked = false;
-        if let Some(relay_directive) = extract_relay_directive(&node.directives) {
-            if let Some(mask_arg) = relay_directive
-                .arguments
-                .named(RELAY_DIRECTIVE_CONSTANTS.mask_arg_name)
-            {
-                let mask_value = match &mask_arg.value.item {
-                    Value::Constant(ConstantValue::Boolean(mask_value)) => *mask_value,
-                    unexpected_value => panic!(
-                        "Unexpected value for @relay(mask: ..) directive argument: {:?}",
-                        unexpected_value
-                    ),
-                };
-                unmasked = !mask_value;
-            }
-        }
+        let unmasked = RelayDirective::is_unmasked_fragment_definition(&node);
 
         let base_type = self.selections_to_babel(
             selections,

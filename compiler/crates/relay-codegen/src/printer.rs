@@ -68,12 +68,15 @@ impl<'b> DedupedJSONPrinter<'b> {
         builder: &AstBuilder,
         key: AstKey,
     ) {
-        if !visited.insert(key) {
-            duplicates.insert(key);
-            return;
-        }
         match builder.lookup(key) {
             Ast::Array(array) => {
+                if array.is_empty() {
+                    return;
+                }
+                if !visited.insert(key) {
+                    duplicates.insert(key);
+                    return;
+                }
                 for val in array {
                     if let Primitive::Key(key) = val {
                         Self::collect_value_duplicates(visited, duplicates, builder, *key);
@@ -81,6 +84,13 @@ impl<'b> DedupedJSONPrinter<'b> {
                 }
             }
             Ast::Object(object) => {
+                if object.is_empty() {
+                    return;
+                }
+                if !visited.insert(key) {
+                    duplicates.insert(key);
+                    return;
+                }
                 for (_, val) in object {
                     if let Primitive::Key(key) = val {
                         Self::collect_value_duplicates(visited, duplicates, builder, *key);

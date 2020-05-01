@@ -88,7 +88,6 @@ class RelayModernStore implements Store {
   _getDataID: GetDataID;
   _globalInvalidationEpoch: ?number;
   _hasScheduledGC: boolean;
-  _index: number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
   _log: ?LogFunction;
@@ -140,7 +139,6 @@ class RelayModernStore implements Store {
       options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
     this._hasScheduledGC = false;
-    this._index = 0;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
     this._log = options?.log ?? null;

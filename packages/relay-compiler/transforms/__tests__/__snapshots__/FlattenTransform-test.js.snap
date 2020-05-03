@@ -44,19 +44,31 @@ query TestQuery(
 ) {
   node(id: $id) {
     ... on User {
-      id
+      ... on Node {
+        id
+        ... on User {
+          firstName
+          surname: lastName
+          friends(first: 10) {
+            edges {
+              node {
+                firstName
+              }
+            }
+          }
+        }
+      }
       firstName
-      surname: lastName
+      lastName
       friends(first: 10) {
         edges {
+          cursor
           node {
             firstName
             lastName
           }
-          cursor
         }
       }
-      lastName
     }
   }
 }

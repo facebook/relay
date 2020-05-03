@@ -100,7 +100,7 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   ClientExtensionsTransform.transform,
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
-  GenerateTypeNameTransform.transform,
+  GenerateTypeNameTransform.transformWithOptions({isForCodegen: true}),
   ValidateServerOnlyDirectivesTransform.transform,
 ];
 
@@ -113,7 +113,7 @@ const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
   SkipClientExtensionsTransform.transform,
   SkipUnreachableNodeTransform.transform,
   FlattenTransform.transformWithOptions({}),
-  GenerateTypeNameTransform.transform,
+  GenerateTypeNameTransform.transformWithOptions({}),
   SkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
   SkipUnusedVariablesTransform.transform,

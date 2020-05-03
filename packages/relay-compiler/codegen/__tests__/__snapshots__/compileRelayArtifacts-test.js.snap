@@ -1,5 +1,189 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compileRelayArtifacts matches expected output: abstract-type-refinement.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query AbstractTypeRefinement {
+  node(id: "4") {
+    ... on Named {
+      name_from_query: name
+    }
+    ...ActorFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  username
+  ... on Named {
+    name_from_fragment: name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [],
+    metadata: null,
+    name: "AbstractTypeRefinement",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: "4",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: "name_from_query",
+                args: null,
+                name: "name",
+                storageKey: null,
+              },
+            ],
+            type: "Named",
+            abstractKey: "__isNamed",
+          },
+          FragmentSpread {
+            args: null,
+            name: "ActorFragment",
+          },
+        ],
+        storageKey: "node(id:\\"4\\")",
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [],
+    name: "AbstractTypeRefinement",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: "4",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: "name_from_query",
+                args: null,
+                name: "name",
+                storageKey: null,
+              },
+            ],
+            type: "Named",
+            abstractKey: "__isNamed",
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "username",
+                storageKey: null,
+              },
+              InlineFragment {
+                selections: [
+                  ScalarField {
+                    alias: "name_from_fragment",
+                    args: null,
+                    name: "name",
+                    storageKey: null,
+                  },
+                ],
+                type: "Named",
+                abstractKey: "__isNamed",
+              },
+            ],
+            type: "Actor",
+            abstractKey: "__isActor",
+          },
+        ],
+        storageKey: "node(id:\\"4\\")",
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query AbstractTypeRefinement {
+  node(id: "4") {
+    __typename
+    ... on Named {
+      __isNamed: __typename
+      name_from_query: name
+    }
+    ...ActorFragment
+    id
+  }
+}
+
+fragment ActorFragment on Actor {
+  __isActor: __typename
+  username
+  ... on Named {
+    __isNamed: __typename
+    name_from_fragment: name
+  }
+}
+
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "ActorFragment",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "username",
+      storageKey: null,
+    },
+    InlineFragment {
+      selections: [
+        ScalarField {
+          alias: "name_from_fragment",
+          args: null,
+          name: "name",
+          storageKey: null,
+        },
+      ],
+      type: "Named",
+      abstractKey: "__isNamed",
+    },
+  ],
+  type: "Actor",
+  abstractKey: "__isActor",
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: client-conditions.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Foo_user on User {
@@ -78,37 +262,6 @@ Fragment {
           name: "name",
           storageKey: null,
         },
-        LinkedField {
-          alias: null,
-          args: null,
-          concreteType: "StreetAddress",
-          name: "address",
-          plural: false,
-          selections: [
-            ScalarField {
-              alias: null,
-              args: null,
-              name: "city",
-              storageKey: null,
-            },
-            ClientExtension {
-              selections: [
-                ScalarField {
-                  alias: null,
-                  args: [
-                    Variable {
-                      name: "arg",
-                      variableName: "arg",
-                    },
-                  ],
-                  name: "client_street_address_field",
-                  storageKey: null,
-                },
-              ],
-            },
-          ],
-          storageKey: null,
-        },
         ClientExtension {
           selections: [
             ScalarField {
@@ -117,13 +270,54 @@ Fragment {
               name: "client_nickname",
               storageKey: null,
             },
-            ScalarField {
+          ],
+        },
+        InlineFragment {
+          selections: [
+            LinkedField {
               alias: null,
               args: null,
-              name: "client_actor_field",
+              concreteType: "StreetAddress",
+              name: "address",
+              plural: false,
+              selections: [
+                ScalarField {
+                  alias: null,
+                  args: null,
+                  name: "city",
+                  storageKey: null,
+                },
+                ClientExtension {
+                  selections: [
+                    ScalarField {
+                      alias: null,
+                      args: [
+                        Variable {
+                          name: "arg",
+                          variableName: "arg",
+                        },
+                      ],
+                      name: "client_street_address_field",
+                      storageKey: null,
+                    },
+                  ],
+                },
+              ],
               storageKey: null,
             },
+            ClientExtension {
+              selections: [
+                ScalarField {
+                  alias: null,
+                  args: null,
+                  name: "client_actor_field",
+                  storageKey: null,
+                },
+              ],
+            },
           ],
+          type: "Actor",
+          abstractKey: "__isActor",
         },
       ],
     },
@@ -160,7 +354,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -211,49 +406,56 @@ Fragment {
       name: "id",
       storageKey: null,
     },
-    LinkedField {
-      alias: null,
-      args: null,
-      concreteType: "StreetAddress",
-      name: "address",
-      plural: false,
+    InlineFragment {
       selections: [
-        ScalarField {
+        LinkedField {
           alias: null,
           args: null,
-          name: "city",
+          concreteType: "StreetAddress",
+          name: "address",
+          plural: false,
+          selections: [
+            ScalarField {
+              alias: null,
+              args: null,
+              name: "city",
+              storageKey: null,
+            },
+            ClientExtension {
+              selections: [
+                ScalarField {
+                  alias: null,
+                  args: [
+                    Variable {
+                      name: "arg",
+                      variableName: "arg",
+                    },
+                  ],
+                  name: "client_street_address_field",
+                  storageKey: null,
+                },
+              ],
+            },
+          ],
           storageKey: null,
         },
         ClientExtension {
           selections: [
             ScalarField {
               alias: null,
-              args: [
-                Variable {
-                  name: "arg",
-                  variableName: "arg",
-                },
-              ],
-              name: "client_street_address_field",
+              args: null,
+              name: "client_actor_field",
               storageKey: null,
             },
           ],
         },
       ],
-      storageKey: null,
-    },
-    ClientExtension {
-      selections: [
-        ScalarField {
-          alias: null,
-          args: null,
-          name: "client_actor_field",
-          storageKey: null,
-        },
-      ],
+      type: "Actor",
+      abstractKey: "__isActor",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -333,7 +535,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -418,7 +621,8 @@ Request {
         ],
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -527,7 +731,8 @@ Request {
         ],
       },
     ],
-    concreteType: "Mutation",
+    type: "Mutation",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -629,7 +834,8 @@ Request {
         ],
       },
     ],
-    concreteType: "Subscription",
+    type: "Subscription",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -740,7 +946,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -759,7 +966,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "ClientType",
+  type: "ClientType",
+  abstractKey: null,
 }
 `;
 
@@ -823,7 +1031,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -883,6 +1092,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -938,7 +1148,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -957,7 +1168,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "ClientType",
+  type: "ClientType",
+  abstractKey: null,
 }
 `;
 
@@ -1013,7 +1225,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -1075,7 +1288,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -1141,6 +1355,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -1198,7 +1413,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -1303,7 +1519,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -1376,7 +1593,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -1428,7 +1646,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -1578,7 +1797,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -1767,7 +1987,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -2073,12 +2294,14 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -2328,6 +2551,7 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -2556,12 +2780,14 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -2759,6 +2985,7 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -2885,7 +3112,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -3032,6 +3260,7 @@ Request {
               },
             ],
             type: "Feedback",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -3126,7 +3355,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -3291,6 +3521,7 @@ Request {
               },
             ],
             type: "Feedback",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -3448,7 +3679,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Feedback",
+  type: "Feedback",
+  abstractKey: null,
 }
 `;
 
@@ -3591,7 +3823,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -3692,6 +3925,7 @@ Request {
                   },
                 ],
                 type: "Feedback",
+                abstractKey: null,
               },
             ],
           },
@@ -3719,6 +3953,7 @@ Request {
                   },
                 ],
                 type: "Feedback",
+                abstractKey: null,
               },
             ],
           },
@@ -3825,7 +4060,8 @@ Fragment {
       storageKey: "comments(first:10)",
     },
   ],
-  concreteType: "Feedback",
+  type: "Feedback",
+  abstractKey: null,
 }
 
 Fragment {
@@ -3850,7 +4086,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Feedback",
+  type: "Feedback",
+  abstractKey: null,
 }
 `;
 
@@ -3887,7 +4124,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -3997,7 +4235,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -4068,7 +4307,8 @@ Fragment {
       name: "MyNestedViewer",
     },
   ],
-  concreteType: "Viewer",
+  type: "Viewer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -4081,7 +4321,8 @@ Fragment {
       name: "MyNestedViewer",
     },
   ],
-  concreteType: "Viewer",
+  type: "Viewer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -4108,7 +4349,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "Viewer",
+  type: "Viewer",
+  abstractKey: null,
 }
 `;
 
@@ -4167,7 +4409,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4239,6 +4482,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -4267,6 +4511,7 @@ fragment ProfilePicture on User {
 }
 
 fragment RefetchableFragment on Node {
+  __isNode: __typename
   id
   ... on User {
     name
@@ -4314,9 +4559,11 @@ Fragment {
         },
       ],
       type: "User",
+      abstractKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 
 Fragment {
@@ -4351,7 +4598,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -4408,7 +4656,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4481,6 +4730,7 @@ Request {
                   },
                 ],
                 type: "User",
+                abstractKey: null,
               },
             ],
             storageKey: null,
@@ -4572,7 +4822,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "NonNodeStory",
+  type: "NonNodeStory",
+  abstractKey: null,
 }
 
 Fragment {
@@ -4607,7 +4858,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -4664,7 +4916,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4736,6 +4989,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -4806,7 +5060,8 @@ Fragment {
       name: "ProfilePicture",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -4841,7 +5096,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -4893,7 +5149,8 @@ Request {
         name: "RefetchableFragment",
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -4965,6 +5222,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -5054,12 +5312,14 @@ Fragment {
             },
           ],
           type: "User",
+          abstractKey: null,
         },
       ],
       storageKey: null,
     },
   ],
-  concreteType: "Query",
+  type: "Query",
+  abstractKey: null,
 }
 
 Fragment {
@@ -5094,7 +5354,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -5213,7 +5474,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -5282,6 +5544,7 @@ Request {
                   },
                 ],
                 type: "User",
+                abstractKey: null,
               },
             ],
             storageKey: null,
@@ -5364,7 +5627,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Viewer",
+  type: "Viewer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -5399,7 +5663,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -5456,7 +5721,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -5582,7 +5848,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -5630,7 +5897,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -5686,7 +5954,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -5873,7 +6142,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -5921,7 +6191,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -5974,7 +6245,8 @@ Request {
         storageKey: "node(id:\\"my-id\\")",
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -6024,6 +6296,7 @@ Request {
                   },
                 ],
                 type: "User",
+                abstractKey: null,
               },
               InlineFragment {
                 selections: [
@@ -6035,6 +6308,7 @@ Request {
                   },
                 ],
                 type: "Page",
+                abstractKey: null,
               },
             ],
           },
@@ -6056,6 +6330,7 @@ query QueryWithFragmentWithDefer {
 }
 
 fragment NodeFragment on Node {
+  __isNode: __typename
   id
   ... on User {
     name
@@ -6087,6 +6362,7 @@ Fragment {
         },
       ],
       type: "User",
+      abstractKey: null,
     },
     InlineFragment {
       selections: [
@@ -6098,9 +6374,11 @@ Fragment {
         },
       ],
       type: "Page",
+      abstractKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 `;
 
@@ -6289,6 +6567,7 @@ Fragment {
             },
           ],
           type: "PlainUserNameRenderer",
+          abstractKey: null,
         },
         InlineFragment {
           selections: [
@@ -6299,12 +6578,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -6335,7 +6616,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -6366,7 +6648,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -6455,12 +6738,14 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -6538,6 +6823,7 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: null,
@@ -6574,6 +6860,7 @@ Request {
                           },
                         ],
                         type: "MarkdownUserNameRenderer",
+                        abstractKey: null,
                       },
                     ],
                     storageKey: null,
@@ -6582,6 +6869,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -6651,7 +6939,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -6686,6 +6975,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -6790,6 +7080,7 @@ Fragment {
                 },
               ],
               type: "MarkdownUserNameRenderer",
+              abstractKey: null,
             },
           ],
           storageKey: null,
@@ -6797,7 +7088,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -6828,7 +7120,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -6887,7 +7180,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -6963,6 +7257,7 @@ Request {
               },
             ],
             type: "Feedback",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -7025,7 +7320,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "Feedback",
+  type: "Feedback",
+  abstractKey: null,
 }
 `;
 
@@ -7138,7 +7434,8 @@ Request {
         name: "ParentFragment",
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -7248,6 +7545,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: "username(name:\\"test\\")",
@@ -7406,6 +7704,7 @@ Fragment {
                 },
               ],
               type: "User",
+              abstractKey: null,
             },
           ],
         },
@@ -7413,7 +7712,8 @@ Fragment {
       storageKey: "username(name:\\"test\\")",
     },
   ],
-  concreteType: "Query",
+  type: "Query",
+  abstractKey: null,
 }
 
 InlineDataFragment {
@@ -7582,6 +7882,7 @@ Request {
                   },
                 ],
                 type: "User",
+                abstractKey: null,
               },
               FragmentSpread {
                 args: [
@@ -7598,7 +7899,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -7772,6 +8074,7 @@ Request {
                   },
                 ],
                 type: "User",
+                abstractKey: null,
               },
             ],
           },
@@ -7988,7 +8291,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -8049,12 +8353,14 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -8128,6 +8434,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -8358,6 +8665,7 @@ Fragment {
                 },
               ],
               type: "PlainUserNameRenderer",
+              abstractKey: null,
             },
             InlineFragment {
               selections: [
@@ -8368,6 +8676,7 @@ Fragment {
                 },
               ],
               type: "MarkdownUserNameRenderer",
+              abstractKey: null,
             },
           ],
           storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
@@ -8376,7 +8685,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 
 Fragment {
@@ -8407,7 +8717,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -8438,7 +8749,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -8614,7 +8926,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -8674,6 +8987,7 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                   InlineFragment {
                     selections: [
@@ -8684,12 +8998,14 @@ Request {
                       },
                     ],
                     type: "PlainUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: null,
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -8776,7 +9092,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -8836,12 +9153,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: null,
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -8983,6 +9302,7 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
         InlineFragment {
           selections: [
@@ -8993,12 +9313,14 @@ Fragment {
             },
           ],
           type: "PlainUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -9022,12 +9344,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -9058,7 +9382,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -9089,7 +9414,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -9298,31 +9624,66 @@ Request {
         name: "node",
         plural: false,
         selections: [
-          LinkedField {
-            alias: null,
-            args: null,
-            concreteType: null,
-            name: "nameRenderer",
-            plural: false,
+          InlineFragment {
             selections: [
-              InlineFragment {
+              LinkedField {
+                alias: null,
+                args: null,
+                concreteType: null,
+                name: "nameRenderer",
+                plural: false,
                 selections: [
-                  ModuleImport {
-                    documentName: "MatchQuery",
-                    fragmentName: "MarkdownUserNameRenderer_name",
-                    fragmentPropName: "name",
+                  InlineFragment {
+                    selections: [
+                      ModuleImport {
+                        documentName: "MatchQuery",
+                        fragmentName: "MarkdownUserNameRenderer_name",
+                        fragmentPropName: "name",
+                      },
+                    ],
+                    type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
-                type: "MarkdownUserNameRenderer",
+                storageKey: null,
               },
             ],
-            storageKey: null,
+            type: "Actor",
+            abstractKey: "__isActor",
+          },
+          InlineFragment {
+            selections: [
+              LinkedField {
+                alias: null,
+                args: null,
+                concreteType: null,
+                name: "nameRenderer",
+                plural: false,
+                selections: [
+                  InlineFragment {
+                    selections: [
+                      ModuleImport {
+                        documentName: "MatchQuery",
+                        fragmentName: "MarkdownUserNameRenderer_name",
+                        fragmentPropName: "name",
+                      },
+                    ],
+                    type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
+                  },
+                ],
+                storageKey: null,
+              },
+            ],
+            type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: "node(id:\\"<user-id>\\")",
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -9346,37 +9707,77 @@ Request {
             name: "__typename",
             storageKey: null,
           },
-          LinkedField {
-            alias: null,
-            args: null,
-            concreteType: null,
-            name: "nameRenderer",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                args: null,
-                name: "__typename",
-                storageKey: null,
-              },
-              InlineFragment {
-                selections: [
-                  ModuleImport {
-                    documentName: "MatchQuery",
-                    fragmentName: "MarkdownUserNameRenderer_name",
-                    fragmentPropName: "name",
-                  },
-                ],
-                type: "MarkdownUserNameRenderer",
-              },
-            ],
-            storageKey: null,
-          },
           ScalarField {
             alias: null,
             args: null,
             name: "id",
             storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              LinkedField {
+                alias: null,
+                args: null,
+                concreteType: null,
+                name: "nameRenderer",
+                plural: false,
+                selections: [
+                  ScalarField {
+                    alias: null,
+                    args: null,
+                    name: "__typename",
+                    storageKey: null,
+                  },
+                  InlineFragment {
+                    selections: [
+                      ModuleImport {
+                        documentName: "MatchQuery",
+                        fragmentName: "MarkdownUserNameRenderer_name",
+                        fragmentPropName: "name",
+                      },
+                    ],
+                    type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
+                  },
+                ],
+                storageKey: null,
+              },
+            ],
+            type: "Actor",
+            abstractKey: "__isActor",
+          },
+          InlineFragment {
+            selections: [
+              LinkedField {
+                alias: null,
+                args: null,
+                concreteType: null,
+                name: "nameRenderer",
+                plural: false,
+                selections: [
+                  ScalarField {
+                    alias: null,
+                    args: null,
+                    name: "__typename",
+                    storageKey: null,
+                  },
+                  InlineFragment {
+                    selections: [
+                      ModuleImport {
+                        documentName: "MatchQuery",
+                        fragmentName: "MarkdownUserNameRenderer_name",
+                        fragmentPropName: "name",
+                      },
+                    ],
+                    type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
+                  },
+                ],
+                storageKey: null,
+              },
+            ],
+            type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: "node(id:\\"<user-id>\\")",
@@ -9391,6 +9792,7 @@ query MatchQuery {
   node(id: "<user-id>") {
     __typename
     ... on Actor {
+      __isActor: __typename
       nameRenderer {
         __typename
         ... on MarkdownUserNameRenderer {
@@ -9488,7 +9890,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -9544,32 +9947,39 @@ Request {
         name: "node",
         plural: false,
         selections: [
-          LinkedField {
-            alias: null,
-            args: [
-              Literal {
-                name: "supported",
-                value: [
-                  "PlainUserNameRenderer",
-                ],
-              },
-            ],
-            concreteType: null,
-            name: "nameRenderer",
-            plural: false,
+          InlineFragment {
             selections: [
-              InlineFragment {
-                selections: [
-                  ModuleImport {
-                    documentName: "MatchQuery_nameRenderer",
-                    fragmentName: "PlainUserNameRenderer_name",
-                    fragmentPropName: "name",
+              LinkedField {
+                alias: null,
+                args: [
+                  Literal {
+                    name: "supported",
+                    value: [
+                      "PlainUserNameRenderer",
+                    ],
                   },
                 ],
-                type: "PlainUserNameRenderer",
+                concreteType: null,
+                name: "nameRenderer",
+                plural: false,
+                selections: [
+                  InlineFragment {
+                    selections: [
+                      ModuleImport {
+                        documentName: "MatchQuery_nameRenderer",
+                        fragmentName: "PlainUserNameRenderer_name",
+                        fragmentPropName: "name",
+                      },
+                    ],
+                    type: "PlainUserNameRenderer",
+                    abstractKey: null,
+                  },
+                ],
+                storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\"])",
               },
             ],
-            storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\"])",
+            type: "Actor",
+            abstractKey: "__isActor",
           },
           InlineFragment {
             selections: [
@@ -9589,18 +9999,21 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: null,
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: "node(id:\\"<user-id>\\")",
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -9624,44 +10037,51 @@ Request {
             name: "__typename",
             storageKey: null,
           },
-          LinkedField {
-            alias: null,
-            args: [
-              Literal {
-                name: "supported",
-                value: [
-                  "PlainUserNameRenderer",
-                ],
-              },
-            ],
-            concreteType: null,
-            name: "nameRenderer",
-            plural: false,
-            selections: [
-              ScalarField {
-                alias: null,
-                args: null,
-                name: "__typename",
-                storageKey: null,
-              },
-              InlineFragment {
-                selections: [
-                  ModuleImport {
-                    documentName: "MatchQuery_nameRenderer",
-                    fragmentName: "PlainUserNameRenderer_name",
-                    fragmentPropName: "name",
-                  },
-                ],
-                type: "PlainUserNameRenderer",
-              },
-            ],
-            storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\"])",
-          },
           ScalarField {
             alias: null,
             args: null,
             name: "id",
             storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              LinkedField {
+                alias: null,
+                args: [
+                  Literal {
+                    name: "supported",
+                    value: [
+                      "PlainUserNameRenderer",
+                    ],
+                  },
+                ],
+                concreteType: null,
+                name: "nameRenderer",
+                plural: false,
+                selections: [
+                  ScalarField {
+                    alias: null,
+                    args: null,
+                    name: "__typename",
+                    storageKey: null,
+                  },
+                  InlineFragment {
+                    selections: [
+                      ModuleImport {
+                        documentName: "MatchQuery_nameRenderer",
+                        fragmentName: "PlainUserNameRenderer_name",
+                        fragmentPropName: "name",
+                      },
+                    ],
+                    type: "PlainUserNameRenderer",
+                    abstractKey: null,
+                  },
+                ],
+                storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\"])",
+              },
+            ],
+            type: "Actor",
+            abstractKey: "__isActor",
           },
           InlineFragment {
             selections: [
@@ -9687,12 +10107,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: null,
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: "node(id:\\"<user-id>\\")",
@@ -9707,6 +10129,7 @@ query MatchQuery {
   node(id: "<user-id>") {
     __typename
     ... on Actor {
+      __isActor: __typename
       nameRenderer(supported: ["PlainUserNameRenderer"]) {
         __typename
         ... on PlainUserNameRenderer {
@@ -9849,7 +10272,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -9880,7 +10304,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -10060,7 +10485,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Query",
+  type: "Query",
+  abstractKey: null,
 }
 
 Fragment {
@@ -10126,7 +10552,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Query",
+  type: "Query",
+  abstractKey: null,
 }
 `;
 
@@ -10223,7 +10650,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -10261,6 +10689,28 @@ Request {
           },
           InlineFragment {
             selections: [
+              InlineFragment {
+                selections: [
+                  ClientExtension {
+                    selections: [
+                      InlineFragment {
+                        selections: [
+                          ScalarField {
+                            alias: null,
+                            args: null,
+                            name: "name",
+                            storageKey: null,
+                          },
+                        ],
+                        type: "Foo",
+                        abstractKey: null,
+                      },
+                    ],
+                  },
+                ],
+                type: "Named",
+                abstractKey: "__isNamed",
+              },
               ClientExtension {
                 selections: [
                   LinkedField {
@@ -10327,21 +10777,11 @@ Request {
                     ],
                     storageKey: null,
                   },
-                  InlineFragment {
-                    selections: [
-                      ScalarField {
-                        alias: null,
-                        args: null,
-                        name: "name",
-                        storageKey: null,
-                      },
-                    ],
-                    type: "Foo",
-                  },
                 ],
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -10367,6 +10807,7 @@ fragment BestFriends on User {
 }
 
 fragment NodeFragment on Node {
+  __isNode: __typename
   id
 }
 
@@ -10397,7 +10838,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -10409,9 +10851,31 @@ Fragment {
       args: null,
       name: "NodeFragment",
     },
-    FragmentSpread {
-      args: null,
-      name: "FooFragment",
+    InlineFragment {
+      selections: [
+        FragmentSpread {
+          args: null,
+          name: "FooFragment",
+        },
+        ClientExtension {
+          selections: [
+            InlineFragment {
+              selections: [
+                ScalarField {
+                  alias: null,
+                  args: null,
+                  name: "name",
+                  storageKey: null,
+                },
+              ],
+              type: "Foo",
+              abstractKey: null,
+            },
+          ],
+        },
+      ],
+      type: "Named",
+      abstractKey: "__isNamed",
     },
     ClientExtension {
       selections: [
@@ -10473,21 +10937,11 @@ Fragment {
           ],
           storageKey: null,
         },
-        InlineFragment {
-          selections: [
-            ScalarField {
-              alias: null,
-              args: null,
-              name: "name",
-              storageKey: null,
-            },
-          ],
-          type: "Foo",
-        },
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -10502,7 +10956,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 
 Fragment {
@@ -10521,7 +10976,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "Foo",
+  type: "Foo",
+  abstractKey: null,
 }
 `;
 
@@ -10546,7 +11002,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -10613,7 +11070,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -10682,6 +11140,7 @@ Request {
                           },
                         ],
                         type: "MarkdownUserNameRenderer",
+                        abstractKey: null,
                       },
                     ],
                   },
@@ -10690,6 +11149,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -10805,6 +11265,7 @@ Fragment {
                 },
               ],
               type: "MarkdownUserNameRenderer",
+              abstractKey: null,
             },
           ],
         },
@@ -10812,7 +11273,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -10843,7 +11305,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -10939,7 +11402,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -11012,6 +11476,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
           Condition {
             condition: "cond",
@@ -11083,6 +11548,7 @@ Request {
                   },
                 ],
                 type: "User",
+                abstractKey: null,
               },
             ],
           },
@@ -11181,7 +11647,8 @@ Fragment {
       storageKey: "friends(first:10)",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -11217,7 +11684,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -11285,7 +11753,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -11353,6 +11822,7 @@ Request {
                       },
                     ],
                     type: "PlainUserNameRenderer",
+                    abstractKey: null,
                   },
                   InlineFragment {
                     selections: [
@@ -11363,12 +11833,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -11532,6 +12004,7 @@ Fragment {
             },
           ],
           type: "PlainUserNameRenderer",
+          abstractKey: null,
         },
         InlineFragment {
           selections: [
@@ -11542,12 +12015,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -11578,7 +12053,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -11609,7 +12085,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -11677,7 +12154,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -11745,6 +12223,7 @@ Request {
                       },
                     ],
                     type: "PlainUserNameRenderer",
+                    abstractKey: null,
                   },
                   InlineFragment {
                     selections: [
@@ -11755,12 +12234,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -11924,6 +12405,7 @@ Fragment {
             },
           ],
           type: "PlainUserNameRenderer",
+          abstractKey: null,
         },
         InlineFragment {
           selections: [
@@ -11934,12 +12416,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -11970,7 +12454,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -12001,7 +12486,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -12098,7 +12584,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -12170,6 +12657,7 @@ Request {
                       },
                     ],
                     type: "PlainUserNameRenderer",
+                    abstractKey: null,
                   },
                   InlineFragment {
                     selections: [
@@ -12180,12 +12668,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: "nameRendererForContext(context:\\"HEADER\\",supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -12353,6 +12843,7 @@ Fragment {
             },
           ],
           type: "PlainUserNameRenderer",
+          abstractKey: null,
         },
         InlineFragment {
           selections: [
@@ -12363,12 +12854,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: "nameRendererForContext(context:\\"HEADER\\",supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -12399,7 +12892,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -12430,7 +12924,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -12499,7 +12994,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -12567,6 +13063,7 @@ Request {
                       },
                     ],
                     type: "PlainUserNameRenderer",
+                    abstractKey: null,
                   },
                   InlineFragment {
                     selections: [
@@ -12577,12 +13074,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -12752,6 +13251,7 @@ Fragment {
             },
           ],
           type: "PlainUserNameRenderer",
+          abstractKey: null,
         },
         InlineFragment {
           selections: [
@@ -12762,12 +13262,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -12798,7 +13300,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "PlainUserNameRenderer",
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
 }
 
 Fragment {
@@ -12829,7 +13332,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -12890,7 +13394,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -12950,12 +13455,14 @@ Request {
                       },
                     ],
                     type: "MarkdownUserNameRenderer",
+                    abstractKey: null,
                   },
                 ],
                 storageKey: null,
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -13061,12 +13568,14 @@ Fragment {
             },
           ],
           type: "MarkdownUserNameRenderer",
+          abstractKey: null,
         },
       ],
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -13097,7 +13606,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "MarkdownUserNameRenderer",
+  type: "MarkdownUserNameRenderer",
+  abstractKey: null,
 }
 `;
 
@@ -13145,7 +13655,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -13263,7 +13774,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -13409,6 +13921,7 @@ Request {
               },
             ],
             type: "Feedback",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -13568,7 +14081,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Feedback",
+  type: "Feedback",
+  abstractKey: null,
 }
 `;
 
@@ -13635,7 +14149,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -13781,6 +14296,7 @@ Request {
               },
             ],
             type: "Feedback",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -13940,7 +14456,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "Feedback",
+  type: "Feedback",
+  abstractKey: null,
 }
 `;
 
@@ -13998,7 +14515,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -14070,6 +14588,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -14098,6 +14617,7 @@ fragment ProfilePicture on User {
 }
 
 fragment RefetchableFragment on Node {
+  __isNode: __typename
   ... on User {
     name
     ...ProfilePicture
@@ -14145,9 +14665,11 @@ Fragment {
         },
       ],
       type: "User",
+      abstractKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 
 Fragment {
@@ -14182,7 +14704,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -14260,7 +14783,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -14412,6 +14936,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -14435,6 +14960,7 @@ query RefetchableFragmentQuery(
 }
 
 fragment PaginationFragment_1G22uz on Node {
+  __isNode: __typename
   id
   ... on User {
     name
@@ -14585,9 +15111,11 @@ Fragment {
         },
       ],
       type: "User",
+      abstractKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 `;
 
@@ -14679,7 +15207,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -14869,6 +15398,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -14894,6 +15424,7 @@ query RefetchableFragmentQuery(
 }
 
 fragment PaginationFragment_1G22uz on Node {
+  __isNode: __typename
   id
   ... on User {
     name
@@ -15069,9 +15600,11 @@ Fragment {
         },
       ],
       type: "User",
+      abstractKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 `;
 
@@ -15149,7 +15682,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -15315,6 +15849,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -15338,6 +15873,7 @@ query RefetchableFragmentQuery(
 }
 
 fragment PaginationFragment_1G22uz on Node {
+  __isNode: __typename
   id
   ... on User {
     name
@@ -15499,9 +16035,11 @@ Fragment {
         },
       ],
       type: "User",
+      abstractKey: null,
     },
   ],
-  concreteType: null,
+  type: "Node",
+  abstractKey: "__isNode",
 }
 `;
 
@@ -15672,6 +16210,7 @@ Request {
                       },
                     ],
                     type: "PlainCommentBody",
+                    abstractKey: null,
                   },
                   ClientExtension {
                     selections: [
@@ -15688,6 +16227,7 @@ Request {
               },
             ],
             type: "Comment",
+            abstractKey: null,
           },
           ClientExtension {
             selections: [
@@ -15713,7 +16253,8 @@ Request {
         ],
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -15849,6 +16390,7 @@ Request {
                       },
                     ],
                     type: "PlainCommentBody",
+                    abstractKey: null,
                   },
                   ClientExtension {
                     selections: [
@@ -15865,6 +16407,7 @@ Request {
               },
             ],
             type: "Comment",
+            abstractKey: null,
           },
           ClientExtension {
             selections: [
@@ -15966,12 +16509,14 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -16025,6 +16570,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -16207,7 +16753,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -16226,7 +16773,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "ClientType",
+  type: "ClientType",
+  abstractKey: null,
 }
 `;
 
@@ -16285,7 +16833,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -16500,12 +17049,14 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -16675,6 +17226,7 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -16758,6 +17310,7 @@ Request {
               },
             ],
             type: "NonNode",
+            abstractKey: null,
           },
           InlineFragment {
             selections: [
@@ -16785,12 +17338,14 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
           },
         ],
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],
@@ -16809,12 +17364,6 @@ Request {
             name: "__typename",
             storageKey: null,
           },
-          ScalarField {
-            alias: null,
-            args: null,
-            name: "id",
-            storageKey: null,
-          },
           InlineFragment {
             selections: [
               ScalarField {
@@ -16825,9 +17374,16 @@ Request {
               },
             ],
             type: "NonNode",
+            abstractKey: null,
           },
           InlineFragment {
             selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
               LinkedField {
                 alias: null,
                 args: null,
@@ -16846,6 +17402,31 @@ Request {
               },
             ],
             type: "Story",
+            abstractKey: null,
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            type: "Node",
+            abstractKey: "__isNode",
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            type: "FakeNode",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -16869,6 +17450,7 @@ query UnionQuery {
       }
     }
     ... on Node {
+      __isNode: __typename
       id
     }
     ... on FakeNode {
@@ -17016,7 +17598,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -17041,7 +17624,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -17098,7 +17682,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -17247,7 +17832,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -17272,7 +17858,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -17377,7 +17964,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -17559,7 +18147,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -17615,7 +18204,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -17640,7 +18230,8 @@ Fragment {
       storageKey: null,
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -17746,7 +18337,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -17821,6 +18413,7 @@ Request {
               },
             ],
             type: "User",
+            abstractKey: null,
           },
         ],
         storageKey: null,
@@ -17891,7 +18484,8 @@ Fragment {
       name: "ProfilePhotoWrapper",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -17921,7 +18515,8 @@ Fragment {
       name: "ProfilePhoto",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 
 Fragment {
@@ -17953,7 +18548,8 @@ Fragment {
       storageKey: "profilePicture(size:[100])",
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -18035,7 +18631,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [
@@ -18171,7 +18768,8 @@ Fragment {
       ],
     },
   ],
-  concreteType: "User",
+  type: "User",
+  abstractKey: null,
 }
 `;
 
@@ -18219,7 +18817,8 @@ Request {
         storageKey: null,
       },
     ],
-    concreteType: "Query",
+    type: "Query",
+    abstractKey: null,
   },
   operation: Operation {
     argumentDefinitions: [],

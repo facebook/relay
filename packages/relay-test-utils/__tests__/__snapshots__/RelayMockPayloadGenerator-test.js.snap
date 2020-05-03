@@ -581,6 +581,47 @@ fragment TestFragment on Page {
 }
 `;
 
+exports[`generate mock with abstract inline fragment 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  viewer {
+    actor {
+      ...TestFragment
+    }
+  }
+}
+
+fragment TestFragment on Actor {
+  id
+  ... on Named {
+    name
+  }
+  ... on User {
+    firstName
+    lastName
+  }
+  ... on Page {
+    websites
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "viewer": {
+      "actor": {
+        "__typename": "User",
+        "id": "<mock-id-1>",
+        "__isNamed": true,
+        "name": "<mock-value-for-field-\\"name\\">",
+        "firstName": "<mock-value-for-field-\\"firstName\\">",
+        "lastName": "<mock-value-for-field-\\"lastName\\">"
+      }
+    }
+  }
+}
+`;
+
 exports[`generate mock with condition (and other complications) 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($showProfilePicture: Boolean, $hideBirthday: Boolean, $showBirthdayMonth: Boolean, $hideAuthorUsername: Boolean) {

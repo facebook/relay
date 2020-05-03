@@ -378,9 +378,8 @@ function shouldFlattenInlineFragment(
   type: TypeID,
 ): boolean {
   return (
-    (schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) &&
-      (state.isForCodegen || fragment.directives.length === 0)) ||
-    (state.isForCodegen && schema.isAbstractType(fragment.typeCondition))
+    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) &&
+    (state.isForCodegen || fragment.directives.length === 0)
   );
 }
 

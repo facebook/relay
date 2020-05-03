@@ -14,6 +14,8 @@
 
 const CodeMarker = require('../util/CodeMarker');
 
+const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
@@ -104,8 +106,9 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
     metadata,
     name: node.name,
     selections: generateSelections(schema, node.selections),
-    concreteType: !schema.isAbstractType(rawType)
-      ? schema.getTypeString(rawType)
+    type: schema.getTypeString(rawType),
+    abstractKey: schema.isAbstractType(rawType)
+      ? generateAbstractTypeRefinementKey(schema, rawType)
       : null,
   };
 }
@@ -225,10 +228,14 @@ function generateInlineFragment(
   schema: Schema,
   node: InlineFragment,
 ): ReaderSelection {
+  const rawType = schema.getRawType(node.typeCondition);
   return {
     kind: 'InlineFragment',
     selections: generateSelections(schema, node.selections),
-    type: schema.getTypeString(node.typeCondition),
+    type: schema.getTypeString(rawType),
+    abstractKey: schema.isAbstractType(rawType)
+      ? generateAbstractTypeRefinementKey(schema, rawType)
+      : null,
   };
 }
 

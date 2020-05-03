@@ -297,8 +297,12 @@ class DataChecker {
           }
           break;
         case INLINE_FRAGMENT:
-          const typeName = this._mutator.getType(dataID);
-          if (typeName != null && typeName === selection.type) {
+          if (selection.abstractKey == null) {
+            const typeName = this._mutator.getType(dataID);
+            if (typeName != null && typeName === selection.type) {
+              this._traverseSelections(selection.selections, dataID);
+            }
+          } else {
             this._traverseSelections(selection.selections, dataID);
           }
           break;

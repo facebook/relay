@@ -79,6 +79,7 @@ export type NormalizationInlineFragment = {|
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +type: string,
+  +abstractKey: ?string,
 |};
 
 export type NormalizationLinkedField = {|

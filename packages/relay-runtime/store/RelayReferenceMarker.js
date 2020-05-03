@@ -128,8 +128,12 @@ class RelayReferenceMarker {
           }
           break;
         case INLINE_FRAGMENT:
-          const typeName = RelayModernRecord.getType(record);
-          if (typeName != null && typeName === selection.type) {
+          if (selection.abstractKey == null) {
+            const typeName = RelayModernRecord.getType(record);
+            if (typeName != null && typeName === selection.type) {
+              this._traverseSelections(selection.selections, record);
+            }
+          } else {
             this._traverseSelections(selection.selections, record);
           }
           break;

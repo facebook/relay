@@ -61,6 +61,34 @@ test('generate mock for simple fragment', () => {
   }`);
 });
 
+test('generate mock with abstract inline fragment', () => {
+  testGeneratedData(`
+    query TestQuery {
+      viewer {
+        actor {
+          # abstract fragment spread
+          ...TestFragment
+        }
+      }
+    }
+
+    fragment TestFragment on Actor {
+      id
+      # abstract inline fragment
+      ... on Named {
+        name
+      }
+      ... on User {
+        firstName
+        lastName
+      }
+      ... on Page {
+        websites
+      }
+    }
+  `);
+});
+
 test('generate mock with inline fragment', () => {
   testGeneratedData(`
     query TestQuery ($condition: Boolean) {

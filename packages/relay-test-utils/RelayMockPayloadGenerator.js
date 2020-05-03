@@ -306,6 +306,22 @@ class RelayMockPayloadGenerator {
         }
 
         case INLINE_FRAGMENT: {
+          const {abstractKey} = selection;
+          if (abstractKey != null) {
+            if (mockData != null) {
+              mockData[abstractKey] = true;
+            }
+            mockData = this._traverseSelections(
+              selection.selections,
+              typeName,
+              isAbstractType,
+              path,
+              mockData,
+              defaultValues,
+            );
+            break;
+          }
+
           // If it's the first time we're trying to handle fragment spread
           // on this selection, we will generate data for this type.
           // Next fragment spread on this selection will be added only if the

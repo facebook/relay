@@ -34,10 +34,10 @@ const {
   FRAGMENT_PROP_NAME_KEY,
   ID_KEY,
   MODULE_COMPONENT_KEY,
+  ROOT_ID,
   getArgumentValues,
   getStorageKey,
   getModuleComponentKey,
-  ROOT_ID,
 } = require('./RelayStoreUtils');
 
 import type {
@@ -102,11 +102,11 @@ class RelayReader {
     // In this case, reset isMissingData back to false.
     // Quickly skip this check in the common case that no data was
     // missing or fragments on abstract types.
-    if (this._isMissingData && node.concreteType != null) {
+    if (this._isMissingData && node.abstractKey == null) {
       const record = this._recordSource.get(dataID);
       if (record != null) {
         const recordType = RelayModernRecord.getType(record);
-        if (recordType !== node.concreteType && dataID !== ROOT_ID) {
+        if (recordType !== node.type && dataID !== ROOT_ID) {
           // The record exists and its (concrete) type differs
           // from the fragment's concrete type: data is
           // expected to be missing, so don't flag it as such
@@ -182,8 +182,12 @@ class RelayReader {
           }
           break;
         case INLINE_FRAGMENT:
-          const typeName = RelayModernRecord.getType(record);
-          if (typeName != null && typeName === selection.type) {
+          if (selection.abstractKey == null) {
+            const typeName = RelayModernRecord.getType(record);
+            if (typeName != null && typeName === selection.type) {
+              this._traverseSelections(selection.selections, record, data);
+            }
+          } else {
             this._traverseSelections(selection.selections, record, data);
           }
           break;

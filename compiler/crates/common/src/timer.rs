@@ -38,17 +38,21 @@ impl Timer {
 
     /// Stops the timer and prints the time since construction.
     pub fn stop(self) {
-        let elapsed_ms = self.instant.elapsed().as_millis();
-        let elapsed_str = format!("{:4}ms", elapsed_ms);
-        let elapsed_color = if elapsed_ms < 10 {
-            elapsed_str.dimmed()
-        } else if elapsed_ms < 100 {
-            elapsed_str.blue()
-        } else if elapsed_ms < 1000 {
-            elapsed_str.bold()
-        } else {
-            elapsed_str.red()
-        };
-        info!("{} {}", elapsed_color, self.name.dimmed());
+        print_time(&self.name, &self.instant);
     }
+}
+
+pub fn print_time(name: &str, time: &Instant) {
+    let elapsed_ms = time.elapsed().as_millis();
+    let elapsed_str = format!("{:4}ms", elapsed_ms);
+    let elapsed_color = if elapsed_ms < 10 {
+        elapsed_str.dimmed()
+    } else if elapsed_ms < 100 {
+        elapsed_str.blue()
+    } else if elapsed_ms < 1000 {
+        elapsed_str.bold()
+    } else {
+        elapsed_str.red()
+    };
+    info!("{} {}", elapsed_color, name.dimmed());
 }

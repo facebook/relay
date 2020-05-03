@@ -11,18 +11,25 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::parse_sources::parse_sources;
 use crate::watchman::{FileSource, FileSourceResult, QueryParams};
+use common::PerfLogger;
+use log::{error, info};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use log::{error, info};
-
-pub struct Compiler {
+pub struct Compiler<'perf, T>
+where
+    T: PerfLogger,
+{
     config: Config,
+    perf_logger: &'perf T,
 }
 
-impl Compiler {
-    pub fn new(config: Config) -> Self {
-        Self { config }
+impl<'perf, T: PerfLogger> Compiler<'perf, T> {
+    pub fn new(config: Config, perf_logger: &'perf T) -> Self {
+        Self {
+            config,
+            perf_logger,
+        }
     }
 
     /// This function will create an instance of CompilerState:
@@ -166,8 +173,14 @@ impl Compiler {
                         panic!("Expected the project {} to exist", &project_key)
                     });
                 process_build_result(
-                    build_project(&self.config, project_config, compiler_state, &graphql_asts)
-                        .await,
+                    build_project(
+                        &self.config,
+                        project_config,
+                        compiler_state,
+                        &graphql_asts,
+                        self.perf_logger,
+                    )
+                    .await,
                     project_config.name,
                 )
             }
@@ -181,6 +194,7 @@ impl Compiler {
                                 project_config,
                                 compiler_state,
                                 &graphql_asts,
+                                self.perf_logger,
                             )
                             .await,
                             project_config.name,

@@ -21,6 +21,7 @@ use relay_compiler::errors::Error as CompilerError;
 use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
 use crate::lsp::{publish_diagnostic, show_info_message};
 
+use common::ConsoleLogger;
 use log::info;
 use std::path::PathBuf;
 use tokio::sync::mpsc;
@@ -139,7 +140,8 @@ pub async fn run(
                     // Don't write artifacts by default
                     config.write_artifacts = false;
 
-                    let compiler = Compiler::new(config);
+                    let logger = ConsoleLogger;
+                    let compiler = Compiler::new(config, &logger);
 
                     let mut server_state = ServerState::new(root_dir);
 

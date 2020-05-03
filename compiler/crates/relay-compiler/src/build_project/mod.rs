@@ -21,7 +21,7 @@ use crate::errors::BuildProjectError;
 use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
 use build_ir::BuildIRResult;
-use common::Timer;
+use common::{PerfLogEvent, PerfLogger};
 pub use generate_artifacts::Artifact;
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FBConnectionInterface;
@@ -36,12 +36,17 @@ pub async fn build_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
+    perf_logger: &impl PerfLogger,
 ) -> Result<WrittenArtifacts, BuildProjectError> {
+    let log_event = perf_logger.create_event("build_project");
+    let build_time = log_event.start("build_time");
+    log_event.string("project", project_config.name.lookup().into());
+
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
 
     // Construct a schema instance including project specific extensions.
-    let schema = Timer::time(format!("build_schema {}", project_config.name), || {
+    let schema = log_event.time("build_schema", || {
         build_schema::build_schema(compiler_state, project_config)
     });
 
@@ -49,7 +54,7 @@ pub async fn build_project(
     let BuildIRResult {
         ir,
         base_fragment_names,
-    } = Timer::time(format!("build_ir {}", project_config.name), || {
+    } = log_event.time("build_ir", || {
         add_error_sources(
             build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build),
             sources,
@@ -57,14 +62,12 @@ pub async fn build_project(
     })?;
 
     // Turn the IR into a base Program.
-    let program = Timer::time(format!("build_program {}", project_config.name), || {
-        Program::from_definitions(&schema, ir)
-    });
+    let program = log_event.time("build_program", || Program::from_definitions(&schema, ir));
 
     let connection_interface = FBConnectionInterface::default();
 
     // Call validation rules that go beyond type checking.
-    Timer::time(format!("validate {}", project_config.name), || {
+    log_event.time("validate", || {
         add_error_sources(
             // TODO(T63482263): Pass connection interface from configuration
             validate(&program, &connection_interface),
@@ -73,7 +76,7 @@ pub async fn build_project(
     })?;
 
     // Apply various chains of transforms to create a set of output programs.
-    let programs = Timer::time(format!("apply_transforms {}", project_config.name), || {
+    let programs = log_event.time("apply_transforms", || {
         add_error_sources(
             apply_transforms(program, &base_fragment_names, &connection_interface),
             sources,
@@ -81,21 +84,26 @@ pub async fn build_project(
     })?;
 
     // Generate code and persist text to produce output artifacts in memory.
-    let artifacts_timer = Timer::start(format!("generate_artifacts {}", project_config.name));
+    let artifacts_timer = log_event.start("generate_artifacts");
     let artifacts =
         generate_artifacts::generate_artifacts(config, project_config, &programs).await?;
-    artifacts_timer.stop();
+    log_event.stop(artifacts_timer);
 
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts to avoid partial writes in case of errors as
     // much as possible.
     let written_artifacts = if config.write_artifacts {
-        Timer::time(format!("write_artifacts {}", project_config.name), || {
+        log_event.time("write_artifacts", || {
             write_artifacts::write_artifacts(config, project_config, &artifacts)
         })?
     } else {
         Vec::new()
     };
+
+    log_event.number(
+        "generated_artifacts",
+        programs.reader.document_count() + programs.normalization.document_count(),
+    );
 
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",
@@ -104,7 +112,8 @@ pub async fn build_project(
         programs.normalization.document_count(),
         programs.operation_text.document_count()
     );
-
+    log_event.stop(build_time);
+    perf_logger.complete_event(log_event);
     Ok(written_artifacts)
 }
 

@@ -251,7 +251,7 @@ struct ConfigFile {
     /// wins.
     sources: HashMap<PathBuf, SourceSetName>,
 
-    /// Glob patterns that should not be part of the sourcces even if they are
+    /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
     #[serde(default)]
     blacklist: Vec<String>,

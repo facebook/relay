@@ -172,7 +172,7 @@ fn apply_normalization_transforms<'schema>(
 
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
-    let program = log_event.time("inline_fragments", || flatten(&program, true));
+    let program = log_event.time("flatten", || flatten(&program, true));
     log_event.time("validate_module_conflicts", || {
         validate_module_conflicts(&program)
     })?;

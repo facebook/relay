@@ -29,6 +29,9 @@ rules:
   no-undef: off
   no-unused-vars: off
 
+  # This has a different name internally
+  no-label-var: off
+
   # Relay uses console statements for debugging and compile feedback
   no-console:
     - warn

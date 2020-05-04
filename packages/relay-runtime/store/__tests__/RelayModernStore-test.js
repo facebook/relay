@@ -35,6 +35,8 @@ const {
   simpleClone,
 } = require('relay-test-utils-internal');
 
+import type {Disposable} from '../../util/RelayRuntimeTypes';
+
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
     throw new Error(
@@ -2172,72 +2174,152 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
     });
 
     describe('GC Scheduler', () => {
-      let UserQuery;
-      let data;
-      let initialData;
       let source;
       let store;
-      let callbacks;
-      let scheduler;
+      let schedulerQueue;
+
+      const {NodeQuery} = generateAndCompile(`
+        query NodeQuery($id: ID!) {
+          node(id: $id) {
+            __typename
+          }
+        }
+      `);
+
+      function runNextScheduledJob() {
+        const job = schedulerQueue.shift();
+        expect(job).toBeDefined();
+        job();
+      }
+
+      function mockScheduler(job) {
+        schedulerQueue.push(job);
+      }
+
+      function getStoreRecordIDs(): $ReadOnlyArray<string> {
+        const ids = Object.keys(source.toJSON());
+        ids.sort();
+        return ids;
+      }
+
+      function writeAndRetainNode(nodeID: string): Disposable {
+        const nextSource = getRecordSourceImplementation({
+          [nodeID]: {
+            __id: nodeID,
+            __typename: 'User',
+          },
+          [ROOT_ID]: {
+            __id: ROOT_ID,
+            __typename: ROOT_TYPE,
+            [`node(id:"${nodeID}")`]: {__ref: nodeID},
+          },
+        });
+        store.publish(nextSource);
+        store.notify();
+
+        return store.retain(createOperationDescriptor(NodeQuery, {id: nodeID}));
+      }
 
       beforeEach(() => {
-        data = {
-          '4': {
-            __id: '4',
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-            'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-          },
-          'client:1': {
-            __id: 'client:1',
-            uri: 'https://photo1.jpg',
-          },
-          'client:root': {
-            __id: 'client:root',
-            __typename: '__Root',
-            'node(id:"4")': {__ref: '4'},
-          },
-        };
-        initialData = simpleClone(data);
-        callbacks = [];
-        scheduler = jest.fn(callbacks.push.bind(callbacks));
-        source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source, {gcScheduler: scheduler});
-        ({UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
-            name
-            profilePicture(size: $size) {
-              uri
-            }
-          }
+        schedulerQueue = [];
+        source = getRecordSourceImplementation({});
+        store = new RelayModernStore(source, {gcScheduler: mockScheduler});
+      });
 
-          query UserQuery($id: ID!, $size: [Int]) {
-            node(id: $id) {
-              ...UserFragment
-            }
-          }
-        `));
+      afterEach(() => {
+        // There should be no unexpected jobs left in the scheduler queue.
+        expect(schedulerQueue).toEqual([]);
       });
 
       it('calls the gc scheduler function when GC should run', () => {
-        const {dispose} = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
-        );
-        expect(scheduler).not.toBeCalled();
+        const {dispose} = writeAndRetainNode('a');
+        expect(schedulerQueue.length).toBe(0);
         dispose();
-        expect(scheduler).toBeCalled();
-        expect(callbacks.length).toBe(1);
+        expect(schedulerQueue.length).toBe(1);
+        schedulerQueue.length = 0;
       });
 
-      it('Runs GC when the GC scheduler executes the task', () => {
-        const {dispose} = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
-        );
-        dispose();
-        expect(source.toJSON()).toEqual(initialData);
-        callbacks[0](); // run gc
-        expect(source.toJSON()).toEqual({});
+      it('runs GC with full cleanup mode when no retains left', () => {
+        const {dispose: disposeA} = writeAndRetainNode('a');
+        const {dispose: disposeB} = writeAndRetainNode('b');
+        disposeA();
+        disposeB();
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        // nothing retained, prunes the store in one scheduler job
+        runNextScheduledJob();
+        expect(getStoreRecordIDs()).toEqual([]);
+      });
+
+      it('runs GC with partial cleanup when some retain is left', () => {
+        const {dispose: disposeA} = writeAndRetainNode('a');
+        writeAndRetainNode('b');
+        disposeA();
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        // mark first operation
+        runNextScheduledJob();
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        // sweep
+        runNextScheduledJob();
+        expect(getStoreRecordIDs()).toEqual(['b', 'client:root']);
+      });
+
+      it('GC pauses during optimistic updates.', () => {
+        const {dispose: disposeA} = writeAndRetainNode('a');
+        writeAndRetainNode('b');
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        disposeA();
+        // mark first operation
+        runNextScheduledJob();
+        store.snapshot();
+        // noop
+        runNextScheduledJob();
+        expect(schedulerQueue.length).toBe(0);
+
+        store.restore();
+        runNextScheduledJob(); // mark operation one
+        // still nothing collected
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        runNextScheduledJob(); // sweep
+        expect(getStoreRecordIDs()).toEqual(['b', 'client:root']);
+      });
+
+      it('GC pauses after holdGC', () => {
+        const {dispose: disposeA} = writeAndRetainNode('a');
+        writeAndRetainNode('b');
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        disposeA();
+        // mark first operation
+        runNextScheduledJob();
+        const gcHold = store.holdGC();
+        // noop
+        runNextScheduledJob();
+        expect(schedulerQueue.length).toBe(0);
+
+        gcHold.dispose();
+        runNextScheduledJob(); // mark operation one
+        // still nothing collected
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        runNextScheduledJob(); // sweep
+        expect(getStoreRecordIDs()).toEqual(['b', 'client:root']);
+      });
+
+      it('restarts GC when data is written halfway through', () => {
+        const {dispose: disposeA} = writeAndRetainNode('a');
+        writeAndRetainNode('b');
+        disposeA();
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+        // mark first operation
+        runNextScheduledJob();
+        writeAndRetainNode('c');
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'c', 'client:root']);
+        // restart, mark first operation
+        runNextScheduledJob();
+        // mark second operation
+        runNextScheduledJob();
+        expect(getStoreRecordIDs()).toEqual(['a', 'b', 'c', 'client:root']);
+        // sweep
+        runNextScheduledJob();
+        expect(getStoreRecordIDs()).toEqual(['b', 'c', 'client:root']);
       });
     });
 

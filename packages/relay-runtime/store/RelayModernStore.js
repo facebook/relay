@@ -84,10 +84,10 @@ class RelayModernStore implements Store {
   _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
+  _gcRun: ?Generator<void, void, void>;
   _gcScheduler: Scheduler;
   _getDataID: GetDataID;
   _globalInvalidationEpoch: ?number;
-  _hasScheduledGC: boolean;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
   _log: ?LogFunction;
@@ -134,11 +134,11 @@ class RelayModernStore implements Store {
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
+    this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID =
       options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
-    this._hasScheduledGC = false;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
     this._log = options?.log ?? null;
@@ -398,6 +398,10 @@ class RelayModernStore implements Store {
   }
 
   holdGC(): Disposable {
+    if (this._gcRun) {
+      this._gcRun = null;
+      this._shouldScheduleGC = true;
+    }
     this._gcHoldCounter++;
     const dispose = () => {
       if (this._gcHoldCounter > 0) {
@@ -558,6 +562,10 @@ class RelayModernStore implements Store {
       (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
       subscription.backup = backup;
     });
+    if (this._gcRun) {
+      this._gcRun = null;
+      this._shouldScheduleGC = true;
+    }
     this._optimisticSource = RelayOptimisticRecordSource.create(
       this.getSource(),
     );
@@ -576,6 +584,9 @@ class RelayModernStore implements Store {
       });
     }
     this._optimisticSource = null;
+    if (this._shouldScheduleGC) {
+      this._scheduleGC();
+    }
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
       subscription.backup = null;
@@ -600,50 +611,81 @@ class RelayModernStore implements Store {
       this._shouldScheduleGC = true;
       return;
     }
-    if (this._hasScheduledGC) {
+    if (this._gcRun) {
       return;
     }
-    this._hasScheduledGC = true;
-    this._gcScheduler(() => {
-      this.__gc();
-      this._hasScheduledGC = false;
-    });
+    this._gcRun = this._collect();
+    this._gcScheduler(this._gcStep);
   }
 
+  /**
+   * Run a full GC synchronously.
+   */
   __gc(): void {
     // Don't run GC while there are optimistic updates applied
     if (this._optimisticSource != null) {
       return;
     }
-    const log = this._log;
-    if (log != null) {
-      log({
-        name: 'store.gc',
-      });
+    const gcRun = this._collect();
+    while (!gcRun.next().done) {}
+  }
+
+  _gcStep = () => {
+    if (this._gcRun) {
+      if (this._gcRun.next().done) {
+        this._gcRun = null;
+      } else {
+        this._gcScheduler(this._gcStep);
+      }
     }
-    const references = new Set();
-    // Mark all records that are traversable from a root
-    this._roots.forEach(({operation}) => {
-      const selector = operation.root;
-      RelayReferenceMarker.mark(
-        this._recordSource,
-        selector,
-        references,
-        this._operationLoader,
-      );
-    });
-    if (references.size === 0) {
-      // Short-circuit if *nothing* is referenced
-      this._recordSource.clear();
-    } else {
-      // Evict any unreferenced nodes
-      const storeIDs = this._recordSource.getRecordIDs();
-      for (let ii = 0; ii < storeIDs.length; ii++) {
-        const dataID = storeIDs[ii];
-        if (!references.has(dataID)) {
-          this._recordSource.remove(dataID);
+  };
+
+  *_collect(): Generator<void, void, void> {
+    /* eslint-disable no-labels */
+    top: while (true) {
+      const startEpoch = this._currentWriteEpoch;
+      const references = new Set();
+
+      // Mark all records that are traversable from a root
+      for (const {operation} of this._roots.values()) {
+        const selector = operation.root;
+        RelayReferenceMarker.mark(
+          this._recordSource,
+          selector,
+          references,
+          this._operationLoader,
+        );
+        // Yield for other work after each operation
+        yield;
+
+        // If the store was updated, restart
+        if (startEpoch !== this._currentWriteEpoch) {
+          continue top;
         }
       }
+
+      const log = this._log;
+      if (log != null) {
+        log({
+          name: 'store.gc',
+        });
+      }
+
+      // Sweep records without references
+      if (references.size === 0) {
+        // Short-circuit if *nothing* is referenced
+        this._recordSource.clear();
+      } else {
+        // Evict any unreferenced nodes
+        const storeIDs = this._recordSource.getRecordIDs();
+        for (let ii = 0; ii < storeIDs.length; ii++) {
+          const dataID = storeIDs[ii];
+          if (!references.has(dataID)) {
+            this._recordSource.remove(dataID);
+          }
+        }
+      }
+      return;
     }
   }
 }

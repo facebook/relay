@@ -11,9 +11,9 @@ use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
     handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
-    skip_redundant_nodes, skip_split_operation, skip_unreachable_node, split_module_import,
-    transform_connections, transform_defer_stream, transform_match, validate_module_conflicts,
-    ConnectionInterface,
+    skip_redundant_nodes, skip_split_operation, skip_unreachable_node, skip_unused_variables,
+    split_module_import, transform_connections, transform_defer_stream, transform_match,
+    validate_module_conflicts, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -203,7 +203,7 @@ fn apply_operation_text_transforms<'schema>(
     // + GenerateTypeNameTransform
     // - SkipHandleFieldTransform
     // - FilterDirectivesTransform
-    // - SkipUnusedVariablesTransform
+    // + SkipUnusedVariablesTransform
     // - ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
@@ -214,6 +214,7 @@ fn apply_operation_text_transforms<'schema>(
     });
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
     let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program));
     perf_logger.complete_event(log_event);
 

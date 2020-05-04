@@ -269,7 +269,6 @@ QUERY:
 
 query FeedbackQuery(
   $id: ID!
-  $commentsKey: String
 ) {
   node(id: $id) {
     __typename
@@ -574,7 +573,6 @@ QUERY:
 
 query PaginationQuery(
   $id: ID!
-  $commentsKey: String
   $count: Int!
   $cursor: ID!
 ) {

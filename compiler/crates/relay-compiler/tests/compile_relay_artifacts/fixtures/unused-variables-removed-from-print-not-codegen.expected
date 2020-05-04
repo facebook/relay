@@ -156,8 +156,6 @@ QUERY:
 
 query QueryWithUnusedVariables(
   $id: ID!
-  $unusedFirst: Int
-  $unusedAfter: ID
 ) {
   node(id: $id) {
     __typename

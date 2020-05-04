@@ -5,9 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod directives;
+
 use super::get_applied_fragment_name;
 use crate::util::{remove_directive, replace_directive};
 use common::WithLocation;
+pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, NamedItem, OperationDefinition, Program, ScalarField, Selection, Transformed,
@@ -34,7 +37,7 @@ impl Default for DeferStreamConstants {
             if_arg: "if".intern(),
             label_arg: "label".intern(),
             initial_count_arg: "initial_count".intern(),
-            use_customized_batch_arg: "use_customized_batch_arg".intern(),
+            use_customized_batch_arg: "use_customized_batch".intern(),
         }
     }
 }
@@ -93,7 +96,8 @@ impl DeferStreamTransform<'_> {
         spread: &FragmentSpread,
         defer: &Directive,
     ) -> Result<Transformed<Selection>, ValidationError> {
-        let if_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+        let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
+
         if is_literal_false_arg(if_arg) {
             return Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
                 FragmentSpread {
@@ -103,12 +107,9 @@ impl DeferStreamTransform<'_> {
             ))));
         }
 
-        let label_value = get_literal_string_argument(&defer, DEFER_STREAM_CONSTANTS.label_arg)?;
-
-        let is_user_provided_label_empty = label_value == None;
+        let label_value = get_literal_string_argument(&defer, label_arg)?;
         let label = label_value
             .unwrap_or_else(|| get_applied_fragment_name(spread.fragment.item, &spread.arguments));
-
         let transformed_label = transform_label(
             self.current_document_name
                 .expect("We expect the parent name to be defined here."),
@@ -117,27 +118,22 @@ impl DeferStreamTransform<'_> {
         );
         self.record_label(transformed_label, defer);
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
-
-        let next_arguments = if is_user_provided_label_empty {
-            let mut args = defer.arguments.to_owned();
-            args.push(Argument {
-                name: WithLocation {
-                    item: DEFER_STREAM_CONSTANTS.label_arg,
-                    location: defer.name.location,
-                },
-                value: WithLocation {
-                    item: next_label_value,
-                    location: defer.name.location,
-                },
-            });
-            args
-        } else {
-            replace_argument_value(
-                &defer.arguments,
-                DEFER_STREAM_CONSTANTS.label_arg,
-                next_label_value,
-            )
+        let next_label_arg = Argument {
+            name: WithLocation {
+                item: DEFER_STREAM_CONSTANTS.label_arg,
+                location: label_arg.map_or(defer.name.location, |arg| arg.name.location),
+            },
+            value: WithLocation {
+                item: next_label_value,
+                location: label_arg.map_or(defer.name.location, |arg| arg.value.location),
+            },
         };
+
+        let mut next_arguments = Vec::with_capacity(2);
+        next_arguments.push(next_label_arg);
+        if let Some(if_arg) = if_arg {
+            next_arguments.push(if_arg.clone());
+        }
 
         let next_defer = Directive {
             name: defer.name,
@@ -157,7 +153,13 @@ impl DeferStreamTransform<'_> {
         linked_field: &LinkedField,
         stream: &Directive,
     ) -> Result<Transformed<Selection>, ValidationError> {
-        let if_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+        let StreamDirective {
+            if_arg,
+            label_arg,
+            initial_count_arg,
+            use_customized_batch_arg,
+        } = StreamDirective::from(stream);
+
         if is_literal_false_arg(if_arg) {
             return Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
                 LinkedField {
@@ -167,9 +169,6 @@ impl DeferStreamTransform<'_> {
             ))));
         }
 
-        let initial_count_arg = stream
-            .arguments
-            .named(DEFER_STREAM_CONSTANTS.initial_count_arg);
         if initial_count_arg.is_none() {
             return Err(ValidationError::new(
                 ValidationMessage::StreamInitialCountRequired,
@@ -177,46 +176,43 @@ impl DeferStreamTransform<'_> {
             ));
         }
 
-        let label_value = get_literal_string_argument(&stream, DEFER_STREAM_CONSTANTS.label_arg)?;
-
-        let is_user_provided_label_empty = label_value == None;
+        let label_value = get_literal_string_argument(&stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
                 linked_field.alias_or_name(self.program.schema()),
                 &linked_field.arguments,
             )
         });
-
         let transformed_label = transform_label(
             self.current_document_name
                 .expect("We expect the parent name to be defined here."),
             DEFER_STREAM_CONSTANTS.stream_name,
             label,
         );
-
         self.record_label(transformed_label, stream);
-
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
-        let next_arguments = if is_user_provided_label_empty {
-            let mut args = stream.arguments.to_owned();
-            args.push(Argument {
-                name: WithLocation {
-                    item: DEFER_STREAM_CONSTANTS.label_arg,
-                    location: stream.name.location,
-                },
-                value: WithLocation {
-                    item: next_label_value,
-                    location: stream.name.location,
-                },
-            });
-            args
-        } else {
-            replace_argument_value(
-                &stream.arguments,
-                DEFER_STREAM_CONSTANTS.label_arg,
-                next_label_value,
-            )
+        let next_label_arg = Argument {
+            name: WithLocation {
+                item: DEFER_STREAM_CONSTANTS.label_arg,
+                location: label_arg.map_or(stream.name.location, |arg| arg.name.location),
+            },
+            value: WithLocation {
+                item: next_label_value,
+                location: label_arg.map_or(stream.name.location, |arg| arg.value.location),
+            },
         };
+
+        let mut next_arguments = Vec::with_capacity(4);
+        next_arguments.push(next_label_arg);
+        if let Some(if_arg) = if_arg {
+            next_arguments.push(if_arg.clone());
+        }
+        if let Some(initial_count_arg) = initial_count_arg {
+            next_arguments.push(initial_count_arg.clone());
+        }
+        if let Some(use_customized_batch_arg) = use_customized_batch_arg {
+            next_arguments.push(use_customized_batch_arg.clone());
+        }
 
         let next_stream = Directive {
             name: stream.name,
@@ -343,44 +339,21 @@ fn transform_label(
 
 fn get_literal_string_argument(
     directive: &Directive,
-    arg_name: StringKey,
+    argument: Option<&Argument>,
 ) -> Result<Option<StringKey>, ValidationError> {
-    match directive.arguments.named(arg_name) {
-        Some(arg) => {
-            if let Some(val) = arg.value.item.get_string_literal() {
-                Ok(Some(val))
-            } else {
-                Err(ValidationError::new(
-                    ValidationMessage::LiteralStringArgumentExpectedForDirective {
-                        arg_name: DEFER_STREAM_CONSTANTS.label_arg,
-                        directive_name: directive.name.item,
-                    },
-                    vec![directive.name.location],
-                ))
-            }
+    if let Some(arg) = argument {
+        if let Some(val) = arg.value.item.get_string_literal() {
+            Ok(Some(val))
+        } else {
+            Err(ValidationError::new(
+                ValidationMessage::LiteralStringArgumentExpectedForDirective {
+                    arg_name: arg.name.item,
+                    directive_name: directive.name.item,
+                },
+                vec![directive.name.location],
+            ))
         }
-        None => Ok(None),
+    } else {
+        Ok(None)
     }
-}
-
-fn replace_argument_value(
-    current_arguments: &[Argument],
-    replacement_name: StringKey,
-    value: Value,
-) -> Vec<Argument> {
-    current_arguments
-        .iter()
-        .map(|arg| {
-            if arg.name.item == replacement_name {
-                return Argument {
-                    name: arg.name,
-                    value: WithLocation {
-                        location: arg.value.location,
-                        item: value.to_owned(),
-                    },
-                };
-            }
-            arg.to_owned()
-        })
-        .collect()
 }

@@ -42,7 +42,9 @@ pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
     FBConnectionInterface, OSSConnectionInterface,
 };
-pub use defer_stream::{transform_defer_stream, DEFER_STREAM_CONSTANTS};
+pub use defer_stream::{
+    transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
+};
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_typename::generate_typename;

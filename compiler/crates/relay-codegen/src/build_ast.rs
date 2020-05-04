@@ -17,8 +17,8 @@ use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, extract_variable_name, remove_directive,
-    ConnectionConstants, HandleFieldConstants, RelayDirective, DEFER_STREAM_CONSTANTS,
-    MATCH_CONSTANTS,
+    ConnectionConstants, DeferDirective, HandleFieldConstants, RelayDirective, StreamDirective,
+    DEFER_STREAM_CONSTANTS, MATCH_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -573,8 +573,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 (CODEGEN_CONSTANTS.selections, next_selections),
             ]),
             CodegenVariant::Normalization => {
-                let if_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
-                let label_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
+                let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
                 let if_variable_name = extract_variable_name(if_arg);
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
@@ -613,11 +612,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 (CODEGEN_CONSTANTS.selections, next_selections),
             ]),
             CodegenVariant::Normalization => {
-                let if_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
-                let label_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
-                let use_customized_batch_arg = stream
-                    .arguments
-                    .named(DEFER_STREAM_CONSTANTS.use_customized_batch_arg);
+                let StreamDirective {
+                    if_arg,
+                    label_arg,
+                    use_customized_batch_arg,
+                    initial_count_arg: _,
+                } = StreamDirective::from(stream);
                 let if_variable_name = extract_variable_name(if_arg);
                 let use_customized_batch_variable_name =
                     extract_variable_name(use_customized_batch_arg);

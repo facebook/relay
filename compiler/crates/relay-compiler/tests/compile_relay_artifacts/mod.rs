@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::{ConsoleLogger, FileKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -53,8 +53,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
 
     // TODO pass base fragment names
-    let programs = apply_transforms(program, &Default::default(), &connection_interface)
-        .map_err(validation_errors_to_string)?;
+    let programs = apply_transforms(
+        "test",
+        program,
+        &Default::default(),
+        &connection_interface,
+        &ConsoleLogger,
+    )
+    .map_err(validation_errors_to_string)?;
 
     let mut operations: Vec<&std::sync::Arc<OperationDefinition>> =
         programs.normalization.operations().collect();

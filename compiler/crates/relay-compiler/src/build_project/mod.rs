@@ -40,7 +40,8 @@ pub async fn build_project(
 ) -> Result<WrittenArtifacts, BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_time");
-    log_event.string("project", project_config.name.lookup().into());
+    let project_name = project_config.name.lookup();
+    log_event.string("project", project_name.to_string());
 
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
@@ -78,7 +79,13 @@ pub async fn build_project(
     // Apply various chains of transforms to create a set of output programs.
     let programs = log_event.time("apply_transforms", || {
         add_error_sources(
-            apply_transforms(program, &base_fragment_names, &connection_interface),
+            apply_transforms(
+                &project_name,
+                program,
+                &base_fragment_names,
+                &connection_interface,
+                perf_logger,
+            ),
             sources,
         )
     })?;

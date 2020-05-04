@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::{ConsoleLogger, FileKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
@@ -23,7 +23,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(&schema, ir);
     let connection_interface = OSSConnectionInterface::default();
-    let programs = apply_transforms(program, &Default::default(), &connection_interface).unwrap();
+    let programs = apply_transforms(
+        "test",
+        program,
+        &Default::default(),
+        &connection_interface,
+        &ConsoleLogger,
+    )
+    .unwrap();
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);

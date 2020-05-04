@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Timer;
+use common::{PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
@@ -17,8 +17,6 @@ use graphql_transforms::{
 };
 use interner::StringKey;
 
-use log::info;
-
 pub struct Programs<'schema> {
     pub source: Program<'schema>,
     pub reader: Program<'schema>,
@@ -28,21 +26,32 @@ pub struct Programs<'schema> {
 }
 
 pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
+    project_name: &str,
     program: Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
     connection_interface: &TConnectionInterface,
+    perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Programs<'schema>> {
     // common
     //  |- reader
     //  |- operation
     //     |- normalization
     //     |- operation_text
-    let common_program = apply_common_transforms(&program, connection_interface)?;
-    let reader_program = apply_reader_transforms(&common_program, base_fragment_names);
-    let operation_program = apply_operation_transforms(&common_program)?;
-    let normalization_program = apply_normalization_transforms(&operation_program)?;
-    let operation_text_program = apply_operation_text_transforms(&operation_program);
-    let typegen_program = apply_typegen_transforms(&program, base_fragment_names);
+    let common_program =
+        apply_common_transforms(project_name, &program, connection_interface, perf_logger)?;
+    let reader_program = apply_reader_transforms(
+        project_name,
+        &common_program,
+        base_fragment_names,
+        perf_logger,
+    );
+    let operation_program = apply_operation_transforms(project_name, &common_program, perf_logger)?;
+    let normalization_program =
+        apply_normalization_transforms(project_name, &operation_program, perf_logger)?;
+    let operation_text_program =
+        apply_operation_text_transforms(project_name, &operation_program, perf_logger);
+    let typegen_program =
+        apply_typegen_transforms(project_name, &program, base_fragment_names, perf_logger);
 
     Ok(Programs {
         source: program,
@@ -55,8 +64,10 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
 
 /// Applies transforms that apply to every output.
 fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
+    project_name: &str,
     program: &Program<'schema>,
     connection_interface: &TConnectionInterface,
+    perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // - DisallowIdAsAlias
@@ -66,23 +77,29 @@ fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
     // + MatchTransform
     // - RefetchableFragmentTransform
     // + DeferStreamTransform
-    info!("apply_common_transforms");
+    let log_event = perf_logger.create_event("apply_common_transforms");
+    log_event.string("project", project_name.to_string());
 
-    let program = Timer::time("transform_connections", || {
+    let program = log_event.time("transform_connections", || {
         transform_connections(program, connection_interface)
     });
-    let program = Timer::time("mask", || mask(&program));
-    let program = Timer::time("transform_match", || transform_match(&program))?;
-    Timer::time("transform_defer_stream", || {
+    let program = log_event.time("mask", || mask(&program));
+    let program = log_event.time("transform_match", || transform_match(&program))?;
+    let program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
-    })
+    });
+    perf_logger.complete_event(log_event);
+
+    program
 }
 
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
 fn apply_reader_transforms<'schema>(
+    project_name: &str,
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
+    perf_logger: &impl PerfLogger,
 ) -> Program<'schema> {
     // JS compiler
     // + ClientExtensionsTransform
@@ -90,23 +107,28 @@ fn apply_reader_transforms<'schema>(
     // - InlineDataFragmentTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // - SkipRedundantNodesTransform
-    info!("apply_reader_transforms");
+    let log_event = perf_logger.create_event("apply_reader_transforms");
+    log_event.string("project", project_name.to_string());
 
-    let program = Timer::time("handle_field_transform", || {
+    let program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
-    let program = Timer::time("remove_base_fragments", || {
+    let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    let program = Timer::time("flatten", || flatten(&program, true));
+    let program = log_event.time("flatten", || flatten(&program, true));
+    let program = log_event.time("client_extensions", || client_extensions(&program));
+    perf_logger.complete_event(log_event);
 
-    Timer::time("client_extensions", || client_extensions(&program))
+    program
 }
 
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
 fn apply_operation_transforms<'schema>(
+    project_name: &str,
     program: &Program<'schema>,
+    perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SplitModuleImportTransform
@@ -115,12 +137,15 @@ fn apply_operation_transforms<'schema>(
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // - TestOperationTransform
-    info!("apply_operation_transforms");
-    let program = Timer::time("split_module_import", || split_module_import(&program));
-    let program = Timer::time("apply_fragment_arguments", || {
+    let log_event = perf_logger.create_event("apply_operation_transforms");
+    log_event.string("project", project_name.to_string());
+
+    let program = log_event.time("split_module_import", || split_module_import(&program));
+    let program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
     })?;
-    let program = Timer::time("generate_id_field", || generate_id_field(&program));
+    let program = log_event.time("generate_id_field", || generate_id_field(&program));
+    perf_logger.complete_event(log_event);
 
     Ok(program)
 }
@@ -130,7 +155,9 @@ fn apply_operation_transforms<'schema>(
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
 fn apply_normalization_transforms<'schema>(
+    project_name: &str,
     program: &Program<'schema>,
+    perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
@@ -140,17 +167,20 @@ fn apply_normalization_transforms<'schema>(
     // + SkipRedundantNodesTransform
     // + GenerateTypeNameTransform
     // - ValidateServerOnlyDirectivesTransform
-    info!("apply_normalization_transforms");
-    let program = Timer::time("skip_unreachable_node", || skip_unreachable_node(&program));
-    let program = Timer::time("inline_fragments", || inline_fragments(&program));
-    let program = Timer::time("inline_fragments", || flatten(&program, true));
-    Timer::time("validate_module_conflicts", || {
+    let log_event = perf_logger.create_event("apply_normalization_transforms");
+    log_event.string("project", project_name.to_string());
+
+    let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    let program = log_event.time("inline_fragments", || inline_fragments(&program));
+    let program = log_event.time("inline_fragments", || flatten(&program, true));
+    log_event.time("validate_module_conflicts", || {
         validate_module_conflicts(&program)
     })?;
-    let program = Timer::time("skip_redundant_nodes", || skip_redundant_nodes(&program));
-    let program = Timer::time("client_extensions", || client_extensions(&program));
+    let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("client_extensions", || client_extensions(&program));
 
-    let program = Timer::time("generate_typename", || generate_typename(&program));
+    let program = log_event.time("generate_typename", || generate_typename(&program));
+    perf_logger.complete_event(log_event);
 
     Ok(program)
 }
@@ -159,7 +189,11 @@ fn apply_normalization_transforms<'schema>(
 /// apply to the printed operation text.
 ///
 /// Corresponds to the "print transforms" in the JS compiler
-fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Program<'schema> {
+fn apply_operation_text_transforms<'schema>(
+    project_name: &str,
+    program: &Program<'schema>,
+    perf_logger: &impl PerfLogger,
+) -> Program<'schema> {
     // JS compiler
     // + SkipSplitOperationTransform
     // - ClientExtensionsTransform
@@ -171,20 +205,26 @@ fn apply_operation_text_transforms<'schema>(program: &Program<'schema>) -> Progr
     // - FilterDirectivesTransform
     // - SkipUnusedVariablesTransform
     // - ValidateRequiredArgumentsTransform
-    info!("apply_operation_text_transforms");
-    let program = Timer::time("skip_split_operation", || skip_split_operation(&program));
-    let program = Timer::time("skip_client_extensions", || {
+    let log_event = perf_logger.create_event("apply_operation_text_transforms");
+    log_event.string("project", project_name.to_string());
+
+    let program = log_event.time("skip_split_operation", || skip_split_operation(&program));
+    let program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
     });
-    let program = Timer::time("skip_unreachable_node", || skip_unreachable_node(&program));
-    let program = Timer::time("flatten", || flatten(&program, false));
+    let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("generate_typename", || generate_typename(&program));
+    perf_logger.complete_event(log_event);
 
-    Timer::time("generate_typename", || generate_typename(&program))
+    program
 }
 
 fn apply_typegen_transforms<'schema>(
+    project_name: &str,
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
+    perf_logger: &impl PerfLogger,
 ) -> Program<'schema> {
     // JS compiler
     // - RelayDirectiveTransform,
@@ -192,13 +232,15 @@ fn apply_typegen_transforms<'schema>(
     // - MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false
     // - RefetchableFragmentTransform,
-    info!("apply_typegen_transforms");
+    let log_event = perf_logger.create_event("apply_typegen_transforms");
+    log_event.string("project", project_name.to_string());
 
-    let program = Timer::time("mask", || mask(&program));
-
-    let program = Timer::time("remove_base_fragments", || {
+    let program = log_event.time("mask", || mask(&program));
+    let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
+    let program = log_event.time("flatten", || flatten(&program, false));
+    perf_logger.complete_event(log_event);
 
-    Timer::time("flatten", || flatten(&program, false))
+    program
 }

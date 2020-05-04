@@ -227,12 +227,21 @@ pub enum Value {
     Object(Vec<Argument>),
 }
 impl Value {
+    /// If the value is a constant string literal, return the value, otherwise None.
     pub fn get_string_literal(&self) -> Option<StringKey> {
         if let Value::Constant(ConstantValue::String(val)) = self {
             Some(*val)
         } else {
             None
         }
+    }
+
+    /// Return the constant string literal of this value.
+    /// Panics if the value is not a constant string literal.
+    pub fn expect_string_literal(&self) -> StringKey {
+        self.get_string_literal().unwrap_or_else(|| {
+            panic!("expected a string literal, got {:?}", self);
+        })
     }
 }
 

@@ -83,16 +83,14 @@ impl<'s> Transformer for SplitModuleImportTransform<'s> {
                 .unwrap()
                 .value
                 .item
-                .get_string_literal()
-                .unwrap();
+                .expect_string_literal();
             let source_document = directive
                 .arguments
                 .named(MATCH_CONSTANTS.source_document_arg)
                 .unwrap()
                 .value
                 .item
-                .get_string_literal()
-                .unwrap();
+                .expect_string_literal();
             let mut normalization_name_string = String::new();
             get_normalization_operation_name(&mut normalization_name_string, name);
             let normalization_name = normalization_name_string.intern();

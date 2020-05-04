@@ -50,11 +50,7 @@ pub async fn generate_artifacts(
                 .arguments
                 .named(MATCH_CONSTANTS.derived_from_arg)
                 .unwrap();
-            let source_name = name_arg
-                .value
-                .item
-                .get_string_literal()
-                .expect("Expected `derived_from` argument to be a literal string.");
+            let source_name = name_arg.value.item.expect_string_literal();
             let source_node = programs
                 .source
                 .fragment(source_name)

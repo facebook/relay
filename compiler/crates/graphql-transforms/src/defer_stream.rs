@@ -345,18 +345,20 @@ fn get_literal_string_argument(
     directive: &Directive,
     arg_name: StringKey,
 ) -> Result<Option<StringKey>, ValidationError> {
-    let argument = directive.arguments.named(arg_name);
-    match argument {
-        Some(arg) => match arg.value.item {
-            Value::Constant(ConstantValue::String(val)) => Ok(Some(val)),
-            _ => Err(ValidationError::new(
-                ValidationMessage::LiteralStringArgumentExpectedForDirective {
-                    arg_name: DEFER_STREAM_CONSTANTS.label_arg,
-                    directive_name: directive.name.item,
-                },
-                vec![directive.name.location],
-            )),
-        },
+    match directive.arguments.named(arg_name) {
+        Some(arg) => {
+            if let Some(val) = arg.value.item.get_string_literal() {
+                Ok(Some(val))
+            } else {
+                Err(ValidationError::new(
+                    ValidationMessage::LiteralStringArgumentExpectedForDirective {
+                        arg_name: DEFER_STREAM_CONSTANTS.label_arg,
+                        directive_name: directive.name.item,
+                    },
+                    vec![directive.name.location],
+                ))
+            }
+        }
         None => Ok(None),
     }
 }

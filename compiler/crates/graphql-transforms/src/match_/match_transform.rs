@@ -704,24 +704,21 @@ fn get_module_name(
     module_directive: &Directive,
     spread_location: Location,
 ) -> Result<StringKey, ValidationError> {
-    let argument = module_directive.arguments.named(MATCH_CONSTANTS.name_arg);
-    if let Some(argument) = argument {
-        match argument.value.item {
-            Value::Constant(ConstantValue::String(value)) => {
-                return Ok(value);
-            }
-            _ => {
-                return Err(ValidationError::new(
-                    ValidationMessage::InvalidModuleNonLiteralName,
-                    vec![argument.name.location],
-                ));
-            }
-        };
-    }
-    Err(ValidationError::new(
-        ValidationMessage::InvalidModuleNoName,
-        vec![spread_location],
-    ))
+    let name_arg = module_directive
+        .arguments
+        .named(MATCH_CONSTANTS.name_arg)
+        .ok_or_else(|| {
+            ValidationError::new(
+                ValidationMessage::InvalidModuleNoName,
+                vec![spread_location],
+            )
+        })?;
+    name_arg.value.item.get_string_literal().ok_or_else(|| {
+        ValidationError::new(
+            ValidationMessage::InvalidModuleNonLiteralName,
+            vec![name_arg.name.location],
+        )
+    })
 }
 
 fn build_module_metadata_as_directive(

@@ -124,8 +124,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .unwrap()
                     .value
                     .item
-                    .get_string_literal()
-                    .unwrap();
+                    .expect_string_literal();
                 let metadata = Primitive::Key(self.object(vec![(
                     CODEGEN_CONSTANTS.derived_from,
                     Primitive::String(derived_from),
@@ -577,14 +576,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let if_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
                 let label_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.label_arg);
                 let if_variable_name = extract_variable_name(if_arg);
-                let label_name = match label_arg {
-                    Some(label_arg) => match label_arg.value.item {
-                        Value::Constant(ConstantValue::String(val)) => Some(val),
-                        _ => None,
-                    },
-                    None => None,
-                }
-                .unwrap();
+                let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
                 self.object(vec![
                     (
@@ -629,14 +621,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let if_variable_name = extract_variable_name(if_arg);
                 let use_customized_batch_variable_name =
                     extract_variable_name(use_customized_batch_arg);
-                let label_name = match label_arg {
-                    Some(label_arg) => match label_arg.value.item {
-                        Value::Constant(ConstantValue::String(val)) => Some(val),
-                        _ => None,
-                    },
-                    None => None,
-                }
-                .unwrap();
+                let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
                 self.object(vec![
                     (
@@ -971,16 +956,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .unwrap()
             .value
             .item
-            .get_string_literal()
-            .unwrap();
+            .expect_string_literal();
         let key = directive
             .arguments
             .named(MATCH_CONSTANTS.key_arg)
             .unwrap()
             .value
             .item
-            .get_string_literal()
-            .unwrap();
+            .expect_string_literal();
         let fragment_name_str = fragment_name.lookup();
         let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
             panic!(

@@ -87,6 +87,153 @@ impl DeferStreamTransform<'_> {
             }
         };
     }
+
+    fn transform_defer(
+        &mut self,
+        spread: &FragmentSpread,
+        defer: &Directive,
+    ) -> Result<Transformed<Selection>, ValidationError> {
+        let if_arg = &defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+        if let Some(arg) = if_arg {
+            if is_literal_false(arg) {
+                return Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
+                    FragmentSpread {
+                        directives: remove_directive(&spread.directives, defer.name.item),
+                        ..spread.clone()
+                    },
+                ))));
+            }
+        }
+
+        let label_value = get_literal_string_argument(&defer, DEFER_STREAM_CONSTANTS.label_arg)?;
+
+        let is_user_provided_label_empty = label_value == None;
+        let label = label_value
+            .unwrap_or_else(|| get_applied_fragment_name(spread.fragment.item, &spread.arguments));
+
+        let transformed_label = transform_label(
+            self.current_document_name
+                .expect("We expect the parent name to be defined here."),
+            DEFER_STREAM_CONSTANTS.defer_name,
+            label,
+        );
+        self.record_label(transformed_label, defer);
+        let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
+
+        let next_arguments = if is_user_provided_label_empty {
+            let mut args = defer.arguments.to_owned();
+            args.push(Argument {
+                name: WithLocation {
+                    item: DEFER_STREAM_CONSTANTS.label_arg,
+                    location: defer.name.location,
+                },
+                value: WithLocation {
+                    item: next_label_value,
+                    location: defer.name.location,
+                },
+            });
+            args
+        } else {
+            replace_argument_value(
+                &defer.arguments,
+                DEFER_STREAM_CONSTANTS.label_arg,
+                next_label_value,
+            )
+        };
+
+        let next_defer = Directive {
+            name: defer.name,
+            arguments: next_arguments,
+        };
+
+        Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
+            FragmentSpread {
+                directives: replace_directive(&spread.directives, next_defer),
+                ..spread.clone()
+            },
+        ))))
+    }
+
+    fn transform_stream(
+        &mut self,
+        linked_field: &LinkedField,
+        stream: &Directive,
+    ) -> Result<Transformed<Selection>, ValidationError> {
+        let if_arg = &stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+        if let Some(arg) = if_arg {
+            if is_literal_false(arg) {
+                return Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
+                    LinkedField {
+                        directives: remove_directive(&linked_field.directives, stream.name.item),
+                        ..linked_field.clone()
+                    },
+                ))));
+            }
+        }
+
+        let initial_count_arg = stream
+            .arguments
+            .named(DEFER_STREAM_CONSTANTS.initial_count_arg);
+        if initial_count_arg.is_none() {
+            return Err(ValidationError::new(
+                ValidationMessage::StreamInitialCountRequired,
+                vec![stream.name.location],
+            ));
+        }
+
+        let label_value = get_literal_string_argument(&stream, DEFER_STREAM_CONSTANTS.label_arg)?;
+
+        let is_user_provided_label_empty = label_value == None;
+        let label = label_value.unwrap_or_else(|| {
+            get_applied_fragment_name(
+                linked_field.alias_or_name(self.program.schema()),
+                &linked_field.arguments,
+            )
+        });
+
+        let transformed_label = transform_label(
+            self.current_document_name
+                .expect("We expect the parent name to be defined here."),
+            DEFER_STREAM_CONSTANTS.stream_name,
+            label,
+        );
+
+        self.record_label(transformed_label, stream);
+
+        let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
+        let next_arguments = if is_user_provided_label_empty {
+            let mut args = stream.arguments.to_owned();
+            args.push(Argument {
+                name: WithLocation {
+                    item: DEFER_STREAM_CONSTANTS.label_arg,
+                    location: stream.name.location,
+                },
+                value: WithLocation {
+                    item: next_label_value,
+                    location: stream.name.location,
+                },
+            });
+            args
+        } else {
+            replace_argument_value(
+                &stream.arguments,
+                DEFER_STREAM_CONSTANTS.label_arg,
+                next_label_value,
+            )
+        };
+
+        let next_stream = Directive {
+            name: stream.name,
+            arguments: next_arguments,
+        };
+
+        Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
+            LinkedField {
+                directives: replace_directive(&linked_field.directives, next_stream),
+                ..linked_field.clone()
+            },
+        ))))
+    }
 }
 
 impl<'s> Transformer for DeferStreamTransform<'s> {
@@ -110,6 +257,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         self.default_transform_fragment(fragment)
     }
 
+    /// Validates @defer is not allowed on inline fragments.
     fn transform_inline_fragment(
         &mut self,
         inline_fragment: &InlineFragment,
@@ -127,81 +275,23 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         self.default_transform_inline_fragment(inline_fragment)
     }
 
+    /// Transform of fragment spread with @defer is delegated to `transform_defer`.
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let defer_directive = spread.directives.named(DEFER_STREAM_CONSTANTS.defer_name);
-        match defer_directive {
-            Some(defer) => {
-                let if_arg = &defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
-                if let Some(arg) = if_arg {
-                    if is_literal_false(arg) {
-                        return Transformed::Replace(Selection::FragmentSpread(Arc::new(
-                            FragmentSpread {
-                                directives: remove_directive(&spread.directives, defer.name.item),
-                                ..spread.clone()
-                            },
-                        )));
-                    }
-                }
-
-                match get_literal_string_argument(&defer, DEFER_STREAM_CONSTANTS.label_arg) {
-                    Ok(label_value) => {
-                        let is_user_provided_label_empty = label_value == None;
-                        let label = label_value.unwrap_or_else(|| {
-                            get_applied_fragment_name(spread.fragment.item, &spread.arguments)
-                        });
-
-                        let transformed_label = transform_label(
-                            self.current_document_name
-                                .expect("We expect the parent name to be defined here."),
-                            DEFER_STREAM_CONSTANTS.defer_name,
-                            label,
-                        );
-                        self.record_label(transformed_label, defer);
-                        let next_label_value =
-                            Value::Constant(ConstantValue::String(transformed_label));
-
-                        let next_arguments = if is_user_provided_label_empty {
-                            let mut args = defer.arguments.to_owned();
-                            args.push(Argument {
-                                name: WithLocation {
-                                    item: DEFER_STREAM_CONSTANTS.label_arg,
-                                    location: defer.name.location,
-                                },
-                                value: WithLocation {
-                                    item: next_label_value,
-                                    location: defer.name.location,
-                                },
-                            });
-                            args
-                        } else {
-                            replace_argument_value(
-                                &defer.arguments,
-                                DEFER_STREAM_CONSTANTS.label_arg,
-                                next_label_value,
-                            )
-                        };
-
-                        let next_defer = Directive {
-                            name: defer.name,
-                            arguments: next_arguments,
-                        };
-
-                        Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                            directives: replace_directive(&spread.directives, next_defer),
-                            ..spread.clone()
-                        })))
-                    }
-
-                    Err(error) => {
-                        self.errors.push(error);
-                        Transformed::Keep
-                    }
+        if let Some(defer) = defer_directive {
+            match self.transform_defer(spread, defer) {
+                Ok(transformed) => transformed,
+                Err(err) => {
+                    self.errors.push(err);
+                    self.default_transform_fragment_spread(spread)
                 }
             }
-            None => self.default_transform_fragment_spread(spread),
+        } else {
+            self.default_transform_fragment_spread(spread)
         }
     }
 
+    /// Validates @stream is not allowed on scalar fields.
     fn transform_scalar_field(&mut self, scalar_field: &ScalarField) -> Transformed<Selection> {
         let stream_directive = &scalar_field
             .directives
@@ -214,101 +304,24 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
                 vec![directive.name.location],
             ));
         }
-
         self.default_transform_scalar_field(scalar_field)
     }
 
+    /// Transform of linked field with @stream is delegated to `transform_stream`.
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
         let stream_directive = linked_field
             .directives
             .named(DEFER_STREAM_CONSTANTS.stream_name);
-        match stream_directive {
-            Some(stream) => {
-                let if_arg = &stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
-                if let Some(arg) = if_arg {
-                    if is_literal_false(arg) {
-                        return Transformed::Replace(Selection::LinkedField(Arc::new(
-                            LinkedField {
-                                directives: remove_directive(
-                                    &linked_field.directives,
-                                    stream.name.item,
-                                ),
-                                ..linked_field.clone()
-                            },
-                        )));
-                    }
-                }
-
-                let initial_count_arg = stream
-                    .arguments
-                    .named(DEFER_STREAM_CONSTANTS.initial_count_arg);
-                if initial_count_arg == None {
-                    self.errors.push(ValidationError::new(
-                        ValidationMessage::StreamInitialCountRequired,
-                        vec![stream.name.location],
-                    ));
-                    return Transformed::Keep;
-                }
-
-                match get_literal_string_argument(&stream, DEFER_STREAM_CONSTANTS.label_arg) {
-                    Ok(label_value) => {
-                        let is_user_provided_label_empty = label_value == None;
-                        let label = label_value.unwrap_or_else(|| {
-                            get_applied_fragment_name(
-                                linked_field.alias_or_name(self.program.schema()),
-                                &linked_field.arguments,
-                            )
-                        });
-
-                        let transformed_label = transform_label(
-                            self.current_document_name
-                                .expect("We expect the parent name to be defined here."),
-                            DEFER_STREAM_CONSTANTS.stream_name,
-                            label,
-                        );
-
-                        self.record_label(transformed_label, stream);
-
-                        let next_label_value =
-                            Value::Constant(ConstantValue::String(transformed_label));
-                        let next_arguments = if is_user_provided_label_empty {
-                            let mut args = stream.arguments.to_owned();
-                            args.push(Argument {
-                                name: WithLocation {
-                                    item: DEFER_STREAM_CONSTANTS.label_arg,
-                                    location: stream.name.location,
-                                },
-                                value: WithLocation {
-                                    item: next_label_value,
-                                    location: stream.name.location,
-                                },
-                            });
-                            args
-                        } else {
-                            replace_argument_value(
-                                &stream.arguments,
-                                DEFER_STREAM_CONSTANTS.label_arg,
-                                next_label_value,
-                            )
-                        };
-
-                        let next_stream = Directive {
-                            name: stream.name,
-                            arguments: next_arguments,
-                        };
-
-                        Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
-                            directives: replace_directive(&linked_field.directives, next_stream),
-                            ..linked_field.clone()
-                        })))
-                    }
-                    Err(error) => {
-                        self.errors.push(error);
-                        Transformed::Keep
-                    }
+        if let Some(stream) = stream_directive {
+            match self.transform_stream(linked_field, stream) {
+                Ok(transformed) => transformed,
+                Err(err) => {
+                    self.errors.push(err);
+                    self.default_transform_linked_field(linked_field)
                 }
             }
-            None => self.default_transform_linked_field(linked_field),
+        } else {
+            self.default_transform_linked_field(linked_field)
         }
     }
 }

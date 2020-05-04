@@ -93,16 +93,14 @@ impl DeferStreamTransform<'_> {
         spread: &FragmentSpread,
         defer: &Directive,
     ) -> Result<Transformed<Selection>, ValidationError> {
-        let if_arg = &defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
-        if let Some(arg) = if_arg {
-            if is_literal_false(arg) {
-                return Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
-                    FragmentSpread {
-                        directives: remove_directive(&spread.directives, defer.name.item),
-                        ..spread.clone()
-                    },
-                ))));
-            }
+        let if_arg = defer.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+        if is_literal_false_arg(if_arg) {
+            return Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
+                FragmentSpread {
+                    directives: remove_directive(&spread.directives, defer.name.item),
+                    ..spread.clone()
+                },
+            ))));
         }
 
         let label_value = get_literal_string_argument(&defer, DEFER_STREAM_CONSTANTS.label_arg)?;
@@ -159,16 +157,14 @@ impl DeferStreamTransform<'_> {
         linked_field: &LinkedField,
         stream: &Directive,
     ) -> Result<Transformed<Selection>, ValidationError> {
-        let if_arg = &stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
-        if let Some(arg) = if_arg {
-            if is_literal_false(arg) {
-                return Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
-                    LinkedField {
-                        directives: remove_directive(&linked_field.directives, stream.name.item),
-                        ..linked_field.clone()
-                    },
-                ))));
-            }
+        let if_arg = stream.arguments.named(DEFER_STREAM_CONSTANTS.if_arg);
+        if is_literal_false_arg(if_arg) {
+            return Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
+                LinkedField {
+                    directives: remove_directive(&linked_field.directives, stream.name.item),
+                    ..linked_field.clone()
+                },
+            ))));
         }
 
         let initial_count_arg = stream
@@ -326,10 +322,14 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     }
 }
 
-fn is_literal_false(arg: &Argument) -> bool {
-    match arg.value.item {
-        Value::Constant(ConstantValue::Boolean(val)) => !val,
-        _ => false,
+fn is_literal_false_arg(arg: Option<&Argument>) -> bool {
+    if let Some(arg) = arg {
+        match arg.value.item {
+            Value::Constant(ConstantValue::Boolean(false)) => true,
+            _ => false,
+        }
+    } else {
+        false
     }
 }
 

@@ -9,11 +9,12 @@ use std::collections::{HashMap, HashSet};
 use std::error::Error;
 
 use crate::lsp::{
-    Completion, CompletionOptions, CompletionParams, Connection, DidChangeTextDocument,
-    DidChangeTextDocumentParams, DidCloseTextDocument, DidCloseTextDocumentParams,
-    DidOpenTextDocument, DidOpenTextDocumentParams, InitializeParams, Message, Notification,
-    PublishDiagnosticsParams, Request, ServerCapabilities, ServerNotification, ServerRequest,
-    ServerRequestId, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+    Completion, CompletionItem, CompletionList, CompletionOptions, CompletionParams,
+    CompletionResponse, Connection, DidChangeTextDocument, DidChangeTextDocumentParams,
+    DidCloseTextDocument, DidCloseTextDocumentParams, DidOpenTextDocument,
+    DidOpenTextDocumentParams, InitializeParams, Message, Notification, PublishDiagnosticsParams,
+    Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+    ServerResponse, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
     Url, WorkDoneProgressOptions,
 };
 
@@ -102,6 +103,7 @@ pub async fn run(
     let (mut tx, mut rx) = mpsc::channel::<CompilerMessage>(100);
 
     let receiver = connection.receiver.clone();
+    let sender = connection.sender.clone();
 
     // Thread for the LSP message loop
     tokio::spawn(async move {
@@ -112,7 +114,7 @@ pub async fn run(
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (
-                            _,
+                            request_id,
                             CompletionParams {
                                 text_document_position,
                                 ..
@@ -140,11 +142,39 @@ pub async fn run(
                                             break;
                                         }
                                     }
-                                    if let Some(chunk) = target_chunk {
-                                        info!(
-                                            "Completion request occurred within chunk: {:?}",
-                                            chunk
-                                        );
+                                    if let Some(_) = target_chunk {
+                                        // Build up some fake completion items to test with for now
+                                        let items = vec![
+                                            "Component_user1",
+                                            "Component_user2",
+                                            "Component_userWithStream",
+                                        ];
+
+                                        let items = items
+                                            .iter()
+                                            .map(|label| {
+                                                CompletionItem::new_simple(
+                                                    (*label).to_owned(),
+                                                    String::new(),
+                                                )
+                                            })
+                                            .collect();
+
+                                        let list = CompletionList {
+                                            is_incomplete: false,
+                                            items,
+                                        };
+
+                                        let completion_response = CompletionResponse::List(list);
+                                        let completion_response =
+                                            serde_json::to_value(&completion_response).unwrap();
+                                        let response = ServerResponse {
+                                            id: request_id,
+                                            result: Some(completion_response),
+                                            error: None,
+                                        };
+                                        sender.send(Message::Response(response)).unwrap();
+                                        continue;
                                     } else {
                                         info!("Completion request was not within a GraphQL tag");
                                     }

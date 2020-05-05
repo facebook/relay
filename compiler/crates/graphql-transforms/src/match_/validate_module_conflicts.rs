@@ -6,11 +6,12 @@
  */
 
 use crate::match_::MATCH_CONSTANTS;
+use crate::util::PointerAddress;
 use common::Location;
 use errors::{validate, validate_map};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    LinkedField, NamedItem, Program, Selection, ValidationError, ValidationMessage,
+    InlineFragment, LinkedField, NamedItem, Program, Selection, ValidationError, ValidationMessage,
     ValidationResult, Validator,
 };
 use schema::Type;
@@ -18,12 +19,17 @@ use schema::Type;
 /// Validate that after flattening, there are no @module selections on the same type, and
 /// under the same linked field, but have different arguments.
 pub fn validate_module_conflicts<'s>(program: &Program<'s>) -> ValidationResult<()> {
-    let mut validator = ValidateModuleConflicts {};
+    let mut validator = ValidateModuleConflicts::default();
     validator.validate_program(program)
 }
 
+type Visited = FnvHashSet<PointerAddress>;
 type SeenTypes = FnvHashMap<Type, Location>;
-struct ValidateModuleConflicts;
+
+#[derive(Default)]
+struct ValidateModuleConflicts {
+    visited: Visited,
+}
 
 impl Validator for ValidateModuleConflicts {
     const NAME: &'static str = "ValidateModuleConflicts";
@@ -45,6 +51,15 @@ impl Validator for ValidateModuleConflicts {
             )
         } else {
             self.default_validate_linked_field(field)
+        }
+    }
+
+    fn validate_inline_fragment(&mut self, fragment: &InlineFragment) -> ValidationResult<()> {
+        let key = PointerAddress::new(fragment);
+        if self.visited.insert(key) {
+            self.default_validate_inline_fragment(fragment)
+        } else {
+            Ok(())
         }
     }
 }

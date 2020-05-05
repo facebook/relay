@@ -276,13 +276,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let defer = frag_spread
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
-                match defer {
-                    Some(defer) => vec![self.build_defer(&frag_spread, defer)],
-                    None => vec![self.build_fragment_spread(&frag_spread)],
+                if defer.is_some() {
+                    vec![self.build_defer_reader(&frag_spread)]
+                } else {
+                    vec![self.build_fragment_spread(&frag_spread)]
                 }
             }
             Selection::InlineFragment(inline_frag) => {
-                vec![self.build_inline_fragment(&inline_frag)]
+                let defer = inline_frag
+                    .directives
+                    .named(DEFER_STREAM_CONSTANTS.defer_name);
+                if let Some(defer) = defer {
+                    vec![self.build_defer_normalization(&inline_frag, defer)]
+                } else {
+                    vec![self.build_inline_fragment(&inline_frag)]
+                }
             }
             Selection::LinkedField(field) => {
                 let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
@@ -555,7 +563,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_defer(&mut self, frag_spread: &FragmentSpread, defer: &Directive) -> Primitive {
+    fn build_defer_reader(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+        assert!(self.variant == CodegenVariant::Reader);
+
         let next_selections = vec![self.build_fragment_spread(&FragmentSpread {
             directives: remove_directive(
                 &frag_spread.directives,
@@ -564,34 +574,46 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ..frag_spread.to_owned()
         })];
         let next_selections = Primitive::Key(self.array(next_selections));
-        Primitive::Key(match self.variant {
-            CodegenVariant::Reader => self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.defer),
-                ),
-                (CODEGEN_CONSTANTS.selections, next_selections),
-            ]),
-            CodegenVariant::Normalization => {
-                let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
-                let if_variable_name = extract_variable_name(if_arg);
-                let label_name = label_arg.unwrap().value.item.expect_string_literal();
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.defer),
+            ),
+            (CODEGEN_CONSTANTS.selections, next_selections),
+        ]))
+    }
 
-                self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.if_,
-                        Primitive::string_or_null(if_variable_name),
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.defer),
-                    ),
-                    (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
-                    (CODEGEN_CONSTANTS.metadata, Primitive::Null),
-                    (CODEGEN_CONSTANTS.selections, next_selections),
-                ])
-            }
-        })
+    fn build_defer_normalization(
+        &mut self,
+        inline_fragment: &InlineFragment,
+        defer: &Directive,
+    ) -> Primitive {
+        assert!(self.variant == CodegenVariant::Normalization);
+
+        let next_selections = vec![self.build_inline_fragment(&InlineFragment {
+            directives: remove_directive(
+                &inline_fragment.directives,
+                DEFER_STREAM_CONSTANTS.defer_name,
+            ),
+            ..inline_fragment.to_owned()
+        })];
+        let next_selections = Primitive::Key(self.array(next_selections));
+        let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
+        let if_variable_name = extract_variable_name(if_arg);
+        let label_name = label_arg.unwrap().value.item.expect_string_literal();
+
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.if_,
+                Primitive::string_or_null(if_variable_name),
+            ),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.defer),
+            ),
+            (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
+            (CODEGEN_CONSTANTS.selections, next_selections),
+        ]))
     }
 
     fn build_stream(&mut self, linked_field: &LinkedField, stream: &Directive) -> Primitive {

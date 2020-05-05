@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, WrittenArtifacts};
+use crate::build_project::{build_project, build_schema, check_project, WrittenArtifacts};
 use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
@@ -13,6 +13,7 @@ use crate::parse_sources::parse_sources;
 use crate::watchman::{FileSource, FileSourceResult, QueryParams};
 use common::PerfLogger;
 use log::{error, info};
+use schema::Schema;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -88,29 +89,49 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         Ok(compiler_state)
     }
 
+    pub fn build_schemas(&self, compiler_state: &CompilerState) -> HashMap<ProjectName, Schema> {
+        let mut schemas = HashMap::new();
+        match self.config.only_project {
+            Some(project_key) => {
+                let project_config =
+                    self.config.projects.get(&project_key).unwrap_or_else(|| {
+                        panic!("Expected the project {} to exist", &project_key)
+                    });
+                let schema = build_schema(compiler_state, project_config);
+                schemas.insert(project_config.name, schema);
+            }
+            None => {
+                for project_config in self.config.projects.values() {
+                    let schema = build_schema(compiler_state, project_config);
+                    schemas.insert(project_config.name, schema);
+                }
+            }
+        }
+        schemas
+    }
+
     pub async fn watch_with_callback<F: FnMut(Result<()>)>(&self, mut callback: F) -> Result<()> {
         let file_source = FileSource::connect(&self.config).await?;
         let (mut compiler_state, initial_file_source_result) = self
             .create_compiler_state_and_file_source_result(&file_source, None)
             .await?;
 
-        callback(self.build_projects(&mut compiler_state).await);
+        let schemas = self.build_schemas(&compiler_state);
+
+        callback(self.check_projects(&mut compiler_state, &schemas).await);
 
         let mut subscription = file_source.subscribe(initial_file_source_result).await?;
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
-
-                info!("\n\n[watch-mode] Change detected");
                 let had_new_changes = compiler_state
                     .add_pending_file_source_changes(&self.config, &file_source_changes)?;
-
                 if had_new_changes {
                     // Clear out existing errors
                     callback(Ok(()));
                     // Report any new errors
-                    callback(self.build_projects(&mut compiler_state).await);
+                    callback(self.check_projects(&mut compiler_state, &schemas).await);
                 } else {
                     info!("[watch-mode] No re-compilation required");
                 }
@@ -151,6 +172,65 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                     info!("[watch-mode] No re-compilation required");
                 }
             }
+        }
+    }
+
+    async fn check_projects(
+        &self,
+        compiler_state: &mut CompilerState,
+        schemas: &HashMap<ProjectName, Schema>,
+    ) -> Result<()> {
+        let graphql_asts = parse_sources(&compiler_state)?;
+        let mut build_project_errors = vec![];
+
+        match self.config.only_project {
+            Some(project_key) => {
+                let project_config =
+                    self.config.projects.get(&project_key).unwrap_or_else(|| {
+                        panic!("Expected the project {} to exist", &project_key)
+                    });
+                let schema = schemas.get(&project_config.name).unwrap();
+                check_project(
+                    project_config,
+                    compiler_state,
+                    &graphql_asts,
+                    schema,
+                    self.perf_logger,
+                )
+                .await
+                .map_err(|err| {
+                    build_project_errors.push(err);
+                })
+                .ok();
+            }
+            None => {
+                for project_config in self.config.projects.values() {
+                    if compiler_state.project_has_pending_changes(project_config.name) {
+                        let schema = schemas.get(&project_config.name).unwrap();
+                        // TODO: consider running all projects in parallel
+                        check_project(
+                            project_config,
+                            compiler_state,
+                            &graphql_asts,
+                            schema,
+                            self.perf_logger,
+                        )
+                        .await
+                        .map_err(|err| {
+                            build_project_errors.push(err);
+                        })
+                        .ok();
+                    }
+                }
+            }
+        }
+
+        if build_project_errors.is_empty() {
+            Ok(())
+        } else {
+            Err(Error::BuildProjectsErrors {
+                errors: build_project_errors,
+            })
         }
     }
 

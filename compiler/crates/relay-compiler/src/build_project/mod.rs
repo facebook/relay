@@ -20,36 +20,35 @@ use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
+use apply_transforms::Programs;
 use build_ir::BuildIRResult;
 use common::{PerfLogEvent, PerfLogger};
 pub use generate_artifacts::Artifact;
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FBConnectionInterface;
 use log::info;
+use schema::Schema;
 use std::path::PathBuf;
 pub use validate::validate;
 
 pub type WrittenArtifacts = Vec<(PathBuf, Artifact)>;
 
-pub async fn build_project(
-    config: &Config,
+pub fn build_schema(compiler_state: &CompilerState, project_config: &ProjectConfig) -> Schema {
+    // Construct a schema instance including project specific extensions.
+    build_schema::build_schema(compiler_state, project_config)
+}
+
+async fn build_programs<'a>(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
+    schema: &'a Schema,
+    log_event: &impl PerfLogEvent,
     perf_logger: &impl PerfLogger,
-) -> Result<WrittenArtifacts, BuildProjectError> {
-    let log_event = perf_logger.create_event("build_project");
-    let build_time = log_event.start("build_time");
+) -> Result<Programs<'a>, BuildProjectError> {
     let project_name = project_config.name.lookup();
-    log_event.string("project", project_name.to_string());
-
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
-
-    // Construct a schema instance including project specific extensions.
-    let schema = log_event.time("build_schema", || {
-        build_schema::build_schema(compiler_state, project_config)
-    });
 
     // Build a type aware IR.
     let BuildIRResult {
@@ -89,6 +88,65 @@ pub async fn build_project(
             sources,
         )
     })?;
+
+    Ok(programs)
+}
+
+pub async fn check_project(
+    project_config: &ProjectConfig,
+    compiler_state: &CompilerState,
+    graphql_asts: &GraphQLAsts<'_>,
+    schema: &Schema,
+    perf_logger: &impl PerfLogger,
+) -> Result<(), BuildProjectError> {
+    let log_event = perf_logger.create_event("check_project");
+    let build_time = log_event.start("check_time");
+    let project_name = project_config.name.lookup();
+    log_event.string("project", project_name.to_string());
+
+    // Build the programs, but ignore the result as we don't need to generate artifacts for a check
+    build_programs(
+        project_config,
+        compiler_state,
+        graphql_asts,
+        schema,
+        &log_event,
+        perf_logger,
+    )
+    .await?;
+
+    log_event.stop(build_time);
+    perf_logger.complete_event(log_event);
+
+    Ok(())
+}
+
+pub async fn build_project(
+    config: &Config,
+    project_config: &ProjectConfig,
+    compiler_state: &CompilerState,
+    graphql_asts: &GraphQLAsts<'_>,
+    perf_logger: &impl PerfLogger,
+) -> Result<WrittenArtifacts, BuildProjectError> {
+    let log_event = perf_logger.create_event("build_project");
+    let build_time = log_event.start("build_time");
+    let project_name = project_config.name.lookup();
+    log_event.string("project", project_name.to_string());
+
+    // Construct a schema instance including project specific extensions.
+    let schema = log_event.time("build_schema", || {
+        build_schema::build_schema(compiler_state, project_config)
+    });
+
+    let programs = build_programs(
+        project_config,
+        compiler_state,
+        graphql_asts,
+        &schema,
+        &log_event,
+        perf_logger,
+    )
+    .await?;
 
     // Generate code and persist text to produce output artifacts in memory.
     let artifacts_timer = log_event.start("generate_artifacts");

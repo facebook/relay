@@ -17,6 +17,7 @@ use crate::lsp::{
     Url, WorkDoneProgressOptions,
 };
 
+use extract_graphql;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
@@ -104,7 +105,7 @@ pub async fn run(
 
     // Thread for the LSP message loop
     tokio::spawn(async move {
-        let mut synced_documents = HashMap::new();
+        let mut synced_documents: HashMap<Url, String> = HashMap::new();
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
@@ -123,10 +124,36 @@ pub async fn run(
                         } = text_document_position;
                         let url = text_document.uri;
                         if let Some(source) = synced_documents.get(&url) {
-                            info!(
-                                "Autocomplete at position {:?} for source: {:#?}",
-                                position, source
-                            );
+                            let source = source.as_str();
+                            match extract_graphql::parse_chunks(source) {
+                                Ok(chunks) => {
+                                    if chunks.is_empty() {
+                                        // Ignore files with no `graphql` tags
+                                        continue;
+                                    }
+                                    let mut target_chunk = None;
+                                    for chunk in chunks {
+                                        let range = chunk.to_range();
+                                        if position >= range.start && position <= range.end {
+                                            target_chunk = Some(chunk);
+                                            // Exit the loop early as chunks should never be overlapping
+                                            break;
+                                        }
+                                    }
+                                    if let Some(chunk) = target_chunk {
+                                        info!(
+                                            "Completion request occurred within chunk: {:?}",
+                                            chunk
+                                        );
+                                    } else {
+                                        info!("Completion request was not within a GraphQL tag");
+                                    }
+                                }
+                                Err(_) => {
+                                    continue;
+                                    // Ignore errors
+                                }
+                            }
                         } else {
                             // TODO(brandondail) we should never get a completion request
                             // for a document we haven't synced yet. Do some error logging here.

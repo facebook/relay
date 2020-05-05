@@ -9,6 +9,7 @@ include = ["src/**/*.rs"]
 
 [dependencies]
 common = { path = "../common" }
+extract-graphql = { path = "../extract-graphql" }
 relay-compiler = { path = "../relay-compiler" }
 env_logger = "0.7"
 log = { version="0.4.8", features = ["kv_unstable"] }

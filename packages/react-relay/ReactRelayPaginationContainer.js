@@ -726,7 +726,11 @@ function createContainerWithFragments<
         cacheConfig.metadata = options?.metadata;
       }
       const request = getRequest(connectionConfig.query);
-      const operation = createOperationDescriptor(request, fetchVariables);
+      const operation = createOperationDescriptor(
+        request,
+        fetchVariables,
+        cacheConfig,
+      );
 
       let refetchSubscription = null;
 
@@ -782,7 +786,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           preservePreviousReferences: true,
         })
         .mergeMap(payload =>

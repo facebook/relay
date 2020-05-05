@@ -339,7 +339,11 @@ function createContainerWithFragments<
           : observerOrCallback || ({}: any);
 
       const query = getRequest(taggedNode);
-      const operation = createOperationDescriptor(query, fetchVariables);
+      const operation = createOperationDescriptor(
+        query,
+        fetchVariables,
+        cacheConfig,
+      );
 
       // TODO: T26288752 find a better way
       /* eslint-disable lint/react-state-props-mutation */
@@ -384,7 +388,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           // TODO (T26430099): Cleanup old references
           preservePreviousReferences: true,
         })

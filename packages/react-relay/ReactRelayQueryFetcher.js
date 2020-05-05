@@ -270,7 +270,6 @@ class ReactRelayQueryFetcher {
     );
     return this.fetch(
       {
-        cacheConfig: this._fetchOptions.cacheConfig,
         environment: this._fetchOptions.environment,
         operation: this._fetchOptions.operation,
         onDataChange: null, // If there are onDataChangeCallbacks they will be reused

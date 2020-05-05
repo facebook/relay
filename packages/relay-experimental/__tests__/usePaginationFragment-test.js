@@ -16,7 +16,11 @@
 const React = require('react');
 
 import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  OperationDescriptor,
+  Variables,
+  ConcreteRequest,
+} from 'relay-runtime';
 const {useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 

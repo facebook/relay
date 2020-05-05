@@ -9,9 +9,9 @@ use std::collections::HashSet;
 use std::error::Error;
 
 use crate::lsp::{
-    Connection, DidOpenTextDocument, InitializeParams, Message, Notification,
-    PublishDiagnosticsParams, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
-    Url,
+    Completion, CompletionOptions, Connection, DidOpenTextDocument, InitializeParams, Message,
+    Notification, PublishDiagnosticsParams, Request, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
 
 use relay_compiler::compiler::Compiler;
@@ -65,6 +65,14 @@ pub fn initialize(
     server_capabilities.text_document_sync =
         Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
 
+    server_capabilities.completion_provider = Some(CompletionOptions {
+        resolve_provider: Some(true),
+        trigger_characters: None,
+        work_done_progress_options: WorkDoneProgressOptions {
+            work_done_progress: None,
+        },
+    });
+
     let server_capabilities = serde_json::to_value(&server_capabilities).unwrap();
     let params = connection.initialize(server_capabilities)?;
     let params: InitializeParams = serde_json::from_value(params).unwrap();
@@ -96,7 +104,9 @@ pub async fn run(
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
-                    info!("Request: {:#?}", req);
+                    if req.method == Completion::METHOD {
+                        info!("Completion request: {:#?}", req);
+                    }
                 }
                 Message::Response(resp) => {
                     info!("Request: {:#?}", resp);

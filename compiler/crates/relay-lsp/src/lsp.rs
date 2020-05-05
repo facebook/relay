@@ -10,11 +10,7 @@ use std::error::Error;
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
 pub use lsp_server::{Connection, Message};
-pub use lsp_types::{
-    notification::{DidOpenTextDocument, Notification, PublishDiagnostics, ShowMessage},
-    Diagnostic, DiagnosticSeverity, InitializeParams, MessageType, PublishDiagnosticsParams,
-    ServerCapabilities, ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
-};
+pub use lsp_types::{notification::*, request::*, *};
 
 use common::Location;
 use lsp_server::Notification as ServerNotification;

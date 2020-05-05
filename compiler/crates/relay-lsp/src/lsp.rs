@@ -13,7 +13,9 @@ pub use lsp_server::{Connection, Message};
 pub use lsp_types::{notification::*, request::*, *};
 
 use common::Location;
-use lsp_server::Notification as ServerNotification;
+pub use lsp_server::{
+    Notification as ServerNotification, Request as ServerRequest, RequestId as ServerRequestId,
+};
 use std::fs;
 use std::path::PathBuf;
 

@@ -5,13 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
 
 use crate::lsp::{
-    Completion, CompletionOptions, Connection, DidOpenTextDocument, InitializeParams, Message,
-    Notification, PublishDiagnosticsParams, Request, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
+    Completion, CompletionOptions, CompletionParams, Connection, DidChangeTextDocument,
+    DidChangeTextDocumentParams, DidCloseTextDocument, DidCloseTextDocumentParams,
+    DidOpenTextDocument, DidOpenTextDocumentParams, InitializeParams, Message, Notification,
+    PublishDiagnosticsParams, Request, ServerCapabilities, ServerNotification, ServerRequest,
+    ServerRequestId, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+    Url, WorkDoneProgressOptions,
 };
 
 use relay_compiler::compiler::Compiler;
@@ -101,22 +104,69 @@ pub async fn run(
 
     // Thread for the LSP message loop
     tokio::spawn(async move {
+        let mut synced_documents = HashMap::new();
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
+                    // Auto-complete request
                     if req.method == Completion::METHOD {
-                        info!("Completion request: {:#?}", req);
+                        let (
+                            _,
+                            CompletionParams {
+                                text_document_position,
+                                ..
+                            },
+                        ) = extract_request_params::<Completion>(req);
+                        let TextDocumentPositionParams {
+                            text_document,
+                            position,
+                        } = text_document_position;
+                        let url = text_document.uri;
+                        if let Some(source) = synced_documents.get(&url) {
+                            info!(
+                                "Autocomplete at position {:?} for source: {:#?}",
+                                position, source
+                            );
+                        } else {
+                            // TODO(brandondail) we should never get a completion request
+                            // for a document we haven't synced yet. Do some error logging here.
+                        }
                     }
                 }
                 Message::Response(resp) => {
                     info!("Request: {:#?}", resp);
                 }
                 Message::Notification(notif) => {
-                    if notif.method == DidOpenTextDocument::METHOD {
+                    if &notif.method == DidOpenTextDocument::METHOD {
                         // Lazily start the compiler once a relevant file is opened
                         if tx.send(CompilerMessage::Initialize).await.is_err() {
                             return;
                         }
+                        let DidOpenTextDocumentParams { text_document, .. } =
+                            extract_notif_params::<DidOpenTextDocument>(notif);
+                        let url = text_document.uri;
+                        let source = text_document.text;
+                        synced_documents.insert(url, source);
+                    // Start syncing the text for this document, so we can
+                    // provide accurate auto-completion results
+                    } else if notif.method == DidChangeTextDocument::METHOD {
+                        // Update the synced document
+                        let DidChangeTextDocumentParams {
+                            text_document,
+                            mut content_changes,
+                        } = extract_notif_params::<DidChangeTextDocument>(notif);
+                        let url = text_document.uri;
+                        // We use full text syncing, so there will be a single content change
+                        // with all the new text
+                        let change = content_changes.remove(0);
+                        let source = change.text;
+                        synced_documents.insert(url, source);
+                    } else if notif.method == DidCloseTextDocument::METHOD {
+                        // Stop tracking the document when the file is closed
+                        let DidCloseTextDocumentParams { text_document } =
+                            extract_notif_params::<DidCloseTextDocument>(notif);
+                        let url = text_document.uri;
+                        synced_documents.remove(&url);
                     }
                 }
             }
@@ -199,4 +249,18 @@ pub async fn run(
         }
     }
     Ok(())
+}
+
+fn extract_notif_params<N>(notif: ServerNotification) -> N::Params
+where
+    N: Notification,
+{
+    notif.extract(N::METHOD).unwrap()
+}
+
+fn extract_request_params<R>(req: ServerRequest) -> (ServerRequestId, R::Params)
+where
+    R: Request,
+{
+    req.extract(R::METHOD).unwrap()
 }

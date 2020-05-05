@@ -60,7 +60,11 @@ function requestSubscription<TSubscriptionPayload>(
     variables,
     cacheConfig,
   } = config;
-  const operation = createOperationDescriptor(subscription, variables);
+  const operation = createOperationDescriptor(
+    subscription,
+    variables,
+    cacheConfig,
+  );
 
   warning(
     !(config.updater && configs),
@@ -80,7 +84,6 @@ function requestSubscription<TSubscriptionPayload>(
     .execute({
       operation,
       updater,
-      cacheConfig,
     })
     .map(() => {
       const data = environment.lookup(operation.fragment).data;

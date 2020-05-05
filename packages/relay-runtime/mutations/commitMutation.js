@@ -115,6 +115,7 @@ function commitMutation<T: MutationParameters>(
   const operation = createOperationDescriptor(
     mutation,
     variables,
+    cacheConfig,
     RelayFeatureFlags.ENABLE_UNIQUE_MUTATION_ROOT
       ? generateUniqueClientID()
       : undefined,
@@ -144,7 +145,6 @@ function commitMutation<T: MutationParameters>(
   const errors = [];
   const subscription = environment
     .executeMutation({
-      cacheConfig,
       operation,
       optimisticResponse,
       optimisticUpdater,

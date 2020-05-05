@@ -82,6 +82,7 @@ export type RequestDescriptor = {|
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
   +variables: Variables,
+  +cacheConfig: ?CacheConfig,
 |};
 
 /**
@@ -585,7 +586,6 @@ export interface IEnvironment {
    */
   execute(config: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse>;
 
@@ -600,7 +600,6 @@ export interface IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({|
-    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,

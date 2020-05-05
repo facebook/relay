@@ -13,7 +13,7 @@ use graphql_transforms::{
     handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
     skip_redundant_nodes, skip_split_operation, skip_unreachable_node, skip_unused_variables,
     split_module_import, transform_connections, transform_defer_stream, transform_match,
-    validate_module_conflicts, ConnectionInterface,
+    validate_module_conflicts, validate_server_only_directives, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -166,11 +166,14 @@ fn apply_normalization_transforms<'schema>(
     // + FlattenTransform, flattenAbstractTypes: true
     // + SkipRedundantNodesTransform
     // + GenerateTypeNameTransform
-    // - ValidateServerOnlyDirectivesTransform
+    // + ValidateServerOnlyDirectivesTransform
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    log_event.time("validate_server_only_directives", || {
+        validate_server_only_directives(&program)
+    })?;
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
     let program = log_event.time("flatten", || flatten(&program, true));
     log_event.time("validate_module_conflicts", || {

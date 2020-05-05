@@ -38,7 +38,7 @@
     "babel-plugin-macros": "^2.0.0",
     "babel-plugin-tester": "^6.0.1",
     "babel-preset-fbjs": "^3.3.0",
-    "chalk": "^2.4.1",
+    "chalk": "^4.0.0",
     "cosmiconfig": "^5.0.5",
     "cross-env": "^5.2.0",
     "del": "3.0.0",

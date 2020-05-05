@@ -9,7 +9,7 @@ use super::errors::{Error, Result};
 use super::Clock;
 use super::WatchmanFile;
 use crate::config::{Config, SchemaLocation};
-use common::Timer;
+use common::PerfLogEvent;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
@@ -33,8 +33,11 @@ pub struct QueryParams {
 }
 
 impl<'config> FileSource<'config> {
-    pub async fn connect(config: &'config Config) -> Result<FileSource<'config>> {
-        let connect_timer = Timer::start("connect");
+    pub async fn connect(
+        config: &'config Config,
+        perf_logger_event: &impl PerfLogEvent,
+    ) -> Result<FileSource<'config>> {
+        let connect_timer = perf_logger_event.start("file_source_connect_time");
         let client = Connector::new().connect().await?;
         let canonical_root = CanonicalPath::canonicalize(&config.root_dir).map_err(|err| {
             Error::CanonicalizeRoot {
@@ -43,7 +46,7 @@ impl<'config> FileSource<'config> {
             }
         })?;
         let resolved_root = client.resolve_root(canonical_root).await?;
-        connect_timer.stop();
+        perf_logger_event.stop(connect_timer);
 
         Ok(Self {
             client,
@@ -57,11 +60,12 @@ impl<'config> FileSource<'config> {
     pub async fn query(
         &self,
         optional_query_params: Option<QueryParams>,
+        perf_logger_event: &impl PerfLogEvent,
     ) -> Result<FileSourceResult> {
         let roots = get_all_roots(&self.config);
         let expression = get_watchman_expr(&self.config);
 
-        let query_timer = Timer::start("query");
+        let query_timer = perf_logger_event.start("watchman_query_time");
         // If `since` is available, we should not pass the `path` parameter.
         // Watchman ignores `since` parameter if both `path` and `since` are
         // passed as the request params
@@ -87,7 +91,7 @@ impl<'config> FileSource<'config> {
                 },
             )
             .await?;
-        query_timer.stop();
+        perf_logger_event.stop(query_timer);
 
         let files = query_result.files.ok_or_else(|| Error::EmptyQueryResult)?;
         Ok(FileSourceResult {

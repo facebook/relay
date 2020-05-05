@@ -83,7 +83,7 @@ describe('useLazyLoadQueryNode', () => {
     `);
     gqlQuery = generated.UserQuery;
     variables = {id: '1'};
-    query = createOperationDescriptor(gqlQuery, variables);
+    query = createOperationDescriptor(gqlQuery, variables, {force: true});
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
   });
 
@@ -99,7 +99,9 @@ describe('useLazyLoadQueryNode', () => {
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function(props) {
-      const _query = createOperationDescriptor(gqlQuery, props.variables);
+      const _query = createOperationDescriptor(gqlQuery, props.variables, {
+        force: true,
+      });
       const result = useLazyLoadQueryNode<_>({
         query: _query,
         fetchPolicy: 'network-only',
@@ -141,7 +143,9 @@ describe('useLazyLoadQueryNode', () => {
     environment.execute.mockClear();
     renderFn.mockClear();
     function V2(props) {
-      const _query = createOperationDescriptor(gqlQuery, props.variables);
+      const _query = createOperationDescriptor(gqlQuery, props.variables, {
+        force: true,
+      });
       const result = useLazyLoadQueryNode<_>({
         query: _query,
         fetchPolicy: 'network-only',

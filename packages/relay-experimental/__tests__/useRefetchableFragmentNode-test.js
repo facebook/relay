@@ -16,7 +16,11 @@
 const React = require('react');
 const Scheduler = require('scheduler');
 
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  OperationDescriptor,
+  Variables,
+  ConcreteRequest,
+} from 'relay-runtime';
 const {useMemo, useState, useEffect} = React;
 const TestRenderer = require('react-test-renderer');
 
@@ -27,7 +31,7 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
+  createOperationDescriptor: createOperationDescriptorOriginal,
 } = require('relay-runtime');
 
 describe('useRefetchableFragmentNode', () => {
@@ -73,6 +77,15 @@ describe('useRefetchableFragmentNode', () => {
       }
       return children;
     }
+  }
+
+  function createOperationDescriptor(
+    request: ConcreteRequest,
+    variables: Variables,
+  ) {
+    return createOperationDescriptorOriginal(request, variables, {
+      force: true,
+    });
   }
 
   function useRefetchableFragmentNode(fragmentNode, fragmentRef) {

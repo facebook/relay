@@ -122,21 +122,25 @@ function fetchQuery<TQuery: OperationType>(
     queryNode.params.operationKind === 'query',
     'fetchQuery: Expected query operation',
   );
-  const operation = createOperationDescriptor(queryNode, variables);
   const networkCacheConfig = {
     force: true,
     ...options?.networkCacheConfig,
   };
+  const operation = createOperationDescriptor(
+    queryNode,
+    variables,
+    networkCacheConfig,
+  );
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation, networkCacheConfig);
+      return getNetworkObservable(environment, operation);
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
         return Observable.from(environment.lookup(operation.fragment).data);
       }
-      return getNetworkObservable(environment, operation, networkCacheConfig);
+      return getNetworkObservable(environment, operation);
     }
     default:
       (fetchPolicy: void);
@@ -147,11 +151,10 @@ function fetchQuery<TQuery: OperationType>(
 function getNetworkObservable<TQuery: OperationType>(
   environment: IEnvironment,
   operation: OperationDescriptor,
-  networkCacheConfig: CacheConfig,
 ): Observable<$ElementType<TQuery, 'response'>> {
-  return RelayRuntimeInternal.fetchQuery(environment, operation, {
-    networkCacheConfig,
-  }).map(() => environment.lookup(operation.fragment).data);
+  return RelayRuntimeInternal.fetchQuery(environment, operation).map(
+    () => environment.lookup(operation.fragment).data,
+  );
 }
 
 module.exports = fetchQuery;

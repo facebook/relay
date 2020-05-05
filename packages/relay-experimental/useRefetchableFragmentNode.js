@@ -227,7 +227,9 @@ function useRefetchableFragmentNode<
   const refetchQuery = useMemo(
     () =>
       memoRefetchVariables != null
-        ? createOperationDescriptor(refetchableRequest, memoRefetchVariables)
+        ? createOperationDescriptor(refetchableRequest, memoRefetchVariables, {
+            force: true,
+          })
         : null,
     [memoRefetchVariables, refetchableRequest],
   );
@@ -507,9 +509,7 @@ function readQuery(
   const queryResult = profilerContext.wrapPrepareQueryResource(() => {
     return QueryResource.prepare(
       query,
-      fetchQuery(environment, query, {
-        networkCacheConfig: {force: true},
-      }),
+      fetchQuery(environment, query),
       fetchPolicy,
       renderPolicy,
       {start, error: complete, complete},

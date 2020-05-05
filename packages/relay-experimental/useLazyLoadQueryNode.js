@@ -26,7 +26,6 @@ const {
 } = require('relay-runtime');
 
 import type {
-  CacheConfig,
   FetchPolicy,
   GraphQLResponse,
   Observable,
@@ -43,7 +42,6 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   fetchObservable?: Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
-  networkCacheConfig?: CacheConfig,
   renderPolicy?: ?RenderPolicy,
 |}): $ElementType<TQuery, 'response'> {
   const environment = useRelayEnvironment();
@@ -58,10 +56,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
     renderPolicy,
   } = args;
   const fetchObservable =
-    args.fetchObservable ??
-    fetchQuery(environment, query, {
-      networkCacheConfig: args.networkCacheConfig ?? {force: true},
-    });
+    args.fetchObservable ?? fetchQuery(environment, query);
   const {startFetch, completeFetch} = useFetchTrackingRef();
 
   const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {

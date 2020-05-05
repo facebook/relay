@@ -40,12 +40,17 @@ function useLazyLoadQuery<TQuery: OperationType>(
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
-  const query = useMemoOperationDescriptor(gqlQuery, variables);
+  const query = useMemoOperationDescriptor(
+    gqlQuery,
+    variables,
+    options && options.networkCacheConfig
+      ? options.networkCacheConfig
+      : {force: true},
+  );
   const data = useLazyLoadQueryNode({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
     fetchPolicy: options?.fetchPolicy,
-    networkCacheConfig: options?.networkCacheConfig,
     query,
     renderPolicy: options?.UNSTABLE_renderPolicy,
   });

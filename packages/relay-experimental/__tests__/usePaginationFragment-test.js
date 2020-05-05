@@ -28,8 +28,17 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
+  createOperationDescriptor: createOperationDescriptorOriginal,
 } = require('relay-runtime');
+
+function createOperationDescriptor(
+  request: ConcreteRequest,
+  variables: Variables,
+) {
+  return createOperationDescriptorOriginal(request, variables, {
+    force: true,
+  });
+}
 
 describe('usePaginationFragment', () => {
   let environment;

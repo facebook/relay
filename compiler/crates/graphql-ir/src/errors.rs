@@ -380,4 +380,13 @@ pub enum ValidationMessage {
 
     #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
     StreamInitialCountRequired,
+
+    #[error("{variables_string} never used in operation '{operation_name}'.")]
+    UnusedVariables {
+        variables_string: String,
+        operation_name: StringKey,
+    },
+
+    #[error("Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'.")]
+    UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
 }

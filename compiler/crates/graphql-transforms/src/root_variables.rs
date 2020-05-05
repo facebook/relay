@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, NamedItem, OperationDefinition, Program, Value, Variable,
     Visitor,
 };
 use interner::StringKey;
+use std::iter::FromIterator;
 
 type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
@@ -35,7 +36,11 @@ impl<'s> InferVariablesVisitor<'s> {
     /// referenced by each fragment, ie the union of all root variables used in the
     /// fragment and any fragments it transitively spreads.
     pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
-        let mut visitor = VaraiblesVisitor::new(self.program, &mut self.visited_fragments);
+        let mut visitor = VaraiblesVisitor::new(
+            self.program,
+            &mut self.visited_fragments,
+            Default::default(),
+        );
         visitor.visit_operation(operation);
         visitor.variable_map
     }
@@ -45,14 +50,20 @@ struct VaraiblesVisitor<'s> {
     variable_map: VariableMap,
     visited_fragments: &'s mut Visited,
     program: &'s Program<'s>,
+    local_variables: FnvHashSet<StringKey>,
 }
 
 impl<'s> VaraiblesVisitor<'s> {
-    fn new(program: &'s Program<'s>, visited_fragments: &'s mut Visited) -> Self {
+    fn new(
+        program: &'s Program<'s>,
+        visited_fragments: &'s mut Visited,
+        local_variables: FnvHashSet<StringKey>,
+    ) -> Self {
         Self {
             variable_map: Default::default(),
             visited_fragments,
             program,
+            local_variables,
         }
     }
 }
@@ -74,7 +85,16 @@ impl<'s> VaraiblesVisitor<'s> {
             // fragment.
             self.visited_fragments
                 .insert(fragment.name.item, Default::default());
-            let mut visitor = VaraiblesVisitor::new(self.program, self.visited_fragments);
+
+            // Avoid collecting local variables usages as root varaibles
+            let local_variables = FnvHashSet::from_iter(
+                fragment
+                    .variable_definitions
+                    .iter()
+                    .map(|var| var.name.item),
+            );
+            let mut visitor =
+                VaraiblesVisitor::new(self.program, self.visited_fragments, local_variables);
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
             self.visited_fragments
@@ -122,8 +142,10 @@ impl<'s> Visitor for VaraiblesVisitor<'s> {
     }
 
     fn visit_variable(&mut self, value: &Variable) {
-        self.variable_map
-            .entry(value.name.item)
-            .or_insert_with(|| value.clone());
+        if !self.local_variables.contains(&value.name.item) {
+            self.variable_map
+                .entry(value.name.item)
+                .or_insert_with(|| value.clone());
+        }
     }
 }

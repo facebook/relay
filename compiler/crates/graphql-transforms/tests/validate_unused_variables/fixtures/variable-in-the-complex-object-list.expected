@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query Q1($arg: String) {
+  items(filter: {date: $arg}) {
+    date
+  }
+}
+
+query Q2($size: Int) {
+  node {
+    ... on User {
+      profilePicture(size: [$size]) {
+        uri
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

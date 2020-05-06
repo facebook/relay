@@ -541,6 +541,7 @@ export interface IEnvironment {
   commitPayload(
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
+    updater: ?SelectorStoreUpdater,
   ): void;
 
   /**

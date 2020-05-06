@@ -247,7 +247,11 @@ class RelayModernEnvironment implements IEnvironment {
     );
   }
 
-  commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
+  commitPayload(
+    operation: OperationDescriptor,
+    payload: PayloadData,
+    updater: ?SelectorStoreUpdater = null,
+  ): void {
     RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation: operation,
@@ -261,7 +265,7 @@ class RelayModernEnvironment implements IEnvironment {
           data: payload,
         }),
         store: this._store,
-        updater: null,
+        updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         isClientPayload: true,

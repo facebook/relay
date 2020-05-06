@@ -466,10 +466,10 @@ Accessing a plain connection field like this is the same as other regular field:
 ```javascript
 // The `friends` connection record can be accessed with:
 const user = store.get(userID);
-const friends = user && user.getLinkedRecord(user, 'friends');
+const friends = user && user.getLinkedRecord('friends');
 
 // Access fields on the connection:
-const edges = friends.getLinkedRecords('edges');
+const edges = friends && friends.getLinkedRecords('edges');
 ```
 
 In a [pagination container](./pagination-container.html), we usually annotate the actual connection field with `@connection` to tell Relay which part needs to be paginated:

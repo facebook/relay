@@ -1394,7 +1394,7 @@ function ProfilePage(props) {
     //   is happening.
   })
 
-  return (...);  
+  return (...);
 }
 ```
 * `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
@@ -3272,7 +3272,7 @@ type Props = {|
 |};
 function LikeButton(props: Props) {
   const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
-    mutation LikePostMutation($input: LikePostData!)			
+    mutation LikePostMutation($input: LikePostData!)
       @raw_response_type {
       like_post(data: $input) {
         post {
@@ -3448,7 +3448,7 @@ function CreateCommentButton(props: Props) {
     optimisticUpdater: store => {
       const postRecord = store.get(postID);
       const connectionRecord = ConnectionHandler.getConnection(
-        userRecord,
+        postRecord,
         'CommentsComponent_comments_connection',
       );
 
@@ -3472,7 +3472,7 @@ function CreateCommentButton(props: Props) {
     updater: store => {
       const postRecord = store.get(postID);
       const connectionRecord = ConnectionHandler.getConnection(
-        userRecord,
+        postRecord,
         'CommentsComponent_comments_connection',
       );
 
@@ -3727,7 +3727,7 @@ function commitCommentCreateLocally(
   return commitLocalUpdate(environment, store => {
     const postRecord = store.get(postID);
     const connectionRecord = ConnectionHandler.getConnection(
-      userRecord,
+      postRecord,
       'CommentsComponent_comments_connection',
     );
 

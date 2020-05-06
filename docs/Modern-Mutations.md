@@ -27,6 +27,7 @@ commitMutation(
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
     updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<DeclarativeMutationConfig>,
+    cacheConfig?: CacheConfig,
   },
 );
 ```
@@ -49,6 +50,7 @@ commitMutation(
   When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and will then execute `updater`.
   This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store.html). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store.html).
   * `configs`:  Array containing objects describing `optimisticUpdater`/`updater` configurations. `configs` provides a convenient way to specify the `updater` behavior without having to write an `updater` function. See our section on [Updater Configs](#updater-configs) for more details.
+  * `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Simple Example
 

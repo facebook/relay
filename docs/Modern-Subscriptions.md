@@ -24,6 +24,7 @@ requestSubscription(
     onNext?: ?(response: ?Object) => void,
     updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<DeclarativeMutationConfig>,
+    cacheConfig?: CacheConfig,
   },
 ) => Disposable;
 ```
@@ -42,6 +43,7 @@ Now let's take a closer look at the `config`:
 * `updater`: an optional function that can supply custom logic for updating the
   in-memory Relay store based on the server response.
 * `configs`: an array containing the updater configurations. It is the same as [`configs`](./mutations#updater-configs) in `commitMutation`.
+* `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Example
 

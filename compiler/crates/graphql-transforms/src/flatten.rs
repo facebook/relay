@@ -14,13 +14,11 @@ use graphql_ir::{
 use schema::{Schema, TypeReference};
 
 use crate::node_identifier::NodeIdentifier;
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use indexmap::IndexMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
-type FlattenedSelectionMap = IndexMap<NodeIdentifier, Selection, FnvBuildHasher>;
 type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 
 ///
@@ -100,10 +98,10 @@ impl<'s> FlattenTransform<'s> {
             .iter()
             .map(|s| self.transform_selection(s, parent_type))
             .collect::<Vec<_>>();
-        let mut flattened_selections_map: FlattenedSelectionMap = Default::default();
-        self.flatten_selections(&mut flattened_selections_map, &next_selections, parent_type);
+        let mut flattened_selections = Vec::with_capacity(next_selections.len());
+        self.flatten_selections(&mut flattened_selections, &next_selections, parent_type);
 
-        flattened_selections_map.values().cloned().collect()
+        flattened_selections
     }
 
     fn transform_linked_field(&mut self, linked_field: &Arc<LinkedField>) -> Arc<LinkedField> {
@@ -161,7 +159,7 @@ impl<'s> FlattenTransform<'s> {
 
     fn flatten_selections(
         &mut self,
-        flattened_selections_map: &mut FlattenedSelectionMap,
+        flattened_selections: &mut Vec<Selection>,
         selections: &[Selection],
         parent_type: &TypeReference,
     ) {
@@ -174,7 +172,7 @@ impl<'s> FlattenTransform<'s> {
                     self.is_for_codegen,
                 ) {
                     self.flatten_selections(
-                        flattened_selections_map,
+                        flattened_selections,
                         &inline_fragment.selections,
                         parent_type,
                     );
@@ -182,84 +180,80 @@ impl<'s> FlattenTransform<'s> {
                 }
             }
 
-            let node_identifier = NodeIdentifier::from_selection(self.program.schema(), &selection);
-            let flattened_selection_value = flattened_selections_map.get(&node_identifier);
+            let flattened_selection = flattened_selections
+                .iter_mut()
+                .find(|sel| NodeIdentifier::are_equal(self.program.schema(), sel, selection));
 
-            match flattened_selection_value {
+            match flattened_selection {
                 None => {
-                    flattened_selections_map.insert(node_identifier, selection.clone());
+                    flattened_selections.push(selection.clone());
                 }
-                Some(flattened_selection) => match flattened_selection {
-                    Selection::InlineFragment(flattened_node) => {
-                        let type_condition: TypeReference = match flattened_node.type_condition {
-                            Some(type_condition) => TypeReference::Named(type_condition),
-                            None => parent_type.clone(),
-                        };
+                Some(flattened_selection) => {
+                    match flattened_selection {
+                        Selection::InlineFragment(flattened_node) => {
+                            let type_condition: TypeReference = match flattened_node.type_condition
+                            {
+                                Some(type_condition) => TypeReference::Named(type_condition),
+                                None => parent_type.clone(),
+                            };
 
-                        let node_selections = match selection {
-                            Selection::InlineFragment(node) => &node.selections,
-                            _ => unreachable!("FlattenTransform: Expected an InlineFragment."),
-                        };
+                            let node_selections = match selection {
+                                Selection::InlineFragment(node) => &node.selections,
+                                _ => unreachable!("FlattenTransform: Expected an InlineFragment."),
+                            };
 
-                        let next_selection = Selection::InlineFragment(Arc::new(InlineFragment {
-                            type_condition: flattened_node.type_condition,
-                            directives: flattened_node.directives.clone(),
-                            selections: self.merge_selections(
-                                &flattened_node.selections,
-                                &node_selections,
-                                &type_condition,
-                            ),
-                        }));
-                        flattened_selections_map.insert(node_identifier, next_selection);
-                    }
-                    Selection::LinkedField(flattened_node) => {
-                        let node_selections = match selection {
-                            Selection::LinkedField(node) => &node.selections,
-                            _ => unreachable!("FlattenTransform: Expected a LinkedField."),
-                        };
-                        let next_selection = Selection::LinkedField(Arc::new(LinkedField {
-                            alias: flattened_node.alias,
-                            definition: flattened_node.definition,
-                            arguments: flattened_node.arguments.clone(),
-                            directives: flattened_node.directives.clone(),
-                            selections: self.merge_selections(
-                                &flattened_node.selections,
-                                &node_selections,
-                                &self
-                                    .program
-                                    .schema()
-                                    .field(flattened_node.definition.item)
-                                    .type_,
-                            ),
-                        }));
-                        flattened_selections_map.insert(node_identifier, next_selection);
-                    }
-                    Selection::Condition(flattened_node) => {
-                        let node_selections = match selection {
-                            Selection::Condition(node) => &node.selections,
-                            _ => unreachable!("FlattenTransform: Expected a Condition."),
-                        };
+                            *flattened_selection =
+                                Selection::InlineFragment(Arc::new(InlineFragment {
+                                    type_condition: flattened_node.type_condition,
+                                    directives: flattened_node.directives.clone(),
+                                    selections: self.merge_selections(
+                                        &flattened_node.selections,
+                                        &node_selections,
+                                        &type_condition,
+                                    ),
+                                }));
+                        }
+                        Selection::LinkedField(flattened_node) => {
+                            let node_selections = match selection {
+                                Selection::LinkedField(node) => &node.selections,
+                                _ => unreachable!("FlattenTransform: Expected a LinkedField."),
+                            };
+                            *flattened_selection = Selection::LinkedField(Arc::new(LinkedField {
+                                alias: flattened_node.alias,
+                                definition: flattened_node.definition,
+                                arguments: flattened_node.arguments.clone(),
+                                directives: flattened_node.directives.clone(),
+                                selections: self.merge_selections(
+                                    &flattened_node.selections,
+                                    &node_selections,
+                                    &self
+                                        .program
+                                        .schema()
+                                        .field(flattened_node.definition.item)
+                                        .type_,
+                                ),
+                            }));
+                        }
+                        Selection::Condition(flattened_node) => {
+                            let node_selections = match selection {
+                                Selection::Condition(node) => &node.selections,
+                                _ => unreachable!("FlattenTransform: Expected a Condition."),
+                            };
 
-                        let next_selection = Selection::Condition(Arc::new(Condition {
-                            value: flattened_node.value.clone(),
-                            passing_value: flattened_node.passing_value,
-                            selections: self.merge_selections(
-                                &flattened_node.selections,
-                                &node_selections,
-                                parent_type,
-                            ),
-                        }));
-                        flattened_selections_map.insert(node_identifier, next_selection);
-                    }
-                    Selection::ScalarField(node) => {
-                        let next_selection = Selection::ScalarField(Arc::clone(node));
-                        flattened_selections_map.insert(node_identifier, next_selection);
-                    }
-                    Selection::FragmentSpread(node) => {
-                        let next_selection = Selection::FragmentSpread(Arc::clone(node));
-                        flattened_selections_map.insert(node_identifier, next_selection);
-                    }
-                },
+                            *flattened_selection = Selection::Condition(Arc::new(Condition {
+                                value: flattened_node.value.clone(),
+                                passing_value: flattened_node.passing_value,
+                                selections: self.merge_selections(
+                                    &flattened_node.selections,
+                                    &node_selections,
+                                    parent_type,
+                                ),
+                            }));
+                        }
+                        Selection::ScalarField(_) => {}
+                        Selection::FragmentSpread(_) => {}
+                    };
+                }
             }
         }
     }
@@ -270,10 +264,10 @@ impl<'s> FlattenTransform<'s> {
         selections_b: &[Selection],
         parent_type: &TypeReference,
     ) -> Vec<Selection> {
-        let mut flattened_selections_map: FlattenedSelectionMap = Default::default();
-        self.flatten_selections(&mut flattened_selections_map, selections_a, parent_type);
-        self.flatten_selections(&mut flattened_selections_map, selections_b, parent_type);
-        flattened_selections_map.values().cloned().collect()
+        let mut flattened_selections = Vec::with_capacity(selections_a.len());
+        self.flatten_selections(&mut flattened_selections, selections_a, parent_type);
+        self.flatten_selections(&mut flattened_selections, selections_b, parent_type);
+        flattened_selections
     }
 }
 

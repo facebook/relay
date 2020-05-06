@@ -33,6 +33,6 @@
     "yargs": "^14.2.0"
   },
   "peerDependencies": {
-    "graphql": "^14.2.0"
+    "graphql": "^15.0.0"
   }
 }

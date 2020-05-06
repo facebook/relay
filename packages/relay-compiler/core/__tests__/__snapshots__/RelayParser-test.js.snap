@@ -5934,7 +5934,7 @@ GraphQL request:2:17
 `;
 
 exports[`RelayParser should error on fragment spread arguments with literal out of bounds values 1`] = `
-"Expected a value matching type 'Int'.
+"Int cannot represent non 32-bit signed integer value: 10000000000000000
 
 GraphQL request:4:38
 3 |         # Number.MAX_SAFE_INTEGER is 9007199254740991

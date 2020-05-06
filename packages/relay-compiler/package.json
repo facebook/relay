@@ -30,7 +30,7 @@
     "nullthrows": "^1.1.1",
     "relay-runtime": "9.1.0",
     "signedsource": "^1.0.0",
-    "yargs": "^14.2.0"
+    "yargs": "^15.3.1"
   },
   "peerDependencies": {
     "graphql": "^15.0.0"

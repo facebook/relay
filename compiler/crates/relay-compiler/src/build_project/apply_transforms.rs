@@ -45,7 +45,12 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
         base_fragment_names,
         perf_logger,
     );
-    let operation_program = apply_operation_transforms(project_name, &common_program, perf_logger)?;
+    let operation_program = apply_operation_transforms(
+        project_name,
+        &common_program,
+        base_fragment_names,
+        perf_logger,
+    )?;
     let normalization_program =
         apply_normalization_transforms(project_name, &operation_program, perf_logger)?;
     let operation_text_program =
@@ -128,6 +133,7 @@ fn apply_reader_transforms<'schema>(
 fn apply_operation_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
+    base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
@@ -140,7 +146,9 @@ fn apply_operation_transforms<'schema>(
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
-    let program = log_event.time("split_module_import", || split_module_import(&program));
+    let program = log_event.time("split_module_import", || {
+        split_module_import(&program, base_fragment_names)
+    });
     let program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
     })?;

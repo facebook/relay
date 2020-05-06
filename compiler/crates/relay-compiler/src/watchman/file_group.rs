@@ -8,7 +8,6 @@
 use super::WatchmanFile;
 use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::config::{Config, SchemaLocation};
-use common::Timer;
 use std::cmp::Reverse;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
@@ -31,17 +30,15 @@ pub fn categorize_files(
     config: &Config,
     files: &[WatchmanFile],
 ) -> HashMap<FileGroup, Vec<WatchmanFile>> {
-    Timer::time("categorize", || {
-        let categorizer = FileCategorizer::from_config(config);
-        let mut categorized = HashMap::new();
-        for file in files {
-            categorized
-                .entry(categorizer.categorize(&file.name))
-                .or_insert_with(Vec::new)
-                .push(file.clone());
-        }
+    let categorizer = FileCategorizer::from_config(config);
+    let mut categorized = HashMap::new();
+    for file in files {
         categorized
-    })
+            .entry(categorizer.categorize(&file.name))
+            .or_insert_with(Vec::new)
+            .push(file.clone());
+    }
+    categorized
 }
 
 /// The FileCategorizer is created from a Config and categorizes files found by

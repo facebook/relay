@@ -13,7 +13,7 @@ use crate::watchman::{
     categorize_files, errors::Result as WatchmanResult, extract_graphql_strings_from_file,
     read_to_string, Clock, FileGroup, FileSourceResult,
 };
-use common::Timer;
+use common::{PerfLogEvent, PerfLogger};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
@@ -162,8 +162,13 @@ impl CompilerState {
     pub fn from_file_source_changes(
         config: &Config,
         file_source_changes: &FileSourceResult,
+        setup_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
     ) -> Result<Self> {
-        let categorized = categorize_files(config, &file_source_changes.files);
+        let categorized = setup_event.time("categorize_files_time", || {
+            categorize_files(config, &file_source_changes.files)
+        });
+
         let artifacts = HashMap::new();
         let mut schemas = HashMap::new();
         let mut extensions = HashMap::new();
@@ -172,7 +177,9 @@ impl CompilerState {
         for (category, files) in categorized {
             match category {
                 FileGroup::Source { source_set_name } => {
-                    let extract_timer = Timer::start(format!("extract {}", source_set_name));
+                    let log_event = perf_logger.create_event("categorize");
+                    log_event.string("source_set_name", source_set_name.to_string());
+                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
                         .filter_map(|file| {
@@ -207,7 +214,7 @@ impl CompilerState {
                             }
                         })
                         .collect::<WatchmanResult<HashMap<PathBuf, FileState>>>()?;
-                    extract_timer.stop();
+                    log_event.stop(extract_timer);
                     graphql_sources.set_pending_source_set(source_set_name, sources);
                 }
                 FileGroup::Schema { project_name } => {
@@ -260,9 +267,15 @@ impl CompilerState {
         &mut self,
         config: &Config,
         file_source_changes: &FileSourceResult,
+        setup_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
     ) -> Result<bool> {
-        let pending_compiler_state =
-            CompilerState::from_file_source_changes(config, file_source_changes)?;
+        let pending_compiler_state = CompilerState::from_file_source_changes(
+            config,
+            file_source_changes,
+            setup_event,
+            perf_logger,
+        )?;
 
         if !pending_compiler_state.schemas.is_empty() {
             // TODO support watching schema changes
@@ -316,7 +329,6 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
-        let write_to_file_timer = Timer::start(format!("write state to {:?}", path));
         let writer = File::create(path).map_err(|err| Error::WriteFileError {
             file: path.clone(),
             source: err,
@@ -325,12 +337,10 @@ impl CompilerState {
             file: path.clone(),
             source: err,
         })?;
-        write_to_file_timer.stop();
         Ok(())
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let restoring_timer = Timer::start(format!("restoring state from {:?}", path));
         let file = File::open(path).map_err(|err| Error::ReadFileError {
             file: path.clone(),
             source: err,
@@ -340,7 +350,6 @@ impl CompilerState {
             file: path.clone(),
             source: err,
         })?;
-        restoring_timer.stop();
         Ok(state)
     }
 }

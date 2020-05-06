@@ -8,7 +8,6 @@
 use crate::compiler_state::{CompilerState, GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
 use common::FileKey;
-use common::Timer;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::Sources;
 use graphql_syntax::ExecutableDefinition;
@@ -18,10 +17,9 @@ use interner::StringKey;
 /// be used to print errors with source code listing.
 /// Additionally collects the set of definition names that changed,given the compiler state
 pub fn parse_sources<'state>(compiler_state: &'state CompilerState) -> Result<GraphQLAsts<'state>> {
-    Timer::time("parse sources", || {
-        GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
-    })
+    GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
 }
+
 #[derive(Debug)]
 pub struct GraphQLAsts<'state> {
     grouped_asts: FnvHashMap<SourceSetName, Vec<ExecutableDefinition>>,

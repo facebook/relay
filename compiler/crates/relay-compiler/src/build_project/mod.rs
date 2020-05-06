@@ -54,7 +54,7 @@ async fn build_programs<'a>(
     let BuildIRResult {
         ir,
         base_fragment_names,
-    } = log_event.time("build_ir", || {
+    } = log_event.time("build_ir_time", || {
         add_error_sources(
             build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build),
             sources,
@@ -62,12 +62,14 @@ async fn build_programs<'a>(
     })?;
 
     // Turn the IR into a base Program.
-    let program = log_event.time("build_program", || Program::from_definitions(&schema, ir));
+    let program = log_event.time("build_program_time", || {
+        Program::from_definitions(&schema, ir)
+    });
 
     let connection_interface = FBConnectionInterface::default();
 
     // Call validation rules that go beyond type checking.
-    log_event.time("validate", || {
+    log_event.time("validate_time", || {
         add_error_sources(
             // TODO(T63482263): Pass connection interface from configuration
             validate(&program, &connection_interface),
@@ -76,7 +78,7 @@ async fn build_programs<'a>(
     })?;
 
     // Apply various chains of transforms to create a set of output programs.
-    let programs = log_event.time("apply_transforms", || {
+    let programs = log_event.time("apply_transforms_time", || {
         add_error_sources(
             apply_transforms(
                 &project_name,
@@ -129,12 +131,12 @@ pub async fn build_project(
     perf_logger: &impl PerfLogger,
 ) -> Result<WrittenArtifacts, BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
-    let build_time = log_event.start("build_time");
+    let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
     log_event.string("project", project_name.to_string());
 
     // Construct a schema instance including project specific extensions.
-    let schema = log_event.time("build_schema", || {
+    let schema = log_event.time("build_schema_time", || {
         build_schema::build_schema(compiler_state, project_config)
     });
 
@@ -149,7 +151,7 @@ pub async fn build_project(
     .await?;
 
     // Generate code and persist text to produce output artifacts in memory.
-    let artifacts_timer = log_event.start("generate_artifacts");
+    let artifacts_timer = log_event.start("generate_artifacts_time");
     let artifacts =
         generate_artifacts::generate_artifacts(config, project_config, &programs).await?;
     log_event.stop(artifacts_timer);
@@ -158,7 +160,7 @@ pub async fn build_project(
     // generating artifacts to avoid partial writes in case of errors as
     // much as possible.
     let written_artifacts = if config.write_artifacts {
-        log_event.time("write_artifacts", || {
+        log_event.time("write_artifacts_time", || {
             write_artifacts::write_artifacts(config, project_config, &artifacts)
         })?
     } else {

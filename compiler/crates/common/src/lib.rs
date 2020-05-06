@@ -14,11 +14,9 @@ mod location;
 mod murmurhash;
 mod perf_logger;
 mod span;
-mod timer;
 
-pub use console_logger::{ConsoleLogEvent, ConsoleLogger};
+pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
 pub use location::{FileKey, Location, WithLocation};
 pub use murmurhash::murmurhash;
 pub use perf_logger::{PerfLogEvent, PerfLogger};
 pub use span::{Span, Spanned};
-pub use timer::{print_time, Timer};

@@ -45,7 +45,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         &self,
         file_source: &FileSource<'_>,
         optional_serialized_state_path: Option<PathBuf>,
-        logger_event: &impl PerfLogEvent,
+        setup_event: &impl PerfLogEvent,
     ) -> Result<(CompilerState, FileSourceResult)> {
         match optional_serialized_state_path {
             Some(saved_state_path) => {
@@ -56,20 +56,26 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                         metadata.map(|metadata| QueryParams {
                             since: metadata.clock,
                         }),
-                        logger_event,
+                        setup_event,
                     )
                     .await?;
 
-                compiler_state
-                    .add_pending_file_source_changes(&self.config, &initial_file_source_result)?;
+                compiler_state.add_pending_file_source_changes(
+                    &self.config,
+                    &initial_file_source_result,
+                    setup_event,
+                    self.perf_logger,
+                )?;
 
                 Ok((compiler_state, initial_file_source_result))
             }
             None => {
-                let initial_file_source_result = file_source.query(None, logger_event).await?;
+                let initial_file_source_result = file_source.query(None, setup_event).await?;
                 let compiler_state = CompilerState::from_file_source_changes(
                     &self.config,
                     &initial_file_source_result,
+                    setup_event,
+                    self.perf_logger,
                 )?;
 
                 Ok((compiler_state, initial_file_source_result))
@@ -90,13 +96,19 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                 &setup_event,
             )
             .await?;
+        self.build_projects(&mut compiler_state, &setup_event)
+            .await?;
         self.perf_logger.complete_event(setup_event);
-        self.build_projects(&mut compiler_state).await?;
 
         Ok(compiler_state)
     }
 
-    pub fn build_schemas(&self, compiler_state: &CompilerState) -> HashMap<ProjectName, Schema> {
+    pub fn build_schemas(
+        &self,
+        compiler_state: &CompilerState,
+        setup_event: &impl PerfLogEvent,
+    ) -> HashMap<ProjectName, Schema> {
+        let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
         match self.config.only_project {
             Some(project_key) => {
@@ -114,6 +126,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                 }
             }
         }
+        setup_event.stop(timer);
         schemas
     }
 
@@ -123,27 +136,50 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         let (mut compiler_state, initial_file_source_result) = self
             .create_compiler_state_and_file_source_result(&file_source, None, &setup_event)
             .await?;
+        let schemas = self.build_schemas(&compiler_state, &setup_event);
+        callback(
+            self.check_projects(&mut compiler_state, &schemas, &setup_event)
+                .await,
+        );
+
         self.perf_logger.complete_event(setup_event);
-
-        let schemas = self.build_schemas(&compiler_state);
-
-        callback(self.check_projects(&mut compiler_state, &schemas).await);
 
         let mut subscription = file_source.subscribe(initial_file_source_result).await?;
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
+                let incremental_check_event =
+                    self.perf_logger.create_event("incremental_check_event");
+                let incremental_check_time =
+                    incremental_check_event.start("incremental_check_time");
+
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
-                let had_new_changes = compiler_state
-                    .add_pending_file_source_changes(&self.config, &file_source_changes)?;
+                let had_new_changes = compiler_state.add_pending_file_source_changes(
+                    &self.config,
+                    &file_source_changes,
+                    &incremental_check_event,
+                    self.perf_logger,
+                )?;
                 if had_new_changes {
                     // Clear out existing errors
                     callback(Ok(()));
                     // Report any new errors
-                    callback(self.check_projects(&mut compiler_state, &schemas).await);
+                    callback(
+                        self.check_projects(
+                            &mut compiler_state,
+                            &schemas,
+                            &incremental_check_event,
+                        )
+                        .await,
+                    );
                 } else {
                     info!("[watch-mode] No re-compilation required");
                 }
+                incremental_check_event.stop(incremental_check_time);
+                self.perf_logger.complete_event(incremental_check_event);
+                // We probably don't want the messages queue to grow indefinitely
+                // and we need to flush then, as the check/build is completed
+                self.perf_logger.flush();
             }
         }
     }
@@ -158,31 +194,48 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                 &setup_event,
             )
             .await?;
-        self.perf_logger.complete_event(setup_event);
 
-        if let Err(errors) = self.build_projects(&mut compiler_state).await {
+        if let Err(errors) = self.build_projects(&mut compiler_state, &setup_event).await {
             // TODO correctly print errors
             error!("Errors: {:#?}", errors)
         }
+        self.perf_logger.complete_event(setup_event);
 
         let mut subscription = file_source.subscribe(initial_file_source_result).await?;
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
+                let incremental_build_event =
+                    self.perf_logger.create_event("incremental_build_event");
+                let incremental_build_time =
+                    incremental_build_event.start("incremental_build_time");
+
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
 
                 info!("\n\n[watch-mode] Change detected");
-                let had_new_changes = compiler_state
-                    .add_pending_file_source_changes(&self.config, &file_source_changes)?;
+                let had_new_changes = compiler_state.add_pending_file_source_changes(
+                    &self.config,
+                    &file_source_changes,
+                    &incremental_build_event,
+                    self.perf_logger,
+                )?;
 
                 if had_new_changes {
-                    if let Err(errors) = self.build_projects(&mut compiler_state).await {
+                    if let Err(errors) = self
+                        .build_projects(&mut compiler_state, &incremental_build_event)
+                        .await
+                    {
                         // TODO correctly print errors
                         error!("Errors: {:#?}", errors)
                     }
                 } else {
                     info!("[watch-mode] No re-compilation required");
                 }
+                incremental_build_event.stop(incremental_build_time);
+                self.perf_logger.complete_event(incremental_build_event);
+                // We probably don't want the messages queue to grow indefinitely
+                // and we need to flush then, as the check/build is completed
+                self.perf_logger.flush();
             }
         }
     }
@@ -191,8 +244,11 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         &self,
         compiler_state: &mut CompilerState,
         schemas: &HashMap<ProjectName, Schema>,
+        setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        let graphql_asts = parse_sources(&compiler_state)?;
+        let graphql_asts =
+            setup_event.time("parse_sources_time", || parse_sources(&compiler_state))?;
+
         let mut build_project_errors = vec![];
 
         match self.config.only_project {
@@ -246,8 +302,14 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         }
     }
 
-    async fn build_projects(&self, compiler_state: &mut CompilerState) -> Result<()> {
-        let graphql_asts = parse_sources(&compiler_state)?;
+    async fn build_projects(
+        &self,
+        compiler_state: &mut CompilerState,
+        setup_event: &impl PerfLogEvent,
+    ) -> Result<()> {
+        let graphql_asts =
+            setup_event.time("parse_sources_time", || parse_sources(&compiler_state))?;
+
         let mut build_project_errors = vec![];
         let mut next_artifacts: HashMap<ProjectName, WrittenArtifacts> = Default::default();
 

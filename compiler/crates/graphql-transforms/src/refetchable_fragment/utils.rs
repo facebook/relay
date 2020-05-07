@@ -18,6 +18,8 @@ pub struct Constants {
     pub id_name: StringKey,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
+    pub viewer_type_name: StringKey,
+    pub viewer_field_name: StringKey,
     pub query_name_arg: StringKey,
     pub refetchable_name: StringKey,
 }
@@ -29,6 +31,8 @@ lazy_static! {
         node_type_name: "Node".intern(),
         query_name_arg: "queryName".intern(),
         refetchable_name: "refetchable".intern(),
+        viewer_type_name: "Viewer".intern(),
+        viewer_field_name: "viewer".intern(),
     };
 }
 

@@ -1,4 +1,4 @@
-// @generated SignedSource<<c060406e062d3aa771e9914ad63f4f8c>>
+// @generated SignedSource<<d7341dfcdb893900eeaa099faf47f0c4>>
 
 mod refetchable_fragment;
 
@@ -69,6 +69,13 @@ fn fragment_on_query_without_query_name_invalid() {
 }
 
 #[test]
+fn fragment_on_viewer() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-viewer.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-viewer.expected");
+    test_fixture(transform_fixture, "fragment-on-viewer.graphql", "refetchable_fragment/fixtures/fragment-on-viewer.expected", input, expected);
+}
+
+#[test]
 fn fragment_with_args_on_object_implementing_node_interface() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-object-implementing-node-interface.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-object-implementing-node-interface.expected");
@@ -80,6 +87,13 @@ fn fragment_with_args_on_query() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-query.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-query.expected");
     test_fixture(transform_fixture, "fragment-with-args-on-query.graphql", "refetchable_fragment/fixtures/fragment-with-args-on-query.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_args_on_viewer() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-viewer.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-viewer.expected");
+    test_fixture(transform_fixture, "fragment-with-args-on-viewer.graphql", "refetchable_fragment/fixtures/fragment-with-args-on-viewer.expected", input, expected);
 }
 
 #[test]

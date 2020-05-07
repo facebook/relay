@@ -8,6 +8,7 @@
 mod node_query_generator;
 mod query_query_generator;
 mod utils;
+mod viewer_query_generator;
 
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 use common::WithLocation;
@@ -25,6 +26,7 @@ use schema::Schema;
 use std::fmt::Write;
 use std::sync::Arc;
 use utils::*;
+use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 /// This transform synthesizes "refetch" queries for fragments that
 /// are trivially refetchable. This is comprised of three main stages:
@@ -183,7 +185,11 @@ pub struct QueryGenerator {
     pub build_refetch_operation: BuildRefetchOperationFn,
 }
 
-const GENERATORS: [QueryGenerator; 2] = [QUERY_QUERY_GENERATOR, NODE_QUERY_GENERATOR];
+const GENERATORS: [QueryGenerator; 3] = [
+    VIEWER_QUERY_GENERATOR,
+    QUERY_QUERY_GENERATOR,
+    NODE_QUERY_GENERATOR,
+];
 
 #[allow(dead_code)]
 pub struct RefetchRoot {

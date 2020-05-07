@@ -25,7 +25,7 @@ query RefetchableFragmentQuery(
   $rootSize: [Int]
   $size: [Int]
 ) {
-  ...RefetchableFragment
+  ...RefetchableFragment @arguments(id: $id, size: $size)
 }
 
 fragment ProfilePicture on User @argumentDefinitions(
@@ -47,7 +47,7 @@ fragment RefetchableFragment on Query @argumentDefinitions(
     ... on User {
       id
       name
-      ...ProfilePicture
+      ...ProfilePicture @arguments(size: $size)
     }
   }
 }

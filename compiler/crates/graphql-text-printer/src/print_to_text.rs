@@ -256,7 +256,13 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     ) -> Result {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
-        self.print_directives(&field.directives, conditions)
+        self.print_directives(&field.directives, conditions)?;
+        if !field.arguments.is_empty() {
+            write!(self.writer, " @arguments")?;
+            self.print_arguments(&field.arguments)
+        } else {
+            Ok(())
+        }
     }
 
     fn print_inline_fragment(

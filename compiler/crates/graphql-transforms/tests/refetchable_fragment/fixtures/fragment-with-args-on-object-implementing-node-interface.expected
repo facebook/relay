@@ -22,7 +22,7 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    ...RefetchableFragment
+    ...RefetchableFragment @arguments(size: $size)
   }
 }
 
@@ -42,5 +42,5 @@ fragment RefetchableFragment on User @argumentDefinitions(
 ) @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   name
-  ...ProfilePicture
+  ...ProfilePicture @arguments(size: $size)
 }

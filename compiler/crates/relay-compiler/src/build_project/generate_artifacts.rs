@@ -27,7 +27,6 @@ use std::fmt::Write;
 pub struct Artifact {
     pub name: StringKey,
     pub content: String,
-    pub hash: String,
     /// The source file responsible for generating this file.
     /// For example: `my_project/Component.react.js`
     pub source_file: FileKey,
@@ -56,13 +55,13 @@ pub async fn generate_artifacts(
                 .fragment(source_name)
                 .expect("Expected the source document for the SplitOperation to exist.");
             let source_string = print_fragment(programs.source.schema(), &source_node);
-            let hash = md5(&source_string);
+            let source_hash = md5(&source_string);
             artifacts.push(generate_split_operation_artifact(
                 &mut printer,
                 config,
                 programs,
                 node,
-                &hash,
+                &source_hash,
                 source_node.name.location.file(),
             ));
         } else {
@@ -78,7 +77,7 @@ pub async fn generate_artifacts(
                 &mut source_string,
             )
             .unwrap();
-            let hash = md5(&source_string);
+            let source_hash = md5(&source_string);
             artifacts.push(
                 generate_normalization_artifact(
                     &mut printer,
@@ -86,7 +85,7 @@ pub async fn generate_artifacts(
                     project_config,
                     programs,
                     node,
-                    &hash,
+                    &source_hash,
                 )
                 .await?,
             );
@@ -96,13 +95,13 @@ pub async fn generate_artifacts(
         let source_node = programs.source.fragment(node.name.item).unwrap();
         // Same as for operation hashing above.
         let source_string = print_fragment(programs.source.schema(), &source_node);
-        let hash = md5(&source_string);
+        let source_hash = md5(&source_string);
         artifacts.push(generate_reader_artifact(
             &mut printer,
             config,
             programs,
             node,
-            &hash,
+            &source_hash,
         ));
     }
 
@@ -193,7 +192,6 @@ async fn generate_normalization_artifact(
     Ok(Artifact {
         name: node.name.item,
         content: sign_file(&content),
-        hash: source_hash.to_string(),
         source_file: node.name.location.file(),
     })
 }
@@ -203,7 +201,7 @@ fn generate_reader_artifact(
     config: &Config,
     programs: &Programs<'_>,
     node: &FragmentDefinition,
-    hash: &str,
+    source_hash: &str,
 ) -> Artifact {
     let name = node.name.item;
     let mut content = get_content_start(config);
@@ -234,14 +232,13 @@ fn generate_reader_artifact(
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", hash).unwrap();
+    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
     writeln!(content, "}}\n").unwrap();
     writeln!(content, "module.exports = node;").unwrap();
 
     Artifact {
         name,
         content: sign_file(&content),
-        hash: hash.to_string(),
         source_file: node.name.location.file(),
     }
 }
@@ -251,7 +248,7 @@ fn generate_split_operation_artifact(
     config: &Config,
     programs: &Programs<'_>,
     node: &OperationDefinition,
-    hash: &str,
+    source_hash: &str,
     source_file: FileKey,
 ) -> Artifact {
     let mut content = get_content_start(config);
@@ -277,14 +274,13 @@ fn generate_split_operation_artifact(
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", hash).unwrap();
+    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
     writeln!(content, "}}\n").unwrap();
     writeln!(content, "module.exports = node;").unwrap();
 
     Artifact {
         name: node.name.item,
         content: sign_file(&content),
-        hash: hash.to_string(),
         source_file,
     }
 }

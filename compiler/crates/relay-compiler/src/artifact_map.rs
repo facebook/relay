@@ -20,6 +20,11 @@ type ArtifactTuple = (PathBuf, Sha1Hash);
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sha1Hash(String);
 
+/// TODO(T66664425): should hash the content and return a sha1 hash.
+fn sha1hash(_content: &str) -> Sha1Hash {
+    Sha1Hash("TODO".to_string())
+}
+
 /// A map from DefinitionName to output artifacts and their hashes
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ArtifactMap(HashMap<DefinitionName, Vec<ArtifactTuple>>);
@@ -29,7 +34,7 @@ impl ArtifactMap {
         let mut map: HashMap<DefinitionName, Vec<ArtifactTuple>> = Default::default();
         for (path, artifact) in written_artifacts {
             let current_artifacts = map.get(&artifact.name);
-            let artifact_tuple = (path, Sha1Hash(artifact.hash));
+            let artifact_tuple = (path, sha1hash(&artifact.content));
             match current_artifacts {
                 Some(current_artifacts_tuples) => {
                     let mut next_artifacts_tuples = current_artifacts_tuples.to_owned();

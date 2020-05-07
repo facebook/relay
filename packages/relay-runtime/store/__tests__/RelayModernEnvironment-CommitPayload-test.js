@@ -331,4 +331,61 @@ describe('commitPayload()', () => {
       'ActorQuery',
     );
   });
+
+  describe('when using a scheduler', () => {
+    let taskID;
+    let tasks;
+    let scheduler;
+    let runTask;
+
+    beforeEach(() => {
+      taskID = 0;
+      tasks = new Map();
+      scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        scheduler,
+        store,
+      });
+    });
+
+    it('applies server updates', () => {
+      const callback = jest.fn();
+      const snapshot = environment.lookup(operation.fragment);
+      environment.subscribe(snapshot, callback);
+
+      environment.commitPayload(operation, {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+        },
+      });
+      // Verify task was scheduled and run it
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        me: {
+          name: 'Zuck',
+        },
+      });
+    });
+  });
 });

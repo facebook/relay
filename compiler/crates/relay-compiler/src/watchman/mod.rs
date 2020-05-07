@@ -11,12 +11,14 @@
 
 pub mod errors;
 mod extract_graphql;
+mod file_categorizer;
 mod file_group;
 mod file_source;
 mod watchman_file;
 
 pub use self::extract_graphql::extract_graphql_strings_from_file;
-pub use file_group::{categorize_files, FileGroup};
+pub use file_categorizer::categorize_files;
+pub use file_group::FileGroup;
 pub use file_source::{FileSource, FileSourceResult, QueryParams};
 pub use watchman_client::prelude::Clock;
 pub use watchman_file::{read_to_string, WatchmanFile};

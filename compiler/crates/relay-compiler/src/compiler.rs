@@ -10,7 +10,7 @@ use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::parse_sources::parse_sources;
-use crate::watchman::{FileSource, FileSourceResult, QueryParams};
+use crate::watchman::{FileSource, FileSourceResult};
 use common::{PerfLogEvent, PerfLogger};
 use log::{error, info};
 use schema::Schema;
@@ -50,14 +50,8 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         match optional_serialized_state_path {
             Some(saved_state_path) => {
                 let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
-                let metadata = compiler_state.metadata.clone();
                 let initial_file_source_result = file_source
-                    .query(
-                        metadata.map(|metadata| QueryParams {
-                            since: metadata.clock,
-                        }),
-                        setup_event,
-                    )
+                    .query(Some(compiler_state.clock.clone()), setup_event)
                     .await?;
 
                 compiler_state.add_pending_file_source_changes(

@@ -59,37 +59,35 @@ impl<'config> FileSource<'config> {
     /// to compile and returns the result.
     pub async fn query(
         &self,
-        optional_query_params: Option<QueryParams>,
+        since_clock: Option<Clock>,
         perf_logger_event: &impl PerfLogEvent,
     ) -> Result<FileSourceResult> {
-        let roots = get_all_roots(&self.config);
         let expression = get_watchman_expr(&self.config);
 
         let query_timer = perf_logger_event.start("watchman_query_time");
         // If `since` is available, we should not pass the `path` parameter.
         // Watchman ignores `since` parameter if both `path` and `since` are
         // passed as the request params
-        let since = optional_query_params.map(|query_params| query_params.since);
-        let path = match since {
-            None => Some(
-                roots
-                    .into_iter()
-                    .map(PathGeneratorElement::RecursivePath)
-                    .collect(),
-            ),
-            Some(_) => None,
+        let request = if since_clock.is_some() {
+            QueryRequestCommon {
+                expression: Some(expression),
+                since: since_clock,
+                ..Default::default()
+            }
+        } else {
+            let query_roots = get_all_roots(&self.config)
+                .into_iter()
+                .map(PathGeneratorElement::RecursivePath)
+                .collect();
+            QueryRequestCommon {
+                expression: Some(expression),
+                path: Some(query_roots),
+                ..Default::default()
+            }
         };
         let query_result = self
             .client
-            .query::<WatchmanFile>(
-                &self.resolved_root,
-                QueryRequestCommon {
-                    expression: Some(expression),
-                    since,
-                    path,
-                    ..Default::default()
-                },
-            )
+            .query::<WatchmanFile>(&self.resolved_root, request)
             .await?;
         perf_logger_event.stop(query_timer);
 

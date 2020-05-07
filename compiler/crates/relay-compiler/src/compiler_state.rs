@@ -53,18 +53,6 @@ impl Default for GraphQLSources {
     }
 }
 
-impl Default for CompilerState {
-    fn default() -> Self {
-        Self {
-            schemas: Default::default(),
-            graphql_sources: Default::default(),
-            extensions: Default::default(),
-            artifacts: Default::default(),
-            metadata: None,
-        }
-    }
-}
-
 impl GraphQLSources {
     pub fn pending_sources(&self) -> impl Iterator<Item = (&SourceSetName, &GraphQLSourceSet)> {
         self.grouped_pending_sources.iter()
@@ -131,10 +119,6 @@ impl GraphQLSources {
         }
     }
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CompilerStateMetadata {
-    pub clock: Clock,
-}
 
 pub type SchemaSources = HashMap<ProjectName, Vec<String>>;
 
@@ -144,7 +128,7 @@ pub struct CompilerState {
     pub schemas: SchemaSources,
     pub extensions: SchemaSources,
     pub artifacts: HashMap<ProjectName, ArtifactMap>,
-    pub metadata: Option<CompilerStateMetadata>,
+    pub clock: Clock,
 }
 
 fn merge_schema_sources(
@@ -242,9 +226,7 @@ impl CompilerState {
             artifacts,
             extensions,
             schemas,
-            metadata: Some(CompilerStateMetadata {
-                clock: file_source_changes.clock.clone(),
-            }),
+            clock: file_source_changes.clock.clone(),
         })
     }
 

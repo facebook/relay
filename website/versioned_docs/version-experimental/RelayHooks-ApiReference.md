@@ -211,7 +211,7 @@ function App() {
 ### `useFragment`
 
 ```javascript
-import type {**UserComponent_user$key**} from 'UserComponent_user.graphql';
+import type {UserComponent_user$key} from 'UserComponent_user.graphql';
 
 const React = require('React');
 

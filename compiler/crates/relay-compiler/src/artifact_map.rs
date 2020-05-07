@@ -8,6 +8,7 @@
 use crate::build_project::WrittenArtifacts;
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
+use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -20,9 +21,12 @@ type ArtifactTuple = (PathBuf, Sha1Hash);
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sha1Hash(String);
 
-/// TODO(T66664425): should hash the content and return a sha1 hash.
-fn sha1hash(_content: &str) -> Sha1Hash {
-    Sha1Hash("TODO".to_string())
+impl Sha1Hash {
+    fn hash(data: &str) -> Self {
+        let mut hash = Sha1::new();
+        hash.input(data);
+        Sha1Hash(hex::encode(hash.result()))
+    }
 }
 
 /// A map from DefinitionName to output artifacts and their hashes
@@ -34,7 +38,7 @@ impl ArtifactMap {
         let mut map: HashMap<DefinitionName, Vec<ArtifactTuple>> = Default::default();
         for (path, artifact) in written_artifacts {
             let current_artifacts = map.get(&artifact.name);
-            let artifact_tuple = (path, sha1hash(&artifact.content));
+            let artifact_tuple = (path, Sha1Hash::hash(&artifact.content));
             match current_artifacts {
                 Some(current_artifacts_tuples) => {
                     let mut next_artifacts_tuples = current_artifacts_tuples.to_owned();

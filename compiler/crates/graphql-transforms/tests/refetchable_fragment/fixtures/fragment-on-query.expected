@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+) {
+  ...RefetchableFragment
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment RefetchableFragment on Query @argumentDefinitions(
+  id: {type: "ID!"}
+) @refetchable(queryName: "RefetchableFragmentQuery") {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+  }
+}

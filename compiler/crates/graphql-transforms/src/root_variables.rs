@@ -13,7 +13,7 @@ use graphql_ir::{
 use interner::StringKey;
 use std::iter::FromIterator;
 
-type VariableMap = FnvHashMap<StringKey, Variable>;
+pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
 
 pub struct InferVariablesVisitor<'s> {
@@ -36,7 +36,7 @@ impl<'s> InferVariablesVisitor<'s> {
     /// referenced by each fragment, ie the union of all root variables used in the
     /// fragment and any fragments it transitively spreads.
     pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
-        let mut visitor = VaraiblesVisitor::new(
+        let mut visitor = VariablesVisitor::new(
             self.program,
             &mut self.visited_fragments,
             Default::default(),
@@ -44,16 +44,25 @@ impl<'s> InferVariablesVisitor<'s> {
         visitor.visit_operation(operation);
         visitor.variable_map
     }
+
+    pub fn infer_fragment_variables(&mut self, fragment: &FragmentDefinition) -> VariableMap {
+        let mut visitor = VariablesVisitor::new(
+            self.program,
+            &mut self.visited_fragments,
+            Default::default(),
+        );
+        visitor.infer_fragment_variables(fragment)
+    }
 }
 
-struct VaraiblesVisitor<'s> {
+struct VariablesVisitor<'s> {
     variable_map: VariableMap,
     visited_fragments: &'s mut Visited,
     program: &'s Program<'s>,
     local_variables: FnvHashSet<StringKey>,
 }
 
-impl<'s> VaraiblesVisitor<'s> {
+impl<'s> VariablesVisitor<'s> {
     fn new(
         program: &'s Program<'s>,
         visited_fragments: &'s mut Visited,
@@ -68,7 +77,7 @@ impl<'s> VaraiblesVisitor<'s> {
     }
 }
 
-impl<'s> VaraiblesVisitor<'s> {
+impl<'s> VariablesVisitor<'s> {
     /// Determine the set of root variables referenced locally in each
     /// fragment. Note that RootArgumentDefinitions in the fragment's
     /// argumentDefinitions can contain spurious entries for legacy
@@ -94,7 +103,7 @@ impl<'s> VaraiblesVisitor<'s> {
                     .map(|var| var.name.item),
             );
             let mut visitor =
-                VaraiblesVisitor::new(self.program, self.visited_fragments, local_variables);
+                VariablesVisitor::new(self.program, self.visited_fragments, local_variables);
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
             self.visited_fragments
@@ -104,8 +113,8 @@ impl<'s> VaraiblesVisitor<'s> {
     }
 }
 
-impl<'s> Visitor for VaraiblesVisitor<'s> {
-    const NAME: &'static str = "VaraiblesVisitor";
+impl<'s> Visitor for VariablesVisitor<'s> {
+    const NAME: &'static str = "VariablesVisitor";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
 

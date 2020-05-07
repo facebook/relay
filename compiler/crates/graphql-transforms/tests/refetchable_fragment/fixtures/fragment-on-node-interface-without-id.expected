@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...ProfilePicture
+  }
+}

@@ -30,6 +30,7 @@ struct TestCase {
 }
 
 const EXPECTED_EXTENSION: &str = "expected";
+const TODO: &str = "TODO";
 
 fn main() {
     let opt = Options::from_args();
@@ -42,6 +43,9 @@ fn main() {
         let mut test_cases: HashMap<String, TestCase> = HashMap::new();
         for dir_entry in paths {
             let path = dir_entry.unwrap().path();
+            if path.extension().unwrap() == TODO {
+                continue;
+            }
             let name = sanitize_identifier(path.file_stem().unwrap().to_str().unwrap());
             let mut test_case = test_cases.entry(name.clone()).or_insert_with(|| TestCase {
                 name,

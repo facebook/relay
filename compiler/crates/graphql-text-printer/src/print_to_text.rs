@@ -55,6 +55,12 @@ pub fn print_directives(schema: &Schema, directives: &[Directive]) -> String {
     result
 }
 
+pub fn print_value(schema: &Schema, value: &Value) -> String {
+    let mut result = String::new();
+    write_value(schema, value, &mut result).unwrap();
+    result
+}
+
 pub fn write_definition(
     schema: &Schema,
     definition: &ExecutableDefinition,
@@ -112,6 +118,11 @@ pub fn write_directives(
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
     printer.print_directives(directives, None)
+}
+
+pub fn write_value(schema: &Schema, value: &Value, mut result: &mut impl Write) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_value(value)
 }
 
 struct Printer<'schema, 'writer, W: Write> {

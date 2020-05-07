@@ -389,4 +389,33 @@ pub enum ValidationMessage {
 
     #[error("Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'.")]
     UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
+
+    #[error("Expected the 'queryName' argument of @refetchable to be provided")]
+    QueryNameRequired,
+
+    #[error(
+        "Expected the 'queryName' argument of @refetchable to be a string, got '{query_name_value}"
+    )]
+    ExpectQueryNameToBeString { query_name_value: String },
+
+    #[error("Duplicate definition for @refetchable operation '{query_name}' from fragments '{fragment_name}' and '{previous_fragment_name}'")]
+    DuplicateRefetchableOperation {
+        query_name: StringKey,
+        fragment_name: StringKey,
+        previous_fragment_name: StringKey,
+    },
+
+    #[error("Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}")]
+    UnsupportedRefetchableFragment {
+        fragment_name: StringKey,
+        descriptions: String,
+    },
+
+    #[error("Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope.")]
+    RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a `Node {{ id: ID }}` interface and has a `node(id: ID): Node` field on the query type (the id argument may also be non-null)."
+    )]
+    InvalidNodeSchemaForRefetchableFragmentOnNode { fragment_name: StringKey },
 }

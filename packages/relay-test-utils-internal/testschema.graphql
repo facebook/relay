@@ -48,7 +48,10 @@ type Query {
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
+  userOrPage(id: ID!): UserOrPage
 }
+
+union UserOrPage = User | Page
 
 interface MaybeNodeInterface {
   name: String

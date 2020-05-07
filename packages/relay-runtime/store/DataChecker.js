@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
@@ -296,16 +297,35 @@ class DataChecker {
             this._traverseSelections(selection.selections, dataID);
           }
           break;
-        case INLINE_FRAGMENT:
-          if (selection.abstractKey == null) {
+        case INLINE_FRAGMENT: {
+          const {abstractKey} = selection;
+          if (abstractKey == null) {
             const typeName = this._mutator.getType(dataID);
-            if (typeName != null && typeName === selection.type) {
+            if (typeName === selection.type) {
+              this._traverseSelections(selection.selections, dataID);
+            }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            // Abstract refinement, there are three cases:
+            // - Type known to _not_ implement the interface: don't check the selections.
+            // - Type is known _to_ implement the interface: check selections.
+            // - Unknown whether the type implements the interface: check the selections,
+            //   if a field is missing we don't know if it should exist or not, so we
+            //   have to pessimistically assume the type _does_ implement the interface
+            //   and treat those fields as missing.
+            const implementsInterface = this._mutator.getValue(
+              dataID,
+              abstractKey,
+            );
+            if (implementsInterface !== false) {
               this._traverseSelections(selection.selections, dataID);
             }
           } else {
+            // legacy behavior for abstract refinements: always check even
+            // if the type doesn't conform
             this._traverseSelections(selection.selections, dataID);
           }
           break;
+        }
         case LINKED_HANDLE:
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.

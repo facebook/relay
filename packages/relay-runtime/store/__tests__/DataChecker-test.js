@@ -2016,8 +2016,7 @@ describe('check()', () => {
     const {TestFragment} = generateAndCompile(`
       fragment TestFragment on Query {
         maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not
-          # present, and is flattened since Node is abstract
+          # This "... on Node { id }" selection would be generated if not present
           ... on Node { id }
           ... on NonNodeNoID {
             name
@@ -2034,6 +2033,7 @@ describe('check()', () => {
       'client:root:maybeNodeInterface': {
         __id: 'client:root:maybeNodeInterface',
         __typename: 'NonNodeNoID',
+        __isNode: false,
         name: 'Alice',
       },
     };
@@ -2095,5 +2095,144 @@ describe('check()', () => {
       mostRecentlyInvalidatedAt: null,
     });
     expect(target.size()).toBe(0);
+  });
+
+  describe('with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
+    const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
+    });
+
+    it('returns `missing` when a Node record is missing an id', () => {
+      const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not present
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          maybeNodeInterface: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          __isNode: true,
+          name: 'Alice',
+          // no `id` value
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(TestFragment, 'client:root', {}),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+    it('returns `available` when an abstract refinement is only missing the discriminator field', () => {
+      const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not present
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          maybeNodeInterface: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          // __isNode: true, // dont know if it implements Node or not
+          name: 'Alice',
+          id: '1',
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(TestFragment, 'client:root', {}),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns `available` when a record is only missing fields in non-implemented interfaces', () => {
+      const {TestFragment} = generateAndCompile(`
+      fragment TestFragment on Query {
+        maybeNodeInterface {
+          # This "... on Node { id }" selection would be generated if not present
+          ... on Node { id }
+          ... on NonNodeNoID {
+            name
+          }
+        }
+      }
+    `);
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          maybeNodeInterface: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'NonNodeNoID',
+          __isNode: false,
+          // no 'id' bc not a Node
+          name: 'Not a Node!',
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(TestFragment, 'client:root', {}),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
   });
 });

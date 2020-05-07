@@ -1516,6 +1516,7 @@ describe('RelayReader', () => {
           '1': {
             __id: '1',
             __typename: 'Page',
+            __isActor: true,
             // NOTE: no 'name' value
           },
         });

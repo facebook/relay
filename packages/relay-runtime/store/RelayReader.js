@@ -12,6 +12,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
@@ -102,26 +103,42 @@ class RelayReader {
     // In this case, reset isMissingData back to false.
     // Quickly skip this check in the common case that no data was
     // missing or fragments on abstract types.
-    if (this._isMissingData && node.abstractKey == null) {
+    if (this._isMissingData) {
       const record = this._recordSource.get(dataID);
       if (record != null) {
-        const recordType = RelayModernRecord.getType(record);
-        if (recordType !== node.type && dataID !== ROOT_ID) {
-          // The record exists and its (concrete) type differs
-          // from the fragment's concrete type: data is
-          // expected to be missing, so don't flag it as such
-          // since doing so could incorrectly trigger suspense.
-          // NOTE `isMissingData` is really more "is missing
-          // *expected* data", and the data isn't expected here.
-          // Also note that the store uses a hard-code __typename
-          // for the root object, while fragments on the Query
-          // type will use whatever the schema names the Query type.
-          // Assume fragments read on the root object have the right
-          // type and trust isMissingData.
-          this._isMissingData = false;
+        const {abstractKey} = node;
+        if (abstractKey == null) {
+          const recordType = RelayModernRecord.getType(record);
+          if (recordType !== node.type && dataID !== ROOT_ID) {
+            // The record exists and its (concrete) type differs
+            // from the fragment's concrete type: data is
+            // expected to be missing, so don't flag it as such
+            // since doing so could incorrectly trigger suspense.
+            // NOTE `isMissingData` is short for "is missing
+            // *expected* data", and the data isn't expected here.
+            // Also note that the store uses a hard-code __typename
+            // for the root object, while fragments on the Query
+            // type will use whatever the schema names the Query type.
+            // Assume fragments read on the root object have the right
+            // type and trust isMissingData.
+            this._isMissingData = false;
+          }
+        } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          // Handle a related edge-case: if the fragment type is *abstract*,
+          // then data is only expected to be present if the type implements
+          // the interface (or is a member of the union). Reset isMissingData
+          // if the type is not known to implement the interface.
+          const implementsInterface = RelayModernRecord.getValue(
+            record,
+            abstractKey,
+          );
+          if (implementsInterface !== true) {
+            this._isMissingData = false;
+          }
         }
       }
     }
+
     return {
       data,
       isMissingData: this._isMissingData,
@@ -181,16 +198,34 @@ class RelayReader {
             this._traverseSelections(selection.selections, record, data);
           }
           break;
-        case INLINE_FRAGMENT:
-          if (selection.abstractKey == null) {
+        case INLINE_FRAGMENT: {
+          const {abstractKey} = selection;
+          if (abstractKey == null) {
+            // concrete type refinement: only read data if the type exactly matches
             const typeName = RelayModernRecord.getType(record);
             if (typeName != null && typeName === selection.type) {
               this._traverseSelections(selection.selections, record, data);
             }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            // abstract type refinement. similar to the top-level case,
+            // reset isMissingData if the type is not known to conform to the
+            // interface
+            const isMissingData = this._isMissingData;
+            this._traverseSelections(selection.selections, record, data);
+            const implementsInterface = RelayModernRecord.getValue(
+              record,
+              abstractKey,
+            );
+            if (implementsInterface !== true) {
+              this._isMissingData = isMissingData;
+            }
           } else {
+            // legacy behavior for abstract refinements: always read even
+            // if the type doesn't conform and don't reset isMissingData
             this._traverseSelections(selection.selections, record, data);
           }
           break;
+        }
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
           break;

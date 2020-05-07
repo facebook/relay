@@ -15,7 +15,6 @@ use common::{PerfLogEvent, PerfLogger};
 use log::{error, info};
 use schema::Schema;
 use std::collections::HashMap;
-use std::path::PathBuf;
 
 pub struct Compiler<'perf, T>
 where
@@ -35,7 +34,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
 
     /// This function will create an instance of CompilerState:
     ///
-    /// - if the state is restored from the local saved state (see `optional_serialized_state_path`),
+    /// - if the state is restored from the local saved state,
     /// the files_source_result should contain only files changed
     /// since the creation of the saved_state.
     ///
@@ -44,51 +43,40 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
     async fn create_compiler_state_and_file_source_result(
         &self,
         file_source: &FileSource<'_>,
-        optional_serialized_state_path: Option<PathBuf>,
         setup_event: &impl PerfLogEvent,
     ) -> Result<(CompilerState, FileSourceResult)> {
-        match optional_serialized_state_path {
-            Some(saved_state_path) => {
-                let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
-                let initial_file_source_result = file_source
-                    .query(Some(compiler_state.clock.clone()), setup_event)
-                    .await?;
+        if let Some(saved_state_path) = &self.config.load_saved_state_file {
+            let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
+            let initial_file_source_result = file_source
+                .query(Some(compiler_state.clock.clone()), setup_event)
+                .await?;
 
-                compiler_state.add_pending_file_source_changes(
-                    &self.config,
-                    &initial_file_source_result,
-                    setup_event,
-                    self.perf_logger,
-                )?;
+            compiler_state.add_pending_file_source_changes(
+                &self.config,
+                &initial_file_source_result,
+                setup_event,
+                self.perf_logger,
+            )?;
 
-                Ok((compiler_state, initial_file_source_result))
-            }
-            None => {
-                let initial_file_source_result = file_source.query(None, setup_event).await?;
-                let compiler_state = CompilerState::from_file_source_changes(
-                    &self.config,
-                    &initial_file_source_result,
-                    setup_event,
-                    self.perf_logger,
-                )?;
+            Ok((compiler_state, initial_file_source_result))
+        } else {
+            let initial_file_source_result = file_source.query(None, setup_event).await?;
+            let compiler_state = CompilerState::from_file_source_changes(
+                &self.config,
+                &initial_file_source_result,
+                setup_event,
+                self.perf_logger,
+            )?;
 
-                Ok((compiler_state, initial_file_source_result))
-            }
+            Ok((compiler_state, initial_file_source_result))
         }
     }
 
-    pub async fn compile(
-        &self,
-        optional_serialized_state_path: Option<PathBuf>,
-    ) -> Result<CompilerState> {
+    pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
         let (mut compiler_state, _) = self
-            .create_compiler_state_and_file_source_result(
-                &file_source,
-                optional_serialized_state_path,
-                &setup_event,
-            )
+            .create_compiler_state_and_file_source_result(&file_source, &setup_event)
             .await?;
         self.build_projects(&mut compiler_state, &setup_event)
             .await?;
@@ -128,7 +116,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
         let (mut compiler_state, initial_file_source_result) = self
-            .create_compiler_state_and_file_source_result(&file_source, None, &setup_event)
+            .create_compiler_state_and_file_source_result(&file_source, &setup_event)
             .await?;
         let schemas = self.build_schemas(&compiler_state, &setup_event);
         callback(
@@ -178,15 +166,11 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         }
     }
 
-    pub async fn watch(&self, optional_serialized_state_path: Option<PathBuf>) -> Result<()> {
+    pub async fn watch(&self) -> Result<()> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
         let (mut compiler_state, initial_file_source_result) = self
-            .create_compiler_state_and_file_source_result(
-                &file_source,
-                optional_serialized_state_path,
-                &setup_event,
-            )
+            .create_compiler_state_and_file_source_result(&file_source, &setup_event)
             .await?;
 
         if let Err(errors) = self.build_projects(&mut compiler_state, &setup_event).await {

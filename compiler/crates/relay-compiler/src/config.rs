@@ -16,6 +16,7 @@ use std::path::PathBuf;
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
+/// - command line options
 /// - TODO: injected code to produce additional files
 #[derive(Debug)]
 pub struct Config {
@@ -31,6 +32,9 @@ pub struct Config {
     pub write_artifacts: bool,
     /// If set, the compiler will only compile the given project
     pub only_project: Option<StringKey>,
+
+    /// If set, tries to initialize the compiler from the saved state file.
+    pub load_saved_state_file: Option<PathBuf>,
 }
 impl Config {
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
@@ -121,6 +125,7 @@ impl Config {
             codegen_command: config_file.codegen_command,
             write_artifacts: true,
             only_project: None,
+            load_saved_state_file: None,
         };
 
         let mut validation_errors = Vec::new();

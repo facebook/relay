@@ -14,6 +14,7 @@ mod extract_graphql;
 mod file_categorizer;
 mod file_group;
 mod file_source;
+mod query_builder;
 mod watchman_file;
 
 pub use self::extract_graphql::extract_graphql_strings_from_file;

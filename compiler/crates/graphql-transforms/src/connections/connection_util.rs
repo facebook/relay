@@ -18,23 +18,23 @@ use schema::{Schema, Type};
 /// Helper to assert and extract the expected selections for a connection
 /// field. This function will panic if the expected selections aren't present,
 /// with the assumption that the connection field has already been validated.
-pub fn assert_connection_selections<'s, TConnectionInterface: ConnectionInterface>(
+pub fn assert_connection_selections<'s>(
     schema: &'s Schema,
     selections: &'s [Selection],
-    connection_interface: &'s TConnectionInterface,
+    connection_interface: &ConnectionInterface,
 ) -> ((usize, &'s LinkedField), Option<(usize, &'s LinkedField)>) {
     let mut edges_selection = None;
     let mut page_info_selection = None;
     for (ix, selection) in selections.iter().enumerate() {
         if let Selection::LinkedField(field) = selection {
             let field_name = schema.field(field.definition.item).name;
-            if field_name == connection_interface.edges_selection_name() {
+            if field_name == connection_interface.edges_selection_name {
                 if edges_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for edges")
                 }
                 edges_selection = Some((ix, field.as_ref()));
             }
-            if field_name == connection_interface.page_info_selection_name() {
+            if field_name == connection_interface.page_info_selection_name {
                 if page_info_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for page_info")
                 }
@@ -253,18 +253,18 @@ pub fn extract_connection_metadata_from_directive(
 
 /// Builds the selections that will be added to the edges selection
 /// by the connections transform
-pub fn build_edge_selections<TConnectionInterface: ConnectionInterface>(
+pub fn build_edge_selections(
     schema: &Schema,
     edge_type: Type,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
     // TODO(T63626569): Add support for derived locations
     empty_location: &Location,
 ) -> Selection {
     let cursor_field_id = schema
-        .named_field(edge_type, connection_interface.cursor_selection_name())
+        .named_field(edge_type, connection_interface.cursor_selection_name)
         .expect("Expected presence of cursor field to have been previously validated.");
     let node_field_id = schema
-        .named_field(edge_type, connection_interface.node_selection_name())
+        .named_field(edge_type, connection_interface.node_selection_name)
         .expect("Expected presence of node field to have been previously validated.");
     let typename_field_id = schema.typename_field();
 
@@ -299,37 +299,37 @@ pub fn build_edge_selections<TConnectionInterface: ConnectionInterface>(
 
 /// Builds the selections that will be added to the page_info selection
 /// by the connections transform
-pub fn build_page_info_selections<TConnectionInterface: ConnectionInterface>(
+pub fn build_page_info_selections(
     schema: &Schema,
     page_info_type: Type,
     connection_metadata: &ConnectionMetadata,
     connection_constants: ConnectionConstants,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
     // TODO(T63626569): Add support for derived locations
     empty_location: &Location,
 ) -> Selection {
     let end_cursor_field_id = schema
         .named_field(
             page_info_type,
-            connection_interface.end_cursor_selection_name(),
+            connection_interface.end_cursor_selection_name,
         )
         .expect("Expected presence of end_cursor field to have been previously validated.");
     let has_next_page_field_id = schema
         .named_field(
             page_info_type,
-            connection_interface.has_next_page_selection_name(),
+            connection_interface.has_next_page_selection_name,
         )
         .expect("Expected presence of has_next_page field to have been previously validated.");
     let has_prev_page_field_id = schema
         .named_field(
             page_info_type,
-            connection_interface.has_prev_page_selection_name(),
+            connection_interface.has_prev_page_selection_name,
         )
         .expect("Expected presence of has_previous_page field to have been previously validated.");
     let start_cursor_field_id = schema
         .named_field(
             page_info_type,
-            connection_interface.start_cursor_selection_name(),
+            connection_interface.start_cursor_selection_name,
         )
         .expect("Expected presence of start_cursor field to have been previously validated.");
 

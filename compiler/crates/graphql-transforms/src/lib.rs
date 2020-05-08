@@ -43,8 +43,8 @@ pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::client_extensions;
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
-    FBConnectionInterface, OSSConnectionInterface,
 };
+pub use connections::{FB_CONNECTION_INTERFACE, OSS_CONNECTION_INTERFACE};
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };

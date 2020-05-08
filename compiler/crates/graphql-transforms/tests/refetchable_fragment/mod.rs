@@ -12,7 +12,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::{
-    transform_connections, transform_refetchable_fragment, OSSConnectionInterface,
+    transform_connections, transform_refetchable_fragment, OSS_CONNECTION_INTERFACE,
 };
 use test_schema::TEST_SCHEMA;
 
@@ -28,7 +28,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Err(err) => return Err(format!("{:?}", err)),
     };
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let program = transform_connections(&program, &OSSConnectionInterface::default());
+    let program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
     let next_program = transform_refetchable_fragment(&program).map_err(|errors| {
         let mut errors = errors
             .into_iter()

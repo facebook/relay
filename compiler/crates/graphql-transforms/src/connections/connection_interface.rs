@@ -7,121 +7,39 @@
 
 use interner::{Intern, StringKey};
 
-pub trait ConnectionInterface {
-    fn cursor_selection_name(&self) -> StringKey;
-    fn edges_selection_name(&self) -> StringKey;
-    fn end_cursor_selection_name(&self) -> StringKey;
-    fn has_next_page_selection_name(&self) -> StringKey;
-    fn has_prev_page_selection_name(&self) -> StringKey;
-    fn node_selection_name(&self) -> StringKey;
-    fn page_info_selection_name(&self) -> StringKey;
-    fn start_cursor_selection_name(&self) -> StringKey;
-}
+use lazy_static::lazy_static;
 
 #[derive(Debug)]
-pub struct OSSConnectionInterface {
-    cursor_selection_name_: StringKey,
-    edges_selection_name_: StringKey,
-    end_cursor_selection_name_: StringKey,
-    has_next_page_selection_name_: StringKey,
-    has_prev_page_selection_name_: StringKey,
-    node_selection_name_: StringKey,
-    page_info_selection_name_: StringKey,
-    start_cursor_selection_name_: StringKey,
+pub struct ConnectionInterface {
+    pub cursor_selection_name: StringKey,
+    pub edges_selection_name: StringKey,
+    pub end_cursor_selection_name: StringKey,
+    pub has_next_page_selection_name: StringKey,
+    pub has_prev_page_selection_name: StringKey,
+    pub node_selection_name: StringKey,
+    pub page_info_selection_name: StringKey,
+    pub start_cursor_selection_name: StringKey,
 }
 
-impl Default for OSSConnectionInterface {
-    fn default() -> Self {
-        Self {
-            cursor_selection_name_: "cursor".intern(),
-            edges_selection_name_: "edges".intern(),
-            end_cursor_selection_name_: "endCursor".intern(),
-            has_next_page_selection_name_: "hasNextPage".intern(),
-            has_prev_page_selection_name_: "hasPreviousPage".intern(),
-            node_selection_name_: "node".intern(),
-            page_info_selection_name_: "pageInfo".intern(),
-            start_cursor_selection_name_: "startCursor".intern(),
-        }
-    }
-}
-
-impl ConnectionInterface for OSSConnectionInterface {
-    fn cursor_selection_name(&self) -> interner::StringKey {
-        self.cursor_selection_name_
-    }
-    fn edges_selection_name(&self) -> interner::StringKey {
-        self.edges_selection_name_
-    }
-    fn end_cursor_selection_name(&self) -> interner::StringKey {
-        self.end_cursor_selection_name_
-    }
-    fn has_next_page_selection_name(&self) -> interner::StringKey {
-        self.has_next_page_selection_name_
-    }
-    fn has_prev_page_selection_name(&self) -> interner::StringKey {
-        self.has_prev_page_selection_name_
-    }
-    fn node_selection_name(&self) -> interner::StringKey {
-        self.node_selection_name_
-    }
-    fn page_info_selection_name(&self) -> interner::StringKey {
-        self.page_info_selection_name_
-    }
-    fn start_cursor_selection_name(&self) -> interner::StringKey {
-        self.start_cursor_selection_name_
-    }
-}
-
-#[derive(Debug)]
-pub struct FBConnectionInterface {
-    cursor_selection_name_: StringKey,
-    edges_selection_name_: StringKey,
-    end_cursor_selection_name_: StringKey,
-    has_next_page_selection_name_: StringKey,
-    has_prev_page_selection_name_: StringKey,
-    node_selection_name_: StringKey,
-    page_info_selection_name_: StringKey,
-    start_cursor_selection_name_: StringKey,
-}
-
-impl Default for FBConnectionInterface {
-    fn default() -> Self {
-        Self {
-            cursor_selection_name_: "cursor".intern(),
-            edges_selection_name_: "edges".intern(),
-            end_cursor_selection_name_: "end_cursor".intern(),
-            has_next_page_selection_name_: "has_next_page".intern(),
-            has_prev_page_selection_name_: "has_previous_page".intern(),
-            node_selection_name_: "node".intern(),
-            page_info_selection_name_: "page_info".intern(),
-            start_cursor_selection_name_: "start_cursor".intern(),
-        }
-    }
-}
-
-impl ConnectionInterface for FBConnectionInterface {
-    fn cursor_selection_name(&self) -> interner::StringKey {
-        self.cursor_selection_name_
-    }
-    fn edges_selection_name(&self) -> interner::StringKey {
-        self.edges_selection_name_
-    }
-    fn end_cursor_selection_name(&self) -> interner::StringKey {
-        self.end_cursor_selection_name_
-    }
-    fn has_next_page_selection_name(&self) -> interner::StringKey {
-        self.has_next_page_selection_name_
-    }
-    fn has_prev_page_selection_name(&self) -> interner::StringKey {
-        self.has_prev_page_selection_name_
-    }
-    fn node_selection_name(&self) -> interner::StringKey {
-        self.node_selection_name_
-    }
-    fn page_info_selection_name(&self) -> interner::StringKey {
-        self.page_info_selection_name_
-    }
-    fn start_cursor_selection_name(&self) -> interner::StringKey {
-        self.start_cursor_selection_name_
-    }
+lazy_static! {
+    pub static ref OSS_CONNECTION_INTERFACE: ConnectionInterface = ConnectionInterface {
+        cursor_selection_name: "cursor".intern(),
+        edges_selection_name: "edges".intern(),
+        end_cursor_selection_name: "endCursor".intern(),
+        has_next_page_selection_name: "hasNextPage".intern(),
+        has_prev_page_selection_name: "hasPreviousPage".intern(),
+        node_selection_name: "node".intern(),
+        page_info_selection_name: "pageInfo".intern(),
+        start_cursor_selection_name: "startCursor".intern(),
+    };
+    pub static ref FB_CONNECTION_INTERFACE: ConnectionInterface = ConnectionInterface {
+        cursor_selection_name: "cursor".intern(),
+        edges_selection_name: "edges".intern(),
+        end_cursor_selection_name: "end_cursor".intern(),
+        has_next_page_selection_name: "has_next_page".intern(),
+        has_prev_page_selection_name: "has_previous_page".intern(),
+        node_selection_name: "node".intern(),
+        page_info_selection_name: "page_info".intern(),
+        start_cursor_selection_name: "start_cursor".intern(),
+    };
 }

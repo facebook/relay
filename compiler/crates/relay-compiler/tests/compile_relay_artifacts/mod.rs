@@ -13,7 +13,7 @@ use graphql_ir::{
 };
 use graphql_syntax::parse;
 use graphql_text_printer::print_full_operation;
-use graphql_transforms::{OSSConnectionInterface, MATCH_CONSTANTS};
+use graphql_transforms::{MATCH_CONSTANTS, OSS_CONNECTION_INTERFACE};
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
 use test_schema::{test_schema, test_schema_with_extensions};
@@ -48,16 +48,15 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(base, FileKey::new(fixture.file_name)).unwrap();
     let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
     let program = Program::from_definitions(&schema, ir);
-    let connection_interface = OSSConnectionInterface::default();
 
-    validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
+    validate(&program, &*OSS_CONNECTION_INTERFACE).map_err(validation_errors_to_string)?;
 
     // TODO pass base fragment names
     let programs = apply_transforms(
         "test",
         program,
         &Default::default(),
-        &connection_interface,
+        &*OSS_CONNECTION_INTERFACE,
         &ConsoleLogger,
     )
     .map_err(validation_errors_to_string)?;

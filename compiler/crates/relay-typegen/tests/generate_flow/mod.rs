@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
-use graphql_transforms::OSSConnectionInterface;
+use graphql_transforms::OSS_CONNECTION_INTERFACE;
 use relay_compiler::apply_transforms;
 use relay_typegen;
 use test_schema::test_schema;
@@ -22,12 +22,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, FileKey::new(fixture.file_name)).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(&schema, ir);
-    let connection_interface = OSSConnectionInterface::default();
     let programs = apply_transforms(
         "test",
         program,
         &Default::default(),
-        &connection_interface,
+        &*OSS_CONNECTION_INTERFACE,
         &ConsoleLogger,
     )
     .unwrap();

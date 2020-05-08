@@ -25,11 +25,11 @@ pub struct Programs<'schema> {
     pub typegen: Program<'schema>,
 }
 
-pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
+pub fn apply_transforms<'schema>(
     project_name: &str,
     program: Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
     perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Programs<'schema>> {
     // common
@@ -68,10 +68,10 @@ pub fn apply_transforms<'schema, TConnectionInterface: ConnectionInterface>(
 }
 
 /// Applies transforms that apply to every output.
-fn apply_common_transforms<'schema, TConnectionInterface: ConnectionInterface>(
+fn apply_common_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
     perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler

@@ -25,7 +25,7 @@ use build_ir::BuildIRResult;
 use common::{PerfLogEvent, PerfLogger};
 pub use generate_artifacts::Artifact;
 use graphql_ir::{Program, Sources, ValidationError};
-use graphql_transforms::FBConnectionInterface;
+use graphql_transforms::FB_CONNECTION_INTERFACE;
 use log::info;
 use schema::Schema;
 use std::path::PathBuf;
@@ -66,13 +66,11 @@ async fn build_programs<'a>(
         Program::from_definitions(&schema, ir)
     });
 
-    let connection_interface = FBConnectionInterface::default();
-
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
         add_error_sources(
             // TODO(T63482263): Pass connection interface from configuration
-            validate(&program, &connection_interface),
+            validate(&program, &*FB_CONNECTION_INTERFACE),
             sources,
         )
     })?;
@@ -84,7 +82,7 @@ async fn build_programs<'a>(
                 &project_name,
                 program,
                 &base_fragment_names,
-                &connection_interface,
+                &*FB_CONNECTION_INTERFACE,
                 perf_logger,
             ),
             sources,

@@ -24,6 +24,7 @@ function getPaginationVariables(
   count: number,
   cursor: ?string,
   baseVariables: Variables,
+  extraVariables: Variables,
   paginationMetadata: ReaderPaginationMetadata,
 ): {[string]: mixed, ...} {
   const {
@@ -40,14 +41,14 @@ function getPaginationVariables(
         "If you're seeing this, this is likely a bug in Relay.",
     );
     warning(
-      !baseVariables.hasOwnProperty(backwardMetadata.cursor),
+      !extraVariables.hasOwnProperty(backwardMetadata.cursor),
       'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
         'contain cursor variable `%s`. This variable is automatically ' +
         'determined by Relay.',
       backwardMetadata.cursor,
     );
     warning(
-      !baseVariables.hasOwnProperty(backwardMetadata.count),
+      !extraVariables.hasOwnProperty(backwardMetadata.count),
       'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
         'contain count variable `%s`. This variable is automatically ' +
         'determined by Relay.',
@@ -55,6 +56,7 @@ function getPaginationVariables(
     );
     const paginationVariables = {
       ...baseVariables,
+      ...extraVariables,
       [backwardMetadata.cursor]: cursor,
       [backwardMetadata.count]: count,
     };
@@ -75,14 +77,14 @@ function getPaginationVariables(
       "If you're seeing this, this is likely a bug in Relay.",
   );
   warning(
-    !baseVariables.hasOwnProperty(forwardMetadata.cursor),
+    !extraVariables.hasOwnProperty(forwardMetadata.cursor),
     'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
       'contain cursor variable `%s`. This variable is automatically ' +
       'determined by Relay.',
     forwardMetadata.cursor,
   );
   warning(
-    !baseVariables.hasOwnProperty(forwardMetadata.count),
+    !extraVariables.hasOwnProperty(forwardMetadata.count),
     'Relay: `UNSTABLE_extraVariables` provided by caller should not ' +
       'contain count variable `%s`. This variable is automatically ' +
       'determined by Relay.',
@@ -90,6 +92,7 @@ function getPaginationVariables(
   );
   const paginationVariables = {
     ...baseVariables,
+    ...extraVariables,
     [forwardMetadata.cursor]: cursor,
     [forwardMetadata.count]: count,
   };

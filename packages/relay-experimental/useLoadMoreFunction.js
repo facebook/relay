@@ -202,13 +202,13 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
-        ...extraVariables,
       };
       const paginationVariables = getPaginationVariables(
         direction,
         count,
         cursor,
         baseVariables,
+        {...extraVariables},
         paginationMetadata,
       );
 

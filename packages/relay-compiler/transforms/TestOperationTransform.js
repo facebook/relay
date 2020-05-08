@@ -16,7 +16,7 @@
 const IRTransformer = require('../core/IRTransformer');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {Fragment, Root} from '../core/IR';
+import type {Root} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
 // The purpose of this directive is to add GraphQL type inform for fields in
@@ -64,8 +64,6 @@ function visitRoot(node: Root) {
   if (testDirective == null) {
     return node;
   }
-
-  const context = this.getContext();
   const queue = [
     {
       selections: node.selections,
@@ -78,13 +76,7 @@ function visitRoot(node: Root) {
     currentSelections.forEach(selection => {
       switch (selection.kind) {
         case 'FragmentSpread':
-          const fragment: ?Fragment = context.get(selection.name);
-          if (fragment != null) {
-            queue.unshift({
-              selections: fragment.selections,
-              path,
-            });
-          }
+          // We don't expect to have fragment spreads at this point (it's operations only transform step)
           break;
         case 'ScalarField': {
           const nextPath =
@@ -96,23 +88,25 @@ function visitRoot(node: Root) {
           const nextPath =
             path === null ? selection.alias : `${path}.${selection.alias}`;
           selectionsTypeInfo[nextPath] = getTypeDetails(schema, selection.type);
-          queue.unshift({
+          queue.push({
             selections: selection.selections,
             path: nextPath,
           });
           break;
         }
         case 'Condition':
-        case 'ClientExtension':
         case 'Defer':
         case 'InlineDataFragmentSpread':
         case 'InlineFragment':
         case 'ModuleImport':
         case 'Stream':
-          queue.unshift({
+          queue.push({
             selections: selection.selections,
             path,
           });
+          break;
+        case 'ClientExtension':
+          // Clinet extensions are not part of the schema. We should not generate type info.
           break;
         default:
           (selection: empty);

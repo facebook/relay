@@ -87,7 +87,6 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   ApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,
   GenerateIDFieldTransform.transform,
-  TestOperationTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
@@ -101,6 +100,7 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
   GenerateTypeNameTransform.transformWithOptions({isForCodegen: true}),
+  TestOperationTransform.transform,
   ValidateServerOnlyDirectivesTransform.transform,
 ];
 

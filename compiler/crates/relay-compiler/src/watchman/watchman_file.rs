@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::errors::{Error, Result};
+use crate::errors::{Error, Result};
 use serde::Deserialize;
 use watchman_client::prelude::*;
 

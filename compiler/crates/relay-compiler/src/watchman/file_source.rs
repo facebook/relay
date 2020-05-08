@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::errors::{Error, Result};
 use super::Clock;
 use super::{
     query_builder::{get_all_roots, get_watchman_expr},
     WatchmanFile,
 };
-use crate::config::Config;
-use common::PerfLogEvent;
+use crate::errors::{Error, Result};
+use crate::{compiler_state::CompilerState, config::Config};
+use common::{PerfLogEvent, PerfLogger};
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
 
@@ -27,11 +27,6 @@ pub struct FileSourceResult {
     pub files: Vec<WatchmanFile>,
     pub resolved_root: ResolvedRoot,
     pub clock: Clock,
-}
-
-#[derive(Debug)]
-pub struct QueryParams {
-    pub since: Clock,
 }
 
 impl<'config> FileSource<'config> {
@@ -60,6 +55,72 @@ impl<'config> FileSource<'config> {
     /// Executes a point query (as opposed to a subscription) to find all files
     /// to compile and returns the result.
     pub async fn query(
+        &self,
+        perf_logger_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
+    ) -> Result<CompilerState> {
+        if let Some(saved_state_path) = &self.config.load_saved_state_file {
+            let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
+            let file_source_result = self
+                .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
+                .await?;
+            compiler_state.add_pending_file_source_changes(
+                &self.config,
+                &file_source_result,
+                perf_logger_event,
+                perf_logger,
+            )?;
+            Ok(compiler_state)
+        } else {
+            let file_source_result = self.query_file_result(None, perf_logger_event).await?;
+            let compiler_state = CompilerState::from_file_source_changes(
+                &self.config,
+                &file_source_result,
+                perf_logger_event,
+                perf_logger,
+            )?;
+            Ok(compiler_state)
+        }
+    }
+
+    /// Starts a subscription sending updates since the given clock.
+    pub async fn subscribe(
+        self,
+        perf_logger_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
+    ) -> Result<(CompilerState, FileSourceSubscription<'config>)> {
+        let compiler_state = self.query(perf_logger_event, perf_logger).await?;
+
+        let expression = get_watchman_expr(&self.config);
+
+        let file_source_result = self
+            .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
+            .await?;
+
+        let (subscription, _initial) = self
+            .client
+            .subscribe::<WatchmanFile>(
+                &self.resolved_root,
+                SubscribeRequest {
+                    expression: Some(expression),
+                    since: Some(file_source_result.clock.clone()),
+                    ..Default::default()
+                },
+            )
+            .await?;
+
+        Ok((
+            compiler_state,
+            FileSourceSubscription {
+                file_source: self,
+                subscription,
+            },
+        ))
+    }
+
+    /// Internal method to issue a watchman query, returning a raw
+    /// FileSourceResult.
+    async fn query_file_result(
         &self,
         since_clock: Option<Clock>,
         perf_logger_event: &impl PerfLogEvent,
@@ -98,31 +159,6 @@ impl<'config> FileSource<'config> {
             files,
             resolved_root: self.resolved_root.clone(),
             clock: query_result.clock,
-        })
-    }
-
-    /// Starts a subscription sending updates since the given clock.
-    pub async fn subscribe(
-        self,
-        file_source_result: FileSourceResult,
-    ) -> Result<FileSourceSubscription<'config>> {
-        let expression = get_watchman_expr(&self.config);
-
-        let (subscription, _initial) = self
-            .client
-            .subscribe::<WatchmanFile>(
-                &self.resolved_root,
-                SubscribeRequest {
-                    expression: Some(expression),
-                    since: Some(file_source_result.clock.clone()),
-                    ..Default::default()
-                },
-            )
-            .await?;
-
-        Ok(FileSourceSubscription {
-            file_source: self,
-            subscription,
         })
     }
 }

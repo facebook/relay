@@ -10,8 +10,8 @@ use crate::build_project::WrittenArtifacts;
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
-    categorize_files, errors::Result as WatchmanResult, extract_graphql_strings_from_file,
-    read_to_string, Clock, FileGroup, FileSourceResult,
+    categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
+    FileSourceResult,
 };
 use common::{PerfLogEvent, PerfLogger};
 use graphql_syntax::GraphQLSource;
@@ -197,7 +197,7 @@ impl CompilerState {
                                 Err(err) => Some(Err(err)),
                             }
                         })
-                        .collect::<WatchmanResult<HashMap<PathBuf, FileState>>>()?;
+                        .collect::<Result<HashMap<PathBuf, FileState>>>()?;
                     log_event.stop(extract_timer);
                     graphql_sources.set_pending_source_set(source_set_name, sources);
                 }
@@ -205,14 +205,14 @@ impl CompilerState {
                     let schema_sources = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<WatchmanResult<Vec<String>>>()?;
+                        .collect::<Result<Vec<String>>>()?;
                     schemas.insert(project_name, schema_sources);
                 }
                 FileGroup::Extension { project_name } => {
                     let extension_sources: Vec<String> = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<WatchmanResult<Vec<String>>>()?;
+                        .collect::<Result<Vec<String>>>()?;
                     extensions.insert(project_name, extension_sources);
                 }
                 FileGroup::Generated => {

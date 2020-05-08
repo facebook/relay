@@ -10,7 +10,7 @@ use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::parse_sources::parse_sources;
-use crate::watchman::{FileSource, FileSourceResult};
+use crate::watchman::FileSource;
 use common::{PerfLogEvent, PerfLogger};
 use log::{error, info};
 use schema::Schema;
@@ -32,54 +32,14 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         }
     }
 
-    /// This function will create an instance of CompilerState:
-    ///
-    /// - if the state is restored from the local saved state,
-    /// the files_source_result should contain only files changed
-    /// since the creation of the saved_state.
-    ///
-    /// - otherwise, it will send a base watchman query
-    /// (to fetch all files, currently)
-    async fn create_compiler_state_and_file_source_result(
-        &self,
-        file_source: &FileSource<'_>,
-        setup_event: &impl PerfLogEvent,
-    ) -> Result<(CompilerState, FileSourceResult)> {
-        if let Some(saved_state_path) = &self.config.load_saved_state_file {
-            let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
-            let initial_file_source_result = file_source
-                .query(Some(compiler_state.clock.clone()), setup_event)
-                .await?;
-
-            compiler_state.add_pending_file_source_changes(
-                &self.config,
-                &initial_file_source_result,
-                setup_event,
-                self.perf_logger,
-            )?;
-
-            Ok((compiler_state, initial_file_source_result))
-        } else {
-            let initial_file_source_result = file_source.query(None, setup_event).await?;
-            let compiler_state = CompilerState::from_file_source_changes(
-                &self.config,
-                &initial_file_source_result,
-                setup_event,
-                self.perf_logger,
-            )?;
-
-            Ok((compiler_state, initial_file_source_result))
-        }
-    }
-
     pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
+
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let (mut compiler_state, _) = self
-            .create_compiler_state_and_file_source_result(&file_source, &setup_event)
-            .await?;
+        let mut compiler_state = file_source.query(&setup_event, self.perf_logger).await?;
         self.build_projects(&mut compiler_state, &setup_event)
             .await?;
+
         self.perf_logger.complete_event(setup_event);
 
         Ok(compiler_state)
@@ -112,11 +72,15 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         schemas
     }
 
-    pub async fn watch_with_callback<F: FnMut(Result<()>)>(&self, mut callback: F) -> Result<()> {
+    pub async fn watch_with_callback<F>(&self, mut callback: F) -> Result<()>
+    where
+        F: FnMut(Result<()>),
+    {
         let setup_event = self.perf_logger.create_event("compiler_setup");
+
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let (mut compiler_state, initial_file_source_result) = self
-            .create_compiler_state_and_file_source_result(&file_source, &setup_event)
+        let (mut compiler_state, mut subscription) = file_source
+            .subscribe(&setup_event, self.perf_logger)
             .await?;
         let schemas = self.build_schemas(&compiler_state, &setup_event);
         callback(
@@ -126,7 +90,6 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
 
         self.perf_logger.complete_event(setup_event);
 
-        let mut subscription = file_source.subscribe(initial_file_source_result).await?;
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
                 let incremental_check_event =
@@ -168,9 +131,11 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
 
     pub async fn watch(&self) -> Result<()> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
+
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let (mut compiler_state, initial_file_source_result) = self
-            .create_compiler_state_and_file_source_result(&file_source, &setup_event)
+
+        let (mut compiler_state, mut subscription) = file_source
+            .subscribe(&setup_event, self.perf_logger)
             .await?;
 
         if let Err(errors) = self.build_projects(&mut compiler_state, &setup_event).await {
@@ -179,7 +144,6 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         }
         self.perf_logger.complete_event(setup_event);
 
-        let mut subscription = file_source.subscribe(initial_file_source_result).await?;
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
                 let incremental_build_event =

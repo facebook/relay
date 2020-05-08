@@ -290,11 +290,15 @@ pub async fn run(
                                         CompilerError::ConfigFileRead { .. } => {}
                                         CompilerError::ConfigFileParse { .. } => {}
                                         CompilerError::ConfigFileValidation { .. } => {}
-                                        CompilerError::WatchmanError { .. } => {}
                                         CompilerError::ReadFileError { .. } => {}
                                         CompilerError::WriteFileError { .. } => {}
                                         CompilerError::SerializationError { .. } => {}
                                         CompilerError::DeserializationError { .. } => {}
+                                        CompilerError::CanonicalizeRoot { .. } => {}
+                                        CompilerError::Watchman { .. } => {}
+                                        CompilerError::EmptyQueryResult => {}
+                                        CompilerError::FileRead { .. } => {}
+                                        CompilerError::Syntax { .. } => {}
                                     }
                                 }
                             }

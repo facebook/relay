@@ -8,7 +8,6 @@
 use interner::{Intern, StringKey};
 
 pub trait ConnectionInterface {
-    fn client_mutation_id_selection_name(&self) -> StringKey;
     fn cursor_selection_name(&self) -> StringKey;
     fn edges_selection_name(&self) -> StringKey;
     fn end_cursor_selection_name(&self) -> StringKey;
@@ -21,7 +20,6 @@ pub trait ConnectionInterface {
 
 #[derive(Debug)]
 pub struct OSSConnectionInterface {
-    client_mutation_id_selection_name_: StringKey,
     cursor_selection_name_: StringKey,
     edges_selection_name_: StringKey,
     end_cursor_selection_name_: StringKey,
@@ -35,7 +33,6 @@ pub struct OSSConnectionInterface {
 impl Default for OSSConnectionInterface {
     fn default() -> Self {
         Self {
-            client_mutation_id_selection_name_: "clientMutationId".intern(),
             cursor_selection_name_: "cursor".intern(),
             edges_selection_name_: "edges".intern(),
             end_cursor_selection_name_: "endCursor".intern(),
@@ -49,9 +46,6 @@ impl Default for OSSConnectionInterface {
 }
 
 impl ConnectionInterface for OSSConnectionInterface {
-    fn client_mutation_id_selection_name(&self) -> interner::StringKey {
-        self.client_mutation_id_selection_name_
-    }
     fn cursor_selection_name(&self) -> interner::StringKey {
         self.cursor_selection_name_
     }
@@ -80,7 +74,6 @@ impl ConnectionInterface for OSSConnectionInterface {
 
 #[derive(Debug)]
 pub struct FBConnectionInterface {
-    client_mutation_id_selection_name_: StringKey,
     cursor_selection_name_: StringKey,
     edges_selection_name_: StringKey,
     end_cursor_selection_name_: StringKey,
@@ -94,7 +87,6 @@ pub struct FBConnectionInterface {
 impl Default for FBConnectionInterface {
     fn default() -> Self {
         Self {
-            client_mutation_id_selection_name_: "client_mutation_id".intern(),
             cursor_selection_name_: "cursor".intern(),
             edges_selection_name_: "edges".intern(),
             end_cursor_selection_name_: "end_cursor".intern(),
@@ -108,9 +100,6 @@ impl Default for FBConnectionInterface {
 }
 
 impl ConnectionInterface for FBConnectionInterface {
-    fn client_mutation_id_selection_name(&self) -> interner::StringKey {
-        self.client_mutation_id_selection_name_
-    }
     fn cursor_selection_name(&self) -> interner::StringKey {
         self.cursor_selection_name_
     }

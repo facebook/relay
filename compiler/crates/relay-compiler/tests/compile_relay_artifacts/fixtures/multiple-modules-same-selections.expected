@@ -108,35 +108,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               }
             ],
             "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": null,
-                "kind": "LinkedField",
-                "name": "nameRenderer",
-                "plural": false,
-                "selections": [
-                  {
-                    "kind": "InlineFragment",
-                    "selections": [
-                      {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
-                        "kind": "ModuleImport"
-                      }
-                    ],
-                    "type": "MarkdownUserNameRenderer"
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "type": "User"
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"

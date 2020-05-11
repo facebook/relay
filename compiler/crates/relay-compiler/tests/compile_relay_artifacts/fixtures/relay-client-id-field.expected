@@ -154,13 +154,6 @@ query RelayClientIDFieldQuery($id: ID!) {
                       {
                         "alias": null,
                         "args": null,
-                        "kind": "ScalarField",
-                        "name": "__id",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
                         "concreteType": "Text",
                         "kind": "LinkedField",
                         "name": "text",

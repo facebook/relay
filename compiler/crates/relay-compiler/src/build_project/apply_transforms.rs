@@ -111,7 +111,7 @@ fn apply_reader_transforms<'schema>(
     // + FieldHandleTransform
     // - InlineDataFragmentTransform
     // + FlattenTransform, flattenAbstractTypes: true
-    // - SkipRedundantNodesTransform
+    // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -122,7 +122,9 @@ fn apply_reader_transforms<'schema>(
         remove_base_fragments(&program, base_fragment_names)
     });
     let program = log_event.time("flatten", || flatten(&program, true));
+    let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
+
     perf_logger.complete_event(log_event);
 
     program

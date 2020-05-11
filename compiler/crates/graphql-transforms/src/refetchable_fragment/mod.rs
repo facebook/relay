@@ -17,7 +17,7 @@ use crate::root_variables::{InferVariablesVisitor, VariableMap};
 use common::WithLocation;
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     FragmentDefinition, NamedItem, OperationDefinition, Program, ValidationError,
     ValidationMessage, ValidationResult,
@@ -49,12 +49,15 @@ use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment<'schema>(
     program: &Program<'schema>,
+    base_fragment_names: &'_ FnvHashSet<StringKey>,
+    for_typegen: bool,
 ) -> ValidationResult<Program<'schema>> {
     let mut next_program = Program::new(program.schema());
 
     let mut transformer = RefetchableFragment {
         connection_constants: Default::default(),
         existing_refetch_operations: Default::default(),
+        for_typegen,
         program,
         visitor: InferVariablesVisitor::new(program),
     };
@@ -64,12 +67,16 @@ pub fn transform_refetchable_fragment<'schema>(
     }
 
     validate_map(program.fragments(), |fragment| {
-        let operation_result = transformer.transform_refetch_fragment(fragment)?;
-        if let Some(operation_result) = operation_result {
-            next_program.insert_fragment(operation_result.fragment);
-            next_program.insert_operation(operation_result.operation);
-        } else {
+        if base_fragment_names.contains(&fragment.name.item) {
             next_program.insert_fragment(Arc::clone(fragment));
+        } else {
+            let operation_result = transformer.transform_refetch_fragment(fragment)?;
+            if let Some(operation_result) = operation_result {
+                next_program.insert_fragment(operation_result.fragment);
+                next_program.insert_operation(operation_result.operation);
+            } else {
+                next_program.insert_fragment(Arc::clone(fragment));
+            }
         }
         Ok(())
     })?;
@@ -81,9 +88,10 @@ type ExistingRefetchOperations = FnvHashMap<StringKey, WithLocation<StringKey>>;
 
 struct RefetchableFragment<'schema> {
     connection_constants: ConnectionConstants,
+    existing_refetch_operations: ExistingRefetchOperations,
+    for_typegen: bool,
     program: &'schema Program<'schema>,
     visitor: InferVariablesVisitor<'schema>,
-    existing_refetch_operations: ExistingRefetchOperations,
 }
 
 impl<'schema> RefetchableFragment<'schema> {
@@ -101,7 +109,9 @@ impl<'schema> RefetchableFragment<'schema> {
                     refetch_name,
                     &variables_map,
                 )? {
-                    self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
+                    if !self.for_typegen {
+                        self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
+                    }
                     return Ok(Some(refetch_root));
                 }
             }

@@ -1,4 +1,4 @@
-// @generated SignedSource<<5017de08d0f6489d8f0a1d320ef46e2d>>
+// @generated SignedSource<<bac74b1a6e8f4095cb593f5ef473884b>>
 
 mod compile_relay_artifacts;
 
@@ -150,6 +150,13 @@ fn fragment_on_node_interface() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-node-interface.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-node-interface.expected");
     test_fixture(transform_fixture, "fragment-on-node-interface.graphql", "compile_relay_artifacts/fixtures/fragment-on-node-interface.expected", input, expected);
+}
+
+#[test]
+fn fragment_on_non_node_fetchable_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-non-node-fetchable-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-non-node-fetchable-type.expected");
+    test_fixture(transform_fixture, "fragment-on-non-node-fetchable-type.graphql", "compile_relay_artifacts/fixtures/fragment-on-non-node-fetchable-type.expected", input, expected);
 }
 
 #[test]

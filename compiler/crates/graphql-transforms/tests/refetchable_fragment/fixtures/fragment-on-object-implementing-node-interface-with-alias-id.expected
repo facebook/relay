@@ -31,4 +31,5 @@ fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmen
   __id: id
   name
   ...ProfilePicture
+  id
 }

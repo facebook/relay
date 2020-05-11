@@ -96,5 +96,6 @@ impl CustomMetadataDirectives {
             || name == self.handle_field_constants.handle_field_directive_name
             || name == MATCH_CONSTANTS.custom_module_directive_name
             || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
+            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
     }
 }

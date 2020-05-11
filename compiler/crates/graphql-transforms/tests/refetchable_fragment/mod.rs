@@ -29,14 +29,16 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     };
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
     let program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
-    let next_program = transform_refetchable_fragment(&program).map_err(|errors| {
-        let mut errors = errors
-            .into_iter()
-            .map(|err| err.print(&sources))
-            .collect::<Vec<_>>();
-        errors.sort();
-        errors.join("\n\n")
-    })?;
+    let base_fragments = Default::default();
+    let next_program =
+        transform_refetchable_fragment(&program, &base_fragments, false).map_err(|errors| {
+            let mut errors = errors
+                .into_iter()
+                .map(|err| err.print(&sources))
+                .collect::<Vec<_>>();
+            errors.sort();
+            errors.join("\n\n")
+        })?;
 
     let mut printed = next_program
         .operations()

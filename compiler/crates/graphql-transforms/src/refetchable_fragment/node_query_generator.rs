@@ -13,8 +13,9 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::WithLocation;
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, NamedItem, OperationDefinition, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    Argument, FragmentDefinition, LinkedField, NamedItem, OperationDefinition, ScalarField,
+    Selection, ValidationError, ValidationMessage, ValidationResult, Value, Variable,
+    VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
@@ -88,6 +89,13 @@ fn build_refetch_operation(
                 directives: vec![],
             });
 
+            let node_interface = schema.interface(node_interface_id);
+            let id_field_id = *node_interface
+                .fields
+                .iter()
+                .find(|&&id| schema.field(id).name == CONSTANTS.id_name)
+                .expect("Expected `Node` to contain a field named `id`.");
+
             Ok(Some(RefetchRoot {
                 operation: Arc::new(OperationDefinition {
                     kind: OperationKind::Query,
@@ -124,6 +132,7 @@ fn build_refetch_operation(
                             identifier_field: Some(CONSTANTS.id_name),
                         },
                     ),
+                    selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
                     ..fragment.as_ref().clone()
                 }),
             }))
@@ -139,9 +148,11 @@ fn get_node_field_id_and_id_arg<'s>(
     let node_field_id = schema.named_field(query_type, CONSTANTS.node_field_name);
     if let Some(node_field_id) = node_field_id {
         let node_field = schema.field(node_field_id);
-        let id_arg = node_field.arguments.get(CONSTANTS.id_name);
-        if let Some(id_arg) = id_arg {
-            return Ok((node_field_id, id_arg));
+        let mut arg_iter = node_field.arguments.iter();
+        if let Some(id_arg) = arg_iter.next() {
+            if arg_iter.len() == 0 {
+                return Ok((node_field_id, id_arg));
+            }
         }
     }
     Err(vec![ValidationError::new(
@@ -150,6 +161,33 @@ fn get_node_field_id_and_id_arg<'s>(
         },
         vec![fragment.name.location],
     )])
+}
+
+fn enforce_selections_with_id_field(
+    fragment: &FragmentDefinition,
+    schema: &Schema,
+    id_field_id: FieldID,
+) -> Vec<Selection> {
+    let mut next_selections = fragment.selections.clone();
+    let has_id_field = next_selections.iter().any(|sel| {
+        if let Selection::ScalarField(field) = sel {
+            field.alias_or_name(schema) == CONSTANTS.id_name
+                && schema.field(field.definition.item).type_ == schema.field(id_field_id).type_
+        } else {
+            false
+        }
+    });
+    if has_id_field {
+        next_selections
+    } else {
+        next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
+            alias: None,
+            definition: WithLocation::new(fragment.name.location, id_field_id),
+            arguments: vec![],
+            directives: vec![],
+        })));
+        next_selections
+    }
 }
 
 pub const NODE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {

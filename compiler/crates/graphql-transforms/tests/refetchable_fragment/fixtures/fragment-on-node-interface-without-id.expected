@@ -33,4 +33,5 @@ fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmen
     name
     ...ProfilePicture
   }
+  id
 }

@@ -13,7 +13,7 @@ use graphql_ir::{FragmentDefinition, NamedItem, OperationDefinition};
 use graphql_text_printer::{
     print_fragment, print_full_operation, write_operation_with_graphqljs_formatting,
 };
-use graphql_transforms::MATCH_CONSTANTS;
+use graphql_transforms::{MATCH_CONSTANTS, REFETCHABLE_CONSTANTS};
 use interner::StringKey;
 use md5::{Digest, Md5};
 use persist_query::persist;
@@ -64,6 +64,35 @@ pub async fn generate_artifacts(
                 &source_hash,
                 source_node.name.location.file(),
             ));
+        } else if let Some(directive) = node
+            .directives
+            .named(REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name)
+        {
+            let source_name = directive
+                .arguments
+                .named(REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+            let source_node = programs
+                .source
+                .fragment(source_name)
+                .expect("Expected the source document for the SplitOperation to exist.");
+            let source_string = print_fragment(programs.source.schema(), &source_node);
+            let source_hash = md5(&source_string);
+            artifacts.push(
+                generate_normalization_artifact(
+                    &mut printer,
+                    config,
+                    project_config,
+                    programs,
+                    node,
+                    &source_hash,
+                    source_node.name.location.file(),
+                )
+                .await?,
+            );
         } else {
             let source_node = programs.source.operation(node.name.item).unwrap();
             // TODO: Consider using the std::io::Write trait here to directly
@@ -86,6 +115,7 @@ pub async fn generate_artifacts(
                     programs,
                     node,
                     &source_hash,
+                    node.name.location.file(),
                 )
                 .await?,
             );
@@ -116,6 +146,7 @@ async fn generate_normalization_artifact(
     programs: &Programs<'_>,
     node: &OperationDefinition,
     source_hash: &str,
+    source_file: FileKey,
 ) -> Result<Artifact, BuildProjectError> {
     let name = node.name.item;
     let print_operation_node = programs
@@ -198,7 +229,7 @@ async fn generate_normalization_artifact(
     Ok(Artifact {
         name: node.name.item,
         content: sign_file(&content),
-        source_file: node.name.location.file(),
+        source_file,
     })
 }
 

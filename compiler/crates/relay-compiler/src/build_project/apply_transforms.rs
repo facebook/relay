@@ -13,7 +13,8 @@ use graphql_transforms::{
     handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
     skip_redundant_nodes, skip_split_operation, skip_unreachable_node, skip_unused_variables,
     split_module_import, transform_connections, transform_defer_stream, transform_match,
-    validate_module_conflicts, validate_server_only_directives, ConnectionInterface,
+    transform_refetchable_fragment, validate_module_conflicts, validate_server_only_directives,
+    ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -37,8 +38,13 @@ pub fn apply_transforms<'schema>(
     //  |- operation
     //     |- normalization
     //     |- operation_text
-    let common_program =
-        apply_common_transforms(project_name, &program, connection_interface, perf_logger)?;
+    let common_program = apply_common_transforms(
+        project_name,
+        &program,
+        connection_interface,
+        base_fragment_names,
+        perf_logger,
+    )?;
     let reader_program = apply_reader_transforms(
         project_name,
         &common_program,
@@ -72,6 +78,7 @@ fn apply_common_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
     connection_interface: &ConnectionInterface,
+    base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
@@ -80,7 +87,7 @@ fn apply_common_transforms<'schema>(
     // - RelayDirectiveTransform
     // + MaskTransform
     // + MatchTransform
-    // - RefetchableFragmentTransform
+    // + RefetchableFragmentTransform
     // + DeferStreamTransform
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
@@ -92,6 +99,9 @@ fn apply_common_transforms<'schema>(
     let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
+    })?;
+    let program = log_event.time("transform_refetchable_fragment", || {
+        transform_refetchable_fragment(&program, &base_fragment_names, false)
     });
     perf_logger.complete_event(log_event);
 
@@ -246,15 +256,19 @@ fn apply_typegen_transforms<'schema>(
     // + MaskTransform
     // - MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false
-    // - RefetchableFragmentTransform,
+    // + RefetchableFragmentTransform,
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("mask", || mask(&program));
+    let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("transform_refetchable_fragment", || {
+        transform_refetchable_fragment(&program, &base_fragment_names, true)
+            .expect("Expected errors to be validated in common transforms.")
+    });
     let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    let program = log_event.time("flatten", || flatten(&program, false));
     perf_logger.complete_event(log_event);
 
     program

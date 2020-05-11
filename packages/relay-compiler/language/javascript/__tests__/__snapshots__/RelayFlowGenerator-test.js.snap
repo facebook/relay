@@ -838,7 +838,7 @@ export type TestMutationRawResponse = {|
           |},
         |},
       |} | {|
-        +__typename: ?string,
+        +__typename: string,
         +id: ?string,
       |})
     |}
@@ -1272,7 +1272,7 @@ export type LinkedHandleFieldRawResponse = {|
       +count: ?number
     |},
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};
@@ -1297,7 +1297,7 @@ export type ScalarHandleFieldRawResponse = {|
     +id: ?string,
     +name: ?string,
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};
@@ -1384,10 +1384,10 @@ export type TestRawResponse = {|
       +__typename: "MarkdownUserNameRenderer",
       ...MarkdownUserNameRenderer_name,
     |}> | {|
-      +__typename: ?string
+      +__typename: string
     |}),
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};
@@ -1503,7 +1503,7 @@ export type TestRawResponse = {|
     |} | Local3DPayload<"Test_user", {| ...Test_userRenderer
     |}>),
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};
@@ -1656,10 +1656,10 @@ export type TestRawResponse = {|
       +__typename: "MarkdownUserNameRenderer",
       ...MarkdownUserNameRenderer_name,
     |}> | {|
-      +__typename: ?string
+      +__typename: string
     |}),
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |}),
   +viewer: ?{|
@@ -1684,10 +1684,10 @@ export type TestRawResponse = {|
         +__typename: "MarkdownUserNameRenderer",
         ...MarkdownUserNameRenderer_name,
       |}> | {|
-        +__typename: ?string
+        +__typename: string
       |}),
     |} | {|
-      +__typename: ?string,
+      +__typename: string,
       +id: ?string,
     |})
   |},
@@ -1821,7 +1821,7 @@ export type ExampleQueryRawResponse = {|
       +name: ?string,
     |},
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};
@@ -1894,7 +1894,7 @@ export type ExampleQueryResponse = {|
 |};
 export type ExampleQueryRawResponse = {|
   +node: ?{|
-    +__typename: ?string,
+    +__typename: string,
     +username: ?string,
     +id: ?string,
   |}
@@ -1981,7 +1981,7 @@ export type TestStreamRawResponse = {|
       |},
     |},
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};
@@ -2038,7 +2038,7 @@ export type TestDeferRawResponse = {|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
           +actor: ?{|
-            +__typename: ?string,
+            +__typename: string,
             +name: ?string,
             +id: ?string,
           |},
@@ -2053,7 +2053,7 @@ export type TestDeferRawResponse = {|
       |},
     |},
   |} | {|
-    +__typename: ?string,
+    +__typename: string,
     +id: ?string,
   |})
 |};

@@ -56,7 +56,9 @@ function generateTypeNameTransform(
     loc: {kind: 'Generated'},
     metadata: null,
     name: TYPENAME_KEY,
-    type: schema.expectStringType(),
+    type: schema.assertScalarFieldType(
+      schema.getNonNullType(schema.expectStringType()),
+    ),
   };
   return IRTransformer.transform(
     context,
@@ -89,7 +91,9 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
           loc: {kind: 'Generated'},
           metadata: null,
           name: TYPENAME_KEY,
-          type: schema.expectStringType(),
+          type: schema.assertScalarFieldType(
+            schema.getNonNullType(schema.expectStringType()),
+          ),
         },
         ...transformedNode.selections,
       ],
@@ -122,7 +126,9 @@ function visitInlineFragment(
           loc: {kind: 'Generated'},
           metadata: null,
           name: TYPENAME_KEY,
-          type: schema.expectStringType(),
+          type: schema.assertScalarFieldType(
+            schema.getNonNullType(schema.expectStringType()),
+          ),
         },
         ...transformedNode.selections,
       ],

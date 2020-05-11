@@ -189,7 +189,7 @@ Root {
                       },
                       metadata: null,
                       name: "__typename",
-                      type: "String",
+                      type: "String!",
                     },
                     ScalarField {
                       alias: "id",
@@ -287,7 +287,7 @@ Root {
                           },
                           metadata: null,
                           name: "__typename",
-                          type: "String",
+                          type: "String!",
                         },
                         ScalarField {
                           alias: "name",
@@ -409,7 +409,7 @@ Root {
           },
           metadata: null,
           name: "__typename",
-          type: "String",
+          type: "String!",
         },
         LinkedField {
           alias: "comments",
@@ -1021,7 +1021,7 @@ Root {
           },
           metadata: null,
           name: "__typename",
-          type: "String",
+          type: "String!",
         },
         LinkedField {
           alias: "comments",

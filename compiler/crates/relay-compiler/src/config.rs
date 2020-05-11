@@ -112,6 +112,7 @@ impl Config {
                     shard_strip_regex,
                     schema_location,
                     enum_module_suffix: config_file_project.enum_module_suffix,
+                    optional_input_fields: config_file_project.optional_input_fields,
                     persist: config_file_project.persist,
                 };
                 Ok((project_name, project_config))
@@ -235,6 +236,7 @@ pub struct ProjectConfig {
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
     pub enum_module_suffix: Option<String>,
+    pub optional_input_fields: Vec<StringKey>,
     pub persist: Option<PersistConfig>,
 }
 
@@ -303,6 +305,11 @@ struct ConfigFileProject {
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
 
+    /// If this option is set, the compiler will persist queries using this
+    /// config.
+    persist: Option<PersistConfig>,
+
+    /// # For Flow type generation
     /// When set, enum values are imported from a module with this suffix.
     /// For example, an enum Foo and this property set to ".test" would be
     /// imported from "Foo.test".
@@ -310,9 +317,11 @@ struct ConfigFileProject {
     /// value, in the example above it would just import from "Foo".
     enum_module_suffix: Option<String>,
 
-    /// If this option is set, the compiler will persist queries using this
-    /// config.
-    persist: Option<PersistConfig>,
+    /// # For Flow type generation
+    /// When set, generated input types will have the listed fields optional
+    /// even if the schema defines them as required.
+    #[serde(default)]
+    optional_input_fields: Vec<StringKey>,
 }
 
 #[derive(Debug, Deserialize)]

@@ -35,13 +35,13 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     operations.sort_by_key(|op| op.name.item);
     let operation_strings = operations
         .into_iter()
-        .map(|frag| relay_typegen::generate_operation_type(frag, &schema, &None));
+        .map(|frag| relay_typegen::generate_operation_type(frag, &schema, &None, &Vec::new()));
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments
         .into_iter()
-        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &None));
+        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &None, &Vec::new()));
 
     let mut result: Vec<String> = operation_strings.collect();
     result.extend(fragment_strings);

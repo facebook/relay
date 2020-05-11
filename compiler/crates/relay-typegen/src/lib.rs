@@ -28,8 +28,9 @@ pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &Schema,
     enum_module_suffix: &Option<String>,
+    optional_input_fields: &[StringKey],
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix);
+    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
     generator.generate_fragment_type(fragment).unwrap();
     generator.result
 }
@@ -38,8 +39,9 @@ pub fn generate_operation_type(
     operation: &OperationDefinition,
     schema: &Schema,
     enum_module_suffix: &Option<String>,
+    optional_input_fields: &[StringKey],
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix);
+    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
     generator.generate_operation_type(operation).unwrap();
     generator.result
 }
@@ -57,9 +59,14 @@ struct TypeGenerator<'schema, 'config> {
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     enum_module_suffix: &'config Option<String>,
+    optional_input_fields: &'config [StringKey],
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
-    fn new(schema: &'schema Schema, enum_module_suffix: &'config Option<String>) -> Self {
+    fn new(
+        schema: &'schema Schema,
+        enum_module_suffix: &'config Option<String>,
+        optional_input_fields: &'config [StringKey],
+    ) -> Self {
         Self {
             result: String::new(),
             schema,
@@ -68,6 +75,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             used_enums: Default::default(),
             used_fragments: Default::default(),
             enum_module_suffix,
+            optional_input_fields,
         }
     }
 
@@ -716,7 +724,8 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                             .map(|field| Prop {
                                 key: field.name,
                                 read_only: false,
-                                optional: !field.type_.is_non_null(),
+                                optional: !field.type_.is_non_null()
+                                    || self.optional_input_fields.contains(&field.name),
                                 other_comment: false,
                                 value: self.transform_input_type(&field.type_),
                             })

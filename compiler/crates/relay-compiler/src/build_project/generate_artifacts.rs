@@ -173,7 +173,8 @@ async fn generate_normalization_artifact(
         generate_operation_type(
             typegen_node,
             programs.typegen.schema(),
-            &project_config.enum_module_suffix
+            &project_config.enum_module_suffix,
+            &project_config.optional_input_fields
         )
     )
     .unwrap();
@@ -231,7 +232,8 @@ fn generate_reader_artifact(
         generate_fragment_type(
             typegen_node,
             programs.typegen.schema(),
-            &project_config.enum_module_suffix
+            &project_config.enum_module_suffix,
+            &project_config.optional_input_fields
         )
     )
     .unwrap();

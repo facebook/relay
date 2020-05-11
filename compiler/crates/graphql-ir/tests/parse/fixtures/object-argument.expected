@@ -81,7 +81,7 @@ query ObjectArgument($text: String!) {
                             definition: WithLocation {
                                 location: "object-argument.graphql":84:94,
                                 item: FieldID(
-                                    53,
+                                    55,
                                 ),
                             },
                             arguments: [],

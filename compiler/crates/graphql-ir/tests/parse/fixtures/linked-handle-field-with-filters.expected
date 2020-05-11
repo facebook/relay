@@ -37,7 +37,7 @@ fragment LinkedHandleField on User {
                     definition: WithLocation {
                         location: "linked-handle-field-with-filters.graphql":36:46,
                         item: FieldID(
-                            444,
+                            447,
                         ),
                     },
                     arguments: [
@@ -129,7 +129,7 @@ fragment LinkedHandleField on User {
                             definition: WithLocation {
                                 location: "linked-handle-field-with-filters.graphql":153:163,
                                 item: FieldID(
-                                    166,
+                                    168,
                                 ),
                             },
                             arguments: [],

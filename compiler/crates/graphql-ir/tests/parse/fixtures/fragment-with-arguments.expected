@@ -83,7 +83,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-arguments.graphql":128:145,
                         item: FieldID(
-                            460,
+                            463,
                         ),
                     },
                     arguments: [
@@ -117,7 +117,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             definition: WithLocation {
                                 location: "fragment-with-arguments.graphql":167:175,
                                 item: FieldID(
-                                    172,
+                                    174,
                                 ),
                             },
                             arguments: [],
@@ -135,7 +135,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-arguments.graphql":198:212,
                         item: FieldID(
-                            460,
+                            463,
                         ),
                     },
                     arguments: [
@@ -169,7 +169,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             definition: WithLocation {
                                 location: "fragment-with-arguments.graphql":227:235,
                                 item: FieldID(
-                                    172,
+                                    174,
                                 ),
                             },
                             arguments: [],
@@ -241,7 +241,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     definition: WithLocation {
                         location: "fragment-with-arguments.graphql":344:349,
                         item: FieldID(
-                            446,
+                            449,
                         ),
                     },
                     arguments: [],

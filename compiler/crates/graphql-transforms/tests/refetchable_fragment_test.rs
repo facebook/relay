@@ -1,4 +1,4 @@
-// @generated SignedSource<<95c8331aca069116785e9d9e87ed99d5>>
+// @generated SignedSource<<f28f78aea1ff4e0a4c466a77d02c4cc0>>
 
 mod refetchable_fragment;
 
@@ -31,6 +31,13 @@ fn fragment_on_node_interface_without_id() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-node-interface-without-id.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-node-interface-without-id.expected");
     test_fixture(transform_fixture, "fragment-on-node-interface-without-id.graphql", "refetchable_fragment/fixtures/fragment-on-node-interface-without-id.expected", input, expected);
+}
+
+#[test]
+fn fragment_on_non_node_fetchable_type() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.expected");
+    test_fixture(transform_fixture, "fragment-on-non-node-fetchable-type.graphql", "refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.expected", input, expected);
 }
 
 #[test]

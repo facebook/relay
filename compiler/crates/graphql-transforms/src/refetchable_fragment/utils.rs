@@ -22,28 +22,32 @@ pub struct RefetchableMetadata {
 }
 
 pub struct Constants {
+    pub fetchable: StringKey,
+    pub field_name: StringKey,
     pub id_name: StringKey,
     pub identifier_field_arg: StringKey,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
     pub query_name_arg: StringKey,
     pub refetchable_metadata_name: StringKey,
-    pub refetchable_operation_metadata_name: StringKey,
     pub refetchable_name: StringKey,
+    pub refetchable_operation_metadata_name: StringKey,
     pub viewer_field_name: StringKey,
     pub viewer_type_name: StringKey,
 }
 
 lazy_static! {
     pub static ref CONSTANTS: Constants = Constants {
+        fetchable: "fetchable".intern(),
+        field_name: "field_name".intern(),
         id_name: "id".intern(),
         identifier_field_arg: "fragmentPathInResult".intern(),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         query_name_arg: "queryName".intern(),
         refetchable_metadata_name: "__refetchableMetadata".intern(),
-        refetchable_operation_metadata_name: "__refetchableQueryMetadata".intern(),
         refetchable_name: "refetchable".intern(),
+        refetchable_operation_metadata_name: "__refetchableQueryMetadata".intern(),
         viewer_field_name: "viewer".intern(),
         viewer_type_name: "Viewer".intern(),
     };

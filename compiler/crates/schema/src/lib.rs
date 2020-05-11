@@ -21,6 +21,7 @@ mod token;
 
 pub use ast::{
     Definition, DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
+    Value as AstValue,
 };
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, DirectiveValue, Enum, EnumID, Field, FieldID,

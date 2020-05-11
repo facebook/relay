@@ -439,4 +439,21 @@ pub enum ValidationMessage {
         fragment_name: StringKey,
         arguments: &'static str,
     },
+
+    #[error("Invalid use of @refetchable with @connection in fragment '{fragment_name}', check that your schema defines a `directive @fetchable(field_name: String!) on OBJECT`.")]
+    InvalidRefetchDirectiveDefinition { fragment_name: StringKey },
+
+    #[error("Invalid use of @refetchable on fragment '{fragment_name}', the type '{type_name}' is @fetchable but the identifying field '{identifier_field_name}' does not have type 'ID'.")]
+    InvalidRefetchIdentifyingField {
+        fragment_name: StringKey,
+        identifier_field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error("Invalid use of @refetchable on fragment '{fragment_name}', the type '{type_name}' is @fetchable but there is no corresponding '{fetch_field_name}' field or it is invalid (expected '{fetch_field_name}(id: ID!): ${type_name}').")]
+    InvalidRefetchFetchField {
+        fetch_field_name: StringKey,
+        fragment_name: StringKey,
+        type_name: StringKey,
+    },
 }

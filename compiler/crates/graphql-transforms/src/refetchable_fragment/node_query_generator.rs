@@ -103,7 +103,10 @@ fn build_refetch_operation(
                             value: WithLocation::new(
                                 fragment.name.location,
                                 Value::Variable(Variable {
-                                    name: WithLocation::new(fragment.name.location, id_arg.name),
+                                    name: WithLocation::new(
+                                        fragment.name.location,
+                                        CONSTANTS.id_name,
+                                    ),
                                     type_: id_arg.type_.non_null(),
                                 }),
                             ),

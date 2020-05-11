@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod fetchable_query_generator;
 mod node_query_generator;
 mod query_query_generator;
 mod utils;
@@ -15,6 +16,7 @@ use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
 use common::WithLocation;
 use errors::validate_map;
+use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, NamedItem, OperationDefinition, Program, ValidationError,
@@ -240,10 +242,11 @@ pub struct QueryGenerator {
     pub build_refetch_operation: BuildRefetchOperationFn,
 }
 
-const GENERATORS: [QueryGenerator; 3] = [
+const GENERATORS: [QueryGenerator; 4] = [
     VIEWER_QUERY_GENERATOR,
     QUERY_QUERY_GENERATOR,
     NODE_QUERY_GENERATOR,
+    FETCHABLE_QUERY_GENERATOR,
 ];
 
 #[allow(dead_code)]

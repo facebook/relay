@@ -6,7 +6,9 @@
  */
 
 use super::{
-    build_fragment_spread, build_operation_variable_definitions, QueryGenerator, RefetchRoot,
+    build_fragment_metadata_as_directive, build_fragment_spread,
+    build_operation_metadata_as_directive, build_operation_variable_definitions, QueryGenerator,
+    RefetchRoot, RefetchableMetadata,
 };
 use crate::root_variables::VariableMap;
 use common::WithLocation;
@@ -26,9 +28,8 @@ fn build_refetch_operation(
     if fragment.type_condition != query_type {
         return Ok(None);
     }
+
     Ok(Some(RefetchRoot {
-        identifier_field: None,
-        path: vec![],
         operation: Arc::new(OperationDefinition {
             kind: OperationKind::Query,
             name: WithLocation::new(fragment.name.location, query_name),
@@ -37,10 +38,20 @@ fn build_refetch_operation(
                 variables_map,
                 &fragment.variable_definitions,
             ),
-            directives: vec![],
+            directives: build_operation_metadata_as_directive(fragment.name),
             selections: vec![build_fragment_spread(fragment)],
         }),
-        fragment: Arc::clone(fragment),
+        fragment: Arc::new(FragmentDefinition {
+            directives: build_fragment_metadata_as_directive(
+                fragment,
+                RefetchableMetadata {
+                    operation_name: query_name,
+                    path: vec![],
+                    identifier_field: None,
+                },
+            ),
+            ..fragment.as_ref().clone()
+        }),
     }))
 }
 

@@ -182,15 +182,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                             self.array(path.iter().cloned().map(Primitive::String).collect()),
                         ),
                     };
+                    let (count, cursor) = if metadata.direction
+                        == self.connection_constants.direction_forward
+                    {
+                        (metadata.first, metadata.after)
+                    } else if metadata.direction == self.connection_constants.direction_backward {
+                        (metadata.last, metadata.before)
+                    } else {
+                        (None, None)
+                    };
                     let object = vec![
-                        (
-                            CODEGEN_CONSTANTS.count,
-                            Primitive::string_or_null(metadata.count),
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.cursor,
-                            Primitive::string_or_null(metadata.cursor),
-                        ),
+                        (CODEGEN_CONSTANTS.count, Primitive::string_or_null(count)),
+                        (CODEGEN_CONSTANTS.cursor, Primitive::string_or_null(cursor)),
                         (
                             CODEGEN_CONSTANTS.direction,
                             Primitive::String(metadata.direction),

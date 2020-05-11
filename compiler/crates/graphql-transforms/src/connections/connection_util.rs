@@ -53,8 +53,10 @@ pub fn assert_connection_selections<'s>(
 pub struct ConnectionMetadata {
     pub path: Option<Vec<StringKey>>,
     pub direction: StringKey,
-    pub cursor: Option<StringKey>,
-    pub count: Option<StringKey>,
+    pub first: Option<StringKey>,
+    pub last: Option<StringKey>,
+    pub before: Option<StringKey>,
+    pub after: Option<StringKey>,
     pub is_stream_connection: bool,
 }
 
@@ -73,33 +75,30 @@ pub fn build_connection_metadata(
         .arguments
         .named(connection_constants.last_arg_name);
 
-    let (direction, count_variable, cursor_variable) = match first_arg {
-        Some(first_arg) => match last_arg {
-            Some(_last_arg) => (connection_constants.direction_bidirectional, None, None),
-            None => (
-                connection_constants.direction_forward,
-                extract_variable_name(Some(first_arg)),
-                extract_variable_name(
-                    connection_field.arguments.named(
-                    connection_constants.after_arg_name,
-                )),
-            ),
-        },
-        None => match last_arg {
-            Some(last_arg) => (
-                connection_constants.direction_backward,
-                extract_variable_name(Some(last_arg)),
-                extract_variable_name(connection_field.arguments.named(
-                    connection_constants.before_arg_name,
-                )),
-            ),
-            None => unreachable!("Expected presence of first or last args on connection to have been previously validated."),
-        },
+    let direction = match (first_arg, last_arg) {
+        (Some(_), Some(_)) => connection_constants.direction_bidirectional,
+        (Some(_), None) => connection_constants.direction_forward,
+        (None, Some(_)) => connection_constants.direction_backward,
+        (None,  None) => unreachable!("Expected presence of first or last args on connection to have been previously validated."),
     };
 
     ConnectionMetadata {
-        count: count_variable,
-        cursor: cursor_variable,
+        first: extract_variable_name(first_arg),
+        last: extract_variable_name(last_arg),
+        after: first_arg.and_then(|_| {
+            extract_variable_name(
+                connection_field
+                    .arguments
+                    .named(connection_constants.after_arg_name),
+            )
+        }),
+        before: last_arg.and_then(|_| {
+            extract_variable_name(
+                connection_field
+                    .arguments
+                    .named(connection_constants.before_arg_name),
+            )
+        }),
         direction,
         path: path.clone(),
         is_stream_connection,
@@ -149,12 +148,20 @@ fn build_connection_metadata_value(connection_metadata: &ConnectionMetadata) -> 
             None => ConstantValue::Null(),
         },
         ConstantValue::String(connection_metadata.direction),
-        match connection_metadata.cursor {
-            Some(cursor) => ConstantValue::String(cursor),
+        match connection_metadata.first {
+            Some(first) => ConstantValue::String(first),
             None => ConstantValue::Null(),
         },
-        match connection_metadata.count {
-            Some(count) => ConstantValue::String(count),
+        match connection_metadata.last {
+            Some(last) => ConstantValue::String(last),
+            None => ConstantValue::Null(),
+        },
+        match connection_metadata.after {
+            Some(after) => ConstantValue::String(after),
+            None => ConstantValue::Null(),
+        },
+        match connection_metadata.before {
+            Some(before) => ConstantValue::String(before),
             None => ConstantValue::Null(),
         },
         ConstantValue::Boolean(connection_metadata.is_stream_connection),
@@ -197,8 +204,8 @@ pub fn extract_connection_metadata_from_directive(
                     };
 
                     debug_assert!(
-                        metadata_value.len() == 5,
-                        "Expected metadata value to be a list with 5 elements"
+                        metadata_value.len() == 7,
+                        "Expected metadata value to be a list with 7 elements"
                     );
 
                     let path = match &metadata_value[0] {
@@ -217,17 +224,27 @@ pub fn extract_connection_metadata_from_directive(
                         ConstantValue::String(string_val) => *string_val,
                         _ => unreachable!("Expected connection metadata direction to be a string."),
                     };
-                    let cursor = match &metadata_value[2] {
+                    let first = match &metadata_value[2] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata cursor to be a nullable string."),
+                        _ => unreachable!("Expected connection metadata first to be a nullable string."),
                     };
-                    let count = match &metadata_value[3] {
+                    let last = match &metadata_value[3] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata count to be a nullable string."),
+                        _ => unreachable!("Expected connection metadata last to be a nullable string."),
                     };
-                    let is_stream_connection = match &metadata_value[4] {
+                    let after = match &metadata_value[4] {
+                        ConstantValue::String(string_val) => Some(*string_val),
+                        ConstantValue::Null() => None,
+                        _ => unreachable!("Expected connection metadata after to be a nullable string."),
+                    };
+                    let before = match &metadata_value[5] {
+                        ConstantValue::String(string_val) => Some(*string_val),
+                        ConstantValue::Null() => None,
+                        _ => unreachable!("Expected connection metadata before to be a nullable string."),
+                    };
+                    let is_stream_connection = match &metadata_value[6] {
                         ConstantValue::Boolean(bool_val) => *bool_val,
                         _ => unreachable!("Expected connection metadata is_stream_connection to be a boolean."),
                     };
@@ -235,8 +252,10 @@ pub fn extract_connection_metadata_from_directive(
                     ConnectionMetadata {
                         path,
                         direction,
-                        cursor,
-                        count,
+                        first,
+                        last,
+                        after,
+                        before,
                         is_stream_connection,
                     }
                 })

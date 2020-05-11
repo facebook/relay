@@ -10,7 +10,9 @@ mod query_query_generator;
 mod utils;
 mod viewer_query_generator;
 
+use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
+
 use common::WithLocation;
 use errors::validate_map;
 use fnv::FnvHashMap;
@@ -25,6 +27,7 @@ use query_query_generator::QUERY_QUERY_GENERATOR;
 use schema::Schema;
 use std::fmt::Write;
 use std::sync::Arc;
+pub use utils::CONSTANTS;
 use utils::*;
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
@@ -48,9 +51,10 @@ pub fn transform_refetchable_fragment<'schema>(
     let mut next_program = Program::new(program.schema());
 
     let mut transformer = RefetchableFragment {
+        connection_constants: Default::default(),
+        existing_refetch_operations: Default::default(),
         program,
         visitor: InferVariablesVisitor::new(program),
-        existing_refetch_operations: Default::default(),
     };
 
     for operation in program.operations() {
@@ -74,12 +78,12 @@ pub fn transform_refetchable_fragment<'schema>(
 type ExistingRefetchOperations = FnvHashMap<StringKey, WithLocation<StringKey>>;
 
 struct RefetchableFragment<'schema> {
+    connection_constants: ConnectionConstants,
     program: &'schema Program<'schema>,
     visitor: InferVariablesVisitor<'schema>,
     existing_refetch_operations: ExistingRefetchOperations,
 }
 
-// Constant query generators
 impl<'schema> RefetchableFragment<'schema> {
     fn transform_refetch_fragment(
         &mut self,
@@ -95,7 +99,8 @@ impl<'schema> RefetchableFragment<'schema> {
                     refetch_name,
                     &variables_map,
                 )? {
-                    return Ok(Some(self.attach_metadata(refetch_root)?));
+                    self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
+                    return Ok(Some(refetch_root));
                 }
             }
             let mut descriptions = String::new();
@@ -159,10 +164,60 @@ impl<'schema> RefetchableFragment<'schema> {
         }
     }
 
-    fn attach_metadata(&self, refetch_root: RefetchRoot) -> ValidationResult<RefetchRoot> {
-        // TODO: Extract and validate connection metadata
-        // TODO: Add metadata as directives for codegen
-        Ok(refetch_root)
+    /// Validate that any @connection usage is valid for refetching:
+    /// - Variables are used for both the "count" and "cursor" arguments
+    ///   (after/first or before/last)
+    /// - Exactly one connection
+    /// - Has a stable path to the connection data
+    ///
+    /// Connection metadata is extracted in `transform_connection`
+    fn validate_connection_metadata(&self, fragment: &FragmentDefinition) -> ValidationResult<()> {
+        if let Some(metadatas) = extract_connection_metadata_from_directive(
+            &fragment.directives,
+            self.connection_constants,
+        ) {
+            // TODO: path or connection field locations in the error messages
+            if metadatas.len() > 1 {
+                return Err(vec![ValidationError::new(
+                    ValidationMessage::RefetchableWithMultipleConnections {
+                        fragment_name: fragment.name.item,
+                    },
+                    vec![fragment.name.location],
+                )]);
+            } else if metadatas.len() == 1 {
+                let metadata = &metadatas[0];
+                if metadata.path.is_none() {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::RefetchableWithConnectionInPlural {
+                            fragment_name: fragment.name.item,
+                        },
+                        vec![fragment.name.location],
+                    )]);
+                }
+                if (metadata.after.is_none() || metadata.first.is_none())
+                    && metadata.direction != self.connection_constants.direction_backward
+                {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::RefetchableWithConstConnectionArguments {
+                            fragment_name: fragment.name.item,
+                            arguments: "after and first",
+                        },
+                        vec![fragment.name.location],
+                    )]);
+                } else if (metadata.before.is_none() || metadata.last.is_none())
+                    && metadata.direction != self.connection_constants.direction_forward
+                {
+                    return Err(vec![ValidationError::new(
+                        ValidationMessage::RefetchableWithConstConnectionArguments {
+                            fragment_name: fragment.name.item,
+                            arguments: "before and last",
+                        },
+                        vec![fragment.name.location],
+                    )]);
+                }
+            }
+        }
+        Ok(())
     }
 }
 
@@ -193,8 +248,6 @@ const GENERATORS: [QueryGenerator; 3] = [
 
 #[allow(dead_code)]
 pub struct RefetchRoot {
-    identifier_field: Option<StringKey>,
-    path: Vec<StringKey>,
     operation: Arc<OperationDefinition>,
     fragment: Arc<FragmentDefinition>,
 }

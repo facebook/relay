@@ -423,4 +423,20 @@ pub enum ValidationMessage {
         "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a 'Viewer' object type and has a 'viewer: Viewer' field on the query type."
     )]
     InvalidViewerSchemaForRefetchableFragmentOnViewer { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', at most once @connection can appear in a refetchable fragment."
+    )]
+    RefetchableWithMultipleConnections { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', refetchable connections cannot appear inside plural fields.",
+    )]
+    RefetchableWithConnectionInPlural { fragment_name: StringKey },
+
+    #[error("Invalid use of @refetchable with @connection in fragment '{fragment_name}', refetchable connections must use variables for the {arguments} arguments.")]
+    RefetchableWithConstConnectionArguments {
+        fragment_name: StringKey,
+        arguments: &'static str,
+    },
 }

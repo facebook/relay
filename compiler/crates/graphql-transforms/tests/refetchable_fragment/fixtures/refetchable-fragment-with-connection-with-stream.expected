@@ -23,7 +23,7 @@ query RefetchableFragmentQuery(
   $count: Int = 10
   $cursor: ID
   $id: ID!
-) {
+) @__refetchableQueryMetadata(__refetchableQueryMetadata: "PaginationFragment") {
   node(id: $id) {
     ...PaginationFragment @arguments(count: $count, cursor: $cursor)
   }
@@ -32,7 +32,7 @@ query RefetchableFragmentQuery(
 fragment PaginationFragment on Node @argumentDefinitions(
   count: {type: "Int", defaultValue: 10}
   cursor: {type: "ID"}
-) @refetchable(queryName: "RefetchableFragmentQuery") @__connectionMetadata(__connectionMetadataArgument: [[["friends"], "forward", "cursor", "count", false]]) {
+) @refetchable(queryName: "RefetchableFragmentQuery") @__connectionMetadata(__connectionMetadataArgument: [[["friends"], "forward", "count", null, "cursor", null, false]]) @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["node"], "id"]) {
   id
   ... on User {
     name

@@ -20,7 +20,7 @@ query NodeQuery($id: ID!, $orderBy: String) {
 query NodeQuery(
   $id: ID!
   $orderBy: String
-) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, false]]) {
+) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, null, null, false]]) {
   node(id: $id) {
     id
     ... on Story {

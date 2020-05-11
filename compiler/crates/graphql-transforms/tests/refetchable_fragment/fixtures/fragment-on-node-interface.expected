@@ -17,7 +17,7 @@ fragment ProfilePicture on User {
 query RefetchableFragmentQuery(
   $size: [Int]
   $id: ID!
-) {
+) @__refetchableQueryMetadata(__refetchableQueryMetadata: "RefetchableFragment") {
   node(id: $id) {
     ...RefetchableFragment
   }
@@ -29,7 +29,7 @@ fragment ProfilePicture on User {
   }
 }
 
-fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") {
+fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["node"], "id"]) {
   id
   ... on User {
     name

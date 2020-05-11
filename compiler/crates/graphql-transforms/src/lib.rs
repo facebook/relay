@@ -62,7 +62,9 @@ pub use match_::{
     split_module_import, transform_match, validate_module_conflicts, MATCH_CONSTANTS,
 };
 pub use node_identifier::NodeIdentifier;
-pub use refetchable_fragment::transform_refetchable_fragment;
+pub use refetchable_fragment::{
+    transform_refetchable_fragment, CONSTANTS as REFETCHABLE_CONSTANTS,
+};
 pub use relay_directive::RelayDirective;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;

@@ -1,4 +1,4 @@
-// @generated SignedSource<<d7341dfcdb893900eeaa099faf47f0c4>>
+// @generated SignedSource<<95c8331aca069116785e9d9e87ed99d5>>
 
 mod refetchable_fragment;
 
@@ -108,6 +108,27 @@ fn refetchable_fragment_with_connection_bidirectional() {
     let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-bidirectional.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-bidirectional.expected");
     test_fixture(transform_fixture, "refetchable-fragment-with-connection-bidirectional.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-bidirectional.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_with_connection_literal_count_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-literal-count.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-literal-count.invalid.expected");
+    test_fixture(transform_fixture, "refetchable-fragment-with-connection-literal-count.invalid.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-literal-count.invalid.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_with_connection_no_cursor_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-no-cursor.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-no-cursor.invalid.expected");
+    test_fixture(transform_fixture, "refetchable-fragment-with-connection-no-cursor.invalid.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-no-cursor.invalid.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_with_connection_unstable_path_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-unstable-path.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-unstable-path.invalid.expected");
+    test_fixture(transform_fixture, "refetchable-fragment-with-connection-unstable-path.invalid.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-unstable-path.invalid.expected", input, expected);
 }
 
 #[test]

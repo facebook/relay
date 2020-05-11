@@ -75,6 +75,11 @@ pub struct CodegenConstants {
     pub value: StringKey,
     pub variable_name: StringKey,
     pub variable: StringKey,
+    pub relay_test_operation_selection_type_info: StringKey,
+    pub relay_test_operation_type: StringKey,
+    pub relay_test_operation_plural: StringKey,
+    pub relay_test_operation_nullable: StringKey,
+    pub relay_test_operation_enum_values: StringKey,
 }
 
 impl Default for CodegenConstants {
@@ -146,6 +151,11 @@ impl Default for CodegenConstants {
             value: "value".intern(),
             variable_name: "variableName".intern(),
             variable: "Variable".intern(),
+            relay_test_operation_selection_type_info: "relayTestingSelectionTypeInfo".intern(),
+            relay_test_operation_type: "type".intern(),
+            relay_test_operation_enum_values: "enumValues".intern(),
+            relay_test_operation_plural: "plural".intern(),
+            relay_test_operation_nullable: "nullable".intern(),
         }
     }
 }

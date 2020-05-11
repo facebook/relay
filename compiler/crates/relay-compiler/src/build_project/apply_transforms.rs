@@ -142,7 +142,7 @@ fn apply_operation_transforms<'schema>(
     // + ApplyFragmentArgumentTransform
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
-    // - TestOperationTransform
+    // + TestOperationTransform
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -153,6 +153,7 @@ fn apply_operation_transforms<'schema>(
         apply_fragment_arguments(&program)
     })?;
     let program = log_event.time("generate_id_field", || generate_id_field(&program));
+
     perf_logger.complete_event(log_event);
 
     Ok(program)
@@ -189,8 +190,8 @@ fn apply_normalization_transforms<'schema>(
     })?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
-
     let program = log_event.time("generate_typename", || generate_typename(&program));
+
     perf_logger.complete_event(log_event);
 
     Ok(program)

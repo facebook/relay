@@ -13,6 +13,7 @@ mod ast;
 mod build_ast;
 mod constants;
 mod printer;
+mod relay_test_operation;
 
 pub use ast::RequestParameters;
 pub use build_ast::build_request_params;

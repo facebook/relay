@@ -1,0 +1,131 @@
+==================================== INPUT ====================================
+query SimpleQuery @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "SimpleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "test-id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "User"
+          }
+        ],
+        "storageKey": "node(id:\"test-id\")"
+      }
+    ],
+    "concreteType": "Query"
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "SimpleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "test-id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "User"
+          }
+        ],
+        "storageKey": "node(id:\"test-id\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {
+      "relayTestingSelectionTypeInfo": {
+        "node": {
+          "type": "Node",
+          "enumValues": null,
+          "plural": false,
+          "nullable": true
+        },
+        "node.id": {
+          "type": "ID",
+          "enumValues": null,
+          "plural": false,
+          "nullable": false
+        },
+        "node.name": {
+          "type": "String",
+          "enumValues": null,
+          "plural": false,
+          "nullable": true
+        }
+      }
+    },
+    "name": "SimpleQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}

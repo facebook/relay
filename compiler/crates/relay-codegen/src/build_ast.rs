@@ -7,6 +7,7 @@
 
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
+use crate::relay_test_operation::build_test_operation_metadata;
 use common::WithLocation;
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -32,10 +33,13 @@ pub fn build_request(
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let test_operation_metadata = operation_builder.build_test_operation_metadata(&operation);
     let operation = Primitive::Key(operation_builder.build_operation(operation));
     let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
-    let params = intern_request_parameters(ast_builder, request_parameters);
+    let params =
+        intern_request_parameters(ast_builder, request_parameters, test_operation_metadata);
+
     ast_builder.intern(Ast::Object(vec![
         (CODEGEN_CONSTANTS.fragment, fragment),
         (
@@ -1010,6 +1014,57 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]));
         Primitive::Key(self.array(vec![selection]))
     }
+
+    fn build_test_operation_metadata(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Option<Primitive> {
+        build_test_operation_metadata(self.schema, operation).map(|metadata| {
+            let mut selection_type_info_values =
+                Vec::with_capacity(metadata.selection_type_info.len());
+            for (key, value) in metadata.selection_type_info.iter() {
+                let enum_value = value.enum_values.clone().map(|enum_values| {
+                    self.array(
+                        enum_values
+                            .iter()
+                            .map(|enum_value| Primitive::String(*enum_value))
+                            .collect(),
+                    )
+                });
+
+                selection_type_info_values.push((
+                    *key,
+                    Primitive::Key(self.object(vec![
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_type,
+                            Primitive::String(value.type_),
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_enum_values,
+                            match enum_value {
+                                Some(values) => Primitive::Key(values),
+                                None => Primitive::Null,
+                            },
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_plural,
+                            Primitive::Bool(value.plural),
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_nullable,
+                            Primitive::Bool(value.nullable),
+                        ),
+                    ])),
+                ));
+            }
+            let selection_type_info = Primitive::Key(self.object(selection_type_info_values));
+
+            Primitive::Key(self.object(vec![(
+                CODEGEN_CONSTANTS.relay_test_operation_selection_type_info,
+                selection_type_info,
+            )]))
+        })
+    }
 }
 
 // Storage key is only pre-computable if the arguments don't contain variables
@@ -1023,8 +1078,8 @@ fn value_contains_variable(value: &Value) -> bool {
     match value {
         Value::Variable(_) => true,
         Value::Constant(_) => false,
-        Value::List(vals) => vals.iter().any(value_contains_variable),
-        Value::Object(objs) => objs
+        Value::List(values) => values.iter().any(value_contains_variable),
+        Value::Object(objects) => objects
             .iter()
             .any(|arg| value_contains_variable(&arg.value.item)),
     }
@@ -1033,10 +1088,24 @@ fn value_contains_variable(value: &Value) -> bool {
 fn intern_request_parameters(
     ast_builder: &mut AstBuilder,
     mut request_parameters: RequestParameters,
+    test_operation_metadata: Option<Primitive>,
 ) -> Primitive {
-    let mut metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
-    metadata_values.sort_unstable_by(|l, r| l.0.cmp(&r.0));
-
+    let metadata = match test_operation_metadata {
+        Some(test_operation_metadata) => test_operation_metadata,
+        None => {
+            let mut metadata_values: Vec<(String, String)> =
+                request_parameters.metadata.drain().collect();
+            metadata_values.sort_unstable_by(|l, r| l.0.cmp(&r.0));
+            Primitive::Key(
+                ast_builder.intern(Ast::Object(
+                    metadata_values
+                        .into_iter()
+                        .map(|v| (v.0.intern(), Primitive::RawString(v.1)))
+                        .collect(),
+                )),
+            )
+        }
+    };
     let object = vec![
         (
             CODEGEN_CONSTANTS.id,
@@ -1045,17 +1114,7 @@ fn intern_request_parameters(
                 Some(str) => Primitive::RawString(str),
             },
         ),
-        (
-            CODEGEN_CONSTANTS.metadata,
-            Primitive::Key(
-                ast_builder.intern(Ast::Object(
-                    metadata_values
-                        .into_iter()
-                        .map(|v| (v.0.intern(), Primitive::RawString(v.1)))
-                        .collect(),
-                )),
-            ),
-        ),
+        (CODEGEN_CONSTANTS.metadata, metadata),
         (
             CODEGEN_CONSTANTS.name,
             Primitive::String(request_parameters.name),

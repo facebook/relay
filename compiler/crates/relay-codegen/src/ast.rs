@@ -44,6 +44,7 @@ pub enum Primitive {
     Null,
     StorageKey(StringKey, AstKey),
     RawString(String),
+    ModuleDependency(StringKey),
 }
 
 impl Primitive {

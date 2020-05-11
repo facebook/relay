@@ -408,7 +408,27 @@ fragment PaginationFragment_1G22uz on Node {
           "friends"
         ]
       }
-    ]
+    ],
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": {
+          "count": "lastCount",
+          "cursor": "beforeCursor"
+        },
+        "path": [
+          "friends"
+        ]
+      },
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id"
+    }
   },
   "name": "PaginationFragment",
   "selections": [

@@ -228,7 +228,16 @@ fragment RefetchableFragment on Node {
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id"
+    }
+  },
   "name": "RefetchableFragment",
   "selections": [
     {

@@ -307,7 +307,24 @@ fragment RefetchableConnection_feedback on Feedback {
           "comments"
         ]
       }
-    ]
+    ],
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": null,
+        "path": [
+          "comments"
+        ]
+      },
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('RefetchableConnectionQuery.graphql'),
+      "identifierField": "id"
+    }
   },
   "name": "RefetchableConnection_feedback",
   "selections": [

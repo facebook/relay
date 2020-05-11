@@ -215,6 +215,7 @@ impl<'b> DedupedJSONPrinter<'b> {
             Primitive::StorageKey(field_name, key) => {
                 print_static_storage_key(f, &self.builder, *field_name, *key)
             }
+            Primitive::ModuleDependency(key) => write!(f, "require('{}.graphql')", key),
         }
     }
 }
@@ -453,5 +454,6 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
+        Primitive::ModuleDependency(_) => panic!("Unexpected ModuleDependency"),
     }
 }

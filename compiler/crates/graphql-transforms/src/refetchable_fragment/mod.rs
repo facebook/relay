@@ -29,8 +29,8 @@ use query_query_generator::QUERY_QUERY_GENERATOR;
 use schema::Schema;
 use std::fmt::Write;
 use std::sync::Arc;
-pub use utils::CONSTANTS;
 use utils::*;
+pub use utils::{extract_refetch_metadata_from_directive, CONSTANTS};
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 /// This transform synthesizes "refetch" queries for fragments that

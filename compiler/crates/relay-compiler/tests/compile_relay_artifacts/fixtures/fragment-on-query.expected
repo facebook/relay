@@ -227,7 +227,14 @@ fragment RefetchableFragment_1Bmzm5 on Query {
     }
   ],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": null
+    }
+  },
   "name": "RefetchableFragment",
   "selections": [
     {

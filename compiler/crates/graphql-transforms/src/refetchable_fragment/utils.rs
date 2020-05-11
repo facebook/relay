@@ -8,8 +8,8 @@
 use crate::root_variables::VariableMap;
 use common::WithLocation;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, Selection, Value,
-    Variable, VariableDefinition,
+    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, NamedItem, Selection,
+    Value, Variable, VariableDefinition,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -150,4 +150,57 @@ pub fn build_operation_metadata_as_directive(
             ),
         }],
     }]
+}
+
+pub fn extract_refetch_metadata_from_directive(
+    directives: &[Directive],
+) -> Option<RefetchableMetadata> {
+    let refetchable_metadata_directive = directives.named(CONSTANTS.refetchable_metadata_name);
+    if let Some(refetchable_metadata_directive) = refetchable_metadata_directive {
+        let metadata_arg = refetchable_metadata_directive
+            .arguments
+            .named(CONSTANTS.refetchable_metadata_name)
+            .expect("Expected an argument in the refetchable metadata directive.");
+        let metadata_values = if let Value::Constant(ConstantValue::List(metadata_values)) =
+            &metadata_arg.value.item
+        {
+            metadata_values
+        } else {
+            unreachable!("Expected refetchable metadata to be a list of metadata values.")
+        };
+        debug_assert!(
+            metadata_values.len() == 3,
+            "Expected metadata value to be a list with 3 elements"
+        );
+        let operation_name = match metadata_values[0] {
+            ConstantValue::String(string_val) => string_val,
+            _ => unreachable!("Expected refetchable metadata operation_name to be a string."),
+        };
+        let path = match &metadata_values[1] {
+            ConstantValue::List(list) => list
+                .iter()
+                .map(|item| match item {
+                    ConstantValue::String(string_val) => *string_val,
+                    _ => {
+                        unreachable!("Expected refetchable metadata path to be a list of strings.")
+                    }
+                })
+                .collect::<Vec<StringKey>>(),
+            _ => unreachable!("Expected refetchable metadata path to be a list of strings."),
+        };
+        let identifier_field = match metadata_values[2] {
+            ConstantValue::String(string_val) => Some(string_val),
+            ConstantValue::Null() => None,
+            _ => unreachable!(
+                "Expected reftchable metadata identifier_field to be a nullable string."
+            ),
+        };
+        Some(RefetchableMetadata {
+            operation_name,
+            path,
+            identifier_field,
+        })
+    } else {
+        None
+    }
 }

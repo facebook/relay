@@ -213,7 +213,16 @@ fragment RefetchableFragment on Viewer {
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "viewer"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": null
+    }
+  },
   "name": "RefetchableFragment",
   "selections": [
     {

@@ -63,7 +63,8 @@ pub use match_::{
 };
 pub use node_identifier::NodeIdentifier;
 pub use refetchable_fragment::{
-    transform_refetchable_fragment, CONSTANTS as REFETCHABLE_CONSTANTS,
+    extract_refetch_metadata_from_directive, transform_refetchable_fragment,
+    CONSTANTS as REFETCHABLE_CONSTANTS,
 };
 pub use relay_directive::RelayDirective;
 pub use remove_base_fragments::remove_base_fragments;

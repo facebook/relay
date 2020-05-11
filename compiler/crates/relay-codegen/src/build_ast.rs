@@ -17,9 +17,9 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_values_from_handle_field_directive, extract_variable_name, remove_directive,
-    ConnectionConstants, DeferDirective, HandleFieldConstants, RelayDirective, StreamDirective,
-    DEFER_STREAM_CONSTANTS, MATCH_CONSTANTS,
+    extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
+    extract_variable_name, remove_directive, ConnectionConstants, DeferDirective,
+    HandleFieldConstants, RelayDirective, StreamDirective, DEFER_STREAM_CONSTANTS, MATCH_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -168,11 +168,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
-        let connection_metadata = if let Some(metadata_values) =
-            extract_connection_metadata_from_directive(
-                &fragment.directives,
-                self.connection_constants,
-            ) {
+        let connection_metadata = extract_connection_metadata_from_directive(
+            &fragment.directives,
+            self.connection_constants,
+        );
+        let codegen_connection_metadata = if let Some(ref metadata_values) = connection_metadata {
             let array = metadata_values
                 .iter()
                 .map(|metadata| {
@@ -216,8 +216,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
 
         let mut metadata = vec![];
-        if let Some(connection_metadata) = connection_metadata {
-            metadata.push((CODEGEN_CONSTANTS.connection, connection_metadata))
+        if let Some(codegen_connection_metadata) = codegen_connection_metadata {
+            metadata.push((CODEGEN_CONSTANTS.connection, codegen_connection_metadata))
         }
         if unmask {
             metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(false)))
@@ -225,13 +225,94 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if plural {
             metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(true)))
         }
+        if let Some(refetch_metadata) =
+            extract_refetch_metadata_from_directive(&fragment.directives)
+        {
+            let refetch_connection = if let Some(connection_metadata) = connection_metadata {
+                let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
+                let connection_object = vec![
+                    (
+                        CODEGEN_CONSTANTS.forward,
+                        if let Some(first) = metadata.first {
+                            Primitive::Key(self.object(vec![
+                                (CODEGEN_CONSTANTS.count, Primitive::String(first)),
+                                (
+                                    CODEGEN_CONSTANTS.cursor,
+                                    Primitive::string_or_null(metadata.after),
+                                ),
+                            ]))
+                        } else {
+                            Primitive::Null
+                        },
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.backward,
+                        if let Some(last) = metadata.last {
+                            Primitive::Key(self.object(vec![
+                                (CODEGEN_CONSTANTS.count, Primitive::String(last)),
+                                (
+                                    CODEGEN_CONSTANTS.cursor,
+                                    Primitive::string_or_null(metadata.before),
+                                ),
+                            ]))
+                        } else {
+                            Primitive::Null
+                        },
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.path,
+                        Primitive::Key(
+                            self.array(
+                                metadata
+                                    .path
+                                    .as_ref()
+                                    .expect("Expected path to exist")
+                                    .iter()
+                                    .cloned()
+                                    .map(Primitive::String)
+                                    .collect(),
+                            ),
+                        ),
+                    ),
+                ];
+                Primitive::Key(self.object(connection_object))
+            } else {
+                Primitive::Null
+            };
+            let refetch_object = vec![
+                (CODEGEN_CONSTANTS.connection, refetch_connection),
+                (
+                    CODEGEN_CONSTANTS.fragment_path_in_result,
+                    Primitive::Key(
+                        self.array(
+                            refetch_metadata
+                                .path
+                                .into_iter()
+                                .map(Primitive::String)
+                                .collect(),
+                        ),
+                    ),
+                ),
+                (
+                    CODEGEN_CONSTANTS.operation,
+                    Primitive::ModuleDependency(refetch_metadata.operation_name),
+                ),
+                (
+                    CODEGEN_CONSTANTS.identifier_field,
+                    Primitive::string_or_null(refetch_metadata.identifier_field),
+                ),
+            ];
+
+            metadata.push((
+                CODEGEN_CONSTANTS.refetch,
+                Primitive::Key(self.object(refetch_object)),
+            ))
+        }
         let concrete_type = if self.schema.is_abstract_type(fragment.type_condition) {
             Primitive::Null
         } else {
             Primitive::String(self.schema.get_type_name(fragment.type_condition))
         };
-
-        // TODO: refetch metadata
 
         let object = vec![
             (

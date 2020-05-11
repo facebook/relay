@@ -111,6 +111,7 @@ impl Config {
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
+                    enum_module_suffix: config_file_project.enum_module_suffix,
                     persist: config_file_project.persist,
                 };
                 Ok((project_name, project_config))
@@ -233,6 +234,7 @@ pub struct ProjectConfig {
     pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
+    pub enum_module_suffix: Option<String>,
     pub persist: Option<PersistConfig>,
 }
 
@@ -300,6 +302,13 @@ struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+
+    /// When set, enum values are imported from a module with this suffix.
+    /// For example, an enum Foo and this property set to ".test" would be
+    /// imported from "Foo.test".
+    /// Note: an empty string is allowed and different from not setting the
+    /// value, in the example above it would just import from "Foo".
+    enum_module_suffix: Option<String>,
 
     /// If this option is set, the compiler will persist queries using this
     /// config.

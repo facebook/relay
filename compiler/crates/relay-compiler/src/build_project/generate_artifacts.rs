@@ -99,6 +99,7 @@ pub async fn generate_artifacts(
         artifacts.push(generate_reader_artifact(
             &mut printer,
             config,
+            project_config,
             programs,
             node,
             &source_hash,
@@ -169,7 +170,11 @@ async fn generate_normalization_artifact(
     writeln!(
         content,
         "/*::\nimport type {{ ConcreteRequest }} from 'relay-runtime';\n{}*/\n",
-        generate_operation_type(typegen_node, programs.typegen.schema())
+        generate_operation_type(
+            typegen_node,
+            programs.typegen.schema(),
+            &project_config.enum_module_suffix
+        )
     )
     .unwrap();
     writeln!(content, "/*\n{}*/\n", text).unwrap();
@@ -199,6 +204,7 @@ async fn generate_normalization_artifact(
 fn generate_reader_artifact(
     printer: &mut Printer,
     config: &Config,
+    project_config: &ProjectConfig,
     programs: &Programs<'_>,
     node: &FragmentDefinition,
     source_hash: &str,
@@ -222,7 +228,11 @@ fn generate_reader_artifact(
     writeln!(
         content,
         "/*::\nimport type {{ ReaderFragment }} from 'relay-runtime';\n{}*/\n",
-        generate_fragment_type(typegen_node, programs.typegen.schema())
+        generate_fragment_type(
+            typegen_node,
+            programs.typegen.schema(),
+            &project_config.enum_module_suffix
+        )
     )
     .unwrap();
     writeln!(

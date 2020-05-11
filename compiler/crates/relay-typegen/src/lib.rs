@@ -24,14 +24,22 @@ use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
 use std::fmt::{Result, Write};
 use std::hash::Hash;
 
-pub fn generate_fragment_type(fragment: &FragmentDefinition, schema: &Schema) -> String {
-    let mut generator = TypeGenerator::new(schema);
+pub fn generate_fragment_type(
+    fragment: &FragmentDefinition,
+    schema: &Schema,
+    enum_module_suffix: &Option<String>,
+) -> String {
+    let mut generator = TypeGenerator::new(schema, enum_module_suffix);
     generator.generate_fragment_type(fragment).unwrap();
     generator.result
 }
 
-pub fn generate_operation_type(operation: &OperationDefinition, schema: &Schema) -> String {
-    let mut generator = TypeGenerator::new(schema);
+pub fn generate_operation_type(
+    operation: &OperationDefinition,
+    schema: &Schema,
+    enum_module_suffix: &Option<String>,
+) -> String {
+    let mut generator = TypeGenerator::new(schema, enum_module_suffix);
     generator.generate_operation_type(operation).unwrap();
     generator.result
 }
@@ -41,16 +49,17 @@ enum GeneratedInputObject {
     Resolved(AST),
 }
 
-struct TypeGenerator<'schema> {
+struct TypeGenerator<'schema, 'config> {
     result: String,
     schema: &'schema Schema,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
+    enum_module_suffix: &'config Option<String>,
 }
-impl<'schema> TypeGenerator<'schema> {
-    fn new(schema: &'schema Schema) -> Self {
+impl<'schema, 'config> TypeGenerator<'schema, 'config> {
+    fn new(schema: &'schema Schema, enum_module_suffix: &'config Option<String>) -> Self {
         Self {
             result: String::new(),
             schema,
@@ -58,6 +67,7 @@ impl<'schema> TypeGenerator<'schema> {
             generated_input_object_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
+            enum_module_suffix,
         }
     }
 
@@ -71,6 +81,7 @@ impl<'schema> TypeGenerator<'schema> {
         let response_type = self.selections_to_babel(selections, false, None);
 
         self.write_fragment_imports()?;
+        self.write_enum_definitions()?;
         self.write_input_object_types()?;
         writeln!(
             self.result,
@@ -78,7 +89,6 @@ impl<'schema> TypeGenerator<'schema> {
             input_variables_identifier,
             print_type(&input_variables_type)
         )?;
-        self.write_enum_definitions()?;
         writeln!(
             self.result,
             "export type {} = {};",
@@ -619,18 +629,27 @@ impl<'schema> TypeGenerator<'schema> {
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
-            let mut members: Vec<AST> = enum_type
-                .values
-                .iter()
-                .map(|enum_value| AST::StringLiteral(*enum_value))
-                .collect();
-            members.push(AST::StringLiteral("%future added value".intern()));
-            writeln!(
-                self.result,
-                "export type {} = {};",
-                enum_type.name,
-                print_type(&AST::Union(members))
-            )?;
+            if let Some(enum_module_suffix) = self.enum_module_suffix {
+                writeln!(
+                    self.result,
+                    "import type {{ {enum_name} }} from \"{enum_name}{enum_suffix}\";",
+                    enum_name = enum_type.name,
+                    enum_suffix = enum_module_suffix
+                )?;
+            } else {
+                let mut members: Vec<AST> = enum_type
+                    .values
+                    .iter()
+                    .map(|enum_value| AST::StringLiteral(*enum_value))
+                    .collect();
+                members.push(AST::StringLiteral("%future added value".intern()));
+                writeln!(
+                    self.result,
+                    "export type {} = {};",
+                    enum_type.name,
+                    print_type(&AST::Union(members))
+                )?;
+            }
         }
         Ok(())
     }
@@ -681,7 +700,7 @@ impl<'schema> TypeGenerator<'schema> {
             }
             TypeReference::Named(named_type) => match named_type {
                 Type::Scalar(scalar) => self.transform_graphql_scalar_type(*scalar),
-                Type::Enum(_enum) => AST::TODO("Enum".to_string()),
+                Type::Enum(enum_id) => self.transform_graphql_enum_type(*enum_id),
                 Type::InputObject(input_object_id) => {
                     let input_object = self.schema.input_object(*input_object_id);
                     if !self

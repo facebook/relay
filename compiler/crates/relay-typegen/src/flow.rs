@@ -22,7 +22,6 @@ pub enum AST {
     Number,
     Boolean,
     Any,
-    TODO(String),
 }
 
 #[derive(Debug, Clone)]
@@ -62,7 +61,6 @@ impl<W: Write> Printer<W> {
             AST::Nullable(of_type) => self.write_nullable(of_type)?,
             AST::ExactObject(props) => self.write_object(props, true)?,
             AST::InexactObject(props) => self.write_object(props, false)?,
-            AST::TODO(msg) => write!(self.writer, "%TODO({})%", msg)?,
         }
         Ok(())
     }

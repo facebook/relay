@@ -251,18 +251,47 @@ fragment Profile on User {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "width",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
               "name": "height",
               "storageKey": null
             }
           ],
           "storageKey": "profilePicture(size:100)"
+        },
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "Profile",
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "size",
+                      "value": 100
+                    }
+                  ],
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profilePicture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "width",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "profilePicture(size:100)"
+                }
+              ],
+              "type": "User"
+            }
+          ]
         }
       ],
       "storageKey": null
@@ -282,35 +311,47 @@ fragment Profile on User {
       "plural": false,
       "selections": [
         {
-          "alias": null,
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "size",
-              "value": 100
-            }
-          ],
-          "concreteType": "Image",
-          "kind": "LinkedField",
-          "name": "profilePicture",
-          "plural": false,
+          "kind": "InlineDataFragmentSpread",
+          "name": "Profile",
           "selections": [
             {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "uri",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "width",
-              "storageKey": null
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "size",
+                      "value": 100
+                    }
+                  ],
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profilePicture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "width",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "profilePicture(size:100)"
+                }
+              ],
+              "type": "User"
             }
-          ],
-          "storageKey": "profilePicture(size:100)"
+          ]
         }
       ],
       "storageKey": "username(name:\"test\")"
@@ -320,42 +361,6 @@ fragment Profile on User {
 }
 
 {
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "Profile",
-  "selections": [
-    {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "size",
-          "value": 100
-        }
-      ],
-      "concreteType": "Image",
-      "kind": "LinkedField",
-      "name": "profilePicture",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "uri",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "width",
-          "storageKey": null
-        }
-      ],
-      "storageKey": "profilePicture(size:100)"
-    }
-  ],
-  "concreteType": "User"
+  "kind": "InlineDataFragment",
+  "name": "Profile"
 }

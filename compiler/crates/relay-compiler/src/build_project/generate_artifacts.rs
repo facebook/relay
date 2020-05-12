@@ -13,7 +13,7 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::{
     print_fragment, print_full_operation, write_operation_with_graphqljs_formatting,
 };
-use graphql_transforms::{MATCH_CONSTANTS, REFETCHABLE_CONSTANTS};
+use graphql_transforms::{INLINE_DATA_CONSTANTS, MATCH_CONSTANTS, REFETCHABLE_CONSTANTS};
 use interner::StringKey;
 use md5::{Digest, Md5};
 use persist_query::persist;
@@ -241,6 +241,15 @@ fn generate_reader_artifact(
     node: &FragmentDefinition,
     source_hash: &str,
 ) -> Artifact {
+    let reader_node_flow_type = if node
+        .directives
+        .named(INLINE_DATA_CONSTANTS.directive_name)
+        .is_some()
+    {
+        "ReaderInlineDataFragment"
+    } else {
+        "ReaderFragment"
+    };
     let name = node.name.item;
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
@@ -259,7 +268,8 @@ fn generate_reader_artifact(
         .expect("a type fragment should be generated for this fragment");
     writeln!(
         content,
-        "/*::\nimport type {{ ReaderFragment }} from 'relay-runtime';\n{}*/\n",
+        "/*::\nimport type {{ {} }} from 'relay-runtime';\n{}*/\n",
+        reader_node_flow_type,
         generate_fragment_type(
             typegen_node,
             programs.typegen.schema(),
@@ -270,7 +280,8 @@ fn generate_reader_artifact(
     .unwrap();
     writeln!(
         content,
-        "var node/*: ReaderFragment*/ = {};\n",
+        "var node/*: {}*/ = {};\n",
+        reader_node_flow_type,
         printer.print_fragment_deduped(programs.normalization.schema(), node)
     )
     .unwrap();

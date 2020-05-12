@@ -19,7 +19,8 @@ use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, remove_directive, ConnectionConstants, DeferDirective,
-    HandleFieldConstants, RelayDirective, StreamDirective, DEFER_STREAM_CONSTANTS, MATCH_CONSTANTS,
+    HandleFieldConstants, RelayDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
+    INLINE_DATA_CONSTANTS, MATCH_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -168,6 +169,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
+        if fragment
+            .directives
+            .named(INLINE_DATA_CONSTANTS.directive_name)
+            .is_some()
+        {
+            return self.build_inline_data_fragment(fragment);
+        }
+
         let connection_metadata = extract_connection_metadata_from_directive(
             &fragment.directives,
             self.connection_constants,
@@ -348,6 +357,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         self.object(object)
     }
 
+    fn build_inline_data_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
+        let object = vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment),
+            ),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(fragment.name.item),
+            ),
+        ];
+        self.object(object)
+    }
+
     fn build_selections(&mut self, selections: &[Selection]) -> Primitive {
         let selections = selections
             .iter()
@@ -359,7 +382,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_selections_from_selection(&mut self, selection: &Selection) -> Vec<Primitive> {
         match selection {
             // TODO(T63303873) Normalization handles
-            Selection::Condition(cond) => vec![self.build_condition(&cond)],
+            Selection::Condition(condition) => vec![self.build_condition(&condition)],
             Selection::FragmentSpread(frag_spread) => {
                 let defer = frag_spread
                     .directives
@@ -377,7 +400,19 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 if let Some(defer) = defer {
                     vec![self.build_defer_normalization(&inline_frag, defer)]
                 } else {
-                    vec![self.build_inline_fragment(&inline_frag)]
+                    // If inline fragment has @__inline directive (created by inline_data_fragment transform)
+                    // we will return selection wrapped with InlineDataFragmentSpread
+                    if let Some(inline_data_directive) = inline_frag
+                        .directives
+                        .named(INLINE_DATA_CONSTANTS.internal_directive_name)
+                    {
+                        vec![self.build_inline_data_fragment_spread(
+                            &inline_frag,
+                            &inline_data_directive,
+                        )]
+                    } else {
+                        vec![self.build_inline_fragment(&inline_frag)]
+                    }
                 }
             }
             Selection::LinkedField(field) => {
@@ -1148,6 +1183,27 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 selection_type_info,
             )]))
         })
+    }
+
+    /// This method will wrap inline fragment with @__inline directive
+    // (created by `inline_fragment_data` transform)
+    /// with the node `InlineDataFragmentSpread`
+    fn build_inline_data_fragment_spread(
+        &mut self,
+        inline_fragment: &InlineFragment,
+        directive: &Directive,
+    ) -> Primitive {
+        let selections = vec![self.build_inline_fragment(inline_fragment)];
+        let selections = Primitive::Key(self.array(selections));
+        let fragment_name: StringKey = directive.arguments[0].value.item.expect_string_literal();
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
+            ),
+            (CODEGEN_CONSTANTS.name, Primitive::String(fragment_name)),
+            (CODEGEN_CONSTANTS.selections, selections),
+        ]))
     }
 }
 

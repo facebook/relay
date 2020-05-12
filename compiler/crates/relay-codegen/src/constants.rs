@@ -85,6 +85,8 @@ pub struct CodegenConstants {
     pub value: StringKey,
     pub variable_name: StringKey,
     pub variable: StringKey,
+    pub inline_data_fragment: StringKey,
+    pub inline_data_fragment_spread: StringKey,
 }
 
 lazy_static! {
@@ -165,5 +167,7 @@ lazy_static! {
         value: "value".intern(),
         variable_name: "variableName".intern(),
         variable: "Variable".intern(),
+        inline_data_fragment: "InlineDataFragment".intern(),
+        inline_data_fragment_spread: "InlineDataFragmentSpread".intern(),
     };
 }

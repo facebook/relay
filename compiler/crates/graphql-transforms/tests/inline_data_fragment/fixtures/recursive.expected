@@ -26,7 +26,7 @@ fragment AnotherInlineDataFragment on Image @inline {
 
 fragment InlineDataFragment on Image @inline {
   uri
-  ... @__inline {
+  ... on Image @__inline(name: "AnotherInlineDataFragment") {
     uri
     width
   }
@@ -34,22 +34,22 @@ fragment InlineDataFragment on Image @inline {
 
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    ... @__inline {
+    ... on Image @__inline(name: "InlineDataFragment") {
       uri
-      ... @__inline {
+      ... on Image @__inline(name: "AnotherInlineDataFragment") {
         uri
         width
       }
     }
-    ... @__inline @include(if: $cond) {
+    ... on Image @__inline(name: "AnotherInlineDataFragment") @include(if: $cond) {
       uri
       width
     }
   }
   smallPic: profilePicture(size: 20) {
-    ... @__inline {
+    ... on Image @__inline(name: "InlineDataFragment") {
       uri
-      ... @__inline {
+      ... on Image @__inline(name: "AnotherInlineDataFragment") {
         uri
         width
       }

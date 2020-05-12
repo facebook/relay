@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::PointerAddress;
 use graphql_ir::{
@@ -30,7 +31,7 @@ type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 /// - The fragment has an abstract type and the `is_for_codegen` option has
 ///   been set.
 ///
-/// with the exception that it never falttens the inline fragment with relay
+/// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).
 ///
 pub fn flatten<'s>(program: &Program<'s>, is_for_codegen: bool) -> Program<'s> {
@@ -275,7 +276,8 @@ lazy_static! {
     static ref RELAY_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
         "__clientExtension".intern(),
         "defer".intern(),
-        MATCH_CONSTANTS.custom_module_directive_name
+        MATCH_CONSTANTS.custom_module_directive_name,
+        INLINE_DATA_CONSTANTS.internal_directive_name,
     ]
     .into_iter()
     .collect();

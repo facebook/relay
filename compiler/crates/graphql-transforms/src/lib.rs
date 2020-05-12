@@ -57,7 +57,7 @@ pub use handle_fields::{
     handle_field_transform, HandleFieldConstants,
 };
 pub use hash_arguments::hash_arguments;
-pub use inline_data_fragment::inline_data_fragment;
+pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{

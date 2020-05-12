@@ -20,6 +20,7 @@ mod generate_id_field;
 mod generate_typename;
 mod handle_fields;
 mod hash_arguments;
+mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
@@ -56,6 +57,7 @@ pub use handle_fields::{
     handle_field_transform, HandleFieldConstants,
 };
 pub use hash_arguments::hash_arguments;
+pub use inline_data_fragment::inline_data_fragment;
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{

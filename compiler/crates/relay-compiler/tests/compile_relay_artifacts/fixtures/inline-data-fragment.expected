@@ -227,11 +227,6 @@ fragment Profile on User {
       "plural": false,
       "selections": [
         {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "Profile"
-        },
-        {
           "alias": null,
           "args": [
             {
@@ -250,6 +245,13 @@ fragment Profile on User {
               "args": null,
               "kind": "ScalarField",
               "name": "uri",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "width",
               "storageKey": null
             },
             {
@@ -280,9 +282,35 @@ fragment Profile on User {
       "plural": false,
       "selections": [
         {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "Profile"
+          "alias": null,
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "size",
+              "value": 100
+            }
+          ],
+          "concreteType": "Image",
+          "kind": "LinkedField",
+          "name": "profilePicture",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "uri",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "width",
+              "storageKey": null
+            }
+          ],
+          "storageKey": "profilePicture(size:100)"
         }
       ],
       "storageKey": "username(name:\"test\")"

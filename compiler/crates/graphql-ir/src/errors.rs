@@ -42,7 +42,7 @@ impl ValidationError {
     }
 
     /// Attaches sources to the error to allow it to be printed with a code
-    /// listing without requring additional context.
+    /// listing without requiring additional context.
     pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
         let sources = self
             .locations
@@ -456,4 +456,8 @@ pub enum ValidationMessage {
         fragment_name: StringKey,
         type_name: StringKey,
     },
+    #[error("Variables are not yet supported inside @inline fragments.")]
+    InlineDataFragmentArgumentsNotSupported,
+    #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
+    InlineDataFragmentDirectivesNotSupported,
 }

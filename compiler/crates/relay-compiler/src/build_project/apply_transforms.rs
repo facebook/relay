@@ -10,11 +10,11 @@ use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
-    handle_field_transform, inline_fragments, mask, remove_base_fragments, skip_client_extensions,
-    skip_redundant_nodes, skip_split_operation, skip_unreachable_node, skip_unused_variables,
-    split_module_import, transform_connections, transform_defer_stream, transform_match,
-    transform_refetchable_fragment, validate_module_conflicts, validate_server_only_directives,
-    ConnectionInterface,
+    handle_field_transform, inline_data_fragment, inline_fragments, mask, remove_base_fragments,
+    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
+    skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
+    transform_match, transform_refetchable_fragment, validate_module_conflicts,
+    validate_server_only_directives, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -50,7 +50,7 @@ pub fn apply_transforms<'schema>(
         &common_program,
         base_fragment_names,
         perf_logger,
-    );
+    )?;
     let operation_program = apply_operation_transforms(
         project_name,
         &common_program,
@@ -115,11 +115,11 @@ fn apply_reader_transforms<'schema>(
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: &impl PerfLogger,
-) -> Program<'schema> {
+) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + ClientExtensionsTransform
     // + FieldHandleTransform
-    // - InlineDataFragmentTransform
+    // + InlineDataFragmentTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_reader_transforms");
@@ -128,6 +128,7 @@ fn apply_reader_transforms<'schema>(
     let program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
+    let program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
@@ -137,7 +138,7 @@ fn apply_reader_transforms<'schema>(
 
     perf_logger.complete_event(log_event);
 
-    program
+    Ok(program)
 }
 
 /// Applies transforms that apply to all operation artifacts.

@@ -8,6 +8,7 @@
 #![warn(clippy::all)]
 
 mod client;
+mod completion;
 mod error_reporting;
 mod lsp;
 mod server;

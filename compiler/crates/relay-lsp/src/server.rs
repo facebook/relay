@@ -11,7 +11,7 @@ use crate::lsp::{
     Completion, CompletionOptions, CompletionParams, Connection, DidChangeTextDocument,
     DidChangeTextDocumentParams, DidCloseTextDocument, DidCloseTextDocumentParams,
     DidOpenTextDocument, DidOpenTextDocumentParams, InitializeParams, Message, Notification,
-    Position, Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+    Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
     TextDocumentItem, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
     Url, WorkDoneProgressOptions,
 };
@@ -21,12 +21,13 @@ use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
 
+use crate::completion::{get_path_completion_position, position_to_span};
 use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
 use crate::lsp::show_info_message;
 use crate::state::ServerState;
 
 use common::{ConsoleLogger, FileKey};
-use graphql_syntax::{parse, Document, GraphQLSource};
+use graphql_syntax::{parse, GraphQLSource};
 use log::info;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -99,7 +100,7 @@ pub async fn run(
                         }
                         method if method == DidChangeTextDocument::METHOD => {
                             let params = extract_notif_params::<DidChangeTextDocument>(notif);
-                            on_did_change_text_document(params);
+                            on_did_change_text_document(params, &mut graphql_source_cache);
                         }
                         method if method == DidCloseTextDocument::METHOD => {
                             let params = extract_notif_params::<DidCloseTextDocument>(notif);
@@ -226,22 +227,29 @@ fn on_completion_request(
     };
 
     match parse(&graphql_source.text, FileKey::new(&url.to_string())) {
-        Ok(definitions) => {
+        Ok(document) => {
             // Now we need to take the `Position` and map that to an offset relative
             // to this GraphQL document, as the `Span`s in the document are relative.
             info!("Successfully parsed the definitions for a target GraphQL source");
-            info!("{:#?}", definitions);
-            find_position_in_definitions(position, definitions);
+            // Map the position to a zero-length span, relative to this GraphQL source.
+            let position_span = match position_to_span(position, &graphql_source) {
+                Some(span) => span,
+                // Exit early if we can't map the position for some reason
+                None => return,
+            };
+            // Now we need to walk the Document, tracking our path along the way, until
+            // we find the position within the document. Note that the GraphQLSource will
+            // already be updated *with the characters that triggered the completion request*
+            // since the change event fires before completion.
+            info!("position_span: {:?}", position_span);
+            let completion_path = get_path_completion_position(document, position_span);
+            info!("Completion path: {:#?}", completion_path);
         }
         Err(err) => {
             info!("Failed to parse this target!");
             info!("{:?}", err);
         }
     }
-}
-
-fn find_position_in_definitions(_position: Position, _definitions: Document) {
-    // TODO(brandondail)
 }
 
 fn on_did_open_text_document(
@@ -269,7 +277,32 @@ fn on_did_open_text_document(
 
 fn on_did_close_text_document(_params: DidCloseTextDocumentParams) {}
 
-fn on_did_change_text_document(_params: DidChangeTextDocumentParams) {}
+fn on_did_change_text_document(
+    params: DidChangeTextDocumentParams,
+    graphql_source_cache: &mut GraphQLSourceCache,
+) {
+    info!("Did change text document!");
+    let DidChangeTextDocumentParams {
+        content_changes,
+        text_document,
+    } = params;
+    let uri = text_document.uri;
+
+    // We do full text document syncing, so the new text will be in the first content change event.
+    let content_change = content_changes
+        .first()
+        .expect("content_changes should always be non-empty");
+
+    // First we check to see if this document has any GraphQL documents.
+    let graphql_sources = match extract_graphql_sources(&content_change.text) {
+        Some(sources) => sources,
+        // Exit early if there are no sources
+        None => return,
+    };
+
+    // Update the GraphQL sources for this document
+    graphql_source_cache.insert(uri, graphql_sources);
+}
 
 fn load_config() -> Config {
     // TODO(brandondail) don't hardcode the test project config here

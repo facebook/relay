@@ -41,6 +41,11 @@ impl Span {
         (self.start as usize, self.length as usize)
     }
 
+    pub fn contains(&self, subspan: Span) -> bool {
+        subspan.start >= self.start
+            && (subspan.start + subspan.length) <= (self.start + self.length)
+    }
+
     pub fn to_range(self, source: &str, line_offset: usize, character_offset: usize) -> Range {
         let start = self.start as usize;
         let end = (self.start + self.length) as usize;

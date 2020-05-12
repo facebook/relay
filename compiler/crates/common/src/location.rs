@@ -77,6 +77,10 @@ impl Location {
         }
     }
 
+    pub fn contains(&self, subspan: Span) -> bool {
+        self.span.contains(subspan)
+    }
+
     pub fn print(&self, source: &str, line_offset: usize, column_offset: usize) -> String {
         format!(
             "{}:{}",

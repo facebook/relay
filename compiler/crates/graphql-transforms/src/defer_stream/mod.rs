@@ -9,12 +9,12 @@ mod directives;
 
 use super::get_applied_fragment_name;
 use crate::util::{remove_directive, replace_directive};
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, NamedItem, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
+    ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;

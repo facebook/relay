@@ -13,7 +13,6 @@
 mod build;
 mod errors;
 mod ir;
-mod named_item;
 mod program;
 mod signatures;
 mod transform;
@@ -25,7 +24,6 @@ pub use crate::errors::{
 };
 pub use build::build_ir as build;
 pub use ir::*;
-pub use named_item::NamedItem;
 pub use program::Program;
 pub use transform::{Transformed, TransformedMulti, TransformedValue, Transformer};
 pub use validator::Validator;

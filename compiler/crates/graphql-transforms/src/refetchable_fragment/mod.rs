@@ -14,13 +14,13 @@ mod viewer_query_generator;
 use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    FragmentDefinition, NamedItem, OperationDefinition, Program, ValidationError,
-    ValidationMessage, ValidationResult,
+    FragmentDefinition, OperationDefinition, Program, ValidationError, ValidationMessage,
+    ValidationResult,
 };
 use graphql_text_printer::print_value;
 use interner::StringKey;

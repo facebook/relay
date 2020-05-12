@@ -8,11 +8,11 @@
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::relay_test_operation::build_test_operation_metadata;
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, NamedItem, OperationDefinition, ScalarField,
-    Selection, Value, VariableDefinition,
+    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection,
+    Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use graphql_transforms::{

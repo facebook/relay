@@ -7,10 +7,9 @@
 
 use crate::connections::{ConnectionConstants, ConnectionInterface};
 use crate::util::extract_variable_name;
-use common::{Location, WithLocation};
+use common::{Location, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, InlineFragment, LinkedField, NamedItem, ScalarField,
-    Selection, Value,
+    Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
 };
 use interner::StringKey;
 use schema::{Schema, Type};

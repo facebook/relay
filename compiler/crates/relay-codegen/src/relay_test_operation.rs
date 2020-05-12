@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{NamedItem, OperationDefinition, Selection};
+use common::NamedItem;
+use graphql_ir::{OperationDefinition, Selection};
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;

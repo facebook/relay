@@ -5,12 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FileKey};
+use common::{ConsoleLogger, FileKey, NamedItem};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    build, FragmentDefinition, NamedItem, OperationDefinition, Program, ValidationError,
-};
+use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, ValidationError};
 use graphql_syntax::parse;
 use graphql_text_printer::print_full_operation;
 use graphql_transforms::{MATCH_CONSTANTS, OSS_CONNECTION_INTERFACE};

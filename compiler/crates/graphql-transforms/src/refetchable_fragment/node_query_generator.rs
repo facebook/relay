@@ -11,11 +11,10 @@ use super::{
     RefetchRoot, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, NamedItem, OperationDefinition, ScalarField,
-    Selection, ValidationError, ValidationMessage, ValidationResult, Value, Variable,
-    VariableDefinition,
+    Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
+    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;

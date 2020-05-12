@@ -11,11 +11,10 @@ use super::{
     RefetchRoot, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, NamedItem, OperationDefinition, ScalarField,
-    Selection, ValidationError, ValidationMessage, ValidationResult, Value, Variable,
-    VariableDefinition,
+    Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
+    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -110,15 +109,8 @@ fn get_fetchable_field_name<'schema>(
 ) -> ValidationResult<Option<&'schema str>> {
     if let Type::Object(id) = fragment.type_condition {
         let object = schema.object(id);
-        if let Some(fetchable) = object
-            .directives
-            .iter()
-            .find(|directive| directive.name == CONSTANTS.fetchable)
-        {
-            let field_name_arg = fetchable
-                .arguments
-                .iter()
-                .find(|arg| arg.name == CONSTANTS.field_name);
+        if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
+            let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
             if let Some(field_name_arg) = field_name_arg {
                 if let AstValue::String(ref name) = field_name_arg.value {
                     return Ok(Some(name));

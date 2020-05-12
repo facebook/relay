@@ -6,9 +6,8 @@
  */
 
 use crate::match_::MATCH_CONSTANTS;
-use graphql_ir::{
-    FragmentDefinition, NamedItem, OperationDefinition, Program, Transformed, Transformer,
-};
+use common::NamedItem;
+use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Transformed, Transformer};
 
 /// A transform that removes field `splitOperations`. Intended for use when e.g.
 /// printing queries to send to a GraphQL server.

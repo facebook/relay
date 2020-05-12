@@ -6,10 +6,10 @@
  */
 
 use crate::root_variables::VariableMap;
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, NamedItem, Selection,
-    Value, Variable, VariableDefinition,
+    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, Selection, Value,
+    Variable, VariableDefinition,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;

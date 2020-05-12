@@ -8,8 +8,8 @@
 use super::apply_transforms::Programs;
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use common::FileKey;
-use graphql_ir::{FragmentDefinition, NamedItem, OperationDefinition};
+use common::{FileKey, NamedItem};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::{
     print_fragment, print_full_operation, write_operation_with_graphqljs_formatting,
 };

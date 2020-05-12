@@ -7,10 +7,11 @@
 
 use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
 use crate::handle_fields::{extract_handle_field_directive_args, HandleFieldConstants};
+use common::NamedItem;
 use errors::{validate, validate_map};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, LinkedField, NamedItem, Program, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Validator, Value,
+    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
+    ValidationMessage, ValidationResult, Validator, Value,
 };
 use interner::StringKey;
 use schema::{Field, Type, TypeReference};

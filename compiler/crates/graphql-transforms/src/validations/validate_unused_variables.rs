@@ -6,9 +6,10 @@
  */
 
 use crate::root_variables::InferVariablesVisitor;
+use common::NamedItem;
 use graphql_ir::{
-    FragmentDefinition, NamedItem, OperationDefinition, Program, ValidationError,
-    ValidationMessage, ValidationResult, Validator,
+    FragmentDefinition, OperationDefinition, Program, ValidationError, ValidationMessage,
+    ValidationResult, Validator,
 };
 use interner::{Intern, StringKey};
 

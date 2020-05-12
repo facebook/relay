@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::NamedItem;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, NamedItem, OperationDefinition, Program, Value, Variable,
-    Visitor,
+    FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
 use interner::StringKey;
 use std::iter::FromIterator;

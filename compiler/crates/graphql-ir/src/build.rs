@@ -7,11 +7,8 @@
 
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
-use crate::{
-    signatures::{build_signatures, FragmentSignature, FragmentSignatures},
-    NamedItem,
-};
-use common::{Location, Span, WithLocation};
+use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
+use common::{Location, NamedItem, Span, WithLocation};
 use errors::{try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{List, OperationKind};
@@ -761,7 +758,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .items
                 .iter()
                 .map(
-                    |argument| match argument_definitions.get(argument.name.value) {
+                    |argument| match argument_definitions.named(argument.name.value) {
                         Some(argument_definition) => self.build_argument(
                             argument,
                             &argument_definition.type_,
@@ -1012,7 +1009,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let fields: ValidationResult<Vec<Argument>> = object
             .items
             .iter()
-            .map(|x| match type_definition.fields.get(x.name.value) {
+            .map(|x| match type_definition.fields.named(x.name.value) {
                 Some(field_definition) => {
                     required_fields.remove(&x.name.value);
                     let prev_span = seen_fields.insert(x.name.value, x.name.span);
@@ -1150,7 +1147,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let fields: ValidationResult<Vec<ConstantArgument>> = object
             .items
             .iter()
-            .map(|x| match type_definition.fields.get(x.name.value) {
+            .map(|x| match type_definition.fields.named(x.name.value) {
                 Some(field_definition) => {
                     required_fields.remove(&x.name.value);
                     let prev_span = seen_fields.insert(x.name.value, x.name.span);

@@ -6,11 +6,11 @@
  */
 
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, InlineFragment, NamedItem, OperationDefinition, Program,
-    Selection, Transformed, TransformedValue, Transformer, Value,
+    Argument, ConstantValue, Directive, InlineFragment, OperationDefinition, Program, Selection,
+    Transformed, TransformedValue, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 

@@ -7,6 +7,7 @@
 
 use crate::ast;
 use crate::errors::{Result, SchemaError};
+use common::{Named, NamedItem};
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
@@ -1072,16 +1073,34 @@ pub struct Argument {
     pub default_value: Option<ConstValue>,
 }
 
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+}
+
 #[derive(Debug)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstValue,
 }
 
+impl Named for ArgumentValue {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+}
+
 #[derive(Debug)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,
+}
+
+impl Named for DirectiveValue {
+    fn name(&self) -> StringKey {
+        self.name
+    }
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1092,8 +1111,8 @@ impl ArgumentDefinitions {
         Self(arguments)
     }
 
-    pub fn get(&self, name: StringKey) -> Option<&Argument> {
-        self.0.iter().find(|x| x.name == name)
+    pub fn named(&self, name: StringKey) -> Option<&Argument> {
+        self.0.named(name)
     }
 
     pub fn contains(&self, name: StringKey) -> bool {

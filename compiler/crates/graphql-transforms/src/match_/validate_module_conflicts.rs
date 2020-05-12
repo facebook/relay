@@ -7,11 +7,11 @@
 
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::PointerAddress;
-use common::Location;
+use common::{Location, NamedItem};
 use errors::{validate, validate_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    InlineFragment, LinkedField, NamedItem, Program, Selection, ValidationError, ValidationMessage,
+    InlineFragment, LinkedField, Program, Selection, ValidationError, ValidationMessage,
     ValidationResult, Validator,
 };
 use schema::Type;

@@ -262,40 +262,38 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
             Err(err) => build_project_errors.push(err),
         };
 
-        match self.config.only_project {
-            Some(project_key) => {
-                let project_config =
-                    self.config.projects.get(&project_key).unwrap_or_else(|| {
-                        panic!("Expected the project {} to exist", &project_key)
-                    });
-                process_build_result(
-                    build_project(
-                        &self.config,
-                        project_config,
-                        compiler_state,
-                        &graphql_asts,
-                        self.perf_logger,
-                    )
-                    .await,
-                    project_config.name,
+        if let Some(only_project) = self.config.only_project {
+            let project_config = self
+                .config
+                .projects
+                .get(&only_project)
+                .unwrap_or_else(|| panic!("Expected the project {} to exist", &only_project));
+            process_build_result(
+                build_project(
+                    &self.config,
+                    project_config,
+                    compiler_state,
+                    &graphql_asts,
+                    self.perf_logger,
                 )
-            }
-            None => {
-                for project_config in self.config.projects.values() {
-                    if compiler_state.project_has_pending_changes(project_config.name) {
-                        // TODO: consider running all projects in parallel
-                        process_build_result(
-                            build_project(
-                                &self.config,
-                                project_config,
-                                compiler_state,
-                                &graphql_asts,
-                                self.perf_logger,
-                            )
-                            .await,
-                            project_config.name,
+                .await,
+                project_config.name,
+            )
+        } else {
+            for project_config in self.config.projects.values() {
+                if compiler_state.project_has_pending_changes(project_config.name) {
+                    // TODO: consider running all projects in parallel
+                    process_build_result(
+                        build_project(
+                            &self.config,
+                            project_config,
+                            compiler_state,
+                            &graphql_asts,
+                            self.perf_logger,
                         )
-                    }
+                        .await,
+                        project_config.name,
+                    )
                 }
             }
         }

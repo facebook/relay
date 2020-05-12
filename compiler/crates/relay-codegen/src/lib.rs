@@ -12,6 +12,7 @@
 mod ast;
 mod build_ast;
 mod constants;
+mod indentation;
 mod printer;
 mod relay_test_operation;
 

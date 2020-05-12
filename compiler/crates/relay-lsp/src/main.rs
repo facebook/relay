@@ -11,6 +11,7 @@ mod client;
 mod error_reporting;
 mod lsp;
 mod server;
+mod state;
 use lsp_server::Connection;
 use std::error::Error;
 

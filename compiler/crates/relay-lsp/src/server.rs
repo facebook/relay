@@ -5,17 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::{HashMap, HashSet};
 use std::error::Error;
 
 use crate::lsp::{
-    Completion, CompletionItem, CompletionList, CompletionOptions, CompletionParams,
-    CompletionResponse, Connection, DidChangeTextDocument, DidChangeTextDocumentParams,
-    DidCloseTextDocument, DidCloseTextDocumentParams, DidOpenTextDocument,
-    DidOpenTextDocumentParams, InitializeParams, Message, Notification, PublishDiagnosticsParams,
+    Completion, CompletionOptions, CompletionParams, Connection, DidChangeTextDocument,
+    DidChangeTextDocumentParams, DidCloseTextDocument, DidCloseTextDocumentParams,
+    DidOpenTextDocument, DidOpenTextDocumentParams, InitializeParams, Message, Notification,
     Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    ServerResponse, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
-    Url, WorkDoneProgressOptions,
+    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };
 
 use extract_graphql;
@@ -24,41 +21,15 @@ use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
 
 use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
-use crate::lsp::{publish_diagnostic, show_info_message};
+use crate::lsp::show_info_message;
+use crate::state::ServerState;
 
 use common::ConsoleLogger;
+use graphql_syntax::GraphQLSource;
 use log::info;
 use std::path::PathBuf;
-use tokio::sync::mpsc;
-
-pub struct ServerState {
-    urls_with_active_diagnostics: HashSet<Url>,
-    pub root_dir: PathBuf,
-}
-
-impl ServerState {
-    pub fn new(root_dir: PathBuf) -> Self {
-        ServerState {
-            urls_with_active_diagnostics: HashSet::default(),
-            root_dir,
-        }
-    }
-
-    pub fn register_url_with_diagnostics(&mut self, url: Url) {
-        self.urls_with_active_diagnostics.insert(url);
-    }
-
-    pub fn clear_diagnostics(&mut self, connection: &Connection) {
-        for url in self.urls_with_active_diagnostics.drain() {
-            let params = PublishDiagnosticsParams {
-                diagnostics: vec![],
-                uri: url,
-                version: None,
-            };
-            publish_diagnostic(params, &connection).unwrap();
-        }
-    }
-}
+use std::sync::Arc;
+use tokio::sync::Notify;
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
@@ -84,11 +55,6 @@ pub fn initialize(
     Ok(params)
 }
 
-#[derive(Debug)]
-pub enum CompilerMessage {
-    Initialize,
-}
-
 /// Run the main server loop
 pub async fn run(
     connection: Connection,
@@ -97,219 +63,150 @@ pub async fn run(
     show_info_message("Relay Language Server Started!", &connection)?;
     info!("Running language server");
 
-    // We use an MPSC channel to communicate between the LSP server loop and
-    // the compiler. That way running compiler doesn't block us from receiving
-    // LSP messages.
-    let (mut tx, mut rx) = mpsc::channel::<CompilerMessage>(100);
-
     let receiver = connection.receiver.clone();
-    let sender = connection.sender.clone();
+
+    // A `Notify` instance used to signal that the compiler should be initialized.
+    let compiler_notify = Arc::new(Notify::new());
 
     // Thread for the LSP message loop
+    let compiler_notifier = compiler_notify.clone();
     tokio::spawn(async move {
-        let mut synced_documents: HashMap<Url, String> = HashMap::new();
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
                     // Auto-complete request
                     if req.method == Completion::METHOD {
-                        let (
-                            request_id,
-                            CompletionParams {
-                                text_document_position,
-                                ..
-                            },
-                        ) = extract_request_params::<Completion>(req);
-                        let TextDocumentPositionParams {
-                            text_document,
-                            position,
-                        } = text_document_position;
-                        let url = text_document.uri;
-                        if let Some(source) = synced_documents.get(&url) {
-                            let source = source.as_str();
-                            match extract_graphql::parse_chunks(source) {
-                                Ok(chunks) => {
-                                    if chunks.is_empty() {
-                                        // Ignore files with no `graphql` tags
-                                        continue;
-                                    }
-                                    let mut target_chunk = None;
-                                    for chunk in chunks {
-                                        let range = chunk.to_range();
-                                        if position >= range.start && position <= range.end {
-                                            target_chunk = Some(chunk);
-                                            // Exit the loop early as chunks should never be overlapping
-                                            break;
-                                        }
-                                    }
-                                    if let Some(_) = target_chunk {
-                                        // Build up some fake completion items to test with for now
-                                        let items = vec![
-                                            "Component_user1",
-                                            "Component_user2",
-                                            "Component_userWithStream",
-                                        ];
-
-                                        let items = items
-                                            .iter()
-                                            .map(|label| {
-                                                CompletionItem::new_simple(
-                                                    (*label).to_owned(),
-                                                    String::new(),
-                                                )
-                                            })
-                                            .collect();
-
-                                        let list = CompletionList {
-                                            is_incomplete: false,
-                                            items,
-                                        };
-
-                                        let completion_response = CompletionResponse::List(list);
-                                        let completion_response =
-                                            serde_json::to_value(&completion_response).unwrap();
-                                        let response = ServerResponse {
-                                            id: request_id,
-                                            result: Some(completion_response),
-                                            error: None,
-                                        };
-                                        sender.send(Message::Response(response)).unwrap();
-                                        continue;
-                                    } else {
-                                        info!("Completion request was not within a GraphQL tag");
-                                    }
-                                }
-                                Err(_) => {
-                                    continue;
-                                    // Ignore errors
-                                }
-                            }
-                        } else {
-                            // TODO(brandondail) we should never get a completion request
-                            // for a document we haven't synced yet. Do some error logging here.
-                        }
+                        let (request_id, params) = extract_request_params::<Completion>(req);
+                        on_completion_request(request_id, params);
                     }
-                }
-                Message::Response(resp) => {
-                    info!("Request: {:#?}", resp);
                 }
                 Message::Notification(notif) => {
-                    if &notif.method == DidOpenTextDocument::METHOD {
-                        // Lazily start the compiler once a relevant file is opened
-                        if tx.send(CompilerMessage::Initialize).await.is_err() {
-                            return;
+                    match &notif.method {
+                        method if method == DidOpenTextDocument::METHOD => {
+                            let params = extract_notif_params::<DidOpenTextDocument>(notif);
+                            on_did_open_text_document(params, &compiler_notifier);
                         }
-                        let DidOpenTextDocumentParams { text_document, .. } =
-                            extract_notif_params::<DidOpenTextDocument>(notif);
-                        let url = text_document.uri;
-                        let source = text_document.text;
-                        synced_documents.insert(url, source);
-                    // Start syncing the text for this document, so we can
-                    // provide accurate auto-completion results
-                    } else if notif.method == DidChangeTextDocument::METHOD {
-                        // Update the synced document
-                        let DidChangeTextDocumentParams {
-                            text_document,
-                            mut content_changes,
-                        } = extract_notif_params::<DidChangeTextDocument>(notif);
-                        let url = text_document.uri;
-                        // We use full text syncing, so there will be a single content change
-                        // with all the new text
-                        let change = content_changes.remove(0);
-                        let source = change.text;
-                        synced_documents.insert(url, source);
-                    } else if notif.method == DidCloseTextDocument::METHOD {
-                        // Stop tracking the document when the file is closed
-                        let DidCloseTextDocumentParams { text_document } =
-                            extract_notif_params::<DidCloseTextDocument>(notif);
-                        let url = text_document.uri;
-                        synced_documents.remove(&url);
+                        method if method == DidChangeTextDocument::METHOD => {
+                            let params = extract_notif_params::<DidChangeTextDocument>(notif);
+                            on_did_change_text_document(params);
+                        }
+                        method if method == DidCloseTextDocument::METHOD => {
+                            let params = extract_notif_params::<DidCloseTextDocument>(notif);
+                            on_did_close_text_document(params);
+                        }
+                        _ => {
+                            // Notifications we don't care about
+                        }
                     }
+                }
+                Message::Response(_) => {
+                    // Ignore responses for now
                 }
             }
         }
     });
 
-    info!("Starting to wait for receiver messages");
+    info!("Waiting for compiler to initialize...");
+    compiler_notify.notified().await;
 
-    let mut is_compiler_running = false;
+    let config = load_config();
+    let root_dir = config.root_dir.clone();
+    let compiler = Compiler::new(config, &ConsoleLogger);
+    let mut server_state = ServerState::new(root_dir);
+    info!("Compiler initialized");
 
-    while let Some(res) = rx.recv().await {
-        match res {
-            CompilerMessage::Initialize => {
-                if !is_compiler_running {
-                    is_compiler_running = true;
-                    info!("Initializing compiler...");
-
-                    // TODO(brandondail) don't hardcode the test project config here
-                    let home = std::env::var("HOME").unwrap();
-                    let config_path = PathBuf::from(format!(
-                        "{}/fbsource/fbcode/relay/config/config.test.json",
-                        home
-                    ));
-
-                    let root_dir = PathBuf::from(format!("{}/fbsource", home));
-                    let mut config = Config::load(root_dir, config_path).unwrap();
-
-                    info!("Compiler config {:?}", config);
-                    let root_dir = config.root_dir.clone();
-
-                    // Don't write artifacts by default
-                    config.write_artifacts = false;
-
-                    let logger = ConsoleLogger;
-                    let compiler = Compiler::new(config, &logger);
-
-                    let mut server_state = ServerState::new(root_dir);
-
-                    compiler
-                        .watch_with_callback(|result| {
-                            match result {
-                                Ok(_) => {
-                                    info!("Compiled successfully");
-                                    // Clear all diagnostics
-                                    server_state.clear_diagnostics(&connection);
-                                }
-                                Err(err) => {
-                                    match err {
-                                        CompilerError::SyntaxErrors { errors } => {
-                                            report_syntax_errors(
-                                                errors,
-                                                &connection,
-                                                &mut server_state,
-                                            )
-                                        }
-                                        CompilerError::BuildProjectsErrors { errors } => {
-                                            report_build_project_errors(
-                                                errors,
-                                                &connection,
-                                                &mut server_state,
-                                            )
-                                        }
-                                        // Ignore the rest of these errors for now
-                                        CompilerError::ConfigFileRead { .. } => {}
-                                        CompilerError::ConfigFileParse { .. } => {}
-                                        CompilerError::ConfigFileValidation { .. } => {}
-                                        CompilerError::ReadFileError { .. } => {}
-                                        CompilerError::WriteFileError { .. } => {}
-                                        CompilerError::SerializationError { .. } => {}
-                                        CompilerError::DeserializationError { .. } => {}
-                                        CompilerError::CanonicalizeRoot { .. } => {}
-                                        CompilerError::Watchman { .. } => {}
-                                        CompilerError::EmptyQueryResult => {}
-                                        CompilerError::FileRead { .. } => {}
-                                        CompilerError::Syntax { .. } => {}
-                                    }
-                                }
-                            }
-                        })
-                        .await
-                        .unwrap();
+    compiler
+        .watch_with_callback(|result| {
+            match result {
+                Ok(_) => {
+                    info!("Compiled successfully");
+                    // Clear all diagnostics
+                    server_state.clear_diagnostics(&connection);
+                }
+                Err(err) => {
+                    match err {
+                        CompilerError::SyntaxErrors { errors } => {
+                            report_syntax_errors(errors, &connection, &mut server_state)
+                        }
+                        CompilerError::BuildProjectsErrors { errors } => {
+                            report_build_project_errors(errors, &connection, &mut server_state)
+                        }
+                        // Ignore the rest of these errors for now
+                        CompilerError::ConfigFileRead { .. } => {}
+                        CompilerError::ConfigFileParse { .. } => {}
+                        CompilerError::ConfigFileValidation { .. } => {}
+                        CompilerError::ReadFileError { .. } => {}
+                        CompilerError::WriteFileError { .. } => {}
+                        CompilerError::SerializationError { .. } => {}
+                        CompilerError::DeserializationError { .. } => {}
+                        CompilerError::CanonicalizeRoot { .. } => {}
+                        CompilerError::Watchman { .. } => {}
+                        CompilerError::EmptyQueryResult => {}
+                        CompilerError::FileRead { .. } => {}
+                        CompilerError::Syntax { .. } => {}
+                    }
                 }
             }
-        }
-    }
+        })
+        .await
+        .unwrap();
+
     Ok(())
+}
+
+/// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`
+/// if extracting fails or there are no GraphQL chunks in the file.
+fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
+    match extract_graphql::parse_chunks(source) {
+        Ok(chunks) => {
+            if chunks.is_empty() {
+                None
+            } else {
+                Some(chunks)
+            }
+        }
+        Err(_) => None,
+    }
+}
+
+fn on_completion_request(_request_id: ServerRequestId, _params: CompletionParams) {
+    // TODO(brandondail)
+}
+
+fn on_did_open_text_document(
+    params: DidOpenTextDocumentParams,
+    compiler_init_notify: &Arc<Notify>,
+) {
+    info!("Did open text document!");
+    let DidOpenTextDocumentParams { text_document } = params;
+
+    // First we check to see if this document has any GraphQL documents.
+    let _graphql_sources = match extract_graphql_sources(&text_document.text) {
+        Some(sources) => sources,
+        // Exit early if there are no sources
+        None => return,
+    };
+
+    // Notify the mean thread that it can start the compiler now, if it hasn't already
+    compiler_init_notify.notify();
+}
+
+fn on_did_close_text_document(_params: DidCloseTextDocumentParams) {}
+
+fn on_did_change_text_document(_params: DidChangeTextDocumentParams) {}
+
+fn load_config() -> Config {
+    // TODO(brandondail) don't hardcode the test project config here
+    let home = std::env::var("HOME").unwrap();
+    let config_path = PathBuf::from(format!(
+        "{}/fbsource/fbcode/relay/config/config.test.json",
+        home
+    ));
+    let root_dir = PathBuf::from(format!("{}/fbsource", home));
+    let mut config = Config::load(root_dir, config_path).unwrap();
+    // Don't write artifacts by default
+    config.write_artifacts = false;
+    config
 }
 
 fn extract_notif_params<N>(notif: ServerNotification) -> N::Params

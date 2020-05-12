@@ -10,7 +10,7 @@ use crate::lsp::{
     publish_diagnostic, url_from_location, Diagnostic, DiagnosticSeverity, PublishDiagnosticsParams,
 };
 use crate::lsp::{Connection, Url};
-use crate::server::ServerState;
+use crate::state::ServerState;
 
 use relay_compiler::errors::{
     BuildProjectError, SyntaxErrorWithSource, ValidationError, ValidationErrorWithSources,

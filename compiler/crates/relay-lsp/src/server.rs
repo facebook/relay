@@ -11,8 +11,9 @@ use crate::lsp::{
     Completion, CompletionOptions, CompletionParams, Connection, DidChangeTextDocument,
     DidChangeTextDocumentParams, DidCloseTextDocument, DidCloseTextDocumentParams,
     DidOpenTextDocument, DidOpenTextDocumentParams, InitializeParams, Message, Notification,
-    Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+    Position, Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+    TextDocumentItem, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+    Url, WorkDoneProgressOptions,
 };
 
 use extract_graphql;
@@ -24,12 +25,15 @@ use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
 use crate::lsp::show_info_message;
 use crate::state::ServerState;
 
-use common::ConsoleLogger;
-use graphql_syntax::GraphQLSource;
+use common::{ConsoleLogger, FileKey};
+use graphql_syntax::{parse, Document, GraphQLSource};
 use log::info;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Notify;
+
+type GraphQLSourceCache = HashMap<Url, Vec<GraphQLSource>>;
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
@@ -70,21 +74,28 @@ pub async fn run(
 
     // Thread for the LSP message loop
     let compiler_notifier = compiler_notify.clone();
+
     tokio::spawn(async move {
+        // Cache for the extracted GraphQL sources
+        let mut graphql_source_cache = HashMap::new();
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (request_id, params) = extract_request_params::<Completion>(req);
-                        on_completion_request(request_id, params);
+                        on_completion_request(request_id, params, &graphql_source_cache);
                     }
                 }
                 Message::Notification(notif) => {
                     match &notif.method {
                         method if method == DidOpenTextDocument::METHOD => {
                             let params = extract_notif_params::<DidOpenTextDocument>(notif);
-                            on_did_open_text_document(params, &compiler_notifier);
+                            on_did_open_text_document(
+                                params,
+                                &compiler_notifier,
+                                &mut graphql_source_cache,
+                            );
                         }
                         method if method == DidChangeTextDocument::METHOD => {
                             let params = extract_notif_params::<DidChangeTextDocument>(notif);
@@ -169,23 +180,88 @@ fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
     }
 }
 
-fn on_completion_request(_request_id: ServerRequestId, _params: CompletionParams) {
+fn on_completion_request(
+    _request_id: ServerRequestId,
+    params: CompletionParams,
+    graphql_source_cache: &GraphQLSourceCache,
+) {
+    let CompletionParams {
+        text_document_position,
+        ..
+    } = params;
+    let TextDocumentPositionParams {
+        text_document,
+        position,
+    } = text_document_position;
+    let url = text_document.uri;
+    let graphql_sources = match graphql_source_cache.get(&url) {
+        Some(sources) => sources,
+        // If we have no sources for this file, do nothing
+        None => return,
+    };
+
+    info!(
+        "Got completion request for file with sources: {:#?}",
+        *graphql_sources
+    );
+
+    info!("position: {:?}", position);
+
+    // We have GraphQL documents, now check if the completion request
+    // falls within the range of one of these documents.
+    let mut target_graphql_source: Option<&GraphQLSource> = None;
+    for graphql_source in &*graphql_sources {
+        let range = graphql_source.to_range();
+        if position >= range.start && position <= range.end {
+            target_graphql_source = Some(graphql_source);
+            break;
+        }
+    }
+
+    let graphql_source = match target_graphql_source {
+        Some(source) => source,
+        // Exit early if this completion request didn't fall within
+        // the range of one of our GraphQL documents
+        None => return,
+    };
+
+    match parse(&graphql_source.text, FileKey::new(&url.to_string())) {
+        Ok(definitions) => {
+            // Now we need to take the `Position` and map that to an offset relative
+            // to this GraphQL document, as the `Span`s in the document are relative.
+            info!("Successfully parsed the definitions for a target GraphQL source");
+            info!("{:#?}", definitions);
+            find_position_in_definitions(position, definitions);
+        }
+        Err(err) => {
+            info!("Failed to parse this target!");
+            info!("{:?}", err);
+        }
+    }
+}
+
+fn find_position_in_definitions(_position: Position, _definitions: Document) {
     // TODO(brandondail)
 }
 
 fn on_did_open_text_document(
     params: DidOpenTextDocumentParams,
     compiler_init_notify: &Arc<Notify>,
+    graphql_source_cache: &mut GraphQLSourceCache,
 ) {
     info!("Did open text document!");
     let DidOpenTextDocumentParams { text_document } = params;
+    let TextDocumentItem { text, uri, .. } = text_document;
 
     // First we check to see if this document has any GraphQL documents.
-    let _graphql_sources = match extract_graphql_sources(&text_document.text) {
+    let graphql_sources = match extract_graphql_sources(&text) {
         Some(sources) => sources,
         // Exit early if there are no sources
         None => return,
     };
+
+    // Track the GraphQL sources for this document
+    graphql_source_cache.insert(uri, graphql_sources);
 
     // Notify the mean thread that it can start the compiler now, if it hasn't already
     compiler_init_notify.notify();

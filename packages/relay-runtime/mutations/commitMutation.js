@@ -115,9 +115,7 @@ function commitMutation<T: MutationParameters>(
   const operation = createOperationDescriptor(
     mutation,
     variables,
-    RelayFeatureFlags.ENABLE_UNIQUE_MUTATION_ROOT
-      ? generateUniqueClientID()
-      : undefined,
+    generateUniqueClientID(),
   );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {

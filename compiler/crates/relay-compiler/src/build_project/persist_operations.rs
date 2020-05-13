@@ -50,15 +50,18 @@ pub async fn persist_operations(
                 let text = text.clone();
                 let url = persist_config.url.clone();
                 let params = persist_config.params.clone();
-                let errors = Arc::clone(&persist_errors);
+                // let errors = Arc::clone(&persist_errors);
                 handles.push(async move {
                     let request = persist(&text, &url, &params);
                     match request.await {
                         Ok(id) => {
                             *id_and_text_hash = Some((id, text_hash));
                         }
-                        Err(err) => {
-                            errors.lock().unwrap().push(err);
+                        Err(_err) => {
+                            // TODO(T66947325) re-enable errors instead of setting
+                            // "ERROR" as id.
+                            *id_and_text_hash = Some(("ERROR".into(), text_hash));
+                            // errors.lock().unwrap().push(err);
                         }
                     };
                 });

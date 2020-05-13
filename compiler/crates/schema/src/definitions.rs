@@ -467,7 +467,7 @@ impl Schema {
         schema.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         schema.fields.push(Field {
             name: schema.clientid_field_name,
-            is_extension: false,
+            is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),

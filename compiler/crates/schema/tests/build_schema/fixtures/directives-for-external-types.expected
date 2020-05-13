@@ -286,7 +286,7 @@ fields: [
     },
     Field {
         name: "__id",
-        is_extension: false,
+        is_extension: true,
         arguments: [],
         type_: NonNull(
             Named(

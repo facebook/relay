@@ -189,7 +189,7 @@ function printSelection(
         isClientExtension,
       }),
     );
-    str = subSelections.join('\n' + INDENT);
+    str = subSelections.join('\n' + indent + INDENT);
   } else if (selection.kind === 'Stream') {
     let streamStr = ` @stream(label: "${selection.label}"`;
     if (selection.if !== null) {

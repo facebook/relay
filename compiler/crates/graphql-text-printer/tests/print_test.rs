@@ -1,4 +1,4 @@
-// @generated SignedSource<<dbdb56d1a934b72ce2bc8ecad80e26b1>>
+// @generated SignedSource<<0c23041b52b5e3bc600e16a0c1bfa124>>
 
 mod print;
 
@@ -59,6 +59,13 @@ fn conditions() {
     let input = include_str!("print/fixtures/conditions.graphql");
     let expected = include_str!("print/fixtures/conditions.expected");
     test_fixture(transform_fixture, "conditions.graphql", "print/fixtures/conditions.expected", input, expected);
+}
+
+#[test]
+fn empty_args() {
+    let input = include_str!("print/fixtures/empty_args.graphql");
+    let expected = include_str!("print/fixtures/empty_args.expected");
+    test_fixture(transform_fixture, "empty_args.graphql", "print/fixtures/empty_args.expected", input, expected);
 }
 
 #[test]

@@ -424,34 +424,32 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::Variable(variable_val) => write!(self.writer, "${}", variable_val.name.item),
 
             Value::Object(object) => {
-                let len = object.len();
-                if len > 0 {
-                    write!(self.writer, "{{")?;
-                    for (i, arg) in object.iter().enumerate() {
-                        write!(self.writer, "{}: ", arg.name.item)?;
-                        self.print_value(&arg.value.item)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "{{")?;
+                let mut first = true;
+                for arg in object {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "}}")?;
+                    write!(self.writer, "{}: ", arg.name.item)?;
+                    self.print_value(&arg.value.item)?;
                 }
+                write!(self.writer, "}}")?;
                 Ok(())
             }
             Value::List(list) => {
-                let len = list.len();
-                if len > 0 {
-                    write!(self.writer, "[")?;
-                    for (i, value) in list.iter().enumerate() {
-                        self.print_value(&value)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "[")?;
+                let mut first = true;
+                for value in list {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "]")?;
+                    self.print_value(&value)?;
                 }
+                write!(self.writer, "]")?;
                 Ok(())
             }
         }
@@ -466,34 +464,32 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             ConstantValue::Boolean(val) => write!(self.writer, "{}", val),
             ConstantValue::Null() => write!(self.writer, "null"),
             ConstantValue::Object(object) => {
-                let len = object.len();
-                if len > 0 {
-                    write!(self.writer, "{{")?;
-                    for (i, arg) in object.iter().enumerate() {
-                        write!(self.writer, "{}: ", arg.name.item)?;
-                        self.print_constant_value(&arg.value.item)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "{{")?;
+                let mut first = true;
+                for arg in object {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "}}")?;
-                };
+                    write!(self.writer, "{}: ", arg.name.item)?;
+                    self.print_constant_value(&arg.value.item)?;
+                }
+                write!(self.writer, "}}")?;
                 Ok(())
             }
             ConstantValue::List(list) => {
-                let len = list.len();
-                if len > 0 {
-                    write!(self.writer, "[")?;
-                    for (i, value) in list.iter().enumerate() {
-                        self.print_constant_value(&value)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "[")?;
+                let mut first = true;
+                for value in list {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "]")?;
-                };
+                    self.print_constant_value(&value)?;
+                }
+                write!(self.writer, "]")?;
                 Ok(())
             }
         }

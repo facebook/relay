@@ -6,7 +6,6 @@
  */
 
 use crate::artifact_map::ArtifactMap;
-use crate::build_project::WrittenArtifacts;
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
@@ -293,19 +292,16 @@ impl CompilerState {
     /// The initial implementation of the `update_artifacts_map` do not handle incremental updates
     /// of the artifacts map
     /// This will be added in the next iterations
-    fn update_artifacts_map(&mut self, written_artifacts: HashMap<ProjectName, WrittenArtifacts>) {
-        for (project_name, project_written_artifacts) in written_artifacts.iter() {
-            self.artifacts.insert(
-                project_name.to_owned(),
-                ArtifactMap::new(project_written_artifacts.to_owned()),
-            );
-        }
+    fn update_artifacts_map(&mut self, _written_artifacts: ArtifactMap) {
+        // for (project_name, project_written_artifacts) in written_artifacts.iter() {
+        //     self.artifacts.insert(
+        //         project_name.to_owned(),
+        //         ArtifactMap::new(project_written_artifacts.to_owned()),
+        //     );
+        // }
     }
 
-    pub fn complete_compilation(
-        &mut self,
-        written_artifacts: HashMap<ProjectName, WrittenArtifacts>,
-    ) {
+    pub fn complete_compilation(&mut self, written_artifacts: ArtifactMap) {
         self.update_artifacts_map(written_artifacts);
         self.commit_pending_file_source_changes();
     }

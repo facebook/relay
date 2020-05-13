@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, check_project, WrittenArtifacts};
+use crate::build_project::{build_project, build_schema, check_project};
 use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::parse_sources::parse_sources;
-use crate::watchman::FileSource;
+use crate::{artifact_map::ArtifactMap, watchman::FileSource};
 use common::{PerfLogEvent, PerfLogger};
 use log::{error, info};
 use schema::Schema;
@@ -253,11 +253,11 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
             setup_event.time("parse_sources_time", || parse_sources(&compiler_state))?;
 
         let mut build_project_errors = vec![];
-        let mut next_artifacts: HashMap<ProjectName, WrittenArtifacts> = Default::default();
+        let next_artifacts: ArtifactMap = Default::default();
 
-        let mut process_build_result = |result, name| match result {
-            Ok(written_artifacts) => {
-                next_artifacts.insert(name, written_artifacts);
+        let mut process_build_result = |result, _name| match result {
+            Ok(_written_artifacts) => {
+                // next_artifacts.insert(name, written_artifacts);
             }
             Err(err) => build_project_errors.push(err),
         };

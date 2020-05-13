@@ -9,9 +9,11 @@
 //! watch mode or other state.
 
 mod apply_transforms;
+mod artifact_content;
 mod build_ir;
 mod build_schema;
 mod generate_artifacts;
+mod persist_operations;
 mod validate;
 mod write_artifacts;
 
@@ -22,23 +24,18 @@ use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
 use apply_transforms::Programs;
 use build_ir::BuildIRResult;
+pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
-pub use generate_artifacts::Artifact;
+pub use generate_artifacts::{generate_artifacts, Artifact};
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FB_CONNECTION_INTERFACE;
 use log::info;
+use persist_operations::persist_operations;
 use schema::Schema;
-use std::path::PathBuf;
 pub use validate::validate;
+use write_artifacts::write_artifacts;
 
-pub type WrittenArtifacts = Vec<(PathBuf, Artifact)>;
-
-pub fn build_schema(compiler_state: &CompilerState, project_config: &ProjectConfig) -> Schema {
-    // Construct a schema instance including project specific extensions.
-    build_schema::build_schema(compiler_state, project_config)
-}
-
-async fn build_programs<'a>(
+fn build_programs<'a>(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
@@ -112,8 +109,7 @@ pub async fn check_project(
         schema,
         &log_event,
         perf_logger,
-    )
-    .await?;
+    )?;
 
     log_event.stop(build_time);
     perf_logger.complete_event(log_event);
@@ -127,7 +123,7 @@ pub async fn build_project(
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
     perf_logger: &impl PerfLogger,
-) -> Result<WrittenArtifacts, BuildProjectError> {
+) -> Result<(), BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
@@ -135,9 +131,10 @@ pub async fn build_project(
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event.time("build_schema_time", || {
-        build_schema::build_schema(compiler_state, project_config)
+        build_schema(compiler_state, project_config)
     });
 
+    // Apply different transform pipelines to produce the `Programs`.
     let programs = build_programs(
         project_config,
         compiler_state,
@@ -145,25 +142,31 @@ pub async fn build_project(
         &schema,
         &log_event,
         perf_logger,
-    )
-    .await?;
+    )?;
 
-    // Generate code and persist text to produce output artifacts in memory.
+    // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts =
-        generate_artifacts::generate_artifacts(config, project_config, &programs).await?;
+    let mut artifacts = generate_artifacts(project_config, &programs)?;
     log_event.stop(artifacts_timer);
 
+    // If there is a persist config, persist operations now.
+    if let Some(ref persist_config) = project_config.persist {
+        persist_operations(&mut artifacts, persist_config).await?;
+    }
+
     // Write the generated artifacts to disk. This step is separate from
-    // generating artifacts to avoid partial writes in case of errors as
-    // much as possible.
-    let written_artifacts = if config.write_artifacts {
+    // generating artifacts or persisting to avoid partial writes in case of
+    // errors as much as possible.
+    if config.write_artifacts {
         log_event.time("write_artifacts_time", || {
-            write_artifacts::write_artifacts(config, project_config, &artifacts)
-        })?
-    } else {
-        Vec::new()
-    };
+            write_artifacts(
+                config,
+                project_config,
+                &artifacts,
+                programs.normalization.schema(),
+            )
+        })?;
+    }
 
     log_event.number(
         "generated_artifacts",
@@ -179,7 +182,7 @@ pub async fn build_project(
     );
     log_event.stop(build_time);
     perf_logger.complete_event(log_event);
-    Ok(written_artifacts)
+    Ok(())
 }
 
 fn add_error_sources<T>(

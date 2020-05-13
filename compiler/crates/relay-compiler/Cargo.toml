@@ -32,6 +32,7 @@ schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }
 env_logger = "0.7"
 fnv = "1.0"
+futures = { version = "0.3", features = ["async-await", "compat"] }
 hex = "0.4"
 lazy_static = "1.0"
 log = { version="0.4.8", features = ["kv_unstable"] }

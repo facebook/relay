@@ -80,7 +80,7 @@ pub fn report_build_project_errors(
                 }
             }
             // We ignore persist/write errors for now. In the future we can potentially show a notification.
-            BuildProjectError::PersistError(_) => {}
+            BuildProjectError::PersistErrors { .. } => {}
             BuildProjectError::WriteFileError { .. } => {}
         }
     }

@@ -176,8 +176,14 @@ pub enum BuildProjectError {
         errors: Vec<ValidationErrorWithSources>,
     },
 
-    #[error("Persisting operation failed: {0}")]
-    PersistError(PersistError),
+    #[error("Persisting operation(s) failed:{0}",
+        errors
+            .iter()
+            .map(|err| format!("\n - {}", err))
+            .collect::<Vec<_>>()
+            .join("")
+    )]
+    PersistErrors { errors: Vec<PersistError> },
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },

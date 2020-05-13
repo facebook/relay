@@ -373,7 +373,7 @@ class RelayResponseNormalizer {
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
     if (fieldValue == null) {
-      if (!this._treatMissingFieldsAsNull && fieldValue === undefined) {
+      if (fieldValue === undefined) {
         // Fields that are missing in the response are not set on the record.
         // There are three main cases where this can occur:
         // - Inside a client extension: the server will not generally return
@@ -383,20 +383,37 @@ class RelayResponseNormalizer {
         //
         // Otherwise, missing fields usually indicate a server or user error (
         // the latter for manually constructed payloads).
-        if (__DEV__) {
-          warning(
+
+        if (!this._treatMissingFieldsAsNull) {
+          if (__DEV__) {
+            warning(
+              this._isClientExtension ||
+                (parent.kind === LINKED_FIELD && parent.concreteType == null)
+                ? true
+                : Object.prototype.hasOwnProperty.call(data, responseKey),
+              'RelayResponseNormalizer: Payload did not contain a value ' +
+                'for field `%s: %s`. Check that you are parsing with the same ' +
+                'query that was used to fetch the payload.',
+              responseKey,
+              storageKey,
+            );
+          }
+
+          return;
+        } else {
+          // If we treat missing fields as null, only do so for fields
+          // that are missing but are not in the above first two cases
+          // (client extensions and fields on abstract types)
+          const shouldNotTreatThisFieldAsNull =
             this._isClientExtension ||
-              (parent.kind === LINKED_FIELD && parent.concreteType == null)
+            (parent.kind === LINKED_FIELD && parent.concreteType == null)
               ? true
-              : Object.prototype.hasOwnProperty.call(data, responseKey),
-            'RelayResponseNormalizer: Payload did not contain a value ' +
-              'for field `%s: %s`. Check that you are parsing with the same ' +
-              'query that was used to fetch the payload.',
-            responseKey,
-            storageKey,
-          );
+              : Object.prototype.hasOwnProperty.call(data, responseKey);
+
+          if (shouldNotTreatThisFieldAsNull) {
+            return;
+          }
         }
-        return;
       }
       RelayModernRecord.setValue(record, storageKey, null);
       return;

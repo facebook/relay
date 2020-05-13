@@ -9,12 +9,13 @@ use common::{PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, flatten, generate_id_field, generate_typename,
-    handle_field_transform, inline_data_fragment, inline_fragments, mask, remove_base_fragments,
-    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
-    skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
-    transform_match, transform_refetchable_fragment, validate_module_conflicts,
-    validate_server_only_directives, ConnectionInterface,
+    apply_fragment_arguments, client_extensions, disallow_id_as_alias, flatten, generate_id_field,
+    generate_typename, handle_field_transform, inline_data_fragment, inline_fragments, mask,
+    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
+    skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
+    transform_defer_stream, transform_match, transform_refetchable_fragment,
+    validate_module_conflicts, validate_server_only_directives, validate_unused_variables,
+    ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -82,7 +83,7 @@ fn apply_common_transforms<'schema>(
     perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
-    // - DisallowIdAsAlias
+    // + DisallowIdAsAlias
     // + ConnectionTransform
     // - RelayDirectiveTransform
     // + MaskTransform
@@ -92,6 +93,10 @@ fn apply_common_transforms<'schema>(
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
 
+    log_event.time("disallow_id_as_alias", || disallow_id_as_alias(program))?;
+    log_event.time("validate_unused_variables", || {
+        validate_unused_variables(&program)
+    })?;
     let program = log_event.time("transform_connections", || {
         transform_connections(program, connection_interface)
     });
@@ -151,7 +156,7 @@ fn apply_operation_transforms<'schema>(
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SplitModuleImportTransform
-    // - ValidateUnusedVariablesTransform
+    // * ValidateUnusedVariablesTransform (Moved to common_transforms)
     // + ApplyFragmentArgumentTransform
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform

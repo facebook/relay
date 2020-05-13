@@ -130,13 +130,15 @@ impl<'s> Visitor for VariablesVisitor<'s> {
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
                 if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment.variable_definitions.named(var.name.item) {
-                        self.variable_map
-                            .entry(var.name.item)
-                            .or_insert_with(|| Variable {
-                                name: var.name,
-                                type_: def.type_.clone(),
-                            });
+                    if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
+                        if !self.local_variables.contains(&var.name.item) {
+                            self.variable_map
+                                .entry(var.name.item)
+                                .or_insert_with(|| Variable {
+                                    name: var.name,
+                                    type_: def.type_.clone(),
+                                });
+                        }
                     }
                 }
             }

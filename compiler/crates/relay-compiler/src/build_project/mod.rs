@@ -13,6 +13,7 @@ mod artifact_content;
 mod build_ir;
 mod build_schema;
 mod generate_artifacts;
+pub mod generate_extra_artifacts;
 mod persist_operations;
 mod validate;
 mod write_artifacts;
@@ -26,7 +27,8 @@ use apply_transforms::Programs;
 use build_ir::BuildIRResult;
 pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
-pub use generate_artifacts::{generate_artifacts, Artifact};
+pub use generate_artifacts::{generate_artifacts, Artifact, ArtifactContent};
+use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FB_CONNECTION_INTERFACE;
 use log::info;
@@ -153,6 +155,8 @@ pub async fn build_project(
     if let Some(ref persist_config) = project_config.persist {
         persist_operations(&mut artifacts, persist_config).await?;
     }
+
+    generate_extra_artifacts(&mut artifacts, project_config);
 
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts or persisting to avoid partial writes in case of

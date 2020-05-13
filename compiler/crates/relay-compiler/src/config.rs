@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::errors::{ConfigValidationError, Error, Result};
 use interner::StringKey;
 use regex::Regex;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 use std::path::PathBuf;
 
 /// The full compiler config. This is a combination of:
@@ -114,6 +116,7 @@ impl Config {
                     enum_module_suffix: config_file_project.enum_module_suffix,
                     optional_input_fields: config_file_project.optional_input_fields,
                     persist: config_file_project.persist,
+                    generate_extra_operation_artifacts: None,
                 };
                 Ok((project_name, project_config))
             })
@@ -226,7 +229,6 @@ impl Config {
     }
 }
 
-#[derive(Debug)]
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
@@ -238,6 +240,45 @@ pub struct ProjectConfig {
     pub enum_module_suffix: Option<String>,
     pub optional_input_fields: Vec<StringKey>,
     pub persist: Option<PersistConfig>,
+    pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
+}
+
+impl fmt::Debug for ProjectConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ProjectConfig {
+            name,
+            base,
+            output,
+            shard_output,
+            shard_strip_regex,
+            extensions,
+            schema_location,
+            enum_module_suffix,
+            optional_input_fields,
+            persist,
+            generate_extra_operation_artifacts,
+        } = self;
+        f.debug_struct("ProjectConfig")
+            .field("name", name)
+            .field("base", base)
+            .field("output", output)
+            .field("shard_output", shard_output)
+            .field("shard_strip_regex", shard_strip_regex)
+            .field("extensions", extensions)
+            .field("schema_location", schema_location)
+            .field("enum_module_suffix", enum_module_suffix)
+            .field("optional_input_fields", optional_input_fields)
+            .field("persist", persist)
+            .field(
+                "generate_extra_operation_artifacts",
+                if generate_extra_operation_artifacts.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
+            .finish()
+    }
 }
 
 #[derive(Clone, Debug)]

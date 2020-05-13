@@ -20,3 +20,4 @@ mod watchman;
 
 pub use build_project::apply_transforms;
 pub use build_project::validate;
+pub use build_project::{Artifact, ArtifactContent};

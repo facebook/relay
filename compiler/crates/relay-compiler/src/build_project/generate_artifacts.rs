@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{apply_transforms::Programs, artifact_content::ArtifactContent};
+use super::apply_transforms::Programs;
+pub use super::artifact_content::ArtifactContent;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use common::{FileKey, NamedItem};

@@ -34,6 +34,9 @@ pub enum ArtifactContent<'a> {
         normalization_operation: &'a OperationDefinition,
         source_hash: String,
     },
+    Generic {
+        content: Vec<u8>,
+    },
 }
 
 impl<'a> ArtifactContent<'a> {
@@ -87,6 +90,7 @@ impl<'a> ArtifactContent<'a> {
                 typegen_fragment,
                 source_hash,
             ),
+            ArtifactContent::Generic { content } => content.clone(),
         }
     }
 }

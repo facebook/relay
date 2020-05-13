@@ -14,7 +14,7 @@ pub struct GenerateExtraArtifactArgs<'a> {
     pub name: StringKey,
     pub source_file: FileKey,
     pub text: &'a str,
-    pub id: &'a Option<String>,
+    pub id: Option<&'a String>,
 }
 
 pub type GenerateExtraArtifactsFn =
@@ -26,13 +26,18 @@ pub fn generate_extra_artifacts(artifacts: &mut Vec<Artifact<'_>>, project_confi
     {
         let mut extra_artifacts = Vec::new();
         for artifact in artifacts.iter() {
-            if let ArtifactContent::Operation { text, id, .. } = &artifact.content {
+            if let ArtifactContent::Operation {
+                text,
+                id_and_text_hash,
+                ..
+            } = &artifact.content
+            {
                 extra_artifacts.extend(generate_extra_operation_artifacts(
                     GenerateExtraArtifactArgs {
                         name: artifact.name,
                         source_file: artifact.source_file,
                         text,
-                        id,
+                        id: id_and_text_hash.as_ref().map(|(id, _)| id),
                     },
                 ));
             }

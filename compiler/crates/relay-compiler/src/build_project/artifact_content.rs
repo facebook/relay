@@ -9,7 +9,6 @@ use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_transforms::INLINE_DATA_CONSTANTS;
-use md5::{Digest, Md5};
 use relay_codegen::{build_request_params, Printer};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
@@ -23,7 +22,7 @@ pub enum ArtifactContent<'a> {
         typegen_operation: &'a OperationDefinition,
         source_hash: String,
         text: String,
-        id: Option<String>,
+        id_and_text_hash: Option<(String, String)>,
     },
     Fragment {
         reader_fragment: &'a FragmentDefinition,
@@ -54,7 +53,7 @@ impl<'a> ArtifactContent<'a> {
                 typegen_operation,
                 source_hash,
                 text,
-                id,
+                id_and_text_hash,
             } => generate_operation(
                 config,
                 project_config,
@@ -65,7 +64,7 @@ impl<'a> ArtifactContent<'a> {
                 typegen_operation,
                 source_hash.into(),
                 text,
-                id,
+                id_and_text_hash,
             ),
             ArtifactContent::SplitOperation {
                 normalization_operation,
@@ -105,12 +104,12 @@ fn generate_operation(
     typegen_operation: &OperationDefinition,
     source_hash: String,
     text: &str,
-    id: &Option<String>,
+    id_and_text_hash: &Option<(String, String)>,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(&normalization_operation);
-    let operation_hash: Option<String> = if let Some(id) = id {
+    let operation_hash: Option<String> = if let Some((id, text_hash)) = id_and_text_hash {
         request_parameters.id = Some(id.clone());
-        Some(md5(&text))
+        Some(text_hash.clone())
     } else {
         request_parameters.text = Some(text.into());
         None
@@ -271,10 +270,4 @@ fn get_content_start(config: &Config) -> String {
         writeln!(content, " *").unwrap();
     }
     content
-}
-
-fn md5(data: &str) -> String {
-    let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
 }

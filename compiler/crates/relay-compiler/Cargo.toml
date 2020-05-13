@@ -33,6 +33,7 @@ signedsource = { path = "../signedsource" }
 env_logger = "0.7"
 fnv = "1.0"
 hex = "0.4"
+lazy_static = "1.0"
 log = { version="0.4.8", features = ["kv_unstable"] }
 md-5 = "0.8"
 rayon = "1.2"

@@ -162,7 +162,7 @@ fn generate_normalization_artifact<'a>(
             typegen_operation,
             source_hash,
             text,
-            id: None,
+            id_and_text_hash: None,
         },
         source_file: normalization_operation.name.location.file(),
     })

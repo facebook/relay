@@ -153,7 +153,7 @@ pub async fn build_project(
 
     // If there is a persist config, persist operations now.
     if let Some(ref persist_config) = project_config.persist {
-        persist_operations(&mut artifacts, persist_config).await?;
+        persist_operations(config, &mut artifacts, persist_config).await?;
     }
 
     generate_extra_artifacts(&mut artifacts, project_config);

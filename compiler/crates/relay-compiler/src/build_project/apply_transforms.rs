@@ -14,8 +14,8 @@ use graphql_transforms::{
     remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
     skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
     transform_defer_stream, transform_match, transform_refetchable_fragment,
-    validate_module_conflicts, validate_server_only_directives, validate_unused_variables,
-    ConnectionInterface,
+    validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
+    validate_unused_variables, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -85,7 +85,7 @@ fn apply_common_transforms<'schema>(
     // JS compiler
     // + DisallowIdAsAlias
     // + ConnectionTransform
-    // - RelayDirectiveTransform
+    // + RelayDirectiveTransform
     // + MaskTransform
     // + MatchTransform
     // + RefetchableFragmentTransform
@@ -96,6 +96,9 @@ fn apply_common_transforms<'schema>(
     log_event.time("disallow_id_as_alias", || disallow_id_as_alias(program))?;
     log_event.time("validate_unused_variables", || {
         validate_unused_variables(&program)
+    })?;
+    log_event.time("validate_relay_directives", || {
+        validate_relay_directives(&program)
     })?;
     let program = log_event.time("transform_connections", || {
         transform_connections(program, connection_interface)
@@ -258,7 +261,7 @@ fn apply_typegen_transforms<'schema>(
     perf_logger: &impl PerfLogger,
 ) -> Program<'schema> {
     // JS compiler
-    // - RelayDirectiveTransform,
+    // * RelayDirectiveTransform
     // + MaskTransform
     // - MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false

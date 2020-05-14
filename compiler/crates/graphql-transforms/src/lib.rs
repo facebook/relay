@@ -27,6 +27,7 @@ mod match_;
 mod node_identifier;
 mod refetchable_fragment;
 mod relay_directive;
+mod relay_early_flush;
 mod remove_base_fragments;
 mod root_variables;
 mod skip_client_extensions;
@@ -69,6 +70,7 @@ pub use refetchable_fragment::{
     CONSTANTS as REFETCHABLE_CONSTANTS,
 };
 pub use relay_directive::RelayDirective;
+pub use relay_early_flush::relay_early_flush;
 pub use remove_base_fragments::remove_base_fragments;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_redundant_nodes::skip_redundant_nodes;

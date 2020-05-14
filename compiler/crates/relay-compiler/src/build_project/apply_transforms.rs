@@ -11,9 +11,9 @@ use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, disallow_id_as_alias, flatten, generate_id_field,
     generate_typename, handle_field_transform, inline_data_fragment, inline_fragments, mask,
-    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
-    skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
-    transform_defer_stream, transform_match, transform_refetchable_fragment,
+    relay_early_flush, remove_base_fragments, skip_client_extensions, skip_redundant_nodes,
+    skip_split_operation, skip_unreachable_node, skip_unused_variables, split_module_import,
+    transform_connections, transform_defer_stream, transform_match, transform_refetchable_fragment,
     validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
     validate_unused_variables, ConnectionInterface,
 };
@@ -61,7 +61,7 @@ pub fn apply_transforms<'schema>(
     let normalization_program =
         apply_normalization_transforms(project_name, &operation_program, perf_logger)?;
     let operation_text_program =
-        apply_operation_text_transforms(project_name, &operation_program, perf_logger);
+        apply_operation_text_transforms(project_name, &operation_program, perf_logger)?;
     let typegen_program =
         apply_typegen_transforms(project_name, &program, base_fragment_names, perf_logger);
 
@@ -200,6 +200,7 @@ fn apply_normalization_transforms<'schema>(
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
 
+    let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
     log_event.time("validate_server_only_directives", || {
         validate_server_only_directives(&program)
@@ -226,7 +227,7 @@ fn apply_operation_text_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
     perf_logger: &impl PerfLogger,
-) -> Program<'schema> {
+) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SkipSplitOperationTransform
     // - ClientExtensionsTransform
@@ -241,6 +242,7 @@ fn apply_operation_text_transforms<'schema>(
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
+    let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     let program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     let program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
@@ -251,7 +253,7 @@ fn apply_operation_text_transforms<'schema>(
     let program = log_event.time("generate_typename", || generate_typename(&program));
     perf_logger.complete_event(log_event);
 
-    program
+    Ok(program)
 }
 
 fn apply_typegen_transforms<'schema>(

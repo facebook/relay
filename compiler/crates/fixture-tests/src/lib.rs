@@ -86,7 +86,7 @@ pub fn test_fixture<T, U, V>(
         content: input,
     };
     let expect_ok = !input.contains("expected-to-throw");
-    let actual_result;
+    let actual_result: Result<U, V>;
     {
         let _guard = LOCK.lock();
         colored::control::set_override(false);
@@ -117,9 +117,13 @@ pub fn test_fixture<T, U, V>(
 
     if actual_result.is_ok() != expect_ok {
         panic!(if expect_ok {
-            "Expected transform to succeeed but it failed, use 'expected-to-throw' if this is expected"
+            let error_message = match actual_result.err() {
+                Some(err) => format!("{}", err),
+                None => "Unknown error".to_string(),
+            };
+            format!("Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected", error_message)
         } else {
-            "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected"
+            "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected".to_string()
         });
     }
 

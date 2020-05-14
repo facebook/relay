@@ -1142,3 +1142,19 @@ impl IntoIterator for ArgumentDefinitions {
         self.0.into_iter()
     }
 }
+
+pub trait TypeWithFields {
+    fn fields(&self) -> &Vec<FieldID>;
+}
+
+impl TypeWithFields for Interface {
+    fn fields(&self) -> &Vec<FieldID> {
+        &self.fields
+    }
+}
+
+impl TypeWithFields for Object {
+    fn fields(&self) -> &Vec<FieldID> {
+        &self.fields
+    }
+}

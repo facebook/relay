@@ -18,8 +18,11 @@ use relay_compiler::{FileSource, FileSourceSubscription};
 use schema::Schema;
 
 use common::{PerfLogEvent, PerfLogger};
+use interner::Intern;
 
-use crate::completion::{get_completion_path, GraphQLSourceCache};
+use crate::completion::{
+    completion_items_from_path, get_completion_path, send_completion_response, GraphQLSourceCache,
+};
 
 use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
 use crate::state::ServerState;
@@ -147,11 +150,16 @@ impl<'a> LSPCompiler<'a> {
     fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
         match message {
             // Completion request
-            LSPBridgeMessage::CompletionRequest { params, .. } => {
-                if let Some(_completion_path) =
+            LSPBridgeMessage::CompletionRequest { params, request_id } => {
+                if let Some(completion_path) =
                     get_completion_path(params, &self.synced_graphql_documents)
                 {
-                    // TODO(brandondail) implement completion
+                    // TODO(brandondail) don't hardcode schema here
+                    let schema = self.schemas.get(&"facebook-test".intern()).unwrap();
+
+                    if let Some(items) = completion_items_from_path(completion_path, schema) {
+                        send_completion_response(items, request_id, &self.connection);
+                    }
                 }
             }
             LSPBridgeMessage::DidOpenTextDocument(params) => {

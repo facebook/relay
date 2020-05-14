@@ -12,29 +12,25 @@ use graphql_syntax::{parse, Document, GraphQLSource};
 use interner::StringKey;
 use log::info;
 
-use crate::lsp::{CompletionParams, TextDocumentPositionParams, Url};
+use crate::lsp::{
+    CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
+    ServerResponse, TextDocumentPositionParams, Url,
+};
+use schema::{Schema, Type, TypeWithFields};
 
 use graphql_syntax::{
     ExecutableDefinition, LinkedField, List, OperationDefinition, OperationKind, Selection,
 };
 
-// TODO dedupe
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum CompletionPathItem {
     Operation(OperationKind),
     LinkedField(StringKey),
 }
 
-#[derive(Default, Debug)]
-pub struct CompletionPath(Vec<CompletionPathItem>);
-
-impl CompletionPath {
-    pub fn push(&mut self, item: CompletionPathItem) {
-        self.0.push(item)
-    }
-}
+pub type CompletionPath = Vec<CompletionPathItem>;
 
 pub fn build_completion_path(document: Document, position_span: Span) -> CompletionPath {
     let mut completion_path = CompletionPath::default();
@@ -74,6 +70,80 @@ pub fn build_completion_path(document: Document, position_span: Span) -> Complet
     }
 
     completion_path
+}
+
+/// Resolves the root type of this completion path.
+fn resolve_root_type(root_path_item: CompletionPathItem, schema: &Schema) -> Type {
+    match root_path_item {
+        CompletionPathItem::Operation(kind) => match kind {
+            OperationKind::Query => schema.query_type().unwrap(),
+            OperationKind::Mutation => schema.mutation_type().unwrap(),
+            OperationKind::Subscription => schema.subscription_type().unwrap(),
+        },
+        CompletionPathItem::LinkedField(_) => {
+            // TODO(brandondail) fail silently and log here instead
+            panic!("Completion paths must start with an operation or fragment")
+        }
+    }
+}
+
+fn resolve_relative_type(
+    parent_type: Type,
+    path_item: CompletionPathItem,
+    schema: &Schema,
+) -> Type {
+    match path_item {
+        CompletionPathItem::Operation(_) => {
+            // TODO(brandondail) fail silently and log here instead
+            panic!("Operations must only exist at the root of the completion path");
+        }
+        CompletionPathItem::LinkedField(field) => {
+            let field_id = schema.named_field(parent_type, field).unwrap();
+            let field = schema.field(field_id);
+            field.type_.inner()
+        }
+    }
+}
+
+fn resolve_completion_items_from_fields<T: TypeWithFields>(
+    type_: &T,
+    schema: &Schema,
+) -> Vec<CompletionItem> {
+    type_
+        .fields()
+        .iter()
+        .map(|field_id| {
+            let field = schema.field(*field_id);
+            let name = field.name.to_string();
+            CompletionItem::new_simple(name, String::from(""))
+        })
+        .collect()
+}
+
+pub fn completion_items_from_path(
+    mut path: CompletionPath,
+    schema: &Schema,
+) -> Option<Vec<CompletionItem>> {
+    // Reverse the path as we'll traverse it top-down
+    path.reverse();
+
+    let mut type_ = resolve_root_type(path.pop().expect("path must be non-empty"), schema);
+    while let Some(path_item) = path.pop() {
+        type_ = resolve_relative_type(type_, path_item, schema)
+    }
+    match type_ {
+        Type::Interface(interface_id) => {
+            let interface = schema.interface(interface_id);
+            let items = resolve_completion_items_from_fields(interface, schema);
+            Some(items)
+        }
+        Type::Object(object_id) => {
+            let object = schema.object(object_id);
+            let items = resolve_completion_items_from_fields(object, schema);
+            Some(items)
+        }
+        Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
+    }
 }
 
 fn populate_completion_path_from_selection(
@@ -133,6 +203,21 @@ pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Sp
         }
     }
     None
+}
+
+pub fn send_completion_response(
+    items: Vec<CompletionItem>,
+    request_id: ServerRequestId,
+    connection: &Connection,
+) {
+    let completion_response = CompletionResponse::Array(items);
+    let result = serde_json::to_value(&completion_response).unwrap();
+    let response = ServerResponse {
+        id: request_id,
+        error: None,
+        result: Some(result),
+    };
+    connection.sender.send(Message::Response(response)).unwrap();
 }
 
 /// Return a `CompletionPath` for this request, only if the completion request occurs

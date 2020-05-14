@@ -26,7 +26,7 @@ pub use ast::{
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, DirectiveValue, Enum, EnumID, Field, FieldID,
     InputObject, InputObjectID, InterfaceID, ObjectID, Scalar, ScalarID, Schema, Type,
-    TypeReference, UnionID,
+    TypeReference, TypeWithFields, UnionID,
 };
 pub use errors::{Result, SchemaError};
 use lexer::Lexer;

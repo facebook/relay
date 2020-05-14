@@ -9,6 +9,7 @@ use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::build_ast::{build_fragment, build_operation, build_request, MetadataGeneratorFn};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
+use crate::utils::escape;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::Schema;
@@ -201,7 +202,12 @@ impl<'b> DedupedJSONPrinter<'b> {
         match primitive {
             Primitive::Null => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
-            Primitive::RawString(str) => write!(f, "\"{}\"", str),
+            Primitive::RawString(str) => {
+                f.push('\"');
+                escape(str, f);
+                f.push('\"');
+                Ok(())
+            }
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),

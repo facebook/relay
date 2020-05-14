@@ -1,5 +1,3 @@
-# %TODO%
-
 # expected-to-throw
 fragment RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")

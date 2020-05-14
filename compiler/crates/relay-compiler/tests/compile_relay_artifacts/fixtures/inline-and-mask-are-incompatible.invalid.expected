@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO% After InlineDataTransform
-
 # expected-to-throw
 
 fragment ParentFragment on Query {
@@ -13,4 +11,10 @@ fragment Profile on User @inline {
   id
 }
 ==================================== ERROR ====================================
-TODO
+Cannot use @relay(mask: false) on fragment spreads for fragments with directives.:
+inline-and-mask-are-incompatible.invalid.graphql:4:8:
+    ...Profile @relay(mask: false)
+
+
+inline-and-mask-are-incompatible.invalid.graphql:8:10:
+fragment Profile on User @inline {

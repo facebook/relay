@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 query ScalarHandleField($id: ID!) {
   node(id: $id) {
     ... on User {
@@ -9,4 +7,140 @@ query ScalarHandleField($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-TODO
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "ScalarHandleField",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "name",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "___clientName",
+                "storageKey": null
+              }
+            ],
+            "type": "User"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "concreteType": "Query"
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "kind": "Operation",
+    "name": "ScalarHandleField",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "filters": null,
+                "handle": "clientName",
+                "key": "",
+                "kind": "ScalarHandle",
+                "name": "name"
+              }
+            ],
+            "type": "User"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "ScalarHandleField",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query ScalarHandleField(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ... on User {
+      name
+    }
+    id
+  }
+}

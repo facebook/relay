@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 # expected-to-throw
 query QueryWithFragmentWithDefer {
   me {
@@ -32,4 +30,10 @@ interface ClientUser {
   clientname: String
 }
 ==================================== ERROR ====================================
-TODO
+Unexpected directive: 'defer'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.:
+fragment-with-defer-on-client.invalid.graphql:12:26:
+    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+
+
+fragment-with-defer-on-client.invalid.graphql:16:10:
+fragment DeferredFragment on ClientUser {

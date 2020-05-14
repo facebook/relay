@@ -509,12 +509,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 ),
                 (CODEGEN_CONSTANTS.args, arguments),
                 (CODEGEN_CONSTANTS.filters, filters),
+                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
+                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
                 (
                     CODEGEN_CONSTANTS.kind,
                     Primitive::String(CODEGEN_CONSTANTS.scalar_handle),
                 ),
-                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
-                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
                 (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
             ])))
         }

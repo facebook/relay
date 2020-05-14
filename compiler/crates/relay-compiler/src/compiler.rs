@@ -52,22 +52,10 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
     ) -> HashMap<ProjectName, Schema> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
-        match self.config.only_project {
-            Some(project_key) => {
-                let project_config =
-                    self.config.projects.get(&project_key).unwrap_or_else(|| {
-                        panic!("Expected the project {} to exist", &project_key)
-                    });
-                let schema = build_schema(compiler_state, project_config);
-                schemas.insert(project_config.name, schema);
-            }
-            None => {
-                for project_config in self.config.projects.values() {
-                    let schema = build_schema(compiler_state, project_config);
-                    schemas.insert(project_config.name, schema);
-                }
-            }
-        }
+        self.config.for_each_project(|project_config| {
+            let schema = build_schema(compiler_state, project_config);
+            schemas.insert(project_config.name, schema);
+        });
         setup_event.stop(timer);
         schemas
     }

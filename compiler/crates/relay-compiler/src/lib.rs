@@ -19,5 +19,9 @@ mod parse_sources;
 mod watchman;
 
 pub use build_project::apply_transforms;
+pub use build_project::build_schema;
+pub use build_project::check_project;
 pub use build_project::validate;
 pub use build_project::{Artifact, ArtifactContent};
+pub use parse_sources::parse_sources;
+pub use watchman::{FileSource, FileSourceResult, FileSourceSubscription};

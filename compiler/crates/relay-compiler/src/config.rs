@@ -43,6 +43,27 @@ pub struct Config {
 }
 
 impl Config {
+    /// Call a function for every active project in this Config
+    pub fn for_each_project<F>(&self, mut func: F)
+    where
+        F: FnMut(&ProjectConfig) -> (),
+    {
+        match self.only_project {
+            Some(project_key) => {
+                let project_config = self
+                    .projects
+                    .get(&project_key)
+                    .unwrap_or_else(|| panic!("Expected the project {} to exist", &project_key));
+                func(project_config)
+            }
+            None => {
+                for project in self.projects.values() {
+                    func(project)
+                }
+            }
+        }
+    }
+
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
         let config_string =
             std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {

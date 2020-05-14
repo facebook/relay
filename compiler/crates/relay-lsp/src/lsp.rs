@@ -20,6 +20,17 @@ pub use lsp_server::{
 use std::fs;
 use std::path::PathBuf;
 
+#[derive(Debug, Clone)]
+pub enum LSPBridgeMessage {
+    CompletionRequest {
+        request_id: ServerRequestId,
+        params: CompletionParams,
+    },
+    DidOpenTextDocument(DidOpenTextDocumentParams),
+    DidChangeTextDocument(DidChangeTextDocumentParams),
+    DidCloseTextDocument(DidCloseTextDocumentParams),
+}
+
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
 pub fn url_from_location(location: &Location, root_dir: &PathBuf) -> Option<Url> {

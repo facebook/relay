@@ -11,8 +11,10 @@ mod client;
 mod completion;
 mod error_reporting;
 mod lsp;
+mod lsp_compiler;
 mod server;
 mod state;
+mod text_documents;
 use lsp_server::Connection;
 use std::error::Error;
 

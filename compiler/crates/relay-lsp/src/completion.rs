@@ -7,14 +7,19 @@
 
 //! Utilities for providing the completion language feature
 use crate::lsp::Position;
-use common::Span;
-use graphql_syntax::{Document, GraphQLSource};
+use common::{FileKey, Span};
+use graphql_syntax::{parse, Document, GraphQLSource};
 use interner::StringKey;
 use log::info;
+
+use crate::lsp::{CompletionParams, TextDocumentPositionParams, Url};
 
 use graphql_syntax::{
     ExecutableDefinition, LinkedField, List, OperationDefinition, OperationKind, Selection,
 };
+
+// TODO dedupe
+pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
 #[derive(Debug)]
 pub enum CompletionPathItem {
@@ -31,7 +36,7 @@ impl CompletionPath {
     }
 }
 
-pub fn get_path_completion_position(document: Document, position_span: Span) -> CompletionPath {
+pub fn build_completion_path(document: Document, position_span: Span) -> CompletionPath {
     let mut completion_path = CompletionPath::default();
 
     for definition in document.definitions {
@@ -128,4 +133,78 @@ pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Sp
         }
     }
     None
+}
+
+/// Return a `CompletionPath` for this request, only if the completion request occurs
+// within a GraphQL document. Otherwise return `None`
+pub fn get_completion_path(
+    params: CompletionParams,
+    graphql_source_cache: &GraphQLSourceCache,
+) -> Option<CompletionPath> {
+    let CompletionParams {
+        text_document_position,
+        ..
+    } = params;
+    let TextDocumentPositionParams {
+        text_document,
+        position,
+    } = text_document_position;
+    let url = text_document.uri;
+    let graphql_sources = match graphql_source_cache.get(&url) {
+        Some(sources) => sources,
+        // If we have no sources for this file, do nothing
+        None => return None,
+    };
+
+    info!(
+        "Got completion request for file with sources: {:#?}",
+        *graphql_sources
+    );
+
+    info!("position: {:?}", position);
+
+    // We have GraphQL documents, now check if the completion request
+    // falls within the range of one of these documents.
+    let mut target_graphql_source: Option<&GraphQLSource> = None;
+    for graphql_source in &*graphql_sources {
+        let range = graphql_source.to_range();
+        if position >= range.start && position <= range.end {
+            target_graphql_source = Some(graphql_source);
+            break;
+        }
+    }
+
+    let graphql_source = match target_graphql_source {
+        Some(source) => source,
+        // Exit early if this completion request didn't fall within
+        // the range of one of our GraphQL documents
+        None => return None,
+    };
+
+    match parse(&graphql_source.text, FileKey::new(&url.to_string())) {
+        Ok(document) => {
+            // Now we need to take the `Position` and map that to an offset relative
+            // to this GraphQL document, as the `Span`s in the document are relative.
+            info!("Successfully parsed the definitions for a target GraphQL source");
+            // Map the position to a zero-length span, relative to this GraphQL source.
+            let position_span = match position_to_span(position, &graphql_source) {
+                Some(span) => span,
+                // Exit early if we can't map the position for some reason
+                None => return None,
+            };
+            // Now we need to walk the Document, tracking our path along the way, until
+            // we find the position within the document. Note that the GraphQLSource will
+            // already be updated *with the characters that triggered the completion request*
+            // since the change event fires before completion.
+            info!("position_span: {:?}", position_span);
+            let completion_path = build_completion_path(document, position_span);
+            info!("Completion path: {:#?}", completion_path);
+            Some(completion_path)
+        }
+        Err(err) => {
+            info!("Failed to parse this target!");
+            info!("{:?}", err);
+            None
+        }
+    }
 }

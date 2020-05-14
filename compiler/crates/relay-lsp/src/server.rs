@@ -8,33 +8,24 @@
 use std::error::Error;
 
 use crate::lsp::{
-    Completion, CompletionOptions, CompletionParams, Connection, DidChangeTextDocument,
-    DidChangeTextDocumentParams, DidCloseTextDocument, DidCloseTextDocumentParams,
-    DidOpenTextDocument, DidOpenTextDocumentParams, InitializeParams, Message, Notification,
-    Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    TextDocumentItem, TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind,
-    Url, WorkDoneProgressOptions,
+    Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
+    DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
+    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };
 
-use extract_graphql;
-use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
-use relay_compiler::errors::Error as CompilerError;
 
-use crate::completion::{get_path_completion_position, position_to_span};
-use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
 use crate::lsp::show_info_message;
-use crate::state::ServerState;
 
-use common::{ConsoleLogger, FileKey};
-use graphql_syntax::{parse, GraphQLSource};
 use log::info;
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tokio::sync::Notify;
+use tokio::sync::{mpsc, Notify};
 
-type GraphQLSourceCache = HashMap<Url, Vec<GraphQLSource>>;
+use crate::lsp_compiler::LSPCompiler;
+
+use crate::text_documents::initialize_compiler_if_contains_graphql;
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
@@ -76,35 +67,49 @@ pub async fn run(
     // Thread for the LSP message loop
     let compiler_notifier = compiler_notify.clone();
 
+    // A channel to communicate between the LSP message loop and the compiler loop
+    let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
+
     tokio::spawn(async move {
         // Cache for the extracted GraphQL sources
-        let mut graphql_source_cache = HashMap::new();
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (request_id, params) = extract_request_params::<Completion>(req);
-                        on_completion_request(request_id, params, &graphql_source_cache);
+                        lsp_tx
+                            .send(LSPBridgeMessage::CompletionRequest { request_id, params })
+                            .await
+                            .ok();
                     }
                 }
                 Message::Notification(notif) => {
                     match &notif.method {
                         method if method == DidOpenTextDocument::METHOD => {
                             let params = extract_notif_params::<DidOpenTextDocument>(notif);
-                            on_did_open_text_document(
-                                params,
-                                &compiler_notifier,
-                                &mut graphql_source_cache,
+                            initialize_compiler_if_contains_graphql(
+                                &params,
+                                compiler_notifier.clone(),
                             );
+                            lsp_tx
+                                .send(LSPBridgeMessage::DidOpenTextDocument(params))
+                                .await
+                                .ok();
                         }
                         method if method == DidChangeTextDocument::METHOD => {
                             let params = extract_notif_params::<DidChangeTextDocument>(notif);
-                            on_did_change_text_document(params, &mut graphql_source_cache);
+                            lsp_tx
+                                .send(LSPBridgeMessage::DidChangeTextDocument(params))
+                                .await
+                                .ok();
                         }
                         method if method == DidCloseTextDocument::METHOD => {
                             let params = extract_notif_params::<DidCloseTextDocument>(notif);
-                            on_did_close_text_document(params);
+                            lsp_tx
+                                .send(LSPBridgeMessage::DidCloseTextDocument(params))
+                                .await
+                                .ok();
                         }
                         _ => {
                             // Notifications we don't care about
@@ -119,189 +124,12 @@ pub async fn run(
     });
 
     info!("Waiting for compiler to initialize...");
+
     compiler_notify.notified().await;
-
     let config = load_config();
-    let root_dir = config.root_dir.clone();
-    let compiler = Compiler::new(config, &ConsoleLogger);
-    let mut server_state = ServerState::new(root_dir);
-    info!("Compiler initialized");
-
-    compiler
-        .watch_with_callback(|result| {
-            match result {
-                Ok(_) => {
-                    info!("Compiled successfully");
-                    // Clear all diagnostics
-                    server_state.clear_diagnostics(&connection);
-                }
-                Err(err) => {
-                    match err {
-                        CompilerError::SyntaxErrors { errors } => {
-                            report_syntax_errors(errors, &connection, &mut server_state)
-                        }
-                        CompilerError::BuildProjectsErrors { errors } => {
-                            report_build_project_errors(errors, &connection, &mut server_state)
-                        }
-                        // Ignore the rest of these errors for now
-                        CompilerError::ConfigFileRead { .. } => {}
-                        CompilerError::ConfigFileParse { .. } => {}
-                        CompilerError::ConfigFileValidation { .. } => {}
-                        CompilerError::ReadFileError { .. } => {}
-                        CompilerError::WriteFileError { .. } => {}
-                        CompilerError::SerializationError { .. } => {}
-                        CompilerError::DeserializationError { .. } => {}
-                        CompilerError::CanonicalizeRoot { .. } => {}
-                        CompilerError::Watchman { .. } => {}
-                        CompilerError::EmptyQueryResult => {}
-                        CompilerError::FileRead { .. } => {}
-                        CompilerError::Syntax { .. } => {}
-                    }
-                }
-            }
-        })
-        .await
-        .unwrap();
-
+    let mut lsp_compiler = LSPCompiler::new(&config, lsp_rx, connection).await.unwrap();
+    lsp_compiler.watch().await.unwrap();
     Ok(())
-}
-
-/// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`
-/// if extracting fails or there are no GraphQL chunks in the file.
-fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
-    match extract_graphql::parse_chunks(source) {
-        Ok(chunks) => {
-            if chunks.is_empty() {
-                None
-            } else {
-                Some(chunks)
-            }
-        }
-        Err(_) => None,
-    }
-}
-
-fn on_completion_request(
-    _request_id: ServerRequestId,
-    params: CompletionParams,
-    graphql_source_cache: &GraphQLSourceCache,
-) {
-    let CompletionParams {
-        text_document_position,
-        ..
-    } = params;
-    let TextDocumentPositionParams {
-        text_document,
-        position,
-    } = text_document_position;
-    let url = text_document.uri;
-    let graphql_sources = match graphql_source_cache.get(&url) {
-        Some(sources) => sources,
-        // If we have no sources for this file, do nothing
-        None => return,
-    };
-
-    info!(
-        "Got completion request for file with sources: {:#?}",
-        *graphql_sources
-    );
-
-    info!("position: {:?}", position);
-
-    // We have GraphQL documents, now check if the completion request
-    // falls within the range of one of these documents.
-    let mut target_graphql_source: Option<&GraphQLSource> = None;
-    for graphql_source in &*graphql_sources {
-        let range = graphql_source.to_range();
-        if position >= range.start && position <= range.end {
-            target_graphql_source = Some(graphql_source);
-            break;
-        }
-    }
-
-    let graphql_source = match target_graphql_source {
-        Some(source) => source,
-        // Exit early if this completion request didn't fall within
-        // the range of one of our GraphQL documents
-        None => return,
-    };
-
-    match parse(&graphql_source.text, FileKey::new(&url.to_string())) {
-        Ok(document) => {
-            // Now we need to take the `Position` and map that to an offset relative
-            // to this GraphQL document, as the `Span`s in the document are relative.
-            info!("Successfully parsed the definitions for a target GraphQL source");
-            // Map the position to a zero-length span, relative to this GraphQL source.
-            let position_span = match position_to_span(position, &graphql_source) {
-                Some(span) => span,
-                // Exit early if we can't map the position for some reason
-                None => return,
-            };
-            // Now we need to walk the Document, tracking our path along the way, until
-            // we find the position within the document. Note that the GraphQLSource will
-            // already be updated *with the characters that triggered the completion request*
-            // since the change event fires before completion.
-            info!("position_span: {:?}", position_span);
-            let completion_path = get_path_completion_position(document, position_span);
-            info!("Completion path: {:#?}", completion_path);
-        }
-        Err(err) => {
-            info!("Failed to parse this target!");
-            info!("{:?}", err);
-        }
-    }
-}
-
-fn on_did_open_text_document(
-    params: DidOpenTextDocumentParams,
-    compiler_init_notify: &Arc<Notify>,
-    graphql_source_cache: &mut GraphQLSourceCache,
-) {
-    info!("Did open text document!");
-    let DidOpenTextDocumentParams { text_document } = params;
-    let TextDocumentItem { text, uri, .. } = text_document;
-
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = match extract_graphql_sources(&text) {
-        Some(sources) => sources,
-        // Exit early if there are no sources
-        None => return,
-    };
-
-    // Track the GraphQL sources for this document
-    graphql_source_cache.insert(uri, graphql_sources);
-
-    // Notify the mean thread that it can start the compiler now, if it hasn't already
-    compiler_init_notify.notify();
-}
-
-fn on_did_close_text_document(_params: DidCloseTextDocumentParams) {}
-
-fn on_did_change_text_document(
-    params: DidChangeTextDocumentParams,
-    graphql_source_cache: &mut GraphQLSourceCache,
-) {
-    info!("Did change text document!");
-    let DidChangeTextDocumentParams {
-        content_changes,
-        text_document,
-    } = params;
-    let uri = text_document.uri;
-
-    // We do full text document syncing, so the new text will be in the first content change event.
-    let content_change = content_changes
-        .first()
-        .expect("content_changes should always be non-empty");
-
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = match extract_graphql_sources(&content_change.text) {
-        Some(sources) => sources,
-        // Exit early if there are no sources
-        None => return,
-    };
-
-    // Update the GraphQL sources for this document
-    graphql_source_cache.insert(uri, graphql_sources);
 }
 
 fn load_config() -> Config {

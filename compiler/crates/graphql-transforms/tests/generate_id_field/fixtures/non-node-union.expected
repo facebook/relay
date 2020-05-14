@@ -11,11 +11,11 @@ query UnionQuery {
 ==================================== OUTPUT ===================================
 query UnionQuery {
   neverNode {
-    ... on FakeNode {
-      id
-    }
     ... on NonNode {
       name
+    }
+    ... on FakeNode {
+      id
     }
   }
 }

@@ -112,19 +112,6 @@ query UnionQuery {
               {
                 "alias": null,
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ],
-            "type": "NonNode"
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
                 "concreteType": "Text",
                 "kind": "LinkedField",
                 "name": "body",
@@ -142,6 +129,19 @@ query UnionQuery {
               }
             ],
             "type": "Story"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "NonNode"
           }
         ],
         "storageKey": null
@@ -162,12 +162,6 @@ QUERY:
 query UnionQuery {
   maybeNode {
     __typename
-    ... on FakeNode {
-      id
-    }
-    ... on Node {
-      id
-    }
     ... on NonNode {
       name
     }
@@ -176,6 +170,12 @@ query UnionQuery {
       body {
         text
       }
+    }
+    ... on Node {
+      id
+    }
+    ... on FakeNode {
+      id
     }
   }
 }

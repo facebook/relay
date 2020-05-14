@@ -288,7 +288,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             } else {
                 Primitive::Null
             };
-            let refetch_object = vec![
+            let mut refetch_object = vec![
                 (CODEGEN_CONSTANTS.connection, refetch_connection),
                 (
                     CODEGEN_CONSTANTS.fragment_path_in_result,
@@ -306,11 +306,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     CODEGEN_CONSTANTS.operation,
                     Primitive::ModuleDependency(refetch_metadata.operation_name),
                 ),
-                (
-                    CODEGEN_CONSTANTS.identifier_field,
-                    Primitive::string_or_null(refetch_metadata.identifier_field),
-                ),
             ];
+            if let Some(identifier_field) = refetch_metadata.identifier_field {
+                refetch_object.push((
+                    CODEGEN_CONSTANTS.identifier_field,
+                    Primitive::String(identifier_field),
+                ));
+            }
 
             metadata.push((
                 CODEGEN_CONSTANTS.refetch,

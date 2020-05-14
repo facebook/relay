@@ -231,8 +231,7 @@ fragment RefetchableFragment_1Bmzm5 on Query {
     "refetch": {
       "connection": null,
       "fragmentPathInResult": [],
-      "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": null
+      "operation": require('RefetchableFragmentQuery.graphql')
     }
   },
   "name": "RefetchableFragment",

@@ -219,8 +219,7 @@ fragment RefetchableFragment on Viewer {
       "fragmentPathInResult": [
         "viewer"
       ],
-      "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": null
+      "operation": require('RefetchableFragmentQuery.graphql')
     }
   },
   "name": "RefetchableFragment",

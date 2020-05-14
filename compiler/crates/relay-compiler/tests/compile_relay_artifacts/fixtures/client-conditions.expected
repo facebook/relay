@@ -83,18 +83,42 @@ interface ClientNamed {
           "storageKey": null
         },
         {
-          "alias": null,
-          "args": null,
-          "concreteType": "StreetAddress",
-          "kind": "LinkedField",
-          "name": "address",
-          "plural": false,
+          "kind": "InlineFragment",
           "selections": [
             {
               "alias": null,
               "args": null,
-              "kind": "ScalarField",
-              "name": "city",
+              "concreteType": "StreetAddress",
+              "kind": "LinkedField",
+              "name": "address",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "city",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": [
+                        {
+                          "kind": "Variable",
+                          "name": "arg",
+                          "variableName": "arg"
+                        }
+                      ],
+                      "kind": "ScalarField",
+                      "name": "client_street_address_field",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
               "storageKey": null
             },
             {
@@ -102,21 +126,16 @@ interface ClientNamed {
               "selections": [
                 {
                   "alias": null,
-                  "args": [
-                    {
-                      "kind": "Variable",
-                      "name": "arg",
-                      "variableName": "arg"
-                    }
-                  ],
+                  "args": null,
                   "kind": "ScalarField",
-                  "name": "client_street_address_field",
+                  "name": "client_actor_field",
                   "storageKey": null
                 }
               ]
             }
           ],
-          "storageKey": null
+          "type": "Actor",
+          "abstractKey": "__isActor"
         },
         {
           "kind": "ClientExtension",
@@ -126,13 +145,6 @@ interface ClientNamed {
               "args": null,
               "kind": "ScalarField",
               "name": "client_nickname",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "client_actor_field",
               "storageKey": null
             }
           ]
@@ -177,5 +189,6 @@ interface ClientNamed {
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

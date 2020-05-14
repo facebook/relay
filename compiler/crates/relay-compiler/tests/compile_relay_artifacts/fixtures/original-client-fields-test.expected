@@ -97,7 +97,8 @@ type Foo implements Named {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -143,6 +144,32 @@ type Foo implements Named {
           {
             "kind": "InlineFragment",
             "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "kind": "ClientExtension",
+                    "selections": [
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "name",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "Foo",
+                        "abstractKey": null
+                      }
+                    ]
+                  }
+                ],
+                "type": "Named",
+                "abstractKey": "__isNamed"
+              },
               {
                 "kind": "ClientExtension",
                 "selections": [
@@ -217,24 +244,12 @@ type Foo implements Named {
                       }
                     ],
                     "storageKey": null
-                  },
-                  {
-                    "kind": "InlineFragment",
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "name",
-                        "storageKey": null
-                      }
-                    ],
-                    "type": "Foo"
                   }
                 ]
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -286,9 +301,35 @@ fragment OnlyClientFields on User
       "name": "NodeFragment"
     },
     {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "FooFragment"
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "FooFragment"
+        },
+        {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "Foo",
+              "abstractKey": null
+            }
+          ]
+        }
+      ],
+      "type": "Named",
+      "abstractKey": "__isNamed"
     },
     {
       "kind": "ClientExtension",
@@ -357,24 +398,12 @@ fragment OnlyClientFields on User
             }
           ],
           "storageKey": null
-        },
-        {
-          "kind": "InlineFragment",
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "name",
-              "storageKey": null
-            }
-          ],
-          "type": "Foo"
         }
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -396,7 +425,8 @@ fragment OnlyClientFields on User
       ]
     }
   ],
-  "concreteType": "Foo"
+  "type": "Foo",
+  "abstractKey": null
 }
 
 {
@@ -413,7 +443,8 @@ fragment OnlyClientFields on User
       "storageKey": null
     }
   ],
-  "concreteType": null
+  "type": "Node",
+  "abstractKey": "__isNode"
 }
 
 {
@@ -446,5 +477,6 @@ fragment OnlyClientFields on User
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

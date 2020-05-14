@@ -94,35 +94,43 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "supported",
-                "value": [
-                  "PlainUserNameRenderer"
-                ]
-              }
-            ],
-            "concreteType": null,
-            "kind": "LinkedField",
-            "name": "nameRenderer",
-            "plural": false,
+            "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "InlineFragment",
-                "selections": [
+                "alias": null,
+                "args": [
                   {
-                    "documentName": "MatchQuery_nameRenderer",
-                    "fragmentName": "PlainUserNameRenderer_name",
-                    "fragmentPropName": "name",
-                    "kind": "ModuleImport"
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": [
+                      "PlainUserNameRenderer"
+                    ]
                   }
                 ],
-                "type": "PlainUserNameRenderer"
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "documentName": "MatchQuery_nameRenderer",
+                        "fragmentName": "PlainUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
               }
             ],
-            "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+            "type": "Actor",
+            "abstractKey": "__isActor"
           },
           {
             "kind": "InlineFragment",
@@ -145,19 +153,22 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "kind": "ModuleImport"
                       }
                     ],
-                    "type": "MarkdownUserNameRenderer"
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -187,42 +198,50 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "supported",
-                "value": [
-                  "PlainUserNameRenderer"
-                ]
-              }
-            ],
-            "concreteType": null,
-            "kind": "LinkedField",
-            "name": "nameRenderer",
-            "plural": false,
+            "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__typename",
-                "storageKey": null
-              },
-              {
-                "kind": "InlineFragment",
-                "selections": [
+                "args": [
                   {
-                    "documentName": "MatchQuery_nameRenderer",
-                    "fragmentName": "PlainUserNameRenderer_name",
-                    "fragmentPropName": "name",
-                    "kind": "ModuleImport"
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": [
+                      "PlainUserNameRenderer"
+                    ]
                   }
                 ],
-                "type": "PlainUserNameRenderer"
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "documentName": "MatchQuery_nameRenderer",
+                        "fragmentName": "PlainUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
               }
             ],
-            "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+            "type": "Actor",
+            "abstractKey": "__isActor"
           },
           {
             "kind": "InlineFragment",
@@ -252,13 +271,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "kind": "ModuleImport"
                       }
                     ],
-                    "type": "MarkdownUserNameRenderer"
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           },
           {
             "alias": null,
@@ -401,7 +422,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "MarkdownUserNameRenderer"
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
 }
 
 {
@@ -436,5 +458,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "PlainUserNameRenderer"
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
 }

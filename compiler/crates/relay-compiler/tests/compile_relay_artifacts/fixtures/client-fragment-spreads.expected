@@ -39,7 +39,8 @@ type ClientType {
       ]
     }
   ],
-  "concreteType": "ClientType"
+  "type": "ClientType",
+  "abstractKey": null
 }
 
 {
@@ -77,5 +78,6 @@ type ClientType {
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

@@ -95,7 +95,8 @@ fragment PaginationFragment on Node
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -317,7 +318,8 @@ fragment PaginationFragment on Node
                 "name": "friends"
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -543,8 +545,10 @@ fragment PaginationFragment_1G22uz on Node {
           "storageKey": null
         }
       ],
-      "type": "User"
+      "type": "User",
+      "abstractKey": null
     }
   ],
-  "concreteType": null
+  "type": "Node",
+  "abstractKey": "__isNode"
 }

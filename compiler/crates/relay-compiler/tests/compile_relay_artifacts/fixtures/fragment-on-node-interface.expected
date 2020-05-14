@@ -57,7 +57,8 @@ fragment ProfilePicture on User {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -141,7 +142,8 @@ fragment ProfilePicture on User {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -222,7 +224,8 @@ fragment RefetchableFragment on Node {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -263,8 +266,10 @@ fragment RefetchableFragment on Node {
           "name": "ProfilePicture"
         }
       ],
-      "type": "User"
+      "type": "User",
+      "abstractKey": null
     }
   ],
-  "concreteType": null
+  "type": "Node",
+  "abstractKey": "__isNode"
 }

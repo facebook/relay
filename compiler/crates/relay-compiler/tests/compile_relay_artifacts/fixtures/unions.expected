@@ -39,7 +39,8 @@ query UnionQuery {
                 "storageKey": null
               }
             ],
-            "type": "NonNode"
+            "type": "NonNode",
+            "abstractKey": null
           },
           {
             "kind": "InlineFragment",
@@ -70,13 +71,15 @@ query UnionQuery {
                 "storageKey": null
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -100,15 +103,29 @@ query UnionQuery {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "NonNode",
+            "abstractKey": null
           },
           {
             "kind": "InlineFragment",
             "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
               {
                 "alias": null,
                 "args": null,
@@ -128,7 +145,8 @@ query UnionQuery {
                 "storageKey": null
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           },
           {
             "kind": "InlineFragment",
@@ -137,11 +155,26 @@ query UnionQuery {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "name",
+                "name": "id",
                 "storageKey": null
               }
             ],
-            "type": "NonNode"
+            "type": "Node",
+            "abstractKey": "__isNode"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "type": "FakeNode",
+            "abstractKey": null
           }
         ],
         "storageKey": null

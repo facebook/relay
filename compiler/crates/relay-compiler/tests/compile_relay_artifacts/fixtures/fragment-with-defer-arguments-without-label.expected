@@ -52,7 +52,8 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -122,7 +123,8 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
                     "storageKey": "profile_picture(scale:2)"
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               }
             ]
           },
@@ -166,7 +168,8 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
                     "storageKey": "profile_picture(scale:1.5)"
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               }
             ]
           }
@@ -269,7 +272,8 @@ fragment UserFragment on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -325,5 +329,6 @@ fragment UserFragment on User {
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

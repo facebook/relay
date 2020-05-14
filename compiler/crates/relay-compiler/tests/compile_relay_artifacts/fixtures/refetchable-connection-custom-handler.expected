@@ -66,7 +66,8 @@ fragment RefetchableConnection_feedback on Feedback
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -235,7 +236,8 @@ fragment RefetchableConnection_feedback on Feedback
                 "name": "comments"
               }
             ],
-            "type": "Feedback"
+            "type": "Feedback",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -415,5 +417,6 @@ fragment RefetchableConnection_feedback on Feedback {
       "storageKey": null
     }
   ],
-  "concreteType": "Feedback"
+  "type": "Feedback",
+  "abstractKey": null
 }

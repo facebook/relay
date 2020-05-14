@@ -59,13 +59,15 @@ query LinkedHandleField($id: ID!) {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -144,7 +146,8 @@ query LinkedHandleField($id: ID!) {
                 "name": "friends"
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           },
           {
             "alias": null,

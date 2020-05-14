@@ -12,7 +12,7 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, Selection,
 };
-use schema::{Schema, TypeReference};
+use schema::TypeReference;
 
 use crate::node_identifier::NodeIdentifier;
 use fnv::{FnvHashMap, FnvHashSet};
@@ -166,12 +166,8 @@ impl<'s> FlattenTransform<'s> {
     ) {
         for selection in selections {
             if let Selection::InlineFragment(inline_fragment) = selection {
-                if should_flatten_inline_fragment(
-                    self.program.schema(),
-                    inline_fragment,
-                    parent_type,
-                    self.is_for_codegen,
-                ) {
+                if should_flatten_inline_fragment(inline_fragment, parent_type, self.is_for_codegen)
+                {
                     self.flatten_selections(
                         flattened_selections,
                         &inline_fragment.selections,
@@ -283,43 +279,29 @@ lazy_static! {
     .collect();
 }
 
-fn should_flatten_inline_with_directives(
-    directives: &[Directive],
-    is_for_codegen: bool,
-    should_flatten_for_printing: bool,
-) -> bool {
+fn should_flatten_inline_with_directives(directives: &[Directive], is_for_codegen: bool) -> bool {
     if is_for_codegen {
         !directives
             .iter()
             .any(|directive| RELAY_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item))
     } else {
-        should_flatten_for_printing && directives.is_empty()
+        directives.is_empty()
     }
 }
 
 fn should_flatten_inline_fragment<'s>(
-    schema: &'s Schema,
     inline_fragment: &InlineFragment,
     parent_type: &TypeReference,
     is_for_codegen: bool,
 ) -> bool {
     match inline_fragment.type_condition {
-        None => {
-            should_flatten_inline_with_directives(&inline_fragment.directives, is_for_codegen, true)
-        }
+        None => should_flatten_inline_with_directives(&inline_fragment.directives, is_for_codegen),
         Some(type_condition) => {
-            (type_condition == parent_type.inner()
+            type_condition == parent_type.inner()
                 && should_flatten_inline_with_directives(
                     &inline_fragment.directives,
                     is_for_codegen,
-                    true,
-                ))
-                || (schema.is_abstract_type(type_condition)
-                    && should_flatten_inline_with_directives(
-                        &inline_fragment.directives,
-                        is_for_codegen,
-                        false,
-                    ))
+                )
         }
     }
 }

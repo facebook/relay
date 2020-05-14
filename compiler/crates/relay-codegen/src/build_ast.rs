@@ -8,6 +8,7 @@
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::relay_test_operation::build_test_operation_metadata;
+use crate::utils::generate_abstract_type_refinement_key;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -328,11 +329,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 Primitive::Key(self.object(refetch_object)),
             ))
         }
-        let concrete_type = if self.schema.is_abstract_type(fragment.type_condition) {
-            Primitive::Null
-        } else {
-            Primitive::String(self.schema.get_type_name(fragment.type_condition))
-        };
 
         let object = vec![
             (
@@ -363,7 +359,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 CODEGEN_CONSTANTS.selections,
                 self.build_selections(&fragment.selections),
             ),
-            (CODEGEN_CONSTANTS.concrete_type, concrete_type),
+            (
+                CODEGEN_CONSTANTS.type_,
+                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
+            ),
+            (
+                CODEGEN_CONSTANTS.abstract_key,
+                if self.schema.is_abstract_type(fragment.type_condition) {
+                    Primitive::String(generate_abstract_type_refinement_key(
+                        self.schema,
+                        fragment.type_condition,
+                    ))
+                } else {
+                    Primitive::Null
+                },
+            ),
         ];
         self.object(object)
     }
@@ -842,6 +852,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     (
                         CODEGEN_CONSTANTS.type_,
                         Primitive::String(self.schema.get_type_name(type_condition)),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.abstract_key,
+                        if self.schema.is_abstract_type(type_condition) {
+                            Primitive::String(generate_abstract_type_refinement_key(
+                                self.schema,
+                                type_condition,
+                            ))
+                        } else {
+                            Primitive::Null
+                        },
                     ),
                 ]))
             }

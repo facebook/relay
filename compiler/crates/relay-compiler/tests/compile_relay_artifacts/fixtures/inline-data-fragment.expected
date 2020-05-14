@@ -39,7 +39,8 @@ fragment Profile on User @inline {
         "name": "ParentFragment"
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -159,7 +160,8 @@ fragment Profile on User @inline {
                 "storageKey": "profilePicture(size:100)"
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           },
           {
             "alias": null,
@@ -289,7 +291,8 @@ fragment Profile on User {
                   "storageKey": "profilePicture(size:100)"
                 }
               ],
-              "type": "User"
+              "type": "User",
+              "abstractKey": null
             }
           ]
         }
@@ -349,7 +352,8 @@ fragment Profile on User {
                   "storageKey": "profilePicture(size:100)"
                 }
               ],
-              "type": "User"
+              "type": "User",
+              "abstractKey": null
             }
           ]
         }
@@ -357,7 +361,8 @@ fragment Profile on User {
       "storageKey": "username(name:\"test\")"
     }
   ],
-  "concreteType": "Query"
+  "type": "Query",
+  "abstractKey": null
 }
 
 {

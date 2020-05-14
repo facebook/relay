@@ -105,7 +105,8 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {

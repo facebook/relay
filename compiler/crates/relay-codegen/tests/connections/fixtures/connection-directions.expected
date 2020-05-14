@@ -122,7 +122,8 @@ v4 = {
           "storageKey": null
         }
       ],
-      "type": "CommentsEdge"
+      "type": "CommentsEdge",
+      "abstractKey": null
     }
   ],
   "storageKey": null
@@ -157,7 +158,8 @@ v7 = [
           (v5/*: any*/),
           (v6/*: any*/)
         ],
-        "type": "PageInfo"
+        "type": "PageInfo",
+        "abstractKey": null
       }
     ],
     "storageKey": null
@@ -200,7 +202,8 @@ v11 = [
           (v9/*: any*/),
           (v10/*: any*/)
         ],
-        "type": "PageInfo"
+        "type": "PageInfo",
+        "abstractKey": null
       }
     ],
     "storageKey": null
@@ -236,7 +239,8 @@ v13 = [
           (v9/*: any*/),
           (v10/*: any*/)
         ],
-        "type": "PageInfo"
+        "type": "PageInfo",
+        "abstractKey": null
       }
     ],
     "storageKey": null
@@ -322,13 +326,15 @@ return {
                 "storageKey": null
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -406,7 +412,8 @@ return {
                 "name": "comments"
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null

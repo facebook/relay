@@ -80,7 +80,8 @@ interface ClientNamed {
       ]
     }
   ],
-  "concreteType": "ClientType"
+  "type": "ClientType",
+  "abstractKey": null
 }
 
 {
@@ -129,7 +130,8 @@ interface ClientNamed {
                   "storageKey": null
                 }
               ],
-              "type": "ClientNamed"
+              "type": "ClientNamed",
+              "abstractKey": "__isClientNamed"
             }
           ],
           "storageKey": null
@@ -221,7 +223,8 @@ interface ClientNamed {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {

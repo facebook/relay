@@ -125,7 +125,8 @@ v4 = [
             "storageKey": null
           }
         ],
-        "type": "CommentsEdge"
+        "type": "CommentsEdge",
+        "abstractKey": null
       }
     ],
     "storageKey": null
@@ -156,7 +157,8 @@ v4 = [
             "storageKey": null
           }
         ],
-        "type": "PageInfo"
+        "type": "PageInfo",
+        "abstractKey": null
       }
     ],
     "storageKey": null
@@ -204,13 +206,15 @@ return {
                 "storageKey": null
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -250,7 +254,8 @@ return {
                 "name": "comments"
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null

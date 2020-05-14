@@ -9,6 +9,7 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 pub struct CodegenConstants {
+    pub abstract_key: StringKey,
     pub alias: StringKey,
     pub args: StringKey,
     pub argument_definitions: StringKey,
@@ -40,6 +41,8 @@ pub struct CodegenConstants {
     pub id: StringKey,
     pub identifier_field: StringKey,
     pub if_: StringKey,
+    pub inline_data_fragment_spread: StringKey,
+    pub inline_data_fragment: StringKey,
     pub inline_fragment: StringKey,
     pub items: StringKey,
     pub key: StringKey,
@@ -85,12 +88,11 @@ pub struct CodegenConstants {
     pub value: StringKey,
     pub variable_name: StringKey,
     pub variable: StringKey,
-    pub inline_data_fragment: StringKey,
-    pub inline_data_fragment_spread: StringKey,
 }
 
 lazy_static! {
     pub static ref CODEGEN_CONSTANTS: CodegenConstants = CodegenConstants {
+        abstract_key: "abstractKey".intern(),
         alias: "alias".intern(),
         args: "args".intern(),
         argument_definitions: "argumentDefinitions".intern(),

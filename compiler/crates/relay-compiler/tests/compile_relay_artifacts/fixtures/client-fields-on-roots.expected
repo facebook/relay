@@ -86,7 +86,8 @@ extend type Subscription {
         ]
       }
     ],
-    "concreteType": "Mutation"
+    "type": "Mutation",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -210,7 +211,8 @@ mutation FooMutation(
         ]
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -342,7 +344,8 @@ query FooQuery(
         ]
       }
     ],
-    "concreteType": "Subscription"
+    "type": "Subscription",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {

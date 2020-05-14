@@ -142,13 +142,15 @@ query NodeQuery($id: ID!) {
                 "storageKey": null
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -295,7 +297,8 @@ query NodeQuery($id: ID!) {
                 "name": "comments"
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null

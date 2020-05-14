@@ -138,7 +138,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "MarkdownUserNameRenderer"
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
 }
 
 {
@@ -181,7 +182,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport"
             }
           ],
-          "type": "PlainUserNameRenderer"
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
         },
         {
           "kind": "InlineFragment",
@@ -193,13 +195,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "ModuleImport"
             }
           ],
-          "type": "MarkdownUserNameRenderer"
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
         }
       ],
       "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -234,5 +238,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "PlainUserNameRenderer"
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
 }

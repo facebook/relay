@@ -47,13 +47,15 @@ query SimpleQuery @my_custom_directive {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": "node(id:\"test-id\")"
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -93,7 +95,8 @@ query SimpleQuery @my_custom_directive {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": "node(id:\"test-id\")"

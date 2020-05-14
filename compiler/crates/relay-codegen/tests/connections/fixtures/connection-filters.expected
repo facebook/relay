@@ -118,7 +118,8 @@ v9 = {
           "storageKey": null
         }
       ],
-      "type": "PageInfo"
+      "type": "PageInfo",
+      "abstractKey": null
     }
   ],
   "storageKey": null
@@ -159,7 +160,8 @@ v10 = [
             "storageKey": null
           }
         ],
-        "type": "FriendsEdge"
+        "type": "FriendsEdge",
+        "abstractKey": null
       }
     ],
     "storageKey": null
@@ -181,7 +183,8 @@ v11 = {
       "storageKey": null
     }
   ],
-  "type": "CommentsEdge"
+  "type": "CommentsEdge",
+  "abstractKey": null
 };
 return {
   "fragment": {
@@ -278,13 +281,15 @@ return {
                 "storageKey": null
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -383,7 +388,8 @@ return {
                 "name": "comments"
               }
             ],
-            "type": "Story"
+            "type": "Story",
+            "abstractKey": null
           }
         ],
         "storageKey": null

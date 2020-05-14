@@ -46,13 +46,15 @@ query ScalarHandleField($id: ID!) {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -108,7 +110,8 @@ query ScalarHandleField($id: ID!) {
                 "name": "name"
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           },
           {
             "alias": null,

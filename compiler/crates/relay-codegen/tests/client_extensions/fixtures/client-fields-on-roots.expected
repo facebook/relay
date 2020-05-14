@@ -133,7 +133,8 @@ type ClientUser {
       ]
     }
   ],
-  "concreteType": "ClientUser"
+  "type": "ClientUser",
+  "abstractKey": null
 }
 
 {

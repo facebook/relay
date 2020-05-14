@@ -85,7 +85,8 @@ fragment FeedbackText_feedback on Feedback {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -201,7 +202,8 @@ fragment FeedbackText_feedback on Feedback {
                     "storageKey": "comments(first:10)"
                   }
                 ],
-                "type": "Feedback"
+                "type": "Feedback",
+                "abstractKey": null
               }
             ]
           },
@@ -232,7 +234,8 @@ fragment FeedbackText_feedback on Feedback {
                     "storageKey": null
                   }
                 ],
-                "type": "Feedback"
+                "type": "Feedback",
+                "abstractKey": null
               }
             ]
           }
@@ -354,7 +357,8 @@ fragment FeedbackText_feedback on Feedback {
       "storageKey": "comments(first:10)"
     }
   ],
-  "concreteType": "Feedback"
+  "type": "Feedback",
+  "abstractKey": null
 }
 
 {
@@ -382,5 +386,6 @@ fragment FeedbackText_feedback on Feedback {
       "storageKey": null
     }
   ],
-  "concreteType": "Feedback"
+  "type": "Feedback",
+  "abstractKey": null
 }

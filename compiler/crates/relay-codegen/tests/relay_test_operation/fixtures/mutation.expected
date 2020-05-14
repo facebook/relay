@@ -61,7 +61,8 @@ mutation SimpleMutation @relay_test_operation {
                         "storageKey": null
                       }
                     ],
-                    "type": "Actor"
+                    "type": "Actor",
+                    "abstractKey": "__isActor"
                   }
                 ],
                 "storageKey": null
@@ -73,7 +74,8 @@ mutation SimpleMutation @relay_test_operation {
         "storageKey": null
       }
     ],
-    "concreteType": "Mutation"
+    "type": "Mutation",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -123,7 +125,8 @@ mutation SimpleMutation @relay_test_operation {
                         "storageKey": null
                       }
                     ],
-                    "type": "Actor"
+                    "type": "Actor",
+                    "abstractKey": "__isActor"
                   }
                 ],
                 "storageKey": null

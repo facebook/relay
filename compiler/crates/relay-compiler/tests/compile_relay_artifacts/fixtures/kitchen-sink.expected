@@ -100,7 +100,8 @@ fragment UserFragment on User
                     "storageKey": null
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               },
               {
                 "args": [
@@ -119,7 +120,8 @@ fragment UserFragment on User
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -321,7 +323,8 @@ fragment UserFragment on User
                     "storageKey": null
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               }
             ]
           }
@@ -571,5 +574,6 @@ fragment UserFragment_3M2EvT on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

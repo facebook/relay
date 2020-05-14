@@ -55,13 +55,15 @@ query QueryWitEnums @relay_test_operation {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": "node(id:\"test-id\")"
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -108,7 +110,8 @@ query QueryWitEnums @relay_test_operation {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": "node(id:\"test-id\")"

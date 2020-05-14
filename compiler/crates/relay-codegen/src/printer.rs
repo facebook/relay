@@ -6,7 +6,7 @@
  */
 
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
-use crate::build_ast::{build_fragment, build_operation, build_request};
+use crate::build_ast::{build_fragment, build_operation, build_request, MetadataGeneratorFn};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 
@@ -244,6 +244,7 @@ pub fn print_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters,
+    codegen_metadata_generators: &[MetadataGeneratorFn],
 ) -> String {
     let mut builder = AstBuilder::default();
     let key = build_request(
@@ -252,6 +253,7 @@ pub fn print_request(
         operation,
         fragment,
         request_parameters,
+        codegen_metadata_generators,
     );
     let printer = DedupedJSONPrinter::new_without_dedupe(&builder, key);
     printer.print()
@@ -264,6 +266,7 @@ impl Printer {
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters,
+        codegen_metadata_generators: &[MetadataGeneratorFn],
     ) -> String {
         let key = build_request(
             schema,
@@ -271,6 +274,7 @@ impl Printer {
             operation,
             fragment,
             request_parameters,
+            codegen_metadata_generators,
         );
         let deduped_printer = DedupedJSONPrinter::new(&self.builder, key);
         deduped_printer.print()

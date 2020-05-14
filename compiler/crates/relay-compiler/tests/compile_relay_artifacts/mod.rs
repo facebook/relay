@@ -94,7 +94,13 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 let request_parameters = build_request_params(&operation);
                 format!(
                     "{}\n\nQUERY:\n\n{}",
-                    print_request(&schema, operation, &operation_fragment, request_parameters),
+                    print_request(
+                        &schema,
+                        operation,
+                        &operation_fragment,
+                        request_parameters,
+                        &[]
+                    ),
                     text
                 )
             }

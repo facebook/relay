@@ -158,7 +158,8 @@ fn generate_operation(
             schema,
             normalization_operation,
             &operation_fragment,
-            request_parameters
+            request_parameters,
+            &config.codegen_metadata_generators,
         )
     )
     .unwrap();

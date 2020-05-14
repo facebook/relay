@@ -10,6 +10,7 @@ use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::errors::{ConfigValidationError, Error, Result};
 use interner::StringKey;
 use regex::Regex;
+use relay_codegen::MetadataGeneratorFn;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -20,7 +21,6 @@ use std::path::PathBuf;
 /// - the absolute path to the root of the compiled projects
 /// - command line options
 /// - TODO: injected code to produce additional files
-#[derive(Debug)]
 pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
@@ -37,7 +37,11 @@ pub struct Config {
 
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
+
+    /// List of additional functions to generate operation request metadata
+    pub codegen_metadata_generators: Vec<MetadataGeneratorFn>,
 }
+
 impl Config {
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
         let config_string =
@@ -131,6 +135,7 @@ impl Config {
             write_artifacts: true,
             only_project: None,
             load_saved_state_file: None,
+            codegen_metadata_generators: vec![],
         };
 
         let mut validation_errors = Vec::new();
@@ -281,6 +286,35 @@ impl fmt::Debug for ProjectConfig {
     }
 }
 
+impl fmt::Debug for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let Config {
+            root_dir,
+            sources,
+            blacklist,
+            projects,
+            header,
+            codegen_command,
+            write_artifacts,
+            only_project,
+            load_saved_state_file,
+            codegen_metadata_generators: _,
+        } = self;
+        f.debug_struct("Config")
+            .field("root_dir", root_dir)
+            .field("sources", sources)
+            .field("blacklist", blacklist)
+            .field("projects", projects)
+            .field("header", header)
+            .field("codegen_command", codegen_command)
+            .field("write_artifacts", write_artifacts)
+            .field("only_project", only_project)
+            .field("load_saved_state_file", load_saved_state_file)
+            .field("codegen_metadata_generators", &"Vec(...)")
+            .finish()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum SchemaLocation {
     File(PathBuf),
@@ -332,7 +366,7 @@ struct ConfigFileProject {
     #[serde(default)]
     shard_output: bool,
 
-    /// Regex to match and stip parts of the `source_relative_path`
+    /// Regex to match and strip parts of the `source_relative_path`
     #[serde(default)]
     shard_strip_regex: Option<String>,
 

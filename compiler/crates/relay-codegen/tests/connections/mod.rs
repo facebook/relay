@@ -69,6 +69,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 def,
                 &operation_fragment,
                 request_parameters,
+                &[],
             )
         })
         .collect::<Vec<_>>();

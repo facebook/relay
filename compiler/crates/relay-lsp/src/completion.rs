@@ -27,12 +27,14 @@ pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum CompletionPathItem {
     Operation(OperationKind),
+    FragmentDefinition { type_name: StringKey },
     LinkedField(StringKey),
 }
 
 pub type CompletionPath = Vec<CompletionPathItem>;
 
 pub fn build_completion_path(document: Document, position_span: Span) -> CompletionPath {
+    info!("Building completion path for {:#?}", document);
     let mut completion_path = CompletionPath::default();
 
     for definition in document.definitions {
@@ -63,7 +65,15 @@ pub fn build_completion_path(document: Document, position_span: Span) -> Complet
             }
             ExecutableDefinition::Fragment(fragment) => {
                 if fragment.location.contains(position_span) {
-                    info!("Completion request is within fragment: {:?}", fragment.name);
+                    let type_name = fragment.type_condition.type_.value;
+                    completion_path.push(CompletionPathItem::FragmentDefinition { type_name });
+                    if fragment.selections.span.contains(position_span) {
+                        populate_completion_path_from_selection(
+                            &fragment.selections,
+                            position_span,
+                            &mut completion_path,
+                        );
+                    }
                 }
             }
         }
@@ -80,6 +90,7 @@ fn resolve_root_type(root_path_item: CompletionPathItem, schema: &Schema) -> Typ
             OperationKind::Mutation => schema.mutation_type().unwrap(),
             OperationKind::Subscription => schema.subscription_type().unwrap(),
         },
+        CompletionPathItem::FragmentDefinition { type_name } => schema.get_type(type_name).unwrap(),
         CompletionPathItem::LinkedField(_) => {
             // TODO(brandondail) fail silently and log here instead
             panic!("Completion paths must start with an operation or fragment")
@@ -97,9 +108,14 @@ fn resolve_relative_type(
             // TODO(brandondail) fail silently and log here instead
             panic!("Operations must only exist at the root of the completion path");
         }
+        CompletionPathItem::FragmentDefinition { .. } => {
+            // TODO(brandondail) fail silently and log here instead
+            panic!("Fragments must only exist at the root of the completion path");
+        }
         CompletionPathItem::LinkedField(field) => {
             let field_id = schema.named_field(parent_type, field).unwrap();
             let field = schema.field(field_id);
+            info!("resolved type for {:?} : {:?}", field.name, field.type_);
             field.type_.inner()
         }
     }

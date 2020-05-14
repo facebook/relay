@@ -29,7 +29,6 @@ use crate::state::ServerState;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
-// use crate::state::ServerState;
 
 use common::ConsoleLogger;
 use std::collections::HashMap;

@@ -1287,12 +1287,8 @@ class Schema {
   }
 
   isServerType(type: TypeID): boolean {
-    if (isObject(type)) {
-      return type.isClient === false;
-    } else if (isEnum(type)) {
-      return type.isClient === false;
-    }
-    return true;
+    const unwrapped = unwrap(type);
+    return unwrapped.isClient === false;
   }
 
   isServerField(field: FieldID): boolean {

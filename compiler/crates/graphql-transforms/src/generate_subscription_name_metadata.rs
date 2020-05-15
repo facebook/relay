@@ -9,7 +9,7 @@ use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Selection, Transformed,
-    Transformer, ValidationError, ValidationResult, Value,
+    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -60,14 +60,12 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
         match operation.kind {
             OperationKind::Subscription => {
                 if operation.selections.len() != 1 {
-                    self.errors.push(ValidationError::transfrom_error(
-                        format!(
-                            "Subscription '{}' must have a single selection",
-                            operation.name.item
-                        ),
+                    self.errors.push(ValidationError::new(
+                        ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
+                            subscription_name: operation.name.item,
+                        },
                         vec![operation.name.location],
                     ));
-
                     Transformed::Keep
                 } else {
                     match &operation.selections[0] {
@@ -98,11 +96,10 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                             })
                         }
                         _ => {
-                            self.errors.push(ValidationError::transfrom_error(
-                                format!(
-                                    "The root of subscription '{}' must be a simple selection.",
-                                    operation.name.item
-                                ),
+                            self.errors.push(ValidationError::new(
+                                ValidationMessage::GenerateSubscriptionNameSimpleSelection {
+                                    subscription_name: operation.name.item,
+                                },
                                 vec![operation.name.location],
                             ));
 

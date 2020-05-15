@@ -9,6 +9,6 @@ subscription TestSubscriptionWithMultipleSelections(
   }
 }
 ==================================== ERROR ====================================
-Transfrom error: The root of subscription 'TestSubscriptionWithMultipleSelections' must be a simple selection.:
+The root of subscription 'TestSubscriptionWithMultipleSelections' must be a simple selection.:
 conditional-root.invalid.graphql:1:14:
 subscription TestSubscriptionWithMultipleSelections(

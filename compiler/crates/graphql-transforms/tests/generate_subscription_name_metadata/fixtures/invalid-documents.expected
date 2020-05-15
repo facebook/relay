@@ -9,6 +9,6 @@ subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {
   }
 }
 ==================================== ERROR ====================================
-Transfrom error: Subscription 'TestSubscriptionWithMultipleSelections' must have a single selection:
+Subscription 'TestSubscriptionWithMultipleSelections' must have a single selection:
 invalid-documents.graphql:1:14:
 subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {

@@ -41,14 +41,6 @@ impl ValidationError {
         Self { message, locations }
     }
 
-    pub fn transfrom_error(message: String, locations: Vec<Location>) -> Self {
-        let validation_message = ValidationMessage::TransformError { message };
-        Self {
-            message: validation_message,
-            locations,
-        }
-    }
-
     /// Attaches sources to the error to allow it to be printed with a code
     /// listing without requiring additional context.
     pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
@@ -477,6 +469,22 @@ pub enum ValidationMessage {
     )]
     RelayEarlyFlushSchemaWithoutQueryNameArg { query_name: StringKey },
 
-    #[error("Transfrom error: {message}")]
-    TransformError { message: String },
+    #[error("Subscription '{subscription_name}' must have a single selection")]
+    GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
+
+    #[error("The root of subscription '{subscription_name}' must be a simple selection.")]
+    GenerateSubscriptionNameSimpleSelection { subscription_name: StringKey },
+
+    #[error(
+        "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
+    )]
+    LiveQueryTransformMissingConfig { query_name: StringKey },
+    #[error(
+        "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+    #[error(
+        "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidConfigId { query_name: StringKey },
 }

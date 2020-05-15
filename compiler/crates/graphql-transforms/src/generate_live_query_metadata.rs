@@ -9,7 +9,7 @@ use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program,
-    Transformed, Transformer, ValidationError, ValidationResult, Value,
+    Transformed, Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -69,7 +69,12 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                     let config_id = live_query_directive.arguments.named(*CONFIG_ID_ARG);
 
                     if polling_interval.is_none() && config_id.is_none() {
-                        self.errors.push(ValidationError::transfrom_error(format!("Live query expects 'polling_interval' or 'config_id' as an argument to @{} to for root field {}", *LIVE_QUERY_DIRECTIVE_NAME, operation.name.item), vec![live_query_directive.name.location]));
+                        self.errors.push(ValidationError::new(
+                            ValidationMessage::LiveQueryTransformMissingConfig {
+                                query_name: operation.name.item,
+                            },
+                            vec![live_query_directive.name.location],
+                        ));
                         return Transformed::Keep;
                     }
 
@@ -81,7 +86,12 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                         let poll_interval_value = match polling_interval.value.item {
                             Value::Constant(ConstantValue::Int(value)) => value,
                             _ => {
-                                self.errors.push(ValidationError::transfrom_error(format!("Expected the 'polling_interval' argument to @{} to be a literal number for root field {}", *LIVE_QUERY_DIRECTIVE_NAME, operation.name.item), vec![live_query_directive.name.location]));
+                                self.errors.push(ValidationError::new(
+                                    ValidationMessage::LiveQueryTransformInvalidPollingInterval {
+                                        query_name: operation.name.item,
+                                    },
+                                    vec![polling_interval.value.location],
+                                ));
                                 return Transformed::Keep;
                             }
                         };
@@ -116,7 +126,12 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                         let config_id_value = match config_id.value.item {
                             Value::Constant(ConstantValue::String(value)) => value,
                             _ => {
-                                self.errors.push(ValidationError::transfrom_error(format!("Expected the 'config_id' argument to @{} to be a literal string for root field {}", *LIVE_QUERY_DIRECTIVE_NAME, operation.name.item), vec![live_query_directive.name.location]));
+                                self.errors.push(ValidationError::new(
+                                    ValidationMessage::LiveQueryTransformInvalidConfigId {
+                                        query_name: operation.name.item,
+                                    },
+                                    vec![config_id.value.location],
+                                ));
                                 return Transformed::Keep;
                             }
                         };

@@ -243,6 +243,9 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 arg.name,
                 self.schema.get_type_string(&arg.type_),
             )?;
+            if let Some(default) = &arg.default_value {
+                write!(self.writer, " = {}", default,)?;
+            }
         }
         write!(self.writer, ")")
     }
@@ -273,6 +276,9 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 arg.name,
                 self.schema.get_type_string(&arg.type_),
             )?;
+            if let Some(default) = &arg.default_value {
+                write!(self.writer, " = {}", default,)?;
+            }
             self.print_new_line()?;
         }
         write!(self.writer, "}}")

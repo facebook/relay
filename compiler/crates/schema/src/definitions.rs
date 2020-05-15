@@ -762,8 +762,7 @@ impl Schema {
                 Ok(Argument {
                     name: arg_def.name,
                     type_: self.build_type_reference(&arg_def.type_)?,
-                    // TODO
-                    default_value: None,
+                    default_value: arg_def.default_value.clone(),
                 })
             })
             .collect();

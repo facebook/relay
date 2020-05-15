@@ -177,12 +177,14 @@ pub enum Value {
 }
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &*self {
-            Value::String(value) | Value::Int(value) | Value::Float(value) => {
-                f.write_fmt(format_args!("{:?}", value))
-            }
+        match self {
+            Value::String(value) => f.write_fmt(format_args!("\"{}\"", value)),
+            Value::Int(value) | Value::Float(value) => f.write_fmt(format_args!("{}", value)),
+            Value::Boolean(value) => f.write_fmt(format_args!("{}", value)),
             Value::Enum(value) => f.write_fmt(format_args!("{}", value.lookup())),
-            _ => f.write_fmt(format_args!("{}", *self)),
+            Value::List(value) => f.write_fmt(format_args!("{}", value)),
+            Value::Object(value) => f.write_fmt(format_args!("{}", value)),
+            _null => f.write_fmt(format_args!("UNKNOWN")),
         }
     }
 }
@@ -191,10 +193,40 @@ impl fmt::Display for Value {
 pub struct ListValue {
     pub values: Vec<Value>,
 }
+impl fmt::Display for ListValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[")?;
+        let mut first = true;
+        for item in &self.values {
+            if first {
+                first = false;
+            } else {
+                write!(f, ", ")?;
+            }
+            write!(f, "{}", item)?;
+        }
+        write!(f, "]")
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ObjectValue {
     pub fields: Vec<ObjectField>,
+}
+impl fmt::Display for ObjectValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{{")?;
+        let mut first = true;
+        for field in &self.fields {
+            if first {
+                first = false;
+            } else {
+                write!(f, ", ")?;
+            }
+            write!(f, "{}: {}", field.name, field.value)?;
+        }
+        write!(f, "}}")
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -18,13 +18,13 @@ pub fn print(schema: &Schema) -> String {
         "{}{}{}",
         print_schema_definition(schema),
         print_directives(schema),
-        print_type(schema)
+        print_types(schema)
     )
     .unwrap();
     builder
 }
 
-fn print_schema_definition(schema: &Schema) -> String {
+pub fn print_schema_definition(schema: &Schema) -> String {
     if is_schema_of_common_name(schema) {
         return String::new();
     }
@@ -33,15 +33,27 @@ fn print_schema_definition(schema: &Schema) -> String {
     result
 }
 
-fn print_directives(schema: &Schema) -> String {
+pub fn print_directives(schema: &Schema) -> String {
     let mut result = String::new();
     write_directives(schema, &mut result).unwrap();
     result
 }
 
-fn print_type(schema: &Schema) -> String {
+pub fn print_directive(schema: &Schema, directive: &Directive) -> String {
     let mut result = String::new();
-    write_type(schema, &mut result).unwrap();
+    write_directive(schema, &mut result, directive).unwrap();
+    result
+}
+
+pub fn print_types(schema: &Schema) -> String {
+    let mut result = String::new();
+    write_types(schema, &mut result).unwrap();
+    result
+}
+
+pub fn print_type(schema: &Schema, type_: &Type) -> String {
+    let mut result = String::new();
+    write_type(schema, &mut result, type_).unwrap();
     result
 }
 
@@ -55,9 +67,23 @@ pub fn write_directives(schema: &Schema, mut result: &mut impl Write) -> Result 
     printer.print_directives()
 }
 
-pub fn write_type(schema: &Schema, mut result: &mut impl Write) -> Result {
+pub fn write_directive(
+    schema: &Schema,
+    mut result: &mut impl Write,
+    directive: &Directive,
+) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
-    printer.print_type()
+    printer.print_directive(directive)
+}
+
+pub fn write_types(schema: &Schema, mut result: &mut impl Write) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_types()
+}
+
+pub fn write_type(schema: &Schema, mut result: &mut impl Write, type_: &Type) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_type(type_)
 }
 
 struct Printer<'schema, 'writer, W: Write> {
@@ -101,31 +127,39 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         let mut ordered_directives = self.schema.get_directives().collect::<Vec<_>>();
         ordered_directives.sort_by_key(|dir| dir.name);
         for directive in ordered_directives {
-            write!(self.writer, "directive @{}", directive.name)?;
-            self.print_args(&directive.arguments)?;
-            write!(
-                self.writer,
-                " on {}",
-                directive.locations.iter().join(" | ")
-            )?;
-            self.print_definition_end()?;
+            self.print_directive(directive)?;
         }
         Ok(())
     }
 
-    fn print_type(&mut self) -> Result {
+    fn print_directive(&mut self, directive: &Directive) -> Result {
+        write!(self.writer, "directive @{}", directive.name)?;
+        self.print_args(&directive.arguments)?;
+        write!(
+            self.writer,
+            " on {}",
+            directive.locations.iter().join(" | ")
+        )?;
+        self.print_definition_end()
+    }
+
+    fn print_types(&mut self) -> Result {
         let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
         for (_key, value) in ordered_type_map.iter() {
-            match value {
-                Type::Enum(id) => self.print_enum(*id)?,
-                Type::InputObject(id) => self.print_input_object(*id)?,
-                Type::Interface(id) => self.print_interface(*id)?,
-                Type::Object(id) => self.print_object(*id)?,
-                Type::Scalar(id) => self.print_scalar(*id)?,
-                Type::Union(id) => self.print_union(*id)?,
-            }
+            self.print_type(&value)?;
         }
         Ok(())
+    }
+
+    fn print_type(&mut self, type_: &Type) -> Result {
+        match type_ {
+            Type::Enum(id) => self.print_enum(*id),
+            Type::InputObject(id) => self.print_input_object(*id),
+            Type::Interface(id) => self.print_interface(*id),
+            Type::Object(id) => self.print_object(*id),
+            Type::Scalar(id) => self.print_scalar(*id),
+            Type::Union(id) => self.print_union(*id),
+        }
     }
 
     fn print_scalar(&mut self, id: ScalarID) -> Result {

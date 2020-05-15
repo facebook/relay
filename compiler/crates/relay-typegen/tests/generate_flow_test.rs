@@ -168,18 +168,18 @@ fn mutation() {
 //     );
 // }
 
-// #[test]
-// fn plural_fragment() {
-//     let input = include_str!("generate_flow/fixtures/plural-fragment.graphql");
-//     let expected = include_str!("generate_flow/fixtures/plural-fragment.expected");
-//     test_fixture(
-//         transform_fixture,
-//         "plural-fragment.graphql",
-//         "generate_flow/fixtures/plural-fragment.expected",
-//         input,
-//         expected,
-//     );
-// }
+#[test]
+fn plural_fragment() {
+    let input = include_str!("generate_flow/fixtures/plural-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/plural-fragment.expected");
+    test_fixture(
+        transform_fixture,
+        "plural-fragment.graphql",
+        "generate_flow/fixtures/plural-fragment.expected",
+        input,
+        expected,
+    );
+}
 
 // #[test]
 // fn query_with_handles() {

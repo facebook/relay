@@ -173,8 +173,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             value: AST::Identifier(old_fragment_type_name),
         };
         let is_plural_fragment = is_plural(node);
-        let ref_type =
+        let mut ref_type =
             AST::InexactObject(vec![ref_type_data_property, ref_type_fragment_ref_property]);
+        if is_plural_fragment {
+            ref_type = AST::ReadOnlyArray(Box::new(ref_type));
+        }
 
         let data_type_name = format!("{}$data", node.name.item);
         let data_type = node.name.item.lookup();
@@ -813,9 +816,8 @@ fn merge_selections(
     merged
 }
 
-fn is_plural(_node: &FragmentDefinition) -> bool {
-    // TODO: return Boolean(node.metadata && node.metadata.plural);
-    false
+fn is_plural(node: &FragmentDefinition) -> bool {
+    RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
 }
 
 fn selections_to_map(

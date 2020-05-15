@@ -17795,6 +17795,755 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: refetchable-fragment-with-stream-with-local-if.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: 1) {
+    ...PaginationFragment
+  }
+}
+
+fragment PaginationFragment on Node
+  @argumentDefinitions(
+    if: {type: "Boolean", defaultValue: false}
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+    initial_count: {type: "Int", defaultValue: 5}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @stream_connection(
+        if: $if
+        key: "PaginationFragment_friends"
+        initial_count: $initial_count
+      ) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [],
+    metadata: null,
+    name: "TestQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: 1,
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          FragmentSpread {
+            args: null,
+            name: "PaginationFragment",
+          },
+        ],
+        storageKey: "node(id:1)",
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [],
+    name: "TestQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: 1,
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "name",
+                storageKey: null,
+              },
+              LinkedField {
+                alias: null,
+                args: [
+                  Literal {
+                    name: "first",
+                    value: 10,
+                  },
+                ],
+                concreteType: "FriendsConnection",
+                name: "friends",
+                plural: false,
+                selections: [
+                  LinkedField {
+                    alias: null,
+                    args: null,
+                    concreteType: "FriendsEdge",
+                    name: "edges",
+                    plural: true,
+                    selections: [
+                      LinkedField {
+                        alias: null,
+                        args: null,
+                        concreteType: "User",
+                        name: "node",
+                        plural: false,
+                        selections: [
+                          ScalarField {
+                            alias: null,
+                            args: null,
+                            name: "id",
+                            storageKey: null,
+                          },
+                          ScalarField {
+                            alias: null,
+                            args: null,
+                            name: "__typename",
+                            storageKey: null,
+                          },
+                        ],
+                        storageKey: null,
+                      },
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "cursor",
+                        storageKey: null,
+                      },
+                    ],
+                    storageKey: null,
+                  },
+                  LinkedField {
+                    alias: null,
+                    args: null,
+                    concreteType: "PageInfo",
+                    name: "pageInfo",
+                    plural: false,
+                    selections: [
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "endCursor",
+                        storageKey: null,
+                      },
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "hasNextPage",
+                        storageKey: null,
+                      },
+                    ],
+                    storageKey: null,
+                  },
+                ],
+                storageKey: "friends(first:10)",
+              },
+              LinkedHandle {
+                alias: null,
+                args: [
+                  Literal {
+                    name: "first",
+                    value: 10,
+                  },
+                ],
+                filters: null,
+                handle: "connection",
+                key: "PaginationFragment_friends",
+                name: "friends",
+              },
+            ],
+            type: "User",
+            abstractKey: null,
+          },
+        ],
+        storageKey: "node(id:1)",
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query TestQuery {
+  node(id: 1) {
+    __typename
+    ...PaginationFragment
+    id
+  }
+}
+
+fragment PaginationFragment on Node {
+  __isNode: __typename
+  id
+  ... on User {
+    name
+    friends(first: 10) {
+      edges {
+        node {
+          id
+          __typename
+        }
+        cursor
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}
+
+
+Fragment {
+  argumentDefinitions: [
+    LocalArgument {
+      defaultValue: false,
+      name: "if",
+      type: "Boolean",
+    },
+    LocalArgument {
+      defaultValue: 10,
+      name: "count",
+      type: "Int",
+    },
+    LocalArgument {
+      defaultValue: null,
+      name: "cursor",
+      type: "ID",
+    },
+    LocalArgument {
+      defaultValue: 5,
+      name: "initial_count",
+      type: "Int",
+    },
+  ],
+  metadata: {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "friends",
+        ],
+        "stream": true,
+      },
+    ],
+  },
+  name: "PaginationFragment",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "id",
+      storageKey: null,
+    },
+    InlineFragment {
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "name",
+          storageKey: null,
+        },
+        LinkedField {
+          alias: "friends",
+          args: null,
+          concreteType: "FriendsConnection",
+          name: "__PaginationFragment_friends_connection",
+          plural: false,
+          selections: [
+            Stream {
+              selections: [
+                LinkedField {
+                  alias: null,
+                  args: null,
+                  concreteType: "FriendsEdge",
+                  name: "edges",
+                  plural: true,
+                  selections: [
+                    LinkedField {
+                      alias: null,
+                      args: null,
+                      concreteType: "User",
+                      name: "node",
+                      plural: false,
+                      selections: [
+                        ScalarField {
+                          alias: null,
+                          args: null,
+                          name: "id",
+                          storageKey: null,
+                        },
+                        ScalarField {
+                          alias: null,
+                          args: null,
+                          name: "__typename",
+                          storageKey: null,
+                        },
+                      ],
+                      storageKey: null,
+                    },
+                    ScalarField {
+                      alias: null,
+                      args: null,
+                      name: "cursor",
+                      storageKey: null,
+                    },
+                  ],
+                  storageKey: null,
+                },
+              ],
+            },
+            Defer {
+              selections: [
+                LinkedField {
+                  alias: null,
+                  args: null,
+                  concreteType: "PageInfo",
+                  name: "pageInfo",
+                  plural: false,
+                  selections: [
+                    ScalarField {
+                      alias: null,
+                      args: null,
+                      name: "endCursor",
+                      storageKey: null,
+                    },
+                    ScalarField {
+                      alias: null,
+                      args: null,
+                      name: "hasNextPage",
+                      storageKey: null,
+                    },
+                  ],
+                  storageKey: null,
+                },
+              ],
+            },
+          ],
+          storageKey: null,
+        },
+      ],
+      type: "User",
+      abstractKey: null,
+    },
+  ],
+  type: "Node",
+  abstractKey: "__isNode",
+}
+`;
+
+exports[`compileRelayArtifacts matches expected output: refetchable-fragment-with-stream-with-local-initial-count.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  node(id: 1) {
+    ...PaginationFragment
+  }
+}
+
+fragment PaginationFragment on Node
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+    initial_count: {type: "Int", defaultValue: 5}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @stream_connection(
+        key: "PaginationFragment_friends"
+        initial_count: $initial_count
+      ) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [],
+    metadata: null,
+    name: "TestQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: 1,
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          FragmentSpread {
+            args: null,
+            name: "PaginationFragment",
+          },
+        ],
+        storageKey: "node(id:1)",
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [],
+    name: "TestQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: 1,
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "name",
+                storageKey: null,
+              },
+              LinkedField {
+                alias: null,
+                args: [
+                  Literal {
+                    name: "first",
+                    value: 10,
+                  },
+                ],
+                concreteType: "FriendsConnection",
+                name: "friends",
+                plural: false,
+                selections: [
+                  Stream {
+                    if: null,
+                    label: "PaginationFragment$stream$PaginationFragment_friends",
+                    metadata: null,
+                    selections: [
+                      LinkedField {
+                        alias: null,
+                        args: null,
+                        concreteType: "FriendsEdge",
+                        name: "edges",
+                        plural: true,
+                        selections: [
+                          LinkedField {
+                            alias: null,
+                            args: null,
+                            concreteType: "User",
+                            name: "node",
+                            plural: false,
+                            selections: [
+                              ScalarField {
+                                alias: null,
+                                args: null,
+                                name: "id",
+                                storageKey: null,
+                              },
+                              ScalarField {
+                                alias: null,
+                                args: null,
+                                name: "__typename",
+                                storageKey: null,
+                              },
+                            ],
+                            storageKey: null,
+                          },
+                          ScalarField {
+                            alias: null,
+                            args: null,
+                            name: "cursor",
+                            storageKey: null,
+                          },
+                        ],
+                        storageKey: null,
+                      },
+                    ],
+                    useCustomizedBatch: null,
+                  },
+                  Defer {
+                    if: null,
+                    label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo",
+                    selections: [
+                      LinkedField {
+                        alias: null,
+                        args: null,
+                        concreteType: "PageInfo",
+                        name: "pageInfo",
+                        plural: false,
+                        selections: [
+                          ScalarField {
+                            alias: null,
+                            args: null,
+                            name: "endCursor",
+                            storageKey: null,
+                          },
+                          ScalarField {
+                            alias: null,
+                            args: null,
+                            name: "hasNextPage",
+                            storageKey: null,
+                          },
+                        ],
+                        storageKey: null,
+                      },
+                    ],
+                  },
+                ],
+                storageKey: "friends(first:10)",
+              },
+              LinkedHandle {
+                alias: null,
+                args: [
+                  Literal {
+                    name: "first",
+                    value: 10,
+                  },
+                ],
+                filters: null,
+                handle: "connection",
+                key: "PaginationFragment_friends",
+                name: "friends",
+              },
+            ],
+            type: "User",
+            abstractKey: null,
+          },
+        ],
+        storageKey: "node(id:1)",
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query TestQuery {
+  node(id: 1) {
+    __typename
+    ...PaginationFragment
+    id
+  }
+}
+
+fragment PaginationFragment on Node {
+  __isNode: __typename
+  id
+  ... on User {
+    name
+    friends(first: 10) {
+      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initial_count: 5) {
+        node {
+          id
+          __typename
+        }
+        cursor
+      }
+      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+
+Fragment {
+  argumentDefinitions: [
+    LocalArgument {
+      defaultValue: 10,
+      name: "count",
+      type: "Int",
+    },
+    LocalArgument {
+      defaultValue: null,
+      name: "cursor",
+      type: "ID",
+    },
+    LocalArgument {
+      defaultValue: 5,
+      name: "initial_count",
+      type: "Int",
+    },
+  ],
+  metadata: {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "friends",
+        ],
+        "stream": true,
+      },
+    ],
+  },
+  name: "PaginationFragment",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "id",
+      storageKey: null,
+    },
+    InlineFragment {
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "name",
+          storageKey: null,
+        },
+        LinkedField {
+          alias: "friends",
+          args: null,
+          concreteType: "FriendsConnection",
+          name: "__PaginationFragment_friends_connection",
+          plural: false,
+          selections: [
+            Stream {
+              selections: [
+                LinkedField {
+                  alias: null,
+                  args: null,
+                  concreteType: "FriendsEdge",
+                  name: "edges",
+                  plural: true,
+                  selections: [
+                    LinkedField {
+                      alias: null,
+                      args: null,
+                      concreteType: "User",
+                      name: "node",
+                      plural: false,
+                      selections: [
+                        ScalarField {
+                          alias: null,
+                          args: null,
+                          name: "id",
+                          storageKey: null,
+                        },
+                        ScalarField {
+                          alias: null,
+                          args: null,
+                          name: "__typename",
+                          storageKey: null,
+                        },
+                      ],
+                      storageKey: null,
+                    },
+                    ScalarField {
+                      alias: null,
+                      args: null,
+                      name: "cursor",
+                      storageKey: null,
+                    },
+                  ],
+                  storageKey: null,
+                },
+              ],
+            },
+            Defer {
+              selections: [
+                LinkedField {
+                  alias: null,
+                  args: null,
+                  concreteType: "PageInfo",
+                  name: "pageInfo",
+                  plural: false,
+                  selections: [
+                    ScalarField {
+                      alias: null,
+                      args: null,
+                      name: "endCursor",
+                      storageKey: null,
+                    },
+                    ScalarField {
+                      alias: null,
+                      args: null,
+                      name: "hasNextPage",
+                      storageKey: null,
+                    },
+                  ],
+                  storageKey: null,
+                },
+              ],
+            },
+          ],
+          storageKey: null,
+        },
+      ],
+      type: "User",
+      abstractKey: null,
+    },
+  ],
+  type: "Node",
+  abstractKey: "__isNode",
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: relay-client-id-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayClientIDFieldQuery($id: ID!) {

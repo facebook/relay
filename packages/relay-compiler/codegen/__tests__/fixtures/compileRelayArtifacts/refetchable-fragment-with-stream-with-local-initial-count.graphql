@@ -1,0 +1,28 @@
+query TestQuery {
+  node(id: 1) {
+    ...PaginationFragment
+  }
+}
+
+fragment PaginationFragment on Node
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+    initial_count: {type: "Int", defaultValue: 5}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @stream_connection(
+        key: "PaginationFragment_friends"
+        initial_count: $initial_count
+      ) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}

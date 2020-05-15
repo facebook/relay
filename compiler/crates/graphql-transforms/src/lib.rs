@@ -17,6 +17,7 @@ mod connections;
 mod defer_stream;
 mod flatten;
 mod generate_id_field;
+mod generate_preloadable_metadata;
 mod generate_subscription_name_metadata;
 mod generate_typename;
 mod handle_fields;
@@ -41,6 +42,13 @@ mod transform_connections;
 mod util;
 mod validations;
 
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
+}
+
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::client_extensions;
@@ -53,6 +61,7 @@ pub use defer_stream::{
 };
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
+pub use generate_preloadable_metadata::generate_preloadable_metadata;
 pub use generate_subscription_name_metadata::generate_subscription_name_metadata;
 pub use generate_typename::generate_typename;
 pub use handle_fields::{

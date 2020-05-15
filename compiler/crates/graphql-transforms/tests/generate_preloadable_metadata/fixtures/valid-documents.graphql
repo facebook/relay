@@ -1,0 +1,5 @@
+query Query @preloadable {
+  node(id: "foo") {
+    id
+  }
+}

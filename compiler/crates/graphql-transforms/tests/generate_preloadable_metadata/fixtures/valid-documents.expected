@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+query Query @preloadable {
+  node(id: "foo") {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+query Query @__metadata(relayPreloadable: true) {
+  node(id: "foo") {
+    id
+  }
+}

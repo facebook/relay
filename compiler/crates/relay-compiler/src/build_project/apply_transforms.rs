@@ -10,10 +10,11 @@ use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, disallow_id_as_alias, flatten, generate_id_field,
-    generate_typename, handle_field_transform, inline_data_fragment, inline_fragments, mask,
-    relay_early_flush, remove_base_fragments, skip_client_extensions, skip_redundant_nodes,
-    skip_split_operation, skip_unreachable_node, skip_unused_variables, split_module_import,
-    transform_connections, transform_defer_stream, transform_match, transform_refetchable_fragment,
+    generate_preloadable_metadata, generate_subscription_name_metadata, generate_typename,
+    handle_field_transform, inline_data_fragment, inline_fragments, mask, relay_early_flush,
+    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
+    skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
+    transform_defer_stream, transform_match, transform_refetchable_fragment,
     validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
     validate_unused_variables, ConnectionInterface,
 };
@@ -163,7 +164,7 @@ fn apply_operation_transforms<'schema>(
     // + ApplyFragmentArgumentTransform
     // - ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
-    // + TestOperationTransform
+    // * TestOperationTransform - part of relay_codegen
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -174,6 +175,14 @@ fn apply_operation_transforms<'schema>(
         apply_fragment_arguments(&program)
     })?;
     let program = log_event.time("generate_id_field", || generate_id_field(&program));
+
+    // TODO(T67052528): execute FB-specific transforms only if config options is provided
+    let program = log_event.time("generate_preloadable_metadata", || {
+        generate_preloadable_metadata(&program)
+    });
+    let program = log_event.time("generate_subscription_name_metadata", || {
+        generate_subscription_name_metadata(&program)
+    })?;
 
     perf_logger.complete_event(log_event);
 
@@ -212,8 +221,8 @@ fn apply_normalization_transforms<'schema>(
     })?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
-    let program = log_event.time("generate_typename", || generate_typename(&program));
 
+    let program = log_event.time("generate_typename", || generate_typename(&program));
     perf_logger.complete_event(log_event);
 
     Ok(program)

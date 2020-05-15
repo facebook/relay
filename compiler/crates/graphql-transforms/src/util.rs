@@ -10,6 +10,8 @@ use crate::connections::ConnectionConstants;
 use crate::handle_fields::HandleFieldConstants;
 use crate::match_::MATCH_CONSTANTS;
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
+use crate::INTERNAL_METADATA_DIRECTIVE;
+
 use graphql_ir::{Argument, Directive, Value};
 use interner::StringKey;
 
@@ -97,5 +99,6 @@ impl CustomMetadataDirectives {
             || name == MATCH_CONSTANTS.custom_module_directive_name
             || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
+            || name == *INTERNAL_METADATA_DIRECTIVE
     }
 }

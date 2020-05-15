@@ -21,7 +21,7 @@ use graphql_transforms::{
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, remove_directive, ConnectionConstants, DeferDirective,
     HandleFieldConstants, RelayDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
-    INLINE_DATA_CONSTANTS, MATCH_CONSTANTS,
+    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -1243,7 +1243,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .directives
             .iter()
             .filter_map(|directive| {
-                if directive.name.item == CODEGEN_CONSTANTS.request_metadata_directive {
+                if directive.name.item == *INTERNAL_METADATA_DIRECTIVE {
                     if directive.arguments.len() != 1 {
                         panic!("@__metadata directive should have only one argument!");
                     }

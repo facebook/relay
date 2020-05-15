@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Selection, Transformed,
@@ -15,7 +16,6 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
     pub static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
 }
 

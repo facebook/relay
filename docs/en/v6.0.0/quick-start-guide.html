@@ -89,7 +89,7 @@ type </span>Query {
   ): Node
 }
 </code></pre>
-<p>Additionally, we will be using <a href="https://flow.org/">Flow</a> inside our Javascript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.</p>
+<p>Additionally, we will be using <a href="https://flow.org/">Flow</a> inside our JavaScript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.</p>
 <h2><a class="anchor" aria-hidden="true" id="relay-environment"></a><a href="#relay-environment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Relay Environment</h2>
 <p>Before we can start rendering pixels on the screen, we need to configure Relay via a <a href="./relay-environment.html">Relay Environment</a>. The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.</p>
 <p>For the purposes of our example, we are simply going to configure our environment to communicate with our existing GraphQL server:</p>
@@ -120,7 +120,7 @@ type </span>Query {
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({
   <span class="hljs-attr">network</span>: Network.create(fetchQuery),
-  <span class="hljs-attr">store</span>: <span class="hljs-keyword">new</span> Store(<span class="hljs-keyword">new</span> RecordSource()),  
+  <span class="hljs-attr">store</span>: <span class="hljs-keyword">new</span> Store(<span class="hljs-keyword">new</span> RecordSource()),
 });
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> environment;
@@ -133,7 +133,7 @@ type </span>Query {
 <pre><code class="hljs css language-graphql"><span class="hljs-attribute">query</span> UserQuery {
   <span class="hljs-section">viewer</span> {
     <span class="hljs-attribute">id</span>
-  }  
+  }
 }
 </code></pre>
 <p>Now, let's see what it would take to create a component that fetches and renders the above query:</p>
@@ -152,7 +152,7 @@ type </span>Query {
           <span class="hljs-attr">query</span> <span class="hljs-attr">UserQuery</span> {
             <span class="hljs-attr">viewer</span> {
               <span class="hljs-attr">id</span>
-            }  
+            }
           }
         `}
         <span class="hljs-attr">variables</span>=<span class="hljs-string">{{}}</span>
@@ -210,7 +210,7 @@ type Props = {
           <span class="hljs-attr">query</span> <span class="hljs-attr">UserQuery</span>($<span class="hljs-attr">userID:</span> <span class="hljs-attr">ID</span>!) {
             <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> $<span class="hljs-attr">userID</span>) {
               <span class="hljs-attr">id</span>
-            }  
+            }
           }
         `}
         <span class="hljs-attr">variables</span>=<span class="hljs-string">{{userID}}</span>
@@ -414,7 +414,7 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
             <span class="hljs-attr">viewer</span> {
               <span class="hljs-attr">id</span>
               # <span class="hljs-attr">Re-use</span> <span class="hljs-attr">the</span> <span class="hljs-attr">fragment</span> <span class="hljs-attr">here</span>
-              <span class="hljs-attr">...TodoList_userTodoData</span>  
+              <span class="hljs-attr">...TodoList_userTodoData</span>
             }
           }
         `}
@@ -563,7 +563,7 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 <p>For more details and advanced use cases on mutations and updates, check out our <a href="./mutations">Mutations</a> docs.</p>
 <h2><a class="anchor" aria-hidden="true" id="next-steps"></a><a href="#next-steps" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Next Steps</h2>
 <p>This guide just scratches the surface of Relay's API. For more detailed docs and guides, check out our API Reference and Guides sections.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 6/6/2019 by Jan Kassens</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/v6.0.0/installation-and-setup"><span class="arrow-prev">← </span><span>Installation and Setup</span></a><a class="docs-next button" href="/docs/en/v6.0.0/graphql-in-relay"><span class="function-name-prevnext">GraphQL in Relay</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#relay-environment">Relay Environment</a></li><li><a href="#rendering-graphql-queries">Rendering GraphQL Queries</a></li><li><a href="#using-query-variables">Using Query Variables</a></li><li><a href="#using-fragments">Using Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#rendering-fragments">Rendering Fragments</a></li><li><a href="#mutating-data">Mutating Data</a><ul class="toc-headings"><li><a href="#optimistic-updates">Optimistic Updates</a></li><li><a href="#updating-local-data-from-mutation-responses">Updating local data from mutation responses</a></li></ul></li><li><a href="#next-steps">Next Steps</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 5/15/2020 by Tim Yung</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/v6.0.0/installation-and-setup"><span class="arrow-prev">← </span><span>Installation and Setup</span></a><a class="docs-next button" href="/docs/en/v6.0.0/graphql-in-relay"><span class="function-name-prevnext">GraphQL in Relay</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#relay-environment">Relay Environment</a></li><li><a href="#rendering-graphql-queries">Rendering GraphQL Queries</a></li><li><a href="#using-query-variables">Using Query Variables</a></li><li><a href="#using-fragments">Using Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#rendering-fragments">Rendering Fragments</a></li><li><a href="#mutating-data">Mutating Data</a><ul class="toc-headings"><li><a href="#optimistic-updates">Optimistic Updates</a></li><li><a href="#updating-local-data-from-mutation-responses">Updating local data from mutation responses</a></li></ul></li><li><a href="#next-steps">Next Steps</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

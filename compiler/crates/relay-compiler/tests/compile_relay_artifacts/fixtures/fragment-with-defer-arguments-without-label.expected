@@ -86,51 +86,6 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
           {
             "if": null,
             "kind": "Defer",
-            "label": "UserFragment$defer$DeferredFragment_1HMuo6",
-            "selections": [
-              {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "name",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "scale",
-                        "value": 2
-                      }
-                    ],
-                    "concreteType": "Image",
-                    "kind": "LinkedField",
-                    "name": "profile_picture",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "uri",
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": "profile_picture(scale:2)"
-                  }
-                ],
-                "type": "User",
-                "abstractKey": null
-              }
-            ]
-          },
-          {
-            "if": null,
-            "kind": "Defer",
             "label": "UserFragment$defer$DeferredFragment_QMvSr",
             "selections": [
               {
@@ -166,6 +121,51 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
                       }
                     ],
                     "storageKey": "profile_picture(scale:1.5)"
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              }
+            ]
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "UserFragment$defer$DeferredFragment_1HMuo6",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "scale",
+                        "value": 2
+                      }
+                    ],
+                    "concreteType": "Image",
+                    "kind": "LinkedField",
+                    "name": "profile_picture",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "uri",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": "profile_picture(scale:2)"
                   }
                 ],
                 "type": "User",

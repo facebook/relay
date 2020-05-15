@@ -15,7 +15,6 @@ use graphql_ir::{
 use im::hashmap::HashMap;
 use std::iter::Iterator;
 use std::sync::Arc;
-
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is
  * defined in this context as any selection that is guaranteed to already be
@@ -374,19 +373,12 @@ impl<'s> Transformer for SkipRedundantNodesTransform<'s> {
  * fetched within a conditional.
  */
 fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
-    let mut result: Vec<&Selection> = selections.iter().collect();
-    let mut left = 0;
-    let mut right = selections.len() - 1;
-    while left < right {
-        match result[left] {
-            Selection::LinkedField(_) | Selection::ScalarField(_) => {
-                left += 1;
-            }
-            _ => {
-                result.swap(left, right);
-                right -= 1;
-            }
+    let (mut left, right): (Vec<_>, Vec<_>) = selections.iter().partition(|sel| match sel {
+        Selection::LinkedField(_) | Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
+            true
         }
-    }
-    result
+        Selection::Condition(_) | Selection::InlineFragment(_) => false,
+    });
+    left.extend(right);
+    left
 }

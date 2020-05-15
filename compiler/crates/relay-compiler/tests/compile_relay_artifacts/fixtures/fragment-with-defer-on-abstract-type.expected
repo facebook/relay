@@ -102,11 +102,11 @@ fragment NodeFragment on Node {
                         "alias": null,
                         "args": null,
                         "kind": "ScalarField",
-                        "name": "websites",
+                        "name": "name",
                         "storageKey": null
                       }
                     ],
-                    "type": "Page",
+                    "type": "User",
                     "abstractKey": null
                   },
                   {
@@ -116,11 +116,11 @@ fragment NodeFragment on Node {
                         "alias": null,
                         "args": null,
                         "kind": "ScalarField",
-                        "name": "name",
+                        "name": "websites",
                         "storageKey": null
                       }
                     ],
-                    "type": "User",
+                    "type": "Page",
                     "abstractKey": null
                   }
                 ],

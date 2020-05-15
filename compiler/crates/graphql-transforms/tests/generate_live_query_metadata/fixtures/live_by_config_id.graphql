@@ -1,0 +1,12 @@
+query NodeQuery($id: ID!) @live_query(config_id: "gateway_config_id") {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}

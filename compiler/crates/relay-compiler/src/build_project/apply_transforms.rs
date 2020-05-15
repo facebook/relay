@@ -10,13 +10,14 @@ use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, disallow_id_as_alias, flatten, generate_id_field,
-    generate_preloadable_metadata, generate_subscription_name_metadata, generate_typename,
-    handle_field_transform, inline_data_fragment, inline_fragments, mask, relay_early_flush,
-    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
-    skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
-    transform_defer_stream, transform_match, transform_refetchable_fragment,
-    validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
-    validate_unused_variables, ConnectionInterface,
+    generate_live_query_metadata, generate_preloadable_metadata,
+    generate_subscription_name_metadata, generate_typename, handle_field_transform,
+    inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
+    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
+    skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
+    transform_match, transform_refetchable_fragment, validate_module_conflicts,
+    validate_relay_directives, validate_server_only_directives, validate_unused_variables,
+    ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -182,6 +183,9 @@ fn apply_operation_transforms<'schema>(
     });
     let program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)
+    })?;
+    let program = log_event.time("generate_live_query_metadata", || {
+        generate_live_query_metadata(&program)
     })?;
 
     perf_logger.complete_event(log_event);

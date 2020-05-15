@@ -131,6 +131,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_scalar(&mut self, id: ScalarID) -> Result {
         let scalar = self.schema.scalar(id);
         write!(self.writer, "scalar {}", scalar.name)?;
+        self.print_directive_values(&scalar.directives)?;
         self.print_definition_end()
     }
 
@@ -166,6 +167,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_union(&mut self, id: UnionID) -> Result {
         let union_ = self.schema.union(id);
         write!(self.writer, "union {}", union_.name)?;
+        self.print_directive_values(&union_.directives)?;
         if !union_.members.is_empty() {
             write!(
                 self.writer,
@@ -194,6 +196,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_input_object(&mut self, id: InputObjectID) -> Result {
         let input_object = self.schema.input_object(id);
         write!(self.writer, "input {}", input_object.name)?;
+        self.print_directive_values(&input_object.directives)?;
         self.print_space()?;
         self.print_input_object_fields(&input_object.fields)?;
         self.print_definition_end()

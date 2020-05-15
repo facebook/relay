@@ -1,8 +1,12 @@
 ==================================== INPUT ====================================
-directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @source(
+  name: String!
+) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
 directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
+
+scalar ID @source(schema: "facebook", name: "ID")
 
 type Query {
   fetch__User(id: ID): User
@@ -16,6 +20,17 @@ interface XIGHuman @source(schema: "instagram", name: "Human") {
 type User implements XIGHuman @fetchable(field_name: "id") {
   id: ID
   story: XIGStory @ref_type(schema: "instagram", name: "Story")
+  default_mailing_address(country: Country): MailingAddress
+}
+
+type MailingAddress {
+  id: ID
+  is_default: Boolean
+  label: String
+}
+
+input Country @source(schema: "instagram", name: "Country") {
+  name: String!
 }
 
 # imported types
@@ -25,6 +40,10 @@ type XIGStory
   id: ID
   name: String
 }
+
+union Address @source(schema: "facebook", name: "Address") =
+    MailingAddress
+  | MailingAddress
 ==================================== OUTPUT ===================================
 Schema {
 query_type: Some(
@@ -141,38 +160,39 @@ directives: [
         name: "source",
         arguments: [
             Argument {
-                name: "schema",
-                type_: Named(
-                    Scalar(2),
-                ),
-                default_value: None,
-            },
-            Argument {
                 name: "name",
-                type_: Named(
-                    Scalar(2),
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
                 ),
                 default_value: None,
             },
         ],
         locations: [
-            Object,
-            Interface,
             Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
         ],
         is_extension: false,
     },
 ]
 type_map: {
+    "Address": Union(0),
     "Boolean": Scalar(3),
+    "Country": InputObject(0),
     "Float": Scalar(1),
-    "ID": Scalar(4),
+    "ID": Scalar(5),
     "Int": Scalar(0),
+    "MailingAddress": Object(2),
     "Query": Object(0),
     "String": Scalar(2),
     "User": Object(1),
     "XIGHuman": Interface(0),
-    "XIGStory": Object(2),
+    "XIGStory": Object(3),
 }
 enums: []
 fields: [
@@ -183,7 +203,7 @@ fields: [
             Argument {
                 name: "id",
                 type_: Named(
-                    Scalar(4),
+                    Scalar(5),
                 ),
                 default_value: None,
             },
@@ -200,13 +220,13 @@ fields: [
             Argument {
                 name: "id",
                 type_: Named(
-                    Scalar(4),
+                    Scalar(5),
                 ),
                 default_value: None,
             },
         ],
         type_: Named(
-            Object(2),
+            Object(3),
         ),
         directives: [],
     },
@@ -224,7 +244,7 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(4),
+            Scalar(5),
         ),
         directives: [],
     },
@@ -233,7 +253,7 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Object(2),
+            Object(3),
         ),
         directives: [
             DirectiveValue {
@@ -256,11 +276,55 @@ fields: [
         ],
     },
     Field {
+        name: "default_mailing_address",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "country",
+                type_: Named(
+                    InputObject(0),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(2),
+        ),
+        directives: [],
+    },
+    Field {
         name: "id",
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(4),
+            Scalar(5),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(5),
         ),
         directives: [],
     },
@@ -290,13 +354,47 @@ fields: [
         arguments: [],
         type_: NonNull(
             Named(
-                Scalar(4),
+                Scalar(5),
             ),
         ),
         directives: [],
     },
 ]
-input_objects: []
+input_objects: [
+    InputObject {
+        name: "Country",
+        fields: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            "instagram",
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            "Country",
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
 interfaces: [
     Interface {
         name: "XIGHuman",
@@ -357,6 +455,9 @@ objects: [
             FieldID(
                 4,
             ),
+            FieldID(
+                5,
+            ),
         ],
         interfaces: [
             InterfaceID(
@@ -378,14 +479,31 @@ objects: [
         ],
     },
     Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                6,
+            ),
+            FieldID(
+                7,
+            ),
+            FieldID(
+                8,
+            ),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+    Object {
         name: "XIGStory",
         is_extension: false,
         fields: [
             FieldID(
-                5,
+                9,
             ),
             FieldID(
-                6,
+                10,
             ),
         ],
         interfaces: [],
@@ -425,23 +543,83 @@ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "Float",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "String",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "ID",
         is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            "facebook",
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            "ID",
+                        ),
+                    },
+                ],
+            },
+        ],
     },
 ]
-unions: []
+unions: [
+    Union {
+        name: "Address",
+        is_extension: false,
+        members: [
+            ObjectID(
+                2,
+            ),
+            ObjectID(
+                2,
+            ),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            "facebook",
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            "Address",
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
 }

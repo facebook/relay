@@ -590,28 +590,32 @@ impl Schema {
             }
             ast::Definition::UnionTypeDefinition {
                 name,
-                directives: _directives,
+                directives,
                 members,
             } => {
                 let members = members
                     .iter()
                     .map(|name| self.build_object_id(*name))
                     .collect::<Result<Vec<_>>>()?;
+                let directives = self.build_directive_values(&directives);
                 self.unions.push(Union {
                     name: *name,
                     is_extension,
                     members,
+                    directives,
                 });
             }
             ast::Definition::InputObjectTypeDefinition {
                 name,
                 fields,
-                directives: _directives,
+                directives,
             } => {
                 let fields = self.build_arguments(fields)?;
+                let directives = self.build_directive_values(&directives);
                 self.input_objects.push(InputObject {
                     name: *name,
                     fields,
+                    directives,
                 });
             }
             ast::Definition::EnumTypeDefinition {
@@ -627,13 +631,14 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::ScalarTypeDefinition {
-                name,
-                directives: _directives,
-            } => self.scalars.push(Scalar {
-                name: *name,
-                is_extension,
-            }),
+            ast::Definition::ScalarTypeDefinition { name, directives } => {
+                let directives = self.build_directive_values(&directives);
+                self.scalars.push(Scalar {
+                    name: *name,
+                    is_extension,
+                    directives,
+                })
+            }
             ast::Definition::ObjectTypeExtension {
                 name,
                 interfaces: _interfaces,
@@ -1016,6 +1021,7 @@ pub struct Directive {
 pub struct Scalar {
     pub name: StringKey,
     pub is_extension: bool,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -1031,6 +1037,7 @@ pub struct Object {
 pub struct InputObject {
     pub name: StringKey,
     pub fields: ArgumentDefinitions,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]
@@ -1046,6 +1053,7 @@ pub struct Union {
     pub name: StringKey,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Debug)]

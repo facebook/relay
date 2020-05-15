@@ -29,15 +29,16 @@ type XIGStory
   name: String
 }
 
-union Actor = User | Page
+union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-enum AppStoreSectionContentTypeEnum {
+enum AppStoreSectionContentTypeEnum
+  @source(schema: "instagram", name: "Story") {
   DEFAULT
   CONCEPTS
   EARLY_ACCESS
 }
 
-input AppVersions {
+input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
@@ -45,6 +46,8 @@ input AppVersions {
 type Page {
   id: ID
 }
+
+scalar ID @source(schema: "instagram", name: "Story")
 ==================================== OUTPUT ===================================
 schema {
   query: Query
@@ -62,15 +65,15 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 
-union Actor = User | Page
+union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-enum AppStoreSectionContentTypeEnum {
+enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
   DEFAULT
   CONCEPTS
   EARLY_ACCESS
 }
 
-input AppVersions {
+input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
@@ -79,7 +82,7 @@ scalar Boolean
 
 scalar Float
 
-scalar ID
+scalar ID @source(schema: "instagram", name: "Story")
 
 scalar Int
 

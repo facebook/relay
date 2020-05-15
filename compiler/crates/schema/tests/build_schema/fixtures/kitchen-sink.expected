@@ -320,22 +320,27 @@ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "Float",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "String",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "ID",
         is_extension: false,
+        directives: [],
     },
 ]
 unions: [
@@ -350,6 +355,7 @@ unions: [
                 2,
             ),
         ],
+        directives: [],
     },
 ]
 }

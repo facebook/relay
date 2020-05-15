@@ -28,15 +28,16 @@ type XIGStory
   name: String
 }
 
-union Actor = User | Page
+union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-enum AppStoreSectionContentTypeEnum {
+enum AppStoreSectionContentTypeEnum
+  @source(schema: "instagram", name: "Story") {
   DEFAULT
   CONCEPTS
   EARLY_ACCESS
 }
 
-input AppVersions {
+input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
@@ -44,3 +45,5 @@ input AppVersions {
 type Page {
   id: ID
 }
+
+scalar ID @source(schema: "instagram", name: "Story")

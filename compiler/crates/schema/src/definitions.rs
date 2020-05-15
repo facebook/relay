@@ -938,6 +938,48 @@ impl Type {
             _ => false,
         }
     }
+
+    pub fn get_enum_id(self) -> Option<EnumID> {
+        match self {
+            Type::Enum(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_input_object_id(self) -> Option<InputObjectID> {
+        match self {
+            Type::InputObject(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_interface_id(self) -> Option<InterfaceID> {
+        match self {
+            Type::Interface(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_object_id(self) -> Option<ObjectID> {
+        match self {
+            Type::Object(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_scalar_id(self) -> Option<ScalarID> {
+        match self {
+            Type::Scalar(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_union_id(self) -> Option<UnionID> {
+        match self {
+            Type::Union(id) => Some(id),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Debug for Type {
@@ -1009,7 +1051,7 @@ impl TypeReference {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
@@ -1017,14 +1059,14 @@ pub struct Directive {
     pub is_extension: bool,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Scalar {
     pub name: StringKey,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Object {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1033,14 +1075,14 @@ pub struct Object {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct InputObject {
     pub name: StringKey,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Enum {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1048,7 +1090,7 @@ pub struct Enum {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Union {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1056,7 +1098,7 @@ pub struct Union {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Interface {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1065,7 +1107,7 @@ pub struct Interface {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Field {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1087,7 +1129,7 @@ impl Named for Argument {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstValue,
@@ -1099,7 +1141,7 @@ impl Named for ArgumentValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,

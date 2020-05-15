@@ -257,6 +257,19 @@ Root {
                       ],
                       type: "Text",
                     },
+                    ScalarField {
+                      alias: "__isFeedUnit",
+                      args: [],
+                      directives: [],
+                      handles: null,
+                      loc: Generated {
+                      },
+                      metadata: {
+                        "abstractKey": "__isFeedUnit",
+                      },
+                      name: "__typename",
+                      type: "String!",
+                    },
                     LinkedField {
                       alias: "actor",
                       args: [],
@@ -858,6 +871,19 @@ Root {
                         },
                       ],
                       type: "Text",
+                    },
+                    ScalarField {
+                      alias: "__isFeedUnit",
+                      args: [],
+                      directives: [],
+                      handles: null,
+                      loc: Generated {
+                      },
+                      metadata: {
+                        "abstractKey": "__isFeedUnit",
+                      },
+                      name: "__typename",
+                      type: "String!",
                     },
                     LinkedField {
                       alias: "actor",

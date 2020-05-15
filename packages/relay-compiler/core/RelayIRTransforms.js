@@ -97,9 +97,9 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   // transform after we've inlined fragment spreads (i.e. InlineFragmentsTransform)
   // This will ensure that we don't generate nested ClientExtension nodes
   ClientExtensionsTransform.transform,
+  GenerateTypeNameTransform.transform,
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
-  GenerateTypeNameTransform.transformWithOptions({isForCodegen: true}),
   TestOperationTransform.transform,
   ValidateServerOnlyDirectivesTransform.transform,
 ];
@@ -112,8 +112,8 @@ const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
   ClientExtensionsTransform.transform,
   SkipClientExtensionsTransform.transform,
   SkipUnreachableNodeTransform.transform,
+  GenerateTypeNameTransform.transform,
   FlattenTransform.transformWithOptions({}),
-  GenerateTypeNameTransform.transformWithOptions({}),
   SkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
   SkipUnusedVariablesTransform.transform,

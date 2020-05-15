@@ -30,6 +30,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
@@ -209,6 +210,18 @@ class RelayResponseNormalizer {
             // legacy behavior for abstract refinements: always normalize even
             // if the type doesn't conform
             this._traverseSelections(selection, record, data);
+          }
+          break;
+        }
+        case TYPE_DISCRIMINATOR: {
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const {abstractKey} = selection;
+            const implementsInterface = data.hasOwnProperty(abstractKey);
+            RelayModernRecord.setValue(
+              record,
+              abstractKey,
+              implementsInterface,
+            );
           }
           break;
         }

@@ -127,6 +127,12 @@ function generateSelections(
         case 'Condition':
           return generateCondition(schema, selection);
         case 'ScalarField':
+          // NOTE: The type discriminator is used only for the
+          // normalization ast.
+          const isTypeDiscriminator = selection.metadata?.abstractKey != null;
+          if (isTypeDiscriminator) {
+            return null;
+          }
           return generateScalarField(schema, selection);
         case 'ModuleImport':
           return generateModuleImport(schema, selection);

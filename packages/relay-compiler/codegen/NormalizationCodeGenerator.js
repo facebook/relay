@@ -47,6 +47,7 @@ import type {
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
+  NormalizationTypeDiscriminator,
 } from 'relay-runtime';
 
 /**
@@ -117,7 +118,16 @@ function generateSelections(
         );
         break;
       case 'ScalarField':
-        normalizationSelections.push(...generateScalarField(selection));
+        // NOTE: Inline fragments in normalization ast have the abstractKey
+        // but we skip the corresponding ScalarField for the type discriminator
+        // selection, since it's guaranteed to be a duplicate of a parent __typename
+        // selection.
+        const abstractKey = selection.metadata?.abstractKey;
+        if (typeof abstractKey === 'string') {
+          normalizationSelections.push(generateTypeDiscriminator(abstractKey));
+        } else {
+          normalizationSelections.push(...generateScalarField(selection));
+        }
         break;
       case 'ModuleImport':
         normalizationSelections.push(generateModuleImport(selection));
@@ -221,11 +231,29 @@ function generateInlineFragment(
   node: InlineFragment,
 ): NormalizationSelection {
   const rawType = schema.getRawType(node.typeCondition);
+  const isAbstractType = schema.isAbstractType(rawType);
+
+  // NOTE:
+  // If we are generating an abstract inline fragment, it will
+  // already have an `abstractKey` which is enough information
+  // for normalization to record the type information at runtime,
+  // so we don't need to redundantly generate the TypeDiscriminator
+  // selection.
+  // The TypeDiscriminator selection will only end up being used
+  // as selections of other nodes, such as a LinkedField, for the
+  // cases when its parent abstract inline fragment ended up being
+  // flattened away or skipped as a result of our transforms.
+  const selections = isAbstractType
+    ? generateSelections(schema, node.selections).filter(
+        selection => selection.kind !== 'TypeDiscriminator',
+      )
+    : generateSelections(schema, node.selections);
+
   return {
     kind: 'InlineFragment',
-    selections: generateSelections(schema, node.selections),
+    selections,
     type: schema.getTypeString(rawType),
-    abstractKey: schema.isAbstractType(rawType)
+    abstractKey: isAbstractType
       ? generateAbstractTypeRefinementKey(schema, rawType)
       : null,
   };
@@ -314,6 +342,15 @@ function generateModuleImport(node: ModuleImport): NormalizationModuleImport {
     fragmentName,
     fragmentPropName,
     kind: 'ModuleImport',
+  };
+}
+
+function generateTypeDiscriminator(
+  abstractKey: string,
+): NormalizationTypeDiscriminator {
+  return {
+    kind: 'TypeDiscriminator',
+    abstractKey,
   };
 }
 

@@ -34,8 +34,8 @@ describe('GenerateTypeNameTransform', () => {
         .addAll(ast)
         .applyTransforms([
           InlineFragmentsTransform.transform,
+          GenerateTypeNameTransform.transform,
           FlattenTransform.transformWithOptions({isForCodegen: true}),
-          GenerateTypeNameTransform.transformWithOptions({isForCodegen: true}),
         ])
         .documents()
         .map(doc => printAST(doc))

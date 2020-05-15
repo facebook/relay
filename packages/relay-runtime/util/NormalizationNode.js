@@ -138,6 +138,11 @@ export type NormalizationScalarField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationTypeDiscriminator = {|
+  +kind: 'TypeDiscriminator',
+  +abstractKey: string,
+|};
+
 export type NormalizationSelection =
   | NormalizationCondition
   | NormalizationClientExtension
@@ -146,7 +151,8 @@ export type NormalizationSelection =
   | NormalizationHandle
   | NormalizationInlineFragment
   | NormalizationModuleImport
-  | NormalizationStream;
+  | NormalizationStream
+  | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {|
   +kind: 'SplitOperation',

@@ -62,6 +62,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
 const {
   getModuleOperationKey,
@@ -360,6 +361,9 @@ class DataChecker {
           const recordWasMissing = this._recordWasMissing;
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
+          break;
+        case TYPE_DISCRIMINATOR:
+          // We can ignore the type discriminator for checking
           break;
         default:
           (selection: empty);

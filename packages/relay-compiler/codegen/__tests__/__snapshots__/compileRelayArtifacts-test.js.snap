@@ -17880,6 +17880,9 @@ Request {
             name: "__typename",
             storageKey: null,
           },
+          TypeDiscriminator {
+            abstractKey: "__isNode",
+          },
           ScalarField {
             alias: null,
             args: null,
@@ -18247,6 +18250,9 @@ Request {
             args: null,
             name: "__typename",
             storageKey: null,
+          },
+          TypeDiscriminator {
+            abstractKey: "__isNode",
           },
           ScalarField {
             alias: null,

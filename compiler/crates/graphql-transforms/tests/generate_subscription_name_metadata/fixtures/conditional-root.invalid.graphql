@@ -1,0 +1,9 @@
+# expected-to-throw
+subscription TestSubscriptionWithMultipleSelections(
+  $input: FeedbackLikeInput
+  $cond: Boolean!
+) {
+  feedbackLikeSubscribe(input: $input) @include(if: $cond) {
+    clientSubscriptionId
+  }
+}

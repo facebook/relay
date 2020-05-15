@@ -1,8 +1,0 @@
-query SimpleQuery @my_custom_directive {
-  node(id: "test-id") {
-    id
-    ... on User {
-      name
-    }
-  }
-}

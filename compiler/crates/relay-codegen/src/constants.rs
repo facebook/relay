@@ -73,6 +73,7 @@ pub struct CodegenConstants {
     pub relay_test_operation_plural: StringKey,
     pub relay_test_operation_selection_type_info: StringKey,
     pub relay_test_operation_type: StringKey,
+    pub request_metadata_directive: StringKey,
     pub request: StringKey,
     pub root_argument: StringKey,
     pub scalar_field: StringKey,
@@ -124,6 +125,8 @@ lazy_static! {
         id: "id".intern(),
         identifier_field: "identifierField".intern(),
         if_: "if".intern(),
+        inline_data_fragment_spread: "InlineDataFragmentSpread".intern(),
+        inline_data_fragment: "InlineDataFragment".intern(),
         inline_fragment: "InlineFragment".intern(),
         items: "items".intern(),
         key: "key".intern(),
@@ -154,6 +157,7 @@ lazy_static! {
         relay_test_operation_plural: "plural".intern(),
         relay_test_operation_selection_type_info: "relayTestingSelectionTypeInfo".intern(),
         relay_test_operation_type: "type".intern(),
+        request_metadata_directive: "__metadata".intern(),
         request: "Request".intern(),
         root_argument: "RootArgument".intern(),
         scalar_field: "ScalarField".intern(),
@@ -169,7 +173,5 @@ lazy_static! {
         value: "value".intern(),
         variable_name: "variableName".intern(),
         variable: "Variable".intern(),
-        inline_data_fragment: "InlineDataFragment".intern(),
-        inline_data_fragment_spread: "InlineDataFragmentSpread".intern(),
     };
 }

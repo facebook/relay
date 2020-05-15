@@ -36,7 +36,6 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                             operation,
                             &operation_fragment,
                             request_parameters,
-                            &vec![],
                         )
                     }
                     ExecutableDefinition::Fragment(fragment) => {

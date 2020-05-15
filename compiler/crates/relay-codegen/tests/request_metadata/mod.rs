@@ -5,35 +5,48 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FileKey, NamedItem};
+use common::{FileKey, WithLocation};
 use fixture_tests::Fixture;
-use graphql_ir::{build, ExecutableDefinition, FragmentDefinition};
+use graphql_ir::{
+    build, Argument, ConstantValue, Directive, ExecutableDefinition, FragmentDefinition,
+    OperationDefinition, Value,
+};
 use graphql_syntax::parse;
 use interner::Intern;
-use relay_codegen::{
-    build_request_params, print_fragment, print_request, MetadataGeneratorFn, Primitive,
-};
-use test_schema::test_schema_with_extensions;
+use relay_codegen::{build_request_params, print_fragment, print_request};
+use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let test_schema = test_schema_with_extensions("directive @my_custom_directive on QUERY");
-
     let ast = parse(fixture.content, FileKey::new(fixture.file_name)).unwrap();
-    let program = build(&test_schema, &ast.definitions);
-
-    let metadata_generators: Vec<MetadataGeneratorFn> = vec![Box::new(|operation| {
-        operation
-            .directives
-            .named("my_custom_directive".intern())
-            .map(|_| ("test_metadata".intern(), Primitive::Bool(true)))
-    })];
-
+    let program = build(&TEST_SCHEMA, &ast.definitions);
     program
         .map(|definitions| {
             definitions
                 .iter()
                 .map(|def| match def {
                     ExecutableDefinition::Operation(operation) => {
+                        let operation = OperationDefinition {
+                            directives: vec![Directive {
+                                name: WithLocation::new(
+                                    operation.name.location,
+                                    "__metadata".intern(),
+                                ),
+                                arguments: vec![Argument {
+                                    name: WithLocation::new(
+                                        operation.name.location,
+                                        "metadataKey".intern(),
+                                    ),
+                                    value: WithLocation::new(
+                                        operation.name.location,
+                                        Value::Constant(ConstantValue::String(
+                                            "Hello world!".intern(),
+                                        )),
+                                    ),
+                                }],
+                            }],
+                            ..operation.clone()
+                        };
+
                         let operation_fragment = FragmentDefinition {
                             name: operation.name,
                             variable_definitions: operation.variable_definitions.clone(),
@@ -44,15 +57,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                         };
                         let request_parameters = build_request_params(&operation);
                         print_request(
-                            &test_schema,
-                            operation,
+                            &TEST_SCHEMA,
+                            &operation,
                             &operation_fragment,
                             request_parameters,
-                            &metadata_generators,
                         )
                     }
                     ExecutableDefinition::Fragment(fragment) => {
-                        print_fragment(&test_schema, fragment)
+                        print_fragment(&TEST_SCHEMA, fragment)
                     }
                 })
                 .collect::<Vec<_>>()

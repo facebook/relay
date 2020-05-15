@@ -1,10 +1,7 @@
 ==================================== INPUT ====================================
-query SimpleQuery @my_custom_directive {
-  node(id: "test-id") {
+query QueryWithMetadata {
+  node(id: "foo") {
     id
-    ... on User {
-      name
-    }
   }
 }
 ==================================== OUTPUT ===================================
@@ -13,7 +10,7 @@ query SimpleQuery @my_custom_directive {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "SimpleQuery",
+    "name": "QueryWithMetadata",
     "selections": [
       {
         "alias": null,
@@ -21,7 +18,7 @@ query SimpleQuery @my_custom_directive {
           {
             "kind": "Literal",
             "name": "id",
-            "value": "test-id"
+            "value": "foo"
           }
         ],
         "concreteType": null,
@@ -35,23 +32,9 @@ query SimpleQuery @my_custom_directive {
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
           }
         ],
-        "storageKey": "node(id:\"test-id\")"
+        "storageKey": "node(id:\"foo\")"
       }
     ],
     "type": "Query",
@@ -61,7 +44,7 @@ query SimpleQuery @my_custom_directive {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "SimpleQuery",
+    "name": "QueryWithMetadata",
     "selections": [
       {
         "alias": null,
@@ -69,7 +52,7 @@ query SimpleQuery @my_custom_directive {
           {
             "kind": "Literal",
             "name": "id",
-            "value": "test-id"
+            "value": "foo"
           }
         ],
         "concreteType": null,
@@ -83,32 +66,18 @@ query SimpleQuery @my_custom_directive {
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
           }
         ],
-        "storageKey": "node(id:\"test-id\")"
+        "storageKey": "node(id:\"foo\")"
       }
     ]
   },
   "params": {
     "id": null,
     "metadata": {
-      "test_metadata": true
+      "metadataKey": "Hello world!"
     },
-    "name": "SimpleQuery",
+    "name": "QueryWithMetadata",
     "operationKind": "query",
     "text": null
   }

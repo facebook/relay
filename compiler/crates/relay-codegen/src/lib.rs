@@ -18,5 +18,5 @@ mod relay_test_operation;
 mod utils;
 
 pub use ast::{Primitive, RequestParameters};
-pub use build_ast::{build_request_params, MetadataGeneratorFn};
+pub use build_ast::build_request_params;
 pub use printer::{print_fragment, print_operation, print_request, Printer};

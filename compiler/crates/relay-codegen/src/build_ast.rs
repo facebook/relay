@@ -26,30 +26,24 @@ use graphql_transforms::{
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
 
-pub type MetadataGeneratorFn = Box<dyn Fn(&OperationDefinition) -> Option<(StringKey, Primitive)>>;
-
 pub fn build_request(
     schema: &Schema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters,
-    metadata_generators: &[MetadataGeneratorFn],
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
-
     let test_operation_metadata = operation_builder.build_test_operation_metadata(&operation);
-    let operation_primitive = Primitive::Key(operation_builder.build_operation(operation));
-    let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
-    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
-    let params = intern_request_parameters(
-        ast_builder,
-        request_parameters,
+    let params = operation_builder.build_request_parameters(
         operation,
-        metadata_generators,
+        request_parameters,
         test_operation_metadata,
     );
+    let operation = Primitive::Key(operation_builder.build_operation(operation));
+    let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
 
     ast_builder.intern(Ast::Object(vec![
         (CODEGEN_CONSTANTS.fragment, fragment),
@@ -57,7 +51,7 @@ pub fn build_request(
             CODEGEN_CONSTANTS.kind,
             Primitive::String(CODEGEN_CONSTANTS.request),
         ),
-        (CODEGEN_CONSTANTS.operation, operation_primitive),
+        (CODEGEN_CONSTANTS.operation, operation),
         (CODEGEN_CONSTANTS.params, params),
     ]))
 }
@@ -1237,6 +1231,88 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             (CODEGEN_CONSTANTS.selections, selections),
         ]))
     }
+
+    fn build_request_parameters(
+        &mut self,
+        operation: &OperationDefinition,
+        mut request_parameters: RequestParameters,
+        // We need to move test metadata generation back to transforms
+        deprecated_test_operation_metadata: Option<(StringKey, Primitive)>,
+    ) -> Primitive {
+        let mut metadata_items: Vec<(StringKey, Primitive)> = operation
+            .directives
+            .iter()
+            .filter_map(|directive| {
+                if directive.name.item == CODEGEN_CONSTANTS.request_metadata_directive {
+                    if directive.arguments.len() != 1 {
+                        panic!("@__metadata directive should have only one argument!");
+                    }
+
+                    let arg = &directive.arguments[0];
+                    let key = arg.name.item;
+                    let value = match &arg.value.item {
+                        Value::Constant(value) => self.build_constant_value(value),
+                        _ => {
+                            panic!("@__metadata directive expect only constant argument values.");
+                        }
+                    };
+
+                    Some((key, value))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // add test_operation metadata
+        if let Some(deprecated_test_operation_metadata) = deprecated_test_operation_metadata {
+            metadata_items.push(deprecated_test_operation_metadata);
+        }
+
+        // add request parameters metadata
+        let metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
+        for (key, value) in metadata_values {
+            metadata_items.push((key.intern(), Primitive::RawString(value)));
+        }
+
+        // sort metadata keys
+        metadata_items.sort_unstable_by(|l, r| l.0.cmp(&r.0));
+
+        // Construct  metadata object
+        let metadata = Primitive::Key(self.object(metadata_items));
+
+        let object = vec![
+            (
+                CODEGEN_CONSTANTS.id,
+                match request_parameters.id {
+                    None => Primitive::Null,
+                    Some(str) => Primitive::RawString(str),
+                },
+            ),
+            (CODEGEN_CONSTANTS.metadata, metadata),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(request_parameters.name),
+            ),
+            (
+                CODEGEN_CONSTANTS.operation_kind,
+                Primitive::String(match request_parameters.operation_kind {
+                    OperationKind::Query => CODEGEN_CONSTANTS.query,
+                    OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
+                    OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
+                }),
+            ),
+            (
+                CODEGEN_CONSTANTS.text,
+                match request_parameters.text {
+                    None => Primitive::Null,
+                    Some(text) => Primitive::RawString(text),
+                },
+            ),
+        ];
+
+        Primitive::Key(self.object(object))
+    }
 }
 
 // Storage key is only pre-computable if the arguments don't contain variables
@@ -1255,63 +1331,4 @@ fn value_contains_variable(value: &Value) -> bool {
             .iter()
             .any(|arg| value_contains_variable(&arg.value.item)),
     }
-}
-
-fn intern_request_parameters(
-    ast_builder: &mut AstBuilder,
-    mut request_parameters: RequestParameters,
-    operation: &OperationDefinition,
-    metadata_generators: &[MetadataGeneratorFn],
-    test_operation_metadata: Option<(StringKey, Primitive)>,
-) -> Primitive {
-    // add metadata from generators
-    let mut metadata_items: Vec<(StringKey, Primitive)> = metadata_generators
-        .iter()
-        .filter_map(|metadata_generator_fn| metadata_generator_fn(operation))
-        .collect();
-    // add test metadata
-    if let Some(test_operation_metadata) = test_operation_metadata {
-        metadata_items.push(test_operation_metadata);
-    }
-    // add request parameters metadata
-    let metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
-    for (key, value) in metadata_values {
-        metadata_items.push((key.intern(), Primitive::RawString(value)));
-    }
-
-    metadata_items.sort_unstable_by(|l, r| l.0.cmp(&r.0));
-
-    // Construct  metadata object
-    let metadata = Primitive::Key(ast_builder.intern(Ast::Object(metadata_items)));
-
-    let object = vec![
-        (
-            CODEGEN_CONSTANTS.id,
-            match request_parameters.id {
-                None => Primitive::Null,
-                Some(str) => Primitive::RawString(str),
-            },
-        ),
-        (CODEGEN_CONSTANTS.metadata, metadata),
-        (
-            CODEGEN_CONSTANTS.name,
-            Primitive::String(request_parameters.name),
-        ),
-        (
-            CODEGEN_CONSTANTS.operation_kind,
-            Primitive::String(match request_parameters.operation_kind {
-                OperationKind::Query => CODEGEN_CONSTANTS.query,
-                OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
-                OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
-            }),
-        ),
-        (
-            CODEGEN_CONSTANTS.text,
-            match request_parameters.text {
-                None => Primitive::Null,
-                Some(text) => Primitive::RawString(text),
-            },
-        ),
-    ];
-    Primitive::Key(ast_builder.intern(Ast::Object(object)))
 }

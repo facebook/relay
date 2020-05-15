@@ -17,6 +17,7 @@ mod connections;
 mod defer_stream;
 mod flatten;
 mod generate_id_field;
+mod generate_subscription_name_metadata;
 mod generate_typename;
 mod handle_fields;
 mod hash_arguments;
@@ -52,6 +53,7 @@ pub use defer_stream::{
 };
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
+pub use generate_subscription_name_metadata::generate_subscription_name_metadata;
 pub use generate_typename::generate_typename;
 pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,

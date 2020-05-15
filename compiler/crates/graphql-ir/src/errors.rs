@@ -41,6 +41,14 @@ impl ValidationError {
         Self { message, locations }
     }
 
+    pub fn transfrom_error(message: String, locations: Vec<Location>) -> Self {
+        let validation_message = ValidationMessage::TransformError { message };
+        Self {
+            message: validation_message,
+            locations,
+        }
+    }
+
     /// Attaches sources to the error to allow it to be printed with a code
     /// listing without requiring additional context.
     pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
@@ -468,4 +476,7 @@ pub enum ValidationMessage {
         "Expected the {query_name} argument to exist in relay_early_flush on the server schema."
     )]
     RelayEarlyFlushSchemaWithoutQueryNameArg { query_name: StringKey },
+
+    #[error("Transfrom error: {message}")]
+    TransformError { message: String },
 }

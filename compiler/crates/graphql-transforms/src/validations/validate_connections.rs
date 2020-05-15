@@ -40,7 +40,7 @@ impl<'s> ConnectionValidation<'s> {
         }
     }
 
-    /// Validates that the connnection field is a non-plural, object or interface type.
+    /// Validates that the connection field is a non-plural, object or interface type.
     fn validate_connection_field_type(
         &self,
         connection_field: &LinkedField,

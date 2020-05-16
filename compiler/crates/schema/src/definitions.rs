@@ -624,10 +624,17 @@ impl Schema {
                 values,
             } => {
                 let directives = self.build_directive_values(&directives);
+                let values = values
+                    .iter()
+                    .map(|enum_def| EnumValue {
+                        value: enum_def.name,
+                        directives: self.build_directive_values(&enum_def.directives),
+                    })
+                    .collect();
                 self.enums.push(Enum {
                     name: *name,
                     is_extension,
-                    values: values.iter().map(|enum_def| enum_def.name).collect(),
+                    values,
                     directives,
                 });
             }
@@ -1085,7 +1092,7 @@ pub struct InputObject {
 pub struct Enum {
     pub name: StringKey,
     pub is_extension: bool,
-    pub values: Vec<StringKey>,
+    pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
 }
 
@@ -1150,6 +1157,12 @@ impl Named for DirectiveValue {
     fn name(&self) -> StringKey {
         self.name
     }
+}
+
+#[derive(Clone, Debug)]
+pub struct EnumValue {
+    pub value: StringKey,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -1224,23 +1224,18 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .into())
             }
         };
-        if type_definition.values.contains(&value)
-            || (validation == ValidationLevel::Loose
-                && (type_definition
-                    .values
-                    .contains(&value.lookup().to_uppercase().intern())
-                    || type_definition
-                        .values
-                        .contains(&value.lookup().to_lowercase().intern())))
-        {
-            Ok(ConstantValue::Enum(value))
-        } else {
-            Err(self
+        match type_definition.values.iter().find(|enum_value| {
+            enum_value.value == value
+                || enum_value.value == value.lookup().to_lowercase().intern()
+                || enum_value.value == value.lookup().to_uppercase().intern()
+        }) {
+            Some(_) => Ok(ConstantValue::Enum(value)),
+            _ => Err(self
                 .record_error(ValidationError::new(
                     ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                     vec![self.location.with_span(node.span())],
                 ))
-                .into())
+                .into()),
         }
     }
 

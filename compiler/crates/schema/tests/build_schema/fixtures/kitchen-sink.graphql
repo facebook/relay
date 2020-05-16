@@ -18,6 +18,13 @@ type User implements Node {
 
 type Page {
   id: ID
+  type: PageType
+}
+
+enum PageType {
+  DEAULT @deprecated(reason: "No longer supported")
+  PUBLIC
+  PRIVATE
 }
 
 union Actor = User | Page

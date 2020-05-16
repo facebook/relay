@@ -24,9 +24,9 @@ pub use ast::{
     Value as AstValue,
 };
 pub use definitions::{
-    Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID, Field,
-    FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object, ObjectID, Scalar,
-    ScalarID, Schema, Type, TypeReference, TypeWithFields, UnionID,
+    Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
+    EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
+    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, UnionID,
 };
 pub use errors::{Result, SchemaError};
 use lexer::Lexer;

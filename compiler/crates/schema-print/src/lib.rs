@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
 use itertools::Itertools;
 use schema::*;
 use std::collections::BTreeMap;
@@ -284,14 +283,15 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, ")")
     }
 
-    fn print_enum_values(&mut self, values: &[StringKey]) -> Result {
+    fn print_enum_values(&mut self, values: &[EnumValue]) -> Result {
         if values.is_empty() {
             return Ok(());
         }
         write!(self.writer, "{{")?;
         self.print_new_line()?;
         for value in values {
-            write!(self.writer, "  {}", value,)?;
+            write!(self.writer, "  {}", value.value,)?;
+            self.print_directive_values(&value.directives)?;
             self.print_new_line()?;
         }
         write!(self.writer, "}}")

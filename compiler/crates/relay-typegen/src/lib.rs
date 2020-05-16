@@ -651,7 +651,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 let mut members: Vec<AST> = enum_type
                     .values
                     .iter()
-                    .map(|enum_value| AST::StringLiteral(*enum_value))
+                    .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
                 members.push(AST::StringLiteral("%future added value".intern()));
                 writeln!(

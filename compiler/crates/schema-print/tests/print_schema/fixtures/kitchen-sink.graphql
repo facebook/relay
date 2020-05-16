@@ -36,7 +36,7 @@ union Actor @source(schema: "instagram", name: "Story") = User | Page
 
 enum AppStoreSectionContentTypeEnum
   @source(schema: "instagram", name: "Story") {
-  DEFAULT
+  DEFAULT @deprecated(reason: "test")
   CONCEPTS
   EARLY_ACCESS
 }

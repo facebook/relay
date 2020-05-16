@@ -1172,7 +1172,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     self.array(
                         enum_values
                             .iter()
-                            .map(|enum_value| Primitive::String(*enum_value))
+                            .map(|enum_value| Primitive::String(enum_value.value))
                             .collect(),
                     )
                 });

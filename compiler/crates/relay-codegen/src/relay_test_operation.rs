@@ -10,7 +10,7 @@ use graphql_ir::{OperationDefinition, Selection};
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Field, Schema, Type};
+use schema::{EnumValue, Field, Schema, Type};
 
 pub struct Constants {
     pub relay_test_operation_directive_name: StringKey,
@@ -25,7 +25,7 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct RelayTestOperationSelectionTypeInfo {
     pub type_: StringKey,
-    pub enum_values: Option<Vec<StringKey>>,
+    pub enum_values: Option<Vec<EnumValue>>,
     pub plural: bool,
     pub nullable: bool,
 }

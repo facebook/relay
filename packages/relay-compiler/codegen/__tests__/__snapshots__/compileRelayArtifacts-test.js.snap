@@ -1312,9 +1312,7 @@ Request {
                 name: "username",
                 storageKey: null,
               },
-              InlineFragment {
-                selections: [],
-                type: "Node",
+              TypeDiscriminator {
                 abstractKey: "__isNode",
               },
             ],
@@ -1471,9 +1469,7 @@ Request {
                 name: "username",
                 storageKey: null,
               },
-              InlineFragment {
-                selections: [],
-                type: "Node",
+              TypeDiscriminator {
                 abstractKey: "__isNode",
               },
             ],
@@ -12424,9 +12420,7 @@ Request {
           },
           InlineFragment {
             selections: [
-              InlineFragment {
-                selections: [],
-                type: "Node",
+              TypeDiscriminator {
                 abstractKey: "__isNode",
               },
               InlineFragment {

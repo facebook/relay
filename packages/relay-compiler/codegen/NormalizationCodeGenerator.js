@@ -13,6 +13,7 @@
 'use strict';
 
 const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+const partitionArray = require('../util/partitionArray');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {getStorageKey, stableCopy} = require('relay-runtime');
@@ -232,30 +233,40 @@ function generateInlineFragment(
 ): NormalizationSelection {
   const rawType = schema.getRawType(node.typeCondition);
   const isAbstractType = schema.isAbstractType(rawType);
+  const abstractKey = isAbstractType
+    ? generateAbstractTypeRefinementKey(schema, rawType)
+    : null;
+  let selections = generateSelections(schema, node.selections);
 
-  // NOTE:
-  // If we are generating an abstract inline fragment, it will
-  // already have an `abstractKey` which is enough information
-  // for normalization to record the type information at runtime,
-  // so we don't need to redundantly generate the TypeDiscriminator
-  // selection.
-  // The TypeDiscriminator selection will only end up being used
-  // as selections of other nodes, such as a LinkedField, for the
-  // cases when its parent abstract inline fragment ended up being
-  // flattened away or skipped as a result of our transforms.
-  const selections = isAbstractType
-    ? generateSelections(schema, node.selections).filter(
-        selection => selection.kind !== 'TypeDiscriminator',
-      )
-    : generateSelections(schema, node.selections);
+  if (isAbstractType) {
+    // Maintain a few invariants:
+    // - InlineFragment (and `selections` arrays generally) cannot be empty
+    // - Don't emit a TypeDiscriminator under an InlineFragment unless it has
+    //   a different abstractKey
+    // This means we have to handle two cases:
+    // - The inline fragment only contains a TypeDiscriminator with the same
+    //   abstractKey: replace the Fragment w the Discriminator
+    // - The inline fragment contains other selections: return all the selections
+    //   minus any Discriminators w the same key
+    const [discriminators, otherSelections] = partitionArray(
+      selections,
+      selection =>
+        selection.kind === 'TypeDiscriminator' &&
+        selection.abstractKey === abstractKey,
+    );
+    const discriminator = discriminators[0];
+    if (discriminator != null && otherSelections.length === 0) {
+      return discriminator;
+    } else {
+      selections = otherSelections;
+    }
+  }
 
   return {
     kind: 'InlineFragment',
     selections,
     type: schema.getTypeString(rawType),
-    abstractKey: isAbstractType
-      ? generateAbstractTypeRefinementKey(schema, rawType)
-      : null,
+    abstractKey,
   };
 }
 

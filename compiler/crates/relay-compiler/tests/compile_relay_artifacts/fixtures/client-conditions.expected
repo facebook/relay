@@ -83,6 +83,18 @@ interface ClientNamed {
           "storageKey": null
         },
         {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "client_nickname",
+              "storageKey": null
+            }
+          ]
+        },
+        {
           "kind": "InlineFragment",
           "selections": [
             {
@@ -136,18 +148,6 @@ interface ClientNamed {
           ],
           "type": "Actor",
           "abstractKey": "__isActor"
-        },
-        {
-          "kind": "ClientExtension",
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "client_nickname",
-              "storageKey": null
-            }
-          ]
         }
       ]
     },

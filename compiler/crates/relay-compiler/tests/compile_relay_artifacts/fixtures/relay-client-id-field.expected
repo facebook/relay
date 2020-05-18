@@ -171,6 +171,18 @@ query RelayClientIDFieldQuery($id: ID!) {
                           }
                         ],
                         "storageKey": null
+                      },
+                      {
+                        "kind": "ClientExtension",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__id",
+                            "storageKey": null
+                          }
+                        ]
                       }
                     ],
                     "type": "PlainCommentBody",
@@ -369,6 +381,18 @@ query RelayClientIDFieldQuery($id: ID!) {
                           }
                         ],
                         "storageKey": null
+                      },
+                      {
+                        "kind": "ClientExtension",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__id",
+                            "storageKey": null
+                          }
+                        ]
                       }
                     ],
                     "type": "PlainCommentBody",

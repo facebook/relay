@@ -135,6 +135,7 @@ fn apply_reader_transforms<'schema>(
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
 
+    let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
@@ -144,7 +145,6 @@ fn apply_reader_transforms<'schema>(
     });
     let program = log_event.time("flatten", || flatten(&program, true));
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
-    let program = log_event.time("client_extensions", || client_extensions(&program));
 
     perf_logger.complete_event(log_event);
 
@@ -219,12 +219,12 @@ fn apply_normalization_transforms<'schema>(
         validate_server_only_directives(&program)
     })?;
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
+    let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("flatten", || flatten(&program, true));
     log_event.time("validate_module_conflicts", || {
         validate_module_conflicts(&program)
     })?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
-    let program = log_event.time("client_extensions", || client_extensions(&program));
 
     let program = log_event.time("generate_typename", || generate_typename(&program));
     perf_logger.complete_event(log_event);

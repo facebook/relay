@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
-use crate::match_::MATCH_CONSTANTS;
-use crate::util::PointerAddress;
+use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, Selection,
@@ -15,9 +13,7 @@ use graphql_ir::{
 use schema::TypeReference;
 
 use crate::node_identifier::NodeIdentifier;
-use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use fnv::FnvHashMap;
 use std::sync::Arc;
 
 type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
@@ -268,22 +264,11 @@ impl<'s> FlattenTransform<'s> {
     }
 }
 
-lazy_static! {
-    static ref RELAY_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
-        "__clientExtension".intern(),
-        "defer".intern(),
-        MATCH_CONSTANTS.custom_module_directive_name,
-        INLINE_DATA_CONSTANTS.internal_directive_name,
-    ]
-    .into_iter()
-    .collect();
-}
-
 fn should_flatten_inline_with_directives(directives: &[Directive], is_for_codegen: bool) -> bool {
     if is_for_codegen {
         !directives
             .iter()
-            .any(|directive| RELAY_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item))
+            .any(is_relay_custom_inline_fragment_directive)
     } else {
         directives.is_empty()
     }

@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::node_identifier::NodeIdentifier;
 use crate::util::PointerAddress;
+
+use common::NamedItem;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
@@ -200,6 +203,21 @@ impl<'s> SkipRedundantNodesTransform<'s> {
                 if let Some(Some(existing_selection_map)) = selection_map.0.get_mut(&identifier) {
                     self.transform_inline_fragment(selection, existing_selection_map)
                         .map(Selection::InlineFragment)
+                } else if selection
+                    .directives
+                    .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
+                    .is_some()
+                {
+                    let mut linked_selection_map = Default::default();
+                    let result = self
+                        .transform_inline_fragment(selection, &mut linked_selection_map)
+                        .map(Selection::InlineFragment);
+                    if !linked_selection_map.0.is_empty() {
+                        selection_map
+                            .0
+                            .insert(identifier, Some(linked_selection_map));
+                    }
+                    result
                 } else {
                     // Fork for inline fragments for the same reason
                     let mut next_selection_map = selection_map.clone();
@@ -374,10 +392,8 @@ impl<'s> Transformer for SkipRedundantNodesTransform<'s> {
  */
 fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
     let (mut left, right): (Vec<_>, Vec<_>) = selections.iter().partition(|sel| match sel {
-        Selection::LinkedField(_) | Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
-            true
-        }
-        Selection::Condition(_) | Selection::InlineFragment(_) => false,
+        Selection::LinkedField(_) | Selection::ScalarField(_) => true,
+        _ => false,
     });
     left.extend(right);
     left

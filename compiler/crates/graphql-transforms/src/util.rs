@@ -5,15 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::client_extensions::ClientExtensionConstants;
+use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionConstants;
 use crate::handle_fields::HandleFieldConstants;
+use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 
+use fnv::FnvHashSet;
 use graphql_ir::{Argument, Directive, Value};
-use interner::StringKey;
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 
 // A wrapper type that allows comparing pointer equality of references. Two
 // `PointerAddress` values are equal if they point to the same memory location.
@@ -74,7 +77,6 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 pub struct CustomMetadataDirectives {
-    client_extension_constants: ClientExtensionConstants,
     connection_constants: ConnectionConstants,
     handle_field_constants: HandleFieldConstants,
 }
@@ -82,7 +84,6 @@ pub struct CustomMetadataDirectives {
 impl Default for CustomMetadataDirectives {
     fn default() -> Self {
         Self {
-            client_extension_constants: ClientExtensionConstants::default(),
             connection_constants: ConnectionConstants::default(),
             handle_field_constants: HandleFieldConstants::default(),
         }
@@ -91,9 +92,7 @@ impl Default for CustomMetadataDirectives {
 
 impl CustomMetadataDirectives {
     pub fn is_custom_metadata_directive(&self, name: StringKey) -> bool {
-        name == self
-            .client_extension_constants
-            .client_extension_directive_name
+        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
             || name == self.connection_constants.connection_metadata_directive_name
             || name == self.handle_field_constants.handle_field_directive_name
             || name == MATCH_CONSTANTS.custom_module_directive_name
@@ -101,4 +100,19 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
     }
+}
+
+lazy_static! {
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        MATCH_CONSTANTS.custom_module_directive_name,
+        INLINE_DATA_CONSTANTS.internal_directive_name,
+        "defer".intern(),
+    ]
+    .into_iter()
+    .collect();
+}
+
+pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {
+    RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item)
 }

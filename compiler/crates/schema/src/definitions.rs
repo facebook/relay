@@ -1047,6 +1047,13 @@ impl TypeReference {
         }
     }
 
+    pub fn list_item_type(&self) -> Option<&TypeReference> {
+        match self.nullable_type() {
+            TypeReference::List(of) => Some(of),
+            _ => None,
+        }
+    }
+
     // Return None if the type is a List, otherwise return the inner type
     pub fn non_list_type(&self) -> Option<Type> {
         match self {

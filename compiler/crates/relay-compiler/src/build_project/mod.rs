@@ -155,7 +155,16 @@ pub async fn build_project(
         persist_operations(config, &mut artifacts, persist_config).await?;
     }
 
-    generate_extra_artifacts(&mut artifacts, project_config);
+    // In some cases we need to create additional (platform specific) artifacts
+    // For that, we will use `generate_extra_operation_artifacts` from the configs
+    if let Some(generate_extra_artifacts_fn) = &config.generate_extra_operation_artifacts {
+        generate_extra_artifacts(
+            &schema,
+            project_config,
+            &mut artifacts,
+            generate_extra_artifacts_fn,
+        );
+    }
 
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts or persisting to avoid partial writes in case of

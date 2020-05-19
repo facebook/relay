@@ -45,8 +45,11 @@ pub struct Location {
 impl fmt::Debug for Location {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let path = PathBuf::from(self.file.lookup());
-        let file_name = path.file_name().expect("Expected a valid file path");
-        write!(f, "{:?}:{:?}", file_name, self.span)
+        if let Some(file_name) = path.file_name() {
+            write!(f, "{:?}:{:?}", file_name, self.span)
+        } else {
+            write!(f, "invalid file path: {:?}:{:?}", path, self.span)
+        }
     }
 }
 

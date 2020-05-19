@@ -20,7 +20,6 @@ use std::path::PathBuf;
 /// - the absolute path to the root of the compiled projects
 /// - command line options
 /// - TODO: injected code to produce additional files
-#[derive(Debug)]
 pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
@@ -34,9 +33,10 @@ pub struct Config {
     pub write_artifacts: bool,
     /// If set, the compiler will only compile the given project
     pub only_project: Option<StringKey>,
-
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
+    /// Function to genetate extra
+    pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
 }
 
 impl Config {
@@ -138,7 +138,6 @@ impl Config {
                     enum_module_suffix: config_file_project.enum_module_suffix,
                     optional_input_fields: config_file_project.optional_input_fields,
                     persist: config_file_project.persist,
-                    generate_extra_operation_artifacts: None,
                 };
                 Ok((project_name, project_config))
             })
@@ -153,6 +152,7 @@ impl Config {
             write_artifacts: true,
             only_project: None,
             load_saved_state_file: None,
+            generate_extra_operation_artifacts: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -251,6 +251,43 @@ impl Config {
     }
 }
 
+impl fmt::Debug for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let Config {
+            root_dir,
+            sources,
+            blacklist,
+            projects,
+            header,
+            codegen_command,
+            write_artifacts,
+            only_project,
+            load_saved_state_file,
+            generate_extra_operation_artifacts,
+        } = self;
+        f.debug_struct("Config")
+            .field("root_dir", root_dir)
+            .field("sources", sources)
+            .field("blacklist", blacklist)
+            .field("projects", projects)
+            .field("header", header)
+            .field("codegen_command", codegen_command)
+            .field("write_artifacts", write_artifacts)
+            .field("only_project", only_project)
+            .field("load_saved_state_file", load_saved_state_file)
+            .field(
+                "generate_extra_operation_artifacts",
+                if generate_extra_operation_artifacts.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
+            .finish()
+    }
+}
+
+#[derive(Debug)]
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
@@ -262,45 +299,6 @@ pub struct ProjectConfig {
     pub enum_module_suffix: Option<String>,
     pub optional_input_fields: Vec<StringKey>,
     pub persist: Option<PersistConfig>,
-    pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
-}
-
-impl fmt::Debug for ProjectConfig {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let ProjectConfig {
-            name,
-            base,
-            output,
-            shard_output,
-            shard_strip_regex,
-            extensions,
-            schema_location,
-            enum_module_suffix,
-            optional_input_fields,
-            persist,
-            generate_extra_operation_artifacts,
-        } = self;
-        f.debug_struct("ProjectConfig")
-            .field("name", name)
-            .field("base", base)
-            .field("output", output)
-            .field("shard_output", shard_output)
-            .field("shard_strip_regex", shard_strip_regex)
-            .field("extensions", extensions)
-            .field("schema_location", schema_location)
-            .field("enum_module_suffix", enum_module_suffix)
-            .field("optional_input_fields", optional_input_fields)
-            .field("persist", persist)
-            .field(
-                "generate_extra_operation_artifacts",
-                if generate_extra_operation_artifacts.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
-            )
-            .finish()
-    }
 }
 
 #[derive(Clone, Debug)]

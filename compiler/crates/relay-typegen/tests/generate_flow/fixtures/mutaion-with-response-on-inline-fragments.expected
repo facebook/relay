@@ -56,14 +56,14 @@ export type TestMutationRawResponse = {|
     +viewer: ?{|
       +actor: ?({|
         +__typename: "User",
-        +id: ?string,
+        +id: string,
         +hometown: ?{|
           +id: string,
           +name: ?string,
         |},
       |} | {|
         +__typename: "Page",
-        +id: ?string,
+        +id: string,
         +name: ?string,
         +hometown: ?{|
           +id: string,
@@ -72,8 +72,8 @@ export type TestMutationRawResponse = {|
           |},
         |},
       |} | {|
-        +__typename: ?string,
-        +id: ?string,
+        +__typename: string,
+        +id: string,
       |})
     |}
   |}

@@ -33,9 +33,19 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
-    let operation_strings = operations
-        .into_iter()
-        .map(|frag| relay_typegen::generate_operation_type(frag, &schema, &None, &Vec::new()));
+    let operation_strings = operations.into_iter().map(|typegen_operation| {
+        let normalization_operation = programs
+            .normalization
+            .operation(typegen_operation.name.item)
+            .unwrap();
+        relay_typegen::generate_operation_type(
+            typegen_operation,
+            normalization_operation,
+            &schema,
+            &None,
+            &Vec::new(),
+        )
+    });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);

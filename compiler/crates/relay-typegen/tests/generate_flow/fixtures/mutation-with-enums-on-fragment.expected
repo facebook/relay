@@ -76,7 +76,7 @@ export type CommentCreateMutationRawResponse = {|
           |}
         |}>
       |},
-      +id: ?string,
+      +id: string,
     |}
   |}
 |};

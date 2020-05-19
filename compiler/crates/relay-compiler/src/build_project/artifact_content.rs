@@ -144,6 +144,7 @@ fn generate_operation(
         "/*::\nimport type {{ ConcreteRequest }} from 'relay-runtime';\n{}*/\n",
         relay_typegen::generate_operation_type(
             typegen_operation,
+            normalization_operation,
             schema,
             &project_config.enum_module_suffix,
             &project_config.optional_input_fields

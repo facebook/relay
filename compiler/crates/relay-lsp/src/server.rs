@@ -14,10 +14,14 @@ use crate::lsp::{
     TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };
 
+use relay_compiler::FileSource;
+
 use relay_compiler::config::Config;
 
 use crate::lsp::show_info_message;
 
+use common::ConsoleLogger;
+use common::PerfLogger;
 use log::info;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -127,7 +131,21 @@ pub async fn run(
 
     compiler_notify.notified().await;
     let config = load_config();
-    let mut lsp_compiler = LSPCompiler::new(&config, lsp_rx, connection).await.unwrap();
+    let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
+    let file_source = FileSource::connect(&config, &setup_event).await.unwrap();
+    let (compiler_state, subscription) = file_source
+        .subscribe(&setup_event, &ConsoleLogger)
+        .await
+        .unwrap();
+    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event);
+    let mut lsp_compiler = LSPCompiler::new(
+        &schemas,
+        &config,
+        subscription,
+        compiler_state,
+        lsp_rx,
+        connection,
+    );
     lsp_compiler.watch().await.unwrap();
     Ok(())
 }

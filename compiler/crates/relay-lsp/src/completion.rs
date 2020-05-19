@@ -12,6 +12,8 @@ use graphql_syntax::{parse, Document, GraphQLSource};
 use interner::StringKey;
 use log::info;
 
+use relay_compiler::Programs;
+
 use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
     ServerResponse, TextDocumentPositionParams, Url,
@@ -24,18 +26,57 @@ use graphql_syntax::{
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum CompletionPathItem {
-    Operation(OperationKind),
-    FragmentDefinition { type_name: StringKey },
-    LinkedField(StringKey),
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub enum CompletionKind {
+    FieldName,
+    FragmentSpread,
 }
 
-pub type CompletionPath = Vec<CompletionPathItem>;
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct CompletionRequest {
+    /// The type of the completion request we're responding to
+    kind: CompletionKind,
+    /// A list of type metadata that we can use to resolve the leaf
+    /// type the request is being made against
+    type_path: Vec<TypePathItem>,
+}
 
-pub fn build_completion_path(document: Document, position_span: Span) -> CompletionPath {
+impl Default for CompletionRequest {
+    fn default() -> Self {
+        CompletionRequest {
+            kind: CompletionKind::FieldName,
+            type_path: vec![],
+        }
+    }
+}
+
+impl CompletionRequest {
+    fn add_type(&mut self, type_path_item: TypePathItem) {
+        self.type_path.push(type_path_item)
+    }
+
+    /// Returns the leaf type, which is the type that the completion request is being made against.
+    fn resolve_leaf_type(self, schema: &Schema) -> Type {
+        let mut type_path = self.type_path;
+        type_path.reverse();
+        let mut type_ = resolve_root_type(type_path.pop().expect("path must be non-empty"), schema);
+        while let Some(path_item) = type_path.pop() {
+            type_ = resolve_relative_type(type_, path_item, schema);
+        }
+        type_
+    }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub enum TypePathItem {
+    Operation(OperationKind),
+    FragmentDefinition { type_name: StringKey },
+    LinkedField { name: StringKey },
+}
+
+pub fn create_completion_request(document: Document, position_span: Span) -> CompletionRequest {
     info!("Building completion path for {:#?}", document);
-    let mut completion_path = CompletionPath::default();
+    let mut completion_request = CompletionRequest::default();
 
     for definition in document.definitions {
         match &definition {
@@ -43,7 +84,7 @@ pub fn build_completion_path(document: Document, position_span: Span) -> Complet
                 if operation.location.contains(position_span) {
                     // TODO don't unwrap here
                     let (_, kind) = operation.operation.clone().unwrap();
-                    completion_path.push(CompletionPathItem::Operation(kind));
+                    completion_request.add_type(TypePathItem::Operation(kind));
 
                     info!(
                         "Completion request is within operation: {:?}",
@@ -54,10 +95,10 @@ pub fn build_completion_path(document: Document, position_span: Span) -> Complet
                     if selections.span.contains(position_span) {
                         // TODO(brandondail) handle when the completion occurs at/within the start token
                         info!("Completion request is within a selection");
-                        populate_completion_path_from_selection(
+                        populate_completion_request_from_selection(
                             selections,
                             position_span,
-                            &mut completion_path,
+                            &mut completion_request,
                         );
                     }
                 }
@@ -66,12 +107,12 @@ pub fn build_completion_path(document: Document, position_span: Span) -> Complet
             ExecutableDefinition::Fragment(fragment) => {
                 if fragment.location.contains(position_span) {
                     let type_name = fragment.type_condition.type_.value;
-                    completion_path.push(CompletionPathItem::FragmentDefinition { type_name });
+                    completion_request.add_type(TypePathItem::FragmentDefinition { type_name });
                     if fragment.selections.span.contains(position_span) {
-                        populate_completion_path_from_selection(
+                        populate_completion_request_from_selection(
                             &fragment.selections,
                             position_span,
-                            &mut completion_path,
+                            &mut completion_request,
                         );
                     }
                 }
@@ -79,41 +120,37 @@ pub fn build_completion_path(document: Document, position_span: Span) -> Complet
         }
     }
 
-    completion_path
+    completion_request
 }
 
 /// Resolves the root type of this completion path.
-fn resolve_root_type(root_path_item: CompletionPathItem, schema: &Schema) -> Type {
+fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Type {
     match root_path_item {
-        CompletionPathItem::Operation(kind) => match kind {
+        TypePathItem::Operation(kind) => match kind {
             OperationKind::Query => schema.query_type().unwrap(),
             OperationKind::Mutation => schema.mutation_type().unwrap(),
             OperationKind::Subscription => schema.subscription_type().unwrap(),
         },
-        CompletionPathItem::FragmentDefinition { type_name } => schema.get_type(type_name).unwrap(),
-        CompletionPathItem::LinkedField(_) => {
+        TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name).unwrap(),
+        TypePathItem::LinkedField { .. } => {
             // TODO(brandondail) fail silently and log here instead
             panic!("Completion paths must start with an operation or fragment")
         }
     }
 }
 
-fn resolve_relative_type(
-    parent_type: Type,
-    path_item: CompletionPathItem,
-    schema: &Schema,
-) -> Type {
+fn resolve_relative_type(parent_type: Type, path_item: TypePathItem, schema: &Schema) -> Type {
     match path_item {
-        CompletionPathItem::Operation(_) => {
+        TypePathItem::Operation(_) => {
             // TODO(brandondail) fail silently and log here instead
             panic!("Operations must only exist at the root of the completion path");
         }
-        CompletionPathItem::FragmentDefinition { .. } => {
+        TypePathItem::FragmentDefinition { .. } => {
             // TODO(brandondail) fail silently and log here instead
             panic!("Fragments must only exist at the root of the completion path");
         }
-        CompletionPathItem::LinkedField(field) => {
-            let field_id = schema.named_field(parent_type, field).unwrap();
+        TypePathItem::LinkedField { name } => {
+            let field_id = schema.named_field(parent_type, name).unwrap();
             let field = schema.field(field_id);
             info!("resolved type for {:?} : {:?}", field.name, field.type_);
             field.type_.inner()
@@ -136,53 +173,88 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .collect()
 }
 
-pub fn completion_items_from_path(
-    mut path: CompletionPath,
-    schema: &Schema,
-) -> Option<Vec<CompletionItem>> {
-    // Reverse the path as we'll traverse it top-down
-    path.reverse();
-
-    let mut type_ = resolve_root_type(path.pop().expect("path must be non-empty"), schema);
-    while let Some(path_item) = path.pop() {
-        type_ = resolve_relative_type(type_, path_item, schema)
+/// Finds all the valid fragment names for a given type. Used to complete fragment spreads
+fn get_valid_fragments_for_type(type_: Type, programs: &Programs<'_>) -> Vec<StringKey> {
+    let mut valid_fragment_names = vec![];
+    let fragment_map = programs.source.fragment_map();
+    for (fragment_name, fragment) in fragment_map {
+        if fragment.type_condition == type_ {
+            valid_fragment_names.push(*fragment_name);
+        }
     }
-    match type_ {
-        Type::Interface(interface_id) => {
-            let interface = schema.interface(interface_id);
-            let items = resolve_completion_items_from_fields(interface, schema);
-            Some(items)
+    info!("get_valid_fragments_for_type {:#?}", valid_fragment_names);
+    valid_fragment_names
+}
+
+fn resolve_completion_items_for_fragment_spread(
+    type_: Type,
+    programs: &Programs<'_>,
+) -> Vec<CompletionItem> {
+    get_valid_fragments_for_type(type_, programs)
+        .iter()
+        .map(|fragment_name| {
+            CompletionItem::new_simple(fragment_name.to_string(), String::from(""))
+        })
+        .collect()
+}
+
+pub fn completion_items_for_request(
+    request: CompletionRequest,
+    schema: &Schema,
+    programs: Option<&Programs<'_>>,
+) -> Option<Vec<CompletionItem>> {
+    let kind = request.kind;
+    let leaf_type = request.resolve_leaf_type(schema);
+    info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
+    match kind {
+        CompletionKind::FragmentSpread => {
+            if let Some(programs) = programs {
+                let items = resolve_completion_items_for_fragment_spread(leaf_type, programs);
+                Some(items)
+            } else {
+                None
+            }
         }
-        Type::Object(object_id) => {
-            let object = schema.object(object_id);
-            let items = resolve_completion_items_from_fields(object, schema);
-            Some(items)
-        }
-        Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
+        CompletionKind::FieldName => match leaf_type {
+            Type::Interface(interface_id) => {
+                let interface = schema.interface(interface_id);
+                let items = resolve_completion_items_from_fields(interface, schema);
+                Some(items)
+            }
+            Type::Object(object_id) => {
+                let object = schema.object(object_id);
+                let items = resolve_completion_items_from_fields(object, schema);
+                Some(items)
+            }
+            Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
+        },
     }
 }
 
-fn populate_completion_path_from_selection(
+fn populate_completion_request_from_selection(
     selections: &List<Selection>,
     position_span: Span,
-    completion_path: &mut CompletionPath,
+    completion_request: &mut CompletionRequest,
 ) {
     for item in &selections.items {
         if item.span().contains(position_span) {
             match item {
                 Selection::LinkedField(node) => {
+                    completion_request.kind = CompletionKind::FieldName;
                     let LinkedField {
                         name, selections, ..
                     } = node;
-                    completion_path.push(CompletionPathItem::LinkedField(name.value));
-                    populate_completion_path_from_selection(
+                    completion_request.add_type(TypePathItem::LinkedField { name: name.value });
+                    populate_completion_request_from_selection(
                         selections,
                         position_span,
-                        completion_path,
+                        completion_request,
                     );
                 }
+                Selection::FragmentSpread(_) => {
+                    completion_request.kind = CompletionKind::FragmentSpread;
+                }
                 Selection::ScalarField(_node) => {}
-                Selection::FragmentSpread(_node) => {}
                 Selection::InlineFragment(_node) => {}
             }
         }
@@ -226,6 +298,11 @@ pub fn send_completion_response(
     request_id: ServerRequestId,
     connection: &Connection,
 ) {
+    info!("send_completion_response: {:#?}", items);
+    // If there are no items, don't send any response
+    if items.is_empty() {
+        return;
+    }
     let completion_response = CompletionResponse::Array(items);
     let result = serde_json::to_value(&completion_response).unwrap();
     let response = ServerResponse {
@@ -238,10 +315,10 @@ pub fn send_completion_response(
 
 /// Return a `CompletionPath` for this request, only if the completion request occurs
 // within a GraphQL document. Otherwise return `None`
-pub fn get_completion_path(
+pub fn get_completion_request(
     params: CompletionParams,
     graphql_source_cache: &GraphQLSourceCache,
-) -> Option<CompletionPath> {
+) -> Option<CompletionRequest> {
     let CompletionParams {
         text_document_position,
         ..
@@ -298,9 +375,9 @@ pub fn get_completion_path(
             // already be updated *with the characters that triggered the completion request*
             // since the change event fires before completion.
             info!("position_span: {:?}", position_span);
-            let completion_path = build_completion_path(document, position_span);
-            info!("Completion path: {:#?}", completion_path);
-            Some(completion_path)
+            let completion_request = create_completion_request(document, position_span);
+            info!("Completion path: {:#?}", completion_request);
+            Some(completion_request)
         }
         Err(err) => {
             info!("Failed to parse this target!");

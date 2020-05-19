@@ -13,15 +13,16 @@ use relay_compiler::compiler_state::{CompilerState, ProjectName};
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::errors::Result as CompilerResult;
-use relay_compiler::{build_schema, check_project, parse_sources};
-use relay_compiler::{FileSource, FileSourceSubscription};
+use relay_compiler::FileSourceSubscription;
+use relay_compiler::{build_schema, check_project, parse_sources, Programs};
 use schema::Schema;
 
 use common::{PerfLogEvent, PerfLogger};
-use interner::Intern;
+use interner::{Intern, StringKey};
 
 use crate::completion::{
-    completion_items_from_path, get_completion_path, send_completion_response, GraphQLSourceCache,
+    completion_items_for_request, get_completion_request, send_completion_response,
+    GraphQLSourceCache,
 };
 
 use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
@@ -31,6 +32,7 @@ use crate::text_documents::{
 };
 
 use common::ConsoleLogger;
+use log::info;
 use std::collections::HashMap;
 use tokio::sync::mpsc::Receiver;
 
@@ -38,31 +40,30 @@ use tokio::select;
 
 type SchemaMap = HashMap<ProjectName, Schema>;
 
-pub struct LSPCompiler<'a> {
+pub struct LSPCompiler<'schema, 'config> {
     lsp_rx: Receiver<LSPBridgeMessage>,
-    schemas: SchemaMap,
-    config: &'a Config,
-    subscription: FileSourceSubscription<'a>,
+    schemas: &'schema SchemaMap,
+    config: &'config Config,
+    subscription: FileSourceSubscription<'config>,
     compiler_state: CompilerState,
     connection: Connection,
     synced_graphql_documents: GraphQLSourceCache,
     server_state: ServerState,
+    project_programs: HashMap<StringKey, Programs<'schema>>,
 }
 
-impl<'a> LSPCompiler<'a> {
-    pub async fn new(
-        config: &'a Config,
+impl<'schema, 'config> LSPCompiler<'schema, 'config> {
+    pub fn new(
+        schemas: &'schema SchemaMap,
+        config: &'config Config,
+        subscription: FileSourceSubscription<'config>,
+        compiler_state: CompilerState,
         lsp_rx: Receiver<LSPBridgeMessage>,
         connection: Connection,
-    ) -> CompilerResult<LSPCompiler<'a>> {
+    ) -> Self {
         let root_dir = config.root_dir.clone();
         let server_state = ServerState::new(root_dir);
-        let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
-        let file_source = FileSource::connect(&config, &setup_event).await?;
-        let (compiler_state, subscription) =
-            file_source.subscribe(&setup_event, &ConsoleLogger).await?;
-        let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event);
-        Ok(LSPCompiler {
+        LSPCompiler {
             lsp_rx,
             config,
             schemas,
@@ -71,7 +72,8 @@ impl<'a> LSPCompiler<'a> {
             connection,
             synced_graphql_documents: HashMap::new(),
             server_state,
-        })
+            project_programs: HashMap::new(),
+        }
     }
 
     async fn check_projects_and_report_errors(&mut self, event: &impl PerfLogEvent) {
@@ -150,13 +152,21 @@ impl<'a> LSPCompiler<'a> {
         match message {
             // Completion request
             LSPBridgeMessage::CompletionRequest { params, request_id } => {
-                if let Some(completion_path) =
-                    get_completion_path(params, &self.synced_graphql_documents)
+                if let Some(completion_request) =
+                    get_completion_request(params, &self.synced_graphql_documents)
                 {
+                    info!("completion_request {:#?}", self.project_programs.keys());
                     // TODO(brandondail) don't hardcode schema here
-                    let schema = self.schemas.get(&"facebook-test".intern()).unwrap();
+                    let project_key = "facebook-test".intern();
+                    let schema = self.schemas.get(&project_key).unwrap();
 
-                    if let Some(items) = completion_items_from_path(completion_path, schema) {
+                    let programs = self.project_programs.get(&project_key);
+
+                    info!("programs? {:?}", programs.is_some());
+
+                    if let Some(items) =
+                        completion_items_for_request(completion_request, schema, programs)
+                    {
                         send_completion_response(items, request_id, &self.connection);
                     }
                 }
@@ -173,7 +183,7 @@ impl<'a> LSPCompiler<'a> {
         }
     }
 
-    fn build_schemas(
+    pub fn build_schemas(
         config: &Config,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
@@ -188,10 +198,11 @@ impl<'a> LSPCompiler<'a> {
         schemas
     }
 
-    async fn check_projects(&self, setup_event: &impl PerfLogEvent) -> CompilerResult<()> {
+    async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> CompilerResult<()> {
         let graphql_asts =
             setup_event.time("parse_sources_time", || parse_sources(&self.compiler_state))?;
         let mut check_project_errors = vec![];
+        let mut project_programs = HashMap::new();
         match self.config.only_project {
             Some(project_key) => {
                 let project_config =
@@ -199,7 +210,7 @@ impl<'a> LSPCompiler<'a> {
                         panic!("Expected the project {} to exist", &project_key)
                     });
                 let schema = self.schemas.get(&project_config.name).unwrap();
-                check_project(
+                let programs = check_project(
                     project_config,
                     &self.compiler_state,
                     &graphql_asts,
@@ -209,8 +220,10 @@ impl<'a> LSPCompiler<'a> {
                 .await
                 .map_err(|err| {
                     check_project_errors.push(err);
-                })
-                .ok();
+                });
+                if let Ok(programs) = programs {
+                    project_programs.insert(project_key, programs);
+                }
             }
             None => {
                 for project_config in self.config.projects.values() {
@@ -220,7 +233,7 @@ impl<'a> LSPCompiler<'a> {
                     {
                         let schema = self.schemas.get(&project_config.name).unwrap();
                         // TODO: consider running all projects in parallel
-                        check_project(
+                        let programs = check_project(
                             project_config,
                             &self.compiler_state,
                             &graphql_asts,
@@ -232,12 +245,16 @@ impl<'a> LSPCompiler<'a> {
                             check_project_errors.push(err);
                         })
                         .ok();
+                        if let Some(programs) = programs {
+                            project_programs.insert(project_config.name, programs);
+                        }
                     }
                 }
             }
         }
 
         if check_project_errors.is_empty() {
+            self.project_programs = project_programs;
             Ok(())
         } else {
             Err(CompilerError::BuildProjectsErrors {

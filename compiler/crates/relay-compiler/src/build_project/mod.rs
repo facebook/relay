@@ -23,7 +23,7 @@ use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
-use apply_transforms::Programs;
+pub use apply_transforms::Programs;
 use build_ir::BuildIRResult;
 pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
@@ -91,20 +91,19 @@ fn build_programs<'a>(
     Ok(programs)
 }
 
-pub async fn check_project(
+pub async fn check_project<'schema>(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
-    schema: &Schema,
+    schema: &'schema Schema,
     perf_logger: &impl PerfLogger,
-) -> Result<(), BuildProjectError> {
+) -> Result<Programs<'schema>, BuildProjectError> {
     let log_event = perf_logger.create_event("check_project");
     let build_time = log_event.start("check_time");
     let project_name = project_config.name.lookup();
     log_event.string("project", project_name.to_string());
 
-    // Build the programs, but ignore the result as we don't need to generate artifacts for a check
-    build_programs(
+    let programs = build_programs(
         project_config,
         compiler_state,
         graphql_asts,
@@ -116,7 +115,7 @@ pub async fn check_project(
     log_event.stop(build_time);
     perf_logger.complete_event(log_event);
 
-    Ok(())
+    Ok(programs)
 }
 
 pub async fn build_project(

@@ -21,7 +21,8 @@ use crate::lsp::{
 use schema::{Schema, Type, TypeWithFields};
 
 use graphql_syntax::{
-    ExecutableDefinition, LinkedField, List, OperationDefinition, OperationKind, Selection,
+    ExecutableDefinition, InlineFragment, LinkedField, List, OperationDefinition, OperationKind,
+    Selection,
 };
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
@@ -71,6 +72,7 @@ impl CompletionRequest {
 pub enum TypePathItem {
     Operation(OperationKind),
     FragmentDefinition { type_name: StringKey },
+    InlineFragment { type_name: StringKey },
     LinkedField { name: StringKey },
 }
 
@@ -132,7 +134,7 @@ fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Type {
             OperationKind::Subscription => schema.subscription_type().unwrap(),
         },
         TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name).unwrap(),
-        TypePathItem::LinkedField { .. } => {
+        TypePathItem::LinkedField { .. } | TypePathItem::InlineFragment { .. } => {
             // TODO(brandondail) fail silently and log here instead
             panic!("Completion paths must start with an operation or fragment")
         }
@@ -155,6 +157,7 @@ fn resolve_relative_type(parent_type: Type, path_item: TypePathItem, schema: &Sc
             info!("resolved type for {:?} : {:?}", field.name, field.type_);
             field.type_.inner()
         }
+        TypePathItem::InlineFragment { type_name } => schema.get_type(type_name).unwrap(),
     }
 }
 
@@ -254,8 +257,23 @@ fn populate_completion_request_from_selection(
                 Selection::FragmentSpread(_) => {
                     completion_request.kind = CompletionKind::FragmentSpread;
                 }
+                Selection::InlineFragment(node) => {
+                    let InlineFragment {
+                        selections,
+                        type_condition,
+                        ..
+                    } = node;
+                    if let Some(type_condition) = type_condition {
+                        let type_name = type_condition.type_.value;
+                        completion_request.add_type(TypePathItem::InlineFragment { type_name });
+                        populate_completion_request_from_selection(
+                            selections,
+                            position_span,
+                            completion_request,
+                        )
+                    }
+                }
                 Selection::ScalarField(_node) => {}
-                Selection::InlineFragment(_node) => {}
             }
         }
     }

@@ -18,11 +18,11 @@ use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
     ServerResponse, TextDocumentPositionParams, Url,
 };
-use schema::{Schema, Type, TypeWithFields};
+use schema::{Directive as SchemaDirective, DirectiveLocation, Schema, Type, TypeWithFields};
 
 use graphql_syntax::{
-    ExecutableDefinition, InlineFragment, LinkedField, List, OperationDefinition, OperationKind,
-    Selection,
+    Directive, ExecutableDefinition, InlineFragment, LinkedField, List, OperationDefinition,
+    OperationKind, Selection,
 };
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
@@ -31,6 +31,7 @@ pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>
 pub enum CompletionKind {
     FieldName,
     FragmentSpread,
+    DirectiveName,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -92,7 +93,20 @@ pub fn create_completion_request(document: Document, position_span: Span) -> Com
                         "Completion request is within operation: {:?}",
                         operation.name
                     );
-                    let OperationDefinition { selections, .. } = operation;
+                    let OperationDefinition {
+                        selections,
+                        directives,
+                        ..
+                    } = operation;
+
+                    for Directive { span, name, .. } in directives {
+                        if span.contains(position_span) {
+                            if name.span.contains(position_span) {
+                                completion_request.kind = CompletionKind::DirectiveName;
+                                return completion_request;
+                            }
+                        }
+                    }
 
                     if selections.span.contains(position_span) {
                         // TODO(brandondail) handle when the completion occurs at/within the start token
@@ -231,6 +245,20 @@ pub fn completion_items_for_request(
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
         },
+        CompletionKind::DirectiveName => match leaf_type {
+            Type::Object(_) => {
+                let items = schema
+                    .get_directives()
+                    // TODO don't hardcode the query type assumption
+                    .filter(|directive| directive.locations.contains(&DirectiveLocation::Query))
+                    .map(|directive| {
+                        completion_item_from_directive(directive)
+                    })
+                    .collect();
+                Some(items)
+            }
+            _ => None,
+        },
     }
 }
 
@@ -279,6 +307,57 @@ fn populate_completion_request_from_selection(
     }
 }
 
+fn completion_item_from_directive(directive: &SchemaDirective) -> CompletionItem {
+    let SchemaDirective {
+        name, arguments, ..
+    } = directive;
+
+    use crate::lsp::InsertTextFormat;
+
+    // Always use the name of the directive as the label
+    let label = name.to_string();
+
+    // We can return a snippet with the expected arguments of the directive
+    let (insert_text, insert_text_format) = if arguments.is_empty() {
+        (label.clone(), InsertTextFormat::PlainText)
+    } else {
+        let mut insert_text = String::from(&label);
+        let mut cursor_location = 1;
+
+        insert_text.push('(');
+
+        // Iterate through the arguments and build up a snippet
+        for (i, argument) in arguments.iter().enumerate() {
+            if i != 0 {
+                insert_text.push_str(", ");
+            }
+            insert_text.push_str(&format!("{}: ${}", argument.name, cursor_location));
+            cursor_location += 1;
+        }
+
+        insert_text.push(')');
+        (insert_text, InsertTextFormat::Snippet)
+    };
+
+    CompletionItem {
+        label,
+        kind: None,
+        detail: None,
+        documentation: None,
+        deprecated: None,
+        preselect: None,
+        sort_text: None,
+        filter_text: None,
+        insert_text: Some(insert_text),
+        insert_text_format: Some(insert_text_format),
+        text_edit: None,
+        additional_text_edits: None,
+        command: None,
+        data: None,
+        tags: None,
+    }
+}
+
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this completion request came from
 pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> {
@@ -316,7 +395,6 @@ pub fn send_completion_response(
     request_id: ServerRequestId,
     connection: &Connection,
 ) {
-    info!("send_completion_response: {:#?}", items);
     // If there are no items, don't send any response
     if items.is_empty() {
         return;

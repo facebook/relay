@@ -399,21 +399,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             // TODO(T63303873) Normalization handles
             Selection::Condition(condition) => vec![self.build_condition(&condition)],
             Selection::FragmentSpread(frag_spread) => {
-                let defer = frag_spread
-                    .directives
-                    .named(DEFER_STREAM_CONSTANTS.defer_name);
-                if defer.is_some() {
-                    vec![self.build_defer_reader(&frag_spread)]
-                } else {
-                    vec![self.build_fragment_spread(&frag_spread)]
-                }
+                vec![self.build_fragment_spread(&frag_spread)]
             }
             Selection::InlineFragment(inline_frag) => {
                 let defer = inline_frag
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
-                    vec![self.build_defer_normalization(&inline_frag, defer)]
+                    vec![self.build_defer(&inline_frag, defer)]
                 } else {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
@@ -701,16 +694,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_defer_reader(&mut self, frag_spread: &FragmentSpread) -> Primitive {
-        assert!(self.variant == CodegenVariant::Reader);
+    fn build_defer(&mut self, inline_fragment: &InlineFragment, defer: &Directive) -> Primitive {
+        match self.variant {
+            CodegenVariant::Reader => self.build_defer_reader(inline_fragment),
+            CodegenVariant::Normalization => self.build_defer_normalization(inline_fragment, defer),
+        }
+    }
 
-        let next_selections = vec![self.build_fragment_spread(&FragmentSpread {
-            directives: remove_directive(
-                &frag_spread.directives,
-                DEFER_STREAM_CONSTANTS.defer_name,
-            ),
-            ..frag_spread.to_owned()
-        })];
+    fn build_defer_reader(&mut self, inline_fragment: &InlineFragment) -> Primitive {
+        let frag_spread =
+            if let Selection::FragmentSpread(frag_spread) = &inline_fragment.selections[0] {
+                frag_spread
+            } else {
+                panic!("Expected a fragment spread for defer in the reader.")
+            };
+        let next_selections = vec![self.build_fragment_spread(frag_spread)];
         let next_selections = Primitive::Key(self.array(next_selections));
         Primitive::Key(self.object(vec![
             (
@@ -726,16 +724,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         inline_fragment: &InlineFragment,
         defer: &Directive,
     ) -> Primitive {
-        assert!(self.variant == CodegenVariant::Normalization);
-
-        let next_selections = vec![self.build_inline_fragment(&InlineFragment {
-            directives: remove_directive(
-                &inline_fragment.directives,
-                DEFER_STREAM_CONSTANTS.defer_name,
-            ),
-            ..inline_fragment.to_owned()
-        })];
-        let next_selections = Primitive::Key(self.array(next_selections));
+        let next_selections = self.build_selections(&inline_fragment.selections);
         let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
         let if_variable_name = extract_variable_name(if_arg);
         let label_name = label_arg.unwrap().value.item.expect_string_literal();

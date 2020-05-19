@@ -40,6 +40,7 @@ mod skip_unreachable_node;
 mod skip_unused_variables;
 mod sort_selections;
 mod transform_connections;
+mod unwrap_custom_directive_selection;
 mod util;
 mod validations;
 
@@ -92,5 +93,6 @@ pub use skip_unreachable_node::skip_unreachable_node;
 pub use skip_unused_variables::skip_unused_variables;
 pub use sort_selections::sort_selections;
 pub use transform_connections::transform_connections;
+pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::{extract_variable_name, remove_directive};
 pub use validations::*;

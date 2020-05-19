@@ -140,10 +140,14 @@ impl DeferStreamTransform<'_> {
             arguments: next_arguments,
         };
 
-        Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
-            FragmentSpread {
-                directives: replace_directive(&spread.directives, next_defer),
-                ..spread.clone()
+        Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
+            InlineFragment {
+                type_condition: None,
+                directives: vec![next_defer],
+                selections: vec![Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    directives: remove_directive(&spread.directives, defer.name.item),
+                    ..spread.clone()
+                }))],
             },
         ))))
     }

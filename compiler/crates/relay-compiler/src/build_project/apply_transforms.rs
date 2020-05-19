@@ -15,9 +15,9 @@ use graphql_transforms::{
     inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
     skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
     skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
-    transform_match, transform_refetchable_fragment, validate_module_conflicts,
-    validate_relay_directives, validate_server_only_directives, validate_unused_variables,
-    ConnectionInterface,
+    transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
+    validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
+    validate_unused_variables, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -264,6 +264,9 @@ fn apply_operation_text_transforms<'schema>(
     let program = log_event.time("flatten", || flatten(&program, false));
     let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program));
+    let program = log_event.time("unwrap_custom_directive_selection", || {
+        unwrap_custom_directive_selection(&program)
+    });
     perf_logger.complete_event(log_event);
 
     Ok(program)

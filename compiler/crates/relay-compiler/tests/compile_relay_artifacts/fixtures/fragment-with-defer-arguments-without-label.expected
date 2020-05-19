@@ -89,42 +89,42 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
             "label": "UserFragment$defer$DeferredFragment_QMvSr",
             "selections": [
               {
-                "kind": "InlineFragment",
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "scale",
+                    "value": 1.5
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profile_picture",
+                "plural": false,
                 "selections": [
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "name",
+                    "name": "uri",
                     "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "scale",
-                        "value": 1.5
-                      }
-                    ],
-                    "concreteType": "Image",
-                    "kind": "LinkedField",
-                    "name": "profile_picture",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "uri",
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": "profile_picture(scale:1.5)"
                   }
                 ],
-                "type": "User",
-                "abstractKey": null
+                "storageKey": "profile_picture(scale:1.5)"
               }
             ]
           },
@@ -134,42 +134,42 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
             "label": "UserFragment$defer$DeferredFragment_1HMuo6",
             "selections": [
               {
-                "kind": "InlineFragment",
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "scale",
+                    "value": 2
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profile_picture",
+                "plural": false,
                 "selections": [
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "name",
+                    "name": "uri",
                     "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": [
-                      {
-                        "kind": "Literal",
-                        "name": "scale",
-                        "value": 2
-                      }
-                    ],
-                    "concreteType": "Image",
-                    "kind": "LinkedField",
-                    "name": "profile_picture",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "uri",
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": "profile_picture(scale:2)"
                   }
                 ],
-                "type": "User",
-                "abstractKey": null
+                "storageKey": "profile_picture(scale:2)"
               }
             ]
           }

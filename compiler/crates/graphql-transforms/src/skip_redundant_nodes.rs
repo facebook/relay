@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::node_identifier::NodeIdentifier;
-use crate::util::PointerAddress;
+use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
 
-use common::NamedItem;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
@@ -205,8 +203,8 @@ impl<'s> SkipRedundantNodesTransform<'s> {
                         .map(Selection::InlineFragment)
                 } else if selection
                     .directives
-                    .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
-                    .is_some()
+                    .iter()
+                    .any(is_relay_custom_inline_fragment_directive)
                 {
                     let mut linked_selection_map = Default::default();
                     let result = self

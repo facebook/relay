@@ -1208,8 +1208,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         inline_fragment: &InlineFragment,
         directive: &Directive,
     ) -> Primitive {
-        let selections = vec![self.build_inline_fragment(inline_fragment)];
-        let selections = Primitive::Key(self.array(selections));
+        let selections = self.build_selections(&inline_fragment.selections);
         let fragment_name: StringKey = directive.arguments[0].value.item.expect_string_literal();
         Primitive::Key(self.object(vec![
             (

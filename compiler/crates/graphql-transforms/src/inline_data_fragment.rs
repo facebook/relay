@@ -118,7 +118,7 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             };
 
             let inline_fragment = InlineFragment {
-                type_condition: Some(fragment.type_condition),
+                type_condition: None,
                 directives: vec![Directive {
                     name: WithLocation::new(
                         spread.fragment.location,
@@ -135,7 +135,11 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                         ),
                     }],
                 }],
-                selections,
+                selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
+                    type_condition: Some(fragment.type_condition),
+                    directives: vec![],
+                    selections,
+                }))],
             };
 
             Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))

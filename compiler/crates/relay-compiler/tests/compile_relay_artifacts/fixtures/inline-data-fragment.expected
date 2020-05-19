@@ -233,42 +233,35 @@ fragment Profile on User {
           "name": "Profile",
           "selections": [
             {
-              "kind": "InlineFragment",
+              "alias": null,
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "size",
+                  "value": 100
+                }
+              ],
+              "concreteType": "Image",
+              "kind": "LinkedField",
+              "name": "profilePicture",
+              "plural": false,
               "selections": [
                 {
                   "alias": null,
-                  "args": [
-                    {
-                      "kind": "Literal",
-                      "name": "size",
-                      "value": 100
-                    }
-                  ],
-                  "concreteType": "Image",
-                  "kind": "LinkedField",
-                  "name": "profilePicture",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "uri",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "width",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": "profilePicture(size:100)"
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "uri",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "width",
+                  "storageKey": null
                 }
               ],
-              "type": "User",
-              "abstractKey": null
+              "storageKey": "profilePicture(size:100)"
             }
           ]
         },

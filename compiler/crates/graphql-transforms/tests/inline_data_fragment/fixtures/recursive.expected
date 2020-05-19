@@ -26,32 +26,44 @@ fragment AnotherInlineDataFragment on Image @inline {
 
 fragment InlineDataFragment on Image @inline {
   uri
-  ... on Image @__inline(name: "AnotherInlineDataFragment") {
-    uri
-    width
+  ... @__inline(name: "AnotherInlineDataFragment") {
+    ... on Image {
+      uri
+      width
+    }
   }
 }
 
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    ... on Image @__inline(name: "InlineDataFragment") {
-      uri
-      ... on Image @__inline(name: "AnotherInlineDataFragment") {
+    ... @__inline(name: "InlineDataFragment") {
+      ... on Image {
+        uri
+        ... @__inline(name: "AnotherInlineDataFragment") {
+          ... on Image {
+            uri
+            width
+          }
+        }
+      }
+    }
+    ... @__inline(name: "AnotherInlineDataFragment") @include(if: $cond) {
+      ... on Image {
         uri
         width
       }
     }
-    ... on Image @__inline(name: "AnotherInlineDataFragment") @include(if: $cond) {
-      uri
-      width
-    }
   }
   smallPic: profilePicture(size: 20) {
-    ... on Image @__inline(name: "InlineDataFragment") {
-      uri
-      ... on Image @__inline(name: "AnotherInlineDataFragment") {
+    ... @__inline(name: "InlineDataFragment") {
+      ... on Image {
         uri
-        width
+        ... @__inline(name: "AnotherInlineDataFragment") {
+          ... on Image {
+            uri
+            width
+          }
+        }
       }
     }
   }

@@ -152,18 +152,22 @@ pub async fn build_project(
 
     // If there is a persist config, persist operations now.
     if let Some(ref persist_config) = project_config.persist {
+        let persist_operations_timer = log_event.start("persist_operations_time");
         persist_operations(config, &mut artifacts, persist_config).await?;
+        log_event.stop(persist_operations_timer);
     }
 
     // In some cases we need to create additional (platform specific) artifacts
     // For that, we will use `generate_extra_operation_artifacts` from the configs
     if let Some(generate_extra_artifacts_fn) = &config.generate_extra_operation_artifacts {
-        generate_extra_artifacts(
-            &schema,
-            project_config,
-            &mut artifacts,
-            generate_extra_artifacts_fn,
-        );
+        log_event.time("generate_extra_operation_artifacts_time", || {
+            generate_extra_artifacts(
+                &schema,
+                project_config,
+                &mut artifacts,
+                generate_extra_artifacts_fn,
+            )
+        });
     }
 
     // Write the generated artifacts to disk. This step is separate from

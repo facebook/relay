@@ -6,16 +6,16 @@
  */
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
+use indexmap::IndexMap;
 use interner::StringKey;
 use schema::Schema;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
 pub struct Program<'s> {
     schema: &'s Schema,
-    fragments: HashMap<StringKey, Arc<FragmentDefinition>>,
+    fragments: IndexMap<StringKey, Arc<FragmentDefinition>>,
     operations: Vec<Arc<OperationDefinition>>,
 }
 
@@ -34,7 +34,7 @@ impl<'s> Program<'s> {
 
     pub fn from_definitions(schema: &'s Schema, definitions: Vec<ExecutableDefinition>) -> Self {
         let mut operations = Vec::new();
-        let mut fragments = HashMap::new();
+        let mut fragments = IndexMap::new();
         for definition in definitions {
             match definition {
                 ExecutableDefinition::Operation(operation) => {
@@ -70,7 +70,7 @@ impl<'s> Program<'s> {
     ///
     /// NOTE: This is a linear search, we currently don't frequently search
     ///       for operations by name, so this might be overall faster than
-    ///       using a HashMap internally.
+    ///       using a map internally.
     pub fn operation(&self, name: StringKey) -> Option<&Arc<OperationDefinition>> {
         self.operations()
             .find(|operation| operation.name.item == name)
@@ -90,9 +90,5 @@ impl<'s> Program<'s> {
 
     pub fn document_count(&self) -> usize {
         self.fragments.len() + self.operations.len()
-    }
-
-    pub fn fragment_map(&self) -> &HashMap<StringKey, Arc<FragmentDefinition>> {
-        &self.fragments
     }
 }

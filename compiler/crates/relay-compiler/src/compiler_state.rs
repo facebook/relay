@@ -13,12 +13,13 @@ use crate::watchman::{
     FileSourceResult,
 };
 use common::{PerfLogEvent, PerfLogger};
+use fnv::FnvHashMap;
 use graphql_syntax::GraphQLSource;
+use indexmap::IndexMap;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{fs::File, io};
 
@@ -35,12 +36,12 @@ pub struct FileState {
     pub exists: bool,
 }
 
-type GraphQLSourceSet = HashMap<PathBuf, FileState>;
+type GraphQLSourceSet = IndexMap<PathBuf, FileState>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GraphQLSources {
-    grouped_pending_sources: HashMap<SourceSetName, GraphQLSourceSet>,
-    grouped_processed_sources: HashMap<SourceSetName, GraphQLSourceSet>,
+    grouped_pending_sources: FnvHashMap<SourceSetName, GraphQLSourceSet>,
+    grouped_processed_sources: FnvHashMap<SourceSetName, GraphQLSourceSet>,
 }
 
 impl Default for GraphQLSources {
@@ -97,7 +98,7 @@ impl GraphQLSources {
             let base_source_set = self
                 .grouped_pending_sources
                 .entry(*source_set_name)
-                .or_insert_with(HashMap::new);
+                .or_insert_with(Default::default);
 
             for (file_name, pending_file_state) in pending_source_set.iter() {
                 base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
@@ -110,7 +111,7 @@ impl GraphQLSources {
             let base_source_set = self
                 .grouped_processed_sources
                 .entry(source_set_name)
-                .or_insert_with(HashMap::new);
+                .or_insert_with(Default::default);
 
             for (file_name, pending_file_state) in pending_source_set.iter() {
                 base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
@@ -119,14 +120,14 @@ impl GraphQLSources {
     }
 }
 
-pub type SchemaSources = HashMap<ProjectName, Vec<String>>;
+pub type SchemaSources = FnvHashMap<ProjectName, Vec<String>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
     pub graphql_sources: GraphQLSources,
     pub schemas: SchemaSources,
     pub extensions: SchemaSources,
-    pub artifacts: HashMap<ProjectName, ArtifactMap>,
+    pub artifacts: FnvHashMap<ProjectName, ArtifactMap>,
     pub clock: Clock,
 }
 
@@ -152,9 +153,9 @@ impl CompilerState {
             categorize_files(config, &file_source_changes.files)
         });
 
-        let artifacts = HashMap::new();
-        let mut schemas = HashMap::new();
-        let mut extensions = HashMap::new();
+        let artifacts = FnvHashMap::default();
+        let mut schemas = FnvHashMap::default();
+        let mut extensions = FnvHashMap::default();
         let mut graphql_sources = GraphQLSources::default();
 
         for (category, files) in categorized {
@@ -196,7 +197,7 @@ impl CompilerState {
                                 Err(err) => Some(Err(err)),
                             }
                         })
-                        .collect::<Result<HashMap<PathBuf, FileState>>>()?;
+                        .collect::<Result<IndexMap<PathBuf, FileState>>>()?;
                     log_event.stop(extract_timer);
                     graphql_sources.set_pending_source_set(source_set_name, sources);
                 }

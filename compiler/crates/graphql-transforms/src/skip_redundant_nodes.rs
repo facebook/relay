@@ -13,7 +13,7 @@ use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
     Selection, Transformed, TransformedValue, Transformer,
 };
-use im::hashmap::HashMap;
+use im::HashMap;
 use std::iter::Iterator;
 use std::sync::Arc;
 /**

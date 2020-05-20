@@ -192,10 +192,9 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
 /// Finds all the valid fragment names for a given type. Used to complete fragment spreads
 fn get_valid_fragments_for_type(type_: Type, programs: &Programs<'_>) -> Vec<StringKey> {
     let mut valid_fragment_names = vec![];
-    let fragment_map = programs.source.fragment_map();
-    for (fragment_name, fragment) in fragment_map {
+    for fragment in programs.source.fragments() {
         if fragment.type_condition == type_ {
-            valid_fragment_names.push(*fragment_name);
+            valid_fragment_names.push(fragment.name.item);
         }
     }
     info!("get_valid_fragments_for_type {:#?}", valid_fragment_names);

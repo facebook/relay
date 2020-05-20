@@ -692,6 +692,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedActorFragment: {}},
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -737,6 +738,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedActorFragment: {}},
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -782,6 +784,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedActorFragment: {}},
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -797,7 +800,206 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
   });
 
-  describe('abstract spreads within a non-matching abstract refinement', () => {
+  describe('abstract spreads within a non-matching concrete spread', () => {
+    let PageFragment;
+    let NestedEntityFragment;
+
+    beforeEach(() => {
+      ({ParentQuery, PageFragment, NestedEntityFragment} = generateAndCompile(`
+        query ParentQuery {
+          userOrPage(id: "abc") {
+            ...PageFragment
+          }
+        }
+
+        fragment PageFragment on Page {
+          id
+          lastName
+          ...NestedEntityFragment
+        }
+
+        fragment NestedEntityFragment on Entity {
+          url
+        }
+      `));
+      operation = createOperationDescriptor(ParentQuery, {});
+    });
+
+    it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
+      // typical case, server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // lastName: undefined, // not evaluated
+          // url: undefined, // not evaluated
+        },
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(PageFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedEntityFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedEntityFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        url: undefined,
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if only user fields are missing', () => {
+      // similar case, we know somehow that the record implements the nested abstract type, but
+      // the fields are missing since the server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // lastName: undefined, // not evaluated
+          // url: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the discriminator
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        expect(record.getValue('__isEntity')).toBe(undefined);
+        record.setValue(true, '__isEntity');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(PageFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedEntityFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedEntityFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        url: undefined,
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if only the type discriminator is missing', () => {
+      // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
+      // typical case, server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // lastName: undefined, // not evaluated
+          // url: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the missing user field
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        expect(record.getValue('__isEntity')).toBe(undefined);
+        record.setValue('https://...', 'url');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(PageFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedEntityFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedEntityFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        url: 'https://...',
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
+      // somehow we have all the data
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // lastName: undefined, // not evaluated
+          // url: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the missing user field *and* discriminator
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        expect(record.getValue('__isEntity')).toBe(undefined);
+        record.setValue(true, '__isEntity');
+        record.setValue('https://...', 'url');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(PageFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedEntityFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedEntityFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        url: 'https://...',
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+  });
+
+  describe('abstract spreads within a non-matching abstract spread', () => {
     let ActorFragment;
     let NestedNamedFragment;
 
@@ -846,6 +1048,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -856,8 +1059,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       expect(innerFragmentSnapshot.data).toEqual({
         name: undefined,
       });
-      // TODO T58655791: fix missing check under unmatched abstract refinement
-      expect(innerFragmentSnapshot.isMissingData).toBe(true);
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
     });
 
@@ -892,6 +1094,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -902,8 +1105,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       expect(innerFragmentSnapshot.data).toEqual({
         name: undefined,
       });
-      // TODO T58655791: fix missing check under unmatched abstract refinement
-      expect(innerFragmentSnapshot.isMissingData).toBe(true);
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
     });
 
@@ -938,6 +1140,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -948,8 +1151,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       expect(innerFragmentSnapshot.data).toEqual({
         name: 'Zuck',
       });
-      // TODO T58655791: fix missing check under unmatched abstract refinement
-      expect(innerFragmentSnapshot.isMissingData).toBe(true);
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
     });
 
@@ -984,6 +1186,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -999,7 +1202,212 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
   });
 
-  describe('concrete spreads within a non-matching abstract refinement', () => {
+  describe('abstract spreads within a non-matching abstract inline fragment', () => {
+    let UserFragment;
+    let NestedNamedFragment;
+
+    beforeEach(() => {
+      ({ParentQuery, UserFragment, NestedNamedFragment} = generateAndCompile(`
+        query ParentQuery {
+          userOrPage(id: "abc") {
+            ...UserFragment
+          }
+        }
+
+        fragment UserFragment on User {
+          ... on Actor {
+            id
+            lastName
+            ...NestedNamedFragment
+          }
+        }
+
+        fragment NestedNamedFragment on Named {
+          name
+        }
+      `));
+      operation = createOperationDescriptor(ParentQuery, {});
+    });
+
+    it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
+      // typical case, server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // __isActor: 'User', // on server, User no longer implements Actor
+          // lastName: undefined, // not evaluated
+          // name: undefined, // not evaluated
+        },
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(UserFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedNamedFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        name: undefined,
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if only user fields are missing', () => {
+      // similar case, we know somehow that the record implements the nested abstract type, but
+      // the fields are missing since the server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // __isActor: 'User', // on server, User no longer implements Actor
+          // lastName: undefined, // not evaluated
+          // name: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the discriminator
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        expect(record.getValue('__isNamed')).toBe(undefined);
+        record.setValue(true, '__isNamed');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(UserFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedNamedFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        name: undefined,
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if only the type discriminator is missing', () => {
+      // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
+      // typical case, server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // __isActor: 'User', // on server, User no longer implements Actor
+          // lastName: undefined, // not evaluated
+          // name: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the missing user field
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        expect(record.getValue('__isNamed')).toBe(undefined);
+        record.setValue('Zuck', 'name');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(UserFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedNamedFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        name: 'Zuck',
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
+      // somehow we have all the data
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // __isActor: 'User', // on server, User no longer implements Actor
+          // lastName: undefined, // not evaluated
+          // name: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the missing user field *and* discriminator
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        expect(record.getValue('__isNamed')).toBe(undefined);
+        record.setValue(true, '__isNamed');
+        record.setValue('Zuck', 'name');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(UserFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedNamedFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedNamedFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        name: 'Zuck',
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+  });
+
+  describe('concrete spreads within a non-matching abstract spread', () => {
     let ActorFragment;
     let NestedUserFragment;
 
@@ -1048,6 +1456,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedUserFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1058,8 +1467,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       expect(innerFragmentSnapshot.data).toEqual({
         name: undefined,
       });
-      // TODO T58655791: fix missing check under unmatched abstract refinement
-      expect(innerFragmentSnapshot.isMissingData).toBe(true);
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
     });
 
@@ -1092,6 +1500,118 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {NestedUserFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedUserFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        name: 'Zuck',
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+  });
+
+  describe('concrete spreads within a non-matching abstract inline fragment', () => {
+    let UserFragment;
+    let NestedUserFragment;
+
+    beforeEach(() => {
+      ({ParentQuery, UserFragment, NestedUserFragment} = generateAndCompile(`
+        query ParentQuery {
+          userOrPage(id: "abc") {
+            ...UserFragment
+          }
+        }
+
+        fragment UserFragment on User {
+          ... on Actor {
+            id
+            lastName
+            ...NestedUserFragment
+          }
+        }
+
+        fragment NestedUserFragment on User {
+          name
+        }
+      `));
+      operation = createOperationDescriptor(ParentQuery, {});
+    });
+
+    it('reads data and reports nothing missing even if user fields are missing', () => {
+      // typical case, server doesn't evaluate anything under the non-matched parent
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // __isActor: 'User', // on server, User no longer implements Actor
+          // lastName: undefined, // not evaluated
+          // name: undefined, // not evaluated
+        },
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(UserFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedUserFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
+      const innerFragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(NestedUserFragment, fragmentSnapshot.data),
+        ),
+      );
+      expect(innerFragmentSnapshot.data).toEqual({
+        name: undefined,
+      });
+      expect(innerFragmentSnapshot.isMissingData).toBe(false);
+      expect(environment.check(operation).status).toBe('available');
+    });
+
+    it('reads data and reports nothing missing if all fields are present', () => {
+      // somehow we have all the data
+      environment.commitPayload(operation, {
+        userOrPage: {
+          __typename: 'User',
+          __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
+          // __isActor: 'User', // on server, User no longer implements Actor
+          // lastName: undefined, // not evaluated
+          // name: undefined, // not evaluated
+        },
+      });
+      // consistency update that provides the missing user field *and* discriminator
+      environment.commitUpdate(store => {
+        const record = nullthrows(store.get('abc'));
+        record.setValue('Zuck', 'name');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSnapshot = environment.lookup(
+        nullthrows(
+          getSingularSelector(UserFragment, parentSnapshot.data.userOrPage),
+        ),
+      );
+      expect(fragmentSnapshot.data).toEqual({
+        id: 'abc',
+        lastName: undefined,
+        __id: 'abc',
+        __fragmentOwner: operation.request,
+        __fragments: {NestedUserFragment: {}},
+        __isWithinUnmatchedTypeRefinement: true,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(

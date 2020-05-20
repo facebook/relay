@@ -103,40 +103,54 @@ class RelayReader {
     // In this case, reset isMissingData back to false.
     // Quickly skip this check in the common case that no data was
     // missing or fragments on abstract types.
-    if (this._isMissingData) {
-      const record = this._recordSource.get(dataID);
-      if (record != null) {
-        const {abstractKey} = node;
-        if (abstractKey == null) {
-          const recordType = RelayModernRecord.getType(record);
-          if (recordType !== node.type && dataID !== ROOT_ID) {
-            // The record exists and its (concrete) type differs
-            // from the fragment's concrete type: data is
-            // expected to be missing, so don't flag it as such
-            // since doing so could incorrectly trigger suspense.
-            // NOTE `isMissingData` is short for "is missing
-            // *expected* data", and the data isn't expected here.
-            // Also note that the store uses a hard-code __typename
-            // for the root object, while fragments on the Query
-            // type will use whatever the schema names the Query type.
-            // Assume fragments read on the root object have the right
-            // type and trust isMissingData.
-            this._isMissingData = false;
-          }
-        } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-          // Handle a related edge-case: if the fragment type is *abstract*,
-          // then data is only expected to be present if the type implements
-          // the interface (or is a member of the union). Reset isMissingData
-          // if the type is not known to implement the interface.
-          const implementsInterface = RelayModernRecord.getValue(
-            record,
-            abstractKey,
-          );
-          if (implementsInterface !== true) {
-            this._isMissingData = false;
-          }
-        }
+    const {abstractKey} = node;
+    const record = this._recordSource.get(dataID);
+    if (this._isMissingData === true && abstractKey == null && record != null) {
+      const recordType = RelayModernRecord.getType(record);
+      if (recordType !== node.type && dataID !== ROOT_ID) {
+        // The record exists and its (concrete) type differs
+        // from the fragment's concrete type: data is
+        // expected to be missing, so don't flag it as such
+        // since doing so could incorrectly trigger suspense.
+        // NOTE `isMissingData` is short for "is missing
+        // *expected* data", and the data isn't expected here.
+        // Also note that the store uses a hard-code __typename
+        // for the root object, while fragments on the Query
+        // type will use whatever the schema names the Query type.
+        // Assume fragments read on the root object have the right
+        // type and trust isMissingData.
+        this._isMissingData = false;
       }
+    }
+
+    // Handle a related edge-case: if the fragment type is *abstract*.
+    if (
+      abstractKey != null &&
+      record != null &&
+      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT
+    ) {
+      // Abstract type refinement: if the fragment type is *abstract*,
+      // then data is only expected to be present if the type implements
+      // the interface (or is a member of the union), so there are 3
+      // cases we need to handle:
+      // - Type known to _not_ implement the interface: reset value for isMissingData.
+      // - Type is known _to_ implement the interface: don't reset value isMissingData.
+      // - Unknown whether the type implements the interface: treat the data as missing;
+      //   we do this because the Relay Compiler guarantees that the type discriminator
+      //   will always be fetched.
+      const implementsInterface = RelayModernRecord.getValue(
+        record,
+        abstractKey,
+      );
+      if (implementsInterface === false) {
+        // type is *known* to not implement the interface, so fields aren't
+        // expected to be present. reset isMissing(Expected)Data.
+        this._isMissingData = false;
+      } else if (implementsInterface == null) {
+        // we don't know if the type implements the interface or not, which
+        // constitutes data being missing
+        this._isMissingData = true;
+      } // else implementsInterface === true: we don't need to reset isMissingData
     }
 
     return {
@@ -207,18 +221,27 @@ class RelayReader {
               this._traverseSelections(selection.selections, record, data);
             }
           } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            // abstract type refinement. similar to the top-level case,
-            // reset isMissingData if the type is not known to conform to the
-            // interface
+            // Abstract refinement: similar to the logic at the fragment root:
+            // - Type known to _not_ implement the interface: reset value for isMissingData.
+            // - Type is known _to_ implement the interface: don't reset value isMissingData.
+            // - Unknown whether the type implements the interface: treat the data as missing;
+            //   we do this because the Relay Compiler guarantees that the type discriminator
+            //   will always be fetched.
             const isMissingData = this._isMissingData;
             this._traverseSelections(selection.selections, record, data);
             const implementsInterface = RelayModernRecord.getValue(
               record,
               abstractKey,
             );
-            if (implementsInterface !== true) {
+            if (implementsInterface === false) {
+              // type doesn't implement the interface so these fields are
+              // not expected to be present.
               this._isMissingData = isMissingData;
-            }
+            } else if (implementsInterface == null) {
+              // we don't know if the type implements the interface or not,
+              // which counts as something missing
+              this._isMissingData = true;
+            } // else implementsInterface === true: we don't need to reset isMissingData
           } else {
             // legacy behavior for abstract refinements: always read even
             // if the type doesn't conform and don't reset isMissingData

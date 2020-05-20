@@ -2149,7 +2149,7 @@ describe('check()', () => {
       });
       expect(target.size()).toBe(0);
     });
-    it('returns `available` when an abstract refinement is only missing the discriminator field', () => {
+    it('returns `missing` when an abstract refinement is only missing the discriminator field', () => {
       const {TestFragment} = generateAndCompile(`
       fragment TestFragment on Query {
         maybeNodeInterface {
@@ -2186,7 +2186,7 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
+        status: 'missing',
         mostRecentlyInvalidatedAt: null,
       });
       expect(target.size()).toBe(0);

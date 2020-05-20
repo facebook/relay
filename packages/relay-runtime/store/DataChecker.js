@@ -301,25 +301,30 @@ class DataChecker {
         case INLINE_FRAGMENT: {
           const {abstractKey} = selection;
           if (abstractKey == null) {
+            // concrete type refinement: only check data if the type exactly matches
             const typeName = this._mutator.getType(dataID);
             if (typeName === selection.type) {
               this._traverseSelections(selection.selections, dataID);
             }
           } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            // Abstract refinement, there are three cases:
+            // Abstract refinement: check data depending on whether the type
+            // conforms to the interface/union or not:
             // - Type known to _not_ implement the interface: don't check the selections.
             // - Type is known _to_ implement the interface: check selections.
-            // - Unknown whether the type implements the interface: check the selections,
-            //   if a field is missing we don't know if it should exist or not, so we
-            //   have to pessimistically assume the type _does_ implement the interface
-            //   and treat those fields as missing.
+            // - Unknown whether the type implements the interface: don't check the selections
+            //   and treat the data as missing; we do this because the Relay Compiler
+            //   guarantees that the type discriminator will always be fetched.
             const implementsInterface = this._mutator.getValue(
               dataID,
               abstractKey,
             );
-            if (implementsInterface !== false) {
+            if (implementsInterface === true) {
               this._traverseSelections(selection.selections, dataID);
-            }
+            } else if (implementsInterface == null) {
+              // unsure if the type implements the interface: data is
+              // missing so don't bother reading the fragment
+              this._handleMissing();
+            } // else false: known to not implement the interface
           } else {
             // legacy behavior for abstract refinements: always check even
             // if the type doesn't conform
@@ -363,7 +368,18 @@ class DataChecker {
           this._recordWasMissing = recordWasMissing;
           break;
         case TYPE_DISCRIMINATOR:
-          // We can ignore the type discriminator for checking
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const {abstractKey} = selection;
+            const implementsInterface = this._mutator.getValue(
+              dataID,
+              abstractKey,
+            );
+            if (implementsInterface == null) {
+              // unsure if the type implements the interface: data is
+              // missing
+              this._handleMissing();
+            } // else: if it does or doesn't implement, we don't need to check or skip anything else
+          }
           break;
         default:
           (selection: empty);

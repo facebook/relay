@@ -206,9 +206,9 @@ fn apply_normalization_transforms<'schema>(
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
     // + ClientExtensionsTransform
+    // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // + SkipRedundantNodesTransform
-    // + GenerateTypeNameTransform
     // + ValidateServerOnlyDirectivesTransform
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
@@ -220,13 +220,13 @@ fn apply_normalization_transforms<'schema>(
     })?;
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
+    let program = log_event.time("generate_typename", || generate_typename(&program, true));
     let program = log_event.time("flatten", || flatten(&program, true));
     log_event.time("validate_module_conflicts", || {
         validate_module_conflicts(&program)
     })?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
 
-    let program = log_event.time("generate_typename", || generate_typename(&program));
     perf_logger.complete_event(log_event);
 
     Ok(program)
@@ -246,8 +246,8 @@ fn apply_operation_text_transforms<'schema>(
     // - ClientExtensionsTransform
     // + SkipClientExtensionsTransform
     // + SkipUnreachableNodeTransform
-    // + FlattenTransform, flattenAbstractTypes: false
     // + GenerateTypeNameTransform
+    // + FlattenTransform, flattenAbstractTypes: false
     // - SkipHandleFieldTransform
     // - FilterDirectivesTransform
     // + SkipUnusedVariablesTransform
@@ -261,9 +261,9 @@ fn apply_operation_text_transforms<'schema>(
         skip_client_extensions(&program)
     });
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    let program = log_event.time("generate_typename", || generate_typename(&program, false));
     let program = log_event.time("flatten", || flatten(&program, false));
     let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
-    let program = log_event.time("generate_typename", || generate_typename(&program));
     let program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });

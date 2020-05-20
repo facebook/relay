@@ -58,7 +58,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         });
         c.bench_function(&format!("generate_typename::{}", file_name), |b| {
             b.iter(|| {
-                let program = generate_typename(black_box(&program));
+                let program = generate_typename(black_box(&program), false);
                 black_box(&program);
             })
         });
@@ -84,7 +84,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             b.iter(|| {
                 let program = generate_id_field(black_box(&program));
                 let program = inline_fragments(black_box(&program));
-                let program = generate_typename(black_box(&program));
+                let program = generate_typename(black_box(&program), false);
                 let program = sort_selections(black_box(&program));
                 let program = skip_client_extensions(black_box(&program));
                 black_box(&program);

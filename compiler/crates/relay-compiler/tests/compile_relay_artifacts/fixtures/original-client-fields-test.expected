@@ -148,6 +148,21 @@ type Foo implements Named {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "kind": "TypeDiscriminator",
+                    "abstractKey": "__isNode"
+                  }
+                ],
+                "type": "Node",
+                "abstractKey": "__isNode"
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "kind": "TypeDiscriminator",
+                    "abstractKey": "__isNamed"
+                  },
+                  {
                     "kind": "ClientExtension",
                     "selections": [
                       {
@@ -283,6 +298,7 @@ fragment BestFriends on User {
 }
 
 fragment NodeFragment on Node {
+  __isNode: __typename
   id
 }
 

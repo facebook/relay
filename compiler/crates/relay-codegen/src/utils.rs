@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::{Intern, StringKey};
-use schema::{Schema, Type};
-
 /// Escape graphql text
 pub fn escape(text: &str, output: &mut String) {
     for char in text.chars() {
@@ -20,10 +17,6 @@ pub fn escape(text: &str, output: &mut String) {
             _ => output.push(char),
         }
     }
-}
-
-pub fn generate_abstract_type_refinement_key(schema: &Schema, type_: Type) -> StringKey {
-    format!("__is{}", schema.get_type_name(type_).lookup()).intern()
 }
 
 #[test]

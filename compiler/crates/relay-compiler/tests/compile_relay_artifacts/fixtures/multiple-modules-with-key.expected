@@ -201,6 +201,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "kind": "InlineFragment",
             "selections": [
               {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isActor"
+              },
+              {
                 "alias": null,
                 "args": [
                   {
@@ -308,6 +312,7 @@ query MatchQuery {
   node(id: "<user-id>") {
     __typename
     ... on Actor {
+      __isActor: __typename
       nameRenderer(supported: ["PlainUserNameRenderer"]) {
         __typename
         ... on PlainUserNameRenderer {

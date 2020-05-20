@@ -17,6 +17,7 @@ use fnv::FnvHashSet;
 use graphql_ir::{Argument, Directive, Value};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use schema::{Schema, Type};
 
 // A wrapper type that allows comparing pointer equality of references. Two
 // `PointerAddress` values are equal if they point to the same memory location.
@@ -115,4 +116,8 @@ lazy_static! {
 
 pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {
     RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item)
+}
+
+pub fn generate_abstract_type_refinement_key(schema: &Schema, type_: Type) -> StringKey {
+    format!("__is{}", schema.get_type_name(type_).lookup()).intern()
 }

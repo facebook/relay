@@ -8,7 +8,6 @@
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::relay_test_operation::build_test_operation_metadata;
-use crate::utils::generate_abstract_type_refinement_key;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -19,9 +18,10 @@ use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
-    extract_variable_name, remove_directive, ConnectionConstants, DeferDirective,
-    HandleFieldConstants, RelayDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
-    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
+    extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
+    ConnectionConstants, DeferDirective, HandleFieldConstants, RelayDirective, StreamDirective,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, INLINE_DATA_CONSTANTS,
+    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -431,8 +431,31 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     None => self.build_linked_field_and_handles(field),
                 }
             }
-            Selection::ScalarField(field) => self.build_scalar_field_and_handles(field),
+            Selection::ScalarField(field) => {
+                if field.directives.len() == 1
+                    && field.directives[0].name.item == *TYPE_DISCRIMINATOR_DIRECTIVE_NAME
+                {
+                    match self.variant {
+                        CodegenVariant::Reader => vec![],
+                        CodegenVariant::Normalization => self.build_type_discriminator(field),
+                    }
+                } else {
+                    self.build_scalar_field_and_handles(field)
+                }
+            }
         }
+    }
+
+    fn build_type_discriminator(&mut self, field: &ScalarField) -> Vec<Primitive> {
+        vec![Primitive::Key(self.object(vec![
+            (CODEGEN_CONSTANTS.kind, Primitive::String(CODEGEN_CONSTANTS.type_discriminator)),
+            (
+                CODEGEN_CONSTANTS.abstract_key,
+                Primitive::String(field.alias.expect(
+                    "Expected the type discriminator field to contain the abstract key alias.",
+                ).item),
+            ),
+        ]))]
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
@@ -798,7 +821,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             None => {
                 // TODO(T63388023): Use typed custom directives
                 if inline_frag.directives.len() == 1
-                    && inline_frag.directives[0].name.item == "__clientExtension".intern()
+                    && inline_frag.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME
                 {
                     let selections = self.build_selections(&inline_frag.selections);
                     Primitive::Key(self.object(vec![

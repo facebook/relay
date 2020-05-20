@@ -19,7 +19,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let program = Program::from_definitions(&TEST_SCHEMA, ir);
 
-    let next_program = generate_typename(&program);
+    let next_program = generate_typename(&program, false);
 
     assert_eq!(next_program.document_count(), program.document_count());
 

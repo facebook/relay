@@ -129,6 +129,10 @@ fragment PaginationFragment on Node
             "storageKey": null
           },
           {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
@@ -288,6 +292,7 @@ query RefetchableFragmentQuery(
 }
 
 fragment PaginationFragment_1G22uz on Node {
+  __isNode: __typename
   id
   ... on User {
     name

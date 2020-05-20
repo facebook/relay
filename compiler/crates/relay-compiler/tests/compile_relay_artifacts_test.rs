@@ -1,9 +1,100 @@
-// @generated SignedSource<<bac74b1a6e8f4095cb593f5ef473884b>>
+// @generated SignedSource<<1053ecc5f1301a966d92ddcc7f1c0d1a>>
 
 mod compile_relay_artifacts;
 
 use compile_relay_artifacts::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn abstract_type_refinement() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_fragment_spread() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_fragment_spread_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread-conditional.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread-conditional.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-fragment-spread-conditional.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_inline_fragment_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment-conditional.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment-conditional.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-inline-fragment-conditional.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_nested_fragment_spread() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_nested_fragment_spread_within_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_nested_fragment_spread_within_inline_fragment_different_fields() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment-different-fields.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment-different-fields.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment-different-fields.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-fragment-spread-within-inline-fragment-different-fields.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_flatten_type_discriminator_nested_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-inline-fragment.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-flatten-type-discriminator-nested-inline-fragment.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-flatten-type-discriminator-nested-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_skip_type_discriminator_fragment_spread() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-fragment-spread.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-fragment-spread.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-skip-type-discriminator-fragment-spread.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_skip_type_discriminator_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-inline-fragment.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-skip-type-discriminator-inline-fragment.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_dont_skip_type_discriminator_when_identical_selections() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-when-identical-selections.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-when-identical-selections.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-dont-skip-type-discriminator-when-identical-selections.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-dont-skip-type-discriminator-when-identical-selections.expected", input, expected);
+}
+
+#[test]
+fn abstract_type_refinement_no_unnecessary_type_discriminator_under_condition_incorrect() {
+    let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected");
+    test_fixture(transform_fixture, "abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected", input, expected);
+}
 
 #[test]
 fn client_conditions() {

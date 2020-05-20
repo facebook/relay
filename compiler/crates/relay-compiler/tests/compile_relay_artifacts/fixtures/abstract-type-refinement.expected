@@ -1,17 +1,17 @@
 ==================================== INPUT ====================================
-query QueryWithFragmentWithDefer {
-  node(id: "my-id") {
-    ...NodeFragment @defer(label: "node")
+query AbstractTypeRefinement {
+  node(id: "4") {
+    ... on Named {
+      name_from_query: name
+    }
+    ...ActorFragment
   }
 }
 
-fragment NodeFragment on Node {
-  id
-  ... on User {
-    name
-  }
-  ... on Page {
-    websites
+fragment ActorFragment on Actor {
+  username
+  ... on Named {
+    name_from_fragment: name
   }
 }
 ==================================== OUTPUT ===================================
@@ -20,7 +20,7 @@ fragment NodeFragment on Node {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithFragmentWithDefer",
+    "name": "AbstractTypeRefinement",
     "selections": [
       {
         "alias": null,
@@ -28,7 +28,7 @@ fragment NodeFragment on Node {
           {
             "kind": "Literal",
             "name": "id",
-            "value": "my-id"
+            "value": "4"
           }
         ],
         "concreteType": null,
@@ -37,17 +37,26 @@ fragment NodeFragment on Node {
         "plural": false,
         "selections": [
           {
-            "kind": "Defer",
+            "kind": "InlineFragment",
             "selections": [
               {
+                "alias": "name_from_query",
                 "args": null,
-                "kind": "FragmentSpread",
-                "name": "NodeFragment"
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
               }
-            ]
+            ],
+            "type": "Named",
+            "abstractKey": "__isNamed"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "ActorFragment"
           }
         ],
-        "storageKey": "node(id:\"my-id\")"
+        "storageKey": "node(id:\"4\")"
       }
     ],
     "type": "Query",
@@ -57,7 +66,7 @@ fragment NodeFragment on Node {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "QueryWithFragmentWithDefer",
+    "name": "AbstractTypeRefinement",
     "selections": [
       {
         "alias": null,
@@ -65,7 +74,7 @@ fragment NodeFragment on Node {
           {
             "kind": "Literal",
             "name": "id",
-            "value": "my-id"
+            "value": "4"
           }
         ],
         "concreteType": null,
@@ -81,67 +90,71 @@ fragment NodeFragment on Node {
             "storageKey": null
           },
           {
-            "if": null,
-            "kind": "Defer",
-            "label": "QueryWithFragmentWithDefer$defer$node",
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
             "selections": [
               {
                 "kind": "TypeDiscriminator",
-                "abstractKey": "__isNode"
+                "abstractKey": "__isNamed"
+              },
+              {
+                "alias": "name_from_query",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Named",
+            "abstractKey": "__isNamed"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isActor"
               },
               {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "id",
+                "name": "username",
                 "storageKey": null
               },
               {
                 "kind": "InlineFragment",
                 "selections": [
                   {
-                    "alias": null,
+                    "alias": "name_from_fragment",
                     "args": null,
                     "kind": "ScalarField",
                     "name": "name",
                     "storageKey": null
                   }
                 ],
-                "type": "User",
-                "abstractKey": null
-              },
-              {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "websites",
-                    "storageKey": null
-                  }
-                ],
-                "type": "Page",
-                "abstractKey": null
+                "type": "Named",
+                "abstractKey": "__isNamed"
               }
-            ]
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
+            ],
+            "type": "Actor",
+            "abstractKey": "__isActor"
           }
         ],
-        "storageKey": "node(id:\"my-id\")"
+        "storageKey": "node(id:\"4\")"
       }
     ]
   },
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithFragmentWithDefer",
+    "name": "AbstractTypeRefinement",
     "operationKind": "query",
     "text": null
   }
@@ -149,22 +162,24 @@ fragment NodeFragment on Node {
 
 QUERY:
 
-query QueryWithFragmentWithDefer {
-  node(id: "my-id") {
+query AbstractTypeRefinement {
+  node(id: "4") {
     __typename
-    ...NodeFragment @defer(label: "QueryWithFragmentWithDefer$defer$node")
+    ... on Named {
+      __isNamed: __typename
+      name_from_query: name
+    }
+    ...ActorFragment
     id
   }
 }
 
-fragment NodeFragment on Node {
-  __isNode: __typename
-  id
-  ... on User {
-    name
-  }
-  ... on Page {
-    websites
+fragment ActorFragment on Actor {
+  __isActor: __typename
+  username
+  ... on Named {
+    __isNamed: __typename
+    name_from_fragment: name
   }
 }
 
@@ -173,44 +188,30 @@ fragment NodeFragment on Node {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NodeFragment",
+  "name": "ActorFragment",
   "selections": [
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "id",
+      "name": "username",
       "storageKey": null
     },
     {
       "kind": "InlineFragment",
       "selections": [
         {
-          "alias": null,
+          "alias": "name_from_fragment",
           "args": null,
           "kind": "ScalarField",
           "name": "name",
           "storageKey": null
         }
       ],
-      "type": "User",
-      "abstractKey": null
-    },
-    {
-      "kind": "InlineFragment",
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "websites",
-          "storageKey": null
-        }
-      ],
-      "type": "Page",
-      "abstractKey": null
+      "type": "Named",
+      "abstractKey": "__isNamed"
     }
   ],
-  "type": "Node",
-  "abstractKey": "__isNode"
+  "type": "Actor",
+  "abstractKey": "__isActor"
 }

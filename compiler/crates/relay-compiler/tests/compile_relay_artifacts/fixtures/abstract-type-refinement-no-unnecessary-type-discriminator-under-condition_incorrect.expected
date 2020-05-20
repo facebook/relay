@@ -1,0 +1,245 @@
+==================================== INPUT ====================================
+mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
+  actorNameChange(input: $input) {
+    actor {
+      ... @include(if: $myVar) {
+        ... on Page {
+          username
+        }
+      }
+      ... @skip(if: $myVar) {
+        ... on Page {
+          canViewerLike
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input",
+        "type": "ActorNameChangeInput!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "myVar",
+        "type": "Boolean!"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "ChangeNameMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "ActorNameChangePayload",
+        "kind": "LinkedField",
+        "name": "actorNameChange",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "username",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "canViewerLike",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Mutation",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input",
+        "type": "ActorNameChangeInput!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "myVar",
+        "type": "Boolean!"
+      }
+    ],
+    "kind": "Operation",
+    "name": "ChangeNameMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "ActorNameChangePayload",
+        "kind": "LinkedField",
+        "name": "actorNameChange",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "username",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "canViewerLike",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "ChangeNameMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation ChangeNameMutation(
+  $input: ActorNameChangeInput!
+  $myVar: Boolean!
+) {
+  actorNameChange(input: $input) {
+    actor {
+      __typename
+      ... on Page @include(if: $myVar) {
+        username
+      }
+      ... on Page @skip(if: $myVar) {
+        canViewerLike
+      }
+      id
+    }
+  }
+}

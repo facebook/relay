@@ -101,6 +101,10 @@ fragment ProfilePicture on User {
             "storageKey": null
           },
           {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
@@ -179,6 +183,7 @@ fragment ProfilePicture on User {
 }
 
 fragment RefetchableFragment on Node {
+  __isNode: __typename
   id
   ... on User {
     name

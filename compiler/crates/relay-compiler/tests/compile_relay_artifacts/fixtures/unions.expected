@@ -152,6 +152,10 @@ query UnionQuery {
             "kind": "InlineFragment",
             "selections": [
               {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              },
+              {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
@@ -205,6 +209,7 @@ query UnionQuery {
       }
     }
     ... on Node {
+      __isNode: __typename
       id
     }
     ... on FakeNode {

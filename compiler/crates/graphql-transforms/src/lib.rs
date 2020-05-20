@@ -53,7 +53,7 @@ lazy_static! {
 
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
-pub use client_extensions::client_extensions;
+pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
 };
@@ -66,7 +66,7 @@ pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
 pub use generate_preloadable_metadata::generate_preloadable_metadata;
 pub use generate_subscription_name_metadata::generate_subscription_name_metadata;
-pub use generate_typename::generate_typename;
+pub use generate_typename::{generate_typename, TYPE_DISCRIMINATOR_DIRECTIVE_NAME};
 pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,
     handle_field_transform, HandleFieldConstants,
@@ -94,5 +94,5 @@ pub use skip_unused_variables::skip_unused_variables;
 pub use sort_selections::sort_selections;
 pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
-pub use util::{extract_variable_name, remove_directive};
+pub use util::{extract_variable_name, generate_abstract_type_refinement_key, remove_directive};
 pub use validations::*;

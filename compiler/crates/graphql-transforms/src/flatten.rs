@@ -24,8 +24,6 @@ type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 /// Inline fragments are inlined (replaced with their selections) when:
 /// - The fragment type matches the type of its parent, and it `is_for_codegen`,
 ///   or the inline fragment doesn't have directives .
-/// - The fragment has an abstract type and the `is_for_codegen` option has
-///   been set.
 ///
 /// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).

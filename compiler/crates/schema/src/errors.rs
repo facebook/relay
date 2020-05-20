@@ -35,6 +35,12 @@ pub enum SchemaError {
     #[error("Duplicate field definition '{0}' found.")]
     DuplicateField(StringKey),
 
+    #[error("Duplicate definition for type '{0}'.")]
+    DuplicateType(StringKey),
+
+    #[error("Invalid ID '{0}' provided for type '{1}'")]
+    UnknownTypeID(usize, String),
+
     // TODO: These should be replaced with error codes or by unifying the parsers.
     #[error("Parse Error '{0}'.")]
     Syntax(String),

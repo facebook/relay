@@ -325,6 +325,179 @@ impl Schema {
             .collect()
     }
 
+    pub fn get_fields(&self) -> impl Iterator<Item = &Field> {
+        self.fields.iter()
+    }
+
+    pub fn get_interfaces(&self) -> impl Iterator<Item = &Interface> {
+        self.interfaces.iter()
+    }
+
+    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+        self.directives.contains_key(&directive_name)
+    }
+
+    pub fn has_type(&self, type_name: StringKey) -> bool {
+        self.type_map.contains_key(&type_name)
+    }
+
+    pub fn add_directive(&mut self, directive: Directive) -> Result<()> {
+        if self.directives.contains_key(&directive.name) {
+            return Err(SchemaError::DuplicateDirectiveDefinition(directive.name));
+        }
+        self.directives.insert(directive.name, directive);
+        Ok(())
+    }
+
+    pub fn add_field(&mut self, field: Field) -> Result<FieldID> {
+        Ok(self.build_field(field))
+    }
+
+    pub fn add_enum(&mut self, enum_: Enum) -> Result<EnumID> {
+        if self.type_map.contains_key(&enum_.name) {
+            return Err(SchemaError::DuplicateType(enum_.name));
+        }
+        let index: u32 = self.enums.len().try_into().unwrap();
+        let name = enum_.name;
+        self.enums.push(enum_);
+        self.type_map.insert(name, Type::Enum(EnumID(index)));
+        Ok(EnumID(index))
+    }
+
+    pub fn add_input_object(&mut self, input_object: InputObject) -> Result<InputObjectID> {
+        if self.type_map.contains_key(&input_object.name) {
+            return Err(SchemaError::DuplicateType(input_object.name));
+        }
+        let index: u32 = self.input_objects.len().try_into().unwrap();
+        let name = input_object.name;
+        self.input_objects.push(input_object);
+        self.type_map
+            .insert(name, Type::InputObject(InputObjectID(index)));
+        Ok(InputObjectID(index))
+    }
+
+    pub fn add_interface(&mut self, interface: Interface) -> Result<InterfaceID> {
+        if self.type_map.contains_key(&interface.name) {
+            return Err(SchemaError::DuplicateType(interface.name));
+        }
+        let index: u32 = self.interfaces.len().try_into().unwrap();
+        let name = interface.name;
+        self.interfaces.push(interface);
+        self.type_map
+            .insert(name, Type::Interface(InterfaceID(index)));
+        Ok(InterfaceID(index))
+    }
+
+    pub fn add_object(&mut self, object: Object) -> Result<ObjectID> {
+        if self.type_map.contains_key(&object.name) {
+            return Err(SchemaError::DuplicateType(object.name));
+        }
+        let index: u32 = self.objects.len().try_into().unwrap();
+        let name = object.name;
+        self.objects.push(object);
+        self.type_map.insert(name, Type::Object(ObjectID(index)));
+        Ok(ObjectID(index))
+    }
+
+    pub fn add_scalar(&mut self, scalar: Scalar) -> Result<ScalarID> {
+        if self.type_map.contains_key(&scalar.name) {
+            return Err(SchemaError::DuplicateType(scalar.name));
+        }
+        let index: u32 = self.scalars.len().try_into().unwrap();
+        let name = scalar.name;
+        self.scalars.push(scalar);
+        self.type_map.insert(name, Type::Scalar(ScalarID(index)));
+        Ok(ScalarID(index))
+    }
+
+    pub fn add_union(&mut self, union: Union) -> Result<UnionID> {
+        if self.type_map.contains_key(&union.name) {
+            return Err(SchemaError::DuplicateType(union.name));
+        }
+        let index: u32 = self.unions.len().try_into().unwrap();
+        let name = union.name;
+        self.unions.push(union);
+        self.type_map.insert(name, Type::Union(UnionID(index)));
+        Ok(UnionID(index))
+    }
+
+    pub fn add_field_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        field_id: FieldID,
+    ) -> Result<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.fields.push(field_id);
+        Ok(interface_id)
+    }
+
+    pub fn add_field_to_object(&mut self, obj_id: ObjectID, field_id: FieldID) -> Result<ObjectID> {
+        let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
+        object.fields.push(field_id);
+        Ok(obj_id)
+    }
+
+    pub fn add_interface_to_object(
+        &mut self,
+        obj_id: ObjectID,
+        interface_id: InterfaceID,
+    ) -> Result<ObjectID> {
+        let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
+        object.interfaces.push(interface_id);
+        Ok(obj_id)
+    }
+
+    pub fn add_member_to_union(
+        &mut self,
+        union_id: UnionID,
+        object_id: ObjectID,
+    ) -> Result<UnionID> {
+        let union = self.unions.get_mut(union_id.as_usize()).unwrap();
+        union.members.push(object_id);
+        Ok(union_id)
+    }
+
+    pub fn set_input_object_args(
+        &mut self,
+        input_object_id: InputObjectID,
+        fields: ArgumentDefinitions,
+    ) -> Result<InputObjectID> {
+        let input_object = self
+            .input_objects
+            .get_mut(input_object_id.as_usize())
+            .unwrap();
+        input_object.fields = fields;
+        Ok(input_object_id)
+    }
+
+    pub fn set_field_args(
+        &mut self,
+        field_id: FieldID,
+        args: ArgumentDefinitions,
+    ) -> Result<FieldID> {
+        let field = self.fields.get_mut(field_id.as_usize()).unwrap();
+        field.arguments = args;
+        Ok(field_id)
+    }
+
+    pub fn replace_interface(&mut self, id: InterfaceID, interface: Interface) -> Result<()> {
+        let id = id.as_usize();
+        if id >= self.interfaces.len() {
+            return Err(SchemaError::UnknownTypeID(id, String::from("Interface")));
+        }
+        std::mem::replace(&mut self.interfaces[id], interface);
+        Ok(())
+    }
+
+    pub fn replace_field(&mut self, id: FieldID, field: Field) -> Result<()> {
+        let id = id.as_usize();
+        if id >= self.fields.len() {
+            return Err(SchemaError::UnknownTypeID(id, String::from("Field")));
+        }
+        std::mem::replace(&mut self.fields[id], field);
+        Ok(())
+    }
+
     pub fn build(
         schema_definitions: &[ast::Definition],
         client_definitions: &[ast::Definition],

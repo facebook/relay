@@ -19,7 +19,7 @@ use graphql_ir::{
     OperationDefinition, ScalarField, Selection,
 };
 use graphql_transforms::{RelayDirective, MATCH_CONSTANTS};
-use indexmap::{IndexMap, IndexSet};
+use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
@@ -485,12 +485,15 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     key: selection.key,
                     concrete_type: None,
                 };
-                let next_sel = if let Some(previous_sel) = base_fields.get(&key) {
-                    merge_selection(Some(selection), previous_sel.clone(), true)
-                } else {
-                    selection
-                };
-                base_fields.insert(key, next_sel);
+                match base_fields.entry(key) {
+                    Entry::Occupied(entry) => {
+                        let previous_sel = entry.get().clone();
+                        *entry.into_mut() = merge_selection(Some(selection), previous_sel, true);
+                    }
+                    Entry::Vacant(entry) => {
+                        entry.insert(selection);
+                    }
+                }
             }
         }
 

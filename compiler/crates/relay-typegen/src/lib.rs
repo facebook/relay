@@ -131,14 +131,12 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             Prop {
                 key: "variables".intern(),
                 read_only: false,
-                other_comment: false,
                 optional: false,
                 value: AST::Identifier(input_variables_identifier),
             },
             Prop {
                 key: "response".intern(),
                 read_only: false,
-                other_comment: false,
                 optional: false,
                 value: AST::Identifier(response_identifier),
             },
@@ -157,7 +155,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 key: *KEY_RAW_RESPONSE,
                 read_only: false,
                 optional: false,
-                other_comment: false,
                 value: AST::Identifier(raw_response_identifier),
             })
         }
@@ -201,7 +198,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             key: "$data".intern(),
             optional: true,
             read_only: true,
-            other_comment: false,
             value: AST::Identifier(format!("{}$data", node.name.item).intern()),
         };
         let old_fragment_type_name = format!("{}$ref", node.name.item).intern();
@@ -210,7 +206,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             key: "$fragmentRefs".intern(),
             optional: false,
             read_only: true,
-            other_comment: false,
             value: AST::Identifier(old_fragment_type_name),
         };
         let is_plural_fragment = is_plural(node);
@@ -537,8 +532,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         key: *typename_alias,
                         read_only: true,
                         optional: false,
-                        other_comment: true,
-                        value: AST::StringLiteral("%other".intern()),
+                        value: AST::OtherEnumValue,
                     })
                     .collect(),
             );
@@ -591,7 +585,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                             key: "$refType".intern(),
                             optional: false,
                             read_only: true,
-                            other_comment: false,
                             value: AST::Identifier(fragment_type_name),
                         });
                     }
@@ -694,7 +687,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             key,
             read_only: true,
             optional: conditional,
-            other_comment: false,
             value,
         }
     }
@@ -747,7 +739,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             key,
             read_only: true,
             optional: conditional,
-            other_comment: false,
             value,
         }
     }
@@ -890,7 +881,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     key: var_def.name.item,
                     read_only: false,
                     optional: !var_def.type_.is_non_null(),
-                    other_comment: false,
                     value: self.transform_input_type(&var_def.type_),
                 })
                 .collect(),
@@ -946,7 +936,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                                 read_only: false,
                                 optional: !field.type_.is_non_null()
                                     || self.optional_input_fields.contains(&field.name),
-                                other_comment: false,
                                 value: self.transform_input_type(&field.type_),
                             })
                             .collect();

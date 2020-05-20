@@ -17,6 +17,8 @@ pub enum AST {
     Identifier(StringKey),
     String,
     StringLiteral(StringKey),
+    /// Prints as `"%other" with a comment explaining open enums.
+    OtherEnumValue,
     ExactObject(Vec<Prop>),
     InexactObject(Vec<Prop>),
     Number,
@@ -30,7 +32,6 @@ pub struct Prop {
     pub value: AST,
     pub read_only: bool,
     pub optional: bool,
-    pub other_comment: bool,
 }
 
 pub fn print_type(ast: &AST) -> String {
@@ -52,6 +53,7 @@ impl<W: Write> Printer<W> {
             AST::Any => write!(self.writer, "any")?,
             AST::String => write!(self.writer, "string")?,
             AST::StringLiteral(literal) => self.write_string_literal(*literal)?,
+            AST::OtherEnumValue => self.write_other_string()?,
             AST::Number => write!(self.writer, "number")?,
             AST::Boolean => write!(self.writer, "boolean")?,
             AST::Identifier(identifier) => write!(self.writer, "{}", identifier)?,
@@ -74,6 +76,10 @@ impl<W: Write> Printer<W> {
 
     fn write_string_literal(&mut self, literal: StringKey) -> Result {
         write!(self.writer, "\"{}\"", literal)
+    }
+
+    fn write_other_string(&mut self) -> Result {
+        write!(self.writer, r#""%other""#)
     }
 
     fn write_union(&mut self, members: &[AST]) -> Result {
@@ -137,7 +143,7 @@ impl<W: Write> Printer<W> {
         let mut first = true;
         for prop in props {
             self.write_indentation()?;
-            if prop.other_comment {
+            if let AST::OtherEnumValue = prop.value {
                 writeln!(
                     self.writer,
                     "// This will never be '%other', but we need some"
@@ -236,7 +242,6 @@ mod tests {
                 key: "single".intern(),
                 optional: false,
                 read_only: false,
-                other_comment: false,
                 value: AST::String,
             },])),
             r"{|
@@ -249,7 +254,6 @@ mod tests {
                 Prop {
                     key: "foo".intern(),
                     optional: true,
-                    other_comment: false,
                     read_only: false,
                     value: AST::String,
                 },
@@ -257,7 +261,6 @@ mod tests {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
-                    other_comment: false,
                     value: AST::Number,
                 },
             ])),
@@ -276,20 +279,17 @@ mod tests {
                 Prop {
                     key: "foo".intern(),
                     optional: true,
-                    other_comment: false,
                     read_only: false,
                     value: AST::ExactObject(vec![
                         Prop {
                             key: "nested_foo".intern(),
                             optional: true,
-                            other_comment: false,
                             read_only: false,
                             value: AST::String,
                         },
                         Prop {
                             key: "nested_foo2".intern(),
                             optional: false,
-                            other_comment: false,
                             read_only: true,
                             value: AST::Number,
                         },
@@ -298,7 +298,6 @@ mod tests {
                 Prop {
                     key: "bar".intern(),
                     optional: false,
-                    other_comment: false,
                     read_only: true,
                     value: AST::Number,
                 },
@@ -328,7 +327,6 @@ mod tests {
             print_type(&AST::InexactObject(vec![Prop {
                 key: "single".intern(),
                 optional: false,
-                other_comment: false,
                 read_only: false,
                 value: AST::String,
             },])),
@@ -344,14 +342,12 @@ mod tests {
                 Prop {
                     key: "foo".intern(),
                     optional: false,
-                    other_comment: false,
                     read_only: false,
                     value: AST::String,
                 },
                 Prop {
                     key: "bar".intern(),
                     optional: true,
-                    other_comment: false,
                     read_only: true,
                     value: AST::Number,
                 }
@@ -372,14 +368,13 @@ mod tests {
                 key: "with_comment".intern(),
                 optional: false,
                 read_only: false,
-                other_comment: true,
-                value: AST::String,
+                value: AST::OtherEnumValue,
             },])),
-            r"{|
+            r#"{|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  with_comment: string
-|}"
+  with_comment: "%other"
+|}"#
             .to_string()
         );
     }

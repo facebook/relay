@@ -318,6 +318,13 @@ impl Schema {
         self.directives.values()
     }
 
+    pub fn directives_for_location(&self, location: DirectiveLocation) -> Vec<&Directive> {
+        self.directives
+            .values()
+            .filter(|directive| directive.locations.contains(&location))
+            .collect()
+    }
+
     pub fn build(
         schema_definitions: &[ast::Definition],
         client_definitions: &[ast::Definition],

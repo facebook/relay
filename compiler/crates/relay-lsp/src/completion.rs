@@ -18,11 +18,13 @@ use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
     ServerResponse, TextDocumentPositionParams, Url,
 };
-use schema::{Directive as SchemaDirective, DirectiveLocation, Schema, Type, TypeWithFields};
+use schema::{
+    Directive as SchemaDirective, DirectiveLocation, Schema, Type, TypeReference, TypeWithFields,
+};
 
 use graphql_syntax::{
-    Directive, ExecutableDefinition, InlineFragment, LinkedField, List, OperationDefinition,
-    OperationKind, Selection,
+    Directive, ExecutableDefinition, FragmentSpread, InlineFragment, LinkedField, List,
+    OperationDefinition, OperationKind, ScalarField, Selection,
 };
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
@@ -31,7 +33,7 @@ pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>
 pub enum CompletionKind {
     FieldName,
     FragmentSpread,
-    DirectiveName,
+    DirectiveName { location: DirectiveLocation },
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -75,6 +77,7 @@ pub enum TypePathItem {
     FragmentDefinition { type_name: StringKey },
     InlineFragment { type_name: StringKey },
     LinkedField { name: StringKey },
+    ScalarField { name: StringKey },
 }
 
 pub fn create_completion_request(document: Document, position_span: Span) -> CompletionRequest {
@@ -99,24 +102,19 @@ pub fn create_completion_request(document: Document, position_span: Span) -> Com
                         ..
                     } = operation;
 
-                    for Directive { span, name, .. } in directives {
-                        if span.contains(position_span) {
-                            if name.span.contains(position_span) {
-                                completion_request.kind = CompletionKind::DirectiveName;
-                                return completion_request;
-                            }
-                        }
-                    }
+                    let directive_location = match kind {
+                        OperationKind::Query => DirectiveLocation::Query,
+                        OperationKind::Mutation => DirectiveLocation::Mutation,
+                        OperationKind::Subscription => DirectiveLocation::Subscription,
+                    };
 
-                    if selections.span.contains(position_span) {
-                        // TODO(brandondail) handle when the completion occurs at/within the start token
-                        info!("Completion request is within a selection");
-                        populate_completion_request_from_selection(
-                            selections,
-                            position_span,
-                            &mut completion_request,
-                        );
-                    }
+                    build_request_from_selection_or_directives(
+                        selections,
+                        directives,
+                        directive_location,
+                        position_span,
+                        &mut completion_request,
+                    );
                 }
                 // Check if the position span is within this operation's span
             }
@@ -124,13 +122,13 @@ pub fn create_completion_request(document: Document, position_span: Span) -> Com
                 if fragment.location.contains(position_span) {
                     let type_name = fragment.type_condition.type_.value;
                     completion_request.add_type(TypePathItem::FragmentDefinition { type_name });
-                    if fragment.selections.span.contains(position_span) {
-                        populate_completion_request_from_selection(
-                            &fragment.selections,
-                            position_span,
-                            &mut completion_request,
-                        );
-                    }
+                    build_request_from_selection_or_directives(
+                        &fragment.selections,
+                        &fragment.directives,
+                        DirectiveLocation::FragmentDefinition,
+                        position_span,
+                        &mut completion_request,
+                    );
                 }
             }
         }
@@ -148,7 +146,7 @@ fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Type {
             OperationKind::Subscription => schema.subscription_type().unwrap(),
         },
         TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name).unwrap(),
-        TypePathItem::LinkedField { .. } | TypePathItem::InlineFragment { .. } => {
+        _ => {
             // TODO(brandondail) fail silently and log here instead
             panic!("Completion paths must start with an operation or fragment")
         }
@@ -171,6 +169,7 @@ fn resolve_relative_type(parent_type: Type, path_item: TypePathItem, schema: &Sc
             info!("resolved type for {:?} : {:?}", field.name, field.type_);
             field.type_.inner()
         }
+        TypePathItem::ScalarField { .. } => parent_type,
         TypePathItem::InlineFragment { type_name } => schema.get_type(type_name).unwrap(),
     }
 }
@@ -245,24 +244,18 @@ pub fn completion_items_for_request(
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
         },
-        CompletionKind::DirectiveName => match leaf_type {
-            Type::Object(_) => {
-                let items = schema
-                    .get_directives()
-                    // TODO don't hardcode the query type assumption
-                    .filter(|directive| directive.locations.contains(&DirectiveLocation::Query))
-                    .map(|directive| {
-                        completion_item_from_directive(directive)
-                    })
-                    .collect();
-                Some(items)
-            }
-            _ => None,
-        },
+        CompletionKind::DirectiveName { location } => {
+            let directives = schema.directives_for_location(location);
+            let items = directives
+                .iter()
+                .map(|directive| completion_item_from_directive(directive, schema))
+                .collect();
+            Some(items)
+        }
     }
 }
 
-fn populate_completion_request_from_selection(
+fn build_request_from_selections(
     selections: &List<Selection>,
     position_span: Span,
     completion_request: &mut CompletionRequest,
@@ -273,41 +266,106 @@ fn populate_completion_request_from_selection(
                 Selection::LinkedField(node) => {
                     completion_request.kind = CompletionKind::FieldName;
                     let LinkedField {
-                        name, selections, ..
+                        name,
+                        selections,
+                        directives,
+                        ..
                     } = node;
                     completion_request.add_type(TypePathItem::LinkedField { name: name.value });
-                    populate_completion_request_from_selection(
+                    build_request_from_selection_or_directives(
                         selections,
+                        directives,
+                        DirectiveLocation::Field,
                         position_span,
                         completion_request,
                     );
                 }
-                Selection::FragmentSpread(_) => {
-                    completion_request.kind = CompletionKind::FragmentSpread;
+                Selection::FragmentSpread(spread) => {
+                    let FragmentSpread {
+                        name, directives, ..
+                    } = spread;
+                    if name.span.contains(position_span) {
+                        completion_request.kind = CompletionKind::FragmentSpread;
+                    } else {
+                        build_request_from_directives(
+                            directives,
+                            DirectiveLocation::FragmentSpread,
+                            position_span,
+                            completion_request,
+                        );
+                    }
                 }
                 Selection::InlineFragment(node) => {
                     let InlineFragment {
                         selections,
+                        directives,
                         type_condition,
                         ..
                     } = node;
                     if let Some(type_condition) = type_condition {
                         let type_name = type_condition.type_.value;
                         completion_request.add_type(TypePathItem::InlineFragment { type_name });
-                        populate_completion_request_from_selection(
+                        build_request_from_selection_or_directives(
                             selections,
+                            directives,
+                            DirectiveLocation::InlineFragment,
                             position_span,
                             completion_request,
                         )
                     }
                 }
-                Selection::ScalarField(_node) => {}
+                Selection::ScalarField(node) => {
+                    let ScalarField {
+                        directives, name, ..
+                    } = node;
+                    completion_request.add_type(TypePathItem::ScalarField { name: name.value });
+                    build_request_from_directives(
+                        directives,
+                        DirectiveLocation::Scalar,
+                        position_span,
+                        completion_request,
+                    );
+                }
             }
         }
     }
 }
 
-fn completion_item_from_directive(directive: &SchemaDirective) -> CompletionItem {
+fn build_request_from_directives(
+    directives: &[Directive],
+    location: DirectiveLocation,
+    position_span: Span,
+    completion_request: &mut CompletionRequest,
+) {
+    for Directive { span, .. } in directives {
+        if span.contains(position_span) {
+            completion_request.kind = CompletionKind::DirectiveName { location };
+            break;
+        }
+    }
+}
+
+fn build_request_from_selection_or_directives(
+    selections: &List<Selection>,
+    directives: &[Directive],
+    directive_location: DirectiveLocation,
+    position_span: Span,
+    completion_request: &mut CompletionRequest,
+) {
+    if selections.span.contains(position_span) {
+        // TODO(brandondail) handle when the completion occurs at/within the start token
+        build_request_from_selections(selections, position_span, completion_request);
+    } else {
+        build_request_from_directives(
+            directives,
+            directive_location,
+            position_span,
+            completion_request,
+        )
+    }
+}
+
+fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) -> CompletionItem {
     let SchemaDirective {
         name, arguments, ..
     } = directive;
@@ -321,22 +379,28 @@ fn completion_item_from_directive(directive: &SchemaDirective) -> CompletionItem
     let (insert_text, insert_text_format) = if arguments.is_empty() {
         (label.clone(), InsertTextFormat::PlainText)
     } else {
-        let mut insert_text = String::from(&label);
         let mut cursor_location = 1;
+        let mut args = vec![];
 
-        insert_text.push('(');
-
-        // Iterate through the arguments and build up a snippet
-        for (i, argument) in arguments.iter().enumerate() {
-            if i != 0 {
-                insert_text.push_str(", ");
+        for arg in arguments.iter() {
+            if let TypeReference::NonNull(type_) = &arg.type_ {
+                let value_snippet = match type_ {
+                    t if t.is_list() => format!("[${}]", cursor_location),
+                    t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
+                    _ => format!("${}", cursor_location),
+                };
+                let str = format!("{} : {}", arg.name, value_snippet);
+                args.push(str);
+                cursor_location += 1;
             }
-            insert_text.push_str(&format!("{}: ${}", argument.name, cursor_location));
-            cursor_location += 1;
         }
 
-        insert_text.push(')');
-        (insert_text, InsertTextFormat::Snippet)
+        if args.is_empty() {
+            (label.clone(), InsertTextFormat::PlainText)
+        } else {
+            let insert_text = format!("{}({})", label, args.join(", "));
+            (insert_text, InsertTextFormat::Snippet)
+        }
     };
 
     CompletionItem {

@@ -84,7 +84,7 @@ pub struct EnumValueDefinition {
     pub directives: Vec<Directive>,
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
 pub enum DirectiveLocation {
     Query,
     Mutation,

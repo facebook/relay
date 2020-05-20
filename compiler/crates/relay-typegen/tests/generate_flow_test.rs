@@ -62,31 +62,31 @@ fn linked_field() {
     );
 }
 
-// #[test]
-// fn match_field() {
-//     let input = include_str!("generate_flow/fixtures/match-field.graphql");
-//     let expected = include_str!("generate_flow/fixtures/match-field.expected");
-//     test_fixture(
-//         transform_fixture,
-//         "match-field.graphql",
-//         "generate_flow/fixtures/match-field.expected",
-//         input,
-//         expected,
-//     );
-// }
+#[test]
+fn match_field() {
+    let input = include_str!("generate_flow/fixtures/match-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/match-field.expected");
+    test_fixture(
+        transform_fixture,
+        "match-field.graphql",
+        "generate_flow/fixtures/match-field.expected",
+        input,
+        expected,
+    );
+}
 
-// #[test]
-// fn match_field_in_query() {
-//     let input = include_str!("generate_flow/fixtures/match-field-in-query.graphql");
-//     let expected = include_str!("generate_flow/fixtures/match-field-in-query.expected");
-//     test_fixture(
-//         transform_fixture,
-//         "match-field-in-query.graphql",
-//         "generate_flow/fixtures/match-field-in-query.expected",
-//         input,
-//         expected,
-//     );
-// }
+#[test]
+fn match_field_in_query() {
+    let input = include_str!("generate_flow/fixtures/match-field-in-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/match-field-in-query.expected");
+    test_fixture(
+        transform_fixture,
+        "match-field-in-query.graphql",
+        "generate_flow/fixtures/match-field-in-query.expected",
+        input,
+        expected,
+    );
+}
 
 // #[test]
 // fn mutaion_with_client_extension() {
@@ -265,18 +265,18 @@ fn query_with_raw_response_on_literal_conditional() {
     );
 }
 
-// #[test]
-// fn query_with_stream() {
-//     let input = include_str!("generate_flow/fixtures/query-with-stream.graphql");
-//     let expected = include_str!("generate_flow/fixtures/query-with-stream.expected");
-//     test_fixture(
-//         transform_fixture,
-//         "query-with-stream.graphql",
-//         "generate_flow/fixtures/query-with-stream.expected",
-//         input,
-//         expected,
-//     );
-// }
+#[test]
+fn query_with_stream() {
+    let input = include_str!("generate_flow/fixtures/query-with-stream.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-stream.expected");
+    test_fixture(
+        transform_fixture,
+        "query-with-stream.graphql",
+        "generate_flow/fixtures/query-with-stream.expected",
+        input,
+        expected,
+    );
+}
 
 // #[test]
 // fn query_with_stream_connection() {

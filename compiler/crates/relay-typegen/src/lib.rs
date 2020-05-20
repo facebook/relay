@@ -18,7 +18,7 @@ use graphql_ir::{
     Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::RelayDirective;
+use graphql_transforms::{RelayDirective, MATCH_CONSTANTS};
 use indexmap::{IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -329,6 +329,56 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
     ) {
+        if let Some(module_directive) = inline_fragment
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+        {
+            let name = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.name_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+            type_selections.push(TypeSelection {
+                key: "__fragmentPropName".intern(),
+                schema_name: None,
+                value: Some(AST::Nullable(Box::new(AST::String))),
+                node_type: None,
+                conditional: true,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                kind: None,
+                document_name: None,
+            });
+            type_selections.push(TypeSelection {
+                key: "__module_component".intern(),
+                schema_name: None,
+                value: Some(AST::Nullable(Box::new(AST::String))),
+                node_type: None,
+                conditional: true,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                kind: None,
+                document_name: None,
+            });
+            self.used_fragments.insert(name);
+            type_selections.push(TypeSelection {
+                key: format!("__fragments_{}", name).intern(),
+                schema_name: None,
+                value: None,
+                node_type: None,
+                conditional: false,
+                concrete_type: None,
+                ref_: Some(name),
+                node_selections: None,
+                kind: None,
+                document_name: None,
+            });
+            return;
+        }
         let mut selections = self.visit_selections(&inline_fragment.selections);
         if let Some(type_condition) = inline_fragment.type_condition {
             for selection in selections.iter_mut() {

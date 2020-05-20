@@ -65,7 +65,7 @@ pub fn apply_transforms<'schema>(
     let operation_text_program =
         apply_operation_text_transforms(project_name, &operation_program, perf_logger)?;
     let typegen_program =
-        apply_typegen_transforms(project_name, &program, base_fragment_names, perf_logger);
+        apply_typegen_transforms(project_name, &program, base_fragment_names, perf_logger)?;
 
     Ok(Programs {
         source: program,
@@ -277,17 +277,18 @@ fn apply_typegen_transforms<'schema>(
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: &impl PerfLogger,
-) -> Program<'schema> {
+) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // * RelayDirectiveTransform
     // + MaskTransform
-    // - MatchTransform
+    // + MatchTransform
     // + FlattenTransform, flattenAbstractTypes: false
     // + RefetchableFragmentTransform,
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("mask", || mask(&program));
+    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("flatten", || flatten(&program, false));
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
@@ -298,5 +299,5 @@ fn apply_typegen_transforms<'schema>(
     });
     perf_logger.complete_event(log_event);
 
-    program
+    Ok(program)
 }

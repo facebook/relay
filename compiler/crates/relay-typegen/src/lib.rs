@@ -425,7 +425,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             conditional: false,
             concrete_type: None,
             ref_: None,
-            node_selections: Some(selections_to_map(&self.schema, selections, true)),
+            node_selections: Some(selections_to_map(selections, true)),
             kind: None,
             document_name: None,
         });
@@ -481,12 +481,16 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     .or_insert_with(Vec::new)
                     .push(selection);
             } else {
-                let next_sel = if let Some(previous_sel) = base_fields.get(&selection.key) {
+                let key = TypeSelectionKey {
+                    key: selection.key,
+                    concrete_type: None,
+                };
+                let next_sel = if let Some(previous_sel) = base_fields.get(&key) {
                     merge_selection(Some(selection), previous_sel.clone(), true)
                 } else {
                     selection
                 };
-                base_fields.insert(next_sel.key, next_sel);
+                base_fields.insert(key, next_sel);
             }
         }
 
@@ -537,13 +541,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     .collect(),
             );
         } else {
-            let mut selection_map =
-                selections_to_map(&self.schema, hashmap_into_value_vec(base_fields), false);
+            let mut selection_map = selections_to_map(hashmap_into_value_vec(base_fields), false);
             for concrete_type_selections in by_concrete_type.values() {
                 selection_map = merge_selections(
                     selection_map,
                     selections_to_map(
-                        &self.schema,
                         concrete_type_selections
                             .iter()
                             .map(|sel| TypeSelection {
@@ -620,11 +622,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let mut types: Vec<AST> = Vec::new();
 
         if !by_concrete_type.is_empty() {
-            let base_fields_map = selections_to_map(&self.schema, base_fields.clone(), false);
+            let base_fields_map = selections_to_map(base_fields.clone(), false);
             for (concrete_type, selections) in by_concrete_type {
                 let merged_selections = hashmap_into_value_vec(merge_selections(
                     base_fields_map.clone(),
-                    selections_to_map(&self.schema, selections, false),
+                    selections_to_map(selections, false),
                     false,
                 ));
                 types.push(AST::ExactObject(
@@ -1014,7 +1016,12 @@ impl TypeSelection {
     }
 }
 
-type TypeSelectionMap = IndexMap<StringKey, TypeSelection>;
+#[derive(Eq, Hash, PartialEq, Clone, Copy, Debug)]
+struct TypeSelectionKey {
+    key: StringKey,
+    concrete_type: Option<Type>,
+}
+type TypeSelectionMap = IndexMap<TypeSelectionKey, TypeSelection>;
 
 fn merge_selection(
     a: Option<TypeSelection>,
@@ -1062,21 +1069,19 @@ fn is_plural(node: &FragmentDefinition) -> bool {
     RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
 }
 
-fn selections_to_map(
-    schema: &Schema,
-    selections: Vec<TypeSelection>,
-    append_type: bool,
-) -> TypeSelectionMap {
+fn selections_to_map(selections: Vec<TypeSelection>, append_type: bool) -> TypeSelectionMap {
     let mut map: TypeSelectionMap = Default::default();
     for selection in selections {
         let key = if append_type {
-            if let Some(concrete_type) = selection.concrete_type {
-                format!("{}::{}", selection.key, schema.get_type_name(concrete_type)).intern()
-            } else {
-                selection.key
+            TypeSelectionKey {
+                key: selection.key,
+                concrete_type: selection.concrete_type,
             }
         } else {
-            selection.key
+            TypeSelectionKey {
+                key: selection.key,
+                concrete_type: None,
+            }
         };
 
         map.insert(

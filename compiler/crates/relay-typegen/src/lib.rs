@@ -29,6 +29,21 @@ use std::hash::Hash;
 lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
+    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
+    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
+    static ref VARIABLES: StringKey = "variables".intern();
+    static ref RESPONSE: StringKey = "response".intern();
+    static ref KEY_DATA: StringKey = "$data".intern();
+    static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref TYPE_ID: StringKey = "ID".intern();
+    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref TYPE_FLOAT: StringKey = "Float".intern();
+    static ref TYPE_INT: StringKey = "Int".intern();
+    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    static ref TYPE_URL: StringKey = "Url".intern();
+    static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
 }
 
 pub fn generate_fragment_type(
@@ -129,13 +144,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let mut operation_types = vec![
             Prop {
-                key: "variables".intern(),
+                key: *VARIABLES,
                 read_only: false,
                 optional: false,
                 value: AST::Identifier(input_variables_identifier),
             },
             Prop {
-                key: "response".intern(),
+                key: *RESPONSE,
                 read_only: false,
                 optional: false,
                 value: AST::Identifier(response_identifier),
@@ -195,7 +210,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let ref_type_name = format!("{}$key", node.name.item);
         let ref_type_data_property = Prop {
-            key: "$data".intern(),
+            key: *KEY_DATA,
             optional: true,
             read_only: true,
             value: AST::Identifier(format!("{}$data", node.name.item).intern()),
@@ -203,7 +218,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let old_fragment_type_name = format!("{}$ref", node.name.item).intern();
         let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
         let ref_type_fragment_ref_property = Prop {
-            key: "$fragmentRefs".intern(),
+            key: *KEY_FRAGMENT_REFS,
             optional: false,
             read_only: true,
             value: AST::Identifier(old_fragment_type_name),
@@ -336,7 +351,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 .item
                 .expect_string_literal();
             type_selections.push(TypeSelection {
-                key: "__fragmentPropName".intern(),
+                key: *FRAGMENT_PROP_NAME,
                 schema_name: None,
                 value: Some(AST::Nullable(Box::new(AST::String))),
                 node_type: None,
@@ -348,7 +363,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 document_name: None,
             });
             type_selections.push(TypeSelection {
-                key: "__module_component".intern(),
+                key: *MODULE_COMPONENT,
                 schema_name: None,
                 value: Some(AST::Nullable(Box::new(AST::String))),
                 node_type: None,
@@ -587,7 +602,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 .map(|mut props: Vec<Prop>| {
                     if let Some(fragment_type_name) = fragment_type_name {
                         props.push(Prop {
-                            key: "$refType".intern(),
+                            key: *KEY_REF_TYPE,
                             optional: false,
                             read_only: true,
                             value: AST::Identifier(fragment_type_name),
@@ -679,7 +694,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 None,
             );
             self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some("__typename".intern()) {
+        } else if schema_name == Some(*KEY_TYPENAME) {
             if let Some(concrete_type) = concrete_type {
                 AST::StringLiteral(self.schema.get_type_name(concrete_type))
             } else {
@@ -731,7 +746,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 inner_concrete_type,
             );
             self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some("__typename".intern()) {
+        } else if schema_name == Some(*KEY_TYPENAME) {
             if let Some(concrete_type) = concrete_type {
                 AST::StringLiteral(self.schema.get_type_name(concrete_type))
             } else {
@@ -803,13 +818,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         // }
 
         let scalar_name = self.schema.scalar(scalar).name;
-        if scalar_name == "ID".intern() || scalar_name == "String".intern() {
+        if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
-        } else if scalar_name == "Float".intern() || scalar_name == "Int".intern() {
+        } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
             AST::Number
-        } else if scalar_name == "Boolean".intern() {
+        } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if scalar_name == "Url".intern() {
+        } else if scalar_name == *TYPE_URL {
             // TODO make custom scalars configurable
             AST::String
         } else {
@@ -866,7 +881,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     .iter()
                     .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
-                members.push(AST::StringLiteral("%future added value".intern()));
+                members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
                 writeln!(
                     self.result,
                     "export type {} = {};",
@@ -1012,7 +1027,7 @@ struct TypeSelection {
 impl TypeSelection {
     fn is_typename(&self) -> bool {
         if let Some(schema_name) = self.schema_name {
-            schema_name == "__typename".intern()
+            schema_name == *KEY_TYPENAME
         } else {
             false
         }
@@ -1114,7 +1129,7 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
                 .collect(),
         );
         result.push(TypeSelection {
-            key: "$fragmentRefs".intern(),
+            key: *KEY_FRAGMENT_REFS,
             conditional: false,
             value: Some(value),
             schema_name: None,

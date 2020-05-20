@@ -1050,19 +1050,17 @@ fn merge_selection(
 }
 
 fn merge_selections(
-    a: TypeSelectionMap,
+    mut a: TypeSelectionMap,
     b: TypeSelectionMap,
     should_set_conditional: bool,
 ) -> TypeSelectionMap {
-    let mut merged: TypeSelectionMap = Default::default();
-    merged.extend(a);
     for (key, value) in b {
-        merged.insert(
+        a.insert(
             key,
-            merge_selection(merged.get(&key).cloned(), value, should_set_conditional),
+            merge_selection(a.get(&key).cloned(), value, should_set_conditional),
         );
     }
-    merged
+    a
 }
 
 fn is_plural(node: &FragmentDefinition) -> bool {

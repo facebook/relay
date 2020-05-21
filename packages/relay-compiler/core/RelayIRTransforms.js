@@ -40,7 +40,6 @@ const SplitModuleImportTransform = require('../transforms/SplitModuleImportTrans
 const TestOperationTransform = require('../transforms/TestOperationTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
 const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequiredArgumentsTransform');
-const ValidateServerOnlyDirectivesTransform = require('../transforms/ValidateServerOnlyDirectivesTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
 import type {IRTransform} from './CompilerContext';
@@ -101,7 +100,6 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
   TestOperationTransform.transform,
-  ValidateServerOnlyDirectivesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.

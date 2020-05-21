@@ -481,11 +481,16 @@ impl Schema {
     }
 
     pub fn replace_interface(&mut self, id: InterfaceID, interface: Interface) -> Result<()> {
-        let id = id.as_usize();
-        if id >= self.interfaces.len() {
-            return Err(SchemaError::UnknownTypeID(id, String::from("Interface")));
+        if id.as_usize() >= self.interfaces.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Interface"),
+            ));
         }
-        std::mem::replace(&mut self.interfaces[id], interface);
+        self.type_map
+            .remove(&self.get_type_name(Type::Interface(id)));
+        self.type_map.insert(interface.name, Type::Interface(id));
+        std::mem::replace(&mut self.interfaces[id.as_usize()], interface);
         Ok(())
     }
 

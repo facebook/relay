@@ -35,7 +35,7 @@ impl ServerState {
                 uri: url,
                 version: None,
             };
-            publish_diagnostic(params, &connection).unwrap();
+            publish_diagnostic(params, &connection).ok();
         }
     }
 }

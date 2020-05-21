@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::error::Error;
-
 use crate::lsp::{
     Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
     DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
@@ -18,6 +16,7 @@ use relay_compiler::FileSource;
 
 use relay_compiler::config::Config;
 
+use crate::error::Result;
 use crate::lsp::show_info_message;
 
 use common::ConsoleLogger;
@@ -33,9 +32,7 @@ use crate::text_documents::initialize_compiler_if_contains_graphql;
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
-pub fn initialize(
-    connection: &Connection,
-) -> Result<InitializeParams, Box<dyn Error + Sync + Send>> {
+pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     let mut server_capabilities = ServerCapabilities::default();
     // Enable text document syncing so we can know when files are opened/changed/saved/closed
     server_capabilities.text_document_sync =
@@ -49,17 +46,14 @@ pub fn initialize(
         },
     });
 
-    let server_capabilities = serde_json::to_value(&server_capabilities).unwrap();
+    let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
-    let params: InitializeParams = serde_json::from_value(params).unwrap();
+    let params: InitializeParams = serde_json::from_value(params)?;
     Ok(params)
 }
 
 /// Run the main server loop
-pub async fn run(
-    connection: Connection,
-    _params: InitializeParams,
-) -> Result<(), Box<dyn Error + Sync + Send>> {
+pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
     show_info_message("Relay Language Server Started!", &connection)?;
     info!("Running language server");
 
@@ -132,7 +126,7 @@ pub async fn run(
     compiler_notify.notified().await;
     let config = load_config();
     let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
-    let file_source = FileSource::connect(&config, &setup_event).await.unwrap();
+    let file_source = FileSource::connect(&config, &setup_event).await?;
     let (compiler_state, subscription) = file_source
         .subscribe(&setup_event, &ConsoleLogger)
         .await

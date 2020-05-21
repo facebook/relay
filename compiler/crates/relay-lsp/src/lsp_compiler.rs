@@ -12,7 +12,6 @@ use crate::lsp::{Connection, LSPBridgeMessage};
 use relay_compiler::compiler_state::{CompilerState, ProjectName};
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
-use relay_compiler::errors::Result as CompilerResult;
 use relay_compiler::FileSourceSubscription;
 use relay_compiler::{build_schema, check_project, parse_sources, Programs};
 use schema::Schema;
@@ -30,6 +29,8 @@ use crate::state::ServerState;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
+
+use crate::error::{LSPError, Result};
 
 use common::ConsoleLogger;
 use log::info;
@@ -83,39 +84,44 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                 self.server_state.clear_diagnostics(&self.connection);
             }
             Err(err) => {
-                match err {
-                    CompilerError::SyntaxErrors { errors } => {
-                        report_syntax_errors(errors, &self.connection, &mut self.server_state)
+                if let LSPError::CompilerError(err) = err {
+                    match err {
+                        CompilerError::SyntaxErrors { errors } => {
+                            report_syntax_errors(errors, &self.connection, &mut self.server_state)
+                        }
+                        CompilerError::BuildProjectsErrors { errors } => {
+                            report_build_project_errors(
+                                errors,
+                                &self.connection,
+                                &mut self.server_state,
+                            )
+                        }
+                        // Ignore the rest of these errors for now
+                        CompilerError::ConfigFileRead { .. } => {}
+                        CompilerError::ConfigFileParse { .. } => {}
+                        CompilerError::ConfigFileValidation { .. } => {}
+                        CompilerError::ReadFileError { .. } => {}
+                        CompilerError::WriteFileError { .. } => {}
+                        CompilerError::SerializationError { .. } => {}
+                        CompilerError::DeserializationError { .. } => {}
+                        CompilerError::CanonicalizeRoot { .. } => {}
+                        CompilerError::Watchman { .. } => {}
+                        CompilerError::EmptyQueryResult => {}
+                        CompilerError::FileRead { .. } => {}
+                        CompilerError::Syntax { .. } => {}
                     }
-                    CompilerError::BuildProjectsErrors { errors } => report_build_project_errors(
-                        errors,
-                        &self.connection,
-                        &mut self.server_state,
-                    ),
-                    // Ignore the rest of these errors for now
-                    CompilerError::ConfigFileRead { .. } => {}
-                    CompilerError::ConfigFileParse { .. } => {}
-                    CompilerError::ConfigFileValidation { .. } => {}
-                    CompilerError::ReadFileError { .. } => {}
-                    CompilerError::WriteFileError { .. } => {}
-                    CompilerError::SerializationError { .. } => {}
-                    CompilerError::DeserializationError { .. } => {}
-                    CompilerError::CanonicalizeRoot { .. } => {}
-                    CompilerError::Watchman { .. } => {}
-                    CompilerError::EmptyQueryResult => {}
-                    CompilerError::FileRead { .. } => {}
-                    CompilerError::Syntax { .. } => {}
+                } else {
+                    // TODO(brandondail) log here
                 }
             }
         }
     }
 
-    pub async fn watch(&mut self) -> CompilerResult<()> {
+    pub async fn watch(&mut self) -> Result<()> {
         loop {
             select! {
                 changes = self.subscription.next_change() => {
-                    if let Ok(file_source_changes) = changes {
-                        let file_source_changes = file_source_changes.unwrap();
+                    if let Some(file_source_changes) = changes? {
                         let incremental_check_event =
                         ConsoleLogger.create_event("incremental_check_event");
                     let incremental_check_time =
@@ -158,16 +164,14 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                     info!("completion_request {:#?}", self.project_programs.keys());
                     // TODO(brandondail) don't hardcode schema here
                     let project_key = "facebook-test".intern();
-                    let schema = self.schemas.get(&project_key).unwrap();
-
-                    let programs = self.project_programs.get(&project_key);
-
-                    info!("programs? {:?}", programs.is_some());
-
-                    if let Some(items) =
-                        completion_items_for_request(completion_request, schema, programs)
-                    {
-                        send_completion_response(items, request_id, &self.connection);
+                    if let Some(schema) = self.schemas.get(&project_key) {
+                        let programs = self.project_programs.get(&project_key);
+                        info!("programs? {:?}", programs.is_some());
+                        if let Some(items) =
+                            completion_items_for_request(completion_request, schema, programs)
+                        {
+                            send_completion_response(items, request_id, &self.connection);
+                        }
                     }
                 }
             }
@@ -198,7 +202,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
         schemas
     }
 
-    async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> CompilerResult<()> {
+    async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> Result<()> {
         let graphql_asts =
             setup_event.time("parse_sources_time", || parse_sources(&self.compiler_state))?;
         let mut check_project_errors = vec![];
@@ -209,6 +213,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                     self.config.projects.get(&project_key).unwrap_or_else(|| {
                         panic!("Expected the project {} to exist", &project_key)
                     });
+
                 let schema = self.schemas.get(&project_config.name).unwrap();
                 let programs = check_project(
                     project_config,
@@ -259,7 +264,8 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
         } else {
             Err(CompilerError::BuildProjectsErrors {
                 errors: check_project_errors,
-            })
+            }
+            .into())
         }
     }
 }

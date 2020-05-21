@@ -76,7 +76,7 @@ pub fn report_build_project_errors(
                         version: None,
                     };
 
-                    publish_diagnostic(params, &connection).unwrap();
+                    publish_diagnostic(params, &connection).ok();
                 }
             }
             // We ignore persist/write errors for now. In the future we can potentially show a notification.

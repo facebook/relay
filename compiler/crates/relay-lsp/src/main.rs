@@ -9,6 +9,7 @@
 
 mod client;
 mod completion;
+mod error;
 mod error_reporting;
 mod lsp;
 mod lsp_compiler;
@@ -16,13 +17,13 @@ mod server;
 mod state;
 mod text_documents;
 use lsp_server::Connection;
-use std::error::Error;
 
 use env_logger::Env;
+use error::Result;
 use log::info;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error + Sync + Send>> {
+async fn main() -> Result<()> {
     env_logger::from_env(Env::default().default_filter_or("info, warn, error, debug")).init();
     let (connection, io_handles) = Connection::stdio();
     info!("Initialized stdio transport layer");
@@ -36,12 +37,12 @@ async fn main() -> Result<(), Box<dyn Error + Sync + Send>> {
 #[cfg(test)]
 mod tests {
     use super::client;
+    use super::error::Result;
     use super::server;
     use lsp_server::Connection;
     use lsp_types::{ClientCapabilities, InitializeParams};
-    use std::error::Error;
     #[test]
-    fn initialize() -> Result<(), Box<dyn Error + Sync + Send>> {
+    fn initialize() -> Result<()> {
         // Test with an in-memory connection pair
         let (connection, client) = Connection::memory();
         // Mock set of client parameters. The `root_path` field is deprecated, but

@@ -37,7 +37,7 @@ pub fn categorize_files(
 /// The FileCategorizer is created from a Config and categorizes files found by
 /// Watchman into what kind of files they are, such as source files of a
 /// specific source file group or generated files from some project.
-struct FileCategorizer {
+pub struct FileCategorizer {
     extensions_mapping: PathMapping<ProjectName>,
     default_generated_dir: &'static OsStr,
     generated_dir_paths: HashSet<PathBuf>,

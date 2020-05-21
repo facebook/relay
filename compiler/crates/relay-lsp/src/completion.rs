@@ -60,14 +60,15 @@ impl CompletionRequest {
     }
 
     /// Returns the leaf type, which is the type that the completion request is being made against.
-    fn resolve_leaf_type(self, schema: &Schema) -> Type {
+    fn resolve_leaf_type(self, schema: &Schema) -> Option<Type> {
         let mut type_path = self.type_path;
         type_path.reverse();
-        let mut type_ = resolve_root_type(type_path.pop().expect("path must be non-empty"), schema);
+        let mut type_ =
+            resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
         while let Some(path_item) = type_path.pop() {
-            type_ = resolve_relative_type(type_, path_item, schema);
+            type_ = resolve_relative_type(type_, path_item, schema)?;
         }
-        type_
+        Some(type_)
     }
 }
 
@@ -80,7 +81,10 @@ pub enum TypePathItem {
     ScalarField { name: StringKey },
 }
 
-pub fn create_completion_request(document: Document, position_span: Span) -> CompletionRequest {
+pub fn create_completion_request(
+    document: Document,
+    position_span: Span,
+) -> Option<CompletionRequest> {
     info!("Building completion path for {:#?}", document);
     let mut completion_request = CompletionRequest::default();
 
@@ -88,8 +92,7 @@ pub fn create_completion_request(document: Document, position_span: Span) -> Com
         match &definition {
             ExecutableDefinition::Operation(operation) => {
                 if operation.location.contains(position_span) {
-                    // TODO don't unwrap here
-                    let (_, kind) = operation.operation.clone().unwrap();
+                    let (_, kind) = operation.operation.clone()?;
                     completion_request.add_type(TypePathItem::Operation(kind));
 
                     info!(
@@ -133,44 +136,47 @@ pub fn create_completion_request(document: Document, position_span: Span) -> Com
             }
         }
     }
-
-    completion_request
+    Some(completion_request)
 }
 
 /// Resolves the root type of this completion path.
-fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Type {
+fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Option<Type> {
     match root_path_item {
         TypePathItem::Operation(kind) => match kind {
-            OperationKind::Query => schema.query_type().unwrap(),
-            OperationKind::Mutation => schema.mutation_type().unwrap(),
-            OperationKind::Subscription => schema.subscription_type().unwrap(),
+            OperationKind::Query => schema.query_type(),
+            OperationKind::Mutation => schema.mutation_type(),
+            OperationKind::Subscription => schema.subscription_type(),
         },
-        TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name).unwrap(),
+        TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name),
         _ => {
-            // TODO(brandondail) fail silently and log here instead
-            panic!("Completion paths must start with an operation or fragment")
+            // TODO(brandondail) log here
+            None
         }
     }
 }
 
-fn resolve_relative_type(parent_type: Type, path_item: TypePathItem, schema: &Schema) -> Type {
+fn resolve_relative_type(
+    parent_type: Type,
+    path_item: TypePathItem,
+    schema: &Schema,
+) -> Option<Type> {
     match path_item {
         TypePathItem::Operation(_) => {
-            // TODO(brandondail) fail silently and log here instead
-            panic!("Operations must only exist at the root of the completion path");
+            // TODO(brandondail) log here
+            None
         }
         TypePathItem::FragmentDefinition { .. } => {
-            // TODO(brandondail) fail silently and log here instead
-            panic!("Fragments must only exist at the root of the completion path");
+            // TODO(brandondail) log here
+            None
         }
         TypePathItem::LinkedField { name } => {
-            let field_id = schema.named_field(parent_type, name).unwrap();
+            let field_id = schema.named_field(parent_type, name)?;
             let field = schema.field(field_id);
             info!("resolved type for {:?} : {:?}", field.name, field.type_);
-            field.type_.inner()
+            Some(field.type_.inner())
         }
-        TypePathItem::ScalarField { .. } => parent_type,
-        TypePathItem::InlineFragment { type_name } => schema.get_type(type_name).unwrap(),
+        TypePathItem::ScalarField { .. } => Some(parent_type),
+        TypePathItem::InlineFragment { type_name } => schema.get_type(type_name),
     }
 }
 
@@ -219,7 +225,7 @@ pub fn completion_items_for_request(
     programs: Option<&Programs<'_>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    let leaf_type = request.resolve_leaf_type(schema);
+    let leaf_type = request.resolve_leaf_type(schema)?;
     info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
     match kind {
         CompletionKind::FragmentSpread => {
@@ -463,13 +469,13 @@ pub fn send_completion_response(
         return;
     }
     let completion_response = CompletionResponse::Array(items);
-    let result = serde_json::to_value(&completion_response).unwrap();
+    let result = serde_json::to_value(&completion_response).ok();
     let response = ServerResponse {
         id: request_id,
         error: None,
-        result: Some(result),
+        result,
     };
-    connection.sender.send(Message::Response(response)).unwrap();
+    connection.sender.send(Message::Response(response)).ok();
 }
 
 /// Return a `CompletionPath` for this request, only if the completion request occurs
@@ -536,7 +542,7 @@ pub fn get_completion_request(
             info!("position_span: {:?}", position_span);
             let completion_request = create_completion_request(document, position_span);
             info!("Completion path: {:#?}", completion_request);
-            Some(completion_request)
+            completion_request
         }
         Err(err) => {
             info!("Failed to parse this target!");

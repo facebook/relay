@@ -118,13 +118,14 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let selections = self.visit_selections(&typegen_operation.selections);
         let response_type = self.selections_to_babel(selections, false, None);
 
-        let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
-            let raw_response_selections =
-                self.raw_response_visit_selections(&normalization_operation.selections);
-            Some(self.raw_response_selections_to_babel(raw_response_selections, None))
-        } else {
-            None
-        };
+        let raw_response_type =
+            if cfg!(raw_response) && has_raw_response_type_directive(normalization_operation) {
+                let raw_response_selections =
+                    self.raw_response_visit_selections(&normalization_operation.selections);
+                Some(self.raw_response_selections_to_babel(raw_response_selections, None))
+            } else {
+                None
+            };
 
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;

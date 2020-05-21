@@ -101,20 +101,20 @@ fn match_field_in_query() {
 //     );
 // }
 
-#[test]
-fn mutaion_with_response_on_inline_fragments() {
-    let input =
-        include_str!("generate_flow/fixtures/mutaion-with-response-on-inline-fragments.graphql");
-    let expected =
-        include_str!("generate_flow/fixtures/mutaion-with-response-on-inline-fragments.expected");
-    test_fixture(
-        transform_fixture,
-        "mutaion-with-response-on-inline-fragments.graphql",
-        "generate_flow/fixtures/mutaion-with-response-on-inline-fragments.expected",
-        input,
-        expected,
-    );
-}
+// #[test]
+// fn mutaion_with_response_on_inline_fragments() {
+//     let input =
+//         include_str!("generate_flow/fixtures/mutaion-with-response-on-inline-fragments.graphql");
+//     let expected =
+//         include_str!("generate_flow/fixtures/mutaion-with-response-on-inline-fragments.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "mutaion-with-response-on-inline-fragments.graphql",
+//         "generate_flow/fixtures/mutaion-with-response-on-inline-fragments.expected",
+//         input,
+//         expected,
+//     );
+// }
 
 #[test]
 fn mutation() {
@@ -129,45 +129,44 @@ fn mutation() {
     );
 }
 
-#[test]
-fn mutation_input_has_array() {
-    let input = include_str!("generate_flow/fixtures/mutation-input-has-array.graphql");
-    let expected = include_str!("generate_flow/fixtures/mutation-input-has-array.expected");
-    test_fixture(
-        transform_fixture,
-        "mutation-input-has-array.graphql",
-        "generate_flow/fixtures/mutation-input-has-array.expected",
-        input,
-        expected,
-    );
-}
+// #[test]
+// fn mutation_input_has_array() {
+//     let input = include_str!("generate_flow/fixtures/mutation-input-has-array.graphql");
+//     let expected = include_str!("generate_flow/fixtures/mutation-input-has-array.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "mutation-input-has-array.graphql",
+//         "generate_flow/fixtures/mutation-input-has-array.expected",
+//         input,
+//         expected,
+//     );
+// }
+
+// #[test]
+// fn mutation_with_enums_on_fragment() {
+//     let input = include_str!("generate_flow/fixtures/mutation-with-enums-on-fragment.graphql");
+//     let expected = include_str!("generate_flow/fixtures/mutation-with-enums-on-fragment.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "mutation-with-enums-on-fragment.graphql",
+//         "generate_flow/fixtures/mutation-with-enums-on-fragment.expected",
+//         input,
+//         expected,
+//     );
+// }
 
 #[test]
-fn mutation_with_enums_on_fragment() {
-    let input = include_str!("generate_flow/fixtures/mutation-with-enums-on-fragment.graphql");
-    let expected = include_str!("generate_flow/fixtures/mutation-with-enums-on-fragment.expected");
-    test_fixture(
-        transform_fixture,
-        "mutation-with-enums-on-fragment.graphql",
-        "generate_flow/fixtures/mutation-with-enums-on-fragment.expected",
-        input,
-        expected,
-    );
-}
-
-#[test]
-fn mutation_with_nested_fragments() {
-    let input = include_str!("generate_flow/fixtures/mutation-with-nested-fragments.graphql");
-    let expected = include_str!("generate_flow/fixtures/mutation-with-nested-fragments.expected");
-    test_fixture(
-        transform_fixture,
-        "mutation-with-nested-fragments.graphql",
-        "generate_flow/fixtures/mutation-with-nested-fragments.expected",
-        input,
-        expected,
-    );
-}
-
+// fn mutation_with_nested_fragments() {
+//     let input = include_str!("generate_flow/fixtures/mutation-with-nested-fragments.graphql");
+//     let expected = include_str!("generate_flow/fixtures/mutation-with-nested-fragments.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "mutation-with-nested-fragments.graphql",
+//         "generate_flow/fixtures/mutation-with-nested-fragments.expected",
+//         input,
+//         expected,
+//     );
+// }
 #[test]
 fn plural_fragment() {
     let input = include_str!("generate_flow/fixtures/plural-fragment.graphql");
@@ -181,18 +180,18 @@ fn plural_fragment() {
     );
 }
 
-#[test]
-fn query_with_handles() {
-    let input = include_str!("generate_flow/fixtures/query-with-handles.graphql");
-    let expected = include_str!("generate_flow/fixtures/query-with-handles.expected");
-    test_fixture(
-        transform_fixture,
-        "query-with-handles.graphql",
-        "generate_flow/fixtures/query-with-handles.expected",
-        input,
-        expected,
-    );
-}
+// #[test]
+// fn query_with_handles() {
+//     let input = include_str!("generate_flow/fixtures/query-with-handles.graphql");
+//     let expected = include_str!("generate_flow/fixtures/query-with-handles.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "query-with-handles.graphql",
+//         "generate_flow/fixtures/query-with-handles.expected",
+//         input,
+//         expected,
+//     );
+// }
 
 // #[test]
 // fn query_with_match_fields() {
@@ -233,50 +232,49 @@ fn query_with_handles() {
 //     );
 // }
 
-#[test]
-fn query_with_raw_response_on_conditional() {
-    let input =
-        include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.graphql");
-    let expected =
-        include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.expected");
-    test_fixture(
-        transform_fixture,
-        "query-with-raw-response-on-conditional.graphql",
-        "generate_flow/fixtures/query-with-raw-response-on-conditional.expected",
-        input,
-        expected,
-    );
-}
+// #[test]
+// fn query_with_raw_response_on_conditional() {
+//     let input =
+//         include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.graphql");
+//     let expected =
+//         include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "query-with-raw-response-on-conditional.graphql",
+//         "generate_flow/fixtures/query-with-raw-response-on-conditional.expected",
+//         input,
+//         expected,
+//     );
+// }
 
 #[test]
-fn query_with_raw_response_on_literal_conditional() {
-    let input = include_str!(
-        "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.graphql"
-    );
-    let expected = include_str!(
-        "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected"
-    );
-    test_fixture(
-        transform_fixture,
-        "query-with-raw-response-on-literal-conditional.graphql",
-        "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected",
-        input,
-        expected,
-    );
-}
-
+// fn query_with_raw_response_on_literal_conditional() {
+//     let input = include_str!(
+//         "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.graphql"
+//     );
+//     let expected = include_str!(
+//         "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected"
+//     );
+//     test_fixture(
+//         transform_fixture,
+//         "query-with-raw-response-on-literal-conditional.graphql",
+//         "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected",
+//         input,
+//         expected,
+//     );
+// }
 #[test]
-fn query_with_stream() {
-    let input = include_str!("generate_flow/fixtures/query-with-stream.graphql");
-    let expected = include_str!("generate_flow/fixtures/query-with-stream.expected");
-    test_fixture(
-        transform_fixture,
-        "query-with-stream.graphql",
-        "generate_flow/fixtures/query-with-stream.expected",
-        input,
-        expected,
-    );
-}
+// fn query_with_stream() {
+//     let input = include_str!("generate_flow/fixtures/query-with-stream.graphql");
+//     let expected = include_str!("generate_flow/fixtures/query-with-stream.expected");
+//     test_fixture(
+//         transform_fixture,
+//         "query-with-stream.graphql",
+//         "generate_flow/fixtures/query-with-stream.expected",
+//         input,
+//         expected,
+//     );
+// }
 
 // #[test]
 // fn query_with_stream_connection() {
@@ -290,7 +288,6 @@ fn query_with_stream() {
 //         expected,
 //     );
 // }
-
 #[test]
 fn recursive_fragments() {
     let input = include_str!("generate_flow/fixtures/recursive-fragments.graphql");

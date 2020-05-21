@@ -201,10 +201,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
-              {
                 "alias": null,
                 "args": [
                   {

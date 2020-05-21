@@ -9,8 +9,8 @@ use common::{PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, disallow_id_as_alias, flatten, generate_id_field,
-    generate_live_query_metadata, generate_preloadable_metadata,
+    apply_fragment_arguments, client_extensions, dedupe_type_discriminator, disallow_id_as_alias,
+    flatten, generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
     generate_subscription_name_metadata, generate_typename, handle_field_transform,
     inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
     skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
@@ -226,6 +226,9 @@ fn apply_normalization_transforms<'schema>(
         validate_module_conflicts(&program)
     })?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("dedupe_type_discriminator", || {
+        dedupe_type_discriminator(&program)
+    });
 
     perf_logger.complete_event(log_event);
 

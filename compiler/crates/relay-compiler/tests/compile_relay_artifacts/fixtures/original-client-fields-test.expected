@@ -145,23 +145,12 @@ type Foo implements Named {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "kind": "TypeDiscriminator",
-                    "abstractKey": "__isNode"
-                  }
-                ],
-                "type": "Node",
+                "kind": "TypeDiscriminator",
                 "abstractKey": "__isNode"
               },
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  {
-                    "kind": "TypeDiscriminator",
-                    "abstractKey": "__isNamed"
-                  },
                   {
                     "kind": "ClientExtension",
                     "selections": [

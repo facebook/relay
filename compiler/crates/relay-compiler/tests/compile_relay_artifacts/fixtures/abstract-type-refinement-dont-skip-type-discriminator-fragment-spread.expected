@@ -88,10 +88,6 @@ fragment NodeFragment on Node {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
-              {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
@@ -99,14 +95,7 @@ fragment NodeFragment on Node {
                 "storageKey": null
               },
               {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "kind": "TypeDiscriminator",
-                    "abstractKey": "__isNode"
-                  }
-                ],
-                "type": "Node",
+                "kind": "TypeDiscriminator",
                 "abstractKey": "__isNode"
               }
             ],

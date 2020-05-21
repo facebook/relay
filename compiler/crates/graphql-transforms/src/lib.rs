@@ -14,6 +14,7 @@ mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
+mod dedupe_type_discriminator;
 mod defer_stream;
 mod flatten;
 mod generate_id_field;
@@ -58,6 +59,7 @@ pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
 };
 pub use connections::{FB_CONNECTION_INTERFACE, OSS_CONNECTION_INTERFACE};
+pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };

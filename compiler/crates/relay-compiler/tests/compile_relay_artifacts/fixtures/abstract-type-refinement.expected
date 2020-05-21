@@ -100,10 +100,6 @@ fragment ActorFragment on Actor {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isNamed"
-              },
-              {
                 "alias": "name_from_query",
                 "args": null,
                 "kind": "ScalarField",
@@ -117,10 +113,6 @@ fragment ActorFragment on Actor {
           {
             "kind": "InlineFragment",
             "selections": [
-              {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
               {
                 "alias": null,
                 "args": null,

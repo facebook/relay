@@ -223,7 +223,7 @@ test('Error State', () => {
 
 ### Fragment Container Tests
 
-Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap you fragment container with the QueryRenderer that renders a Query that's spreads fragments from you fragment container.
+Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap your fragment container with the QueryRenderer that renders a Query that's spreads fragments from your fragment container.
 
 ```javascript
 test('Fragment Container', () => {

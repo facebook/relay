@@ -347,7 +347,8 @@ query NodeQuery(
     id
     ... on User @include(if: $cond) {
       name
-    }...UserFragment_3M2EvT @include(if: $cond)
+    }
+    ...UserFragment_3M2EvT @include(if: $cond)
   }
 }
 

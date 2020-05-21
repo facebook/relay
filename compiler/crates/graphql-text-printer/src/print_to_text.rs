@@ -286,6 +286,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_condition(&mut self, condition: &Condition, indent_count: usize) -> Result {
         let mut maybe_current_condition = Some(condition);
         let mut accum_conditions: Vec<Condition> = vec![];
+        let mut is_first_selection = true;
         while let Some(current_condition) = maybe_current_condition {
             accum_conditions.push(current_condition.clone());
 
@@ -293,6 +294,12 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 if let Selection::Condition(nested_cond) = selection {
                     maybe_current_condition = Some(&nested_cond);
                 } else {
+                    if is_first_selection {
+                        is_first_selection = false;
+                    } else {
+                        writeln!(self.writer)?;
+                        self.print_indentation(indent_count)?;
+                    }
                     self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
                     maybe_current_condition = None;
                 }

@@ -17,7 +17,7 @@
     "relay-compiler": "9.1.0"
   },
   "peerDependencies": {
-    "graphql": "^14.2.0"
+    "graphql": "^15.0.0"
   },
   "directories": {
     "": "./"

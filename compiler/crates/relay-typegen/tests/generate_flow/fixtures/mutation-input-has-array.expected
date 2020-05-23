@@ -25,7 +25,7 @@ export type InputHasArrayRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +actorCount: ?number,
-      +id: ?string,
+      +id: string,
     |}>
   |}
 |};

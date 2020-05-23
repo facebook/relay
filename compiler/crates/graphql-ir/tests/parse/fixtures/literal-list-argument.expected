@@ -79,7 +79,7 @@ query LiteralListArgumentQuery {
                             definition: WithLocation {
                                 location: "literal-list-argument.graphql":81:92,
                                 item: FieldID(
-                                    27,
+                                    29,
                                 ),
                             },
                             arguments: [],
@@ -90,7 +90,7 @@ query LiteralListArgumentQuery {
                                     definition: WithLocation {
                                         location: "literal-list-argument.graphql":93:104,
                                         item: FieldID(
-                                            30,
+                                            32,
                                         ),
                                     },
                                     arguments: [],

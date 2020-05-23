@@ -53,7 +53,8 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -84,35 +85,49 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "scale",
-                "value": 1.5
-              }
-            ],
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
+            "if": null,
+            "kind": "Defer",
+            "label": "UserFragment$defer$DeferredFragmentLabel",
             "selections": [
               {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "uri",
+                "name": "id",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "scale",
+                    "value": 1.5
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profile_picture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": "profile_picture(scale:1.5)"
               }
-            ],
-            "storageKey": "profile_picture(scale:1.5)"
+            ]
           }
         ],
         "storageKey": null
@@ -204,7 +219,8 @@ fragment UserFragment on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -244,5 +260,6 @@ fragment UserFragment on User {
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

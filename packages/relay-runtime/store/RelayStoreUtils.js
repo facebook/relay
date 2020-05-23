@@ -204,6 +204,7 @@ const RelayStoreUtils = {
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
   INVALIDATED_AT_KEY: '__invalidated_at',
+  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
 
   formatStorageKey,
   getArgumentValue,

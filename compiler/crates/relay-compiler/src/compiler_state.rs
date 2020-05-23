@@ -6,20 +6,20 @@
  */
 
 use crate::artifact_map::ArtifactMap;
-use crate::build_project::WrittenArtifacts;
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
-    categorize_files, errors::Result as WatchmanResult, extract_graphql_strings_from_file,
-    read_to_string, Clock, FileGroup, FileSourceResult,
+    categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
+    FileSourceResult,
 };
-use common::Timer;
+use common::{PerfLogEvent, PerfLogger};
+use fnv::FnvHashMap;
 use graphql_syntax::GraphQLSource;
+use indexmap::IndexMap;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{fs::File, io};
 
@@ -36,12 +36,12 @@ pub struct FileState {
     pub exists: bool,
 }
 
-type GraphQLSourceSet = HashMap<PathBuf, FileState>;
+type GraphQLSourceSet = IndexMap<PathBuf, FileState>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GraphQLSources {
-    grouped_pending_sources: HashMap<SourceSetName, GraphQLSourceSet>,
-    grouped_processed_sources: HashMap<SourceSetName, GraphQLSourceSet>,
+    grouped_pending_sources: FnvHashMap<SourceSetName, GraphQLSourceSet>,
+    grouped_processed_sources: FnvHashMap<SourceSetName, GraphQLSourceSet>,
 }
 
 impl Default for GraphQLSources {
@@ -49,18 +49,6 @@ impl Default for GraphQLSources {
         Self {
             grouped_pending_sources: Default::default(),
             grouped_processed_sources: Default::default(),
-        }
-    }
-}
-
-impl Default for CompilerState {
-    fn default() -> Self {
-        Self {
-            schemas: Default::default(),
-            graphql_sources: Default::default(),
-            extensions: Default::default(),
-            artifacts: Default::default(),
-            metadata: None,
         }
     }
 }
@@ -110,7 +98,7 @@ impl GraphQLSources {
             let base_source_set = self
                 .grouped_pending_sources
                 .entry(*source_set_name)
-                .or_insert_with(HashMap::new);
+                .or_insert_with(Default::default);
 
             for (file_name, pending_file_state) in pending_source_set.iter() {
                 base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
@@ -123,7 +111,7 @@ impl GraphQLSources {
             let base_source_set = self
                 .grouped_processed_sources
                 .entry(source_set_name)
-                .or_insert_with(HashMap::new);
+                .or_insert_with(Default::default);
 
             for (file_name, pending_file_state) in pending_source_set.iter() {
                 base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
@@ -131,20 +119,16 @@ impl GraphQLSources {
         }
     }
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CompilerStateMetadata {
-    pub clock: Clock,
-}
 
-pub type SchemaSources = HashMap<ProjectName, Vec<String>>;
+pub type SchemaSources = FnvHashMap<ProjectName, Vec<String>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
     pub graphql_sources: GraphQLSources,
     pub schemas: SchemaSources,
     pub extensions: SchemaSources,
-    pub artifacts: HashMap<ProjectName, ArtifactMap>,
-    pub metadata: Option<CompilerStateMetadata>,
+    pub artifacts: FnvHashMap<ProjectName, ArtifactMap>,
+    pub clock: Clock,
 }
 
 fn merge_schema_sources(
@@ -162,17 +146,24 @@ impl CompilerState {
     pub fn from_file_source_changes(
         config: &Config,
         file_source_changes: &FileSourceResult,
+        setup_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
     ) -> Result<Self> {
-        let categorized = categorize_files(config, &file_source_changes.files);
-        let artifacts = HashMap::new();
-        let mut schemas = HashMap::new();
-        let mut extensions = HashMap::new();
+        let categorized = setup_event.time("categorize_files_time", || {
+            categorize_files(config, &file_source_changes.files)
+        });
+
+        let artifacts = FnvHashMap::default();
+        let mut schemas = FnvHashMap::default();
+        let mut extensions = FnvHashMap::default();
         let mut graphql_sources = GraphQLSources::default();
 
         for (category, files) in categorized {
             match category {
                 FileGroup::Source { source_set_name } => {
-                    let extract_timer = Timer::start(format!("extract {}", source_set_name));
+                    let log_event = perf_logger.create_event("categorize");
+                    log_event.string("source_set_name", source_set_name.to_string());
+                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
                         .filter_map(|file| {
@@ -206,22 +197,22 @@ impl CompilerState {
                                 Err(err) => Some(Err(err)),
                             }
                         })
-                        .collect::<WatchmanResult<HashMap<PathBuf, FileState>>>()?;
-                    extract_timer.stop();
+                        .collect::<Result<IndexMap<PathBuf, FileState>>>()?;
+                    log_event.stop(extract_timer);
                     graphql_sources.set_pending_source_set(source_set_name, sources);
                 }
                 FileGroup::Schema { project_name } => {
                     let schema_sources = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<WatchmanResult<Vec<String>>>()?;
+                        .collect::<Result<Vec<String>>>()?;
                     schemas.insert(project_name, schema_sources);
                 }
                 FileGroup::Extension { project_name } => {
                     let extension_sources: Vec<String> = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<WatchmanResult<Vec<String>>>()?;
+                        .collect::<Result<Vec<String>>>()?;
                     extensions.insert(project_name, extension_sources);
                 }
                 FileGroup::Generated => {
@@ -235,9 +226,7 @@ impl CompilerState {
             artifacts,
             extensions,
             schemas,
-            metadata: Some(CompilerStateMetadata {
-                clock: file_source_changes.clock.clone(),
-            }),
+            clock: file_source_changes.clock.clone(),
         })
     }
 
@@ -260,9 +249,15 @@ impl CompilerState {
         &mut self,
         config: &Config,
         file_source_changes: &FileSourceResult,
+        setup_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
     ) -> Result<bool> {
-        let pending_compiler_state =
-            CompilerState::from_file_source_changes(config, file_source_changes)?;
+        let pending_compiler_state = CompilerState::from_file_source_changes(
+            config,
+            file_source_changes,
+            setup_event,
+            perf_logger,
+        )?;
 
         if !pending_compiler_state.schemas.is_empty() {
             // TODO support watching schema changes
@@ -298,25 +293,21 @@ impl CompilerState {
     /// The initial implementation of the `update_artifacts_map` do not handle incremental updates
     /// of the artifacts map
     /// This will be added in the next iterations
-    fn update_artifacts_map(&mut self, written_artifacts: HashMap<ProjectName, WrittenArtifacts>) {
-        for (project_name, project_written_artifacts) in written_artifacts.iter() {
-            self.artifacts.insert(
-                project_name.to_owned(),
-                ArtifactMap::new(project_written_artifacts.to_owned()),
-            );
-        }
+    fn update_artifacts_map(&mut self, _written_artifacts: ArtifactMap) {
+        // for (project_name, project_written_artifacts) in written_artifacts.iter() {
+        //     self.artifacts.insert(
+        //         project_name.to_owned(),
+        //         ArtifactMap::new(project_written_artifacts.to_owned()),
+        //     );
+        // }
     }
 
-    pub fn complete_compilation(
-        &mut self,
-        written_artifacts: HashMap<ProjectName, WrittenArtifacts>,
-    ) {
+    pub fn complete_compilation(&mut self, written_artifacts: ArtifactMap) {
         self.update_artifacts_map(written_artifacts);
         self.commit_pending_file_source_changes();
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
-        let write_to_file_timer = Timer::start(format!("write state to {:?}", path));
         let writer = File::create(path).map_err(|err| Error::WriteFileError {
             file: path.clone(),
             source: err,
@@ -325,12 +316,10 @@ impl CompilerState {
             file: path.clone(),
             source: err,
         })?;
-        write_to_file_timer.stop();
         Ok(())
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let restoring_timer = Timer::start(format!("restoring state from {:?}", path));
         let file = File::open(path).map_err(|err| Error::ReadFileError {
             file: path.clone(),
             source: err,
@@ -340,7 +329,6 @@ impl CompilerState {
             file: path.clone(),
             source: err,
         })?;
-        restoring_timer.stop();
         Ok(state)
     }
 }

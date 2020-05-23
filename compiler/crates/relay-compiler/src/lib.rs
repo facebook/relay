@@ -18,5 +18,10 @@ pub mod errors;
 mod parse_sources;
 mod watchman;
 
-pub use build_project::apply_transforms;
-pub use build_project::validate;
+pub use build_project::{
+    apply_transforms, build_schema, check_project,
+    generate_extra_artifacts::GenerateExtraArtifactArgs, validate, Artifact, ArtifactContent,
+    Programs,
+};
+pub use parse_sources::parse_sources;
+pub use watchman::{FileSource, FileSourceResult, FileSourceSubscription};

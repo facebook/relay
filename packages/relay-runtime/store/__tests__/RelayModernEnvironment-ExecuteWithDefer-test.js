@@ -218,159 +218,199 @@ describe('execute() a query with @defer', () => {
     });
   });
 
-  it('processes deferred payloads with scheduling', () => {
-    let taskID = 0;
-    const tasks = new Map();
-    const scheduler = {
-      cancel: id => {
-        tasks.delete(id);
-      },
-      schedule: task => {
-        const id = String(taskID++);
-        tasks.set(id, task);
-        return id;
-      },
-    };
-    const runTask = () => {
-      for (const [id, task] of tasks) {
-        tasks.delete(id);
-        task();
-        break;
-      }
-    };
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      scheduler,
-      store,
-      handlerProvider: name => {
-        switch (name) {
-          case 'name_handler':
-            return NameHandler;
-        }
-      },
-    });
-    const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
+  describe('when using a scheduler', () => {
+    let taskID;
+    let tasks;
+    let scheduler;
+    let runTask;
 
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        node: {
+    beforeEach(() => {
+      taskID = 0;
+      tasks = new Map();
+      scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        scheduler,
+        store,
+        handlerProvider: name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        },
+      });
+    });
+
+    it('processes deferred payloads with scheduling', () => {
+      const initialSnapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
+        },
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(tasks.size).toBe(0);
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      jest.runAllTimers();
+      next.mockClear();
+      callback.mockClear();
+
+      dataSource.next({
+        data: {
           id: '1',
           __typename: 'User',
+          name: 'joe',
         },
-      },
-    });
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
-    expect(tasks.size).toBe(1);
-    runTask();
-    expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(1);
-    jest.runAllTimers();
-    next.mockClear();
-    callback.mockClear();
+        label: 'UserQuery$defer$UserFragment',
+        path: ['node'],
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(tasks.size).toBe(0);
 
-    dataSource.next({
-      data: {
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+
+      const snapshot = callback.mock.calls[0][0];
+      expect(snapshot.isMissingData).toBe(false);
+      expect(snapshot.data).toEqual({
         id: '1',
-        __typename: 'User',
-        name: 'joe',
-      },
-      label: 'UserQuery$defer$UserFragment',
-      path: ['node'],
+        name: 'JOE',
+      });
     });
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
-    expect(tasks.size).toBe(1);
-    runTask();
 
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(1);
-    const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(false);
-    expect(snapshot.data).toEqual({
-      id: '1',
-      name: 'JOE',
+    it('processes deferred payloads that are available synchronously within the same scheduler step', () => {
+      const initialSnapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      dataSource.next([
+        {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'joe',
+            },
+          },
+        },
+        {
+          data: {
+            id: '1',
+            __typename: 'User',
+            name: 'joe',
+          },
+          label: 'UserQuery$defer$UserFragment',
+          path: ['node'],
+          extensions: {
+            is_final: true,
+          },
+        },
+      ]);
+      expect(complete).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+
+      runTask();
+      expect(tasks.size).toBe(0);
+      expect(complete).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(2);
+      jest.runAllTimers();
+
+      const snapshot1 = callback.mock.calls[0][0];
+      expect(snapshot1.isMissingData).toBe(true);
+      expect(snapshot1.data).toEqual({
+        id: '1',
+      });
+
+      const snapshot2 = callback.mock.calls[1][0];
+      expect(snapshot2.isMissingData).toBe(false);
+      expect(snapshot2.data).toEqual({
+        id: '1',
+        name: 'JOE',
+      });
     });
-  });
 
-  it('cancels processing of deferred payloads with scheduling', () => {
-    let taskID = 0;
-    const tasks = new Map();
-    const scheduler = {
-      cancel: id => {
-        tasks.delete(id);
-      },
-      schedule: task => {
-        const id = String(taskID++);
-        tasks.set(id, task);
-        return id;
-      },
-    };
-    const runTask = () => {
-      for (const [id, task] of tasks) {
-        tasks.delete(id);
-        task();
-        break;
-      }
-    };
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      scheduler,
-      store,
-      handlerProvider: name => {
-        switch (name) {
-          case 'name_handler':
-            return NameHandler;
-        }
-      },
-    });
-    const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
+    it('cancels processing of deferred payloads with scheduling', () => {
+      const initialSnapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
 
-    const subscription = environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        node: {
+      const subscription = environment
+        .execute({operation})
+        .subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
+        },
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
+      runTask();
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      jest.runAllTimers();
+      next.mockClear();
+      callback.mockClear();
+
+      dataSource.next({
+        data: {
           id: '1',
           __typename: 'User',
+          name: 'joe',
         },
-      },
-    });
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
-    expect(tasks.size).toBe(1);
-    runTask();
-    expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(1);
-    jest.runAllTimers();
-    next.mockClear();
-    callback.mockClear();
+        label: 'UserQuery$defer$UserFragment',
+        path: ['node'],
+      });
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
+      expect(tasks.size).toBe(1);
 
-    dataSource.next({
-      data: {
-        id: '1',
-        __typename: 'User',
-        name: 'joe',
-      },
-      label: 'UserQuery$defer$UserFragment',
-      path: ['node'],
+      subscription.unsubscribe();
+      expect(tasks.size).toBe(0);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(0);
+      expect(callback).toBeCalledTimes(0);
     });
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
-    expect(tasks.size).toBe(1);
-
-    subscription.unsubscribe();
-    expect(tasks.size).toBe(0);
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(0);
-    expect(callback).toBeCalledTimes(0);
   });
 
   it('calls complete() when server completes after deferred payload resolves', () => {

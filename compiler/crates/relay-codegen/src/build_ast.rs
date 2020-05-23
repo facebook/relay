@@ -7,18 +7,21 @@
 
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
-use common::WithLocation;
+use crate::relay_test_operation::build_test_operation_metadata;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, NamedItem, OperationDefinition, ScalarField,
-    Selection, Value, VariableDefinition,
+    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection,
+    Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_values_from_handle_field_directive, extract_variable_name, remove_directive,
+    extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
+    extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
     ConnectionConstants, DeferDirective, HandleFieldConstants, RelayDirective, StreamDirective,
-    DEFER_STREAM_CONSTANTS, MATCH_CONSTANTS,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, INLINE_DATA_CONSTANTS,
+    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
@@ -32,10 +35,16 @@ pub fn build_request(
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let test_operation_metadata = operation_builder.build_test_operation_metadata(&operation);
+    let params = operation_builder.build_request_parameters(
+        operation,
+        request_parameters,
+        test_operation_metadata,
+    );
     let operation = Primitive::Key(operation_builder.build_operation(operation));
     let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
-    let params = intern_request_parameters(ast_builder, request_parameters);
+
     ast_builder.intern(Ast::Object(vec![
         (CODEGEN_CONSTANTS.fragment, fragment),
         (
@@ -164,11 +173,19 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
-        let connection_metadata = if let Some(metadata_values) =
-            extract_connection_metadata_from_directive(
-                &fragment.directives,
-                self.connection_constants,
-            ) {
+        if fragment
+            .directives
+            .named(INLINE_DATA_CONSTANTS.directive_name)
+            .is_some()
+        {
+            return self.build_inline_data_fragment(fragment);
+        }
+
+        let connection_metadata = extract_connection_metadata_from_directive(
+            &fragment.directives,
+            self.connection_constants,
+        );
+        let codegen_connection_metadata = if let Some(ref metadata_values) = connection_metadata {
             let array = metadata_values
                 .iter()
                 .map(|metadata| {
@@ -178,15 +195,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                             self.array(path.iter().cloned().map(Primitive::String).collect()),
                         ),
                     };
+                    let (count, cursor) = if metadata.direction
+                        == self.connection_constants.direction_forward
+                    {
+                        (metadata.first, metadata.after)
+                    } else if metadata.direction == self.connection_constants.direction_backward {
+                        (metadata.last, metadata.before)
+                    } else {
+                        (None, None)
+                    };
                     let object = vec![
-                        (
-                            CODEGEN_CONSTANTS.count,
-                            Primitive::string_or_null(metadata.count),
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.cursor,
-                            Primitive::string_or_null(metadata.cursor),
-                        ),
+                        (CODEGEN_CONSTANTS.count, Primitive::string_or_null(count)),
+                        (CODEGEN_CONSTANTS.cursor, Primitive::string_or_null(cursor)),
                         (
                             CODEGEN_CONSTANTS.direction,
                             Primitive::String(metadata.direction),
@@ -209,8 +229,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
 
         let mut metadata = vec![];
-        if let Some(connection_metadata) = connection_metadata {
-            metadata.push((CODEGEN_CONSTANTS.connection, connection_metadata))
+        if let Some(codegen_connection_metadata) = codegen_connection_metadata {
+            metadata.push((CODEGEN_CONSTANTS.connection, codegen_connection_metadata))
         }
         if unmask {
             metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(false)))
@@ -218,13 +238,91 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if plural {
             metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(true)))
         }
-        let concrete_type = if self.schema.is_abstract_type(fragment.type_condition) {
-            Primitive::Null
-        } else {
-            Primitive::String(self.schema.get_type_name(fragment.type_condition))
-        };
+        if let Some(refetch_metadata) =
+            extract_refetch_metadata_from_directive(&fragment.directives)
+        {
+            let refetch_connection = if let Some(connection_metadata) = connection_metadata {
+                let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
+                let connection_object = vec![
+                    (
+                        CODEGEN_CONSTANTS.forward,
+                        if let Some(first) = metadata.first {
+                            Primitive::Key(self.object(vec![
+                                (CODEGEN_CONSTANTS.count, Primitive::String(first)),
+                                (
+                                    CODEGEN_CONSTANTS.cursor,
+                                    Primitive::string_or_null(metadata.after),
+                                ),
+                            ]))
+                        } else {
+                            Primitive::Null
+                        },
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.backward,
+                        if let Some(last) = metadata.last {
+                            Primitive::Key(self.object(vec![
+                                (CODEGEN_CONSTANTS.count, Primitive::String(last)),
+                                (
+                                    CODEGEN_CONSTANTS.cursor,
+                                    Primitive::string_or_null(metadata.before),
+                                ),
+                            ]))
+                        } else {
+                            Primitive::Null
+                        },
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.path,
+                        Primitive::Key(
+                            self.array(
+                                metadata
+                                    .path
+                                    .as_ref()
+                                    .expect("Expected path to exist")
+                                    .iter()
+                                    .cloned()
+                                    .map(Primitive::String)
+                                    .collect(),
+                            ),
+                        ),
+                    ),
+                ];
+                Primitive::Key(self.object(connection_object))
+            } else {
+                Primitive::Null
+            };
+            let mut refetch_object = vec![
+                (CODEGEN_CONSTANTS.connection, refetch_connection),
+                (
+                    CODEGEN_CONSTANTS.fragment_path_in_result,
+                    Primitive::Key(
+                        self.array(
+                            refetch_metadata
+                                .path
+                                .into_iter()
+                                .map(Primitive::String)
+                                .collect(),
+                        ),
+                    ),
+                ),
+                (
+                    CODEGEN_CONSTANTS.operation,
+                    Primitive::ModuleDependency(refetch_metadata.operation_name),
+                ),
+            ];
+            if let Some(identifier_field) = refetch_metadata.identifier_field {
+                refetch_object.push((
+                    CODEGEN_CONSTANTS.identifier_field,
+                    Primitive::String(identifier_field),
+                ));
+            }
 
-        // TODO: refetch metadata
+            metadata.push((
+                CODEGEN_CONSTANTS.refetch,
+                Primitive::Key(self.object(refetch_object)),
+            ))
+        }
 
         let object = vec![
             (
@@ -255,7 +353,35 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 CODEGEN_CONSTANTS.selections,
                 self.build_selections(&fragment.selections),
             ),
-            (CODEGEN_CONSTANTS.concrete_type, concrete_type),
+            (
+                CODEGEN_CONSTANTS.type_,
+                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
+            ),
+            (
+                CODEGEN_CONSTANTS.abstract_key,
+                if self.schema.is_abstract_type(fragment.type_condition) {
+                    Primitive::String(generate_abstract_type_refinement_key(
+                        self.schema,
+                        fragment.type_condition,
+                    ))
+                } else {
+                    Primitive::Null
+                },
+            ),
+        ];
+        self.object(object)
+    }
+
+    fn build_inline_data_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
+        let object = vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment),
+            ),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(fragment.name.item),
+            ),
         ];
         self.object(object)
     }
@@ -271,18 +397,31 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_selections_from_selection(&mut self, selection: &Selection) -> Vec<Primitive> {
         match selection {
             // TODO(T63303873) Normalization handles
-            Selection::Condition(cond) => vec![self.build_condition(&cond)],
+            Selection::Condition(condition) => vec![self.build_condition(&condition)],
             Selection::FragmentSpread(frag_spread) => {
-                let defer = frag_spread
-                    .directives
-                    .named(DEFER_STREAM_CONSTANTS.defer_name);
-                match defer {
-                    Some(defer) => vec![self.build_defer(&frag_spread, defer)],
-                    None => vec![self.build_fragment_spread(&frag_spread)],
-                }
+                vec![self.build_fragment_spread(&frag_spread)]
             }
             Selection::InlineFragment(inline_frag) => {
-                vec![self.build_inline_fragment(&inline_frag)]
+                let defer = inline_frag
+                    .directives
+                    .named(DEFER_STREAM_CONSTANTS.defer_name);
+                if let Some(defer) = defer {
+                    vec![self.build_defer(&inline_frag, defer)]
+                } else {
+                    // If inline fragment has @__inline directive (created by inline_data_fragment transform)
+                    // we will return selection wrapped with InlineDataFragmentSpread
+                    if let Some(inline_data_directive) = inline_frag
+                        .directives
+                        .named(INLINE_DATA_CONSTANTS.internal_directive_name)
+                    {
+                        vec![self.build_inline_data_fragment_spread(
+                            &inline_frag,
+                            &inline_data_directive,
+                        )]
+                    } else {
+                        vec![self.build_inline_fragment(&inline_frag)]
+                    }
+                }
             }
             Selection::LinkedField(field) => {
                 let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
@@ -292,8 +431,31 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     None => self.build_linked_field_and_handles(field),
                 }
             }
-            Selection::ScalarField(field) => self.build_scalar_field_and_handles(field),
+            Selection::ScalarField(field) => {
+                if field.directives.len() == 1
+                    && field.directives[0].name.item == *TYPE_DISCRIMINATOR_DIRECTIVE_NAME
+                {
+                    match self.variant {
+                        CodegenVariant::Reader => vec![],
+                        CodegenVariant::Normalization => self.build_type_discriminator(field),
+                    }
+                } else {
+                    self.build_scalar_field_and_handles(field)
+                }
+            }
         }
+    }
+
+    fn build_type_discriminator(&mut self, field: &ScalarField) -> Vec<Primitive> {
+        vec![Primitive::Key(self.object(vec![
+            (CODEGEN_CONSTANTS.kind, Primitive::String(CODEGEN_CONSTANTS.type_discriminator)),
+            (
+                CODEGEN_CONSTANTS.abstract_key,
+                Primitive::String(field.alias.expect(
+                    "Expected the type discriminator field to contain the abstract key alias.",
+                ).item),
+            ),
+        ]))]
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
@@ -376,12 +538,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 ),
                 (CODEGEN_CONSTANTS.args, arguments),
                 (CODEGEN_CONSTANTS.filters, filters),
+                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
+                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
                 (
                     CODEGEN_CONSTANTS.kind,
                     Primitive::String(CODEGEN_CONSTANTS.scalar_handle),
                 ),
-                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
-                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
                 (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
             ])))
         }
@@ -555,43 +717,53 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_defer(&mut self, frag_spread: &FragmentSpread, defer: &Directive) -> Primitive {
-        let next_selections = vec![self.build_fragment_spread(&FragmentSpread {
-            directives: remove_directive(
-                &frag_spread.directives,
-                DEFER_STREAM_CONSTANTS.defer_name,
-            ),
-            ..frag_spread.to_owned()
-        })];
-        let next_selections = Primitive::Key(self.array(next_selections));
-        Primitive::Key(match self.variant {
-            CodegenVariant::Reader => self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.defer),
-                ),
-                (CODEGEN_CONSTANTS.selections, next_selections),
-            ]),
-            CodegenVariant::Normalization => {
-                let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
-                let if_variable_name = extract_variable_name(if_arg);
-                let label_name = label_arg.unwrap().value.item.expect_string_literal();
+    fn build_defer(&mut self, inline_fragment: &InlineFragment, defer: &Directive) -> Primitive {
+        match self.variant {
+            CodegenVariant::Reader => self.build_defer_reader(inline_fragment),
+            CodegenVariant::Normalization => self.build_defer_normalization(inline_fragment, defer),
+        }
+    }
 
-                self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.if_,
-                        Primitive::string_or_null(if_variable_name),
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.defer),
-                    ),
-                    (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
-                    (CODEGEN_CONSTANTS.metadata, Primitive::Null),
-                    (CODEGEN_CONSTANTS.selections, next_selections),
-                ])
-            }
-        })
+    fn build_defer_reader(&mut self, inline_fragment: &InlineFragment) -> Primitive {
+        let frag_spread =
+            if let Selection::FragmentSpread(frag_spread) = &inline_fragment.selections[0] {
+                frag_spread
+            } else {
+                panic!("Expected a fragment spread for defer in the reader.")
+            };
+        let next_selections = vec![self.build_fragment_spread(frag_spread)];
+        let next_selections = Primitive::Key(self.array(next_selections));
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.defer),
+            ),
+            (CODEGEN_CONSTANTS.selections, next_selections),
+        ]))
+    }
+
+    fn build_defer_normalization(
+        &mut self,
+        inline_fragment: &InlineFragment,
+        defer: &Directive,
+    ) -> Primitive {
+        let next_selections = self.build_selections(&inline_fragment.selections);
+        let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
+        let if_variable_name = extract_variable_name(if_arg);
+        let label_name = label_arg.unwrap().value.item.expect_string_literal();
+
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.if_,
+                Primitive::string_or_null(if_variable_name),
+            ),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.defer),
+            ),
+            (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
+            (CODEGEN_CONSTANTS.selections, next_selections),
+        ]))
     }
 
     fn build_stream(&mut self, linked_field: &LinkedField, stream: &Directive) -> Primitive {
@@ -649,7 +821,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             None => {
                 // TODO(T63388023): Use typed custom directives
                 if inline_frag.directives.len() == 1
-                    && inline_frag.directives[0].name.item == "__clientExtension".intern()
+                    && inline_frag.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME
                 {
                     let selections = self.build_selections(&inline_frag.selections);
                     Primitive::Key(self.object(vec![
@@ -686,6 +858,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     (
                         CODEGEN_CONSTANTS.type_,
                         Primitive::String(self.schema.get_type_name(type_condition)),
+                    ),
+                    (
+                        CODEGEN_CONSTANTS.abstract_key,
+                        if self.schema.is_abstract_type(type_condition) {
+                            Primitive::String(generate_abstract_type_refinement_key(
+                                self.schema,
+                                type_condition,
+                            ))
+                        } else {
+                            Primitive::Null
+                        },
                     ),
                 ]))
             }
@@ -988,6 +1171,159 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]));
         Primitive::Key(self.array(vec![selection]))
     }
+
+    fn build_test_operation_metadata(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Option<(StringKey, Primitive)> {
+        build_test_operation_metadata(self.schema, operation).map(|metadata| {
+            let mut selection_type_info_values =
+                Vec::with_capacity(metadata.selection_type_info.len());
+            for (key, value) in metadata.selection_type_info.iter() {
+                let enum_value = value.enum_values.clone().map(|enum_values| {
+                    self.array(
+                        enum_values
+                            .iter()
+                            .map(|enum_value| Primitive::String(enum_value.value))
+                            .collect(),
+                    )
+                });
+
+                selection_type_info_values.push((
+                    *key,
+                    Primitive::Key(self.object(vec![
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_type,
+                            Primitive::String(value.type_),
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_enum_values,
+                            match enum_value {
+                                Some(values) => Primitive::Key(values),
+                                None => Primitive::Null,
+                            },
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_plural,
+                            Primitive::Bool(value.plural),
+                        ),
+                        (
+                            CODEGEN_CONSTANTS.relay_test_operation_nullable,
+                            Primitive::Bool(value.nullable),
+                        ),
+                    ])),
+                ));
+            }
+            let selection_type_info = Primitive::Key(self.object(selection_type_info_values));
+
+            (
+                CODEGEN_CONSTANTS.relay_test_operation_selection_type_info,
+                selection_type_info,
+            )
+        })
+    }
+
+    /// This method will wrap inline fragment with @__inline directive
+    // (created by `inline_fragment_data` transform)
+    /// with the node `InlineDataFragmentSpread`
+    fn build_inline_data_fragment_spread(
+        &mut self,
+        inline_fragment: &InlineFragment,
+        directive: &Directive,
+    ) -> Primitive {
+        let selections = self.build_selections(&inline_fragment.selections);
+        let fragment_name: StringKey = directive.arguments[0].value.item.expect_string_literal();
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
+            ),
+            (CODEGEN_CONSTANTS.name, Primitive::String(fragment_name)),
+            (CODEGEN_CONSTANTS.selections, selections),
+        ]))
+    }
+
+    fn build_request_parameters(
+        &mut self,
+        operation: &OperationDefinition,
+        mut request_parameters: RequestParameters,
+        // We need to move test metadata generation back to transforms
+        deprecated_test_operation_metadata: Option<(StringKey, Primitive)>,
+    ) -> Primitive {
+        let mut metadata_items: Vec<(StringKey, Primitive)> = operation
+            .directives
+            .iter()
+            .filter_map(|directive| {
+                if directive.name.item == *INTERNAL_METADATA_DIRECTIVE {
+                    if directive.arguments.len() != 1 {
+                        panic!("@__metadata directive should have only one argument!");
+                    }
+
+                    let arg = &directive.arguments[0];
+                    let key = arg.name.item;
+                    let value = match &arg.value.item {
+                        Value::Constant(value) => self.build_constant_value(value),
+                        _ => {
+                            panic!("@__metadata directive expect only constant argument values.");
+                        }
+                    };
+
+                    Some((key, value))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // add test_operation metadata
+        if let Some(deprecated_test_operation_metadata) = deprecated_test_operation_metadata {
+            metadata_items.push(deprecated_test_operation_metadata);
+        }
+
+        // add request parameters metadata
+        let metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
+        for (key, value) in metadata_values {
+            metadata_items.push((key.intern(), Primitive::RawString(value)));
+        }
+
+        // sort metadata keys
+        metadata_items.sort_unstable_by(|l, r| l.0.cmp(&r.0));
+
+        // Construct  metadata object
+        let metadata = Primitive::Key(self.object(metadata_items));
+
+        let object = vec![
+            (
+                CODEGEN_CONSTANTS.id,
+                match request_parameters.id {
+                    None => Primitive::Null,
+                    Some(str) => Primitive::RawString(str),
+                },
+            ),
+            (CODEGEN_CONSTANTS.metadata, metadata),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(request_parameters.name),
+            ),
+            (
+                CODEGEN_CONSTANTS.operation_kind,
+                Primitive::String(match request_parameters.operation_kind {
+                    OperationKind::Query => CODEGEN_CONSTANTS.query,
+                    OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
+                    OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
+                }),
+            ),
+            (
+                CODEGEN_CONSTANTS.text,
+                match request_parameters.text {
+                    None => Primitive::Null,
+                    Some(text) => Primitive::RawString(text),
+                },
+            ),
+        ];
+
+        Primitive::Key(self.object(object))
+    }
 }
 
 // Storage key is only pre-computable if the arguments don't contain variables
@@ -1001,58 +1337,9 @@ fn value_contains_variable(value: &Value) -> bool {
     match value {
         Value::Variable(_) => true,
         Value::Constant(_) => false,
-        Value::List(vals) => vals.iter().any(value_contains_variable),
-        Value::Object(objs) => objs
+        Value::List(values) => values.iter().any(value_contains_variable),
+        Value::Object(objects) => objects
             .iter()
             .any(|arg| value_contains_variable(&arg.value.item)),
     }
-}
-
-fn intern_request_parameters(
-    ast_builder: &mut AstBuilder,
-    mut request_parameters: RequestParameters,
-) -> Primitive {
-    let mut metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
-    metadata_values.sort_unstable_by(|l, r| l.0.cmp(&r.0));
-
-    let object = vec![
-        (
-            CODEGEN_CONSTANTS.id,
-            match request_parameters.id {
-                None => Primitive::Null,
-                Some(str) => Primitive::RawString(str),
-            },
-        ),
-        (
-            CODEGEN_CONSTANTS.metadata,
-            Primitive::Key(
-                ast_builder.intern(Ast::Object(
-                    metadata_values
-                        .into_iter()
-                        .map(|v| (v.0.intern(), Primitive::RawString(v.1)))
-                        .collect(),
-                )),
-            ),
-        ),
-        (
-            CODEGEN_CONSTANTS.name,
-            Primitive::String(request_parameters.name),
-        ),
-        (
-            CODEGEN_CONSTANTS.operation_kind,
-            Primitive::String(match request_parameters.operation_kind {
-                OperationKind::Query => CODEGEN_CONSTANTS.query,
-                OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
-                OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
-            }),
-        ),
-        (
-            CODEGEN_CONSTANTS.text,
-            match request_parameters.text {
-                None => Primitive::Null,
-                Some(text) => Primitive::RawString(text),
-            },
-        ),
-    ];
-    Primitive::Key(ast_builder.intern(Ast::Object(object)))
 }

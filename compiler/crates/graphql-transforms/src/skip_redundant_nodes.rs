@@ -6,16 +6,16 @@
  */
 
 use crate::node_identifier::NodeIdentifier;
-use crate::util::PointerAddress;
+use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
+
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
     Selection, Transformed, TransformedValue, Transformer,
 };
-use im::hashmap::HashMap;
+use im::HashMap;
 use std::iter::Iterator;
 use std::sync::Arc;
-
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is
  * defined in this context as any selection that is guaranteed to already be
@@ -201,6 +201,21 @@ impl<'s> SkipRedundantNodesTransform<'s> {
                 if let Some(Some(existing_selection_map)) = selection_map.0.get_mut(&identifier) {
                     self.transform_inline_fragment(selection, existing_selection_map)
                         .map(Selection::InlineFragment)
+                } else if selection
+                    .directives
+                    .iter()
+                    .any(is_relay_custom_inline_fragment_directive)
+                {
+                    let mut linked_selection_map = Default::default();
+                    let result = self
+                        .transform_inline_fragment(selection, &mut linked_selection_map)
+                        .map(Selection::InlineFragment);
+                    if !linked_selection_map.0.is_empty() {
+                        selection_map
+                            .0
+                            .insert(identifier, Some(linked_selection_map));
+                    }
+                    result
                 } else {
                     // Fork for inline fragments for the same reason
                     let mut next_selection_map = selection_map.clone();
@@ -374,19 +389,10 @@ impl<'s> Transformer for SkipRedundantNodesTransform<'s> {
  * fetched within a conditional.
  */
 fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
-    let mut result: Vec<&Selection> = selections.iter().collect();
-    let mut left = 0;
-    let mut right = selections.len() - 1;
-    while left < right {
-        match result[left] {
-            Selection::LinkedField(_) | Selection::ScalarField(_) => {
-                left += 1;
-            }
-            _ => {
-                result.swap(left, right);
-                right -= 1;
-            }
-        }
-    }
-    result
+    let (mut left, right): (Vec<_>, Vec<_>) = selections.iter().partition(|sel| match sel {
+        Selection::LinkedField(_) | Selection::ScalarField(_) => true,
+        _ => false,
+    });
+    left.extend(right);
+    left
 }

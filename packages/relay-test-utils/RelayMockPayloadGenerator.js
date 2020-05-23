@@ -34,6 +34,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
 
 import type {
@@ -469,6 +470,12 @@ class RelayMockPayloadGenerator {
         case CLIENT_EXTENSION:
           // We do not expect to receive data for the client extensions
           // from the server. MockPayloadGenerator should not generate it too.
+          break;
+        case TYPE_DISCRIMINATOR:
+          const {abstractKey} = selection;
+          if (mockData != null) {
+            mockData[abstractKey] = true;
+          }
           break;
         case SCALAR_HANDLE:
         case LINKED_HANDLE:

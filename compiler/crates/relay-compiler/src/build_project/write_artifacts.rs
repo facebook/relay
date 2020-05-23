@@ -6,9 +6,10 @@
  */
 
 use super::generate_artifacts::Artifact;
-use super::WrittenArtifacts;
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
+use relay_codegen::Printer;
+use schema::Schema;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
@@ -17,49 +18,27 @@ use std::path::PathBuf;
 pub fn write_artifacts(
     config: &Config,
     project_config: &ProjectConfig,
-    artifacts: &[Artifact],
-) -> Result<WrittenArtifacts, BuildProjectError> {
-    let mut written_artifacts: WrittenArtifacts = vec![];
-
+    artifacts: &[Artifact<'_>],
+    schema: &Schema,
+) -> Result<(), BuildProjectError> {
+    let mut printer = Printer::default();
     for artifact in artifacts {
-        let generated_relative_path: &PathBuf = &match project_config.output {
-            Some(ref output) => {
-                if project_config.shard_output {
-                    if let Some(ref regex) = project_config.shard_strip_regex {
-                        let full_source_path = regex.replace_all(artifact.source_file.lookup(), "");
-                        let mut output = output.join(full_source_path.to_string());
-                        output.pop();
-                        output
-                    } else {
-                        output.join(artifact.source_file.get_dir())
-                    }
-                    .join(format!("{}.graphql.js", artifact.name))
-                } else {
-                    output.join(format!("{}.graphql.js", artifact.name))
-                }
-            }
-            None => {
-                let path = artifact.source_file.get_dir();
-                path.join(format!("__generated__/{}.graphql.js", artifact.name))
-            }
-        };
-
-        let generated_path = &config.root_dir.join(generated_relative_path);
-
-        write_file(generated_path, &artifact.content).map_err(|error| {
+        let generated_path = &config.root_dir.join(&artifact.path);
+        let content = artifact
+            .content
+            .as_bytes(config, project_config, &mut printer, schema);
+        write_file(generated_path, &content).map_err(|error| {
             BuildProjectError::WriteFileError {
                 file: generated_path.clone(),
                 source: error,
             }
         })?;
-        written_artifacts.push((generated_relative_path.to_owned(), artifact.to_owned()));
     }
-
-    Ok(written_artifacts)
+    Ok(())
 }
 
-fn write_file(path: &PathBuf, content: &str) -> io::Result<()> {
+fn write_file(path: &PathBuf, content: &[u8]) -> io::Result<()> {
     let mut file = File::create(path)?;
-    file.write_all(&content.as_bytes())?;
+    file.write_all(&content)?;
     Ok(())
 }

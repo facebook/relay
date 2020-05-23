@@ -105,7 +105,8 @@ Operation:
                   "storageKey": null
                 }
               ],
-              "type": "User"
+              "type": "User",
+              "abstractKey": null
             }
           ]
         },
@@ -331,6 +332,7 @@ return {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 };
 })()

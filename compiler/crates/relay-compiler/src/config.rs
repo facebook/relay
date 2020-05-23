@@ -5,19 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSetName};
 use crate::errors::{ConfigValidationError, Error, Result};
 use interner::StringKey;
 use regex::Regex;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 use std::path::PathBuf;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
+/// - command line options
 /// - TODO: injected code to produce additional files
-#[derive(Debug)]
 pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
@@ -31,8 +33,34 @@ pub struct Config {
     pub write_artifacts: bool,
     /// If set, the compiler will only compile the given project
     pub only_project: Option<StringKey>,
+    /// If set, tries to initialize the compiler from the saved state file.
+    pub load_saved_state_file: Option<PathBuf>,
+    /// Function to genetate extra
+    pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
 }
+
 impl Config {
+    /// Call a function for every active project in this Config
+    pub fn for_each_project<F>(&self, mut func: F)
+    where
+        F: FnMut(&ProjectConfig) -> (),
+    {
+        match self.only_project {
+            Some(project_key) => {
+                let project_config = self
+                    .projects
+                    .get(&project_key)
+                    .unwrap_or_else(|| panic!("Expected the project {} to exist", &project_key));
+                func(project_config)
+            }
+            None => {
+                for project in self.projects.values() {
+                    func(project)
+                }
+            }
+        }
+    }
+
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
         let config_string =
             std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
@@ -107,6 +135,8 @@ impl Config {
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
+                    enum_module_suffix: config_file_project.enum_module_suffix,
+                    optional_input_fields: config_file_project.optional_input_fields,
                     persist: config_file_project.persist,
                 };
                 Ok((project_name, project_config))
@@ -121,6 +151,8 @@ impl Config {
             codegen_command: config_file.codegen_command,
             write_artifacts: true,
             only_project: None,
+            load_saved_state_file: None,
+            generate_extra_operation_artifacts: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -219,6 +251,42 @@ impl Config {
     }
 }
 
+impl fmt::Debug for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let Config {
+            root_dir,
+            sources,
+            blacklist,
+            projects,
+            header,
+            codegen_command,
+            write_artifacts,
+            only_project,
+            load_saved_state_file,
+            generate_extra_operation_artifacts,
+        } = self;
+        f.debug_struct("Config")
+            .field("root_dir", root_dir)
+            .field("sources", sources)
+            .field("blacklist", blacklist)
+            .field("projects", projects)
+            .field("header", header)
+            .field("codegen_command", codegen_command)
+            .field("write_artifacts", write_artifacts)
+            .field("only_project", only_project)
+            .field("load_saved_state_file", load_saved_state_file)
+            .field(
+                "generate_extra_operation_artifacts",
+                if generate_extra_operation_artifacts.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
+            .finish()
+    }
+}
+
 #[derive(Debug)]
 pub struct ProjectConfig {
     pub name: ProjectName,
@@ -228,6 +296,8 @@ pub struct ProjectConfig {
     pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
     pub schema_location: SchemaLocation,
+    pub enum_module_suffix: Option<String>,
+    pub optional_input_fields: Vec<StringKey>,
     pub persist: Option<PersistConfig>,
 }
 
@@ -282,7 +352,7 @@ struct ConfigFileProject {
     #[serde(default)]
     shard_output: bool,
 
-    /// Regex to match and stip parts of the `source_relative_path`
+    /// Regex to match and strip parts of the `source_relative_path`
     #[serde(default)]
     shard_strip_regex: Option<String>,
 
@@ -299,6 +369,20 @@ struct ConfigFileProject {
     /// If this option is set, the compiler will persist queries using this
     /// config.
     persist: Option<PersistConfig>,
+
+    /// # For Flow type generation
+    /// When set, enum values are imported from a module with this suffix.
+    /// For example, an enum Foo and this property set to ".test" would be
+    /// imported from "Foo.test".
+    /// Note: an empty string is allowed and different from not setting the
+    /// value, in the example above it would just import from "Foo".
+    enum_module_suffix: Option<String>,
+
+    /// # For Flow type generation
+    /// When set, generated input types will have the listed fields optional
+    /// even if the schema defines them as required.
+    #[serde(default)]
+    optional_input_fields: Vec<StringKey>,
 }
 
 #[derive(Debug, Deserialize)]

@@ -1,0 +1,9 @@
+query QueryWitEnums @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      environment
+    }
+  }
+}

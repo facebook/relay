@@ -45,6 +45,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
 const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
@@ -171,6 +172,7 @@ class RelayReferenceMarker {
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
+        case TYPE_DISCRIMINATOR:
           break;
         case MODULE_IMPORT:
           this._traverseModuleImport(selection, record);

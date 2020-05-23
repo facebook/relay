@@ -48,7 +48,10 @@ type Query {
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
+  userOrPage(id: ID!): UserOrPage
 }
+
+union UserOrPage = User | Page
 
 interface MaybeNodeInterface {
   name: String
@@ -464,6 +467,10 @@ interface Named {
   name: String
 }
 
+interface Entity {
+  url(relative: Boolean, site: String): String
+}
+
 type SimpleNamed implements Named {
   name: String
 }
@@ -572,7 +579,7 @@ type NodeSavedStateResponsePayload {
   node: Node
 }
 
-type Page implements Node & Actor {
+type Page implements Node & Actor & Entity {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -925,7 +932,7 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField {
+type User implements Named & Node & Actor & HasJsField & Entity {
   actor: Actor
   actors: [Actor]
   actorCount: Int

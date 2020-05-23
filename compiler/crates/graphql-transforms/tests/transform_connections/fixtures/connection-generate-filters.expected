@@ -29,7 +29,7 @@ query NodeQuery(
   $id: ID!
   $orderBy: String
   $traits: [PersonalityTraits]
-) @__connectionMetadata(__connectionMetadataArgument: [[null, "forward", null, null, false], [["node", "comments"], "forward", null, null, false]]) {
+) @__connectionMetadata(__connectionMetadataArgument: [[null, "forward", null, null, null, null, false], [["node", "comments"], "forward", null, null, null, null, false]]) {
   node(id: $id) {
     id
     ... on Story {

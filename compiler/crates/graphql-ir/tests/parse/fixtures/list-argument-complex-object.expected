@@ -106,7 +106,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                             definition: WithLocation {
                                 location: "list-argument-complex-object.graphql":107:118,
                                 item: FieldID(
-                                    27,
+                                    29,
                                 ),
                             },
                             arguments: [],
@@ -117,7 +117,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                                     definition: WithLocation {
                                         location: "list-argument-complex-object.graphql":119:130,
                                         item: FieldID(
-                                            30,
+                                            32,
                                         ),
                                     },
                                     arguments: [],

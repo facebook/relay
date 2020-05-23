@@ -7,30 +7,31 @@
 
 use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
 use crate::handle_fields::{extract_handle_field_directive_args, HandleFieldConstants};
+use common::NamedItem;
 use errors::{validate, validate_map};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, LinkedField, NamedItem, Program, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Validator, Value,
+    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
+    ValidationMessage, ValidationResult, Validator, Value,
 };
 use interner::StringKey;
 use schema::{Field, Type, TypeReference};
 
-pub fn validate_connections<'s, TConnectionInterface: ConnectionInterface>(
+pub fn validate_connections<'s>(
     program: &Program<'s>,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
 ) -> ValidationResult<()> {
     let mut validator = ConnectionValidation::new(program, connection_interface);
     validator.validate_program(program)
 }
-struct ConnectionValidation<'s, TConnectionInterface: ConnectionInterface> {
+struct ConnectionValidation<'s> {
     connection_constants: ConnectionConstants,
-    connection_interface: &'s TConnectionInterface,
+    connection_interface: &'s ConnectionInterface,
     handle_field_constants: HandleFieldConstants,
     program: &'s Program<'s>,
 }
 
-impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TConnectionInterface> {
-    fn new(program: &'s Program<'s>, connection_interface: &'s TConnectionInterface) -> Self {
+impl<'s> ConnectionValidation<'s> {
+    fn new(program: &'s Program<'s>, connection_interface: &'s ConnectionInterface) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
@@ -39,7 +40,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         }
     }
 
-    /// Validates that the connnection field is a non-plural, object or interface type.
+    /// Validates that the connection field is a non-plural, object or interface type.
     fn validate_connection_field_type(
         &self,
         connection_field: &LinkedField,
@@ -96,7 +97,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
             )]);
         }
 
-        let edges_selection_name = self.connection_interface.edges_selection_name();
+        let edges_selection_name = self.connection_interface.edges_selection_name;
         let edges_selection: Option<&Selection> =
             connection_field.selections.iter().find(|sel| match sel {
                 Selection::LinkedField(field) => {
@@ -169,7 +170,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
-        let edges_selection_name = self.connection_interface.edges_selection_name();
+        let edges_selection_name = self.connection_interface.edges_selection_name;
 
         // Validate edges selection
         let (_, edges_type) = self.validate_selection(
@@ -197,8 +198,8 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         )?;
 
         let edge_type = edges_type.inner();
-        let node_selection_name = self.connection_interface.node_selection_name();
-        let cursor_selection_name = self.connection_interface.cursor_selection_name();
+        let node_selection_name = self.connection_interface.node_selection_name;
+        let cursor_selection_name = self.connection_interface.cursor_selection_name;
         validate!(
             // Validate edges.node selection
             self.validate_selection(
@@ -261,7 +262,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
-        let page_info_selection_name = self.connection_interface.page_info_selection_name();
+        let page_info_selection_name = self.connection_interface.page_info_selection_name;
 
         // Validate page_info selection
         let (_, page_info_type) = self.validate_selection(
@@ -285,10 +286,10 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
 
         let page_info_type = page_info_type.inner();
         let page_info_sub_fields = vec![
-            self.connection_interface.end_cursor_selection_name(),
-            self.connection_interface.has_next_page_selection_name(),
-            self.connection_interface.has_prev_page_selection_name(),
-            self.connection_interface.start_cursor_selection_name(),
+            self.connection_interface.end_cursor_selection_name,
+            self.connection_interface.has_next_page_selection_name,
+            self.connection_interface.has_prev_page_selection_name,
+            self.connection_interface.start_cursor_selection_name,
         ];
 
         validate_map(page_info_sub_fields.iter(), |page_info_sub_field_name| {
@@ -518,9 +519,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionValidation<'s, TCo
     }
 }
 
-impl<'s, TConnectionInterface: ConnectionInterface> Validator
-    for ConnectionValidation<'s, TConnectionInterface>
-{
+impl<'s> Validator for ConnectionValidation<'s> {
     const NAME: &'static str = "ConnectionValidation";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

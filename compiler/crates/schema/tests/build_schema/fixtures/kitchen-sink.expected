@@ -19,6 +19,13 @@ type User implements Node {
 
 type Page {
   id: ID
+  type: PageType
+}
+
+enum PageType {
+  DEAULT @deprecated(reason: "No longer supported")
+  PUBLIC
+  PRIVATE
 }
 
 union Actor = User | Page
@@ -92,11 +99,44 @@ type_map: {
     "Int": Scalar(0),
     "Node": Interface(0),
     "Page": Object(2),
+    "PageType": Enum(0),
     "Query": Object(0),
     "String": Scalar(2),
     "User": Object(1),
 }
-enums: []
+enums: [
+    Enum {
+        name: "PageType",
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "DEAULT",
+                directives: [
+                    DirectiveValue {
+                        name: "deprecated",
+                        arguments: [
+                            ArgumentValue {
+                                name: "reason",
+                                value: String(
+                                    "No longer supported",
+                                ),
+                            },
+                        ],
+                    },
+                ],
+            },
+            EnumValue {
+                value: "PUBLIC",
+                directives: [],
+            },
+            EnumValue {
+                value: "PRIVATE",
+                directives: [],
+            },
+        ],
+        directives: [],
+    },
+]
 fields: [
     Field {
         name: "node",
@@ -187,6 +227,15 @@ fields: [
         directives: [],
     },
     Field {
+        name: "type",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Enum(0),
+        ),
+        directives: [],
+    },
+    Field {
         name: "clientName",
         is_extension: true,
         arguments: [],
@@ -226,7 +275,7 @@ fields: [
     },
     Field {
         name: "__id",
-        is_extension: false,
+        is_extension: true,
         arguments: [],
         type_: NonNull(
             Named(
@@ -280,10 +329,10 @@ objects: [
                 4,
             ),
             FieldID(
-                7,
+                8,
             ),
             FieldID(
-                8,
+                9,
             ),
         ],
         interfaces: [
@@ -300,6 +349,9 @@ objects: [
             FieldID(
                 5,
             ),
+            FieldID(
+                6,
+            ),
         ],
         interfaces: [],
         directives: [],
@@ -309,7 +361,7 @@ objects: [
         is_extension: true,
         fields: [
             FieldID(
-                6,
+                7,
             ),
         ],
         interfaces: [],
@@ -320,22 +372,27 @@ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "Float",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "String",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
+        directives: [],
     },
     Scalar {
         name: "ID",
         is_extension: false,
+        directives: [],
     },
 ]
 unions: [
@@ -350,6 +407,7 @@ unions: [
                 2,
             ),
         ],
+        directives: [],
     },
 ]
 }

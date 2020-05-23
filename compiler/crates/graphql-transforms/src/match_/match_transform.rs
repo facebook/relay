@@ -6,11 +6,11 @@
  */
 
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
-use common::{Location, WithLocation};
+use common::{Location, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, NamedItem, OperationDefinition, Program, ScalarField, Selection, Transformed,
+    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
     TransformedValue, Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
@@ -145,8 +145,7 @@ impl<'s> MatchTransform<'s> {
 
                     let js_field_module_arg = js_field
                         .arguments
-                        .iter()
-                        .find(|argument| argument.name == MATCH_CONSTANTS.js_field_module_arg);
+                        .named(MATCH_CONSTANTS.js_field_module_arg);
                     let is_module_valid = {
                         if let Some(js_field_module_arg) = js_field_module_arg {
                             if let Some(non_list_type) = js_field_module_arg.type_.non_list_type() {
@@ -159,10 +158,7 @@ impl<'s> MatchTransform<'s> {
                         }
                     };
 
-                    let js_field_id_arg = js_field
-                        .arguments
-                        .iter()
-                        .find(|argument| argument.name == MATCH_CONSTANTS.js_field_id_arg);
+                    let js_field_id_arg = js_field.arguments.named(MATCH_CONSTANTS.js_field_id_arg);
                     let is_id_valid = {
                         if let Some(js_field_id_arg) = js_field_id_arg {
                             if let Some(id_non_list_type) = js_field_id_arg.type_.non_list_type() {
@@ -441,8 +437,7 @@ impl<'s> MatchTransform<'s> {
         // The linked field definition should have: 'supported: [String]'
         let supported_arg_definition = field_definition
             .arguments
-            .iter()
-            .find(|argument| argument.name == MATCH_CONSTANTS.supported_arg);
+            .named(MATCH_CONSTANTS.supported_arg);
         match supported_arg_definition {
             None => {
                 // Return early if no `supported` arg definition on the field

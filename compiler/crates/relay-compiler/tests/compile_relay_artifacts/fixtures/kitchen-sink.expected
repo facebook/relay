@@ -100,7 +100,8 @@ fragment UserFragment on User
                     "storageKey": null
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               },
               {
                 "args": [
@@ -119,7 +120,8 @@ fragment UserFragment on User
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -187,13 +189,6 @@ fragment UserFragment on User
                     "args": null,
                     "kind": "ScalarField",
                     "name": "name",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__typename",
                     "storageKey": null
                   },
                   {
@@ -321,7 +316,8 @@ fragment UserFragment on User
                     "storageKey": null
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               }
             ]
           }
@@ -351,7 +347,8 @@ query NodeQuery(
     id
     ... on User @include(if: $cond) {
       name
-    }...UserFragment_3M2EvT @include(if: $cond)
+    }
+    ...UserFragment_3M2EvT @include(if: $cond)
   }
 }
 
@@ -571,5 +568,6 @@ fragment UserFragment_3M2EvT on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

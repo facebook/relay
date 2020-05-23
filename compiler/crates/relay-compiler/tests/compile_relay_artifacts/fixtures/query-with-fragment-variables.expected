@@ -99,7 +99,8 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -184,7 +185,8 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           },
           {
             "condition": "cond",
@@ -265,7 +267,8 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
                     "storageKey": "friends(first:10)"
                   }
                 ],
-                "type": "User"
+                "type": "User",
+                "abstractKey": null
               }
             ]
           }
@@ -354,7 +357,8 @@ fragment Profile_4CNNX6 on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -420,5 +424,6 @@ fragment Profile_4CNNX6 on User {
       "storageKey": "friends(first:10)"
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

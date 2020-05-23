@@ -45,8 +45,6 @@ type State = {|
  * Inline fragments are inlined (replaced with their selections) when:
  * - The fragment type matches the type of its parent, and its `isForCodegen`,
  *   or if it's for printing, there is no directive on the inline fragment.
- * - The fragment has an abstract type and the `isForCodegen` option has
- *   been set.
  */
 function flattenTransformImpl(
   context: CompilerContext,

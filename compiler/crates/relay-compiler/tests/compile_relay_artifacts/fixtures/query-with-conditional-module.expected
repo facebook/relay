@@ -107,7 +107,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -189,7 +190,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                             "kind": "ModuleImport"
                           }
                         ],
-                        "type": "MarkdownUserNameRenderer"
+                        "type": "MarkdownUserNameRenderer",
+                        "abstractKey": null
                       }
                     ]
                   }
@@ -197,7 +199,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -279,7 +282,8 @@ fragment NameRendererFragment on User {
       "storageKey": null
     }
   ],
-  "concreteType": "MarkdownUserNameRenderer"
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
 }
 
 {
@@ -324,7 +328,8 @@ fragment NameRendererFragment on User {
                   "kind": "ModuleImport"
                 }
               ],
-              "type": "MarkdownUserNameRenderer"
+              "type": "MarkdownUserNameRenderer",
+              "abstractKey": null
             }
           ]
         }
@@ -332,5 +337,6 @@ fragment NameRendererFragment on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

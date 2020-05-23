@@ -14,6 +14,7 @@ use graphql_ir::{
 };
 use interner::Intern;
 use interner::StringKey;
+use lazy_static::lazy_static;
 use std::sync::Arc;
 
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
@@ -28,20 +29,11 @@ pub fn client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
 
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
-pub struct ClientExtensionConstants {
-    pub client_extension_directive_name: StringKey,
-}
-
-impl Default for ClientExtensionConstants {
-    fn default() -> Self {
-        Self {
-            client_extension_directive_name: "__clientExtension".intern(),
-        }
-    }
+lazy_static! {
+    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: StringKey = "__clientExtension".intern();
 }
 
 struct ClientExtensionsTransform<'s> {
-    client_extension_constants: ClientExtensionConstants,
     program: &'s Program<'s>,
     empty_location: Location,
     seen: Seen,
@@ -50,7 +42,6 @@ struct ClientExtensionsTransform<'s> {
 impl<'s> ClientExtensionsTransform<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
-            client_extension_constants: Default::default(),
             program,
             seen: Default::default(),
             empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
@@ -63,8 +54,7 @@ impl<'s> ClientExtensionsTransform<'s> {
             name: WithLocation::new(
                 // The directive is only used at codegen step, location is not necessary
                 self.empty_location,
-                self.client_extension_constants
-                    .client_extension_directive_name,
+                *CLIENT_EXTENSION_DIRECTIVE_NAME,
             ),
             arguments: Default::default(),
         }

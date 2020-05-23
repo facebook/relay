@@ -187,26 +187,34 @@ class RelayModernEnvironment implements IEnvironment {
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
     const dispose = () => {
-      this._publishQueue.revertUpdate(optimisticUpdate);
-      this._publishQueue.run();
+      this._scheduleUpdates(() => {
+        this._publishQueue.revertUpdate(optimisticUpdate);
+        this._publishQueue.run();
+      });
     };
-    this._publishQueue.applyUpdate(optimisticUpdate);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.applyUpdate(optimisticUpdate);
+      this._publishQueue.run();
+    });
     return {dispose};
   }
 
   revertUpdate(update: OptimisticUpdateFunction): void {
-    this._publishQueue.revertUpdate(update);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.revertUpdate(update);
+      this._publishQueue.run();
+    });
   }
 
   replaceUpdate(
     update: OptimisticUpdateFunction,
     newUpdate: OptimisticUpdateFunction,
   ): void {
-    this._publishQueue.revertUpdate(update);
-    this._publishQueue.applyUpdate(newUpdate);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.revertUpdate(update);
+      this._publishQueue.applyUpdate(newUpdate);
+      this._publishQueue.run();
+    });
   }
 
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
@@ -255,7 +263,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
-        scheduler: null, // make sure the first payload is sync
+        scheduler: this._scheduler,
         sink,
         source: RelayObservable.from({
           data: payload,
@@ -272,8 +280,10 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   commitUpdate(updater: StoreUpdater): void {
-    this._publishQueue.commitUpdate(updater);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.commitUpdate(updater);
+      this._publishQueue.run();
+    });
   }
 
   lookup(readSelector: SingularReaderSelector): Snapshot {
@@ -302,10 +312,21 @@ class RelayModernEnvironment implements IEnvironment {
     const target = RelayRecordSource.create();
     const result = this._store.check(operation, {target, handlers});
     if (target.size() > 0) {
-      this._publishQueue.commitSource(target);
-      this._publishQueue.run();
+      this._scheduleUpdates(() => {
+        this._publishQueue.commitSource(target);
+        this._publishQueue.run();
+      });
     }
     return result;
+  }
+
+  _scheduleUpdates(task: () => void) {
+    const scheduler = this._scheduler;
+    if (scheduler != null) {
+      scheduler.schedule(task);
+    } else {
+      task();
+    }
   }
 
   /**

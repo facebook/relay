@@ -114,6 +114,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
     fetchPolicy: queryEntry.fetchPolicy,
+    networkCacheConfig: options?.networkCacheConfig,
     id: queryEntry.id,
     name: queryEntry.name,
     source,

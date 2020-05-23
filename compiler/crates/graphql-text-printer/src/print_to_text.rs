@@ -55,6 +55,12 @@ pub fn print_directives(schema: &Schema, directives: &[Directive]) -> String {
     result
 }
 
+pub fn print_value(schema: &Schema, value: &Value) -> String {
+    let mut result = String::new();
+    write_value(schema, value, &mut result).unwrap();
+    result
+}
+
 pub fn write_definition(
     schema: &Schema,
     definition: &ExecutableDefinition,
@@ -112,6 +118,11 @@ pub fn write_directives(
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
     printer.print_directives(directives, None)
+}
+
+pub fn write_value(schema: &Schema, value: &Value, mut result: &mut impl Write) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_value(value)
 }
 
 struct Printer<'schema, 'writer, W: Write> {
@@ -245,7 +256,13 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     ) -> Result {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
-        self.print_directives(&field.directives, conditions)
+        self.print_directives(&field.directives, conditions)?;
+        if !field.arguments.is_empty() {
+            write!(self.writer, " @arguments")?;
+            self.print_arguments(&field.arguments)
+        } else {
+            Ok(())
+        }
     }
 
     fn print_inline_fragment(
@@ -269,6 +286,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_condition(&mut self, condition: &Condition, indent_count: usize) -> Result {
         let mut maybe_current_condition = Some(condition);
         let mut accum_conditions: Vec<Condition> = vec![];
+        let mut is_first_selection = true;
         while let Some(current_condition) = maybe_current_condition {
             accum_conditions.push(current_condition.clone());
 
@@ -276,6 +294,12 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 if let Selection::Condition(nested_cond) = selection {
                     maybe_current_condition = Some(&nested_cond);
                 } else {
+                    if is_first_selection {
+                        is_first_selection = false;
+                    } else {
+                        writeln!(self.writer)?;
+                        self.print_indentation(indent_count)?;
+                    }
                     self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
                     maybe_current_condition = None;
                 }
@@ -407,34 +431,32 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::Variable(variable_val) => write!(self.writer, "${}", variable_val.name.item),
 
             Value::Object(object) => {
-                let len = object.len();
-                if len > 0 {
-                    write!(self.writer, "{{")?;
-                    for (i, arg) in object.iter().enumerate() {
-                        write!(self.writer, "{}: ", arg.name.item)?;
-                        self.print_value(&arg.value.item)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "{{")?;
+                let mut first = true;
+                for arg in object {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "}}")?;
+                    write!(self.writer, "{}: ", arg.name.item)?;
+                    self.print_value(&arg.value.item)?;
                 }
+                write!(self.writer, "}}")?;
                 Ok(())
             }
             Value::List(list) => {
-                let len = list.len();
-                if len > 0 {
-                    write!(self.writer, "[")?;
-                    for (i, value) in list.iter().enumerate() {
-                        self.print_value(&value)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "[")?;
+                let mut first = true;
+                for value in list {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "]")?;
+                    self.print_value(&value)?;
                 }
+                write!(self.writer, "]")?;
                 Ok(())
             }
         }
@@ -449,34 +471,32 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             ConstantValue::Boolean(val) => write!(self.writer, "{}", val),
             ConstantValue::Null() => write!(self.writer, "null"),
             ConstantValue::Object(object) => {
-                let len = object.len();
-                if len > 0 {
-                    write!(self.writer, "{{")?;
-                    for (i, arg) in object.iter().enumerate() {
-                        write!(self.writer, "{}: ", arg.name.item)?;
-                        self.print_constant_value(&arg.value.item)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "{{")?;
+                let mut first = true;
+                for arg in object {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "}}")?;
-                };
+                    write!(self.writer, "{}: ", arg.name.item)?;
+                    self.print_constant_value(&arg.value.item)?;
+                }
+                write!(self.writer, "}}")?;
                 Ok(())
             }
             ConstantValue::List(list) => {
-                let len = list.len();
-                if len > 0 {
-                    write!(self.writer, "[")?;
-                    for (i, value) in list.iter().enumerate() {
-                        self.print_constant_value(&value)?;
-
-                        if i != len - 1 {
-                            write!(self.writer, ", ")?;
-                        }
+                write!(self.writer, "[")?;
+                let mut first = true;
+                for value in list {
+                    if first {
+                        first = false;
+                    } else {
+                        write!(self.writer, ", ")?;
                     }
-                    write!(self.writer, "]")?;
-                };
+                    self.print_constant_value(&value)?;
+                }
+                write!(self.writer, "]")?;
                 Ok(())
             }
         }

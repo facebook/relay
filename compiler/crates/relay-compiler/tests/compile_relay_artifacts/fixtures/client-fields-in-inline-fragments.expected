@@ -49,18 +49,42 @@ extend type Page {
       "storageKey": null
     },
     {
-      "alias": null,
-      "args": null,
-      "concreteType": "StreetAddress",
-      "kind": "LinkedField",
-      "name": "address",
-      "plural": false,
+      "kind": "InlineFragment",
       "selections": [
         {
           "alias": null,
           "args": null,
-          "kind": "ScalarField",
-          "name": "city",
+          "concreteType": "StreetAddress",
+          "kind": "LinkedField",
+          "name": "address",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "city",
+              "storageKey": null
+            },
+            {
+              "kind": "ClientExtension",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "arg",
+                      "variableName": "arg"
+                    }
+                  ],
+                  "kind": "ScalarField",
+                  "name": "client_street_address_field",
+                  "storageKey": null
+                }
+              ]
+            }
+          ],
           "storageKey": null
         },
         {
@@ -68,34 +92,18 @@ extend type Page {
           "selections": [
             {
               "alias": null,
-              "args": [
-                {
-                  "kind": "Variable",
-                  "name": "arg",
-                  "variableName": "arg"
-                }
-              ],
+              "args": null,
               "kind": "ScalarField",
-              "name": "client_street_address_field",
+              "name": "client_actor_field",
               "storageKey": null
             }
           ]
         }
       ],
-      "storageKey": null
-    },
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "client_actor_field",
-          "storageKey": null
-        }
-      ]
+      "type": "Actor",
+      "abstractKey": "__isActor"
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

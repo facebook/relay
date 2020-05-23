@@ -8,6 +8,8 @@
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
 use crate::build_ast::{build_fragment, build_operation, build_request};
 use crate::constants::CODEGEN_CONSTANTS;
+use crate::indentation::print_indentation;
+use crate::utils::escape;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::Schema;
@@ -102,8 +104,7 @@ impl<'b> DedupedJSONPrinter<'b> {
 
     fn print(mut self) -> String {
         let mut result = String::new();
-        self.print_ast(&mut result, self.root_key, 0, false)
-            .unwrap();
+        self.print_ast(&mut result, self.root_key, 0, false);
         if self.variable_definitions.is_empty() {
             result
         } else {
@@ -125,47 +126,41 @@ impl<'b> DedupedJSONPrinter<'b> {
         }
     }
 
-    fn print_ast(
-        &mut self,
-        f: &mut String,
-        key: AstKey,
-        indent: usize,
-        is_dedupe_var: bool,
-    ) -> FmtResult {
+    fn print_ast(&mut self, f: &mut String, key: AstKey, indent: usize, is_dedupe_var: bool) {
         // Only use variable references at depth beyond the top level.
         if indent > 0 && self.duplicates.contains(&key) {
             let v = if self.variable_definitions.contains_key(&key) {
                 self.variable_definitions.get_full(&key).unwrap().0
             } else {
                 let mut variable = String::new();
-                self.print_ast(&mut variable, key, 0, true)?;
+                self.print_ast(&mut variable, key, 0, true);
                 let v = self.variable_definitions.len();
                 self.variable_definitions.insert(key, variable);
                 v
             };
-            return write!(f, "(v{}/*: any*/)", v);
+            return write!(f, "(v{}/*: any*/)", v).unwrap();
         }
 
         let ast = self.builder.lookup(key);
         match ast {
             Ast::Object(object) => {
                 if object.is_empty() {
-                    write!(f, "{{}}")
+                    f.push_str("{}");
                 } else {
                     let next_indent = indent + 1;
-                    writeln!(f, "{{")?;
-                    for (i, (key, value)) in object.iter().enumerate() {
-                        print_indentation(f, next_indent)?;
-                        write!(f, "\"{}\": ", key.lookup(),)?;
-                        self.print_primitive(f, value, next_indent, is_dedupe_var)?;
-                        if i < object.len() - 1 {
-                            writeln!(f, ",")?;
-                        } else {
-                            writeln!(f)?;
-                        }
+                    f.push('{');
+                    for (key, value) in object {
+                        f.push('\n');
+                        print_indentation(f, next_indent);
+                        write!(f, "\"{}\": ", key.lookup()).unwrap();
+                        self.print_primitive(f, value, next_indent, is_dedupe_var)
+                            .unwrap();
+                        f.push(',');
                     }
-                    print_indentation(f, indent)?;
-                    write!(f, "}}")
+                    f.pop();
+                    f.push('\n');
+                    print_indentation(f, indent);
+                    f.push('}');
                 }
             }
             Ast::Array(array) => {
@@ -174,24 +169,24 @@ impl<'b> DedupedJSONPrinter<'b> {
                         // Empty arrays can only have one inferred flow type and then conflict if
                         // used in different places, this is unsound if we would write to them but
                         // this whole module is based on the idea of a read only JSON tree.
-                        write!(f, "([]/*: any*/)")
+                        f.push_str("([]/*: any*/)");
                     } else {
-                        write!(f, "[]")
+                        f.push_str("[]");
                     }
                 } else {
-                    writeln!(f, "[")?;
+                    f.push('[');
                     let next_indent = indent + 1;
-                    for (i, value) in array.iter().enumerate() {
-                        print_indentation(f, indent + 1)?;
-                        self.print_primitive(f, value, next_indent, is_dedupe_var)?;
-                        if i < array.len() - 1 {
-                            writeln!(f, ",")?;
-                        } else {
-                            writeln!(f)?;
-                        }
+                    for value in array {
+                        f.push('\n');
+                        print_indentation(f, next_indent);
+                        self.print_primitive(f, value, next_indent, is_dedupe_var)
+                            .unwrap();
+                        f.push(',');
                     }
-                    print_indentation(f, indent)?;
-                    write!(f, "]")
+                    f.pop();
+                    f.push('\n');
+                    print_indentation(f, indent);
+                    f.push(']');
                 }
             }
         }
@@ -207,14 +202,23 @@ impl<'b> DedupedJSONPrinter<'b> {
         match primitive {
             Primitive::Null => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
-            Primitive::RawString(str) => write!(f, "\"{}\"", str),
+            Primitive::RawString(str) => {
+                f.push('\"');
+                escape(str, f);
+                f.push('\"');
+                Ok(())
+            }
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
-            Primitive::Key(key) => self.print_ast(f, *key, indent, is_dedupe_var),
+            Primitive::Key(key) => {
+                self.print_ast(f, *key, indent, is_dedupe_var);
+                Ok(())
+            }
             Primitive::StorageKey(field_name, key) => {
                 print_static_storage_key(f, &self.builder, *field_name, *key)
             }
+            Primitive::ModuleDependency(key) => write!(f, "require('{}.graphql')", key),
         }
     }
 }
@@ -297,13 +301,6 @@ impl Printer {
         let deduped_printer = DedupedJSONPrinter::new(&self.builder, key);
         deduped_printer.print()
     }
-}
-
-fn print_indentation<W: Write>(dest_buffer: &mut W, indent: usize) -> FmtResult {
-    for _ in 0..indent {
-        write!(dest_buffer, "  ")?;
-    }
-    Ok(())
 }
 
 /// Pre-computes storage key if possible and advantageous. Storage keys are
@@ -453,5 +450,6 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
+        Primitive::ModuleDependency(_) => panic!("Unexpected ModuleDependency"),
     }
 }

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::WithLocation;
+use common::{Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
 use schema::Schema;
@@ -13,11 +13,6 @@ use schema::{FieldID, Type, TypeReference};
 use std::fmt;
 use std::sync::Arc;
 // Definitions
-
-/// Represents a node that has a name such as an `Argument` or `Directive`.
-pub trait Named {
-    fn name(&self) -> StringKey;
-}
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ExecutableDefinition {

@@ -6,7 +6,6 @@
  */
 
 use crate::compiler_state::ProjectName;
-use crate::watchman::errors::Error as WatchmanError;
 pub use graphql_ir::{ValidationError, ValidationErrorWithSources};
 pub use graphql_syntax::SyntaxErrorWithSource;
 use persist_query::PersistError;
@@ -44,12 +43,6 @@ pub enum Error {
         validation_errors: Vec<ConfigValidationError>,
     },
 
-    #[error("Watchman error: {source}")]
-    WatchmanError {
-        #[from]
-        source: WatchmanError,
-    },
-
     #[error(
         "Failed parsing GraphQL:{}",
         errors
@@ -81,6 +74,30 @@ pub enum Error {
 
     #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
     DeserializationError { file: PathBuf, source: SerdeError },
+
+    #[error("Failed to canonicalize root: `{root}`.")]
+    CanonicalizeRoot {
+        root: PathBuf,
+        source: std::io::Error,
+    },
+
+    #[error("Watchman error.")]
+    Watchman {
+        #[from]
+        source: watchman_client::Error,
+    },
+
+    #[error("Watchman query returned no results.")]
+    EmptyQueryResult,
+
+    #[error("Failed to read file: `{file}`.")]
+    FileRead {
+        file: PathBuf,
+        source: std::io::Error,
+    },
+
+    #[error("Syntax error: {error}")]
+    Syntax { error: String },
 }
 
 #[derive(Debug, Error)]
@@ -159,8 +176,14 @@ pub enum BuildProjectError {
         errors: Vec<ValidationErrorWithSources>,
     },
 
-    #[error("Persisting operation failed: {0}")]
-    PersistError(PersistError),
+    #[error("Persisting operation(s) failed:{0}",
+        errors
+            .iter()
+            .map(|err| format!("\n - {}", err))
+            .collect::<Vec<_>>()
+            .join("")
+    )]
+    PersistErrors { errors: Vec<PersistError> },
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },

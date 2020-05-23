@@ -6,6 +6,8 @@ schema {
   subscription: Subscription
 }
 
+directive @live_query(polling_interval: Int, config_id: String) on QUERY
+
 directive @customDirective(level: Int!) on FIELD
 
 directive @fixme_fat_interface on FIELD
@@ -21,6 +23,8 @@ directive @stream(
   if: Boolean = true
   use_customized_batch: Boolean = false
 ) on FIELD
+
+directive @fetchable(field_name: String!) on OBJECT
 
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
@@ -44,6 +48,8 @@ type Query {
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
   fetch__User(id: ID!): User
+  fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
+  nonNodeStory(id: ID!): NonNodeStory
 }
 
 interface MaybeNodeInterface {
@@ -672,10 +678,11 @@ type SegmentsEdge {
   node: String
 }
 
-type NonNodeStory implements FeedUnit {
+type NonNodeStory implements FeedUnit @fetchable(field_name: "fetch_id") {
   actor: Actor
   actorCount: Int
   feedback: Feedback
+  fetch_id: ID!
   id: ID!
   message: Text
   tracking: String

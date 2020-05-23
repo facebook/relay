@@ -12,9 +12,9 @@ use graphql_transforms::{
     validate_server_only_directives, ConnectionInterface,
 };
 
-pub fn validate<TConnectionInterface: ConnectionInterface>(
+pub fn validate(
     program: &Program<'_>,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
 ) -> ValidationResult<()> {
     try_all(vec![
         disallow_id_as_alias(program),

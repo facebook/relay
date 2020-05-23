@@ -98,7 +98,8 @@ extend type Page {
           "storageKey": null
         }
       ],
-      "type": "Actor"
+      "type": "Actor",
+      "abstractKey": "__isActor"
     },
     {
       "alias": null,
@@ -108,7 +109,8 @@ extend type Page {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {

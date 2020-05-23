@@ -743,10 +743,8 @@ class Executor {
     if (syncOperation != null) {
       // If the operation module is available synchronously, normalize the
       // data synchronously.
-      this._schedule(() => {
-        this._handleModuleImportPayload(moduleImportPayload, syncOperation);
-        this._maybeCompleteSubscriptionOperationTracking();
-      });
+      this._handleModuleImportPayload(moduleImportPayload, syncOperation);
+      this._maybeCompleteSubscriptionOperationTracking();
     } else {
       // Otherwise load the operation module and schedule a task to normalize
       // the data when the module is available.
@@ -901,14 +899,12 @@ class Executor {
     // If there were any queued responses, process them now that placeholders
     // are in place
     if (pendingResponses != null) {
-      this._schedule(() => {
-        const payloadFollowups = this._processIncrementalResponses(
-          pendingResponses,
-        );
-        const updatedOwners = this._publishQueue.run();
-        this._updateOperationTracker(updatedOwners);
-        this._processPayloadFollowups(payloadFollowups);
-      });
+      const payloadFollowups = this._processIncrementalResponses(
+        pendingResponses,
+      );
+      const updatedOwners = this._publishQueue.run();
+      this._updateOperationTracker(updatedOwners);
+      this._processPayloadFollowups(payloadFollowups);
     }
   }
 

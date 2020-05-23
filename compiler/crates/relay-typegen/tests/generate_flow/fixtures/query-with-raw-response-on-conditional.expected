@@ -29,7 +29,7 @@ export type ExampleQueryResponse = {|
 export type ExampleQueryRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
     +lastName: ?string,
     +feedback: ?{|
@@ -37,8 +37,8 @@ export type ExampleQueryRawResponse = {|
       +name: ?string,
     |},
   |} | {|
-    +__typename: ?string,
-    +id: ?string,
+    +__typename: string,
+    +id: string,
   |})
 |};
 export type ExampleQuery = {|

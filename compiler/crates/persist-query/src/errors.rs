@@ -10,7 +10,9 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum PersistError {
     #[error("Network create error: {error}")]
-    NetworkCreateError { error: Box<dyn std::error::Error> },
+    NetworkCreateError {
+        error: Box<dyn std::error::Error + Send>,
+    },
 
     #[error("Network error: {source}")]
     NetworkError {

@@ -82,7 +82,7 @@ fragment ChildFragment on User
                     definition: WithLocation {
                         location: "fragment-with-literal-arguments.graphql":171:188,
                         item: FieldID(
-                            460,
+                            463,
                         ),
                     },
                     arguments: [
@@ -116,7 +116,7 @@ fragment ChildFragment on User
                             definition: WithLocation {
                                 location: "fragment-with-literal-arguments.graphql":210:218,
                                 item: FieldID(
-                                    172,
+                                    174,
                                 ),
                             },
                             arguments: [],

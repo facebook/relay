@@ -11,7 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::{print_fragment, print_operation};
-use graphql_transforms::transform_defer_stream;
+use graphql_transforms::{transform_defer_stream, unwrap_custom_directive_selection};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -43,7 +43,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         errors.sort();
         errors.join("\n\n")
     })?;
-
+    let next_program = unwrap_custom_directive_selection(&next_program);
     let mut printed = next_program
         .operations()
         .map(|def| print_operation(&TEST_SCHEMA, def))

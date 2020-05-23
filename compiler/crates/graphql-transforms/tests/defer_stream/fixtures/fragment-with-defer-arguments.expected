@@ -42,5 +42,5 @@ fragment DeferredFragment on User @argumentDefinitions(
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel")
+  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel") @arguments(scale: 1.5)
 }

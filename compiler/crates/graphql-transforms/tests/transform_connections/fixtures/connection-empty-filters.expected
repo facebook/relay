@@ -20,11 +20,11 @@ query NodeQuery($id: ID!, $orderBy: String) {
 query NodeQuery(
   $id: ID!
   $orderBy: String
-) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, false]]) {
+) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, null, null, false]]) {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handle: "connection", filters: , dynamicKey_UNSTABLE: null) {
+      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handle: "connection", filters: [], dynamicKey_UNSTABLE: null) {
         edges {
           node {
             actor {

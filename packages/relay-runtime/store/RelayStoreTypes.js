@@ -66,6 +66,7 @@ export type SelectorData = {[key: string]: mixed, ...};
 export type SingularReaderSelector = {|
   +kind: 'SingularReaderSelector',
   +dataID: DataID,
+  +isWithinUnmatchedTypeRefinement: boolean,
   +node: ReaderFragment,
   +owner: RequestDescriptor,
   +variables: Variables,

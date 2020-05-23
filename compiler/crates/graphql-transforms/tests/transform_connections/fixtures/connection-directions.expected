@@ -35,7 +35,7 @@ query NodeQuery(
   $id: ID!
   $last: Int
   $first: Int
-) @__connectionMetadata(__connectionMetadataArgument: [[["node", "forwardComments"], "forward", null, null, false], [["node", "backwardComments"], "backward", null, null, false], [["node", "mixedDirectionComments"], "bidirectional", null, null, false]]) {
+) @__connectionMetadata(__connectionMetadataArgument: [[["node", "forwardComments"], "forward", null, null, null, null, false], [["node", "backwardComments"], "backward", null, null, null, null, false], [["node", "mixedDirectionComments"], "bidirectional", "first", "last", null, null, false]]) {
   node(id: $id) {
     id
     ... on Story {

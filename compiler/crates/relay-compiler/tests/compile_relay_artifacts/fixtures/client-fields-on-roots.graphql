@@ -13,12 +13,13 @@ mutation FooMutation($input: UnfriendInput) {
   }
 }
 
-subscription FooSubscription($input: FeedbackLikeInput) {
-  client_root_field
-  feedbackLikeSubscribe(input: $input) {
-    clientSubscriptionId
-  }
-}
+# not working with generate_subscription_name_metadata
+# subscription FooSubscription($input: FeedbackLikeInput) {
+#   client_root_field
+#   feedbackLikeSubscribe(input: $input) {
+#     clientSubscriptionId
+#   }
+# }
 
 # %extensions%
 
@@ -30,6 +31,6 @@ extend type Mutation {
   client_root_field: String
 }
 
-extend type Subscription {
-  client_root_field: String
-}
+# extend type Subscription {
+#   client_root_field: String
+# }

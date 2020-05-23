@@ -6,7 +6,7 @@
  */
 
 use super::perf_logger::{PerfLogEvent, PerfLogger};
-use super::print_time;
+use colored::*;
 use log::info;
 use std::time::Instant;
 
@@ -38,4 +38,19 @@ impl PerfLogger for ConsoleLogger {
     }
     fn complete_event(&self, _event: Self::PerfLogEvent) {}
     fn flush(&self) {}
+}
+
+pub fn print_time(name: &str, time: &Instant) {
+    let elapsed_ms = time.elapsed().as_millis();
+    let elapsed_str = format!("{:4}ms", elapsed_ms);
+    let elapsed_color = if elapsed_ms < 10 {
+        elapsed_str.dimmed()
+    } else if elapsed_ms < 100 {
+        elapsed_str.blue()
+    } else if elapsed_ms < 1000 {
+        elapsed_str.bold()
+    } else {
+        elapsed_str.red()
+    };
+    info!("{} {}", elapsed_color, name.dimmed());
 }

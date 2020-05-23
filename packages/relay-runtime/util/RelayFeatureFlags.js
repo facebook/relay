@@ -16,7 +16,7 @@ type FeatureFlags = {|
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
   ENABLE_RELAY_CONTAINERS_SUSPENSE: boolean,
-  ENABLE_UNIQUE_MUTATION_ROOT: boolean,
+  ENABLE_PRECISE_TYPE_REFINEMENT: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -24,7 +24,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_VARIABLE_CONNECTION_KEY: false,
   ENABLE_PARTIAL_RENDERING_DEFAULT: false,
   ENABLE_RELAY_CONTAINERS_SUSPENSE: false,
-  ENABLE_UNIQUE_MUTATION_ROOT: true,
+  ENABLE_PRECISE_TYPE_REFINEMENT: false,
 };
 
 module.exports = RelayFeatureFlags;

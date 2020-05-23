@@ -100,8 +100,9 @@ if (__DEV__) {
         return validateField(optimisticResponse, selection, context);
       case 'InlineFragment':
         const type = selection.type;
+        const isConcreteType = selection.abstractKey == null;
         selection.selections.forEach(subselection => {
-          if (optimisticResponse.__typename !== type) {
+          if (isConcreteType && optimisticResponse.__typename !== type) {
             return;
           }
           validateSelection(optimisticResponse, subselection, context);
@@ -116,7 +117,8 @@ if (__DEV__) {
       case 'LinkedHandle':
       case 'ScalarHandle':
       case 'Defer':
-      case 'Stream': {
+      case 'Stream':
+      case 'TypeDiscriminator': {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }

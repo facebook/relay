@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+  aliased: feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}
+==================================== ERROR ====================================
+Subscription 'TestSubscriptionWithMultipleSelections' must have a single selection:
+invalid-documents.graphql:1:14:
+subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {

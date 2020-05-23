@@ -54,6 +54,7 @@ export type PreloadedQuery<
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: ?string | ?number,
   +fetchPolicy: PreloadFetchPolicy,
+  +networkCacheConfig?: ?CacheConfig,
   +id: ?string,
   +name: string,
   +source: ?Observable<GraphQLResponse>,

@@ -55,5 +55,6 @@ interface ClientNamed {
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

@@ -5,188 +5,169 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::HashSet;
-use std::error::Error;
-
 use crate::lsp::{
-    Connection, DidOpenTextDocument, InitializeParams, Message, Notification,
-    PublishDiagnosticsParams, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
-    Url,
+    Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
+    DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
+    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };
 
-use relay_compiler::compiler::Compiler;
-use relay_compiler::config::Config;
-use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::FileSource;
 
-use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
-use crate::lsp::{publish_diagnostic, show_info_message};
+use relay_compiler::config::Config;
+
+use crate::error::Result;
+use crate::lsp::show_info_message;
 
 use common::ConsoleLogger;
+use common::PerfLogger;
 use log::info;
 use std::path::PathBuf;
-use tokio::sync::mpsc;
+use std::sync::Arc;
+use tokio::sync::{mpsc, Notify};
 
-pub struct ServerState {
-    urls_with_active_diagnostics: HashSet<Url>,
-    pub root_dir: PathBuf,
-}
+use crate::lsp_compiler::LSPCompiler;
 
-impl ServerState {
-    pub fn new(root_dir: PathBuf) -> Self {
-        ServerState {
-            urls_with_active_diagnostics: HashSet::default(),
-            root_dir,
-        }
-    }
-
-    pub fn register_url_with_diagnostics(&mut self, url: Url) {
-        self.urls_with_active_diagnostics.insert(url);
-    }
-
-    pub fn clear_diagnostics(&mut self, connection: &Connection) {
-        for url in self.urls_with_active_diagnostics.drain() {
-            let params = PublishDiagnosticsParams {
-                diagnostics: vec![],
-                uri: url,
-                version: None,
-            };
-            publish_diagnostic(params, &connection).unwrap();
-        }
-    }
-}
+use crate::text_documents::initialize_compiler_if_contains_graphql;
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
-pub fn initialize(
-    connection: &Connection,
-) -> Result<InitializeParams, Box<dyn Error + Sync + Send>> {
+pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     let mut server_capabilities = ServerCapabilities::default();
     // Enable text document syncing so we can know when files are opened/changed/saved/closed
     server_capabilities.text_document_sync =
         Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
 
-    let server_capabilities = serde_json::to_value(&server_capabilities).unwrap();
+    server_capabilities.completion_provider = Some(CompletionOptions {
+        resolve_provider: Some(true),
+        trigger_characters: None,
+        work_done_progress_options: WorkDoneProgressOptions {
+            work_done_progress: None,
+        },
+    });
+
+    let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
-    let params: InitializeParams = serde_json::from_value(params).unwrap();
+    let params: InitializeParams = serde_json::from_value(params)?;
     Ok(params)
 }
 
-#[derive(Debug)]
-pub enum CompilerMessage {
-    Initialize,
-}
-
 /// Run the main server loop
-pub async fn run(
-    connection: Connection,
-    _params: InitializeParams,
-) -> Result<(), Box<dyn Error + Sync + Send>> {
+pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
     show_info_message("Relay Language Server Started!", &connection)?;
     info!("Running language server");
 
-    // We use an MPSC channel to communicate between the LSP server loop and
-    // the compiler. That way running compiler doesn't block us from receiving
-    // LSP messages.
-    let (mut tx, mut rx) = mpsc::channel::<CompilerMessage>(100);
-
     let receiver = connection.receiver.clone();
 
+    // A `Notify` instance used to signal that the compiler should be initialized.
+    let compiler_notify = Arc::new(Notify::new());
+
     // Thread for the LSP message loop
+    let compiler_notifier = compiler_notify.clone();
+
+    // A channel to communicate between the LSP message loop and the compiler loop
+    let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
+
     tokio::spawn(async move {
+        // Cache for the extracted GraphQL sources
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
-                    info!("Request: {:#?}", req);
-                }
-                Message::Response(resp) => {
-                    info!("Request: {:#?}", resp);
+                    // Auto-complete request
+                    if req.method == Completion::METHOD {
+                        let (request_id, params) = extract_request_params::<Completion>(req);
+                        lsp_tx
+                            .send(LSPBridgeMessage::CompletionRequest { request_id, params })
+                            .await
+                            .ok();
+                    }
                 }
                 Message::Notification(notif) => {
-                    if notif.method == DidOpenTextDocument::METHOD {
-                        // Lazily start the compiler once a relevant file is opened
-                        if tx.send(CompilerMessage::Initialize).await.is_err() {
-                            return;
+                    match &notif.method {
+                        method if method == DidOpenTextDocument::METHOD => {
+                            let params = extract_notif_params::<DidOpenTextDocument>(notif);
+                            initialize_compiler_if_contains_graphql(
+                                &params,
+                                compiler_notifier.clone(),
+                            );
+                            lsp_tx
+                                .send(LSPBridgeMessage::DidOpenTextDocument(params))
+                                .await
+                                .ok();
+                        }
+                        method if method == DidChangeTextDocument::METHOD => {
+                            let params = extract_notif_params::<DidChangeTextDocument>(notif);
+                            lsp_tx
+                                .send(LSPBridgeMessage::DidChangeTextDocument(params))
+                                .await
+                                .ok();
+                        }
+                        method if method == DidCloseTextDocument::METHOD => {
+                            let params = extract_notif_params::<DidCloseTextDocument>(notif);
+                            lsp_tx
+                                .send(LSPBridgeMessage::DidCloseTextDocument(params))
+                                .await
+                                .ok();
+                        }
+                        _ => {
+                            // Notifications we don't care about
                         }
                     }
+                }
+                Message::Response(_) => {
+                    // Ignore responses for now
                 }
             }
         }
     });
 
-    info!("Starting to wait for receiver messages");
+    info!("Waiting for compiler to initialize...");
 
-    let mut is_compiler_running = false;
-
-    while let Some(res) = rx.recv().await {
-        match res {
-            CompilerMessage::Initialize => {
-                if !is_compiler_running {
-                    is_compiler_running = true;
-                    info!("Initializing compiler...");
-
-                    // TODO(brandondail) don't hardcode the test project config here
-                    let home = std::env::var("HOME").unwrap();
-                    let config_path = PathBuf::from(format!(
-                        "{}/fbsource/fbcode/relay/config/config.test.json",
-                        home
-                    ));
-
-                    let root_dir = PathBuf::from(format!("{}/fbsource", home));
-                    let mut config = Config::load(root_dir, config_path).unwrap();
-
-                    info!("Compiler config {:?}", config);
-                    let root_dir = config.root_dir.clone();
-
-                    // Don't write artifacts by default
-                    config.write_artifacts = false;
-
-                    let logger = ConsoleLogger;
-                    let compiler = Compiler::new(config, &logger);
-
-                    let mut server_state = ServerState::new(root_dir);
-
-                    compiler
-                        .watch_with_callback(|result| {
-                            match result {
-                                Ok(_) => {
-                                    info!("Compiled successfully");
-                                    // Clear all diagnostics
-                                    server_state.clear_diagnostics(&connection);
-                                }
-                                Err(err) => {
-                                    match err {
-                                        CompilerError::SyntaxErrors { errors } => {
-                                            report_syntax_errors(
-                                                errors,
-                                                &connection,
-                                                &mut server_state,
-                                            )
-                                        }
-                                        CompilerError::BuildProjectsErrors { errors } => {
-                                            report_build_project_errors(
-                                                errors,
-                                                &connection,
-                                                &mut server_state,
-                                            )
-                                        }
-                                        // Ignore the rest of these errors for now
-                                        CompilerError::ConfigFileRead { .. } => {}
-                                        CompilerError::ConfigFileParse { .. } => {}
-                                        CompilerError::ConfigFileValidation { .. } => {}
-                                        CompilerError::WatchmanError { .. } => {}
-                                        CompilerError::ReadFileError { .. } => {}
-                                        CompilerError::WriteFileError { .. } => {}
-                                        CompilerError::SerializationError { .. } => {}
-                                        CompilerError::DeserializationError { .. } => {}
-                                    }
-                                }
-                            }
-                        })
-                        .await
-                        .unwrap();
-                }
-            }
-        }
-    }
+    compiler_notify.notified().await;
+    let config = load_config();
+    let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
+    let file_source = FileSource::connect(&config, &setup_event).await?;
+    let (compiler_state, subscription) = file_source
+        .subscribe(&setup_event, &ConsoleLogger)
+        .await
+        .unwrap();
+    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event);
+    let mut lsp_compiler = LSPCompiler::new(
+        &schemas,
+        &config,
+        subscription,
+        compiler_state,
+        lsp_rx,
+        connection,
+    );
+    lsp_compiler.watch().await.unwrap();
     Ok(())
+}
+
+fn load_config() -> Config {
+    // TODO(brandondail) don't hardcode the test project config here
+    let home = std::env::var("HOME").unwrap();
+    let config_path = PathBuf::from(format!(
+        "{}/fbsource/fbcode/relay/config/config.test.json",
+        home
+    ));
+    let root_dir = PathBuf::from(format!("{}/fbsource", home));
+    let mut config = Config::load(root_dir, config_path).unwrap();
+    // Don't write artifacts by default
+    config.write_artifacts = false;
+    config
+}
+
+fn extract_notif_params<N>(notif: ServerNotification) -> N::Params
+where
+    N: Notification,
+{
+    notif.extract(N::METHOD).unwrap()
+}
+
+fn extract_request_params<R>(req: ServerRequest) -> (ServerRequestId, R::Params)
+where
+    R: Request,
+{
+    req.extract(R::METHOD).unwrap()
 }

@@ -28,6 +28,7 @@ import type {
   Argument,
   ArgumentValue,
   Condition,
+  Defer,
   Directive,
   Field,
   Fragment,
@@ -35,6 +36,7 @@ import type {
   IR,
   Node,
   Selection,
+  Stream,
 } from '../core/IR';
 import type {Scope} from '../core/RelayCompilerScope';
 
@@ -125,6 +127,51 @@ function transformNode<T: Node>(
     ...node,
     selections,
   }: $FlowIssue);
+}
+
+function transformDeferStreamNode<T: Defer | Stream>(
+  context: CompilerContext,
+  fragments: Map<string, PendingFragment>,
+  scope: Scope,
+  node: T,
+  errorContext: $ReadOnlyArray<IR>,
+): ?Selection {
+  const nextNode = transformNode(context, fragments, scope, node, errorContext);
+  if (!nextNode) {
+    return null;
+  }
+  (nextNode: T);
+  if (nextNode.if) {
+    const ifVal = transformValue(scope, nextNode.if, errorContext);
+    if (
+      ifVal.kind === 'Literal' &&
+      ifVal.value === false &&
+      node.selections &&
+      node.selections.length === 1
+    ) {
+      // Skip Defer/Stream wrapper with literal if: false
+      return node.selections[0];
+    }
+    //$FlowFixMe nextNode is uniquely owned
+    nextNode.if = ifVal;
+  }
+  if (nextNode.useCustomizedBatch) {
+    //$FlowFixMe nextNode is uniquely owned
+    nextNode.useCustomizedBatch = transformValue(
+      scope,
+      nextNode.useCustomizedBatch,
+      errorContext,
+    );
+  }
+  if (nextNode.initialCount) {
+    //$FlowFixMe nextNode is uniquely owned
+    nextNode.initialCount = transformValue(
+      scope,
+      nextNode.initialCount,
+      errorContext,
+    );
+  }
+  return nextNode;
 }
 
 function transformFragmentSpread(
@@ -255,11 +302,17 @@ function transformSelections(
       selection.kind === 'ClientExtension' ||
       selection.kind === 'InlineDataFragmentSpread' ||
       selection.kind === 'InlineFragment' ||
-      selection.kind === 'ModuleImport' ||
-      selection.kind === 'Defer' ||
-      selection.kind === 'Stream'
+      selection.kind === 'ModuleImport'
     ) {
       nextSelection = transformNode(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
+    } else if (selection.kind === 'Defer' || selection.kind === 'Stream') {
+      nextSelection = transformDeferStreamNode(
         context,
         fragments,
         scope,

@@ -611,6 +611,7 @@ fragment TestFragment on Actor {
     "viewer": {
       "actor": {
         "__typename": "User",
+        "__isActor": true,
         "id": "<mock-id-1>",
         "__isNamed": true,
         "name": "<mock-value-for-field-\\"name\\">",

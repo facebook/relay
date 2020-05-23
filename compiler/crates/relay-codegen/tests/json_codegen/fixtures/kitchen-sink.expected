@@ -104,7 +104,8 @@ fragment UserFragment on User
                   "storageKey": null
                 }
               ],
-              "type": "User"
+              "type": "User",
+              "abstractKey": null
             }
           ]
         },
@@ -370,5 +371,6 @@ fragment UserFragment on User
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

@@ -108,7 +108,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -188,7 +189,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "kind": "ModuleImport"
                       }
                     ],
-                    "type": "PlainUserNameRenderer"
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
                   },
                   {
                     "kind": "InlineFragment",
@@ -200,13 +202,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "kind": "ModuleImport"
                       }
                     ],
-                    "type": "MarkdownUserNameRenderer"
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -342,7 +346,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "MarkdownUserNameRenderer"
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
 }
 
 {
@@ -392,7 +397,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
               "kind": "ModuleImport"
             }
           ],
-          "type": "PlainUserNameRenderer"
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
         },
         {
           "kind": "InlineFragment",
@@ -404,13 +410,15 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
               "kind": "ModuleImport"
             }
           ],
-          "type": "MarkdownUserNameRenderer"
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
         }
       ],
       "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -445,5 +453,6 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "PlainUserNameRenderer"
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
 }

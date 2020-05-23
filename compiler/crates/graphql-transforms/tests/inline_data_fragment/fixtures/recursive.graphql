@@ -1,0 +1,19 @@
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ...InlineDataFragment
+    ...AnotherInlineDataFragment @include(if: $cond)
+  }
+  smallPic: profilePicture(size: 20) {
+    ...InlineDataFragment
+  }
+}
+
+fragment InlineDataFragment on Image @inline {
+  uri
+  ...AnotherInlineDataFragment
+}
+
+fragment AnotherInlineDataFragment on Image @inline {
+  uri
+  width
+}

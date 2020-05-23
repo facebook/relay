@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::errors::{Error, Result};
 use super::{read_to_string, WatchmanFile};
+use crate::errors::{Error, Result};
 use graphql_syntax::GraphQLSource;
 use watchman_client::prelude::*;
 

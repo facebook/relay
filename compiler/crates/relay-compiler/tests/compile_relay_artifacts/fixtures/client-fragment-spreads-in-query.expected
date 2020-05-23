@@ -63,7 +63,8 @@ type ClientType {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -133,7 +134,8 @@ type ClientType {
                 ]
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -185,7 +187,8 @@ fragment Foo_user on User {
       ]
     }
   ],
-  "concreteType": "ClientType"
+  "type": "ClientType",
+  "abstractKey": null
 }
 
 {
@@ -223,5 +226,6 @@ fragment Foo_user on User {
       ]
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }

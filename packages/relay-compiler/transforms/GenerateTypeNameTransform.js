@@ -29,9 +29,7 @@ import type {Schema} from '../core/Schema';
 
 const TYPENAME_KEY = '__typename';
 
-export type TransformOptions = {|+isForCodegen?: boolean|};
 type State = {|
-  +isForCodegen: boolean,
   +typenameField: ScalarField,
 |};
 
@@ -41,10 +39,7 @@ let cache = new Map();
  * A transform that adds `__typename` field on any `LinkedField` of a union or
  * interface type where there is no unaliased `__typename` selection.
  */
-function generateTypeNameTransform(
-  context: CompilerContext,
-  options: TransformOptions,
-): CompilerContext {
+function generateTypeNameTransform(context: CompilerContext): CompilerContext {
   cache = new Map();
   const schema = context.getSchema();
   const typenameField: ScalarField = {
@@ -56,7 +51,9 @@ function generateTypeNameTransform(
     loc: {kind: 'Generated'},
     metadata: null,
     name: TYPENAME_KEY,
-    type: schema.expectStringType(),
+    type: schema.assertScalarFieldType(
+      schema.getNonNullType(schema.expectStringType()),
+    ),
   };
   return IRTransformer.transform(
     context,
@@ -66,7 +63,6 @@ function generateTypeNameTransform(
       InlineFragment: visitInlineFragment,
     },
     node => ({
-      isForCodegen: options?.isForCodegen === true,
       typenameField,
     }),
   );
@@ -76,20 +72,24 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
   const schema: Schema = this.getContext().getSchema();
   const rawType = schema.getRawType(fragment.type);
   let transformedNode = (this.traverse(fragment, state): Fragment);
-  if (!state.isForCodegen && schema.isAbstractType(rawType)) {
+  const isClientType = !schema.isServerType(rawType);
+  if (!isClientType && schema.isAbstractType(rawType)) {
+    const abstractKey = generateAbstractTypeRefinementKey(schema, rawType);
     transformedNode = {
       ...transformedNode,
       selections: [
         {
           kind: 'ScalarField',
-          alias: generateAbstractTypeRefinementKey(schema, rawType),
+          alias: abstractKey,
           args: [],
           directives: [],
           handles: null,
           loc: {kind: 'Generated'},
-          metadata: null,
+          metadata: {abstractKey},
           name: TYPENAME_KEY,
-          type: schema.expectStringType(),
+          type: schema.assertScalarFieldType(
+            schema.getNonNullType(schema.expectStringType()),
+          ),
         },
         ...transformedNode.selections,
       ],
@@ -109,20 +109,24 @@ function visitInlineFragment(
   }
   const rawType = schema.getRawType(fragment.typeCondition);
   transformedNode = (this.traverse(fragment, state): InlineFragment);
-  if (!state.isForCodegen && schema.isAbstractType(rawType)) {
+  const isClientType = !schema.isServerType(rawType);
+  if (!isClientType && schema.isAbstractType(rawType)) {
+    const abstractKey = generateAbstractTypeRefinementKey(schema, rawType);
     transformedNode = {
       ...transformedNode,
       selections: [
         {
           kind: 'ScalarField',
-          alias: generateAbstractTypeRefinementKey(schema, rawType),
+          alias: abstractKey,
           args: [],
           directives: [],
           handles: null,
           loc: {kind: 'Generated'},
-          metadata: null,
+          metadata: {abstractKey},
           name: TYPENAME_KEY,
-          type: schema.expectStringType(),
+          type: schema.assertScalarFieldType(
+            schema.getNonNullType(schema.expectStringType()),
+          ),
         },
         ...transformedNode.selections,
       ],
@@ -152,14 +156,6 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
   return transformedNode;
 }
 
-function transformWithOptions(
-  options: TransformOptions,
-): (context: CompilerContext) => CompilerContext {
-  return function flattenTransform(context: CompilerContext): CompilerContext {
-    return generateTypeNameTransform(context, options);
-  };
-}
-
 module.exports = {
-  transformWithOptions,
+  transform: generateTypeNameTransform,
 };

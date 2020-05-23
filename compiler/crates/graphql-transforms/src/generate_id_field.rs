@@ -13,6 +13,7 @@ use graphql_ir::{
 
 use interner::{Intern, StringKey};
 use schema::{FieldID, InterfaceID, ObjectID, Type};
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -78,37 +79,16 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                             .push(self.create_id_selection(field.definition.location, id_field_id));
                         TransformedValue::Replace(next_selections)
                     } else {
-                        let mut inline_fragments = self.create_id_inline_fragments(
-                            field.definition.location,
+                        self.get_selections_with_inline_id_fragments(
+                            field,
+                            selections,
                             &interface.implementors,
-                        );
-                        if inline_fragments.is_empty() {
-                            selections
-                        } else {
-                            if let TransformedValue::Replace(selections) = selections {
-                                inline_fragments.extend(selections.into_iter())
-                            } else {
-                                inline_fragments.extend(field.selections.iter().cloned());
-                            }
-                            TransformedValue::Replace(inline_fragments)
-                        }
+                        )
                     }
                 }
                 Type::Union(id) => {
                     let union = schema.union(id);
-                    let mut inline_fragments =
-                        self.create_id_inline_fragments(field.definition.location, &union.members);
-
-                    if inline_fragments.is_empty() {
-                        selections
-                    } else {
-                        if let TransformedValue::Replace(selections) = selections {
-                            inline_fragments.extend(selections.into_iter())
-                        } else {
-                            inline_fragments.extend(field.selections.iter().cloned());
-                        }
-                        TransformedValue::Replace(inline_fragments)
-                    }
+                    self.get_selections_with_inline_id_fragments(field, selections, &union.members)
                 }
                 _ => selections,
             }
@@ -177,20 +157,20 @@ impl<'s> GenerateIDFieldTransform<'s> {
     }
 
     fn get_id_field_id(&mut self, type_: Type, fields: &[FieldID]) -> Option<FieldID> {
-        match self.cache.get(&type_) {
-            Some(result) => *result,
-            None => {
+        match self.cache.entry(type_) {
+            Entry::Occupied(e) => *e.get(),
+            Entry::Vacant(e) => {
                 for id in fields {
                     let field = self.program.schema().field(*id);
                     if field.name == self.id_name
                         && self.program.schema().is_id(field.type_.inner())
                     {
                         let result = Some(*id);
-                        self.cache.insert(type_, result);
+                        e.insert(result);
                         return result;
                     }
                 }
-                self.cache.insert(type_, None);
+                e.insert(None);
                 None
             }
         }
@@ -200,11 +180,12 @@ impl<'s> GenerateIDFieldTransform<'s> {
     /// fragment if *any* concrete type implements Node. Then generate a
     /// `... on PossibleType { id }` for every concrete type that does *not*
     /// implement `Node`
-    fn create_id_inline_fragments(
+    fn get_selections_with_inline_id_fragments(
         &mut self,
-        location: Location,
+        field: &LinkedField,
+        selections: TransformedValue<Vec<Selection>>,
         concrete_ids: &[ObjectID],
-    ) -> Vec<Selection> {
+    ) -> TransformedValue<Vec<Selection>> {
         let mut next_selections = vec![];
         let mut should_generate_node = false;
 
@@ -224,25 +205,34 @@ impl<'s> GenerateIDFieldTransform<'s> {
                 self.get_id_field_id(Type::Object(*object_id), &object.fields)
             {
                 next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
-                    location,
+                    field.definition.location,
                     Type::Object(*object_id),
                     id_field_id,
                 )));
             }
         }
 
+        if next_selections.is_empty() && !should_generate_node {
+            return selections;
+        }
+
+        let mut result = if let TransformedValue::Replace(selections) = selections {
+            selections
+        } else {
+            field.selections.clone()
+        };
         if should_generate_node {
             // This should not happen because we can only set
             // `should_generate_node` to true, if this is Some.
             let node_interface = self.node_interface.as_ref().unwrap();
-            next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
-                location,
+            result.push(Selection::InlineFragment(self.create_inline_id_fragment(
+                field.definition.location,
                 Type::Interface(node_interface.id),
                 node_interface.id_field,
             )));
         }
-
-        next_selections
+        result.extend(next_selections.into_iter());
+        TransformedValue::Replace(result)
     }
 
     fn create_id_selection(&self, location: Location, id_field_id: FieldID) -> Selection {

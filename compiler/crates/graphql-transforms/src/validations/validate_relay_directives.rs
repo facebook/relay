@@ -6,12 +6,12 @@
  */
 
 use crate::relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
+use common::NamedItem;
 use errors::validate;
 use fnv::FnvHashMap;
 use graphql_ir::{
-    ConstantValue, Directive, FragmentDefinition, FragmentSpread, NamedItem, OperationDefinition,
-    Program, ValidationError, ValidationMessage, ValidationResult, Validator, Value,
-    VariableDefinition,
+    ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
+    ValidationError, ValidationMessage, ValidationResult, Validator, Value, VariableDefinition,
 };
 use interner::StringKey;
 

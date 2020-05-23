@@ -69,7 +69,8 @@ fragment MyNestedViewer on Viewer
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -172,7 +173,8 @@ query TestQuery {
       ]
     }
   ],
-  "concreteType": "Viewer"
+  "type": "Viewer",
+  "abstractKey": null
 }
 
 {
@@ -187,7 +189,8 @@ query TestQuery {
       "name": "MyNestedViewer"
     }
   ],
-  "concreteType": "Viewer"
+  "type": "Viewer",
+  "abstractKey": null
 }
 
 {
@@ -202,5 +205,6 @@ query TestQuery {
       "name": "MyNestedViewer"
     }
   ],
-  "concreteType": "Viewer"
+  "type": "Viewer",
+  "abstractKey": null
 }

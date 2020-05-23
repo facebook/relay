@@ -18,6 +18,168 @@ fragment ProfilePicture on User {
 }
 ==================================== OUTPUT ===================================
 {
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size",
+        "type": "[Int]"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "kind": "FragmentSpread",
+        "name": "RefetchableFragment"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size",
+        "type": "[Int]"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "size"
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profilePicture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+) {
+  ...RefetchableFragment_1Bmzm5
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment RefetchableFragment_1Bmzm5 on Query {
+  node(id: $id) {
+    __typename
+    ... on User {
+      id
+      name
+      ...ProfilePicture
+    }
+    id
+  }
+}
+
+
+{
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -54,7 +216,8 @@ fragment ProfilePicture on User {
       "storageKey": null
     }
   ],
-  "concreteType": "User"
+  "type": "User",
+  "abstractKey": null
 }
 
 {
@@ -67,7 +230,13 @@ fragment ProfilePicture on User {
     }
   ],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [],
+      "operation": require('RefetchableFragmentQuery.graphql')
+    }
+  },
   "name": "RefetchableFragment",
   "selections": [
     {
@@ -107,11 +276,13 @@ fragment ProfilePicture on User {
               "name": "ProfilePicture"
             }
           ],
-          "type": "User"
+          "type": "User",
+          "abstractKey": null
         }
       ],
       "storageKey": null
     }
   ],
-  "concreteType": "Query"
+  "type": "Query",
+  "abstractKey": null
 }

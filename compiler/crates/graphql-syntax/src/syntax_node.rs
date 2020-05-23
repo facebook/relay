@@ -7,7 +7,7 @@
 
 use crate::syntax_error::SyntaxError;
 use crate::token_kind::TokenKind;
-use common::{FileKey, Location, Span, WithLocation};
+use common::{FileKey, Location, Named, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;
 
@@ -218,6 +218,12 @@ pub struct ConstantArgument {
     pub name: Identifier,
     pub colon: Token,
     pub value: ConstantValue,
+}
+
+impl Named for ConstantArgument {
+    fn name(&self) -> StringKey {
+        self.name.value
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

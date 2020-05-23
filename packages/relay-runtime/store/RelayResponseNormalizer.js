@@ -12,6 +12,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
@@ -29,6 +30,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
@@ -187,16 +189,42 @@ class RelayResponseNormalizer {
             this._traverseSelections(selection, record, data);
           }
           break;
-        case INLINE_FRAGMENT:
-          if (selection.abstractKey == null) {
+        case INLINE_FRAGMENT: {
+          const {abstractKey} = selection;
+          if (abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
             if (typeName === selection.type) {
               this._traverseSelections(selection, record, data);
             }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const implementsInterface = data.hasOwnProperty(abstractKey);
+            RelayModernRecord.setValue(
+              record,
+              abstractKey,
+              implementsInterface,
+            );
+            if (implementsInterface) {
+              this._traverseSelections(selection, record, data);
+            }
           } else {
+            // legacy behavior for abstract refinements: always normalize even
+            // if the type doesn't conform
             this._traverseSelections(selection, record, data);
           }
           break;
+        }
+        case TYPE_DISCRIMINATOR: {
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const {abstractKey} = selection;
+            const implementsInterface = data.hasOwnProperty(abstractKey);
+            RelayModernRecord.setValue(
+              record,
+              abstractKey,
+              implementsInterface,
+            );
+          }
+          break;
+        }
         case LINKED_HANDLE:
         case SCALAR_HANDLE:
           const args = selection.args

@@ -79,7 +79,8 @@ fragment FeedbackFragment on Feedback
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -249,7 +250,8 @@ fragment FeedbackFragment on Feedback
                 "name": "comments"
               }
             ],
-            "type": "Feedback"
+            "type": "Feedback",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -361,7 +363,8 @@ fragment FeedbackFragment on Feedback {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -553,7 +556,8 @@ fragment FeedbackFragment on Feedback {
                 "name": "comments"
               }
             ],
-            "type": "Feedback"
+            "type": "Feedback",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -734,5 +738,6 @@ fragment FeedbackFragment_1G22uz on Feedback {
       "storageKey": null
     }
   ],
-  "concreteType": "Feedback"
+  "type": "Feedback",
+  "abstractKey": null
 }

@@ -87,27 +87,35 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "concreteType": null,
-            "kind": "LinkedField",
-            "name": "nameRenderer",
-            "plural": false,
+            "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "InlineFragment",
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
                 "selections": [
                   {
-                    "documentName": "MatchQuery",
-                    "fragmentName": "MarkdownUserNameRenderer_name",
-                    "fragmentPropName": "name",
-                    "kind": "ModuleImport"
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "documentName": "MatchQuery",
+                        "fragmentName": "MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
                   }
                 ],
-                "type": "MarkdownUserNameRenderer"
+                "storageKey": null
               }
             ],
-            "storageKey": null
+            "type": "Actor",
+            "abstractKey": "__isActor"
           },
           {
             "kind": "InlineFragment",
@@ -130,19 +138,22 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "kind": "ModuleImport"
                       }
                     ],
-                    "type": "MarkdownUserNameRenderer"
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
               }
             ],
-            "type": "User"
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -172,34 +183,80 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "concreteType": null,
-            "kind": "LinkedField",
-            "name": "nameRenderer",
-            "plural": false,
+            "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
                 "args": null,
-                "kind": "ScalarField",
-                "name": "__typename",
-                "storageKey": null
-              },
-              {
-                "kind": "InlineFragment",
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
                 "selections": [
                   {
-                    "documentName": "MatchQuery",
-                    "fragmentName": "MarkdownUserNameRenderer_name",
-                    "fragmentPropName": "name",
-                    "kind": "ModuleImport"
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "documentName": "MatchQuery",
+                        "fragmentName": "MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
                   }
                 ],
-                "type": "MarkdownUserNameRenderer"
+                "storageKey": null
               }
             ],
-            "storageKey": null
+            "type": "Actor",
+            "abstractKey": "__isActor"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "documentName": "MatchQuery",
+                        "fragmentName": "MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
           },
           {
             "alias": null,
@@ -228,6 +285,7 @@ query MatchQuery {
   node(id: "<user-id>") {
     __typename
     ... on Actor {
+      __isActor: __typename
       nameRenderer {
         __typename
         ... on MarkdownUserNameRenderer {
@@ -292,5 +350,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "storageKey": null
     }
   ],
-  "concreteType": "MarkdownUserNameRenderer"
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
 }

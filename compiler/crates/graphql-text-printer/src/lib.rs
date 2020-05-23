@@ -15,5 +15,6 @@ mod print_to_text;
 pub use print_full_operation::print_full_operation;
 pub use print_to_text::{
     print_arguments, print_definition, print_directives, print_fragment, print_ir, print_operation,
-    write_arguments, write_directives, write_operation_with_graphqljs_formatting,
+    print_value, write_arguments, write_directives, write_operation_with_graphqljs_formatting,
+    write_value,
 };

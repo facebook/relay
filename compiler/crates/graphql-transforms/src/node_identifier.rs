@@ -42,6 +42,35 @@ impl NodeIdentifier {
             Selection::Condition(node) => NodeIdentifier::Condition(Arc::clone(node)),
         }
     }
+
+    pub fn are_equal(schema: &Schema, a: &Selection, b: &Selection) -> bool {
+        match (a, b) {
+            (Selection::FragmentSpread(a), Selection::FragmentSpread(b)) => {
+                a.fragment.item == b.fragment.item && a.arguments.location_agnostic_eq(&b.arguments)
+            }
+            (Selection::InlineFragment(a), Selection::InlineFragment(b)) => {
+                a.type_condition == b.type_condition
+                    && a.directives.location_agnostic_eq(&b.directives)
+            }
+            (Selection::LinkedField(a), Selection::LinkedField(b)) => {
+                a.alias_or_name(schema) == b.alias_or_name(schema)
+                    && a.directives.location_agnostic_eq(&b.directives)
+            }
+            (Selection::ScalarField(a), Selection::ScalarField(b)) => {
+                a.alias_or_name(schema) == b.alias_or_name(schema)
+                    && a.directives.location_agnostic_eq(&b.directives)
+            }
+            (Selection::Condition(a), Selection::Condition(b)) => {
+                a.passing_value == b.passing_value && a.value.location_agnostic_eq(&b.value)
+            }
+
+            (Selection::FragmentSpread(_), _) => false,
+            (Selection::InlineFragment(_), _) => false,
+            (Selection::LinkedField(_), _) => false,
+            (Selection::ScalarField(_), _) => false,
+            (Selection::Condition(_), _) => false,
+        }
+    }
 }
 
 impl PartialEq for NodeIdentifier {

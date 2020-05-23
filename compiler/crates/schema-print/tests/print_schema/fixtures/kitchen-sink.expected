@@ -19,7 +19,11 @@ interface XIGHuman @source(schema: "instagram", name: "Human") {
 
 type User implements XIGHuman @fetchable(field_name: "id") {
   id: ID
-  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  content_type(
+    type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]
+  ): [AppStoreSectionContentTypeEnum]
+  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
 }
 
 type XIGStory
@@ -29,15 +33,16 @@ type XIGStory
   name: String
 }
 
-union Actor = User | Page
+union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-enum AppStoreSectionContentTypeEnum {
-  DEFAULT
+enum AppStoreSectionContentTypeEnum
+  @source(schema: "instagram", name: "Story") {
+  DEFAULT @deprecated(reason: "test")
   CONCEPTS
   EARLY_ACCESS
 }
 
-input AppVersions {
+input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
@@ -45,6 +50,8 @@ input AppVersions {
 type Page {
   id: ID
 }
+
+scalar ID @source(schema: "instagram", name: "Story")
 ==================================== OUTPUT ===================================
 schema {
   query: Query
@@ -62,15 +69,15 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 
-union Actor = User | Page
+union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-enum AppStoreSectionContentTypeEnum {
-  DEFAULT
+enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
+  DEFAULT @deprecated(reason: "test")
   CONCEPTS
   EARLY_ACCESS
 }
 
-input AppVersions {
+input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
@@ -79,7 +86,7 @@ scalar Boolean
 
 scalar Float
 
-scalar ID
+scalar ID @source(schema: "instagram", name: "Story")
 
 scalar Int
 
@@ -96,7 +103,9 @@ scalar String
 
 type User implements XIGHuman @fetchable(field_name: "id") {
   id: ID
-  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  content_type(type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]): [AppStoreSectionContentTypeEnum]
+  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
 }
 
 interface XIGHuman @source(schema: "instagram", name: "Human") {

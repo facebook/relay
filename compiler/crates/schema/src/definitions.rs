@@ -7,6 +7,7 @@
 
 use crate::ast;
 use crate::errors::{Result, SchemaError};
+use common::{Named, NamedItem};
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
@@ -317,6 +318,191 @@ impl Schema {
         self.directives.values()
     }
 
+    pub fn directives_for_location(&self, location: DirectiveLocation) -> Vec<&Directive> {
+        self.directives
+            .values()
+            .filter(|directive| directive.locations.contains(&location))
+            .collect()
+    }
+
+    pub fn get_fields(&self) -> impl Iterator<Item = &Field> {
+        self.fields.iter()
+    }
+
+    pub fn get_interfaces(&self) -> impl Iterator<Item = &Interface> {
+        self.interfaces.iter()
+    }
+
+    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+        self.directives.contains_key(&directive_name)
+    }
+
+    pub fn has_type(&self, type_name: StringKey) -> bool {
+        self.type_map.contains_key(&type_name)
+    }
+
+    pub fn add_directive(&mut self, directive: Directive) -> Result<()> {
+        if self.directives.contains_key(&directive.name) {
+            return Err(SchemaError::DuplicateDirectiveDefinition(directive.name));
+        }
+        self.directives.insert(directive.name, directive);
+        Ok(())
+    }
+
+    pub fn add_field(&mut self, field: Field) -> Result<FieldID> {
+        Ok(self.build_field(field))
+    }
+
+    pub fn add_enum(&mut self, enum_: Enum) -> Result<EnumID> {
+        if self.type_map.contains_key(&enum_.name) {
+            return Err(SchemaError::DuplicateType(enum_.name));
+        }
+        let index: u32 = self.enums.len().try_into().unwrap();
+        let name = enum_.name;
+        self.enums.push(enum_);
+        self.type_map.insert(name, Type::Enum(EnumID(index)));
+        Ok(EnumID(index))
+    }
+
+    pub fn add_input_object(&mut self, input_object: InputObject) -> Result<InputObjectID> {
+        if self.type_map.contains_key(&input_object.name) {
+            return Err(SchemaError::DuplicateType(input_object.name));
+        }
+        let index: u32 = self.input_objects.len().try_into().unwrap();
+        let name = input_object.name;
+        self.input_objects.push(input_object);
+        self.type_map
+            .insert(name, Type::InputObject(InputObjectID(index)));
+        Ok(InputObjectID(index))
+    }
+
+    pub fn add_interface(&mut self, interface: Interface) -> Result<InterfaceID> {
+        if self.type_map.contains_key(&interface.name) {
+            return Err(SchemaError::DuplicateType(interface.name));
+        }
+        let index: u32 = self.interfaces.len().try_into().unwrap();
+        let name = interface.name;
+        self.interfaces.push(interface);
+        self.type_map
+            .insert(name, Type::Interface(InterfaceID(index)));
+        Ok(InterfaceID(index))
+    }
+
+    pub fn add_object(&mut self, object: Object) -> Result<ObjectID> {
+        if self.type_map.contains_key(&object.name) {
+            return Err(SchemaError::DuplicateType(object.name));
+        }
+        let index: u32 = self.objects.len().try_into().unwrap();
+        let name = object.name;
+        self.objects.push(object);
+        self.type_map.insert(name, Type::Object(ObjectID(index)));
+        Ok(ObjectID(index))
+    }
+
+    pub fn add_scalar(&mut self, scalar: Scalar) -> Result<ScalarID> {
+        if self.type_map.contains_key(&scalar.name) {
+            return Err(SchemaError::DuplicateType(scalar.name));
+        }
+        let index: u32 = self.scalars.len().try_into().unwrap();
+        let name = scalar.name;
+        self.scalars.push(scalar);
+        self.type_map.insert(name, Type::Scalar(ScalarID(index)));
+        Ok(ScalarID(index))
+    }
+
+    pub fn add_union(&mut self, union: Union) -> Result<UnionID> {
+        if self.type_map.contains_key(&union.name) {
+            return Err(SchemaError::DuplicateType(union.name));
+        }
+        let index: u32 = self.unions.len().try_into().unwrap();
+        let name = union.name;
+        self.unions.push(union);
+        self.type_map.insert(name, Type::Union(UnionID(index)));
+        Ok(UnionID(index))
+    }
+
+    pub fn add_field_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        field_id: FieldID,
+    ) -> Result<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.fields.push(field_id);
+        Ok(interface_id)
+    }
+
+    pub fn add_field_to_object(&mut self, obj_id: ObjectID, field_id: FieldID) -> Result<ObjectID> {
+        let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
+        object.fields.push(field_id);
+        Ok(obj_id)
+    }
+
+    pub fn add_interface_to_object(
+        &mut self,
+        obj_id: ObjectID,
+        interface_id: InterfaceID,
+    ) -> Result<ObjectID> {
+        let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
+        object.interfaces.push(interface_id);
+        Ok(obj_id)
+    }
+
+    pub fn add_member_to_union(
+        &mut self,
+        union_id: UnionID,
+        object_id: ObjectID,
+    ) -> Result<UnionID> {
+        let union = self.unions.get_mut(union_id.as_usize()).unwrap();
+        union.members.push(object_id);
+        Ok(union_id)
+    }
+
+    pub fn set_input_object_args(
+        &mut self,
+        input_object_id: InputObjectID,
+        fields: ArgumentDefinitions,
+    ) -> Result<InputObjectID> {
+        let input_object = self
+            .input_objects
+            .get_mut(input_object_id.as_usize())
+            .unwrap();
+        input_object.fields = fields;
+        Ok(input_object_id)
+    }
+
+    pub fn set_field_args(
+        &mut self,
+        field_id: FieldID,
+        args: ArgumentDefinitions,
+    ) -> Result<FieldID> {
+        let field = self.fields.get_mut(field_id.as_usize()).unwrap();
+        field.arguments = args;
+        Ok(field_id)
+    }
+
+    pub fn replace_interface(&mut self, id: InterfaceID, interface: Interface) -> Result<()> {
+        if id.as_usize() >= self.interfaces.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Interface"),
+            ));
+        }
+        self.type_map
+            .remove(&self.get_type_name(Type::Interface(id)));
+        self.type_map.insert(interface.name, Type::Interface(id));
+        std::mem::replace(&mut self.interfaces[id.as_usize()], interface);
+        Ok(())
+    }
+
+    pub fn replace_field(&mut self, id: FieldID, field: Field) -> Result<()> {
+        let id = id.as_usize();
+        if id >= self.fields.len() {
+            return Err(SchemaError::UnknownTypeID(id, String::from("Field")));
+        }
+        std::mem::replace(&mut self.fields[id], field);
+        Ok(())
+    }
+
     pub fn build(
         schema_definitions: &[ast::Definition],
         client_definitions: &[ast::Definition],
@@ -466,7 +652,7 @@ impl Schema {
         schema.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         schema.fields.push(Field {
             name: schema.clientid_field_name,
-            is_extension: false,
+            is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
@@ -589,28 +775,32 @@ impl Schema {
             }
             ast::Definition::UnionTypeDefinition {
                 name,
-                directives: _directives,
+                directives,
                 members,
             } => {
                 let members = members
                     .iter()
                     .map(|name| self.build_object_id(*name))
                     .collect::<Result<Vec<_>>>()?;
+                let directives = self.build_directive_values(&directives);
                 self.unions.push(Union {
                     name: *name,
                     is_extension,
                     members,
+                    directives,
                 });
             }
             ast::Definition::InputObjectTypeDefinition {
                 name,
                 fields,
-                directives: _directives,
+                directives,
             } => {
                 let fields = self.build_arguments(fields)?;
+                let directives = self.build_directive_values(&directives);
                 self.input_objects.push(InputObject {
                     name: *name,
                     fields,
+                    directives,
                 });
             }
             ast::Definition::EnumTypeDefinition {
@@ -619,20 +809,28 @@ impl Schema {
                 values,
             } => {
                 let directives = self.build_directive_values(&directives);
+                let values = values
+                    .iter()
+                    .map(|enum_def| EnumValue {
+                        value: enum_def.name,
+                        directives: self.build_directive_values(&enum_def.directives),
+                    })
+                    .collect();
                 self.enums.push(Enum {
                     name: *name,
                     is_extension,
-                    values: values.iter().map(|enum_def| enum_def.name).collect(),
+                    values,
                     directives,
                 });
             }
-            ast::Definition::ScalarTypeDefinition {
-                name,
-                directives: _directives,
-            } => self.scalars.push(Scalar {
-                name: *name,
-                is_extension,
-            }),
+            ast::Definition::ScalarTypeDefinition { name, directives } => {
+                let directives = self.build_directive_values(&directives);
+                self.scalars.push(Scalar {
+                    name: *name,
+                    is_extension,
+                    directives,
+                })
+            }
             ast::Definition::ObjectTypeExtension {
                 name,
                 interfaces: _interfaces,
@@ -756,8 +954,7 @@ impl Schema {
                 Ok(Argument {
                     name: arg_def.name,
                     type_: self.build_type_reference(&arg_def.type_)?,
-                    // TODO
-                    default_value: None,
+                    default_value: arg_def.default_value.clone(),
                 })
             })
             .collect();
@@ -932,6 +1129,48 @@ impl Type {
             _ => false,
         }
     }
+
+    pub fn get_enum_id(self) -> Option<EnumID> {
+        match self {
+            Type::Enum(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_input_object_id(self) -> Option<InputObjectID> {
+        match self {
+            Type::InputObject(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_interface_id(self) -> Option<InterfaceID> {
+        match self {
+            Type::Interface(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_object_id(self) -> Option<ObjectID> {
+        match self {
+            Type::Object(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_scalar_id(self) -> Option<ScalarID> {
+        match self {
+            Type::Scalar(id) => Some(id),
+            _ => None,
+        }
+    }
+
+    pub fn get_union_id(self) -> Option<UnionID> {
+        match self {
+            Type::Union(id) => Some(id),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Debug for Type {
@@ -993,6 +1232,13 @@ impl TypeReference {
         }
     }
 
+    pub fn list_item_type(&self) -> Option<&TypeReference> {
+        match self.nullable_type() {
+            TypeReference::List(of) => Some(of),
+            _ => None,
+        }
+    }
+
     // Return None if the type is a List, otherwise return the inner type
     pub fn non_list_type(&self) -> Option<Type> {
         match self {
@@ -1003,7 +1249,7 @@ impl TypeReference {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
@@ -1011,13 +1257,14 @@ pub struct Directive {
     pub is_extension: bool,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Scalar {
     pub name: StringKey,
     pub is_extension: bool,
+    pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Object {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1026,28 +1273,30 @@ pub struct Object {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct InputObject {
     pub name: StringKey,
     pub fields: ArgumentDefinitions,
-}
-
-#[derive(Debug)]
-pub struct Enum {
-    pub name: StringKey,
-    pub is_extension: bool,
-    pub values: Vec<StringKey>,
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
+pub struct Enum {
+    pub name: StringKey,
+    pub is_extension: bool,
+    pub values: Vec<EnumValue>,
+    pub directives: Vec<DirectiveValue>,
+}
+
+#[derive(Clone, Debug)]
 pub struct Union {
     pub name: StringKey,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
+    pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Interface {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1056,7 +1305,7 @@ pub struct Interface {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Field {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1072,16 +1321,40 @@ pub struct Argument {
     pub default_value: Option<ConstValue>,
 }
 
-#[derive(Debug)]
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstValue,
 }
 
-#[derive(Debug)]
+impl Named for ArgumentValue {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,
+}
+
+impl Named for DirectiveValue {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct EnumValue {
+    pub value: StringKey,
+    pub directives: Vec<DirectiveValue>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1092,8 +1365,8 @@ impl ArgumentDefinitions {
         Self(arguments)
     }
 
-    pub fn get(&self, name: StringKey) -> Option<&Argument> {
-        self.0.iter().find(|x| x.name == name)
+    pub fn named(&self, name: StringKey) -> Option<&Argument> {
+        self.0.named(name)
     }
 
     pub fn contains(&self, name: StringKey) -> bool {
@@ -1121,5 +1394,21 @@ impl IntoIterator for ArgumentDefinitions {
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
+    }
+}
+
+pub trait TypeWithFields {
+    fn fields(&self) -> &Vec<FieldID>;
+}
+
+impl TypeWithFields for Interface {
+    fn fields(&self) -> &Vec<FieldID> {
+        &self.fields
+    }
+}
+
+impl TypeWithFields for Object {
+    fn fields(&self) -> &Vec<FieldID> {
+        &self.fields
     }
 }

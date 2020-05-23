@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on NonNodeStory
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) @__refetchableQueryMetadata(__refetchableQueryMetadata: "RefetchableFragment") {
+  fetch__NonNodeStory(input_fetch_id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "RefetchableFragmentQuery") @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["fetch__NonNodeStory"], "fetch_id"]) {
+  actor {
+    ...ProfilePicture
+  }
+  fetch_id
+}

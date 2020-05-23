@@ -85,7 +85,8 @@ fragment FeedbackText_feedback on Feedback {
         "storageKey": null
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -129,92 +130,114 @@ fragment FeedbackText_feedback on Feedback {
             "storageKey": null
           },
           {
-            "kind": "InlineFragment",
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback",
             "selections": [
               {
-                "alias": null,
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "first",
-                    "value": 10
-                  }
-                ],
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "comments",
-                "plural": false,
+                "kind": "InlineFragment",
                 "selections": [
                   {
                     "alias": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
+                      }
+                    ],
+                    "concreteType": "CommentsConnection",
                     "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
+                    "name": "comments",
+                    "plural": false,
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": "Comment",
+                        "concreteType": "CommentsEdge",
                         "kind": "LinkedField",
-                        "name": "node",
+                        "name": "edges",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Comment",
+                            "kind": "LinkedField",
+                            "name": "node",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
                         "plural": false,
                         "selections": [
                           {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "id",
+                            "name": "hasNextPage",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
                       }
                     ],
-                    "storageKey": null
-                  },
+                    "storageKey": "comments(first:10)"
+                  }
+                ],
+                "type": "Feedback",
+                "abstractKey": null
+              }
+            ]
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
                   {
                     "alias": null,
                     "args": null,
-                    "concreteType": "PageInfo",
+                    "concreteType": "Text",
                     "kind": "LinkedField",
-                    "name": "pageInfo",
+                    "name": "body",
                     "plural": false,
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
                         "kind": "ScalarField",
-                        "name": "hasNextPage",
+                        "name": "text",
                         "storageKey": null
                       }
                     ],
                     "storageKey": null
                   }
                 ],
-                "storageKey": "comments(first:10)"
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Text",
-                "kind": "LinkedField",
-                "name": "body",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "text",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
+                "type": "Feedback",
+                "abstractKey": null
               }
-            ],
-            "type": "Feedback"
+            ]
           }
         ],
         "storageKey": null
@@ -334,7 +357,8 @@ fragment FeedbackText_feedback on Feedback {
       "storageKey": "comments(first:10)"
     }
   ],
-  "concreteType": "Feedback"
+  "type": "Feedback",
+  "abstractKey": null
 }
 
 {
@@ -362,5 +386,6 @@ fragment FeedbackText_feedback on Feedback {
       "storageKey": null
     }
   ],
-  "concreteType": "Feedback"
+  "type": "Feedback",
+  "abstractKey": null
 }

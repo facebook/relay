@@ -40,7 +40,6 @@ const SplitModuleImportTransform = require('../transforms/SplitModuleImportTrans
 const TestOperationTransform = require('../transforms/TestOperationTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
 const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequiredArgumentsTransform');
-const ValidateServerOnlyDirectivesTransform = require('../transforms/ValidateServerOnlyDirectivesTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
 import type {IRTransform} from './CompilerContext';
@@ -87,7 +86,6 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   ApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,
   GenerateIDFieldTransform.transform,
-  TestOperationTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
@@ -98,10 +96,10 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   // transform after we've inlined fragment spreads (i.e. InlineFragmentsTransform)
   // This will ensure that we don't generate nested ClientExtension nodes
   ClientExtensionsTransform.transform,
+  GenerateTypeNameTransform.transform,
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
-  GenerateTypeNameTransform.transformWithOptions({isForCodegen: true}),
-  ValidateServerOnlyDirectivesTransform.transform,
+  TestOperationTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.
@@ -112,8 +110,8 @@ const relayPrintTransforms: $ReadOnlyArray<IRTransform> = [
   ClientExtensionsTransform.transform,
   SkipClientExtensionsTransform.transform,
   SkipUnreachableNodeTransform.transform,
+  GenerateTypeNameTransform.transform,
   FlattenTransform.transformWithOptions({}),
-  GenerateTypeNameTransform.transformWithOptions({}),
   SkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
   SkipUnusedVariablesTransform.transform,

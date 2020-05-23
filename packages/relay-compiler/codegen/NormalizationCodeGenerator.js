@@ -13,6 +13,7 @@
 'use strict';
 
 const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+const partitionArray = require('../util/partitionArray');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {getStorageKey, stableCopy} = require('relay-runtime');
@@ -47,6 +48,7 @@ import type {
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
+  NormalizationTypeDiscriminator,
 } from 'relay-runtime';
 
 /**
@@ -117,7 +119,16 @@ function generateSelections(
         );
         break;
       case 'ScalarField':
-        normalizationSelections.push(...generateScalarField(selection));
+        // NOTE: Inline fragments in normalization ast have the abstractKey
+        // but we skip the corresponding ScalarField for the type discriminator
+        // selection, since it's guaranteed to be a duplicate of a parent __typename
+        // selection.
+        const abstractKey = selection.metadata?.abstractKey;
+        if (typeof abstractKey === 'string') {
+          normalizationSelections.push(generateTypeDiscriminator(abstractKey));
+        } else {
+          normalizationSelections.push(...generateScalarField(selection));
+        }
         break;
       case 'ModuleImport':
         normalizationSelections.push(generateModuleImport(selection));
@@ -221,13 +232,41 @@ function generateInlineFragment(
   node: InlineFragment,
 ): NormalizationSelection {
   const rawType = schema.getRawType(node.typeCondition);
+  const isAbstractType = schema.isAbstractType(rawType);
+  const abstractKey = isAbstractType
+    ? generateAbstractTypeRefinementKey(schema, rawType)
+    : null;
+  let selections = generateSelections(schema, node.selections);
+
+  if (isAbstractType) {
+    // Maintain a few invariants:
+    // - InlineFragment (and `selections` arrays generally) cannot be empty
+    // - Don't emit a TypeDiscriminator under an InlineFragment unless it has
+    //   a different abstractKey
+    // This means we have to handle two cases:
+    // - The inline fragment only contains a TypeDiscriminator with the same
+    //   abstractKey: replace the Fragment w the Discriminator
+    // - The inline fragment contains other selections: return all the selections
+    //   minus any Discriminators w the same key
+    const [discriminators, otherSelections] = partitionArray(
+      selections,
+      selection =>
+        selection.kind === 'TypeDiscriminator' &&
+        selection.abstractKey === abstractKey,
+    );
+    const discriminator = discriminators[0];
+    if (discriminator != null && otherSelections.length === 0) {
+      return discriminator;
+    } else {
+      selections = otherSelections;
+    }
+  }
+
   return {
     kind: 'InlineFragment',
-    selections: generateSelections(schema, node.selections),
+    selections,
     type: schema.getTypeString(rawType),
-    abstractKey: schema.isAbstractType(rawType)
-      ? generateAbstractTypeRefinementKey(schema, rawType)
-      : null,
+    abstractKey,
   };
 }
 
@@ -314,6 +353,15 @@ function generateModuleImport(node: ModuleImport): NormalizationModuleImport {
     fragmentName,
     fragmentPropName,
     kind: 'ModuleImport',
+  };
+}
+
+function generateTypeDiscriminator(
+  abstractKey: string,
+): NormalizationTypeDiscriminator {
+  return {
+    kind: 'TypeDiscriminator',
+    abstractKey,
   };
 }
 

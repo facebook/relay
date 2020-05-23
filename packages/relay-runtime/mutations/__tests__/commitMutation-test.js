@@ -35,10 +35,6 @@ const {
 
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 
-jest.mock('relay-runtime/util/RelayFeatureFlags', () => ({
-  ENABLE_UNIQUE_MUTATION_ROOT: true,
-}));
-
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
 

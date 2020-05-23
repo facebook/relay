@@ -123,6 +123,7 @@ class RelayReplaySubject<T> {
   unsubscribe() {
     if (this._subscription) {
       this._subscription.unsubscribe();
+      this._subscription = null;
     }
   }
 

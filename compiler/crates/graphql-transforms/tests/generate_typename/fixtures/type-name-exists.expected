@@ -51,6 +51,7 @@ fragment CommentFragment_comment on Comment {
 }
 
 fragment NonNodeStory_feedUnit on FeedUnit {
+  __isFeedUnit: __typename
   __typename
   id
   actor {

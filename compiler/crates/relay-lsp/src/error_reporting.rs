@@ -10,7 +10,7 @@ use crate::lsp::{
     publish_diagnostic, url_from_location, Diagnostic, DiagnosticSeverity, PublishDiagnosticsParams,
 };
 use crate::lsp::{Connection, Url};
-use crate::server::ServerState;
+use crate::state::ServerState;
 
 use relay_compiler::errors::{
     BuildProjectError, SyntaxErrorWithSource, ValidationError, ValidationErrorWithSources,
@@ -76,11 +76,11 @@ pub fn report_build_project_errors(
                         version: None,
                     };
 
-                    publish_diagnostic(params, &connection).unwrap();
+                    publish_diagnostic(params, &connection).ok();
                 }
             }
             // We ignore persist/write errors for now. In the future we can potentially show a notification.
-            BuildProjectError::PersistError(_) => {}
+            BuildProjectError::PersistErrors { .. } => {}
             BuildProjectError::WriteFileError { .. } => {}
         }
     }

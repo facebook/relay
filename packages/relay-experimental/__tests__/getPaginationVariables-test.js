@@ -30,6 +30,7 @@ describe('getPaginationVariables', () => {
           10,
           'cursor-1',
           {order_by: 'LAST_NAME'},
+          {},
           {forward: null, backward: null, path: []},
         ),
       ).toThrowError(
@@ -43,6 +44,7 @@ describe('getPaginationVariables', () => {
           10,
           'cursor-1',
           {order_by: 'LAST_NAME'},
+          {},
           // $FlowFixMe
           {forward: {count: null, cursor: 'after'}, backward: null, path: []},
         ),
@@ -60,6 +62,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {forward: {count: 'count', cursor: 'cursor'}, backward: null, path: []},
       );
       expect(variables).toEqual({
@@ -73,6 +76,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {forward: {count: 'first', cursor: 'after'}, backward: null, path: []},
       );
       expect(variables).toEqual({
@@ -86,6 +90,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {
           forward: {count: 'customCountVar', cursor: 'customCursorVar'},
           backward: null,
@@ -107,6 +112,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {
           forward: {count: 'first', cursor: 'after'},
           backward: {count: 'last', cursor: 'before'},
@@ -127,6 +133,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {
           forward: {count: 'first', cursor: 'after'},
           // $FlowFixMe
@@ -155,6 +162,7 @@ describe('getPaginationVariables', () => {
           10,
           'cursor-1',
           {order_by: 'LAST_NAME'},
+          {},
           {forward: null, backward: null, path: []},
         ),
       ).toThrowError(
@@ -168,6 +176,7 @@ describe('getPaginationVariables', () => {
           10,
           'cursor-1',
           {order_by: 'LAST_NAME'},
+          {},
           // $FlowFixMe
           {forward: null, backward: {count: null, cursor: 'before'}, path: []},
         ),
@@ -185,6 +194,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {forward: null, backward: {count: 'count', cursor: 'cursor'}, path: []},
       );
       expect(variables).toEqual({
@@ -198,6 +208,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {forward: null, backward: {count: 'last', cursor: 'before'}, path: []},
       );
       expect(variables).toEqual({
@@ -211,6 +222,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {
           forward: null,
           backward: {count: 'customCountVar', cursor: 'customCursorVar'},
@@ -232,6 +244,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {
           forward: {count: 'first', cursor: 'after'},
           backward: {count: 'last', cursor: 'before'},
@@ -252,6 +265,7 @@ describe('getPaginationVariables', () => {
         10,
         'cursor-1',
         {order_by: 'LAST_NAME'},
+        {},
         {
           // $FlowFixMe
           forward: {count: null, cursor: 'after'},

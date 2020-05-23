@@ -50,7 +50,8 @@ fragment NodeFragment on Node {
         "storageKey": "node(id:\"my-id\")"
       }
     ],
-    "concreteType": "Query"
+    "type": "Query",
+    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -80,37 +81,57 @@ fragment NodeFragment on Node {
             "storageKey": null
           },
           {
+            "if": null,
+            "kind": "Defer",
+            "label": "QueryWithFragmentWithDefer$defer$node",
+            "selections": [
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "websites",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Page",
+                "abstractKey": null
+              }
+            ]
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ],
-            "type": "User"
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "websites",
-                "storageKey": null
-              }
-            ],
-            "type": "Page"
           }
         ],
         "storageKey": "node(id:\"my-id\")"
@@ -137,6 +158,7 @@ query QueryWithFragmentWithDefer {
 }
 
 fragment NodeFragment on Node {
+  __isNode: __typename
   id
   ... on User {
     name
@@ -171,7 +193,8 @@ fragment NodeFragment on Node {
           "storageKey": null
         }
       ],
-      "type": "User"
+      "type": "User",
+      "abstractKey": null
     },
     {
       "kind": "InlineFragment",
@@ -184,8 +207,10 @@ fragment NodeFragment on Node {
           "storageKey": null
         }
       ],
-      "type": "Page"
+      "type": "Page",
+      "abstractKey": null
     }
   ],
-  "concreteType": null
+  "type": "Node",
+  "abstractKey": "__isNode"
 }

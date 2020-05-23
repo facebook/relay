@@ -74,6 +74,7 @@ const RelayConcreteNode = {
   SCALAR_HANDLE: 'ScalarHandle',
   SPLIT_OPERATION: 'SplitOperation',
   STREAM: 'Stream',
+  TYPE_DISCRIMINATOR: 'TypeDiscriminator',
   VARIABLE: 'Variable',
 };
 

@@ -15,9 +15,8 @@ use std::sync::Arc;
 
 pub fn skip_unreachable_node<'a>(program: &Program<'a>) -> Program<'a> {
     let fragments = program
-        .fragment_map()
-        .iter()
-        .map(|(k, v)| (*k, (Arc::clone(v), None)))
+        .fragments()
+        .map(|fragment| (fragment.name.item, (Arc::clone(fragment), None)))
         .collect();
 
     let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(fragments);

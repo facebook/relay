@@ -155,6 +155,7 @@ export type {
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
+  NormalizationTypeDiscriminator,
 } from './util/NormalizationNode';
 export type {NormalizationOperation} from './util/NormalizationNode';
 export type {

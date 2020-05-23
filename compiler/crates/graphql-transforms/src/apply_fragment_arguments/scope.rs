@@ -7,11 +7,9 @@
 
 #![allow(unused_imports)]
 
-use common::Location;
+use common::{Location, NamedItem};
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Argument, ConstantValue, FragmentDefinition, FragmentSpread, NamedItem, Value, Variable,
-};
+use graphql_ir::{Argument, ConstantValue, FragmentDefinition, FragmentSpread, Value, Variable};
 use interner::StringKey;
 
 #[derive(Default, Debug)]

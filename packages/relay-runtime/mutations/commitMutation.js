@@ -116,9 +116,7 @@ function commitMutation<T: MutationParameters>(
     mutation,
     variables,
     cacheConfig,
-    RelayFeatureFlags.ENABLE_UNIQUE_MUTATION_ROOT
-      ? generateUniqueClientID()
-      : undefined,
+    generateUniqueClientID(),
   );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {

@@ -42,7 +42,7 @@ impl ValidationError {
     }
 
     /// Attaches sources to the error to allow it to be printed with a code
-    /// listing without requring additional context.
+    /// listing without requiring additional context.
     pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
         let sources = self
             .locations
@@ -380,4 +380,111 @@ pub enum ValidationMessage {
 
     #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
     StreamInitialCountRequired,
+
+    #[error("{variables_string} never used in operation '{operation_name}'.")]
+    UnusedVariables {
+        variables_string: String,
+        operation_name: StringKey,
+    },
+
+    #[error("Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'.")]
+    UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
+
+    #[error("Expected the 'queryName' argument of @refetchable to be provided")]
+    QueryNameRequired,
+
+    #[error(
+        "Expected the 'queryName' argument of @refetchable to be a string, got '{query_name_value}"
+    )]
+    ExpectQueryNameToBeString { query_name_value: String },
+
+    #[error("Duplicate definition for @refetchable operation '{query_name}' from fragments '{fragment_name}' and '{previous_fragment_name}'")]
+    DuplicateRefetchableOperation {
+        query_name: StringKey,
+        fragment_name: StringKey,
+        previous_fragment_name: StringKey,
+    },
+
+    #[error("Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}")]
+    UnsupportedRefetchableFragment {
+        fragment_name: StringKey,
+        descriptions: String,
+    },
+
+    #[error("Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope.")]
+    RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a `Node {{ id: ID }}` interface and has a `node(id: ID): Node` field on the query type (the id argument may also be non-null)."
+    )]
+    InvalidNodeSchemaForRefetchableFragmentOnNode { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a 'Viewer' object type and has a 'viewer: Viewer' field on the query type."
+    )]
+    InvalidViewerSchemaForRefetchableFragmentOnViewer { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', at most once @connection can appear in a refetchable fragment."
+    )]
+    RefetchableWithMultipleConnections { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', refetchable connections cannot appear inside plural fields.",
+    )]
+    RefetchableWithConnectionInPlural { fragment_name: StringKey },
+
+    #[error("Invalid use of @refetchable with @connection in fragment '{fragment_name}', refetchable connections must use variables for the {arguments} arguments.")]
+    RefetchableWithConstConnectionArguments {
+        fragment_name: StringKey,
+        arguments: &'static str,
+    },
+
+    #[error("Invalid use of @refetchable with @connection in fragment '{fragment_name}', check that your schema defines a `directive @fetchable(field_name: String!) on OBJECT`.")]
+    InvalidRefetchDirectiveDefinition { fragment_name: StringKey },
+
+    #[error("Invalid use of @refetchable on fragment '{fragment_name}', the type '{type_name}' is @fetchable but the identifying field '{identifier_field_name}' does not have type 'ID'.")]
+    InvalidRefetchIdentifyingField {
+        fragment_name: StringKey,
+        identifier_field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error("Invalid use of @refetchable on fragment '{fragment_name}', the type '{type_name}' is @fetchable but there is no corresponding '{fetch_field_name}' field or it is invalid (expected '{fetch_field_name}(id: ID!): ${type_name}').")]
+    InvalidRefetchFetchField {
+        fetch_field_name: StringKey,
+        fragment_name: StringKey,
+        type_name: StringKey,
+    },
+    #[error("Variables are not yet supported inside @inline fragments.")]
+    InlineDataFragmentArgumentsNotSupported,
+    #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
+    InlineDataFragmentDirectivesNotSupported,
+
+    #[error("A relay_early_flush field should be defined on Query on the server schema.")]
+    UnavailableRelayEarlyFlushServerSchema,
+
+    #[error(
+        "Expected the {query_name} argument to exist in relay_early_flush on the server schema."
+    )]
+    RelayEarlyFlushSchemaWithoutQueryNameArg { query_name: StringKey },
+
+    #[error("Subscription '{subscription_name}' must have a single selection")]
+    GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
+
+    #[error("The root of subscription '{subscription_name}' must be a simple selection.")]
+    GenerateSubscriptionNameSimpleSelection { subscription_name: StringKey },
+
+    #[error(
+        "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
+    )]
+    LiveQueryTransformMissingConfig { query_name: StringKey },
+    #[error(
+        "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+    #[error(
+        "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidConfigId { query_name: StringKey },
 }

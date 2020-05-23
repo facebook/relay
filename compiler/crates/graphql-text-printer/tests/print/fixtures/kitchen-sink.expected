@@ -87,7 +87,7 @@ query NodeQuery(
     ... on User @include(if: $cond) {
       name
     }
-    ...UserFragment @include(if: $cond)
+    ...UserFragment @include(if: $cond) @arguments(size: $size)
   }
   checkinSearchQuery(query: $query) {
     query

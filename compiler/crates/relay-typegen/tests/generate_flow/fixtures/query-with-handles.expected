@@ -30,13 +30,13 @@ export type LinkedHandleFieldResponse = {|
 export type LinkedHandleFieldRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +friends: ?{|
       +count: ?number
     |},
   |} | {|
-    +__typename: ?string,
-    +id: ?string,
+    +__typename: string,
+    +id: string,
   |})
 |};
 export type LinkedHandleField = {|
@@ -56,11 +56,11 @@ export type ScalarHandleFieldResponse = {|
 export type ScalarHandleFieldRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
   |} | {|
-    +__typename: ?string,
-    +id: ?string,
+    +__typename: string,
+    +id: string,
   |})
 |};
 export type ScalarHandleField = {|

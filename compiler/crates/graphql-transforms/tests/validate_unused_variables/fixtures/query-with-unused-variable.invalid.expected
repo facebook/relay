@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query QueryWithUnusedVariable($unused: ID) {
+  node {
+    __typename
+  }
+}
+
+query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
+  node {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+Variable '$unused' is never used in operation 'QueryWithUnusedVariable'.:
+query-with-unused-variable.invalid.graphql:1:31:
+query QueryWithUnusedVariable($unused: ID) {
+
+
+Variables '$unused', '$antother_unused' are never used in operation 'QueryWithUnusedVariables'.:
+query-with-unused-variable.invalid.graphql:7:32:
+query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
+
+
+query-with-unused-variable.invalid.graphql:7:45:
+query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {

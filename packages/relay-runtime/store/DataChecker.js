@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
@@ -61,6 +62,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
 const {
   getModuleOperationKey,
@@ -296,16 +298,40 @@ class DataChecker {
             this._traverseSelections(selection.selections, dataID);
           }
           break;
-        case INLINE_FRAGMENT:
-          if (selection.abstractKey == null) {
+        case INLINE_FRAGMENT: {
+          const {abstractKey} = selection;
+          if (abstractKey == null) {
+            // concrete type refinement: only check data if the type exactly matches
             const typeName = this._mutator.getType(dataID);
-            if (typeName != null && typeName === selection.type) {
+            if (typeName === selection.type) {
               this._traverseSelections(selection.selections, dataID);
             }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            // Abstract refinement: check data depending on whether the type
+            // conforms to the interface/union or not:
+            // - Type known to _not_ implement the interface: don't check the selections.
+            // - Type is known _to_ implement the interface: check selections.
+            // - Unknown whether the type implements the interface: don't check the selections
+            //   and treat the data as missing; we do this because the Relay Compiler
+            //   guarantees that the type discriminator will always be fetched.
+            const implementsInterface = this._mutator.getValue(
+              dataID,
+              abstractKey,
+            );
+            if (implementsInterface === true) {
+              this._traverseSelections(selection.selections, dataID);
+            } else if (implementsInterface == null) {
+              // unsure if the type implements the interface: data is
+              // missing so don't bother reading the fragment
+              this._handleMissing();
+            } // else false: known to not implement the interface
           } else {
+            // legacy behavior for abstract refinements: always check even
+            // if the type doesn't conform
             this._traverseSelections(selection.selections, dataID);
           }
           break;
+        }
         case LINKED_HANDLE:
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
@@ -340,6 +366,20 @@ class DataChecker {
           const recordWasMissing = this._recordWasMissing;
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
+          break;
+        case TYPE_DISCRIMINATOR:
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const {abstractKey} = selection;
+            const implementsInterface = this._mutator.getValue(
+              dataID,
+              abstractKey,
+            );
+            if (implementsInterface == null) {
+              // unsure if the type implements the interface: data is
+              // missing
+              this._handleMissing();
+            } // else: if it does or doesn't implement, we don't need to check or skip anything else
+          }
           break;
         default:
           (selection: empty);

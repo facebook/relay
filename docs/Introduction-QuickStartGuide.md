@@ -38,7 +38,7 @@ type Query {
 }
 ```
 
-Additionally, we will be using [Flow](https://flow.org/) inside our Javascript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.
+Additionally, we will be using [Flow](https://flow.org/) inside our JavaScript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.
 
 ## Relay Environment
 
@@ -74,7 +74,7 @@ function fetchQuery(
 
 const environment = new Environment({
   network: Network.create(fetchQuery),
-  store: new Store(new RecordSource()),  
+  store: new Store(new RecordSource()),
 });
 
 export default environment;
@@ -93,7 +93,7 @@ To start, let's assume we just want to render the user id on the screen. From ou
 query UserQuery {
   viewer {
     id
-  }  
+  }
 }
 ```
 
@@ -115,7 +115,7 @@ export default class App extends React.Component {
           query UserQuery {
             viewer {
               id
-            }  
+            }
           }
         `}
         variables={{}}
@@ -182,7 +182,7 @@ export default class UserTodoList extends React.Component<Props> {
           query UserQuery($userID: ID!) {
             node(id: $userID) {
               id
-            }  
+            }
           }
         `}
         variables={{userID}}
@@ -412,7 +412,7 @@ export default class ViewerTodoList extends React.Component {
             viewer {
               id
               # Re-use the fragment here
-              ...TodoList_userTodoData  
+              ...TodoList_userTodoData
             }
           }
         `}

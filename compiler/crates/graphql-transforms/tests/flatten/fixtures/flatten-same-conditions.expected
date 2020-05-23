@@ -26,6 +26,7 @@ fragment NestedFragment2 on User {
 }
 
 fragment UserFragment on User {
-  ...NestedFragment @include(if: $conditional)...NestedFragment2 @include(if: $conditional)
+  ...NestedFragment @include(if: $conditional)
+  ...NestedFragment2 @include(if: $conditional)
   name
 }

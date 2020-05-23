@@ -11,28 +11,63 @@
 
 mod flow;
 
+use common::NamedItem;
 use flow::{print_type, Prop, AST};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::RelayDirective;
-use indexmap::{IndexMap, IndexSet};
+use graphql_transforms::{RelayDirective, MATCH_CONSTANTS};
+use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
 use std::fmt::{Result, Write};
 use std::hash::Hash;
 
-pub fn generate_fragment_type(fragment: &FragmentDefinition, schema: &Schema) -> String {
-    let mut generator = TypeGenerator::new(schema);
+lazy_static! {
+    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
+    static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
+    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
+    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
+    static ref VARIABLES: StringKey = "variables".intern();
+    static ref RESPONSE: StringKey = "response".intern();
+    static ref KEY_DATA: StringKey = "$data".intern();
+    static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref TYPE_ID: StringKey = "ID".intern();
+    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref TYPE_FLOAT: StringKey = "Float".intern();
+    static ref TYPE_INT: StringKey = "Int".intern();
+    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    static ref TYPE_URL: StringKey = "Url".intern();
+    static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
+}
+
+pub fn generate_fragment_type(
+    fragment: &FragmentDefinition,
+    schema: &Schema,
+    enum_module_suffix: &Option<String>,
+    optional_input_fields: &[StringKey],
+) -> String {
+    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
     generator.generate_fragment_type(fragment).unwrap();
     generator.result
 }
 
-pub fn generate_operation_type(operation: &OperationDefinition, schema: &Schema) -> String {
-    let mut generator = TypeGenerator::new(schema);
-    generator.generate_operation_type(operation).unwrap();
+pub fn generate_operation_type(
+    typegen_operation: &OperationDefinition,
+    normalization_operation: &OperationDefinition,
+    schema: &Schema,
+    enum_module_suffix: &Option<String>,
+    optional_input_fields: &[StringKey],
+) -> String {
+    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    generator
+        .generate_operation_type(typegen_operation, normalization_operation)
+        .unwrap();
     generator.result
 }
 
@@ -41,16 +76,22 @@ enum GeneratedInputObject {
     Resolved(AST),
 }
 
-struct TypeGenerator<'schema> {
+struct TypeGenerator<'schema, 'config> {
     result: String,
     schema: &'schema Schema,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
+    enum_module_suffix: &'config Option<String>,
+    optional_input_fields: &'config [StringKey],
 }
-impl<'schema> TypeGenerator<'schema> {
-    fn new(schema: &'schema Schema) -> Self {
+impl<'schema, 'config> TypeGenerator<'schema, 'config> {
+    fn new(
+        schema: &'schema Schema,
+        enum_module_suffix: &'config Option<String>,
+        optional_input_fields: &'config [StringKey],
+    ) -> Self {
         Self {
             result: String::new(),
             schema,
@@ -58,19 +99,36 @@ impl<'schema> TypeGenerator<'schema> {
             generated_input_object_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
+            enum_module_suffix,
+            optional_input_fields,
         }
     }
 
-    fn generate_operation_type(&mut self, node: &OperationDefinition) -> Result {
-        let input_variables_identifier = format!("{}Variables", node.name.item).intern();
-        let response_identifier = format!("{}Response", node.name.item).intern();
+    fn generate_operation_type(
+        &mut self,
+        typegen_operation: &OperationDefinition,
+        normalization_operation: &OperationDefinition,
+    ) -> Result {
+        let input_variables_identifier =
+            format!("{}Variables", typegen_operation.name.item).intern();
+        let response_identifier = format!("{}Response", typegen_operation.name.item).intern();
 
-        let input_variables_type = self.generate_input_variables_type(node);
+        let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
-        let selections = self.visit_selections(&node.selections);
+        let selections = self.visit_selections(&typegen_operation.selections);
         let response_type = self.selections_to_babel(selections, false, None);
 
+        let raw_response_type =
+            if cfg!(raw_response) && has_raw_response_type_directive(normalization_operation) {
+                let raw_response_selections =
+                    self.raw_response_visit_selections(&normalization_operation.selections);
+                Some(self.raw_response_selections_to_babel(raw_response_selections, None))
+            } else {
+                None
+            };
+
         self.write_fragment_imports()?;
+        self.write_enum_definitions()?;
         self.write_input_object_types()?;
         writeln!(
             self.result,
@@ -78,7 +136,6 @@ impl<'schema> TypeGenerator<'schema> {
             input_variables_identifier,
             print_type(&input_variables_type)
         )?;
-        self.write_enum_definitions()?;
         writeln!(
             self.result,
             "export type {} = {};",
@@ -86,27 +143,42 @@ impl<'schema> TypeGenerator<'schema> {
             print_type(&response_type)
         )?;
 
-        let operation_types = vec![
+        let mut operation_types = vec![
             Prop {
-                key: "variables".intern(),
+                key: *VARIABLES,
                 read_only: false,
-                other_comment: false,
                 optional: false,
                 value: AST::Identifier(input_variables_identifier),
             },
             Prop {
-                key: "response".intern(),
+                key: *RESPONSE,
                 read_only: false,
-                other_comment: false,
                 optional: false,
                 value: AST::Identifier(response_identifier),
             },
         ];
 
+        if let Some(raw_response_type) = raw_response_type {
+            let raw_response_identifier =
+                format!("{}RawResponse", typegen_operation.name.item).intern();
+            writeln!(
+                self.result,
+                "export type {} = {};",
+                raw_response_identifier,
+                print_type(&raw_response_type)
+            )?;
+            operation_types.push(Prop {
+                key: *KEY_RAW_RESPONSE,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(raw_response_identifier),
+            })
+        }
+
         writeln!(
             self.result,
             "export type {} = {};",
-            node.name.item,
+            typegen_operation.name.item,
             print_type(&AST::ExactObject(operation_types))
         )?;
         Ok(())
@@ -139,24 +211,25 @@ impl<'schema> TypeGenerator<'schema> {
 
         let ref_type_name = format!("{}$key", node.name.item);
         let ref_type_data_property = Prop {
-            key: "$data".intern(),
+            key: *KEY_DATA,
             optional: true,
             read_only: true,
-            other_comment: false,
             value: AST::Identifier(format!("{}$data", node.name.item).intern()),
         };
         let old_fragment_type_name = format!("{}$ref", node.name.item).intern();
         let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
         let ref_type_fragment_ref_property = Prop {
-            key: "$fragmentRefs".intern(),
+            key: *KEY_FRAGMENT_REFS,
             optional: false,
             read_only: true,
-            other_comment: false,
             value: AST::Identifier(old_fragment_type_name),
         };
         let is_plural_fragment = is_plural(node);
-        let ref_type =
+        let mut ref_type =
             AST::InexactObject(vec![ref_type_data_property, ref_type_fragment_ref_property]);
+        if is_plural_fragment {
+            ref_type = AST::ReadOnlyArray(Box::new(ref_type));
+        }
 
         let data_type_name = format!("{}$data", node.name.item);
         let data_type = node.name.item.lookup();
@@ -225,9 +298,11 @@ impl<'schema> TypeGenerator<'schema> {
                 Selection::InlineFragment(inline_fragment) => {
                     self.visit_inline_fragment(&mut type_selections, inline_fragment)
                 }
-                Selection::LinkedField(linked_field) => {
-                    self.visit_linked_field(&mut type_selections, linked_field)
-                }
+                Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
+                    &mut type_selections,
+                    linked_field,
+                    Self::visit_selections,
+                ),
                 Selection::ScalarField(scalar_field) => {
                     self.visit_scalar_field(&mut type_selections, scalar_field)
                 }
@@ -265,6 +340,56 @@ impl<'schema> TypeGenerator<'schema> {
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
     ) {
+        if let Some(module_directive) = inline_fragment
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+        {
+            let name = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.name_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+            type_selections.push(TypeSelection {
+                key: *FRAGMENT_PROP_NAME,
+                schema_name: None,
+                value: Some(AST::Nullable(Box::new(AST::String))),
+                node_type: None,
+                conditional: true,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                kind: None,
+                document_name: None,
+            });
+            type_selections.push(TypeSelection {
+                key: *MODULE_COMPONENT,
+                schema_name: None,
+                value: Some(AST::Nullable(Box::new(AST::String))),
+                node_type: None,
+                conditional: true,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                kind: None,
+                document_name: None,
+            });
+            self.used_fragments.insert(name);
+            type_selections.push(TypeSelection {
+                key: format!("__fragments_{}", name).intern(),
+                schema_name: None,
+                value: None,
+                node_type: None,
+                conditional: false,
+                concrete_type: None,
+                ref_: Some(name),
+                node_selections: None,
+                kind: None,
+                document_name: None,
+            });
+            return;
+        }
         let mut selections = self.visit_selections(&inline_fragment.selections);
         if let Some(type_condition) = inline_fragment.type_condition {
             for selection in selections.iter_mut() {
@@ -278,10 +403,27 @@ impl<'schema> TypeGenerator<'schema> {
         type_selections.append(&mut selections);
     }
 
-    fn visit_linked_field(
+    fn raw_response_visit_inline_fragment(
+        &mut self,
+        type_selections: &mut Vec<TypeSelection>,
+        inline_fragment: &InlineFragment,
+    ) {
+        let mut selections = self.raw_response_visit_selections(&inline_fragment.selections);
+        if let Some(type_condition) = inline_fragment.type_condition {
+            for selection in selections.iter_mut() {
+                if !type_condition.is_abstract_type() {
+                    selection.concrete_type = Some(type_condition);
+                }
+            }
+        }
+        type_selections.append(&mut selections);
+    }
+
+    fn gen_visit_linked_field(
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
         linked_field: &LinkedField,
+        mut visit_selections_fn: impl FnMut(&mut Self, &[Selection]) -> Vec<TypeSelection>,
     ) {
         let field = self.schema.field(linked_field.definition.item);
         let schema_name = field.name;
@@ -290,7 +432,7 @@ impl<'schema> TypeGenerator<'schema> {
         } else {
             schema_name
         };
-        let selections = self.visit_selections(&linked_field.selections);
+        let selections = visit_selections_fn(self, &linked_field.selections);
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
@@ -299,7 +441,7 @@ impl<'schema> TypeGenerator<'schema> {
             conditional: false,
             concrete_type: None,
             ref_: None,
-            node_selections: Some(selections_to_map(&self.schema, selections, true)),
+            node_selections: Some(selections_to_map(selections, true)),
             kind: None,
             document_name: None,
         });
@@ -355,12 +497,19 @@ impl<'schema> TypeGenerator<'schema> {
                     .or_insert_with(Vec::new)
                     .push(selection);
             } else {
-                let next_sel = if let Some(previous_sel) = base_fields.get(&selection.key) {
-                    merge_selection(Some(selection), previous_sel.clone(), true)
-                } else {
-                    selection
+                let key = TypeSelectionKey {
+                    key: selection.key,
+                    concrete_type: None,
                 };
-                base_fields.insert(next_sel.key, next_sel);
+                match base_fields.entry(key) {
+                    Entry::Occupied(entry) => {
+                        let previous_sel = entry.get().clone();
+                        *entry.into_mut() = merge_selection(Some(selection), previous_sel, true);
+                    }
+                    Entry::Vacant(entry) => {
+                        entry.insert(selection);
+                    }
+                }
             }
         }
 
@@ -406,19 +555,16 @@ impl<'schema> TypeGenerator<'schema> {
                         key: *typename_alias,
                         read_only: true,
                         optional: false,
-                        other_comment: true,
-                        value: AST::StringLiteral("%other".intern()),
+                        value: AST::OtherEnumValue,
                     })
                     .collect(),
             );
         } else {
-            let mut selection_map =
-                selections_to_map(&self.schema, hashmap_into_value_vec(base_fields), false);
+            let mut selection_map = selections_to_map(hashmap_into_value_vec(base_fields), false);
             for concrete_type_selections in by_concrete_type.values() {
                 selection_map = merge_selections(
                     selection_map,
                     selections_to_map(
-                        &self.schema,
                         concrete_type_selections
                             .iter()
                             .map(|sel| TypeSelection {
@@ -457,10 +603,9 @@ impl<'schema> TypeGenerator<'schema> {
                 .map(|mut props: Vec<Prop>| {
                     if let Some(fragment_type_name) = fragment_type_name {
                         props.push(Prop {
-                            key: "$refType".intern(),
+                            key: *KEY_REF_TYPE,
                             optional: false,
                             read_only: true,
-                            other_comment: false,
                             value: AST::Identifier(fragment_type_name),
                         });
                     }
@@ -472,6 +617,60 @@ impl<'schema> TypeGenerator<'schema> {
                 })
                 .collect(),
         )
+    }
+
+    fn raw_response_selections_to_babel(
+        &mut self,
+        selections: Vec<TypeSelection>,
+        concrete_type: Option<Type>,
+    ) -> AST {
+        let mut base_fields = Vec::new();
+        let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
+
+        for selection in selections {
+            if let Some(concrete_type) = selection.concrete_type {
+                by_concrete_type
+                    .entry(concrete_type)
+                    .or_insert_with(Vec::new)
+                    .push(selection);
+            } else {
+                base_fields.push(selection);
+            }
+        }
+
+        let mut types: Vec<AST> = Vec::new();
+
+        if !by_concrete_type.is_empty() {
+            let base_fields_map = selections_to_map(base_fields.clone(), false);
+            for (concrete_type, selections) in by_concrete_type {
+                let merged_selections = hashmap_into_value_vec(merge_selections(
+                    base_fields_map.clone(),
+                    selections_to_map(selections, false),
+                    false,
+                ));
+                types.push(AST::ExactObject(
+                    merged_selections
+                        .into_iter()
+                        .map(|selection| {
+                            self.raw_response_make_prop(selection, Some(concrete_type))
+                        })
+                        .collect(),
+                ));
+                // appendLocal3DPayload(types, mergedSeletions, schema, state, concreteType);
+            }
+        }
+
+        if !base_fields.is_empty() {
+            types.push(AST::ExactObject(
+                base_fields
+                    .into_iter()
+                    .map(|selection| self.raw_response_make_prop(selection, concrete_type))
+                    .collect(),
+            ))
+            // appendLocal3DPayload(types, baseFields, schema, state, nodeTypeName);
+        }
+
+        AST::Union(types)
     }
 
     fn make_prop(
@@ -496,7 +695,7 @@ impl<'schema> TypeGenerator<'schema> {
                 None,
             );
             self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some("__typename".intern()) {
+        } else if schema_name == Some(*KEY_TYPENAME) {
             if let Some(concrete_type) = concrete_type {
                 AST::StringLiteral(self.schema.get_type_name(concrete_type))
             } else {
@@ -509,7 +708,58 @@ impl<'schema> TypeGenerator<'schema> {
             key,
             read_only: true,
             optional: conditional,
-            other_comment: false,
+            value,
+        }
+    }
+
+    fn raw_response_make_prop(
+        &mut self,
+        type_selection: TypeSelection,
+        concrete_type: Option<Type>,
+    ) -> Prop {
+        let TypeSelection {
+            key,
+            schema_name,
+            value,
+            conditional,
+            node_type,
+            node_selections,
+            // kind,
+            ..
+        } = type_selection;
+        // if (kind === 'ModuleImport') {
+        //   return t.objectTypeSpreadProperty(
+        //     t.genericTypeAnnotation(t.identifier(key)),
+        //   );
+        // }
+
+        let value = if let Some(node_type) = node_type {
+            let inner_concrete_type = if node_type.is_list()
+                || node_type.is_non_null()
+                || node_type.inner().is_abstract_type()
+            {
+                None
+            } else {
+                Some(node_type.inner())
+            };
+            let object_props = self.raw_response_selections_to_babel(
+                hashmap_into_value_vec(node_selections.unwrap()),
+                inner_concrete_type,
+            );
+            self.transform_scalar_type(&node_type, Some(object_props))
+        } else if schema_name == Some(*KEY_TYPENAME) {
+            if let Some(concrete_type) = concrete_type {
+                AST::StringLiteral(self.schema.get_type_name(concrete_type))
+            } else {
+                value.unwrap()
+            }
+        } else {
+            value.unwrap()
+        };
+        Prop {
+            key,
+            read_only: true,
+            optional: conditional,
             value,
         }
     }
@@ -569,13 +819,13 @@ impl<'schema> TypeGenerator<'schema> {
         // }
 
         let scalar_name = self.schema.scalar(scalar).name;
-        if scalar_name == "ID".intern() || scalar_name == "String".intern() {
+        if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
-        } else if scalar_name == "Float".intern() || scalar_name == "Int".intern() {
+        } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
             AST::Number
-        } else if scalar_name == "Boolean".intern() {
+        } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if scalar_name == "Url".intern() {
+        } else if scalar_name == *TYPE_URL {
             // TODO make custom scalars configurable
             AST::String
         } else {
@@ -619,18 +869,27 @@ impl<'schema> TypeGenerator<'schema> {
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
-            let mut members: Vec<AST> = enum_type
-                .values
-                .iter()
-                .map(|enum_value| AST::StringLiteral(*enum_value))
-                .collect();
-            members.push(AST::StringLiteral("%future added value".intern()));
-            writeln!(
-                self.result,
-                "export type {} = {};",
-                enum_type.name,
-                print_type(&AST::Union(members))
-            )?;
+            if let Some(enum_module_suffix) = self.enum_module_suffix {
+                writeln!(
+                    self.result,
+                    "import type {{ {enum_name} }} from \"{enum_name}{enum_suffix}\";",
+                    enum_name = enum_type.name,
+                    enum_suffix = enum_module_suffix
+                )?;
+            } else {
+                let mut members: Vec<AST> = enum_type
+                    .values
+                    .iter()
+                    .map(|enum_value| AST::StringLiteral(enum_value.value))
+                    .collect();
+                members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+                writeln!(
+                    self.result,
+                    "export type {} = {};",
+                    enum_type.name,
+                    print_type(&AST::Union(members))
+                )?;
+            }
         }
         Ok(())
     }
@@ -643,7 +902,6 @@ impl<'schema> TypeGenerator<'schema> {
                     key: var_def.name.item,
                     read_only: false,
                     optional: !var_def.type_.is_non_null(),
-                    other_comment: false,
                     value: self.transform_input_type(&var_def.type_),
                 })
                 .collect(),
@@ -681,7 +939,7 @@ impl<'schema> TypeGenerator<'schema> {
             }
             TypeReference::Named(named_type) => match named_type {
                 Type::Scalar(scalar) => self.transform_graphql_scalar_type(*scalar),
-                Type::Enum(_enum) => AST::TODO("Enum".to_string()),
+                Type::Enum(enum_id) => self.transform_graphql_enum_type(*enum_id),
                 Type::InputObject(input_object_id) => {
                     let input_object = self.schema.input_object(*input_object_id);
                     if !self
@@ -697,8 +955,8 @@ impl<'schema> TypeGenerator<'schema> {
                             .map(|field| Prop {
                                 key: field.name,
                                 read_only: false,
-                                optional: !field.type_.is_non_null(),
-                                other_comment: false,
+                                optional: !field.type_.is_non_null()
+                                    || self.optional_input_fields.contains(&field.name),
                                 value: self.transform_input_type(&field.type_),
                             })
                             .collect();
@@ -715,6 +973,42 @@ impl<'schema> TypeGenerator<'schema> {
             },
             TypeReference::NonNull(_) => panic!("Unexpected NonNull"),
         }
+    }
+
+    fn raw_response_visit_selections(&mut self, selections: &[Selection]) -> Vec<TypeSelection> {
+        let mut type_selections = Vec::new();
+        for selection in selections {
+            match selection {
+                Selection::FragmentSpread(_) => {
+                    panic!("There should be no fragment spreads in the raw response IR.");
+                }
+                Selection::InlineFragment(inline_fragment) => {
+                    // TODO if has client extension directive, mark as conditional:
+                    //
+                    //   return flattenArray(
+                    //     /* $FlowFixMe: selections have already been transformed */
+                    //     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+                    //   ).map(sel => ({
+                    //     ...sel,
+                    //     conditional: true,
+                    //   }));
+                    self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)
+                }
+                Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
+                    &mut type_selections,
+                    linked_field,
+                    Self::raw_response_visit_selections,
+                ),
+                Selection::ScalarField(scalar_field) => {
+                    self.visit_scalar_field(&mut type_selections, scalar_field)
+                }
+                Selection::Condition(condition) => {
+                    type_selections
+                        .extend(self.raw_response_visit_selections(&condition.selections));
+                }
+            }
+        }
+        type_selections
     }
 }
 
@@ -734,14 +1028,19 @@ struct TypeSelection {
 impl TypeSelection {
     fn is_typename(&self) -> bool {
         if let Some(schema_name) = self.schema_name {
-            schema_name == "__typename".intern()
+            schema_name == *KEY_TYPENAME
         } else {
             false
         }
     }
 }
 
-type TypeSelectionMap = IndexMap<StringKey, TypeSelection>;
+#[derive(Eq, Hash, PartialEq, Clone, Copy, Debug)]
+struct TypeSelectionKey {
+    key: StringKey,
+    concrete_type: Option<Type>,
+}
+type TypeSelectionMap = IndexMap<TypeSelectionKey, TypeSelection>;
 
 fn merge_selection(
     a: Option<TypeSelection>,
@@ -770,41 +1069,36 @@ fn merge_selection(
 }
 
 fn merge_selections(
-    a: TypeSelectionMap,
+    mut a: TypeSelectionMap,
     b: TypeSelectionMap,
     should_set_conditional: bool,
 ) -> TypeSelectionMap {
-    let mut merged: TypeSelectionMap = Default::default();
-    merged.extend(a);
     for (key, value) in b {
-        merged.insert(
+        a.insert(
             key,
-            merge_selection(merged.get(&key).cloned(), value, should_set_conditional),
+            merge_selection(a.get(&key).cloned(), value, should_set_conditional),
         );
     }
-    merged
+    a
 }
 
-fn is_plural(_node: &FragmentDefinition) -> bool {
-    // TODO: return Boolean(node.metadata && node.metadata.plural);
-    false
+fn is_plural(node: &FragmentDefinition) -> bool {
+    RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
 }
 
-fn selections_to_map(
-    schema: &Schema,
-    selections: Vec<TypeSelection>,
-    append_type: bool,
-) -> TypeSelectionMap {
+fn selections_to_map(selections: Vec<TypeSelection>, append_type: bool) -> TypeSelectionMap {
     let mut map: TypeSelectionMap = Default::default();
     for selection in selections {
         let key = if append_type {
-            if let Some(concrete_type) = selection.concrete_type {
-                format!("{}::{}", selection.key, schema.get_type_name(concrete_type)).intern()
-            } else {
-                selection.key
+            TypeSelectionKey {
+                key: selection.key,
+                concrete_type: selection.concrete_type,
             }
         } else {
-            selection.key
+            TypeSelectionKey {
+                key: selection.key,
+                concrete_type: None,
+            }
         };
 
         map.insert(
@@ -836,7 +1130,7 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
                 .collect(),
         );
         result.push(TypeSelection {
-            key: "$fragmentRefs".intern(),
+            key: *KEY_FRAGMENT_REFS,
             conditional: false,
             value: Some(value),
             schema_name: None,
@@ -857,4 +1151,11 @@ fn hashmap_into_value_vec<K: Hash + Eq, V>(map: IndexMap<K, V>) -> Vec<V> {
 
 fn get_old_fragment_type_name(name: StringKey) -> StringKey {
     format!("{}$ref", name).intern()
+}
+
+fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
+    operation
+        .directives
+        .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
+        .is_some()
 }

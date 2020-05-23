@@ -6,19 +6,22 @@
  */
 
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, InlineFragment, NamedItem, OperationDefinition, Program,
-    Selection, Transformed, TransformedValue, Transformer, Value,
+    Argument, ConstantValue, Directive, InlineFragment, OperationDefinition, Program, Selection,
+    Transformed, TransformedValue, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 
 use interner::{Intern, StringKey};
 use std::sync::Arc;
 
-pub fn split_module_import<'s>(program: &Program<'s>) -> Program<'s> {
-    let mut transform = SplitModuleImportTransform::new(program);
+pub fn split_module_import<'s>(
+    program: &Program<'s>,
+    base_fragment_names: &FnvHashSet<StringKey>,
+) -> Program<'s> {
+    let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -30,21 +33,23 @@ struct SplitOperationMetaData {
 }
 type SplitOperations = FnvHashMap<StringKey, (SplitOperationMetaData, OperationDefinition)>;
 
-pub struct SplitModuleImportTransform<'s> {
+pub struct SplitModuleImportTransform<'s, 'a> {
     program: &'s Program<'s>,
     split_operations: SplitOperations,
+    base_fragment_names: &'a FnvHashSet<StringKey>,
 }
 
-impl<'s> SplitModuleImportTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'s, 'a> SplitModuleImportTransform<'s, 'a> {
+    fn new(program: &'s Program<'s>, base_fragment_names: &'a FnvHashSet<StringKey>) -> Self {
         Self {
             program,
             split_operations: Default::default(),
+            base_fragment_names,
         }
     }
 }
 
-impl<'s> Transformer for SplitModuleImportTransform<'s> {
+impl<'s, 'a> Transformer for SplitModuleImportTransform<'s, 'a> {
     const NAME: &'static str = "SplitModuleImportTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -84,6 +89,12 @@ impl<'s> Transformer for SplitModuleImportTransform<'s> {
                 .value
                 .item
                 .expect_string_literal();
+
+            // We do not need to to write normalization files for base fragments
+            if self.base_fragment_names.contains(&name) {
+                return self.default_transform_inline_fragment(fragment);
+            }
+
             let source_document = directive
                 .arguments
                 .named(MATCH_CONSTANTS.source_document_arg)

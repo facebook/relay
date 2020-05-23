@@ -20,9 +20,9 @@ use graphql_ir::{
 use interner::{Intern, StringKey};
 use std::sync::Arc;
 
-pub fn transform_connections<'s, TConnectionInterface: ConnectionInterface>(
+pub fn transform_connections<'s>(
     program: &Program<'s>,
-    connection_interface: &TConnectionInterface,
+    connection_interface: &ConnectionInterface,
 ) -> Program<'s> {
     let mut transform = ConnectionTransform::new(program, connection_interface);
     transform
@@ -30,8 +30,8 @@ pub fn transform_connections<'s, TConnectionInterface: ConnectionInterface>(
         .replace_or_else(|| program.clone())
 }
 
-struct ConnectionTransform<'s, TConnectionInterface: ConnectionInterface> {
-    connection_interface: &'s TConnectionInterface,
+struct ConnectionTransform<'s> {
+    connection_interface: &'s ConnectionInterface,
     connection_constants: ConnectionConstants,
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
@@ -41,8 +41,8 @@ struct ConnectionTransform<'s, TConnectionInterface: ConnectionInterface> {
     program: &'s Program<'s>,
 }
 
-impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TConnectionInterface> {
-    fn new(program: &'s Program<'s>, connection_interface: &'s TConnectionInterface) -> Self {
+impl<'s> ConnectionTransform<'s> {
+    fn new(program: &'s Program<'s>, connection_interface: &'s ConnectionInterface) -> Self {
         let handle_field_constants = HandleFieldConstants::default();
         Self {
             connection_constants: ConnectionConstants::default(),
@@ -81,7 +81,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
         let edges_schema_field_id = schema
             .named_field(
                 connection_field_type,
-                self.connection_interface.edges_selection_name(),
+                self.connection_interface.edges_selection_name,
             )
             .expect("Expected presence of edges field to have been previously validated.");
         let edges_schema_field = schema.field(edges_schema_field_id);
@@ -123,7 +123,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
         let page_info_schema_field_id = schema
             .named_field(
                 connection_field_type,
-                self.connection_interface.page_info_selection_name(),
+                self.connection_interface.page_info_selection_name,
             )
             .expect("Expected presence of page_info field to have been previously validated.");
         let page_info_schema_field = schema.field(page_info_schema_field_id);
@@ -271,9 +271,7 @@ impl<'s, TConnectionInterface: ConnectionInterface> ConnectionTransform<'s, TCon
     }
 }
 
-impl<'s, TConnectionInterface: ConnectionInterface> Transformer
-    for ConnectionTransform<'s, TConnectionInterface>
-{
+impl<'s> Transformer for ConnectionTransform<'s> {
     const NAME: &'static str = "ConnectionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

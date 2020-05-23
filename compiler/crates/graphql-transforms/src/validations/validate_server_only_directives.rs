@@ -169,6 +169,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
     }
 
     fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
+        let current_root_client_selection = self.current_root_client_selection;
         if self.current_root_client_selection.is_none()
             && self
                 .program
@@ -187,7 +188,9 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         {
             self.is_current_fragment_client_only = false;
         }
-        self.default_validate_linked_field(field)
+        let result = self.default_validate_linked_field(field);
+        self.current_root_client_selection = current_root_client_selection;
+        result
     }
 
     fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {

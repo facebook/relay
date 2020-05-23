@@ -5,14 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashMap;
+use common::NamedItem;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, NamedItem, OperationDefinition, Program, Value, Variable,
-    Visitor,
+    FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
 use interner::StringKey;
+use std::iter::FromIterator;
 
-type VariableMap = FnvHashMap<StringKey, Variable>;
+pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
 
 pub struct InferVariablesVisitor<'s> {
@@ -35,29 +36,48 @@ impl<'s> InferVariablesVisitor<'s> {
     /// referenced by each fragment, ie the union of all root variables used in the
     /// fragment and any fragments it transitively spreads.
     pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
-        let mut visitor = VaraiblesVisitor::new(self.program, &mut self.visited_fragments);
+        let mut visitor = VariablesVisitor::new(
+            self.program,
+            &mut self.visited_fragments,
+            Default::default(),
+        );
         visitor.visit_operation(operation);
         visitor.variable_map
     }
+
+    pub fn infer_fragment_variables(&mut self, fragment: &FragmentDefinition) -> VariableMap {
+        let mut visitor = VariablesVisitor::new(
+            self.program,
+            &mut self.visited_fragments,
+            Default::default(),
+        );
+        visitor.infer_fragment_variables(fragment)
+    }
 }
 
-struct VaraiblesVisitor<'s> {
+struct VariablesVisitor<'s> {
     variable_map: VariableMap,
     visited_fragments: &'s mut Visited,
     program: &'s Program<'s>,
+    local_variables: FnvHashSet<StringKey>,
 }
 
-impl<'s> VaraiblesVisitor<'s> {
-    fn new(program: &'s Program<'s>, visited_fragments: &'s mut Visited) -> Self {
+impl<'s> VariablesVisitor<'s> {
+    fn new(
+        program: &'s Program<'s>,
+        visited_fragments: &'s mut Visited,
+        local_variables: FnvHashSet<StringKey>,
+    ) -> Self {
         Self {
             variable_map: Default::default(),
             visited_fragments,
             program,
+            local_variables,
         }
     }
 }
 
-impl<'s> VaraiblesVisitor<'s> {
+impl<'s> VariablesVisitor<'s> {
     /// Determine the set of root variables referenced locally in each
     /// fragment. Note that RootArgumentDefinitions in the fragment's
     /// argumentDefinitions can contain spurious entries for legacy
@@ -74,7 +94,16 @@ impl<'s> VaraiblesVisitor<'s> {
             // fragment.
             self.visited_fragments
                 .insert(fragment.name.item, Default::default());
-            let mut visitor = VaraiblesVisitor::new(self.program, self.visited_fragments);
+
+            // Avoid collecting local variables usages as root varaibles
+            let local_variables = FnvHashSet::from_iter(
+                fragment
+                    .variable_definitions
+                    .iter()
+                    .map(|var| var.name.item),
+            );
+            let mut visitor =
+                VariablesVisitor::new(self.program, self.visited_fragments, local_variables);
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
             self.visited_fragments
@@ -84,8 +113,8 @@ impl<'s> VaraiblesVisitor<'s> {
     }
 }
 
-impl<'s> Visitor for VaraiblesVisitor<'s> {
-    const NAME: &'static str = "VaraiblesVisitor";
+impl<'s> Visitor for VariablesVisitor<'s> {
+    const NAME: &'static str = "VariablesVisitor";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
 
@@ -101,13 +130,15 @@ impl<'s> Visitor for VaraiblesVisitor<'s> {
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
                 if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment.variable_definitions.named(var.name.item) {
-                        self.variable_map
-                            .entry(var.name.item)
-                            .or_insert_with(|| Variable {
-                                name: var.name,
-                                type_: def.type_.clone(),
-                            });
+                    if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
+                        if !self.local_variables.contains(&var.name.item) {
+                            self.variable_map
+                                .entry(var.name.item)
+                                .or_insert_with(|| Variable {
+                                    name: var.name,
+                                    type_: def.type_.clone(),
+                                });
+                        }
                     }
                 }
             }
@@ -122,8 +153,10 @@ impl<'s> Visitor for VaraiblesVisitor<'s> {
     }
 
     fn visit_variable(&mut self, value: &Variable) {
-        self.variable_map
-            .entry(value.name.item)
-            .or_insert_with(|| value.clone());
+        if !self.local_variables.contains(&value.name.item) {
+            self.variable_map
+                .entry(value.name.item)
+                .or_insert_with(|| value.clone());
+        }
     }
 }

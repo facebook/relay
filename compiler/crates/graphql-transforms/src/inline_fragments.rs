@@ -64,7 +64,7 @@ impl<'s> InlineFragmentsTransform<'s> {
         let selections = self.transform_selections(&fragment.selections);
         let result = Arc::new(InlineFragment {
             type_condition: Some(fragment.type_condition),
-            directives: fragment.directives.clone(),
+            directives: spread.directives.clone(),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
         });
         self.seen.insert(spread.fragment.item, Arc::clone(&result));

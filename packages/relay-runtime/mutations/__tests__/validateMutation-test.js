@@ -294,7 +294,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name: 'Does not warns when conditional branches are specified',
+      name: 'Does not warn when conditional branches are specified',
       mutation: generateAndCompile(`
           mutation ChangeNameMutation(
             $input: ActorNameChangeInput!,

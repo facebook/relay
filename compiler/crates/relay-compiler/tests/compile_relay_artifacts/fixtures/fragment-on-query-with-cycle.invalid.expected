@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# %TODO%
-
 # expected-to-throw
 fragment RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")
@@ -32,4 +30,20 @@ fragment Profile on User
   }
 }
 ==================================== ERROR ====================================
-TODO
+Found a circular reference from fragment 'Profile'.:
+fragment-on-query-with-cycle.invalid.graphql:1:10:
+fragment RefetchableFragment on Query
+
+
+fragment-on-query-with-cycle.invalid.graphql:8:10:
+      ...Profile @arguments(includeProfile: true)
+
+
+fragment-on-query-with-cycle.invalid.graphql:25:12:
+        ...Profile
+      }
+
+
+fragment-on-query-with-cycle.invalid.graphql:25:12:
+        ...Profile
+      }

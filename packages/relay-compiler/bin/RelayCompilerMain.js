@@ -23,6 +23,7 @@ const WatchmanClient = require('../core/GraphQLWatchmanClient');
 
 const crypto = require('crypto');
 const fs = require('fs');
+const glob = require('glob');
 const invariant = require('invariant');
 const path = require('path');
 
@@ -93,12 +94,17 @@ function getFilepathsFromGlob(
   },
 ): Array<string> {
   const {extensions, include, exclude} = config;
-  const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
-  const glob = require('fast-glob');
-  return glob.sync(patterns, {
-    cwd: baseDir,
-    ignore: exclude,
-  });
+
+  const files = new Set();
+  include.forEach(inc =>
+    glob
+      .sync(`${inc}/*.+(${extensions.join('|')})`, {
+        cwd: baseDir,
+        ignore: exclude,
+      })
+      .forEach(file => files.add(file)),
+  );
+  return Array.from(files);
 }
 
 type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};

@@ -34,7 +34,7 @@ export type TestStreamResponse = {|
 export type TestStreamRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -50,8 +50,8 @@ export type TestStreamRawResponse = {|
       |},
     |},
   |} | {|
-    +__typename: ?string,
-    +id: ?string,
+    +__typename: string,
+    +id: string,
   |})
 |};
 export type TestStream = {|

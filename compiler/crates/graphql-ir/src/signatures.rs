@@ -8,7 +8,7 @@
 use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Location, WithLocation};
+use common::{Location, NamedItem, WithLocation};
 use errors::{try2, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax;
@@ -18,10 +18,12 @@ use lazy_static::lazy_static;
 use schema::{Schema, Type, TypeReference};
 
 lazy_static! {
+    static ref TYPE: StringKey = "type".intern();
+    static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     static ref ARGUMENTS_KEYS: FnvHashSet<StringKey> = {
         let mut set = FnvHashSet::with_capacity_and_hasher(2, Default::default());
-        set.insert("type".intern());
-        set.insert("defaultValue".intern());
+        set.insert(*TYPE);
+        set.insert(*DEFAULT_VALUE);
         set
     };
 }
@@ -200,10 +202,7 @@ fn get_argument_type(
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> ValidationResult<TypeReference> {
-    let type_arg = object
-        .items
-        .iter()
-        .find(|x| x.name.value.lookup() == "type");
+    let type_arg = object.items.named(*TYPE);
     let type_name = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
@@ -247,8 +246,7 @@ fn get_default_value(
 ) -> ValidationResult<Option<ConstantValue>> {
     Ok(object
         .items
-        .iter()
-        .find(|x| x.name.value.lookup() == "defaultValue")
+        .named(*DEFAULT_VALUE)
         .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Loose))
         .transpose()?)
 }

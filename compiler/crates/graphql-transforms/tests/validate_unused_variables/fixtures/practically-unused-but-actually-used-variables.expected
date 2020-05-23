@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
+  node(id: $id) {
+    id
+    ...ConnectionFragment @arguments(fetchConnection: false)
+  }
+}
+
+fragment ConnectionFragment on User
+  @argumentDefinitions(
+    fetchConnection: {type: "Boolean", defaultValue: false}
+  ) {
+  # this branch will be excluded after all transforms
+  # and variables $unusedFirst and $unusedAfter will be skipped, eventually
+  # But this transform should not report them as unused
+  ... @include(if: $fetchConnection) {
+    friends(after: $unusedAfter, first: $unusedFirst) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

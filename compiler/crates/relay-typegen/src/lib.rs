@@ -44,7 +44,6 @@ lazy_static! {
     static ref TYPE_FLOAT: StringKey = "Float".intern();
     static ref TYPE_INT: StringKey = "Int".intern();
     static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
-    static ref TYPE_URL: StringKey = "Url".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
 }
 
@@ -819,9 +818,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             AST::Number
         } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if scalar_name == *TYPE_URL {
-            // TODO make custom scalars configurable
-            AST::String
+        } else if let Some(&custom_scalar) =
+            self.typegen_config.custom_scalar_types.get(&scalar_name)
+        {
+            AST::RawType(custom_scalar)
         } else {
             AST::Any
         }

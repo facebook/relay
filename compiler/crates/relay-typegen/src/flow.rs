@@ -15,6 +15,8 @@ pub enum AST {
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     Identifier(StringKey),
+    /// Printed as is, should be valid Flow code.
+    RawType(StringKey),
     String,
     StringLiteral(StringKey),
     /// Prints as `"%other" with a comment explaining open enums.
@@ -57,6 +59,7 @@ impl<W: Write> Printer<W> {
             AST::Number => write!(self.writer, "number")?,
             AST::Boolean => write!(self.writer, "boolean")?,
             AST::Identifier(identifier) => write!(self.writer, "{}", identifier)?,
+            AST::RawType(raw) => write!(self.writer, "{}", raw)?,
             AST::Union(members) => self.write_union(members)?,
             AST::Intersection(members) => self.write_intersection(members)?,
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type)?,

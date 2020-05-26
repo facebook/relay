@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use fnv::FnvHashMap;
 use interner::StringKey;
 use serde::Deserialize;
 
@@ -24,4 +25,9 @@ pub struct TypegenConfig {
     /// even if the schema defines them as required.
     #[serde(default)]
     pub optional_input_fields: Vec<StringKey>,
+
+    /// A map from GraphQL scalar types to a custom JS type, example:
+    /// { "Url": "String" }
+    #[serde(default)]
+    pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
 }

@@ -6,7 +6,10 @@
  */
 
 use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
-use crate::build_ast::{build_fragment, build_operation, build_request};
+use crate::build_ast::{
+    build_fragment, build_operation, build_request, build_request_params,
+    build_request_params_ast_key,
+};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::utils::escape;
@@ -252,6 +255,8 @@ pub fn print_request(
     request_parameters: RequestParameters,
 ) -> String {
     let mut builder = AstBuilder::default();
+    let request_parameters =
+        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
     let key = build_request(
         schema,
         &mut builder,
@@ -263,6 +268,16 @@ pub fn print_request(
     printer.print()
 }
 
+pub fn print_request_params(schema: &Schema, operation: &OperationDefinition) -> String {
+    let request_parameters = build_request_params(operation);
+    let mut builder = AstBuilder::default();
+    let request_parameters_ast_key =
+        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
+    let printer = DedupedJSONPrinter::new_without_dedupe(&builder, request_parameters_ast_key);
+
+    printer.print()
+}
+
 impl Printer {
     pub fn print_request_deduped(
         &mut self,
@@ -271,6 +286,8 @@ impl Printer {
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters,
     ) -> String {
+        let request_parameters =
+            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
         let key = build_request(
             schema,
             &mut self.builder,

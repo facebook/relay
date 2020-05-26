@@ -26,12 +26,11 @@ use graphql_transforms::{
 use interner::{Intern, StringKey};
 use schema::{Schema, TypeReference};
 
-pub fn build_request(
+pub fn build_request_params_ast_key(
     schema: &Schema,
+    request_parameters: RequestParameters,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
-    fragment: &FragmentDefinition,
-    request_parameters: RequestParameters,
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
@@ -41,6 +40,19 @@ pub fn build_request(
         request_parameters,
         test_operation_metadata,
     );
+
+    params
+}
+
+pub fn build_request(
+    schema: &Schema,
+    ast_builder: &mut AstBuilder,
+    operation: &OperationDefinition,
+    fragment: &FragmentDefinition,
+    request_parameters: AstKey,
+) -> AstKey {
+    let mut operation_builder =
+        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
     let operation = Primitive::Key(operation_builder.build_operation(operation));
     let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
@@ -52,7 +64,7 @@ pub fn build_request(
             Primitive::String(CODEGEN_CONSTANTS.request),
         ),
         (CODEGEN_CONSTANTS.operation, operation),
-        (CODEGEN_CONSTANTS.params, params),
+        (CODEGEN_CONSTANTS.params, Primitive::Key(request_parameters)),
     ]))
 }
 
@@ -628,8 +640,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             };
             let filters = match values.filters {
                 None => Primitive::Null,
-                Some(strs) => {
-                    Primitive::Key(self.array(strs.into_iter().map(Primitive::String).collect()))
+                Some(strings) => {
+                    Primitive::Key(self.array(strings.into_iter().map(Primitive::String).collect()))
                 }
             };
             let mut object = vec![
@@ -1249,7 +1261,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         mut request_parameters: RequestParameters,
         // We need to move test metadata generation back to transforms
         deprecated_test_operation_metadata: Option<(StringKey, Primitive)>,
-    ) -> Primitive {
+    ) -> AstKey {
         let mut metadata_items: Vec<(StringKey, Primitive)> = operation
             .directives
             .iter()
@@ -1322,7 +1334,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
         ];
 
-        Primitive::Key(self.object(object))
+        self.object(object)
     }
 }
 

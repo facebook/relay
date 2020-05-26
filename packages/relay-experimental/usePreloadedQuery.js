@@ -19,6 +19,7 @@ const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
+const {useDebugValue} = require('react');
 const {
   __internal: {fetchQueryDeduped},
 } = require('relay-runtime');
@@ -66,6 +67,17 @@ function usePreloadedQuery<TQuery: OperationType>(
     query: operation,
     renderPolicy: options?.UNSTABLE_renderPolicy,
   });
+  if (__DEV__) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useDebugValue({
+      query: preloadedQuery.name,
+      variables: preloadedQuery.variables,
+      data,
+      fetchKey,
+      fetchPolicy,
+      renderPolicy: options?.UNSTABLE_renderPolicy,
+    });
+  }
   return data;
 }
 

@@ -17,6 +17,7 @@ const useFragmentNode = require('./useFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
+const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
 import type {GraphQLTaggedNode, FragmentReference} from 'relay-runtime';
@@ -88,6 +89,10 @@ function useFragment(
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
   const {data} = useFragmentNode<_>(fragmentNode, fragmentRef, 'useFragment()');
+  if (__DEV__) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useDebugValue({fragment: fragmentNode.name, data});
+  }
   return data;
 }
 

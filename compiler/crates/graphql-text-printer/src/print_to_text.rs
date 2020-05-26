@@ -84,13 +84,27 @@ pub fn write_operation(
 /// When the JS compiler consistency is no longer needed, this can just be
 /// replaced by write_operation.
 pub fn write_operation_with_graphqljs_formatting(
+    mut result: &mut impl Write,
     schema: &Schema,
     operation: &OperationDefinition,
-    mut result: &mut impl Write,
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
     printer.graphqljs_formatting = true;
     printer.print_operation(operation)
+}
+
+/// This is a temporary function that replicates the formatting choices of the
+/// graphql-js printer in order to obtain output parity with the JS compiler.
+/// When the JS compiler consistency is no longer needed, this can just be
+/// replaced by write_operation.
+pub fn write_fragment_with_graphqljs_formatting(
+    mut result: &mut impl Write,
+    schema: &Schema,
+    fragment: &FragmentDefinition,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.graphqljs_formatting = true;
+    printer.print_fragment(fragment)
 }
 
 pub fn write_fragment(
@@ -384,12 +398,19 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         argument_definitions: &[VariableDefinition],
     ) -> Result {
-        let len = argument_definitions.len();
-        if len > 0 {
-            writeln!(self.writer, " @argumentDefinitions(")?;
+        if !argument_definitions.is_empty() {
+            write!(self.writer, " @argumentDefinitions(")?;
+            let mut first = true;
             for arg_def in argument_definitions.iter() {
+                if !self.graphqljs_formatting {
+                    writeln!(self.writer)?;
+                    self.print_indentation(TAB_SIZE)?;
+                } else if first {
+                    first = false;
+                } else {
+                    write!(self.writer, ", ")?;
+                }
                 let type_name = self.schema.get_type_string(&arg_def.type_);
-                self.print_indentation(TAB_SIZE)?;
                 write!(
                     self.writer,
                     "{}: {{type: \"{}\"",
@@ -400,9 +421,13 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     write!(self.writer, ", defaultValue: ")?;
                     self.print_constant_value(&default_value)?;
                 }
-                writeln!(self.writer, "}}")?;
+                write!(self.writer, "}}")?;
             }
-            write!(self.writer, ")")?;
+            if self.graphqljs_formatting {
+                write!(self.writer, ")")?;
+            } else {
+                write!(self.writer, "\n)")?;
+            }
         }
         Ok(())
     }

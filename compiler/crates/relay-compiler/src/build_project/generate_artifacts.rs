@@ -12,7 +12,8 @@ use crate::errors::BuildProjectError;
 use common::{FileKey, NamedItem};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::{
-    print_fragment, print_full_operation, write_operation_with_graphqljs_formatting,
+    print_full_operation, write_fragment_with_graphqljs_formatting,
+    write_operation_with_graphqljs_formatting,
 };
 use graphql_transforms::{MATCH_CONSTANTS, REFETCHABLE_CONSTANTS};
 use interner::StringKey;
@@ -49,7 +50,13 @@ pub fn generate_artifacts<'a>(
                 .source
                 .fragment(source_name)
                 .expect("Expected the source document for the SplitOperation to exist.");
-            let source_string = print_fragment(programs.source.schema(), &source_fragment);
+            let mut source_string = String::new();
+            write_fragment_with_graphqljs_formatting(
+                &mut source_string,
+                programs.source.schema(),
+                &source_fragment,
+            )
+            .unwrap();
             let source_hash = md5(&source_string);
             let source_file = source_fragment.name.location.file();
             artifacts.push(Artifact {
@@ -80,7 +87,13 @@ pub fn generate_artifacts<'a>(
                 .source
                 .fragment(source_name)
                 .expect("Expected the source document for the SplitOperation to exist.");
-            let source_string = print_fragment(programs.source.schema(), &source_fragment);
+            let mut source_string = String::new();
+            write_fragment_with_graphqljs_formatting(
+                &mut source_string,
+                programs.source.schema(),
+                &source_fragment,
+            )
+            .unwrap();
             let source_hash = md5(&source_string);
             artifacts.push(generate_normalization_artifact(
                 project_config,
@@ -100,9 +113,9 @@ pub fn generate_artifacts<'a>(
             // Same for fragment hashing below.
             let mut source_string = String::new();
             write_operation_with_graphqljs_formatting(
+                &mut source_string,
                 programs.source.schema(),
                 &source_operation,
-                &mut source_string,
             )
             .unwrap();
             let source_hash = md5(&source_string);
@@ -119,7 +132,13 @@ pub fn generate_artifacts<'a>(
     for reader_fragment in programs.reader.fragments() {
         let source_fragment = programs.source.fragment(reader_fragment.name.item).unwrap();
         // Same as for operation hashing above.
-        let source_string = print_fragment(programs.source.schema(), &source_fragment);
+        let mut source_string = String::new();
+        write_fragment_with_graphqljs_formatting(
+            &mut source_string,
+            programs.source.schema(),
+            &source_fragment,
+        )
+        .unwrap();
         let source_hash = md5(&source_string);
         artifacts.push(generate_reader_artifact(
             project_config,

@@ -60,7 +60,6 @@ describe('execute() fetches a @stream-ed @connection', () => {
           newsFeed(first: 10, after: $after)
           @stream_connection(
             key: "RelayModernEnvironment_newsFeed"
-            label: "newsFeed"
             if: $enableStream
             initial_count: 0
           ) {
@@ -179,7 +178,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -216,7 +215,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           hasNextPage: true,
         },
       },
-      label: 'FeedFragment$defer$newsFeed$pageInfo',
+      label: 'FeedFragment$defer$RelayModernEnvironment_newsFeed$pageInfo',
       path: ['viewer', 'newsFeed'],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -284,7 +283,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     // second edge should be appended, not replace first edge
@@ -306,7 +305,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -404,7 +403,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -503,7 +502,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$newsFeed',
+        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 1],
       },
       {
@@ -524,7 +523,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$newsFeed',
+        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 2],
       },
     ]);
@@ -616,7 +615,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     // first edge arrives second
@@ -639,7 +638,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$newsFeed',
+        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 2],
       },
       {
@@ -660,7 +659,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$newsFeed',
+        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 0],
       },
     ]);
@@ -776,7 +775,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     // first edge arrives second
@@ -798,7 +797,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -923,7 +922,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     // third edge should be appended, not replace first edge
@@ -945,7 +944,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -1038,7 +1037,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           hasNextPage: false, // true => false
         },
       },
-      label: 'FeedFragment$defer$newsFeed$pageInfo',
+      label: 'FeedFragment$defer$RelayModernEnvironment_newsFeed$pageInfo',
       path: ['viewer', 'newsFeed'],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -1166,7 +1165,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);

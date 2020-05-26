@@ -384,11 +384,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       clientComments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_clientComments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_clientComments", initial_count: 0) {
         edges {
           node {
             actor {
@@ -416,14 +412,14 @@ Unexpected directive: @stream. This directive can only be used on fields/fragmen
 
 Source (derived): GraphQL request (7:9)
 6:       clientComments(first: 10)
-7:         @stream_connection(
+7:         @stream_connection(key: "NodeQuery_clientComments", initial_count: 0) {
            ^
-8:           key: "NodeQuery_clientComments"
+8:         edges {
 
 Source: GraphQL request (6:7)
 5:     ... on Story {
 6:       clientComments(first: 10)
          ^
-7:         @stream_connection(
+7:         @stream_connection(key: "NodeQuery_clientComments", initial_count: 0) {
 
 `;

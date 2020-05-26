@@ -992,11 +992,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       comments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_comments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
         edges {
           node {
             actor {
@@ -1021,7 +1017,7 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) @__clientField(handle: "connection", key: "NodeQuery_comments") {
-        edges @stream(initial_count: 0, label: "comments") {
+        edges @stream(initial_count: 0, label: "NodeQuery_comments") {
           node {
             actor {
               name
@@ -1034,7 +1030,7 @@ query NodeQuery(
             }
           }
         }
-        ... on CommentsConnection @defer(label: "NodeQuery$defer$comments$pageInfo") {
+        ... on CommentsConnection @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage
@@ -1149,11 +1145,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       comments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_comments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
         commentEdges: edges {
           node {
             actor {
@@ -1174,11 +1166,11 @@ THROWN EXCEPTION:
 
 @stream_connection does not support aliasing the 'edges' field.
 
-Source: GraphQL request (12:9)
-11:         ) {
-12:         commentEdges: edges {
-            ^
-13:           node {
+Source: GraphQL request (8:9)
+7:         @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+8:         commentEdges: edges {
+           ^
+9:           node {
 
 `;
 
@@ -1190,11 +1182,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       comments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_comments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
         edges {
           node {
             actor {
@@ -1215,10 +1203,10 @@ THROWN EXCEPTION:
 
 @stream_connection does not support aliasing the 'pageInfo' field.
 
-Source: GraphQL request (19:9)
-18:         }
-19:         commentPageInfo: pageInfo {
+Source: GraphQL request (15:9)
+14:         }
+15:         commentPageInfo: pageInfo {
             ^
-20:           hasNextPage
+16:           hasNextPage
 
 `;

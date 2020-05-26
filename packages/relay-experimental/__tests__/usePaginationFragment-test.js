@@ -199,7 +199,6 @@ describe('usePaginationFragment', () => {
           ) @stream_connection(
               initial_count: 1
               key: "UserFragment_friends",
-              label: "friends"
               filters: ["orderby", "isViewerFriend"]
             ) {
             edges {
@@ -2673,7 +2672,8 @@ describe('usePaginationFragment', () => {
                   hasNextPage: true,
                 },
               },
-              label: 'UserFragmentWithStreaming$defer$friends$pageInfo',
+              label:
+                'UserFragmentWithStreaming$defer$UserFragment_friends$pageInfo',
               path: ['node', 'friends'],
               extensions: {
                 is_final: true,

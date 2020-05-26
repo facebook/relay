@@ -19356,11 +19356,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       comments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_comments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
         edges {
           node {
             actor {
@@ -19559,7 +19555,7 @@ Request {
                 selections: [
                   Stream {
                     if: null,
-                    label: "NodeQuery$stream$comments",
+                    label: "NodeQuery$stream$NodeQuery_comments",
                     metadata: null,
                     selections: [
                       LinkedField {
@@ -19633,7 +19629,7 @@ Request {
                   },
                   Defer {
                     if: null,
-                    label: "NodeQuery$defer$comments$pageInfo",
+                    label: "NodeQuery$defer$NodeQuery_comments$pageInfo",
                     selections: [
                       LinkedField {
                         alias: null,
@@ -19696,7 +19692,7 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) {
-        edges @stream(label: "NodeQuery$stream$comments", initial_count: 0) {
+        edges @stream(label: "NodeQuery$stream$NodeQuery_comments", initial_count: 0) {
           node {
             actor {
               __typename
@@ -19708,7 +19704,7 @@ query NodeQuery(
           }
           cursor
         }
-        ... on CommentsConnection @defer(label: "NodeQuery$defer$comments$pageInfo") {
+        ... on CommentsConnection @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage

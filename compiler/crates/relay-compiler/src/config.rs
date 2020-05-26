@@ -132,6 +132,9 @@ impl Config {
                     base: config_file_project.base,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
+                    extra_artifacts_output: config_file_project.extra_artifacts_output,
+                    extra_artifacts_generation_enabled: config_file_project
+                        .extra_artifacts_generation_enabled,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
@@ -292,6 +295,8 @@ pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
+    pub extra_artifacts_output: Option<PathBuf>,
+    pub extra_artifacts_generation_enabled: bool,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
@@ -346,6 +351,15 @@ struct ConfigFileProject {
     /// compiler, so that the compiler can cleanup extra files.
     #[serde(default)]
     output: Option<PathBuf>,
+
+    /// Some projects may need to generate extra artifacts. For those, we may
+    /// need to provide an additional directory to put them.
+    /// By default the will use `output` *if available
+    extra_artifacts_output: Option<PathBuf>,
+
+    /// Enable extra file generation for project
+    #[serde(default)]
+    extra_artifacts_generation_enabled: bool,
 
     /// If `output` is provided and `shard_output` is `true`, shard the files
     /// by putting them under `{output_dir}/{source_relative_path}`

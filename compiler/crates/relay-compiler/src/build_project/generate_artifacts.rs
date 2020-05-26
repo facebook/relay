@@ -210,29 +210,56 @@ fn generate_reader_artifact<'a>(
     }
 }
 
+/// This function will create a correct path for artifact based on the project configuration
+pub fn create_path_for_artifact(
+    project_config: &ProjectConfig,
+    source_file: FileKey,
+    artifact_file_name: String,
+    use_extra_artifact_dir: bool,
+) -> PathBuf {
+    // For artifacts output dir, first, we will check if we need to use extra output dir
+    // and if it's specified in the options, we will return that path
+    if use_extra_artifact_dir {
+        if let Some(extra_artifacts_output) = &project_config.extra_artifacts_output {
+            return extra_artifacts_output.join(artifact_file_name);
+        }
+    }
+
+    // Otherwise, we will use default project output dif (and settings)
+    match &project_config.output {
+        Some(output) => {
+            if project_config.shard_output {
+                if let Some(ref regex) = project_config.shard_strip_regex {
+                    let full_source_path = regex.replace_all(source_file.lookup(), "");
+                    let mut output = output.join(full_source_path.to_string());
+                    output.pop();
+                    output
+                } else {
+                    output.join(source_file.get_dir())
+                }
+                .join(artifact_file_name)
+            } else {
+                output.join(artifact_file_name)
+            }
+        }
+        None => {
+            let path = source_file.get_dir();
+            path.join(format!("__generated__/{}", artifact_file_name))
+        }
+    }
+}
+
 fn path_for_js_artifact(
     project_config: &ProjectConfig,
     source_file: FileKey,
     definition_name: StringKey,
 ) -> PathBuf {
-    if let Some(output) = &project_config.output {
-        if project_config.shard_output {
-            if let Some(ref regex) = project_config.shard_strip_regex {
-                let full_source_path = regex.replace_all(source_file.lookup(), "");
-                let mut output = output.join(full_source_path.to_string());
-                output.pop();
-                output
-            } else {
-                output.join(source_file.get_dir())
-            }
-            .join(format!("{}.graphql.js", definition_name))
-        } else {
-            output.join(format!("{}.graphql.js", definition_name))
-        }
-    } else {
-        let path = source_file.get_dir();
-        path.join(format!("__generated__/{}.graphql.js", definition_name))
-    }
+    create_path_for_artifact(
+        project_config,
+        source_file,
+        format!("{}.graphql.js", definition_name),
+        false,
+    )
 }
 
 fn md5(data: &str) -> String {

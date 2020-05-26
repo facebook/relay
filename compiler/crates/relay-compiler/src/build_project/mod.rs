@@ -27,7 +27,9 @@ pub use apply_transforms::Programs;
 use build_ir::BuildIRResult;
 pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
-pub use generate_artifacts::{generate_artifacts, Artifact, ArtifactContent};
+pub use generate_artifacts::{
+    create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
+};
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::{Program, Sources, ValidationError};
 use graphql_transforms::FB_CONNECTION_INTERFACE;

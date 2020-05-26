@@ -19,7 +19,7 @@ mod parse_sources;
 mod watchman;
 
 pub use build_project::{
-    apply_transforms, build_schema, check_project,
+    apply_transforms, build_schema, check_project, create_path_for_artifact,
     generate_extra_artifacts::GenerateExtraArtifactArgs, validate, Artifact, ArtifactContent,
     Programs,
 };

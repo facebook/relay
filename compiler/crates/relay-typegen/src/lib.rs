@@ -9,9 +9,11 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod config;
 mod flow;
 
 use common::NamedItem;
+pub use config::TypegenConfig;
 use flow::{print_type, Prop, AST};
 use fnv::FnvHashSet;
 use graphql_ir::{
@@ -49,10 +51,9 @@ lazy_static! {
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &Schema,
-    enum_module_suffix: &Option<String>,
-    optional_input_fields: &[StringKey],
+    typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    let mut generator = TypeGenerator::new(schema, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
     generator.result
 }
@@ -61,10 +62,9 @@ pub fn generate_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &Schema,
-    enum_module_suffix: &Option<String>,
-    optional_input_fields: &[StringKey],
+    typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    let mut generator = TypeGenerator::new(schema, typegen_config);
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -83,15 +83,10 @@ struct TypeGenerator<'schema, 'config> {
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
-    enum_module_suffix: &'config Option<String>,
-    optional_input_fields: &'config [StringKey],
+    typegen_config: &'config TypegenConfig,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
-    fn new(
-        schema: &'schema Schema,
-        enum_module_suffix: &'config Option<String>,
-        optional_input_fields: &'config [StringKey],
-    ) -> Self {
+    fn new(schema: &'schema Schema, typegen_config: &'config TypegenConfig) -> Self {
         Self {
             result: String::new(),
             schema,
@@ -99,8 +94,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             generated_input_object_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
-            enum_module_suffix,
-            optional_input_fields,
+            typegen_config,
         }
     }
 
@@ -869,7 +863,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
-            if let Some(enum_module_suffix) = self.enum_module_suffix {
+            if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 writeln!(
                     self.result,
                     "import type {{ {enum_name} }} from \"{enum_name}{enum_suffix}\";",
@@ -956,7 +950,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                                 key: field.name,
                                 read_only: false,
                                 optional: !field.type_.is_non_null()
-                                    || self.optional_input_fields.contains(&field.name),
+                                    || self
+                                        .typegen_config
+                                        .optional_input_fields
+                                        .contains(&field.name),
                                 value: self.transform_input_type(&field.type_),
                             })
                             .collect();

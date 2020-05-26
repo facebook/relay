@@ -12,7 +12,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_transforms::OSS_CONNECTION_INTERFACE;
 use relay_compiler::apply_transforms;
-use relay_typegen;
+use relay_typegen::{self, TypegenConfig};
 use test_schema::test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -42,16 +42,15 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
             typegen_operation,
             normalization_operation,
             &schema,
-            &None,
-            &Vec::new(),
+            &TypegenConfig::default(),
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
-    let fragment_strings = fragments
-        .into_iter()
-        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &None, &Vec::new()));
+    let fragment_strings = fragments.into_iter().map(|frag| {
+        relay_typegen::generate_fragment_type(frag, &schema, &TypegenConfig::default())
+    });
 
     let mut result: Vec<String> = operation_strings.collect();
     result.extend(fragment_strings);

@@ -146,8 +146,7 @@ fn generate_operation(
             typegen_operation,
             normalization_operation,
             schema,
-            &project_config.enum_module_suffix,
-            &project_config.optional_input_fields
+            &project_config.typegen_config,
         )
     )
     .unwrap();
@@ -239,12 +238,7 @@ fn generate_fragment(
         content,
         "/*::\nimport type {{ {} }} from 'relay-runtime';\n{}*/\n",
         reader_node_flow_type,
-        generate_fragment_type(
-            typegen_fragment,
-            schema,
-            &project_config.enum_module_suffix,
-            &project_config.optional_input_fields
-        )
+        generate_fragment_type(typegen_fragment, schema, &project_config.typegen_config)
     )
     .unwrap();
     writeln!(

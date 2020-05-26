@@ -42,7 +42,7 @@ query ScalarHandleField($id: ID!) {
                 "alias": "name",
                 "args": null,
                 "kind": "ScalarField",
-                "name": "___clientName",
+                "name": "__name_clientName",
                 "storageKey": null
               }
             ],

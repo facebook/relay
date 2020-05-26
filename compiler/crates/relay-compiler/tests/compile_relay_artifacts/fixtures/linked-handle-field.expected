@@ -45,7 +45,7 @@ query LinkedHandleField($id: ID!) {
                 "args": null,
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
-                "name": "___clientFriends",
+                "name": "__friends_clientFriends",
                 "plural": false,
                 "selections": [
                   {

@@ -702,7 +702,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     None,
                 );
                 alias = alias.or_else(|| Some(name));
-                name = format!("__{}_{}", values.key, values.handle).intern();
+                name = if values.key == CODEGEN_CONSTANTS.default_handle_key {
+                    format!("__{}_{}", name, values.handle).intern()
+                } else {
+                    format!("__{}_{}", values.key, values.handle).intern()
+                }
             }
         }
         (name, alias)

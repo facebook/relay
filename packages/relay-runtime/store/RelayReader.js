@@ -41,6 +41,7 @@ const {
   getStorageKey,
   getModuleComponentKey,
 } = require('./RelayStoreUtils');
+const {generateTypeID} = require('./TypeID');
 
 import type {
   ReaderFragmentSpread,
@@ -127,10 +128,13 @@ class RelayReader {
       record != null &&
       RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT
     ) {
-      const implementsInterface = RelayModernRecord.getValue(
-        record,
-        abstractKey,
-      );
+      const recordType = RelayModernRecord.getType(record);
+      const typeID = generateTypeID(recordType);
+      const typeRecord = this._recordSource.get(typeID);
+      const implementsInterface =
+        typeRecord != null
+          ? RelayModernRecord.getValue(typeRecord, abstractKey)
+          : null;
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
@@ -218,10 +222,14 @@ class RelayReader {
             const parentIsMissingData = this._isMissingData;
             const parentIsWithinUnmatchedTypeRefinement = this
               ._isWithinUnmatchedTypeRefinement;
-            const implementsInterface = RelayModernRecord.getValue(
-              record,
-              abstractKey,
-            );
+
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            const typeRecord = this._recordSource.get(typeID);
+            const implementsInterface =
+              typeRecord != null
+                ? RelayModernRecord.getValue(typeRecord, abstractKey)
+                : null;
             this._isWithinUnmatchedTypeRefinement =
               parentIsWithinUnmatchedTypeRefinement ||
               implementsInterface === false;

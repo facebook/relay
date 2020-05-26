@@ -23,6 +23,7 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -2204,6 +2205,7 @@ describe('check()', () => {
         }
       }
     `);
+      const typeID = generateTypeID('NonNodeNoID');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2213,9 +2215,13 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'NonNodeNoID',
-          __isNode: false,
           // no 'id' bc not a Node
           name: 'Not a Node!',
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          __isNode: false,
         },
       };
       const source = RelayRecordSource.create(data);

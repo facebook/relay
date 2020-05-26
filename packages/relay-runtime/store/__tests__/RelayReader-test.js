@@ -10,6 +10,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayRecordSource = require('../RelayRecordSource');
 
 const {getRequest} = require('../../query/GraphQLTag');
@@ -19,6 +20,7 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('RelayReader', () => {
@@ -1720,6 +1722,70 @@ describe('RelayReader', () => {
           },
         });
       });
+    });
+  });
+
+  describe('feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
+    });
+
+    it('does not record a dependency on type records for abstract type discriminators', () => {
+      const {Query, Fragment} = generateAndCompile(`
+      query Query {
+        me {
+          ...Fragment
+        }
+      }
+      fragment Fragment on Node {
+        actor {
+          ... on Entity {
+            url
+          }
+        }
+      }
+    `);
+      const userTypeID = generateTypeID('User');
+      const pageTypeID = generateTypeID('Page');
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          actor: {__ref: '2'},
+        },
+        '2': {
+          __id: '2',
+          __typename: 'Page',
+          url: 'https://...',
+        },
+        [userTypeID]: {
+          __id: userTypeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          __isNode: true,
+        },
+        [pageTypeID]: {
+          __id: pageTypeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          // __isEntity: true, // intentionally missing to verify that type refinement feature is on
+        },
+      };
+      source = RelayRecordSource.create(data);
+      const owner = createOperationDescriptor(Query, {});
+      const snapshot = read(
+        source,
+        createReaderSelector(Fragment, '1', {}, owner.request),
+      );
+      expect(snapshot.data).toEqual({
+        actor: {
+          url: 'https://...',
+        },
+      });
+      expect(snapshot.isMissingData).toBe(true); // missing discriminator
+      // does *not* include userTypeID/pageTypeID
+      expect(Object.keys(snapshot.seenRecords)).toEqual(['1', '2']);
     });
   });
 });

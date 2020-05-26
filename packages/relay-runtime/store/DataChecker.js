@@ -25,6 +25,7 @@ const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
+const {generateTypeID} = require('./TypeID');
 
 import type {
   NormalizationField,
@@ -314,8 +315,15 @@ class DataChecker {
             // - Unknown whether the type implements the interface: don't check the selections
             //   and treat the data as missing; we do this because the Relay Compiler
             //   guarantees that the type discriminator will always be fetched.
-            const implementsInterface = this._mutator.getValue(
+            const recordType = this._mutator.getType(dataID);
+            invariant(
+              recordType != null,
+              'DataChecker: Expected record `%s` to have a known type',
               dataID,
+            );
+            const typeID = generateTypeID(recordType);
+            const implementsInterface = this._mutator.getValue(
+              typeID,
               abstractKey,
             );
             if (implementsInterface === true) {
@@ -370,8 +378,15 @@ class DataChecker {
         case TYPE_DISCRIMINATOR:
           if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             const {abstractKey} = selection;
-            const implementsInterface = this._mutator.getValue(
+            const recordType = this._mutator.getType(dataID);
+            invariant(
+              recordType != null,
+              'DataChecker: Expected record `%s` to have a known type',
               dataID,
+            );
+            const typeID = generateTypeID(recordType);
+            const implementsInterface = this._mutator.getValue(
+              typeID,
               abstractKey,
             );
             if (implementsInterface == null) {

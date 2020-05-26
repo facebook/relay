@@ -25,6 +25,7 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {generateTypeID} = require('../TypeID');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
@@ -124,9 +125,18 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
   });
 
+  // Commit the given payload, immediately running GC to prune any data
+  // that wouldn't be retained by the query
+  // eslint-disable-next-line no-shadow
+  function commitPayload(operation, payload) {
+    environment.retain(operation);
+    environment.commitPayload(operation, payload);
+    (environment.getStore(): $FlowFixMe).__gc();
+  }
+
   it('concrete spread on matching concrete type reads data and counts missing user fields as missing', () => {
     // with missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -154,7 +164,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('missing');
 
     // add missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -183,7 +193,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
   it('concrete spread on non-matching concrete type reads data but does not count missing user fields as missing', () => {
     // with missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -212,7 +222,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('missing'); // fields missing from conforming interface (Actor)
 
     // add missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -242,7 +252,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
   it('concrete inline fragment on matching concrete type reads data and counts missing user fields as missing', () => {
     // with missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -270,7 +280,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('missing');
 
     // add missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -297,7 +307,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('available');
   });
   it('concrete inline fragment on non-matching concrete type does not read data or count data as missing', () => {
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -324,7 +334,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
   it('abstract spread on implementing type reads data and counts missing user fields as missing', () => {
     // with missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -352,7 +362,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('missing');
 
     // add missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -380,7 +390,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
   it('abstract spread on non-implementing type reads data but does not count missing user fields as missing', () => {
     // with missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         // __isActor: 'User', // no value: means that on server, User no longer implements Actor
@@ -409,7 +419,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('missing'); // fields missing on concrete type
   });
   it('abstract spread missing only the discriminator reads data and counts data as missing', () => {
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true, // deleted from store below
@@ -420,9 +430,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       },
     });
     environment.commitUpdate(store => {
-      const record = nullthrows(store.get('abc'));
-      expect(record.getValue('__isActor')).toBe(true);
-      record.setValue(undefined, '__isActor');
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(true);
+      typeRecord.setValue(undefined, '__isActor');
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
     const fragmentSnapshot = environment.lookup(
@@ -440,10 +450,20 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
+
+    // Subscriptions are not notified of discriminator-only changes
+    const callback = jest.fn();
+    environment.subscribe(fragmentSnapshot, callback);
+    environment.commitUpdate(store => {
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(undefined);
+      typeRecord.setValue(false, '__isActor');
+    });
+    expect(callback).toBeCalledTimes(0);
   });
 
   it('abstract spread missing the discriminator and user fields: reads data and counts data as missing', () => {
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true, // deleted from store below
@@ -456,9 +476,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     // delete the discriminator field to simulate a consistency update that causes the field
     // to be missing for a record
     environment.commitUpdate(store => {
-      const record = nullthrows(store.get('abc'));
-      expect(record.getValue('__isActor')).toBe(true);
-      record.setValue(undefined, '__isActor');
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(true);
+      typeRecord.setValue(undefined, '__isActor');
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
     const fragmentSnapshot = environment.lookup(
@@ -478,11 +498,21 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(abstractOperation).status).toBe('missing');
     expect(environment.check(concreteOperation).status).toBe('missing');
     expect(environment.check(operation).status).toBe('missing');
+
+    // Subscriptions are not notified of discriminator-only changes
+    const callback = jest.fn();
+    environment.subscribe(fragmentSnapshot, callback);
+    environment.commitUpdate(store => {
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(undefined);
+      typeRecord.setValue(false, '__isActor');
+    });
+    expect(callback).toBeCalledTimes(0);
   });
 
   it('abstract inline fragment on implementing type reads data and counts missing user fields as missing', () => {
     // with missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -510,7 +540,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('missing');
 
     // add missing value
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true,
@@ -538,7 +568,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment on non-implementing type reads data but does not count missing user fields as missing', () => {
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         // __isActor: 'User', // no value: means that on server, User no longer implements Actor
@@ -568,7 +598,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment missing only the discriminator reads data and counts data as missing', () => {
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true, // deleted from store below
@@ -581,9 +611,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     // delete the discriminator field to simulate a consistency update that causes the field
     // to be missing for a record
     environment.commitUpdate(store => {
-      const record = nullthrows(store.get('abc'));
-      expect(record.getValue('__isActor')).toBe(true);
-      record.setValue(undefined, '__isActor');
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(true);
+      typeRecord.setValue(undefined, '__isActor');
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
     const fragmentSnapshot = environment.lookup(
@@ -601,10 +631,20 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
+
+    // Subscriptions are not notified of discriminator-only changes
+    const callback = jest.fn();
+    environment.subscribe(fragmentSnapshot, callback);
+    environment.commitUpdate(store => {
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(undefined);
+      typeRecord.setValue(false, '__isActor');
+    });
+    expect(callback).toBeCalledTimes(0);
   });
 
   it('abstract inline fragment missing the discriminator and user fields: reads data and counts data as missing', () => {
-    environment.commitPayload(operation, {
+    commitPayload(operation, {
       userOrPage: {
         id: 'abc',
         __isActor: true, // deleted from store below
@@ -617,9 +657,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     // delete the discriminator field to simulate a consistency update that causes the field
     // to be missing for a record
     environment.commitUpdate(store => {
-      const record = nullthrows(store.get('abc'));
-      expect(record.getValue('__isActor')).toBe(true);
-      record.setValue(undefined, '__isActor');
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(true);
+      typeRecord.setValue(undefined, '__isActor');
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
     const fragmentSnapshot = environment.lookup(
@@ -639,6 +679,16 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(abstractOperation).status).toBe('missing');
     expect(environment.check(concreteOperation).status).toBe('missing');
     expect(environment.check(operation).status).toBe('missing');
+
+    // Subscriptions are not notified of discriminator-only changes
+    const callback = jest.fn();
+    environment.subscribe(fragmentSnapshot, callback);
+    environment.commitUpdate(store => {
+      const typeRecord = nullthrows(store.get(generateTypeID('User')));
+      expect(typeRecord.getValue('__isActor')).toBe(undefined);
+      typeRecord.setValue(false, '__isActor');
+    });
+    expect(callback).toBeCalledTimes(0);
   });
 
   describe('abstract spreads within a field of matching abstract type', () => {
@@ -669,7 +719,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
 
     it('reads and reports missing data if only user fields are missing', () => {
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         viewer: {
           actor: {
             __typename: 'User',
@@ -708,7 +758,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
 
     it('reads and reports missing data if only the discriminator is missing', () => {
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         viewer: {
           actor: {
             __typename: 'User',
@@ -722,9 +772,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       // delete the discriminator field to simulate a consistency update that causes the field
       // to be missing for a record
       environment.commitUpdate(store => {
-        const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isActor')).toBe(true);
-        record.setValue(undefined, '__isActor');
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isActor')).toBe(true);
+        typeRecord.setValue(undefined, '__isActor');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSnapshot = environment.lookup(
@@ -754,7 +804,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
 
     it('reads and reports missing data if the discriminator and user fields are missing', () => {
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         viewer: {
           actor: {
             __typename: 'User',
@@ -768,9 +818,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       // delete the discriminator field to simulate a consistency update that causes the field
       // to be missing for a record
       environment.commitUpdate(store => {
-        const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isActor')).toBe(true);
-        record.setValue(undefined, '__isActor');
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isActor')).toBe(true);
+        typeRecord.setValue(undefined, '__isActor');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSnapshot = environment.lookup(
@@ -827,7 +877,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -866,7 +916,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     it('reads data and reports nothing missing if only user fields are missing', () => {
       // similar case, we know somehow that the record implements the nested abstract type, but
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -877,9 +927,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the discriminator
       environment.commitUpdate(store => {
-        const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isEntity')).toBe(undefined);
-        record.setValue(true, '__isEntity');
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isEntity')).toBe(undefined);
+        typeRecord.setValue(true, '__isEntity');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSnapshot = environment.lookup(
@@ -911,7 +961,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     it('reads data and reports nothing missing if only the type discriminator is missing', () => {
       // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -922,8 +972,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the missing user field
       environment.commitUpdate(store => {
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isEntity')).toBe(undefined);
         const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isEntity')).toBe(undefined);
         record.setValue('https://...', 'url');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -955,7 +1006,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
       // somehow we have all the data
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -966,9 +1017,10 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the missing user field *and* discriminator
       environment.commitUpdate(store => {
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isEntity')).toBe(undefined);
+        typeRecord.setValue(true, '__isEntity');
         const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isEntity')).toBe(undefined);
-        record.setValue(true, '__isEntity');
         record.setValue('https://...', 'url');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -1026,7 +1078,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1066,7 +1118,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     it('reads data and reports nothing missing if only user fields are missing', () => {
       // similar case, we know somehow that the record implements the nested abstract type, but
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1078,9 +1130,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the discriminator
       environment.commitUpdate(store => {
-        const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isNamed')).toBe(undefined);
-        record.setValue(true, '__isNamed');
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isNamed')).toBe(undefined);
+        typeRecord.setValue(true, '__isNamed');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSnapshot = environment.lookup(
@@ -1112,7 +1164,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     it('reads data and reports nothing missing if only the type discriminator is missing', () => {
       // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1124,8 +1176,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the missing user field
       environment.commitUpdate(store => {
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isNamed')).toBe(undefined);
         const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isNamed')).toBe(undefined);
         record.setValue('Zuck', 'name');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -1157,7 +1210,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
       // somehow we have all the data
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1169,9 +1222,10 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the missing user field *and* discriminator
       environment.commitUpdate(store => {
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isNamed')).toBe(undefined);
+        typeRecord.setValue(true, '__isNamed');
         const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isNamed')).toBe(undefined);
-        record.setValue(true, '__isNamed');
         record.setValue('Zuck', 'name');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -1231,7 +1285,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1271,7 +1325,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     it('reads data and reports nothing missing if only user fields are missing', () => {
       // similar case, we know somehow that the record implements the nested abstract type, but
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1283,9 +1337,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the discriminator
       environment.commitUpdate(store => {
-        const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isNamed')).toBe(undefined);
-        record.setValue(true, '__isNamed');
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isNamed')).toBe(undefined);
+        typeRecord.setValue(true, '__isNamed');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSnapshot = environment.lookup(
@@ -1317,7 +1371,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     it('reads data and reports nothing missing if only the type discriminator is missing', () => {
       // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1329,8 +1383,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the missing user field
       environment.commitUpdate(store => {
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isNamed')).toBe(undefined);
         const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isNamed')).toBe(undefined);
         record.setValue('Zuck', 'name');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -1362,7 +1417,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
       // somehow we have all the data
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1374,9 +1429,10 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
       });
       // consistency update that provides the missing user field *and* discriminator
       environment.commitUpdate(store => {
+        const typeRecord = nullthrows(store.get(generateTypeID('User')));
+        expect(typeRecord.getValue('__isNamed')).toBe(undefined);
+        typeRecord.setValue(true, '__isNamed');
         const record = nullthrows(store.get('abc'));
-        expect(record.getValue('__isNamed')).toBe(undefined);
-        record.setValue(true, '__isNamed');
         record.setValue('Zuck', 'name');
       });
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -1434,7 +1490,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing even if user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1473,7 +1529,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing if all fields are present', () => {
       // somehow we have all the data
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1545,7 +1601,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing even if user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
@@ -1584,7 +1640,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
 
     it('reads data and reports nothing missing if all fields are present', () => {
       // somehow we have all the data
-      environment.commitPayload(operation, {
+      commitPayload(operation, {
         userOrPage: {
           __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment

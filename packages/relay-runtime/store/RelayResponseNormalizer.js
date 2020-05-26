@@ -43,6 +43,7 @@ const {
   TYPENAME_KEY,
   ROOT_ID,
 } = require('./RelayStoreUtils');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
@@ -198,8 +199,15 @@ class RelayResponseNormalizer {
             }
           } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             const implementsInterface = data.hasOwnProperty(abstractKey);
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            let typeRecord = this._recordSource.get(typeID);
+            if (typeRecord == null) {
+              typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+              this._recordSource.set(typeID, typeRecord);
+            }
             RelayModernRecord.setValue(
-              record,
+              typeRecord,
               abstractKey,
               implementsInterface,
             );
@@ -217,8 +225,15 @@ class RelayResponseNormalizer {
           if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             const {abstractKey} = selection;
             const implementsInterface = data.hasOwnProperty(abstractKey);
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            let typeRecord = this._recordSource.get(typeID);
+            if (typeRecord == null) {
+              typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+              this._recordSource.set(typeID, typeRecord);
+            }
             RelayModernRecord.setValue(
-              record,
+              typeRecord,
               abstractKey,
               implementsInterface,
             );

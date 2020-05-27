@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {loadQuery} = require('./loadQuery');
+const {loadQuery} = require('./loadQuery_DEPRECATED');
 
 import type {
   EntryPoint,

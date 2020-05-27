@@ -16,7 +16,7 @@
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 
-const {loadQuery} = require('../loadQuery');
+const {loadQuery} = require('../loadQuery_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {

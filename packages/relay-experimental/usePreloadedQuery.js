@@ -18,7 +18,7 @@ const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
-const {useTrackLoadQueryInRender} = require('./loadQuery');
+const {useTrackLoadQueryInRender} = require('./loadQuery_DEPRECATED');
 const {useDebugValue} = require('react');
 const {
   __internal: {fetchQueryDeduped},

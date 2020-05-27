@@ -33,7 +33,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationState');
 const useSubscription = require('./useSubscription');
 
-const {loadQuery} = require('./loadQuery');
+const {loadQuery} = require('./loadQuery_DEPRECATED');
 
 export type * from './EntryPointTypes.flow';
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';

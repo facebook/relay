@@ -56,13 +56,17 @@ function usePreloadedQuery<TQuery: OperationType>(
   const data = useLazyLoadQueryNode({
     componentDisplayName: 'usePreloadedQuery()',
     fetchKey,
-    fetchObservable: fetchQueryDeduped(environment, operation.request, () => {
-      if (environment === preloadedQuery.environment && source != null) {
-        return environment.executeWithSource({operation, source});
-      } else {
-        return environment.execute({operation});
-      }
-    }),
+    fetchObservable: fetchQueryDeduped(
+      environment,
+      operation.request.identifier,
+      () => {
+        if (environment === preloadedQuery.environment && source != null) {
+          return environment.executeWithSource({operation, source});
+        } else {
+          return environment.execute({operation});
+        }
+      },
+    ),
     fetchPolicy,
     query: operation,
     renderPolicy: options?.UNSTABLE_renderPolicy,

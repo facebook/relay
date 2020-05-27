@@ -26,8 +26,10 @@ const {
   createMockEnvironment,
 } = require('relay-test-utils-internal');
 
-import type {PreloadableConcreteRequest} from '../EntryPointTypes.flow';
-import type {LoadQueryOptions} from '../loadQuery';
+import type {
+  LoadQueryOptions,
+  PreloadableConcreteRequest,
+} from '../EntryPointTypes.flow';
 import type {
   ConcreteRequest,
   OperationType,

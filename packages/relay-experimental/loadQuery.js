@@ -25,31 +25,15 @@ const {
 
 import type {
   PreloadableConcreteRequest,
-  PreloadFetchPolicy,
+  PreloadedQueryInner,
+  LoadQueryOptions,
 } from './EntryPointTypes.flow';
 import type {
   IEnvironment,
   OperationType,
   GraphQLTaggedNode,
   GraphQLResponse,
-  CacheConfig,
 } from 'relay-runtime';
-
-export type LoadQueryOptions = {|
-  +fetchPolicy?: ?PreloadFetchPolicy,
-  +networkCacheConfig?: ?CacheConfig,
-  +onQueryAstLoadTimeout?: ?(Error) => void,
-|};
-
-type PreloadedQueryInner<TQuery: OperationType> = {|
-  kind: 'PreloadedQuery',
-  dispose: () => void,
-  environment: IEnvironment,
-  fetchPolicy: PreloadFetchPolicy,
-  name: string,
-  source: ?Observable<GraphQLResponse>,
-  variables: $ElementType<TQuery, 'variables'>,
-|};
 
 const LOAD_QUERY_AST_MAX_TIMEOUT = 30 * 1000;
 
@@ -88,6 +72,8 @@ function loadQuery<TQuery: OperationType>(
   let madeNetworkRequest = false;
   const makeNetworkRequest = (params): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
+    // madeNetworkRequest is safe to rely on in the returned value
+
     madeNetworkRequest = true;
     const network = environment.getNetwork();
     const sourceObservable = network.execute(params, variables, {
@@ -107,7 +93,6 @@ function loadQuery<TQuery: OperationType>(
         subject.complete();
       },
     });
-
     return Observable.create(sink => subject.subscribe(sink));
   };
 
@@ -149,21 +134,21 @@ function loadQuery<TQuery: OperationType>(
       executeWithSource(operation, source);
     }
     // if the fetch policy allows fulfillment from the store and the environment
-    // has the appropriate data, we do nothing. In particular, we don't call
-    // makeNetworkRequest, which has side effects that show up in the return value.
+    // has the appropriate data, we do nothing.
   };
 
   let params;
   let loadQueryAstTimeoutId;
   let cancelOnLoadCallback;
+  let moduleId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
     ({params} = preloadableConcreteRequest);
 
-    const {id: moduleId} = params;
+    ({id: moduleId} = params);
     invariant(
       moduleId !== null,
-      'Relay: `loadQuery` requires that the preloadable query `%s` has persisted query id',
+      'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id',
       params.name,
     );
 
@@ -204,6 +189,14 @@ function loadQuery<TQuery: OperationType>(
     const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
+
+    ({id: moduleId} = params);
+    invariant(
+      moduleId !== null,
+      'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id',
+      params.name,
+    );
+
     checkAvailabilityAndExecute(request);
   }
 
@@ -216,6 +209,7 @@ function loadQuery<TQuery: OperationType>(
       cancelOnLoadCallback && cancelOnLoadCallback();
       loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
     },
+    id: moduleId,
     name: params.name,
     fetchPolicy,
     source: madeNetworkRequest ? returnedObservable : undefined,

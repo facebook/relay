@@ -126,6 +126,7 @@ function prepareEntryPoint<
     });
   }
   return {
+    kind: 'PreloadedEntryPoint_DEPRECATED',
     entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
     extraProps: extraProps ?? null,
     getComponent: () => {

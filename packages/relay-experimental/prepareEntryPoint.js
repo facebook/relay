@@ -13,14 +13,14 @@
 
 'use strict';
 
-const {loadQuery} = require('./loadQuery_DEPRECATED');
+const preloadQuery = require('./preloadQuery_DEPRECATED');
 
 import type {
   EntryPoint,
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
-  PreloadedEntryPoint,
+  PreloadedEntryPointInner_DEPRECATED,
 } from './EntryPointTypes.flow';
 
 function prepareEntryPoint<
@@ -40,7 +40,7 @@ function prepareEntryPoint<
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
   entryPointParams: TEntryPointParams,
-): PreloadedEntryPoint<TEntryPointComponent> {
+): PreloadedEntryPointInner_DEPRECATED<TEntryPointComponent> {
   // Start loading the code for the entrypoint
   let loadingPromise = null;
   if (entryPoint.root.getModuleIfRequired() == null) {
@@ -64,7 +64,7 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = loadQuery(
+      preloadedQueries[queryPropName] = preloadQuery(
         environment,
         parameters,
         variables,
@@ -93,6 +93,7 @@ function prepareEntryPoint<
     });
   }
   return {
+    kind: 'PreloadedEntryPoint_DEPRECATED',
     entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
     extraProps: extraProps ?? null,
     getComponent: () => {

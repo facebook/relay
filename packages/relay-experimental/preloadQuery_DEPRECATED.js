@@ -28,7 +28,7 @@ const {
 
 import type {
   PreloadableConcreteRequest,
-  PreloadedQuery,
+  PreloadedQueryInner_DEPRECATED,
   PreloadFetchPolicy,
   PreloadOptions,
   PreloadQueryStatus,
@@ -81,7 +81,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   variables: $ElementType<TQuery, 'variables'>,
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
-): PreloadedQuery<TQuery, TEnvironmentProviderOptions> {
+): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
   invariant(
     environment instanceof Environment,
     'preloadQuery(): Expected a RelayModernEnvironment',
@@ -110,6 +110,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         })
       : null;
   return {
+    kind: 'PreloadedQuery_DEPRECATED',
     environment,
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,

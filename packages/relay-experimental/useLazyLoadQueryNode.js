@@ -40,7 +40,7 @@ const {useContext, useEffect, useState, useRef} = React;
 function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   query: OperationDescriptor,
   componentDisplayName: string,
-  fetchObservable?: Observable<GraphQLResponse>,
+  fetchObservable?: ?Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   networkCacheConfig?: CacheConfig,

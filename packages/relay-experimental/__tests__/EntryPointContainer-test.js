@@ -14,13 +14,16 @@
 'use strict';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
+const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
-const {loadQuery} = require('../loadQuery_DEPRECATED');
+const loadEntryPoint = require('../loadEntryPoint');
 const prepareEntryPoint = require('../prepareEntryPoint');
 const usePreloadedQuery = require('../usePreloadedQuery');
+
+const {loadQuery} = require('../loadQuery');
 
 const {
   Environment,
@@ -31,7 +34,10 @@ const {
 } = require('relay-runtime');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
-const query = generateAndCompile(`
+import type {ConcreteRequest} from 'relay-runtime';
+
+// $FlowFixMe
+const query: ConcreteRequest = generateAndCompile(`
   query TestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -45,6 +51,10 @@ const params = {
   kind: 'PreloadableConcreteRequest',
   params: query.params,
 };
+
+// Only queries with an ID are preloadable
+const ID = 'my-id';
+(query.params: any).id = ID;
 
 const response = {
   data: {
@@ -136,7 +146,7 @@ beforeEach(() => {
 });
 
 it('suspends while the query and component are pending', () => {
-  entryPointReference = prepareEntryPoint(
+  entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
     },
@@ -163,7 +173,7 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends then updates when the query and component load', () => {
-  entryPointReference = prepareEntryPoint(
+  entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
     },
@@ -174,8 +184,8 @@ it('suspends then updates when the query and component load', () => {
   ).entryPoints.nestedEntryPoint;
 
   expect(fetch).toBeCalledTimes(1);
-  expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPointResource.load).toBeCalledTimes(1);
+  expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(1);
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
@@ -196,6 +206,7 @@ it('suspends then updates when the query and component load', () => {
     return data.node.name;
   }
   nestedEntryPointResource.resolve(Component);
+  PreloadableQueryRegistry.set(ID, query);
   dataSource.next(response);
   dataSource.complete();
   TestRenderer.act(() => jest.runAllImmediates());
@@ -214,13 +225,7 @@ it('renders synchronously when the query and component are already loaded', () =
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
     return data.node.name;
   }
-  nestedEntryPointResource.resolve(Component);
-  loadQuery(environment, params, {id: 'my-id'});
-  expect(fetch).toBeCalledTimes(1);
-  dataSource.next(response);
-  dataSource.complete();
-
-  entryPointReference = prepareEntryPoint(
+  entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
     },
@@ -229,6 +234,10 @@ it('renders synchronously when the query and component are already loaded', () =
       id: 'my-id',
     },
   ).entryPoints.nestedEntryPoint;
+  dataSource.next(response);
+  dataSource.complete();
+  PreloadableQueryRegistry.set(ID, query);
+  nestedEntryPointResource.resolve(Component);
 
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
@@ -242,6 +251,6 @@ it('renders synchronously when the query and component are already loaded', () =
   );
   expect(renderer.toJSON()).toEqual('Alice');
   expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(2);
-  expect(nestedEntryPointResource.load).toBeCalledTimes(0);
+  expect(nestedEntryPointResource.load).toBeCalledTimes(1);
   expect(preloadedQuery).not.toBe(null);
 });

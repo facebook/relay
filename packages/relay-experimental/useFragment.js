@@ -16,7 +16,7 @@
 const useFragmentNode = require('./useFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
-const {useTrackLoadQueryInRender} = require('./loadQuery_DEPRECATED');
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 

@@ -16,7 +16,7 @@
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 
-const {useTrackLoadQueryInRender} = require('./loadQuery_DEPRECATED');
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 
 import type {
   CacheConfig,

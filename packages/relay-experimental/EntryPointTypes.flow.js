@@ -36,6 +36,12 @@ export type PreloadOptions = {|
   +networkCacheConfig?: ?CacheConfig,
 |};
 
+export type LoadQueryOptions = {|
+  +fetchPolicy?: ?PreloadFetchPolicy,
+  +networkCacheConfig?: ?CacheConfig,
+  +onQueryAstLoadTimeout?: ?(Error) => void,
+|};
+
 // Note: the phantom type parameter here helps ensures that the
 // $Parameters.js value matches the type param provided to preloadQuery.
 // eslint-disable-next-line no-unused-vars
@@ -49,7 +55,15 @@ export type EnvironmentProviderOptions = {[string]: mixed, ...};
 export type PreloadedQuery<
   TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
+> =
+  | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
+  | PreloadedQueryInner<TQuery>;
+
+export type PreloadedQueryInner_DEPRECATED<
+  TQuery: OperationType,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {|
+  +kind: 'PreloadedQuery_DEPRECATED',
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: ?string | ?number,
@@ -60,6 +74,17 @@ export type PreloadedQuery<
   +source: ?Observable<GraphQLResponse>,
   +variables: $ElementType<TQuery, 'variables'>,
   +status: PreloadQueryStatus,
+|};
+
+export type PreloadedQueryInner<TQuery: OperationType> = {|
+  dispose: () => void,
+  environment: IEnvironment,
+  fetchPolicy: PreloadFetchPolicy,
+  id: ?string,
+  name: string,
+  source: ?Observable<GraphQLResponse>,
+  kind: 'PreloadedQuery',
+  variables: $ElementType<TQuery, 'variables'>,
 |};
 
 export type PreloadQueryStatus = {|
@@ -162,8 +187,24 @@ export type PreloadProps<
   >,
 |}>;
 
-// Return type of the `prepareEntryPoint(...)` function
-export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
+export type PreloadedEntryPoint<TEntryPointComponent> =
+  | PreloadedEntryPointInner<TEntryPointComponent>
+  | PreloadedEntryPointInner_DEPRECATED<TEntryPointComponent>;
+
+export type PreloadedEntryPointInner<
+  TEntryPointComponent,
+> = PreloadedEntryPointWithKind<TEntryPointComponent, 'PreloadedEntryPoint'>;
+export type PreloadedEntryPointInner_DEPRECATED<
+  TEntryPointComponent,
+> = PreloadedEntryPointWithKind<
+  TEntryPointComponent,
+  'PreloadedEntryPoint_DEPRECATED',
+>;
+
+// Return type of the `prepareEntryPoint(...)` and `loadEntryPoint(...)` functions
+type PreloadedEntryPointWithKind<TEntryPointComponent, Kind> = $ReadOnly<{|
+  dispose?: () => void,
+  kind: Kind,
   entryPoints: $PropertyType<
     ElementConfig<TEntryPointComponent>,
     'entryPoints',

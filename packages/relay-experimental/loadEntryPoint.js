@@ -13,26 +13,13 @@
 
 const {loadQuery} = require('./loadQuery');
 
-import type {ElementConfig} from 'React';
 import type {
   EntryPoint,
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
+  PreloadedEntryPointInner,
 } from 'relay-experimental/EntryPointTypes.flow';
-
-// Return type of the `prepareEntryPoint(...)` and `loadEntryPoint(...)` functions
-type PreloadedEntryPointInner<TEntryPointComponent> = $ReadOnly<{|
-  dispose?: () => void,
-  kind: 'PreloadedEntryPoint',
-  entryPoints: $PropertyType<
-    ElementConfig<TEntryPointComponent>,
-    'entryPoints',
-  >,
-  extraProps: $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
-  getComponent: () => TEntryPointComponent,
-  queries: $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
-|}>;
 
 function loadEntryPoint<
   TEntryPointParams: {...},

@@ -133,6 +133,27 @@ function writeRelayGeneratedFile(
       };
     }
 
+    // Strip metadata only used within the compiler
+    if (
+      generatedNode.kind === RelayConcreteNode.REQUEST &&
+      (generatedNode.params.metadata?.isRefetchableQuery != null ||
+        generatedNode.params.metadata?.derivedFrom != null)
+    ) {
+      const {
+        derivedFrom: _ignored,
+        isRefetchableQuery: _ignored2,
+        ...metadata
+      } = generatedNode.params.metadata;
+      generatedNode = {
+        ...generatedNode,
+        // $FlowFixMe
+        params: {
+          ...generatedNode.params,
+          metadata,
+        },
+      };
+    }
+
     const moduleText = formatModule({
       moduleName,
       documentType: typeName,

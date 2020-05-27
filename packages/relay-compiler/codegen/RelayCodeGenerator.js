@@ -14,7 +14,6 @@
 
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
-const Rollout = require('../util/Rollout');
 
 const {createCompilerError} = require('../core/CompilerError');
 

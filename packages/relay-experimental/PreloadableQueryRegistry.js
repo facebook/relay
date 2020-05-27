@@ -11,8 +11,55 @@
 
 'use strict';
 
-import type {ConcreteRequest} from 'relay-runtime';
+import type {ConcreteRequest, Disposable} from 'relay-runtime';
 
-const PreloadableQueryRegistry: Map<string, ConcreteRequest> = new Map();
+type Callback = (concreteRequest: ConcreteRequest) => void;
 
-module.exports = PreloadableQueryRegistry;
+class PreloadableQueryRegistry {
+  _preloadableQueries: Map<string, ConcreteRequest>;
+  _callbacks: Map<string, Set<Callback>>;
+  constructor() {
+    this._preloadableQueries = new Map();
+    this._callbacks = new Map();
+  }
+
+  set(key: string, value: ConcreteRequest) {
+    this._preloadableQueries.set(key, value);
+    const callbacks = this._callbacks.get(key);
+    if (callbacks != null) {
+      callbacks.forEach(cb => {
+        try {
+          cb(value);
+        } catch (e) {
+          // We do *not* want to throw in this tick, as this callback is executed
+          // while a query is required for the very first time.
+          setTimeout(() => {
+            throw e;
+          }, 0);
+        }
+      });
+    }
+  }
+
+  get(key: string): ?ConcreteRequest {
+    return this._preloadableQueries.get(key);
+  }
+
+  onLoad(key: string, callback: Callback): Disposable {
+    const callbacks = this._callbacks.get(key) ?? new Set();
+    callbacks.add(callback);
+    const dispose = () => {
+      callbacks.delete(callback);
+    };
+    this._callbacks.set(key, callbacks);
+    return {dispose};
+  }
+
+  clear() {
+    this._preloadableQueries.clear();
+  }
+}
+
+const preloadableQueryRegistry: PreloadableQueryRegistry = new PreloadableQueryRegistry();
+
+module.exports = preloadableQueryRegistry;

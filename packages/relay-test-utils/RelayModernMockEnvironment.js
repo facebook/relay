@@ -447,6 +447,7 @@ function createMockEnvironment(
     env: IEnvironment,
     fn:
       | $PropertyType<IEnvironment, 'execute'>
+      | $PropertyType<IEnvironment, 'executeWithSource'>
       | $PropertyType<IEnvironment, 'executeMutation'>,
   ) => {
     return (...argumentsList) => {
@@ -458,6 +459,11 @@ function createMockEnvironment(
 
   // $FlowExpectedError
   environment.execute = createExecuteProxy(environment, environment.execute);
+  // $FlowExpectedError
+  environment.executeWithSource = createExecuteProxy(
+    environment,
+    environment.executeWithSource,
+  );
   // $FlowExpectedError
   environment.executeMutation = createExecuteProxy(
     environment,

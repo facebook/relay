@@ -24,9 +24,9 @@ fragment PaginationFragment on Node
 }
 ==================================== OUTPUT ===================================
 query RefetchableFragmentQuery(
-  $beforeCursor: ID
   $count: Int = 10
   $cursor: ID
+  $beforeCursor: ID
   $lastCount: Int
   $id: ID!
 ) @__refetchableQueryMetadata(__refetchableQueryMetadata: "PaginationFragment") {

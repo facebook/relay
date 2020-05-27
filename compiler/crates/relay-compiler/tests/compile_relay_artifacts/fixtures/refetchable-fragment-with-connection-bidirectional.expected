@@ -27,12 +27,6 @@ fragment PaginationFragment on Node
   "fragment": {
     "argumentDefinitions": [
       {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "beforeCursor",
-        "type": "ID"
-      },
-      {
         "defaultValue": 10,
         "kind": "LocalArgument",
         "name": "count",
@@ -42,6 +36,12 @@ fragment PaginationFragment on Node
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "cursor",
+        "type": "ID"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "beforeCursor",
         "type": "ID"
       },
       {
@@ -102,12 +102,6 @@ fragment PaginationFragment on Node
   "operation": {
     "argumentDefinitions": [
       {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "beforeCursor",
-        "type": "ID"
-      },
-      {
         "defaultValue": 10,
         "kind": "LocalArgument",
         "name": "count",
@@ -117,6 +111,12 @@ fragment PaginationFragment on Node
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "cursor",
+        "type": "ID"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "beforeCursor",
         "type": "ID"
       },
       {
@@ -342,9 +342,9 @@ fragment PaginationFragment on Node
 QUERY:
 
 query RefetchableFragmentQuery(
-  $beforeCursor: ID
   $count: Int = 10
   $cursor: ID
+  $beforeCursor: ID
   $lastCount: Int
   $id: ID!
 ) {

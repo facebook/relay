@@ -6,14 +6,15 @@
  */
 
 use common::NamedItem;
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
+use indexmap::IndexMap;
 use interner::StringKey;
 use std::iter::FromIterator;
 
-pub type VariableMap = FnvHashMap<StringKey, Variable>;
+pub type VariableMap = IndexMap<StringKey, Variable, FnvBuildHasher>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
 
 pub struct InferVariablesVisitor<'s> {

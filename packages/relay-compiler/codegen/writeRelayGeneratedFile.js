@@ -153,6 +153,16 @@ function writeRelayGeneratedFile(
         },
       };
     }
+    if (
+      generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION &&
+      generatedNode.metadata?.derivedFrom != null
+    ) {
+      const {derivedFrom: _ignored, ...metadata} = generatedNode.metadata;
+      generatedNode = {
+        ...generatedNode,
+        metadata,
+      };
+    }
 
     const moduleText = formatModule({
       moduleName,

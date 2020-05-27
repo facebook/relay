@@ -291,6 +291,9 @@ pub enum ValidationMessage {
         filters_arg_name: StringKey,
     },
 
+    #[error("@stream_connection does not support aliasing the '{field_name}' field.")]
+    UnsupportedAliasingInStreamConnection { field_name: StringKey },
+
     #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
     InvalidRelayDirectiveArg(StringKey),
     #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]

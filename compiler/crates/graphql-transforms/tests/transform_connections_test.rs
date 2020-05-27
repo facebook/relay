@@ -1,4 +1,4 @@
-// @generated SignedSource<<117e68db8fa12517cdbb39d01f55be6e>>
+// @generated SignedSource<<4547591aba11ca86fa270be5748e5a32>>
 
 mod transform_connections;
 
@@ -66,4 +66,18 @@ fn connection_with_variables() {
     let input = include_str!("transform_connections/fixtures/connection-with-variables.graphql");
     let expected = include_str!("transform_connections/fixtures/connection-with-variables.expected");
     test_fixture(transform_fixture, "connection-with-variables.graphql", "transform_connections/fixtures/connection-with-variables.expected", input, expected);
+}
+
+#[test]
+fn stream_connection() {
+    let input = include_str!("transform_connections/fixtures/stream-connection.graphql");
+    let expected = include_str!("transform_connections/fixtures/stream-connection.expected");
+    test_fixture(transform_fixture, "stream-connection.graphql", "transform_connections/fixtures/stream-connection.expected", input, expected);
+}
+
+#[test]
+fn stream_connection_no_label() {
+    let input = include_str!("transform_connections/fixtures/stream-connection-no-label.graphql");
+    let expected = include_str!("transform_connections/fixtures/stream-connection-no-label.expected");
+    test_fixture(transform_fixture, "stream-connection-no-label.graphql", "transform_connections/fixtures/stream-connection-no-label.expected", input, expected);
 }

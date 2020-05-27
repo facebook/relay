@@ -741,14 +741,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_defer_reader(&mut self, inline_fragment: &InlineFragment) -> Primitive {
-        let frag_spread =
+        let next_selections =
             if let Selection::FragmentSpread(frag_spread) = &inline_fragment.selections[0] {
-                frag_spread
+                let next_selections = vec![self.build_fragment_spread(frag_spread)];
+                Primitive::Key(self.array(next_selections))
             } else {
-                panic!("Expected a fragment spread for defer in the reader.")
+                self.build_selections(&inline_fragment.selections)
             };
-        let next_selections = vec![self.build_fragment_spread(frag_spread)];
-        let next_selections = Primitive::Key(self.array(next_selections));
+
         Primitive::Key(self.object(vec![
             (
                 CODEGEN_CONSTANTS.kind,

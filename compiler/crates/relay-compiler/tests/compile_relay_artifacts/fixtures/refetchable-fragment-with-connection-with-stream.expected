@@ -169,72 +169,88 @@ fragment PaginationFragment on Node
                 "plural": false,
                 "selections": [
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "FriendsEdge",
-                    "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
+                    "if": null,
+                    "kind": "Stream",
+                    "label": "PaginationFragment$stream$PaginationFragment_friends",
+                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": "User",
+                        "concreteType": "FriendsEdge",
                         "kind": "LinkedField",
-                        "name": "node",
-                        "plural": false,
+                        "name": "edges",
+                        "plural": true,
                         "selections": [
                           {
                             "alias": null,
                             "args": null,
-                            "kind": "ScalarField",
-                            "name": "id",
+                            "concreteType": "User",
+                            "kind": "LinkedField",
+                            "name": "node",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              }
+                            ],
                             "storageKey": null
                           },
                           {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "__typename",
+                            "name": "cursor",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "cursor",
-                        "storageKey": null
                       }
                     ],
-                    "storageKey": null
+                    "useCustomizedBatch": null
                   },
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "kind": "LinkedField",
-                    "name": "pageInfo",
-                    "plural": false,
+                    "if": null,
+                    "kind": "Defer",
+                    "label": "PaginationFragment$defer$PaginationFragment_friends$pageInfo",
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
-                        "kind": "ScalarField",
-                        "name": "endCursor",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "hasNextPage",
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "endCursor",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "hasNextPage",
+                            "storageKey": null
+                          }
+                        ],
                         "storageKey": null
                       }
-                    ],
-                    "storageKey": null
+                    ]
                   }
                 ],
                 "storageKey": null
@@ -297,16 +313,18 @@ fragment PaginationFragment_1G22uz on Node {
   ... on User {
     name
     friends(after: $cursor, first: $count) {
-      edges {
+      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
         node {
           id
           __typename
         }
         cursor
       }
-      pageInfo {
-        endCursor
-        hasNextPage
+      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
       }
     }
   }
@@ -386,72 +404,82 @@ fragment PaginationFragment_1G22uz on Node {
           "plural": false,
           "selections": [
             {
-              "alias": null,
-              "args": null,
-              "concreteType": "FriendsEdge",
-              "kind": "LinkedField",
-              "name": "edges",
-              "plural": true,
+              "kind": "Stream",
               "selections": [
                 {
                   "alias": null,
                   "args": null,
-                  "concreteType": "User",
+                  "concreteType": "FriendsEdge",
                   "kind": "LinkedField",
-                  "name": "node",
-                  "plural": false,
+                  "name": "edges",
+                  "plural": true,
                   "selections": [
                     {
                       "alias": null,
                       "args": null,
-                      "kind": "ScalarField",
-                      "name": "id",
+                      "concreteType": "User",
+                      "kind": "LinkedField",
+                      "name": "node",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "id",
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "__typename",
+                          "storageKey": null
+                        }
+                      ],
                       "storageKey": null
                     },
                     {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "__typename",
+                      "name": "cursor",
                       "storageKey": null
                     }
                   ],
                   "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "cursor",
-                  "storageKey": null
                 }
-              ],
-              "storageKey": null
+              ]
             },
             {
-              "alias": null,
-              "args": null,
-              "concreteType": "PageInfo",
-              "kind": "LinkedField",
-              "name": "pageInfo",
-              "plural": false,
+              "kind": "Defer",
               "selections": [
                 {
                   "alias": null,
                   "args": null,
-                  "kind": "ScalarField",
-                  "name": "endCursor",
-                  "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "hasNextPage",
+                  "concreteType": "PageInfo",
+                  "kind": "LinkedField",
+                  "name": "pageInfo",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "endCursor",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "hasNextPage",
+                      "storageKey": null
+                    }
+                  ],
                   "storageKey": null
                 }
-              ],
-              "storageKey": null
+              ]
             }
           ],
           "storageKey": null

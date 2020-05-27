@@ -4,11 +4,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       comments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_comments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
         edges {
           node {
             actor {
@@ -84,34 +80,47 @@ query NodeQuery($id: ID!) {
                 "plural": false,
                 "selections": [
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
+                    "kind": "Stream",
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": "Comment",
+                        "concreteType": "CommentsEdge",
                         "kind": "LinkedField",
-                        "name": "node",
-                        "plural": false,
+                        "name": "edges",
+                        "plural": true,
                         "selections": [
                           {
                             "alias": null,
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "kind": "LinkedField",
-                            "name": "actor",
+                            "name": "node",
                             "plural": false,
                             "selections": [
                               {
                                 "alias": null,
                                 "args": null,
+                                "concreteType": null,
+                                "kind": "LinkedField",
+                                "name": "actor",
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "name",
+                                    "storageKey": null
+                                  }
+                                ],
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
                                 "kind": "ScalarField",
-                                "name": "name",
+                                "name": "__typename",
                                 "storageKey": null
                               }
                             ],
@@ -121,46 +130,43 @@ query NodeQuery($id: ID!) {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "__typename",
+                            "name": "cursor",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "cursor",
-                        "storageKey": null
                       }
-                    ],
-                    "storageKey": null
+                    ]
                   },
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "kind": "LinkedField",
-                    "name": "pageInfo",
-                    "plural": false,
+                    "kind": "Defer",
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
-                        "kind": "ScalarField",
-                        "name": "endCursor",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "hasNextPage",
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "endCursor",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "hasNextPage",
+                            "storageKey": null
+                          }
+                        ],
                         "storageKey": null
                       }
-                    ],
-                    "storageKey": null
+                    ]
                   }
                 ],
                 "storageKey": null
@@ -235,41 +241,57 @@ query NodeQuery($id: ID!) {
                 "plural": false,
                 "selections": [
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "CommentsEdge",
-                    "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
+                    "if": null,
+                    "kind": "Stream",
+                    "label": "NodeQuery$stream$NodeQuery_comments",
+                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": "Comment",
+                        "concreteType": "CommentsEdge",
                         "kind": "LinkedField",
-                        "name": "node",
-                        "plural": false,
+                        "name": "edges",
+                        "plural": true,
                         "selections": [
                           {
                             "alias": null,
                             "args": null,
-                            "concreteType": null,
+                            "concreteType": "Comment",
                             "kind": "LinkedField",
-                            "name": "actor",
+                            "name": "node",
                             "plural": false,
                             "selections": [
                               {
                                 "alias": null,
                                 "args": null,
-                                "kind": "ScalarField",
-                                "name": "__typename",
-                                "storageKey": null
-                              },
-                              {
-                                "alias": null,
-                                "args": null,
-                                "kind": "ScalarField",
-                                "name": "name",
+                                "concreteType": null,
+                                "kind": "LinkedField",
+                                "name": "actor",
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "__typename",
+                                    "storageKey": null
+                                  },
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "name",
+                                    "storageKey": null
+                                  },
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "id",
+                                    "storageKey": null
+                                  }
+                                ],
                                 "storageKey": null
                               },
                               {
@@ -277,6 +299,13 @@ query NodeQuery($id: ID!) {
                                 "args": null,
                                 "kind": "ScalarField",
                                 "name": "id",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
                                 "storageKey": null
                               }
                             ],
@@ -286,53 +315,46 @@ query NodeQuery($id: ID!) {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "id",
+                            "name": "cursor",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "useCustomizedBatch": null
+                  },
+                  {
+                    "if": null,
+                    "kind": "Defer",
+                    "label": "NodeQuery$defer$NodeQuery_comments$pageInfo",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "endCursor",
                             "storageKey": null
                           },
                           {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "__typename",
+                            "name": "hasNextPage",
                             "storageKey": null
                           }
                         ],
                         "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "cursor",
-                        "storageKey": null
                       }
-                    ],
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "PageInfo",
-                    "kind": "LinkedField",
-                    "name": "pageInfo",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "endCursor",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "hasNextPage",
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
+                    ]
                   }
                 ],
                 "storageKey": "comments(first:10)"
@@ -380,7 +402,7 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) {
-        edges {
+        edges @stream(label: "NodeQuery$stream$NodeQuery_comments", initial_count: 0) {
           node {
             actor {
               __typename
@@ -392,9 +414,11 @@ query NodeQuery(
           }
           cursor
         }
-        pageInfo {
-          endCursor
-          hasNextPage
+        ... on CommentsConnection @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
         }
       }
     }

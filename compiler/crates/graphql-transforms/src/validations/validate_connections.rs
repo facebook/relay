@@ -517,6 +517,49 @@ impl<'s> ConnectionValidation<'s> {
         }
         Ok(())
     }
+
+    fn validate_stream_connection(
+        &self,
+        edges_field: &LinkedField,
+        connection_field: &LinkedField,
+    ) -> ValidationResult<()> {
+        if edges_field.alias.is_some() {
+            return Err(vec![ValidationError::new(
+                ValidationMessage::UnsupportedAliasingInStreamConnection {
+                    field_name: self.connection_interface.edges_selection_name,
+                },
+                vec![edges_field.definition.location],
+            )]);
+        }
+
+        let page_info_selection = connection_field
+            .selections
+            .iter()
+            .find_map(|sel| match sel {
+                Selection::LinkedField(field) => {
+                    if self.program.schema().field(field.definition.item).name
+                        == self.connection_interface.page_info_selection_name
+                    {
+                        Some(field)
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            });
+        if let Some(page_info_selection) = page_info_selection {
+            if page_info_selection.alias.is_some() {
+                return Err(vec![ValidationError::new(
+                    ValidationMessage::UnsupportedAliasingInStreamConnection {
+                        field_name: self.connection_interface.page_info_selection_name,
+                    },
+                    vec![page_info_selection.definition.location],
+                )]);
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl<'s> Validator for ConnectionValidation<'s> {
@@ -537,6 +580,12 @@ impl<'s> Validator for ConnectionValidation<'s> {
                 connection_directive,
             )?;
             let edges_field = self.validate_connection_selection(field, connection_schema_field)?;
+
+            if connection_directive.name.item
+                == self.connection_constants.stream_connection_directive_name
+            {
+                self.validate_stream_connection(edges_field, field)?;
+            }
 
             validate!(
                 self.validate_connection_spec(

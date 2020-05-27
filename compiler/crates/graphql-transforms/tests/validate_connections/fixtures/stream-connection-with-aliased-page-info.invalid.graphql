@@ -1,3 +1,4 @@
+# expected-to-throw
 query NodeQuery($id: ID!) {
   node(id: $id) {
     id
@@ -11,8 +12,7 @@ query NodeQuery($id: ID!) {
             }
           }
         }
-        pageInfo {
-          endCursor
+        commentPageInfo: pageInfo {
           hasNextPage
         }
       }

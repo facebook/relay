@@ -11,11 +11,12 @@ use crate::connections::{
     extract_connection_directive, get_default_filters, ConnectionConstants, ConnectionInterface,
     ConnectionMetadata,
 };
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::handle_fields::{build_handle_field_directive, HandleFieldConstants};
 use common::{FileKey, Location, Span, WithLocation};
 use graphql_ir::{
-    Directive, FragmentDefinition, LinkedField, OperationDefinition, Program, Selection,
-    Transformed, Transformer,
+    Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
+    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use interner::{Intern, StringKey};
 use std::sync::Arc;
@@ -35,6 +36,7 @@ struct ConnectionTransform<'s> {
     connection_constants: ConnectionConstants,
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
+    current_document_name: StringKey,
     empty_location: Location,
     handle_field_constants: HandleFieldConstants,
     handle_field_constants_for_connection: HandleFieldConstants,
@@ -48,6 +50,7 @@ impl<'s> ConnectionTransform<'s> {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
             current_path: None,
+            current_document_name: connection_interface.cursor_selection_name, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
             empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
             handle_field_constants,
@@ -63,8 +66,10 @@ impl<'s> ConnectionTransform<'s> {
         &mut self,
         connection_field: &LinkedField,
         connection_metadata: &ConnectionMetadata,
+        connection_directive: &Directive,
     ) -> Vec<Selection> {
-        // TODO(T63626509): Handle stream_connection case
+        let is_stream_connection = connection_directive.name.item
+            == self.connection_constants.stream_connection_directive_name;
         let schema = self.program.schema();
         let transformed_selections = self
             .transform_selections(&connection_field.selections)
@@ -109,7 +114,6 @@ impl<'s> ConnectionTransform<'s> {
             // If there is no alias present, we can reuse the existing edges field
             edges_field.clone()
         };
-        // TODO(T63626509): add stream directive to edges field
         transformed_edges_field
             .selections
             .push(build_edge_selections(
@@ -118,6 +122,32 @@ impl<'s> ConnectionTransform<'s> {
                 self.connection_interface,
                 &self.empty_location,
             ));
+        if is_stream_connection {
+            let mut arguments = vec![];
+            for arg in &connection_directive.arguments {
+                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
+                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
+                    || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
+                {
+                    arguments.push(arg.clone());
+                } else if arg.name.item == self.handle_field_constants.key_arg_name {
+                    arguments.push(Argument {
+                        name: WithLocation::new(
+                            arg.name.location,
+                            DEFER_STREAM_CONSTANTS.label_arg,
+                        ),
+                        value: arg.value.clone(),
+                    });
+                }
+            }
+            transformed_edges_field.directives.push(Directive {
+                name: WithLocation::new(
+                    connection_directive.name.location,
+                    DEFER_STREAM_CONSTANTS.stream_name,
+                ),
+                arguments,
+            });
+        }
 
         // Construct page_info selection
         let page_info_schema_field_id = schema
@@ -179,6 +209,50 @@ impl<'s> ConnectionTransform<'s> {
                 &self.empty_location,
             ));
 
+        let transformed_page_info_field_selection = if is_stream_connection {
+            let mut arguments = vec![];
+            for arg in &connection_directive.arguments {
+                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
+                    arguments.push(arg.clone());
+                } else if arg.name.item == self.handle_field_constants.key_arg_name {
+                    let key = arg.value.item.expect_string_literal();
+                    arguments.push(Argument {
+                        name: WithLocation::new(
+                            arg.name.location,
+                            DEFER_STREAM_CONSTANTS.label_arg,
+                        ),
+                        value: WithLocation::new(
+                            arg.value.location,
+                            Value::Constant(ConstantValue::String(
+                                format!(
+                                    "{}$defer${}${}",
+                                    self.current_document_name,
+                                    key.lookup(),
+                                    self.connection_interface.page_info_selection_name
+                                )
+                                .intern(),
+                            )),
+                        ),
+                    });
+                }
+            }
+            Selection::InlineFragment(Arc::new(InlineFragment {
+                type_condition: Some(schema.field(connection_field.definition.item).type_.inner()),
+                selections: vec![Selection::LinkedField(From::from(
+                    transformed_page_info_field,
+                ))],
+                directives: vec![Directive {
+                    name: WithLocation::new(
+                        connection_directive.name.location,
+                        DEFER_STREAM_CONSTANTS.defer_name,
+                    ),
+                    arguments,
+                }],
+            }))
+        } else {
+            Selection::LinkedField(From::from(transformed_page_info_field))
+        };
+
         // Copy the original selections, replacing edges/pageInfo (if present)
         // with the generated locations. This is to maintain the original field
         // ordering.
@@ -191,9 +265,7 @@ impl<'s> ConnectionTransform<'s> {
                 }
                 if let Some(page_info_ix) = page_info_ix {
                     if ix == page_info_ix {
-                        return Selection::LinkedField(From::from(
-                            transformed_page_info_field.clone(),
-                        ));
+                        return transformed_page_info_field_selection.clone();
                     }
                 }
                 selection.clone()
@@ -202,9 +274,7 @@ impl<'s> ConnectionTransform<'s> {
 
         // If a page_info selection didn't exist, append the generated version instead.
         if page_info_selection.is_none() {
-            next_selections.push(Selection::LinkedField(From::from(
-                transformed_page_info_field,
-            )));
+            next_selections.push(transformed_page_info_field_selection);
         }
         next_selections
     }
@@ -251,11 +321,14 @@ impl<'s> ConnectionTransform<'s> {
             &connection_field,
             self.connection_constants,
             &self.current_path,
-            // TODO(T63626509): Add support for stream_connection
-            false,
+            connection_directive.name.item
+                == self.connection_constants.stream_connection_directive_name,
         );
-        let next_connection_selections =
-            self.transform_connection_selections(&connection_field, &connection_metadata);
+        let next_connection_selections = self.transform_connection_selections(
+            &connection_field,
+            &connection_metadata,
+            &connection_directive,
+        );
         let next_connection_directives =
             self.transform_connection_directives(&connection_field, &connection_directive);
 
@@ -281,6 +354,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
+        self.current_document_name = operation.name.item;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 
@@ -313,6 +387,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
+        self.current_document_name = fragment.name.item;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 

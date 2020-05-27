@@ -225,7 +225,13 @@ fragment RefetchableFragment on User {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "[Int]"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {

@@ -7,8 +7,8 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_metadata_as_directive, build_operation_variable_definitions, QueryGenerator,
-    RefetchRoot, RefetchableMetadata, CONSTANTS,
+    build_operation_metadata_as_directive, build_operation_variable_definitions,
+    build_used_global_variables, QueryGenerator, RefetchRoot, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
 use common::{NamedItem, WithLocation};
@@ -131,6 +131,7 @@ fn build_refetch_operation(
                             identifier_field: Some(CONSTANTS.id_name),
                         },
                     ),
+                    used_global_variables: build_used_global_variables(variables_map),
                     selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
                     ..fragment.as_ref().clone()
                 }),

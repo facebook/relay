@@ -93,6 +93,18 @@ pub fn build_operation_variable_definitions(
     result
 }
 
+pub fn build_used_global_variables(variable_map: &VariableMap) -> Vec<VariableDefinition> {
+    variable_map
+        .values()
+        .map(|var| VariableDefinition {
+            name: var.name,
+            type_: var.type_.clone(),
+            default_value: None,
+            directives: vec![],
+        })
+        .collect()
+}
+
 /// Attach metadata to the operation and fragment.
 pub fn build_fragment_metadata_as_directive(
     fragment: &FragmentDefinition,

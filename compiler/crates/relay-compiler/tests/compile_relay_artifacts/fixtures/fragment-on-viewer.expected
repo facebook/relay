@@ -214,7 +214,13 @@ fragment RefetchableFragment on Viewer {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "[Int]"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {

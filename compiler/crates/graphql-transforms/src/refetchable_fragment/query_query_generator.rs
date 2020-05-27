@@ -7,8 +7,8 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_metadata_as_directive, build_operation_variable_definitions, QueryGenerator,
-    RefetchRoot, RefetchableMetadata,
+    build_operation_metadata_as_directive, build_operation_variable_definitions,
+    build_used_global_variables, QueryGenerator, RefetchRoot, RefetchableMetadata,
 };
 use crate::root_variables::VariableMap;
 use common::WithLocation;
@@ -50,6 +50,7 @@ fn build_refetch_operation(
                     identifier_field: None,
                 },
             ),
+            used_global_variables: build_used_global_variables(variables_map),
             ..fragment.as_ref().clone()
         }),
     }))

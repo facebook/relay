@@ -227,6 +227,11 @@ fragment RefetchableFragment_1Bmzm5 on Query {
       "kind": "LocalArgument",
       "name": "id",
       "type": "ID!"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "size",
+      "type": "[Int]"
     }
   ],
   "kind": "Fragment",

@@ -77,14 +77,14 @@ export type PreloadedQueryInner_DEPRECATED<
 |};
 
 export type PreloadedQueryInner<TQuery: OperationType> = {|
-  dispose: () => void,
-  environment: IEnvironment,
-  fetchPolicy: PreloadFetchPolicy,
-  id: ?string,
-  name: string,
-  source: ?Observable<GraphQLResponse>,
-  kind: 'PreloadedQuery',
-  variables: $ElementType<TQuery, 'variables'>,
+  +dispose: () => void,
+  +environment: IEnvironment,
+  +fetchPolicy: PreloadFetchPolicy,
+  +id: ?string,
+  +name: string,
+  +source: ?Observable<GraphQLResponse>,
+  +kind: 'PreloadedQuery',
+  +variables: $ElementType<TQuery, 'variables'>,
 |};
 
 export type PreloadQueryStatus = {|

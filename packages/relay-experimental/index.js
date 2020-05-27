@@ -23,7 +23,7 @@ const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 const fetchQuery = require('./fetchQuery');
 const loadEntryPoint = require('./loadEntryPoint');
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
-const prepareEntryPoint = require('./prepareEntryPoint');
+const prepareEntryPoint_DEPRECATED = require('./prepareEntryPoint_DEPRECATED');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
 const useFragment = require('./useFragment');
 const useLazyLoadQuery = require('./useLazyLoadQuery');
@@ -62,7 +62,7 @@ module.exports = {
   loadEntryPoint: loadEntryPoint,
 
   preloadQuery_DEPRECATED: preloadQuery_DEPRECATED,
-  prepareEntryPoint: prepareEntryPoint,
+  prepareEntryPoint_DEPRECATED: prepareEntryPoint_DEPRECATED,
 
   useBlockingPaginationFragment: useBlockingPaginationFragment,
   useFragment: useFragment,

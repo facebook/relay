@@ -20,7 +20,6 @@ import type {
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
-  PreloadedEntryPointInner_DEPRECATED,
 } from './EntryPointTypes.flow';
 
 function prepareEntryPoint<
@@ -40,14 +39,13 @@ function prepareEntryPoint<
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
   entryPointParams: TEntryPointParams,
-): PreloadedEntryPointInner_DEPRECATED<TEntryPointComponent> {
+): void {
   // Start loading the code for the entrypoint
-  let loadingPromise = null;
   if (entryPoint.root.getModuleIfRequired() == null) {
-    loadingPromise = entryPoint.root.load();
+    entryPoint.root.load();
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
-  const {queries, entryPoints, extraProps} = preloadProps;
+  const {queries, entryPoints} = preloadProps;
   const preloadedQueries: $Shape<TPreloadedQueries> = {};
   const preloadedEntryPoints: $Shape<TPreloadedEntryPoints> = {};
   if (queries != null) {
@@ -92,21 +90,6 @@ function prepareEntryPoint<
       );
     });
   }
-  return {
-    kind: 'PreloadedEntryPoint_DEPRECATED',
-    entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
-    extraProps: extraProps ?? null,
-    getComponent: () => {
-      const component = entryPoint.root.getModuleIfRequired();
-      if (component == null) {
-        loadingPromise = loadingPromise ?? entryPoint.root.load();
-        throw loadingPromise;
-      }
-      // $FlowFixMe - trust me Flow, its entryPoint component
-      return (component: TEntryPointComponent);
-    },
-    queries: (preloadedQueries: TPreloadedQueries),
-  };
 }
 
 module.exports = prepareEntryPoint;

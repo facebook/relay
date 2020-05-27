@@ -13,7 +13,8 @@
 
 'use strict';
 
-const prepareEntryPoint = require('../prepareEntryPoint');
+const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');
+
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 class FakeJSResource<T> {
@@ -71,7 +72,7 @@ test('it should preload entry point with queries', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = prepareEntryPoint(
+  prepareEntryPoint_DEPRECATED(
     {
       getEnvironment: () => env,
     },
@@ -81,11 +82,6 @@ test('it should preload entry point with queries', () => {
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(networkSpy).toBeCalledTimes(1);
-  expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
-  expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({
-    id: 'my-id',
-  });
-  expect(preloadedEntryPoint.entryPoints).toEqual({});
 });
 
 test('it should preload entry point with nested entry points', () => {
@@ -130,7 +126,7 @@ test('it should preload entry point with nested entry points', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = prepareEntryPoint(
+  prepareEntryPoint_DEPRECATED(
     {
       getEnvironment: () => env,
     },
@@ -142,17 +138,6 @@ test('it should preload entry point with nested entry points', () => {
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
   expect(networkSpy).toBeCalledTimes(1);
-  expect(
-    preloadedEntryPoint.entryPoints.myNestedEntryPoint.queries.myNestedQuery
-      .name,
-  ).toBe('MyNestedQuery');
-  expect(
-    preloadedEntryPoint.entryPoints.myNestedEntryPoint.queries.myNestedQuery
-      .variables,
-  ).toEqual({
-    id: 'my-id',
-  });
-  expect(preloadedEntryPoint.queries).toEqual({});
 });
 
 test('it should preload entry point with both queries and nested entry points', () => {
@@ -214,7 +199,7 @@ test('it should preload entry point with both queries and nested entry points', 
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = prepareEntryPoint(
+  prepareEntryPoint_DEPRECATED(
     {
       getEnvironment: () => env,
     },
@@ -226,20 +211,6 @@ test('it should preload entry point with both queries and nested entry points', 
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(entryPoint.root.load).toBeCalledTimes(1);
-  expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
-  expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({
-    id: 'my-id',
-  });
-  expect(
-    preloadedEntryPoint.entryPoints.myNestedEntryPoint.queries.myNestedQuery
-      .name,
-  ).toBe('MyNestedQuery');
-  expect(
-    preloadedEntryPoint.entryPoints.myNestedEntryPoint.queries.myNestedQuery
-      .variables,
-  ).toEqual({
-    id: 'nested-my-id',
-  });
 });
 
 test('with `getEnvironment` function', () => {
@@ -273,7 +244,7 @@ test('with `getEnvironment` function', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const getEnvironment = jest.fn(() => env);
-  const preloadedEntryPoint = prepareEntryPoint(
+  prepareEntryPoint_DEPRECATED(
     {
       getEnvironment,
     },
@@ -284,9 +255,4 @@ test('with `getEnvironment` function', () => {
     actorID: '4',
   });
   expect(networkSpy).toBeCalledTimes(1);
-  expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
-  expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({
-    id: 'my-id',
-  });
-  expect(preloadedEntryPoint.entryPoints).toEqual({});
 });

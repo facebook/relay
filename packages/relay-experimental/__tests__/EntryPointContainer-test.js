@@ -20,7 +20,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const loadEntryPoint = require('../loadEntryPoint');
-const prepareEntryPoint = require('../prepareEntryPoint');
+const prepareEntryPoint = require('../prepareEntryPoint_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
 
 const {loadQuery} = require('../loadQuery');
@@ -217,7 +217,7 @@ it('suspends then updates when the query and component load', () => {
   expect(renderer.toJSON()).toEqual('Alice');
 });
 
-it('renders synchronously when the query and component are already loaded', () => {
+it('renders synchronously when the component has already loaded and the data arrives before render', () => {
   let preloadedQuery = null;
   function Component(props) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
@@ -225,6 +225,8 @@ it('renders synchronously when the query and component are already loaded', () =
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
     return data.node.name;
   }
+  PreloadableQueryRegistry.set(ID, query);
+  nestedEntryPointResource.resolve(Component);
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
@@ -236,8 +238,6 @@ it('renders synchronously when the query and component are already loaded', () =
   ).entryPoints.nestedEntryPoint;
   dataSource.next(response);
   dataSource.complete();
-  PreloadableQueryRegistry.set(ID, query);
-  nestedEntryPointResource.resolve(Component);
 
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
@@ -251,6 +251,6 @@ it('renders synchronously when the query and component are already loaded', () =
   );
   expect(renderer.toJSON()).toEqual('Alice');
   expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(2);
-  expect(nestedEntryPointResource.load).toBeCalledTimes(1);
+  expect(nestedEntryPointResource.load).toBeCalledTimes(0);
   expect(preloadedQuery).not.toBe(null);
 });

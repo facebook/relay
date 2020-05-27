@@ -342,7 +342,9 @@ impl<'s> SkipRedundantNodesTransform<'s> {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            TransformedValue::Keep
+            // TODO: This should return `Transformed::Keep`
+            // For JS parity, clone the selections as the JS transform does
+            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
         }
     }
 }

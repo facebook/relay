@@ -81,6 +81,13 @@ fragment NodeFragment on Node {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "if": null,
             "kind": "Defer",
             "label": "QueryWithFragmentWithDefer$defer$node",
@@ -125,13 +132,6 @@ fragment NodeFragment on Node {
                 "abstractKey": null
               }
             ]
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"my-id\")"

@@ -155,11 +155,6 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "storageKey": null
     },
     {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "UserUtil3_user"
-    },
-    {
       "alias": "anotherUrl",
       "args": [
         {
@@ -171,6 +166,11 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "kind": "ScalarField",
       "name": "url",
       "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "UserUtil3_user"
     }
   ],
   "type": "User",

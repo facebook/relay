@@ -454,20 +454,6 @@ fragment UserFragment_3M2EvT on User {
       "storageKey": null
     },
     {
-      "condition": "cond",
-      "kind": "Condition",
-      "passingValue": true,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        }
-      ]
-    },
-    {
       "alias": "thumbnail",
       "args": [
         {
@@ -566,6 +552,20 @@ fragment UserFragment_3M2EvT on User {
         }
       ],
       "storageKey": null
+    },
+    {
+      "condition": "cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
     }
   ],
   "type": "User",

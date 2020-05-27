@@ -104,6 +104,13 @@ query LinkedHandleField($id: ID!) {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -148,13 +155,6 @@ query LinkedHandleField($id: ID!) {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null

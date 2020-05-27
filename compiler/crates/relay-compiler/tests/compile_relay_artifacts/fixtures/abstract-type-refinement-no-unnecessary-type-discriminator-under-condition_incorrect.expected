@@ -159,6 +159,13 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
                 "storageKey": null
               },
               {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
                 "condition": "myVar",
                 "kind": "Condition",
                 "passingValue": true,
@@ -199,13 +206,6 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
                     "abstractKey": null
                   }
                 ]
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
               }
             ],
             "storageKey": null

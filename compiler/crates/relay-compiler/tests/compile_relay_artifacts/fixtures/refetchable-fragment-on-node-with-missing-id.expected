@@ -104,6 +104,13 @@ fragment ProfilePicture on User {
             "abstractKey": "__isNode"
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -140,13 +147,6 @@ fragment ProfilePicture on User {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -248,6 +248,13 @@ fragment RefetchableFragment on Node {
   "name": "RefetchableFragment",
   "selections": [
     {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
       "kind": "InlineFragment",
       "selections": [
         {
@@ -265,13 +272,6 @@ fragment RefetchableFragment on Node {
       ],
       "type": "User",
       "abstractKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
     }
   ],
   "type": "Node",

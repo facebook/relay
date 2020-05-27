@@ -126,6 +126,13 @@ fragment Profile on User @inline {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -162,13 +169,6 @@ fragment Profile on User @inline {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": "username(name:\"test\")"
@@ -229,6 +229,37 @@ fragment Profile on User {
       "plural": false,
       "selections": [
         {
+          "alias": null,
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "size",
+              "value": 100
+            }
+          ],
+          "concreteType": "Image",
+          "kind": "LinkedField",
+          "name": "profilePicture",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "uri",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "height",
+              "storageKey": null
+            }
+          ],
+          "storageKey": "profilePicture(size:100)"
+        },
+        {
           "kind": "InlineDataFragmentSpread",
           "name": "Profile",
           "selections": [
@@ -264,37 +295,6 @@ fragment Profile on User {
               "storageKey": "profilePicture(size:100)"
             }
           ]
-        },
-        {
-          "alias": null,
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "size",
-              "value": 100
-            }
-          ],
-          "concreteType": "Image",
-          "kind": "LinkedField",
-          "name": "profilePicture",
-          "plural": false,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "uri",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "height",
-              "storageKey": null
-            }
-          ],
-          "storageKey": "profilePicture(size:100)"
         }
       ],
       "storageKey": null

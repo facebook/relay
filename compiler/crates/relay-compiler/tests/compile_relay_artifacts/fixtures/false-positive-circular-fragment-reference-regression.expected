@@ -38,16 +38,6 @@ fragment MyNestedViewer on Viewer
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "MyViewer"
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "MyOtherViewer"
-          },
-          {
             "alias": null,
             "args": null,
             "concreteType": null,
@@ -64,6 +54,16 @@ fragment MyNestedViewer on Viewer
               }
             ],
             "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "MyViewer"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "MyOtherViewer"
           }
         ],
         "storageKey": null

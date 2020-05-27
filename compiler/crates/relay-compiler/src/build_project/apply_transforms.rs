@@ -9,15 +9,14 @@ use common::{PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, dedupe_type_discriminator, disallow_id_as_alias,
-    flatten, generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
+    apply_fragment_arguments, client_extensions, dedupe_type_discriminator, flatten,
+    generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
     generate_subscription_name_metadata, generate_typename, handle_field_transform,
     inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
     skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
     skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
     transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
-    validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
-    validate_unused_variables, ConnectionInterface,
+    validate_module_conflicts, ConnectionInterface,
 };
 use interner::StringKey;
 
@@ -85,23 +84,15 @@ fn apply_common_transforms<'schema>(
     perf_logger: &impl PerfLogger,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
-    // + DisallowIdAsAlias
+    // * DisallowIdAsAlias (in validate)
     // + ConnectionTransform
-    // + RelayDirectiveTransform
+    // * RelayDirectiveTransform (in validate)
     // + MaskTransform
     // + MatchTransform
     // + RefetchableFragmentTransform
     // + DeferStreamTransform
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
-
-    log_event.time("disallow_id_as_alias", || disallow_id_as_alias(program))?;
-    log_event.time("validate_unused_variables", || {
-        validate_unused_variables(&program)
-    })?;
-    log_event.time("validate_relay_directives", || {
-        validate_relay_directives(&program)
-    })?;
     let program = log_event.time("transform_connections", || {
         transform_connections(program, connection_interface)
     });
@@ -209,15 +200,11 @@ fn apply_normalization_transforms<'schema>(
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // + SkipRedundantNodesTransform
-    // + ValidateServerOnlyDirectivesTransform
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
-    log_event.time("validate_server_only_directives", || {
-        validate_server_only_directives(&program)
-    })?;
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program, true));

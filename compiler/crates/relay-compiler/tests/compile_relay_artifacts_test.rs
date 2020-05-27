@@ -1,4 +1,4 @@
-// @generated SignedSource<<1053ecc5f1301a966d92ddcc7f1c0d1a>>
+// @generated SignedSource<<74a67d5ab0cee3dbc0d03dab137423ab>>
 
 mod compile_relay_artifacts;
 
@@ -297,13 +297,6 @@ fn fragment_with_defer_on_abstract_type() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-on-abstract-type.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-on-abstract-type.expected");
     test_fixture(transform_fixture, "fragment-with-defer-on-abstract-type.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-on-abstract-type.expected", input, expected);
-}
-
-#[test]
-fn fragment_with_defer_on_client_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-on-client.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-on-client.invalid.expected");
-    test_fixture(transform_fixture, "fragment-with-defer-on-client.invalid.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-on-client.invalid.expected", input, expected);
 }
 
 #[test]

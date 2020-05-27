@@ -41,7 +41,8 @@ query NodeQuery($id: ID!) {
           "path": [
             "node",
             "comments"
-          ]
+          ],
+          "stream": true
         }
       ]
     },

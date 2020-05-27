@@ -355,7 +355,8 @@ fragment PaginationFragment_1G22uz on Node {
         "direction": "forward",
         "path": [
           "friends"
-        ]
+        ],
+        "stream": true
       }
     ],
     "refetch": {

@@ -216,7 +216,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     } else {
                         (None, None)
                     };
-                    let object = vec![
+                    let mut object = vec![
                         (CODEGEN_CONSTANTS.count, Primitive::string_or_null(count)),
                         (CODEGEN_CONSTANTS.cursor, Primitive::string_or_null(cursor)),
                         (
@@ -225,6 +225,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         ),
                         (CODEGEN_CONSTANTS.path, path),
                     ];
+                    if metadata.is_stream_connection {
+                        object.push((DEFER_STREAM_CONSTANTS.stream_name, Primitive::Bool(true)))
+                    }
                     Primitive::Key(self.object(object))
                 })
                 .collect::<Vec<_>>();

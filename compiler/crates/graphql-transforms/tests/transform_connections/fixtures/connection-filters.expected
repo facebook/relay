@@ -31,12 +31,12 @@ query NodeQuery(
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handle: "connection", filters: ["orderby", "first"], dynamicKey_UNSTABLE: null) {
+      comments(first: 10, orderby: $orderBy) @connection @__clientField(key: "NodeQuery_comments", handle: "connection", filters: ["orderby", "first"]) {
         edges {
           node {
             actor {
               name
-              friends(first: 10) @connection @__clientField(key: "NodeQuery_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+              friends(first: 10) @connection @__clientField(key: "NodeQuery_friends", handle: "connection") {
                 edges {
                   node {
                     name

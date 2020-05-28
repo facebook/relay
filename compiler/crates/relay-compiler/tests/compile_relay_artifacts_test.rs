@@ -1,4 +1,4 @@
-// @generated SignedSource<<19a893998be0e053f47a1955aeb87271>>
+// @generated SignedSource<<f5fc034057b6e5b0a1745bfb13142aa9>>
 
 mod compile_relay_artifacts;
 
@@ -241,6 +241,13 @@ fn false_positive_circular_fragment_reference_regression() {
     let input = include_str!("compile_relay_artifacts/fixtures/false-positive-circular-fragment-reference-regression.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/false-positive-circular-fragment-reference-regression.expected");
     test_fixture(transform_fixture, "false-positive-circular-fragment-reference-regression.graphql", "compile_relay_artifacts/fixtures/false-positive-circular-fragment-reference-regression.expected", input, expected);
+}
+
+#[test]
+fn fields_with_null_arugment_values() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fields-with-null-arugment-values.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fields-with-null-arugment-values.expected");
+    test_fixture(transform_fixture, "fields-with-null-arugment-values.graphql", "compile_relay_artifacts/fixtures/fields-with-null-arugment-values.expected", input, expected);
 }
 
 #[test]

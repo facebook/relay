@@ -355,7 +355,7 @@ query NodeQuery(
 fragment UserFragment_3M2EvT on User {
   id
   __typename
-  friends(after: null, first: 5) {
+  friends(first: 5) {
     count
   }
   thumbnail: profilePicture(size: 32) {

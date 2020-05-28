@@ -281,7 +281,7 @@ query FeedbackQuery(
 
 fragment FeedbackFragment on Feedback {
   id
-  comments(after: null, first: 2, orderby: "date") {
+  comments(first: 2, orderby: "date") {
     edges {
       node {
         id

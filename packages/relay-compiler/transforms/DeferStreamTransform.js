@@ -205,7 +205,6 @@ function visitFragmentSpread(
     kind: 'Defer',
     label: transformedLabel,
     loc: {kind: 'Derived', source: deferDirective.loc},
-    metadata: null,
     selections: [transformedSpread],
   };
 }

@@ -605,9 +605,6 @@ function transformConnectionSelections(
       label: `${documentName}$defer$${stream.label}$${PAGE_INFO}`,
       kind: 'Defer',
       loc: derivedFieldLocation,
-      metadata: {
-        fragmentTypeCondition: nullableType,
-      },
       selections: [transformedPageInfoSelection],
     };
   }

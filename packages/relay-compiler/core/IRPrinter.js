@@ -240,17 +240,7 @@ function printSelection(
       );
       str = subSelections.join('\n' + INDENT);
     } else {
-      if (
-        selection.metadata != null &&
-        selection.metadata.fragmentTypeCondition != null
-      ) {
-        str =
-          `... on ${schema.getTypeString(
-            selection.metadata.fragmentTypeCondition,
-          )}` + deferStr;
-      } else {
-        str = '...' + deferStr;
-      }
+      str = '...' + deferStr;
       str += printSelections(schema, selection, indent + INDENT, {
         isClientExtension,
       });

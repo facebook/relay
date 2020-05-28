@@ -17581,7 +17581,7 @@ fragment PaginationFragment_1G22uz on Node {
         }
         cursor
       }
-      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+      ... @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           endCursor
           hasNextPage
@@ -18348,7 +18348,7 @@ fragment PaginationFragment on Node {
         }
         cursor
       }
-      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+      ... @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           endCursor
           hasNextPage
@@ -19704,7 +19704,7 @@ query NodeQuery(
           }
           cursor
         }
-        ... on CommentsConnection @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
+        ... @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage

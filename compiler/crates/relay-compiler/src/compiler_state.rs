@@ -32,6 +32,13 @@ pub type ProjectName = StringKey;
 /// that can be shared by multiple compiler projects
 pub type SourceSetName = StringKey;
 
+/// Set of the projects
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum ProjectSet {
+    ProjectName(ProjectName),
+    ProjectNames(Vec<ProjectName>),
+}
+
 /// Represents the name of the source set, or list of source sets
 #[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
@@ -246,12 +253,21 @@ impl CompilerState {
                         }
                     }
                 }
-                FileGroup::Schema { project_name } => {
+                FileGroup::Schema { project_set } => {
                     let schema_sources = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
                         .collect::<Result<Vec<String>>>()?;
-                    schemas.insert(project_name, schema_sources);
+                    match project_set {
+                        ProjectSet::ProjectName(project_name) => {
+                            schemas.insert(project_name, schema_sources);
+                        }
+                        ProjectSet::ProjectNames(project_names) => {
+                            for project_name in project_names {
+                                schemas.insert(project_name, schema_sources.clone());
+                            }
+                        }
+                    };
                 }
                 FileGroup::Extension { project_name } => {
                     let extension_sources: Vec<String> = files

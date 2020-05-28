@@ -7,9 +7,10 @@
 
 use super::FileGroup;
 use super::WatchmanFile;
-use crate::compiler_state::{ProjectName, SourceSet};
+use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
 use std::cmp::Reverse;
+use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::path::{Component, PathBuf};
@@ -37,20 +38,20 @@ pub fn categorize_files(
 /// The FileCategorizer is created from a Config and categorizes files found by
 /// Watchman into what kind of files they are, such as source files of a
 /// specific source file group or generated files from some project.
-pub struct FileCategorizer<'source> {
+pub struct FileCategorizer {
     extensions_mapping: PathMapping<ProjectName>,
     default_generated_dir: &'static OsStr,
     generated_dir_paths: HashSet<PathBuf>,
-    source_mapping: PathMapping<&'source SourceSet>,
-    schema_file_mapping: HashMap<PathBuf, ProjectName>,
-    schema_dir_mapping: PathMapping<ProjectName>,
+    source_mapping: PathMapping<SourceSet>,
+    schema_file_mapping: HashMap<PathBuf, ProjectSet>,
+    schema_dir_mapping: PathMapping<ProjectSet>,
 }
 
-impl<'source> FileCategorizer<'source> {
-    pub fn from_config(config: &'source Config) -> Self {
+impl FileCategorizer {
+    pub fn from_config(config: &Config) -> Self {
         let mut source_mapping = vec![];
         for (path, source_set) in &config.sources {
-            source_mapping.push((path.clone(), source_set));
+            source_mapping.push((path.clone(), source_set.clone()));
         }
 
         source_mapping.sort_by_key(|item| Reverse(item.0.clone()));
@@ -68,30 +69,62 @@ impl<'source> FileCategorizer<'source> {
                 .collect(),
         );
 
-        let schema_file_mapping: HashMap<PathBuf, ProjectName> = config
-            .projects
-            .iter()
-            .filter_map(
-                |(&project_name, project_config)| match &project_config.schema_location {
-                    SchemaLocation::File(schema_file) => Some((schema_file.clone(), project_name)),
-                    SchemaLocation::Directory(_) => None,
-                },
-            )
-            .collect();
-        let schema_dir_mapping = PathMapping(
-            config
-                .projects
-                .iter()
-                .filter_map(|(&project_name, project_config)| {
-                    match &project_config.schema_location {
-                        SchemaLocation::File(_) => None,
-                        SchemaLocation::Directory(schema_dir) => {
-                            Some((schema_dir.clone(), project_name))
-                        }
+        let mut schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
+        for (project_name, project_config) in config.projects.iter() {
+            if let SchemaLocation::File(schema_file) = &project_config.schema_location {
+                match schema_file_mapping.entry(schema_file.clone()) {
+                    Entry::Vacant(entry) => {
+                        entry.insert(ProjectSet::ProjectName(*project_name));
                     }
-                })
-                .collect(),
-        );
+                    Entry::Occupied(mut entry) => {
+                        let next_project_set = match entry.get() {
+                            ProjectSet::ProjectName(current_project) => {
+                                ProjectSet::ProjectNames(vec![*project_name, *current_project])
+                            }
+                            ProjectSet::ProjectNames(current_projects) => {
+                                let mut next_projects = vec![*project_name];
+                                for current_project in current_projects {
+                                    next_projects.push(current_project.clone());
+                                }
+                                ProjectSet::ProjectNames(next_projects)
+                            }
+                        };
+                        entry.insert(next_project_set);
+                    }
+                }
+            }
+        }
+
+        let mut schema_dir_mapping_map: HashMap<PathBuf, ProjectSet> = Default::default();
+        for (project_name, project_config) in config.projects.iter() {
+            if let SchemaLocation::Directory(directory) = &project_config.schema_location {
+                match schema_dir_mapping_map.entry(directory.clone()) {
+                    Entry::Vacant(entry) => {
+                        entry.insert(ProjectSet::ProjectName(*project_name));
+                    }
+                    Entry::Occupied(mut entry) => {
+                        let next_project_set = match entry.get() {
+                            ProjectSet::ProjectName(current_project) => {
+                                ProjectSet::ProjectNames(vec![*project_name, *current_project])
+                            }
+                            ProjectSet::ProjectNames(current_projects) => {
+                                let mut next_projects = vec![*project_name];
+                                for current_project in current_projects {
+                                    next_projects.push(current_project.clone());
+                                }
+                                ProjectSet::ProjectNames(next_projects)
+                            }
+                        };
+                        entry.insert(next_project_set);
+                    }
+                }
+            }
+        }
+
+        let mut schema_dir_mapping = vec![];
+        for (path, project_set) in schema_dir_mapping_map {
+            schema_dir_mapping.push((path, project_set));
+        }
 
         let default_generated_dir = OsStr::new("__generated__");
         let generated_dir_paths: HashSet<PathBuf> = config
@@ -105,7 +138,7 @@ impl<'source> FileCategorizer<'source> {
             default_generated_dir,
             generated_dir_paths,
             schema_file_mapping,
-            schema_dir_mapping,
+            schema_dir_mapping: PathMapping(schema_dir_mapping),
             source_mapping: PathMapping(source_mapping),
         }
     }
@@ -123,12 +156,14 @@ impl<'source> FileCategorizer<'source> {
                 }
             }
         } else if extension == "graphql" {
-            if let Some(&project_name) = self.schema_file_mapping.get(path) {
-                FileGroup::Schema { project_name }
+            if let Some(project_set) = self.schema_file_mapping.get(path) {
+                FileGroup::Schema {
+                    project_set: project_set.clone(),
+                }
             } else if let Some(project_name) = self.extensions_mapping.find(path) {
                 FileGroup::Extension { project_name }
-            } else if let Some(project_name) = self.schema_dir_mapping.find(path) {
-                FileGroup::Schema { project_name }
+            } else if let Some(project_set) = self.schema_dir_mapping.find(path) {
+                FileGroup::Schema { project_set }
             } else {
                 panic!(
                     "Expected *.graphql file `{:?}` to be either a schema or extension.",
@@ -161,8 +196,8 @@ impl<'source> FileCategorizer<'source> {
     }
 }
 
-struct PathMapping<T: Copy>(Vec<(PathBuf, T)>);
-impl<T: Copy> PathMapping<T> {
+struct PathMapping<T: Clone>(Vec<(PathBuf, T)>);
+impl<T: Clone> PathMapping<T> {
     fn get(&self, path: &PathBuf) -> T {
         self.find(path).unwrap_or_else(|| {
             panic!("Path `{:?}` not in of the the expected directories.", path);
@@ -171,7 +206,7 @@ impl<T: Copy> PathMapping<T> {
     fn find(&self, path: &PathBuf) -> Option<T> {
         self.0.iter().find_map(|(prefix, item)| {
             if path.starts_with(prefix) {
-                Some(*item)
+                Some(item.clone())
             } else {
                 None
             }
@@ -252,13 +287,13 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&"graphql/public.graphql".into()),
             FileGroup::Schema {
-                project_name: "public".intern()
+                project_set: ProjectSet::ProjectName("public".intern())
             },
         );
         assert_eq!(
             categorizer.categorize(&"graphql/__generated__/internal.graphql".into()),
             FileGroup::Schema {
-                project_name: "internal".intern()
+                project_set: ProjectSet::ProjectName("internal".intern())
             },
         );
     }

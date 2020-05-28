@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::is_relay_custom_inline_fragment_directive; // PointerAddress
+use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
 use crate::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use common::NamedItem;
-// use fnv::FnvHashMap;
+use fnv::FnvHashMap;
 use graphql_ir::{InlineFragment, Program, Selection, Transformed, TransformedValue, Transformer};
 use std::sync::Arc;
 
@@ -28,22 +28,22 @@ pub fn dedupe_type_discriminator<'s>(program: &Program<'s>) -> Program<'s> {
         .replace_or_else(|| program.clone())
 }
 
+type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
+
 struct DedupeTypeDiscriminator<'s> {
     program: &'s Program<'s>,
+    seen: Seen,
 }
 
 impl<'s> DedupeTypeDiscriminator<'s> {
     fn new(program: &'s Program<'s>) -> Self {
-        Self { program }
+        Self {
+            program,
+            seen: Default::default(),
+        }
     }
-}
 
-impl<'s> Transformer for DedupeTypeDiscriminator<'s> {
-    const NAME: &'static str = "DedupeTypeDiscriminator";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
-
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+    fn dedupe_on_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let is_abstract_inline_fragment = !fragment
             .directives
             .iter()
@@ -100,6 +100,23 @@ impl<'s> Transformer for DedupeTypeDiscriminator<'s> {
             }
         } else {
             self.default_transform_inline_fragment(fragment)
+        }
+    }
+}
+
+impl<'s> Transformer for DedupeTypeDiscriminator<'s> {
+    const NAME: &'static str = "DedupeTypeDiscriminator";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        let key = PointerAddress::new(fragment);
+        if let Some(prev) = self.seen.get(&key) {
+            prev.clone()
+        } else {
+            let result = self.dedupe_on_inline_fragment(fragment);
+            self.seen.insert(key, result.clone());
+            result
         }
     }
 }

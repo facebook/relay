@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
     Transformed, Transformer,
 };
 use interner::StringKey;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 pub fn inline_fragments<'s>(program: &Program<'s>) -> Program<'s> {
@@ -20,7 +20,7 @@ pub fn inline_fragments<'s>(program: &Program<'s>) -> Program<'s> {
         .replace_or_else(|| program.clone())
 }
 
-type Seen = HashMap<StringKey, Arc<InlineFragment>>;
+type Seen = FnvHashMap<StringKey, Arc<InlineFragment>>;
 
 struct InlineFragmentsTransform<'s> {
     program: &'s Program<'s>,

@@ -45,7 +45,7 @@ query NodeQuery(
             }
           }
         }
-        ... on CommentsConnection @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
+        ... @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage

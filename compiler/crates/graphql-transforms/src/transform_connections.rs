@@ -237,7 +237,7 @@ impl<'s> ConnectionTransform<'s> {
                 }
             }
             Selection::InlineFragment(Arc::new(InlineFragment {
-                type_condition: Some(schema.field(connection_field.definition.item).type_.inner()),
+                type_condition: None,
                 selections: vec![Selection::LinkedField(From::from(
                     transformed_page_info_field,
                 ))],

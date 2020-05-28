@@ -320,7 +320,7 @@ fragment PaginationFragment_1G22uz on Node {
         }
         cursor
       }
-      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+      ... @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           endCursor
           hasNextPage

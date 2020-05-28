@@ -1542,6 +1542,57 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
+    it('skips client fields not present in the payload but present in the store when treatMissingFieldsAsNull is true', () => {
+      const recordSource = new RelayRecordSourceMapImpl({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      normalize(
+        recordSource,
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
     it('skips client fields not present in the payload or store', () => {
       const recordSource = new RelayRecordSourceMapImpl({
         '1': {

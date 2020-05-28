@@ -108,6 +108,7 @@ class RelayResponseNormalizer {
   _treatMissingFieldsAsNull: boolean;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _isClientExtension: boolean;
+  _isUnmatchedAbstractType: boolean;
   _moduleImportPayloads: Array<ModuleImportPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
@@ -124,6 +125,7 @@ class RelayResponseNormalizer {
     this._treatMissingFieldsAsNull = options.treatMissingFieldsAsNull;
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
+    this._isUnmatchedAbstractType = false;
     this._moduleImportPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
@@ -216,8 +218,14 @@ class RelayResponseNormalizer {
             }
           } else {
             // legacy behavior for abstract refinements: always normalize even
-            // if the type doesn't conform
+            // if the type doesn't conform, but track if the type matches or not
+            // for determining whether response fields are expected to be present
+            const implementsInterface = data.hasOwnProperty(abstractKey);
+            const parentIsUnmatchedAbstractType = this._isUnmatchedAbstractType;
+            this._isUnmatchedAbstractType =
+              this._isUnmatchedAbstractType || !implementsInterface;
             this._traverseSelections(selection, record, data);
+            this._isUnmatchedAbstractType = parentIsUnmatchedAbstractType;
           }
           break;
         }
@@ -401,30 +409,38 @@ class RelayResponseNormalizer {
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
     if (fieldValue == null) {
-      if (!this._treatMissingFieldsAsNull && fieldValue === undefined) {
-        // Fields that are missing in the response are not set on the record.
-        // There are three main cases where this can occur:
+      if (fieldValue === undefined) {
+        // Fields may be missing in the response in two main cases:
         // - Inside a client extension: the server will not generally return
         //   values for these fields, but a local update may provide them.
-        // - Fields on abstract types: these may be missing if the concrete
-        //   response type does not match the abstract type.
-        //
-        // Otherwise, missing fields usually indicate a server or user error (
-        // the latter for manually constructed payloads).
-        if (__DEV__) {
-          warning(
-            this._isClientExtension ||
-              (parent.kind === LINKED_FIELD && parent.concreteType == null)
-              ? true
-              : Object.prototype.hasOwnProperty.call(data, responseKey),
-            'RelayResponseNormalizer: Payload did not contain a value ' +
-              'for field `%s: %s`. Check that you are parsing with the same ' +
-              'query that was used to fetch the payload.',
-            responseKey,
-            storageKey,
-          );
+        // - Inside an abstract type refinement where the concrete type does
+        //   not conform to the interface/union.
+        // However an otherwise-required field may also be missing if the server
+        // is configured to skip fields with `null` values, in which case the
+        // client is assumed to be correctly configured with
+        // treatMissingFieldsAsNull=true.
+        const isOptionalField =
+          this._isClientExtension || this._isUnmatchedAbstractType;
+
+        if (isOptionalField) {
+          // Field not expected to exist regardless of whether the server is pruning null
+          // fields or not.
+          return;
+        } else if (!this._treatMissingFieldsAsNull) {
+          // Not optional and the server is not pruning null fields: field is expected
+          // to be present
+          if (__DEV__) {
+            warning(
+              false,
+              'RelayResponseNormalizer: Payload did not contain a value ' +
+                'for field `%s: %s`. Check that you are parsing with the same ' +
+                'query that was used to fetch the payload.',
+              responseKey,
+              storageKey,
+            );
+          }
+          return;
         }
-        return;
       }
       RelayModernRecord.setValue(record, storageKey, null);
       return;

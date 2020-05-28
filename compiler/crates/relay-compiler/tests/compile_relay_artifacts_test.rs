@@ -1,4 +1,4 @@
-// @generated SignedSource<<74a67d5ab0cee3dbc0d03dab137423ab>>
+// @generated SignedSource<<19a893998be0e053f47a1955aeb87271>>
 
 mod compile_relay_artifacts;
 
@@ -94,6 +94,13 @@ fn abstract_type_refinement_no_unnecessary_type_discriminator_under_condition_in
     let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected");
     test_fixture(transform_fixture, "abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected", input, expected);
+}
+
+#[test]
+fn alias_same_as_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.expected");
+    test_fixture(transform_fixture, "alias-same-as-name.graphql", "compile_relay_artifacts/fixtures/alias-same-as-name.expected", input, expected);
 }
 
 #[test]

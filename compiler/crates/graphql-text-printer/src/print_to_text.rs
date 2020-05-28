@@ -241,9 +241,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         field: &ScalarField,
         conditions: Option<&[Condition]>,
     ) -> Result {
-        self.print_alias(&field.alias)?;
         let schema_field = self.schema.field(field.definition.item);
-        write!(self.writer, "{}", schema_field.name)?;
+        self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions)
     }
@@ -254,9 +253,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<&[Condition]>,
         indent_count: usize,
     ) -> Result {
-        self.print_alias(&field.alias)?;
         let schema_field = self.schema.field(field.definition.item);
-        write!(self.writer, "{}", schema_field.name)?;
+        self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions)?;
         self.print_selections(&field.selections, indent_count)?;
@@ -527,11 +525,17 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         }
     }
 
-    fn print_alias(&mut self, alias: &Option<WithLocation<StringKey>>) -> Result {
-        match alias {
-            Some(value) => write!(self.writer, "{}: ", value.item),
-            None => Ok(()),
+    fn print_alias_and_name(
+        &mut self,
+        alias: &Option<WithLocation<StringKey>>,
+        name: StringKey,
+    ) -> Result {
+        if let Some(alias) = alias {
+            if self.graphqljs_formatting || alias.item != name {
+                write!(self.writer, "{}: ", alias.item)?;
+            }
         }
+        write!(self.writer, "{}", name)
     }
 
     fn print_indentation(&mut self, indent_count: usize) -> Result {

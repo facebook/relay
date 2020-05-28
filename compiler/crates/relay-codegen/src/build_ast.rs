@@ -491,7 +491,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.alias, Primitive::string_or_null(alias)),
+            (CODEGEN_CONSTANTS.alias, build_alias(alias, name)),
             (
                 CODEGEN_CONSTANTS.args,
                 match args {
@@ -582,7 +582,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let args = self.build_arguments(&field.arguments);
         let selections = self.build_selections(&field.selections);
         Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.alias, Primitive::string_or_null(alias)),
+            (CODEGEN_CONSTANTS.alias, build_alias(alias, name)),
             (
                 CODEGEN_CONSTANTS.args,
                 match args {
@@ -1360,5 +1360,18 @@ fn value_contains_variable(value: &Value) -> bool {
         Value::Object(objects) => objects
             .iter()
             .any(|arg| value_contains_variable(&arg.value.item)),
+    }
+}
+
+fn build_alias(alias: Option<StringKey>, name: StringKey) -> Primitive {
+    match alias {
+        None => Primitive::Null,
+        Some(alias) => {
+            if alias == name {
+                Primitive::Null
+            } else {
+                Primitive::String(alias)
+            }
+        }
     }
 }

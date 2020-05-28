@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::compiler_state::{ProjectName, SourceSet};
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum FileGroup {
     Generated,
     Schema { project_name: ProjectName },
     Extension { project_name: ProjectName },
-    Source { source_set_name: SourceSetName },
+    Source { source_set: SourceSet },
 }

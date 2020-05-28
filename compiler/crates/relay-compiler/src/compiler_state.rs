@@ -15,11 +15,13 @@ use crate::watchman::{
 use common::{PerfLogEvent, PerfLogger};
 use fnv::FnvHashMap;
 use graphql_syntax::GraphQLSource;
-use indexmap::IndexMap;
+use indexmap::map::IndexMap;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::hash_map::Entry;
+use std::fmt;
 use std::path::PathBuf;
 use std::{fs::File, io};
 
@@ -29,6 +31,31 @@ pub type ProjectName = StringKey;
 /// Name of a source set; a source set corresponds to a set fo files
 /// that can be shared by multiple compiler projects
 pub type SourceSetName = StringKey;
+
+/// Represents the name of the source set, or list of source sets
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[serde(untagged)]
+pub enum SourceSet {
+    SourceSetName(SourceSetName),
+    SourceSetNames(Vec<SourceSetName>),
+}
+
+impl fmt::Display for SourceSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SourceSet::SourceSetName(name) => write!(f, "{}", name),
+            SourceSet::SourceSetNames(names) => write!(
+                f,
+                "{}",
+                names
+                    .iter()
+                    .map(|name| name.to_string())
+                    .collect::<Vec<String>>()
+                    .join(",")
+            ),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FileState {
@@ -89,8 +116,16 @@ impl GraphQLSources {
         source_set_name: SourceSetName,
         source_set: GraphQLSourceSet,
     ) {
-        self.grouped_pending_sources
-            .insert(source_set_name, source_set);
+        match self.grouped_pending_sources.entry(source_set_name) {
+            Entry::Occupied(mut entry) => {
+                for (path, file_state) in source_set {
+                    entry.get_mut().insert(path, file_state);
+                }
+            }
+            Entry::Vacant(entry) => {
+                entry.insert(source_set);
+            }
+        }
     }
 
     fn add_pending_sources(&mut self, pending_graphql_sources: &GraphQLSources) {
@@ -160,9 +195,9 @@ impl CompilerState {
 
         for (category, files) in categorized {
             match category {
-                FileGroup::Source { source_set_name } => {
+                FileGroup::Source { source_set } => {
                     let log_event = perf_logger.create_event("categorize");
-                    log_event.string("source_set_name", source_set_name.to_string());
+                    log_event.string("source_set_name", source_set.to_string());
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
@@ -199,7 +234,17 @@ impl CompilerState {
                         })
                         .collect::<Result<IndexMap<PathBuf, FileState>>>()?;
                     log_event.stop(extract_timer);
-                    graphql_sources.set_pending_source_set(source_set_name, sources);
+                    match source_set {
+                        SourceSet::SourceSetName(source_set_name) => {
+                            graphql_sources.set_pending_source_set(source_set_name, sources);
+                        }
+                        SourceSet::SourceSetNames(names) => {
+                            for source_set_name in names {
+                                graphql_sources
+                                    .set_pending_source_set(source_set_name, sources.clone());
+                            }
+                        }
+                    }
                 }
                 FileGroup::Schema { project_name } => {
                     let schema_sources = files

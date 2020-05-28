@@ -6,7 +6,7 @@
  */
 
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use interner::StringKey;
 use regex::Regex;
@@ -25,7 +25,7 @@ pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
-    pub sources: HashMap<PathBuf, SourceSetName>,
+    pub sources: HashMap<PathBuf, SourceSet>,
     pub blacklist: Vec<String>,
     pub projects: HashMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
@@ -175,7 +175,19 @@ impl Config {
 
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        let source_set_names: HashSet<_> = self.sources.values().collect();
+        let mut source_set_names: HashSet<_> = Default::default();
+        for value in self.sources.values() {
+            match value {
+                SourceSet::SourceSetName(name) => {
+                    source_set_names.insert(name.clone());
+                }
+                SourceSet::SourceSetNames(names) => {
+                    for name in names {
+                        source_set_names.insert(name.clone());
+                    }
+                }
+            };
+        }
 
         for (&project_name, project_config) in &self.projects {
             // there should be a source for each project matching the project name
@@ -323,7 +335,7 @@ struct ConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: HashMap<PathBuf, SourceSetName>,
+    sources: HashMap<PathBuf, SourceSet>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.

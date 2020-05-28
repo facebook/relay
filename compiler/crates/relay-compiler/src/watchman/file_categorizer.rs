@@ -7,7 +7,7 @@
 
 use super::FileGroup;
 use super::WatchmanFile;
-use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::compiler_state::{ProjectName, SourceSet};
 use crate::config::{Config, SchemaLocation};
 use std::cmp::Reverse;
 use std::collections::{HashMap, HashSet};
@@ -37,19 +37,22 @@ pub fn categorize_files(
 /// The FileCategorizer is created from a Config and categorizes files found by
 /// Watchman into what kind of files they are, such as source files of a
 /// specific source file group or generated files from some project.
-pub struct FileCategorizer {
+pub struct FileCategorizer<'source> {
     extensions_mapping: PathMapping<ProjectName>,
     default_generated_dir: &'static OsStr,
     generated_dir_paths: HashSet<PathBuf>,
-    source_mapping: PathMapping<SourceSetName>,
+    source_mapping: PathMapping<&'source SourceSet>,
     schema_file_mapping: HashMap<PathBuf, ProjectName>,
     schema_dir_mapping: PathMapping<ProjectName>,
 }
 
-impl FileCategorizer {
-    pub fn from_config(config: &Config) -> Self {
-        let mut source_mapping: Vec<(PathBuf, SourceSetName)> =
-            config.sources.clone().into_iter().collect();
+impl<'source> FileCategorizer<'source> {
+    pub fn from_config(config: &'source Config) -> Self {
+        let mut source_mapping = vec![];
+        for (path, source_set) in &config.sources {
+            source_mapping.push((path.clone(), source_set));
+        }
+
         source_mapping.sort_by_key(|item| Reverse(item.0.clone()));
 
         let extensions_mapping = PathMapping(
@@ -115,8 +118,9 @@ impl FileCategorizer {
             if self.in_generated_dir(path) {
                 FileGroup::Generated
             } else {
-                let source_set_name = self.source_mapping.get(path);
-                FileGroup::Source { source_set_name }
+                FileGroup::Source {
+                    source_set: self.source_mapping.get(path).clone(),
+                }
             }
         } else if extension == "graphql" {
             if let Some(&project_name) = self.schema_file_mapping.get(path) {
@@ -212,19 +216,19 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&"src/js/a.js".into()),
             FileGroup::Source {
-                source_set_name: "public".intern(),
+                source_set: SourceSet::SourceSetName("public".intern()),
             },
         );
         assert_eq!(
             categorizer.categorize(&"src/js/nested/b.js".into()),
             FileGroup::Source {
-                source_set_name: "public".intern(),
+                source_set: SourceSet::SourceSetName("public".intern()),
             },
         );
         assert_eq!(
             categorizer.categorize(&"src/js/internal/nested/c.js".into()),
             FileGroup::Source {
-                source_set_name: "internal".intern(),
+                source_set: SourceSet::SourceSetName("internal".intern()),
             },
         );
         assert_eq!(
@@ -234,7 +238,7 @@ mod tests {
             // of the provided custom output.
             categorizer.categorize(&"src/custom/custom-generated/c.js".into()),
             FileGroup::Source {
-                source_set_name: "with_custom_generated_dir".intern(),
+                source_set: SourceSet::SourceSetName("with_custom_generated_dir".intern()),
             },
         );
         assert_eq!(

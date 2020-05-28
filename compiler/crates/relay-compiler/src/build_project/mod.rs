@@ -36,6 +36,7 @@ use graphql_transforms::FB_CONNECTION_INTERFACE;
 use log::info;
 use persist_operations::persist_operations;
 use schema::Schema;
+use std::sync::Arc;
 pub use validate::validate;
 use write_artifacts::write_artifacts;
 
@@ -45,7 +46,7 @@ fn build_programs<'a>(
     graphql_asts: &GraphQLAsts<'_>,
     schema: &'a Schema,
     log_event: &impl PerfLogEvent,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> Result<Programs<'a>, BuildProjectError> {
     let project_name = project_config.name.lookup();
     let sources = graphql_asts.sources();
@@ -98,7 +99,7 @@ pub async fn check_project<'schema>(
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
     schema: &'schema Schema,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> Result<Programs<'schema>, BuildProjectError> {
     let log_event = perf_logger.create_event("check_project");
     let build_time = log_event.start("check_time");
@@ -111,7 +112,7 @@ pub async fn check_project<'schema>(
         graphql_asts,
         schema,
         &log_event,
-        perf_logger,
+        Arc::clone(&perf_logger),
     )?;
 
     log_event.stop(build_time);
@@ -125,7 +126,7 @@ pub async fn build_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> Result<(), BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
@@ -144,7 +145,7 @@ pub async fn build_project(
         graphql_asts,
         &schema,
         &log_event,
-        perf_logger,
+        Arc::clone(&perf_logger),
     )?;
 
     // Generate artifacts by collecting information from the `Programs`.

@@ -19,6 +19,7 @@ use graphql_transforms::{
     validate_module_conflicts, ConnectionInterface,
 };
 use interner::StringKey;
+use std::sync::Arc;
 
 pub struct Programs<'schema> {
     pub source: Program<'schema>,
@@ -33,38 +34,46 @@ pub fn apply_transforms<'schema>(
     program: Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
     connection_interface: &ConnectionInterface,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Programs<'schema>> {
     // common
     //  |- reader
     //  |- operation
     //     |- normalization
     //     |- operation_text
+    // typegen
     let common_program = apply_common_transforms(
         project_name,
         &program,
         connection_interface,
         base_fragment_names,
-        perf_logger,
+        Arc::clone(&perf_logger),
     )?;
     let reader_program = apply_reader_transforms(
         project_name,
         &common_program,
         base_fragment_names,
-        perf_logger,
+        Arc::clone(&perf_logger),
     )?;
     let operation_program = apply_operation_transforms(
         project_name,
         &common_program,
         base_fragment_names,
-        perf_logger,
+        Arc::clone(&perf_logger),
     )?;
     let normalization_program =
-        apply_normalization_transforms(project_name, &operation_program, perf_logger)?;
-    let operation_text_program =
-        apply_operation_text_transforms(project_name, &operation_program, perf_logger)?;
-    let typegen_program =
-        apply_typegen_transforms(project_name, &program, base_fragment_names, perf_logger)?;
+        apply_normalization_transforms(project_name, &operation_program, Arc::clone(&perf_logger))?;
+    let operation_text_program = apply_operation_text_transforms(
+        project_name,
+        &operation_program,
+        Arc::clone(&perf_logger),
+    )?;
+    let typegen_program = apply_typegen_transforms(
+        project_name,
+        &program,
+        base_fragment_names,
+        Arc::clone(&perf_logger),
+    )?;
 
     Ok(Programs {
         source: program,
@@ -81,7 +90,7 @@ fn apply_common_transforms<'schema>(
     program: &Program<'schema>,
     connection_interface: &ConnectionInterface,
     base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // * DisallowIdAsAlias (in validate)
@@ -115,7 +124,7 @@ fn apply_reader_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + ClientExtensionsTransform
@@ -148,7 +157,7 @@ fn apply_operation_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SplitModuleImportTransform
@@ -191,7 +200,7 @@ fn apply_operation_transforms<'schema>(
 fn apply_normalization_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
@@ -229,7 +238,7 @@ fn apply_normalization_transforms<'schema>(
 fn apply_operation_text_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // + SkipSplitOperationTransform
@@ -266,7 +275,7 @@ fn apply_typegen_transforms<'schema>(
     project_name: &str,
     program: &Program<'schema>,
     base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
+    perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Program<'schema>> {
     // JS compiler
     // * RelayDirectiveTransform

@@ -14,18 +14,18 @@ use crate::{artifact_map::ArtifactMap, watchman::FileSource};
 use common::{PerfLogEvent, PerfLogger};
 use log::{error, info};
 use schema::Schema;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
-pub struct Compiler<'perf, T>
+pub struct Compiler<TPerfLogger>
 where
-    T: PerfLogger,
+    TPerfLogger: PerfLogger,
 {
     config: Config,
-    perf_logger: &'perf T,
+    perf_logger: Arc<TPerfLogger>,
 }
 
-impl<'perf, T: PerfLogger> Compiler<'perf, T> {
-    pub fn new(config: Config, perf_logger: &'perf T) -> Self {
+impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
+    pub fn new(config: Config, perf_logger: Arc<TPerfLogger>) -> Self {
         Self {
             config,
             perf_logger,
@@ -36,7 +36,9 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let mut compiler_state = file_source.query(&setup_event, self.perf_logger).await?;
+        let mut compiler_state = file_source
+            .query(&setup_event, self.perf_logger.as_ref())
+            .await?;
         self.build_projects(&mut compiler_state, &setup_event)
             .await?;
 
@@ -68,7 +70,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
 
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
         let (mut compiler_state, mut subscription) = file_source
-            .subscribe(&setup_event, self.perf_logger)
+            .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
         let schemas = self.build_schemas(&compiler_state, &setup_event);
         callback(
@@ -91,7 +93,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                     &self.config,
                     &file_source_changes,
                     &incremental_check_event,
-                    self.perf_logger,
+                    self.perf_logger.as_ref(),
                 )?;
                 if had_new_changes {
                     // Clear out existing errors
@@ -123,7 +125,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
 
         let (mut compiler_state, mut subscription) = file_source
-            .subscribe(&setup_event, self.perf_logger)
+            .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
         if let Err(errors) = self.build_projects(&mut compiler_state, &setup_event).await {
@@ -147,7 +149,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                     &self.config,
                     &file_source_changes,
                     &incremental_build_event,
-                    self.perf_logger,
+                    self.perf_logger.as_ref(),
                 )?;
 
                 if had_new_changes {
@@ -193,7 +195,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                     compiler_state,
                     &graphql_asts,
                     schema,
-                    self.perf_logger,
+                    Arc::clone(&self.perf_logger),
                 )
                 .await
                 .map_err(|err| {
@@ -211,7 +213,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                             compiler_state,
                             &graphql_asts,
                             schema,
-                            self.perf_logger,
+                            Arc::clone(&self.perf_logger),
                         )
                         .await
                         .map_err(|err| {
@@ -262,7 +264,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                     project_config,
                     compiler_state,
                     &graphql_asts,
-                    self.perf_logger,
+                    Arc::clone(&self.perf_logger),
                 )
                 .await,
                 project_config.name,
@@ -277,7 +279,7 @@ impl<'perf, T: PerfLogger> Compiler<'perf, T> {
                             project_config,
                             compiler_state,
                             &graphql_asts,
-                            self.perf_logger,
+                            Arc::clone(&self.perf_logger),
                         )
                         .await,
                         project_config.name,

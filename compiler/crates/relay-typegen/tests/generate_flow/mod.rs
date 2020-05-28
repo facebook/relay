@@ -13,6 +13,7 @@ use graphql_syntax::parse;
 use graphql_transforms::OSS_CONNECTION_INTERFACE;
 use relay_compiler::apply_transforms;
 use relay_typegen::{self, TypegenConfig};
+use std::sync::Arc;
 use test_schema::{test_schema, test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -33,7 +34,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         program,
         &Default::default(),
         &*OSS_CONNECTION_INTERFACE,
-        &ConsoleLogger,
+        Arc::new(ConsoleLogger),
     )
     .unwrap();
 

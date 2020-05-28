@@ -34,7 +34,7 @@ use crate::error::{LSPError, Result};
 
 use common::ConsoleLogger;
 use log::info;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 use tokio::sync::mpsc::Receiver;
 
 use tokio::select;
@@ -220,7 +220,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                     &self.compiler_state,
                     &graphql_asts,
                     schema,
-                    &ConsoleLogger,
+                    Arc::new(ConsoleLogger),
                 )
                 .await
                 .map_err(|err| {
@@ -243,7 +243,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                             &self.compiler_state,
                             &graphql_asts,
                             schema,
-                            &ConsoleLogger,
+                            Arc::new(ConsoleLogger),
                         )
                         .await
                         .map_err(|err| {

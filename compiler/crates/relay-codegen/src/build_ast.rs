@@ -138,18 +138,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .directives
             .named(MATCH_CONSTANTS.custom_module_directive_name)
         {
-            Some(split_directive) => {
-                let derived_from = split_directive
-                    .arguments
-                    .named(MATCH_CONSTANTS.derived_from_arg)
-                    .unwrap()
-                    .value
-                    .item
-                    .expect_string_literal();
-                let metadata = Primitive::Key(self.object(vec![(
-                    CODEGEN_CONSTANTS.derived_from,
-                    Primitive::String(derived_from),
-                )]));
+            Some(_split_directive) => {
+                let metadata = Primitive::Key(self.object(vec![]));
                 let selections = self.build_selections(&operation.selections);
                 self.object(vec![
                     (

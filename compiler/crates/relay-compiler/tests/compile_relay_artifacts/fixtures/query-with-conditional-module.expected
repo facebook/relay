@@ -24,9 +24,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {

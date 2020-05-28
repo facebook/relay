@@ -403,9 +403,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
@@ -445,9 +443,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "PlainUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "PlainUserNameRenderer_name$normalization",
   "selections": [
     {

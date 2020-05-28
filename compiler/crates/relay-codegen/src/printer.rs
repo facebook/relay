@@ -268,8 +268,14 @@ pub fn print_request(
     printer.print()
 }
 
-pub fn print_request_params(schema: &Schema, operation: &OperationDefinition) -> String {
-    let request_parameters = build_request_params(operation);
+pub fn print_request_params(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    query_id: Option<String>,
+) -> String {
+    let mut request_parameters = build_request_params(operation);
+    request_parameters.id = query_id;
+
     let mut builder = AstBuilder::default();
     let request_parameters_ast_key =
         build_request_params_ast_key(schema, request_parameters, &mut builder, operation);

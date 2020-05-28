@@ -36,7 +36,7 @@ export type TestStreamRawResponse = {|
     +__typename: "User",
     +id: string,
     +name: ?string,
-    +friends: ?({|
+    +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
           +id: string,
@@ -48,15 +48,7 @@ export type TestStreamRawResponse = {|
         +endCursor: ?string,
         +hasNextPage: ?boolean,
       |},
-    |} | {|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-          +__typename: "User",
-        |},
-        +cursor: ?string,
-      |}>
-    |}),
+    |},
   |} | {|
     +__typename: string,
     +id: string,

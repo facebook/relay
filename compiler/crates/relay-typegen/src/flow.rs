@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use std::fmt::{Result, Write};
 
 #[derive(Debug, Clone)]
@@ -21,11 +22,17 @@ pub enum AST {
     StringLiteral(StringKey),
     /// Prints as `"%other" with a comment explaining open enums.
     OtherEnumValue,
+    Local3DPayload(StringKey, Box<AST>),
     ExactObject(Vec<Prop>),
     InexactObject(Vec<Prop>),
     Number,
     Boolean,
     Any,
+}
+
+lazy_static! {
+    /// Special key for `Prop` that turns into an object spread: ...value
+    pub static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
 
 #[derive(Debug, Clone)]
@@ -66,6 +73,9 @@ impl<W: Write> Printer<W> {
             AST::Nullable(of_type) => self.write_nullable(of_type)?,
             AST::ExactObject(props) => self.write_object(props, true)?,
             AST::InexactObject(props) => self.write_object(props, false)?,
+            AST::Local3DPayload(document_name, selections) => {
+                self.write_local_3d_payload(*document_name, selections)?
+            }
         }
         Ok(())
     }
@@ -137,15 +147,34 @@ impl<W: Write> Printer<W> {
             write!(self.writer, "{{||}}")?;
             return Ok(());
         }
+
+        // Replication of babel printer oddity: objects only containing a spread
+        // are missing a newline.
+        if props.len() == 1 && props[0].key == *SPREAD_KEY {
+            write!(self.writer, "{{| ...")?;
+            self.write(&props[0].value)?;
+            writeln!(self.writer)?;
+            self.write_indentation()?;
+            write!(self.writer, "|}}")?;
+            return Ok(());
+        }
+
         if exact {
             writeln!(self.writer, "{{|")?;
         } else {
             writeln!(self.writer, "{{")?;
         }
         self.indentation += 1;
+
         let mut first = true;
         for prop in props {
             self.write_indentation()?;
+            if prop.key == *SPREAD_KEY {
+                write!(self.writer, "...")?;
+                self.write(&prop.value)?;
+                writeln!(self.writer, ",")?;
+                continue;
+            }
             if let AST::OtherEnumValue = prop.value {
                 writeln!(
                     self.writer,
@@ -185,6 +214,13 @@ impl<W: Write> Printer<W> {
         } else {
             write!(self.writer, "}}")?;
         }
+        Ok(())
+    }
+
+    fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> Result {
+        write!(self.writer, "Local3DPayload<\"{}\", ", document_name)?;
+        self.write(selections)?;
+        write!(self.writer, ">")?;
         Ok(())
     }
 }

@@ -35,17 +35,17 @@ export type TestDeferResponse = {|
 export type TestDeferRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
           +actor: ?{|
-            +__typename: ?string,
+            +__typename: string,
             +name: ?string,
-            +id: ?string,
+            +id: string,
           |},
-          +id: ?string,
+          +id: string,
           +__typename: "User",
         |},
         +cursor: ?string,
@@ -56,8 +56,8 @@ export type TestDeferRawResponse = {|
       |},
     |},
   |} | {|
-    +__typename: ?string,
-    +id: ?string,
+    +__typename: string,
+    +id: string,
   |})
 |};
 export type TestDefer = {|

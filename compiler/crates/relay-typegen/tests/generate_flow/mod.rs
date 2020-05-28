@@ -13,13 +13,19 @@ use graphql_syntax::parse;
 use graphql_transforms::OSS_CONNECTION_INTERFACE;
 use relay_compiler::apply_transforms;
 use relay_typegen::{self, TypegenConfig};
-use test_schema::test_schema;
+use test_schema::{test_schema, test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+    let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
+    let (source, schema) = match parts.as_slice() {
+        [source, extensions] => (source, test_schema_with_extensions(extensions)),
+        [source] => (source, test_schema()),
+        _ => panic!(),
+    };
+
     let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
-    let schema = test_schema();
-    let ast = parse(fixture.content, FileKey::new(fixture.file_name)).unwrap();
+    sources.insert(FileKey::new(fixture.file_name), source);
+    let ast = parse(source, FileKey::new(fixture.file_name)).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(&schema, ir);
     let programs = apply_transforms(

@@ -8,6 +8,8 @@ mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
   }
 }
 
+#%extensions%
+
 extend type Story {
   foos: [Foo]
 }

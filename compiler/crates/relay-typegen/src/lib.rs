@@ -14,7 +14,7 @@ mod flow;
 
 use common::NamedItem;
 pub use config::TypegenConfig;
-use flow::{print_type, Prop, AST};
+use flow::{print_type, Prop, AST, SPREAD_KEY};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -45,6 +45,7 @@ lazy_static! {
     static ref TYPE_INT: StringKey = "Int".intern();
     static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
+    static ref JS_FIELD_NAME: StringKey = "js".intern();
 }
 
 pub fn generate_fragment_type(
@@ -83,6 +84,8 @@ struct TypeGenerator<'schema, 'config> {
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'config TypegenConfig,
+    import_local_3d_payload: bool,
+    match_fields: IndexMap<StringKey, AST>,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     fn new(schema: &'schema Schema, typegen_config: &'config TypegenConfig) -> Self {
@@ -94,6 +97,8 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             used_enums: Default::default(),
             used_fragments: Default::default(),
             typegen_config,
+            match_fields: Default::default(),
+            import_local_3d_payload: false,
         }
     }
 
@@ -111,15 +116,15 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let selections = self.visit_selections(&typegen_operation.selections);
         let response_type = self.selections_to_babel(selections, false, None);
 
-        let raw_response_type =
-            if cfg!(raw_response) && has_raw_response_type_directive(normalization_operation) {
-                let raw_response_selections =
-                    self.raw_response_visit_selections(&normalization_operation.selections);
-                Some(self.raw_response_selections_to_babel(raw_response_selections, None))
-            } else {
-                None
-            };
+        let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
+            let raw_response_selections =
+                self.raw_response_visit_selections(&normalization_operation.selections);
+            Some(self.raw_response_selections_to_babel(raw_response_selections, None))
+        } else {
+            None
+        };
 
+        self.write_runtime_imports()?;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
@@ -152,6 +157,9 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         ];
 
         if let Some(raw_response_type) = raw_response_type {
+            for (key, ast) in self.match_fields.iter() {
+                writeln!(self.result, "export type {} = {};", key, print_type(ast))?;
+            }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
             writeln!(
@@ -324,7 +332,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             ref_: Some(name),
             node_selections: None,
             document_name: None,
-            kind: None,
         });
     }
 
@@ -353,7 +360,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             type_selections.push(TypeSelection {
@@ -365,7 +371,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             self.used_fragments.insert(name);
@@ -378,14 +383,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: Some(name),
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             return;
         }
         let mut selections = self.visit_selections(&inline_fragment.selections);
         if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in selections.iter_mut() {
+            for selection in &mut selections {
                 if type_condition.is_abstract_type() {
                     selection.conditional = true;
                 } else {
@@ -403,12 +407,65 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     ) {
         let mut selections = self.raw_response_visit_selections(&inline_fragment.selections);
         if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in selections.iter_mut() {
+            for selection in &mut selections {
                 if !type_condition.is_abstract_type() {
                     selection.concrete_type = Some(type_condition);
                 }
             }
         }
+
+        if let Some(module_directive) = inline_fragment
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+        {
+            let mut module_selections = selections
+                .iter()
+                .cloned()
+                .filter(|sel| sel.schema_name == Some(*JS_FIELD_NAME))
+                .collect::<Vec<_>>();
+            let directive_arg_name = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.name_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+            let directive_arg_key = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.key_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+
+            if !self.match_fields.contains_key(&directive_arg_name) {
+                let match_field = self.raw_response_selections_to_babel(
+                    selections
+                        .iter()
+                        .cloned()
+                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .collect(),
+                    None,
+                );
+                self.match_fields.insert(directive_arg_name, match_field);
+            }
+
+            type_selections.append(&mut module_selections);
+
+            type_selections.push(TypeSelection {
+                key: directive_arg_name,
+                schema_name: None,
+                value: None,
+                node_type: None,
+                conditional: false,
+                concrete_type: inline_fragment.type_condition,
+                ref_: None,
+                node_selections: None,
+                document_name: Some(directive_arg_key),
+            });
+            return;
+        }
+
         type_selections.append(&mut selections);
     }
 
@@ -435,7 +492,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             concrete_type: None,
             ref_: None,
             node_selections: Some(selections_to_map(selections, true)),
-            kind: None,
             document_name: None,
         });
     }
@@ -461,7 +517,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             concrete_type: None,
             ref_: None,
             node_selections: None,
-            kind: None,
             document_name: None,
         });
     }
@@ -643,27 +698,54 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 ));
                 types.push(AST::ExactObject(
                     merged_selections
-                        .into_iter()
+                        .iter()
+                        .cloned()
                         .map(|selection| {
                             self.raw_response_make_prop(selection, Some(concrete_type))
                         })
                         .collect(),
                 ));
-                // appendLocal3DPayload(types, mergedSeletions, schema, state, concreteType);
+                self.append_local_3d_payload(&mut types, &merged_selections, Some(concrete_type));
             }
         }
 
         if !base_fields.is_empty() {
             types.push(AST::ExactObject(
                 base_fields
-                    .into_iter()
+                    .iter()
+                    .cloned()
                     .map(|selection| self.raw_response_make_prop(selection, concrete_type))
                     .collect(),
-            ))
-            // appendLocal3DPayload(types, baseFields, schema, state, nodeTypeName);
+            ));
+            self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
         }
 
         AST::Union(types)
+    }
+
+    fn append_local_3d_payload(
+        &mut self,
+        types: &mut Vec<AST>,
+        type_selections: &[TypeSelection],
+        concrete_type: Option<Type>,
+    ) {
+        if let Some(module_import) = type_selections
+            .iter()
+            .find(|sel| sel.document_name.is_some())
+        {
+            self.import_local_3d_payload = true;
+
+            types.push(AST::Local3DPayload(
+                module_import.document_name.unwrap(),
+                Box::new(AST::ExactObject(
+                    type_selections
+                        .iter()
+                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .map(|sel| self.raw_response_make_prop(sel.clone(), concrete_type))
+                        .collect(),
+                )),
+            ));
+        }
     }
 
     fn make_prop(
@@ -717,14 +799,18 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             conditional,
             node_type,
             node_selections,
-            // kind,
+            document_name,
             ..
         } = type_selection;
-        // if (kind === 'ModuleImport') {
-        //   return t.objectTypeSpreadProperty(
-        //     t.genericTypeAnnotation(t.identifier(key)),
-        //   );
-        // }
+
+        if document_name.is_some() {
+            return Prop {
+                key: *SPREAD_KEY,
+                value: AST::Identifier(key),
+                read_only: false,
+                optional: false,
+            };
+        }
 
         let value = if let Some(node_type) = node_type {
             let inner_concrete_type = if node_type.is_list()
@@ -830,6 +916,16 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     fn transform_graphql_enum_type(&mut self, enum_id: EnumID) -> AST {
         self.used_enums.insert(enum_id);
         AST::Identifier(self.schema.enum_(enum_id).name)
+    }
+
+    fn write_runtime_imports(&mut self) -> Result {
+        if self.import_local_3d_payload {
+            writeln!(
+                self.result,
+                r#"import type {{ Local3DPayload }} from "relay-runtime";"#
+            )?;
+        }
+        Ok(())
     }
 
     fn write_fragment_imports(&mut self) -> Result {
@@ -1019,7 +1115,6 @@ struct TypeSelection {
     concrete_type: Option<Type>,
     ref_: Option<StringKey>,
     node_selections: Option<TypeSelectionMap>,
-    kind: Option<StringKey>,
     document_name: Option<StringKey>,
 }
 impl TypeSelection {
@@ -1135,7 +1230,6 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
             concrete_type: None,
             ref_: None,
             node_selections: None,
-            kind: None,
             document_name: None,
         });
     }

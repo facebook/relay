@@ -55,7 +55,7 @@ pub fn build_request(
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
     let operation = Primitive::Key(operation_builder.build_operation(operation));
     let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
-    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
+    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
 
     ast_builder.intern(Ast::Object(vec![
         (CODEGEN_CONSTANTS.fragment, fragment),
@@ -93,7 +93,7 @@ pub fn build_fragment(
     fragment: &FragmentDefinition,
 ) -> AstKey {
     let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
-    builder.build_fragment(fragment)
+    builder.build_fragment(fragment, false)
 }
 
 struct CodegenBuilder<'schema, 'builder> {
@@ -174,7 +174,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
+    fn build_fragment(&mut self, fragment: &FragmentDefinition, skip_metadata: bool) -> AstKey {
         if fragment
             .directives
             .named(INLINE_DATA_CONSTANTS.directive_name)
@@ -183,6 +183,55 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             return self.build_inline_data_fragment(fragment);
         }
 
+        let object = vec![
+            (
+                CODEGEN_CONSTANTS.argument_definitions,
+                self.build_fragment_variable_definitions(
+                    &fragment.variable_definitions,
+                    &fragment.used_global_variables,
+                ),
+            ),
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.fragment_value),
+            ),
+            // TODO(T63303840) include correct fragment metadata
+            (
+                CODEGEN_CONSTANTS.metadata,
+                if skip_metadata {
+                    Primitive::Null
+                } else {
+                    self.build_fragment_metadata(fragment)
+                },
+            ),
+            (
+                CODEGEN_CONSTANTS.name,
+                Primitive::String(fragment.name.item),
+            ),
+            (
+                CODEGEN_CONSTANTS.selections,
+                self.build_selections(&fragment.selections),
+            ),
+            (
+                CODEGEN_CONSTANTS.type_,
+                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
+            ),
+            (
+                CODEGEN_CONSTANTS.abstract_key,
+                if self.schema.is_abstract_type(fragment.type_condition) {
+                    Primitive::String(generate_abstract_type_refinement_key(
+                        self.schema,
+                        fragment.type_condition,
+                    ))
+                } else {
+                    Primitive::Null
+                },
+            ),
+        ];
+        self.object(object)
+    }
+
+    fn build_fragment_metadata(&mut self, fragment: &FragmentDefinition) -> Primitive {
         let connection_metadata = extract_connection_metadata_from_directive(
             &fragment.directives,
             self.connection_constants,
@@ -328,53 +377,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 Primitive::Key(self.object(refetch_object)),
             ))
         }
-
-        let object = vec![
-            (
-                CODEGEN_CONSTANTS.argument_definitions,
-                self.build_fragment_variable_definitions(
-                    &fragment.variable_definitions,
-                    &fragment.used_global_variables,
-                ),
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.fragment_value),
-            ),
-            // TODO(T63303840) include correct fragment metadata
-            (
-                CODEGEN_CONSTANTS.metadata,
-                if metadata.is_empty() {
-                    Primitive::Null
-                } else {
-                    Primitive::Key(self.object(metadata))
-                },
-            ),
-            (
-                CODEGEN_CONSTANTS.name,
-                Primitive::String(fragment.name.item),
-            ),
-            (
-                CODEGEN_CONSTANTS.selections,
-                self.build_selections(&fragment.selections),
-            ),
-            (
-                CODEGEN_CONSTANTS.type_,
-                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
-            ),
-            (
-                CODEGEN_CONSTANTS.abstract_key,
-                if self.schema.is_abstract_type(fragment.type_condition) {
-                    Primitive::String(generate_abstract_type_refinement_key(
-                        self.schema,
-                        fragment.type_condition,
-                    ))
-                } else {
-                    Primitive::Null
-                },
-            ),
-        ];
-        self.object(object)
+        if metadata.is_empty() {
+            Primitive::Null
+        } else {
+            Primitive::Key(self.object(metadata))
+        }
     }
 
     fn build_inline_data_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {

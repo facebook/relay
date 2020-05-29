@@ -32,20 +32,7 @@ query NodeQuery($id: ID!) {
       }
     ],
     "kind": "Fragment",
-    "metadata": {
-      "connection": [
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": [
-            "node",
-            "comments"
-          ],
-          "stream": true
-        }
-      ]
-    },
+    "metadata": null,
     "name": "NodeQuery",
     "selections": [
       {

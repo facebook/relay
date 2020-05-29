@@ -13,7 +13,6 @@ use graphql_ir::{
 };
 use indexmap::{map::Entry, IndexMap};
 use interner::StringKey;
-use std::ops::RangeFull;
 use std::sync::Arc;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
@@ -28,10 +27,34 @@ type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildH
 
 struct Mask<'s> {
     program: &'s Program<'s>,
-    current_reachable_arguments: Vec<&'s VariableDefinition>,
 }
 
 impl<'s> Mask<'s> {
+    fn new(program: &'s Program<'s>) -> Self {
+        Self { program }
+    }
+}
+
+impl<'s> Transformer for Mask<'s> {
+    const NAME: &'static str = "MaskTransform";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        let mut mask_fragment = MaskFragment::new(self.program);
+        mask_fragment.transform_fragment(fragment)
+    }
+}
+
+struct MaskFragment<'s> {
+    program: &'s Program<'s>,
+    current_reachable_arguments: Vec<&'s VariableDefinition>,
+}
+
+impl<'s> MaskFragment<'s> {
     fn new(program: &'s Program<'s>) -> Self {
         Self {
             program,
@@ -61,17 +84,16 @@ impl<'s> Mask<'s> {
                 }
             }
         }
-        let range = RangeFull;
         fragment.used_global_variables = joined_arguments
-            .drain(range)
+            .into_iter()
             .map(|(_, v)| v)
             .cloned()
             .collect();
     }
 }
 
-impl<'s> Transformer for Mask<'s> {
-    const NAME: &'static str = "MaskTransform";
+impl<'s> Transformer for MaskFragment<'s> {
+    const NAME: &'static str = "MaskFragmentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 

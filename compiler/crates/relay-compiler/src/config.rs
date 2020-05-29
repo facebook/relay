@@ -141,6 +141,8 @@ impl Config {
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
+                    should_generate_parameters_file: config_file_project
+                        .should_generate_parameters_file,
                 };
                 Ok((project_name, project_config))
             })
@@ -315,6 +317,7 @@ pub struct ProjectConfig {
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
+    pub should_generate_parameters_file: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -397,6 +400,10 @@ struct ConfigFileProject {
 
     #[serde(flatten)]
     typegen_config: TypegenConfig,
+
+    /// Generate Query ($Parameters files)
+    #[serde(default)]
+    should_generate_parameters_file: bool,
 }
 
 #[derive(Debug, Deserialize)]

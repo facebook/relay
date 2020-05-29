@@ -431,21 +431,16 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     }
 
     fn print_arguments(&mut self, arguments: &[Argument]) -> Result {
-        if self.graphqljs_formatting {
-            self.print_arguments_helper(arguments.len(), arguments.into_iter())
+        if arguments.is_empty() {
+            Ok(())
+        } else if self.graphqljs_formatting {
+            self.print_arguments_helper(arguments.len(), arguments.iter())
         } else {
-            if arguments.len() > 0 {
-                let non_null_arguments = arguments
-                    .into_iter()
-                    .filter(|arg| !matches!(arg.value.item, Value::Constant(ConstantValue::Null())))
-                    .collect::<Vec<_>>();
-                self.print_arguments_helper(
-                    non_null_arguments.len(),
-                    non_null_arguments.into_iter(),
-                )
-            } else {
-                Ok(())
-            }
+            let non_null_arguments = arguments
+                .iter()
+                .filter(|arg| !matches!(arg.value.item, Value::Constant(ConstantValue::Null())))
+                .collect::<Vec<_>>();
+            self.print_arguments_helper(non_null_arguments.len(), non_null_arguments.into_iter())
         }
     }
 

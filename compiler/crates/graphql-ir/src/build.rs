@@ -952,11 +952,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             },
             TypeReference::Named(named_type) => match named_type {
                 Type::InputObject(id) => {
-                    let type_definition = self.schema.input_object(id.clone());
+                    let type_definition = self.schema.input_object(*id);
                     self.build_input_object(value, type_definition)
                 }
                 Type::Enum(id) => {
-                    let type_definition = self.schema.enum_(id.clone());
+                    let type_definition = self.schema.enum_(*id);
                     Err(self
                         .record_error(ValidationError::new(
                             ValidationMessage::ExpectedValueMatchingType(type_definition.name),
@@ -965,7 +965,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         .into())
                 }
                 Type::Scalar(id) => {
-                    let type_definition = self.schema.scalar(id.clone());
+                    let type_definition = self.schema.scalar(*id);
                     Err(self
                         .record_error(ValidationError::new(
                             ValidationMessage::ExpectedValueMatchingType(type_definition.name),
@@ -1019,7 +1019,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                                 ValidationMessage::DuplicateInputField(x.name.value),
                                 vec![
                                     self.location.with_span(x.name.span),
-                                    self.location.with_span(prev_span.clone()),
+                                    self.location.with_span(prev_span),
                                 ],
                             ))
                             .into());
@@ -1102,15 +1102,15 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             },
             TypeReference::Named(named_type) => match named_type {
                 Type::InputObject(id) => {
-                    let type_definition = self.schema.input_object(id.clone());
+                    let type_definition = self.schema.input_object(*id);
                     self.build_constant_input_object(value, type_definition, enum_validation)
                 }
                 Type::Enum(id) => {
-                    let type_definition = self.schema.enum_(id.clone());
+                    let type_definition = self.schema.enum_(*id);
                     self.build_constant_enum(value, type_definition, enum_validation)
                 }
                 Type::Scalar(id) => {
-                    let type_definition = self.schema.scalar(id.clone());
+                    let type_definition = self.schema.scalar(*id);
                     self.build_constant_scalar(value, type_definition)
                 }
                 _ => unreachable!("input types must be list, input object, enum, or scalar"),
@@ -1157,7 +1157,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                                 ValidationMessage::DuplicateInputField(x.name.value),
                                 vec![
                                     self.location.with_span(x.name.span),
-                                    self.location.with_span(prev_span.clone()),
+                                    self.location.with_span(prev_span),
                                 ],
                             ))
                             .into());

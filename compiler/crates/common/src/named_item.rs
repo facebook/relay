@@ -15,7 +15,7 @@ pub trait NamedItem<'a, T: Named> {
 
 impl<'a, T: Named> NamedItem<'a, T> for &'a [T] {
     fn named(self, name: StringKey) -> Option<&'a T> {
-        self.into_iter().find(|x| x.name() == name)
+        self.iter().find(|x| x.name() == name)
     }
 }
 

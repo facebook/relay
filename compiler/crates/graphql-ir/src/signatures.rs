@@ -11,7 +11,6 @@ use crate::ir::{ConstantValue, VariableDefinition};
 use common::{Location, NamedItem, WithLocation};
 use errors::{try2, try_map};
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_syntax;
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;

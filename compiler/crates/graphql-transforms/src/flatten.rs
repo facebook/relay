@@ -272,7 +272,7 @@ fn should_flatten_inline_with_directives(directives: &[Directive], is_for_codege
     }
 }
 
-fn should_flatten_inline_fragment<'s>(
+fn should_flatten_inline_fragment(
     inline_fragment: &InlineFragment,
     parent_type: &TypeReference,
     is_for_codegen: bool,

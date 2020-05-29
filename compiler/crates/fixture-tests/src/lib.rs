@@ -48,7 +48,6 @@
 
 mod print_diff;
 
-use colored;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use std::env;

@@ -15,7 +15,7 @@ use schema::{build_schema_with_extensions, Schema, RELAY_EXTENSIONS};
 const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
 
 lazy_static! {
-    pub static ref TEST_SCHEMA: Schema = { test_schema() };
+    pub static ref TEST_SCHEMA: Schema = test_schema();
 }
 
 pub fn test_schema() -> Schema {

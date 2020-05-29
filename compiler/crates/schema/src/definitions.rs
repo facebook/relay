@@ -105,7 +105,7 @@ impl Schema {
             // If supertype is not a list, maybeSubType must also not be a list
             (TypeReference::List(_), _) => false,
             (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
-                self.is_named_type_subtype_of(named_subtype.clone(), named_supertype.clone())
+                self.is_named_type_subtype_of(*named_subtype, *named_supertype)
             }
         }
     }
@@ -184,7 +184,7 @@ impl Schema {
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
         match type_ {
             TypeReference::Named(inner) => {
-                write!(writer, "{}", self.get_type_name(inner.clone()).lookup())
+                write!(writer, "{}", self.get_type_name(*inner).lookup())
             }
             TypeReference::NonNull(of) => {
                 self.write_type_string(writer, of)?;
@@ -490,7 +490,7 @@ impl Schema {
         self.type_map
             .remove(&self.get_type_name(Type::Interface(id)));
         self.type_map.insert(interface.name, Type::Interface(id));
-        std::mem::replace(&mut self.interfaces[id.as_usize()], interface);
+        self.interfaces[id.as_usize()] = interface;
         Ok(())
     }
 
@@ -499,7 +499,7 @@ impl Schema {
         if id >= self.fields.len() {
             return Err(SchemaError::UnknownTypeID(id, String::from("Field")));
         }
-        std::mem::replace(&mut self.fields[id], field);
+        self.fields[id] = field;
         Ok(())
     }
 

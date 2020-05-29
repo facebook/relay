@@ -9,7 +9,6 @@ use common::murmurhash;
 
 use graphql_ir::{Argument, ConstantValue, Value};
 use serde::Serialize;
-use serde_json;
 use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
 
 pub fn hash_arguments(args: &[Argument]) -> Option<String> {

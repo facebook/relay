@@ -39,9 +39,7 @@ use std::sync::Arc;
 /// - Nodes that would become empty as a result of the above are removed.
 ///
 /// Note that unreferenced fragments are not added to the output.
-pub fn apply_fragment_arguments<'schema>(
-    program: &Program<'schema>,
-) -> ValidationResult<Program<'schema>> {
+pub fn apply_fragment_arguments(program: &Program) -> ValidationResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         program,
         fragments: Default::default(),
@@ -76,14 +74,14 @@ enum PendingFragment {
     Resolved(Option<Arc<FragmentDefinition>>),
 }
 
-struct ApplyFragmentArgumentsTransform<'schema> {
-    program: &'schema Program<'schema>,
+struct ApplyFragmentArgumentsTransform<'program> {
+    program: &'program Program,
     fragments: FnvHashMap<StringKey, PendingFragment>,
     scope: Scope,
     errors: Vec<ValidationError>,
 }
 
-impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
+impl Transformer for ApplyFragmentArgumentsTransform<'_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -174,7 +172,7 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
     }
 }
 
-impl<'schema> ApplyFragmentArgumentsTransform<'schema> {
+impl ApplyFragmentArgumentsTransform<'_> {
     fn apply_fragment(&mut self, spread: &FragmentSpread) -> Option<Arc<FragmentDefinition>> {
         let fragment = self
             .program

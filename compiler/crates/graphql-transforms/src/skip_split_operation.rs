@@ -11,7 +11,7 @@ use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Transformed, 
 
 /// A transform that removes field `splitOperations`. Intended for use when e.g.
 /// printing queries to send to a GraphQL server.
-pub fn skip_split_operation<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn skip_split_operation(program: &Program) -> Program {
     let mut transform = SkipSplitOperation {};
     transform
         .transform_program(program)

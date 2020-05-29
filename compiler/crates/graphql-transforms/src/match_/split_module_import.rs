@@ -17,10 +17,10 @@ use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
 use std::sync::Arc;
 
-pub fn split_module_import<'s>(
-    program: &Program<'s>,
+pub fn split_module_import(
+    program: &Program,
     base_fragment_names: &FnvHashSet<StringKey>,
-) -> Program<'s> {
+) -> Program {
     let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);
     transform
         .transform_program(program)
@@ -33,14 +33,17 @@ struct SplitOperationMetaData {
 }
 type SplitOperations = FnvHashMap<StringKey, (SplitOperationMetaData, OperationDefinition)>;
 
-pub struct SplitModuleImportTransform<'s, 'a> {
-    program: &'s Program<'s>,
+pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {
+    program: &'program Program,
     split_operations: SplitOperations,
-    base_fragment_names: &'a FnvHashSet<StringKey>,
+    base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
 }
 
-impl<'s, 'a> SplitModuleImportTransform<'s, 'a> {
-    fn new(program: &'s Program<'s>, base_fragment_names: &'a FnvHashSet<StringKey>) -> Self {
+impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_fragment_names> {
+    fn new(
+        program: &'program Program,
+        base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+    ) -> Self {
         Self {
             program,
             split_operations: Default::default(),
@@ -49,12 +52,12 @@ impl<'s, 'a> SplitModuleImportTransform<'s, 'a> {
     }
 }
 
-impl<'s, 'a> Transformer for SplitModuleImportTransform<'s, 'a> {
+impl Transformer for SplitModuleImportTransform<'_, '_> {
     const NAME: &'static str = "SplitModuleImportTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
-    fn transform_program<'ss>(&mut self, program: &Program<'ss>) -> TransformedValue<Program<'ss>> {
+    fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
         for operation in program.operations() {
             self.transform_operation(operation);
         }
@@ -105,7 +108,7 @@ impl<'s, 'a> Transformer for SplitModuleImportTransform<'s, 'a> {
             let mut normalization_name_string = String::new();
             get_normalization_operation_name(&mut normalization_name_string, name);
             let normalization_name = normalization_name_string.intern();
-            let schema = self.program.schema();
+            let schema = &self.program.schema;
             let created_split_operation = self
                 .split_operations
                 .entry(normalization_name)

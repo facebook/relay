@@ -15,7 +15,7 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
-pub fn inline_data_fragment<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn inline_data_fragment(program: &Program) -> ValidationResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);
     let next_program = transform
         .transform_program(program)
@@ -46,12 +46,12 @@ lazy_static! {
 }
 
 struct InlineDataFragmentsTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     errors: Vec<ValidationError>,
 }
 
 impl<'s> InlineDataFragmentsTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             program,
             errors: vec![],

@@ -21,21 +21,21 @@ use graphql_transforms::{
 use interner::StringKey;
 use std::sync::Arc;
 
-pub struct Programs<'schema> {
-    pub source: Program<'schema>,
-    pub reader: Program<'schema>,
-    pub normalization: Program<'schema>,
-    pub operation_text: Program<'schema>,
-    pub typegen: Program<'schema>,
+pub struct Programs {
+    pub source: Program,
+    pub reader: Program,
+    pub normalization: Program,
+    pub operation_text: Program,
+    pub typegen: Program,
 }
 
-pub fn apply_transforms<'schema>(
+pub fn apply_transforms(
     project_name: &str,
-    program: Program<'schema>,
+    program: Program,
     base_fragment_names: &FnvHashSet<StringKey>,
     connection_interface: &ConnectionInterface,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Programs<'schema>> {
+) -> ValidationResult<Programs> {
     // common
     //  |- reader
     //  |- operation
@@ -85,13 +85,13 @@ pub fn apply_transforms<'schema>(
 }
 
 /// Applies transforms that apply to every output.
-fn apply_common_transforms<'schema>(
+fn apply_common_transforms(
     project_name: &str,
-    program: &Program<'schema>,
+    program: &Program,
     connection_interface: &ConnectionInterface,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program<'schema>> {
+) -> ValidationResult<Program> {
     // JS compiler
     // * DisallowIdAsAlias (in validate)
     // + ConnectionTransform
@@ -120,12 +120,12 @@ fn apply_common_transforms<'schema>(
 
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
-fn apply_reader_transforms<'schema>(
+fn apply_reader_transforms(
     project_name: &str,
-    program: &Program<'schema>,
+    program: &Program,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program<'schema>> {
+) -> ValidationResult<Program> {
     // JS compiler
     // + ClientExtensionsTransform
     // + FieldHandleTransform
@@ -153,12 +153,12 @@ fn apply_reader_transforms<'schema>(
 
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
-fn apply_operation_transforms<'schema>(
+fn apply_operation_transforms(
     project_name: &str,
-    program: &Program<'schema>,
+    program: &Program,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program<'schema>> {
+) -> ValidationResult<Program> {
     // JS compiler
     // + SplitModuleImportTransform
     // * ValidateUnusedVariablesTransform (Moved to common_transforms)
@@ -197,11 +197,11 @@ fn apply_operation_transforms<'schema>(
 /// apply to the generated normalization code.
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
-fn apply_normalization_transforms<'schema>(
+fn apply_normalization_transforms(
     project_name: &str,
-    program: &Program<'schema>,
+    program: &Program,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program<'schema>> {
+) -> ValidationResult<Program> {
     // JS compiler
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
@@ -235,11 +235,11 @@ fn apply_normalization_transforms<'schema>(
 /// apply to the printed operation text.
 ///
 /// Corresponds to the "print transforms" in the JS compiler
-fn apply_operation_text_transforms<'schema>(
+fn apply_operation_text_transforms(
     project_name: &str,
-    program: &Program<'schema>,
+    program: &Program,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program<'schema>> {
+) -> ValidationResult<Program> {
     // JS compiler
     // + SkipSplitOperationTransform
     // - ClientExtensionsTransform
@@ -271,12 +271,12 @@ fn apply_operation_text_transforms<'schema>(
     Ok(program)
 }
 
-fn apply_typegen_transforms<'schema>(
+fn apply_typegen_transforms(
     project_name: &str,
-    program: &Program<'schema>,
+    program: &Program,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program<'schema>> {
+) -> ValidationResult<Program> {
     // JS compiler
     // * RelayDirectiveTransform
     // + MaskTransform

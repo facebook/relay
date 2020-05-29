@@ -46,7 +46,7 @@ lazy_static! {
     pub static ref DEFER_STREAM_CONSTANTS: DeferStreamConstants = Default::default();
 }
 
-pub fn transform_defer_stream<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn transform_defer_stream(program: &Program) -> ValidationResult<Program> {
     let mut transformer = DeferStreamTransform {
         program,
         current_document_name: None,
@@ -63,7 +63,7 @@ pub fn transform_defer_stream<'s>(program: &Program<'s>) -> ValidationResult<Pro
 }
 
 struct DeferStreamTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     current_document_name: Option<StringKey>,
     labels: HashMap<StringKey, Directive>,
     errors: Vec<ValidationError>,
@@ -183,7 +183,7 @@ impl DeferStreamTransform<'_> {
         let label_value = get_literal_string_argument(&stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
-                linked_field.alias_or_name(self.program.schema()),
+                linked_field.alias_or_name(&self.program.schema),
                 &linked_field.arguments,
             )
         });
@@ -303,7 +303,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         if let Some(directive) = stream_directive {
             self.errors.push(ValidationError::new(
                 ValidationMessage::InvalidStreamOnScalarField {
-                    field_name: scalar_field.alias_or_name(self.program.schema()),
+                    field_name: scalar_field.alias_or_name(&self.program.schema),
                 },
                 vec![directive.name.location],
             ));

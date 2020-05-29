@@ -13,17 +13,17 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 
-pub fn validate_unused_variables<'s>(program: &Program<'s>) -> ValidationResult<()> {
+pub fn validate_unused_variables(program: &Program) -> ValidationResult<()> {
     ValidateUnusedVariables::new(program).validate_program(program)
 }
 
-pub struct ValidateUnusedVariables<'s> {
-    visitor: InferVariablesVisitor<'s>,
+pub struct ValidateUnusedVariables<'program> {
+    visitor: InferVariablesVisitor<'program>,
     ignore_directive_name: StringKey,
 }
 
-impl<'s> ValidateUnusedVariables<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> ValidateUnusedVariables<'program> {
+    fn new(program: &'program Program) -> Self {
         Self {
             visitor: InferVariablesVisitor::new(program),
             ignore_directive_name: "DEPRECATED__relay_ignore_unused_variables_error".intern(),
@@ -33,7 +33,7 @@ impl<'s> ValidateUnusedVariables<'s> {
 
 /// Validates that there are no unused variables in the operation.
 /// former `graphql-js`` NoUnusedVariablesRule
-impl<'s> Validator for ValidateUnusedVariables<'s> {
+impl Validator for ValidateUnusedVariables<'_> {
     const NAME: &'static str = "ValidateUnusedVariables";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

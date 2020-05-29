@@ -19,9 +19,7 @@ lazy_static! {
     pub static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
 }
 
-pub fn generate_subscription_name_metadata<'s>(
-    program: &Program<'s>,
-) -> ValidationResult<Program<'s>> {
+pub fn generate_subscription_name_metadata(program: &Program) -> ValidationResult<Program> {
     let mut transformer = GenerateSubscriptionNameMetadata::new(program);
     let next_program = transformer
         .transform_program(program)
@@ -35,12 +33,12 @@ pub fn generate_subscription_name_metadata<'s>(
 }
 
 struct GenerateSubscriptionNameMetadata<'s> {
-    pub program: &'s Program<'s>,
+    pub program: &'s Program,
     pub errors: Vec<ValidationError>,
 }
 
 impl<'s> GenerateSubscriptionNameMetadata<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         GenerateSubscriptionNameMetadata {
             program,
             errors: vec![],
@@ -72,7 +70,7 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                         Selection::LinkedField(linked_field) => {
                             let mut directives = operation.directives.clone();
                             let subscription_name =
-                                linked_field.alias_or_name(self.program.schema());
+                                linked_field.alias_or_name(&self.program.schema);
                             directives.push(Directive {
                                 name: WithLocation::new(
                                     operation.name.location,

@@ -24,7 +24,7 @@ lazy_static! {
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an
 /// abstract type and b) does not already directly query `__typename`.
-pub fn generate_typename<'s>(program: &Program<'s>, is_for_codegen: bool) -> Program<'s> {
+pub fn generate_typename(program: &Program, is_for_codegen: bool) -> Program {
     let mut transform = GenerateTypenameTransform::new(program, is_for_codegen);
     transform
         .transform_program(program)
@@ -37,13 +37,13 @@ pub fn generate_typename<'s>(program: &Program<'s>, is_for_codegen: bool) -> Pro
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 struct GenerateTypenameTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     seen: Seen,
     is_for_codegen: bool,
 }
 
 impl<'s> GenerateTypenameTransform<'s> {
-    fn new(program: &'s Program<'s>, is_for_codegen: bool) -> Self {
+    fn new(program: &'s Program, is_for_codegen: bool) -> Self {
         Self {
             program,
             seen: Default::default(),
@@ -61,7 +61,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let mut selections = self.transform_selections(&fragment.selections);
         let type_ = fragment.type_condition;
         if !schema.is_extension_type(type_) && schema.is_abstract_type(type_) {
@@ -89,7 +89,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let selections = self.transform_selections(&field.selections);
         let field_definition = schema.field(field.definition.item);
         let is_abstract = schema.is_abstract_type(field_definition.type_.inner());
@@ -131,7 +131,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         }
         self.seen.insert(key, Transformed::Delete);
         let mut selections = self.transform_selections(&fragment.selections);
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         if let Some(type_) = fragment.type_condition {
             if !schema.is_extension_type(type_) && schema.is_abstract_type(type_) {
                 let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);

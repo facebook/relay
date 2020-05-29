@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 /// Transform to unwrap selections wrapped in a InlineFragment with custom
 /// directive for printing
-pub fn unwrap_custom_directive_selection<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn unwrap_custom_directive_selection(program: &Program) -> Program {
     let mut transform = UnwrapCustomDirectiveSelection;
     transform
         .transform_program(program)

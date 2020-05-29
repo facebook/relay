@@ -14,7 +14,8 @@ use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::{
     transform_connections, transform_refetchable_fragment, OSS_CONNECTION_INTERFACE,
 };
-use test_schema::TEST_SCHEMA;
+use std::sync::Arc;
+use test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let file_key = FileKey::new(fixture.file_name);
@@ -22,12 +23,13 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
 
+    let schema = get_test_schema();
     let ast = parse(fixture.content, file_key).unwrap();
-    let ir = match build(&TEST_SCHEMA, &ast.definitions) {
+    let ir = match build(&schema, &ast.definitions) {
         Ok(ir) => ir,
         Err(err) => return Err(format!("{:?}", err)),
     };
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
     let program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
     let base_fragments = Default::default();
     let next_program =
@@ -42,13 +44,13 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut printed = next_program
         .operations()
-        .map(|def| print_operation(&TEST_SCHEMA, def))
+        .map(|def| print_operation(&schema, def))
         .collect::<Vec<_>>();
     printed.sort();
 
     let mut printed_fragments = next_program
         .fragments()
-        .map(|def| print_fragment(&TEST_SCHEMA, def))
+        .map(|def| print_fragment(&schema, def))
         .collect::<Vec<_>>();
     printed_fragments.sort();
     printed.extend(printed_fragments);

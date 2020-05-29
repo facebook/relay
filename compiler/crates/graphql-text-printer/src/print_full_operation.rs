@@ -13,7 +13,7 @@ use graphql_ir::{
 use interner::StringKey;
 use std::sync::Arc;
 
-pub fn print_full_operation<'s>(program: &Program<'s>, operation: &OperationDefinition) -> String {
+pub fn print_full_operation(program: &Program, operation: &OperationDefinition) -> String {
     let mut printer = OperationPrinter::new(program);
     printer.print(operation)
 }
@@ -21,11 +21,11 @@ pub fn print_full_operation<'s>(program: &Program<'s>, operation: &OperationDefi
 struct OperationPrinter<'s> {
     fragment_result: FnvHashMap<StringKey, String>,
     reachable_fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
-    program: &'s Program<'s>,
+    program: &'s Program,
 }
 
 impl<'s> OperationPrinter<'s> {
-    pub fn new(program: &'s Program<'s>) -> Self {
+    pub fn new(program: &'s Program) -> Self {
         Self {
             fragment_result: Default::default(),
             reachable_fragments: Default::default(),
@@ -34,7 +34,7 @@ impl<'s> OperationPrinter<'s> {
     }
 
     pub fn print(&mut self, operation: &OperationDefinition) -> String {
-        let mut result = print_operation(self.program.schema(), operation);
+        let mut result = print_operation(&self.program.schema, operation);
         self.visit_operation(operation);
         let mut fragments: Vec<(StringKey, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
@@ -48,7 +48,7 @@ impl<'s> OperationPrinter<'s> {
     }
 
     fn print_fragment(&mut self, fragment: &FragmentDefinition) -> &str {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         self.fragment_result
             .entry(fragment.name.item)
             .or_insert_with(|| print_fragment(schema, fragment))

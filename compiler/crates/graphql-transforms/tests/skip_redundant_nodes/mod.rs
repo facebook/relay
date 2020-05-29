@@ -11,29 +11,31 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::print_operation;
 use graphql_transforms::{inline_fragments, skip_redundant_nodes};
-use test_schema::{test_schema_with_extensions, TEST_SCHEMA};
+use std::sync::Arc;
+use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let file_key = FileKey::new(fixture.file_name);
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let mut printed = if let [base, extensions] = parts.as_slice() {
         let ast = parse(base, file_key).unwrap();
-        let schema = test_schema_with_extensions(extensions);
+        let schema = get_test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
-        let program = Program::from_definitions(&schema, ir);
+        let program = Program::from_definitions(Arc::clone(&schema), ir);
         let next_program = skip_redundant_nodes(&inline_fragments(&program));
         next_program
             .operations()
             .map(|def| print_operation(&schema, def))
             .collect::<Vec<_>>()
     } else {
+        let schema = get_test_schema();
         let ast = parse(fixture.content, file_key).unwrap();
-        let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
-        let program = Program::from_definitions(&TEST_SCHEMA, ir);
+        let ir = build(&schema, &ast.definitions).unwrap();
+        let program = Program::from_definitions(Arc::clone(&schema), ir);
         let next_program = skip_redundant_nodes(&inline_fragments(&program));
         next_program
             .operations()
-            .map(|def| print_operation(&TEST_SCHEMA, def))
+            .map(|def| print_operation(&schema, def))
             .collect::<Vec<_>>()
     };
 

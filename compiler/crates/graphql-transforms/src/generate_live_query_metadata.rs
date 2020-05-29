@@ -23,7 +23,7 @@ lazy_static! {
     pub static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
 }
 
-pub fn generate_live_query_metadata<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn generate_live_query_metadata(program: &Program) -> ValidationResult<Program> {
     let mut transformer = GenerateLiveQueryMetadata::new(program);
     let next_program = transformer
         .transform_program(program)
@@ -37,12 +37,12 @@ pub fn generate_live_query_metadata<'s>(program: &Program<'s>) -> ValidationResu
 }
 
 struct GenerateLiveQueryMetadata<'s> {
-    pub program: &'s Program<'s>,
+    pub program: &'s Program,
     pub errors: Vec<ValidationError>,
 }
 
 impl<'s> GenerateLiveQueryMetadata<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         GenerateLiveQueryMetadata {
             program,
             errors: vec![],

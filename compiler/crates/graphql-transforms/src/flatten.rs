@@ -28,8 +28,8 @@ type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 /// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).
 ///
-pub fn flatten<'s>(program: &Program<'s>, is_for_codegen: bool) -> Program<'s> {
-    let mut next_program = Program::new(program.schema());
+pub fn flatten(program: &Program, is_for_codegen: bool) -> Program {
+    let mut next_program = Program::new(Arc::clone(&program.schema));
     let mut transform = FlattenTransform::new(program, is_for_codegen);
 
     for operation in program.operations() {
@@ -42,13 +42,13 @@ pub fn flatten<'s>(program: &Program<'s>, is_for_codegen: bool) -> Program<'s> {
 }
 
 struct FlattenTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     is_for_codegen: bool,
     seen_linked_fields: SeenLinkedFields,
 }
 
 impl<'s> FlattenTransform<'s> {
-    fn new(program: &'s Program<'s>, is_for_codegen: bool) -> Self {
+    fn new(program: &'s Program, is_for_codegen: bool) -> Self {
         Self {
             program,
             is_for_codegen,
@@ -113,7 +113,7 @@ impl<'s> FlattenTransform<'s> {
                 &linked_field.selections,
                 &self
                     .program
-                    .schema()
+                    .schema
                     .field(linked_field.definition.item)
                     .type_,
             ),
@@ -173,7 +173,7 @@ impl<'s> FlattenTransform<'s> {
 
             let flattened_selection = flattened_selections
                 .iter_mut()
-                .find(|sel| NodeIdentifier::are_equal(self.program.schema(), sel, selection));
+                .find(|sel| NodeIdentifier::are_equal(&self.program.schema, sel, selection));
 
             match flattened_selection {
                 None => {
@@ -219,7 +219,7 @@ impl<'s> FlattenTransform<'s> {
                                     &node_selections,
                                     &self
                                         .program
-                                        .schema()
+                                        .schema
                                         .field(flattened_node.definition.item)
                                         .type_,
                                 ),

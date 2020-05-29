@@ -21,7 +21,7 @@ use std::sync::Arc;
 ///   abstractKey: replace the Fragment w the Discriminator
 /// - The inline fragment contains other selections: return all the selections
 ///   minus any Discriminators w the same key
-pub fn dedupe_type_discriminator<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn dedupe_type_discriminator(program: &Program) -> Program {
     let mut transform = DedupeTypeDiscriminator::new(program);
     transform
         .transform_program(program)
@@ -30,13 +30,13 @@ pub fn dedupe_type_discriminator<'s>(program: &Program<'s>) -> Program<'s> {
 
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
-struct DedupeTypeDiscriminator<'s> {
-    program: &'s Program<'s>,
+struct DedupeTypeDiscriminator<'program> {
     seen: Seen,
+    program: &'program Program,
 }
 
-impl<'s> DedupeTypeDiscriminator<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> DedupeTypeDiscriminator<'program> {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             seen: Default::default(),
@@ -49,7 +49,7 @@ impl<'s> DedupeTypeDiscriminator<'s> {
             .iter()
             .any(is_relay_custom_inline_fragment_directive)
             && if let Some(type_condition) = fragment.type_condition {
-                self.program.schema().is_abstract_type(type_condition)
+                self.program.schema.is_abstract_type(type_condition)
             } else {
                 false
             };
@@ -104,7 +104,7 @@ impl<'s> DedupeTypeDiscriminator<'s> {
     }
 }
 
-impl<'s> Transformer for DedupeTypeDiscriminator<'s> {
+impl<'program> Transformer for DedupeTypeDiscriminator<'program> {
     const NAME: &'static str = "DedupeTypeDiscriminator";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

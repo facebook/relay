@@ -9,6 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 #![deny(clippy::clone_on_ref_ptr)]
+#![allow(clippy::comparison_chain)]
 
 mod applied_fragment_name;
 mod apply_fragment_arguments;

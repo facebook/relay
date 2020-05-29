@@ -39,7 +39,7 @@ use tokio::sync::mpsc::Receiver;
 
 use tokio::select;
 
-type SchemaMap = HashMap<ProjectName, Schema>;
+type SchemaMap = HashMap<ProjectName, Arc<Schema>>;
 
 pub struct LSPCompiler<'schema, 'config> {
     lsp_rx: Receiver<LSPBridgeMessage>,
@@ -50,7 +50,7 @@ pub struct LSPCompiler<'schema, 'config> {
     connection: Connection,
     synced_graphql_documents: GraphQLSourceCache,
     server_state: ServerState,
-    project_programs: HashMap<StringKey, Programs<'schema>>,
+    project_programs: HashMap<StringKey, Programs>,
 }
 
 impl<'schema, 'config> LSPCompiler<'schema, 'config> {
@@ -195,7 +195,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
         config.for_each_project(|project_config| {
-            let schema = build_schema(compiler_state, project_config);
+            let schema = Arc::new(build_schema(compiler_state, project_config));
             schemas.insert(project_config.name, schema);
         });
         setup_event.stop(timer);
@@ -214,7 +214,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         panic!("Expected the project {} to exist", &project_key)
                     });
 
-                let schema = self.schemas.get(&project_config.name).unwrap();
+                let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
                 let programs = check_project(
                     project_config,
                     &self.compiler_state,
@@ -236,7 +236,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         .compiler_state
                         .project_has_pending_changes(project_config.name)
                     {
-                        let schema = self.schemas.get(&project_config.name).unwrap();
+                        let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
                         // TODO: consider running all projects in parallel
                         let programs = check_project(
                             project_config,

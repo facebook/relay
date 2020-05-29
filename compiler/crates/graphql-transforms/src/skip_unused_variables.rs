@@ -8,7 +8,7 @@
 use crate::root_variables::InferVariablesVisitor;
 use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Transformed, Transformer};
 
-pub fn skip_unused_variables<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn skip_unused_variables(program: &Program) -> Program {
     let mut transform = SkipUnusedVariables::new(program);
     transform
         .transform_program(program)
@@ -20,7 +20,7 @@ pub struct SkipUnusedVariables<'s> {
 }
 
 impl<'s> SkipUnusedVariables<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             visitor: InferVariablesVisitor::new(program),
         }

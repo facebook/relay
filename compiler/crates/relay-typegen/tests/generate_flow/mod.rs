@@ -14,13 +14,13 @@ use graphql_transforms::OSS_CONNECTION_INTERFACE;
 use relay_compiler::apply_transforms;
 use relay_typegen::{self, TypegenConfig};
 use std::sync::Arc;
-use test_schema::{test_schema, test_schema_with_extensions};
+use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
-        [source, extensions] => (source, test_schema_with_extensions(extensions)),
-        [source] => (source, test_schema()),
+        [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
+        [source] => (source, get_test_schema()),
         _ => panic!(),
     };
 
@@ -28,7 +28,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     sources.insert(FileKey::new(fixture.file_name), source);
     let ast = parse(source, FileKey::new(fixture.file_name)).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
-    let program = Program::from_definitions(&schema, ir);
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
     let programs = apply_transforms(
         "test",
         program,

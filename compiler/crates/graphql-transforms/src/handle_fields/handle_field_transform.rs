@@ -22,7 +22,7 @@ use std::sync::Arc;
 /// - If filters is not set, existing arguments are removed.
 /// - If filters is set, only the arguments in the filter array are kept.
 /// - If dynamicKey is set, a new __dynamicKey argument is added.
-pub fn handle_field_transform<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn handle_field_transform(program: &Program) -> Program {
     let mut transform = HandleFieldTransform::new();
     transform
         .transform_program(program)

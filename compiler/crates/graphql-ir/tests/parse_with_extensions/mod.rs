@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::build;
 use graphql_syntax::parse;
-use test_schema::test_schema_with_extensions;
+use test_schema::get_test_schema_with_extensions;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
@@ -20,7 +20,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     if let [base, extensions] = parts.as_slice() {
         let file_key = FileKey::new(fixture.file_name);
         let ast = parse(base, file_key).unwrap();
-        let schema = test_schema_with_extensions(extensions);
+        let schema = get_test_schema_with_extensions(extensions);
         build(&schema, &ast.definitions)
             .map(|x| format!("{:#?}", x))
             .map_err(|errors| {

@@ -13,7 +13,7 @@ use graphql_ir::{
 use interner::StringKey;
 use std::sync::Arc;
 
-pub fn skip_unreachable_node<'a>(program: &Program<'a>) -> Program<'a> {
+pub fn skip_unreachable_node(program: &Program) -> Program {
     let fragments = program
         .fragments()
         .map(|fragment| (fragment.name.item, (Arc::clone(fragment), None)))
@@ -42,7 +42,7 @@ impl Transformer for SkipUnreachableNodeTransform {
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
 
-    fn transform_program<'s>(&mut self, program: &Program<'s>) -> TransformedValue<Program<'s>> {
+    fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
         // Iterate over the operation ASTs. Whenever we encounter a FragmentSpread (by way of
         // fn transform_fragment_spread) look up that the associated FragmentDefinition.
         // Crawl that FragmentDefinition for other FragmentSpreads and repeat.
@@ -58,7 +58,7 @@ impl Transformer for SkipUnreachableNodeTransform {
         //
         // Removal of a condition or spread can result in a FragmentDefinition being deleted.
 
-        let mut next_program = Program::new(program.schema());
+        let mut next_program = Program::new(Arc::clone(&program.schema));
         let mut has_changes = false;
 
         for operation in program.operations() {

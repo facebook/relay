@@ -19,7 +19,7 @@ use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 /// Transform and validate @match and @module
-pub fn transform_match<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn transform_match(program: &Program) -> ValidationResult<Program> {
     let mut transformer = MatchTransform::new(program);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
@@ -55,8 +55,8 @@ struct Matches {
 }
 type MatchesForPath = FnvHashMap<Vec<Path>, Matches>;
 
-pub struct MatchTransform<'s> {
-    program: &'s Program<'s>,
+pub struct MatchTransform<'program> {
+    program: &'program Program,
     parent_type: Type,
     document_name: StringKey,
     module_key: Option<StringKey>,
@@ -65,8 +65,8 @@ pub struct MatchTransform<'s> {
     matches_for_path: MatchesForPath,
 }
 
-impl<'s> MatchTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> MatchTransform<'program> {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -92,14 +92,10 @@ impl<'s> MatchTransform<'s> {
 
     // Validate that `JSDependency` is a server scalar type in the schema
     fn validate_js_module_type(&self, spread_location: Location) -> Result<(), ValidationError> {
-        match self
-            .program
-            .schema()
-            .get_type(MATCH_CONSTANTS.js_field_type)
-        {
+        match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
             Some(js_module_type) => match js_module_type {
                 Type::Scalar(id) => {
-                    if self.program.schema().scalar(id).is_extension {
+                    if self.program.schema.scalar(id).is_extension {
                         Err(ValidationError::new(
                             ValidationMessage::MissingServerSchemaDefinition {
                                 name: MATCH_CONSTANTS.js_field_name,
@@ -134,14 +130,14 @@ impl<'s> MatchTransform<'s> {
     ) -> Result<(FieldID, bool /* has_js_field_id_arg */), ValidationError> {
         match fragment.type_condition {
             Type::Object(id) => {
-                let object = self.program.schema().object(id);
+                let object = self.program.schema.object(id);
                 let js_field_id = object.fields.iter().find(|field_id| {
-                    let field = self.program.schema().field(**field_id);
+                    let field = self.program.schema.field(**field_id);
                     field.name == MATCH_CONSTANTS.js_field_name
                 });
                 if let Some(js_field_id) = js_field_id {
                     let js_field_id = *js_field_id;
-                    let js_field = self.program.schema().field(js_field_id);
+                    let js_field = self.program.schema.field(js_field_id);
 
                     let js_field_module_arg = js_field
                         .arguments
@@ -149,7 +145,7 @@ impl<'s> MatchTransform<'s> {
                     let is_module_valid = {
                         if let Some(js_field_module_arg) = js_field_module_arg {
                             if let Some(non_list_type) = js_field_module_arg.type_.non_list_type() {
-                                self.program.schema().is_string(non_list_type)
+                                self.program.schema.is_string(non_list_type)
                             } else {
                                 false
                             }
@@ -162,7 +158,7 @@ impl<'s> MatchTransform<'s> {
                     let is_id_valid = {
                         if let Some(js_field_id_arg) = js_field_id_arg {
                             if let Some(id_non_list_type) = js_field_id_arg.type_.non_list_type() {
-                                self.program.schema().is_string(id_non_list_type)
+                                self.program.schema.is_string(id_non_list_type)
                             } else {
                                 false
                             }
@@ -179,7 +175,7 @@ impl<'s> MatchTransform<'s> {
                 Err(ValidationError::new(
                     ValidationMessage::InvalidModuleInvalidSchemaArguments {
                         spread_name: spread.fragment.item,
-                        type_string: self.program.schema().get_type_name(fragment.type_condition),
+                        type_string: self.program.schema.get_type_name(fragment.type_condition),
                         js_field_name: MATCH_CONSTANTS.js_field_name,
                         js_field_module_arg: MATCH_CONSTANTS.js_field_module_arg,
                         js_field_id_arg: MATCH_CONSTANTS.js_field_id_arg,
@@ -192,7 +188,7 @@ impl<'s> MatchTransform<'s> {
             _ => Err(ValidationError::new(
                 ValidationMessage::InvalidModuleNotOnObject {
                     spread_name: spread.fragment.item,
-                    type_string: self.program.schema().get_type_name(fragment.type_condition),
+                    type_string: self.program.schema.get_type_name(fragment.type_condition),
                 },
                 vec![spread.fragment.location, fragment.name.location],
             )),
@@ -289,7 +285,7 @@ impl<'s> MatchTransform<'s> {
                 {
                     return Err(ValidationError::new(
                         ValidationMessage::InvalidModuleSelectionMultipleMatches {
-                            type_name: self.program.schema().get_type_name(fragment.type_condition),
+                            type_name: self.program.schema.get_type_name(fragment.type_condition),
                             alias_path: self
                                 .path
                                 .iter()
@@ -406,7 +402,7 @@ impl<'s> MatchTransform<'s> {
         match_directive: &Directive,
     ) -> Result<Transformed<Selection>, ValidationError> {
         // Validate and keep track of the module key
-        let field_definition = self.program.schema().field(field.definition.item);
+        let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
         if let Some(arg) = key_arg {
             if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
@@ -428,7 +424,7 @@ impl<'s> MatchTransform<'s> {
         self.parent_type = field_definition.type_.inner();
         self.path.push(Path {
             location: field.definition.location,
-            item: field.alias_or_name(self.program.schema()),
+            item: field.alias_or_name(&self.program.schema),
         });
         let next_selections = self.transform_selections(&field.selections);
         self.path.pop();
@@ -458,7 +454,7 @@ impl<'s> MatchTransform<'s> {
                     if let TypeReference::List(of) = supported_arg_definition.type_.nullable_type()
                     {
                         if let TypeReference::Named(of) = of.nullable_type() {
-                            self.program.schema().is_string(*of)
+                            self.program.schema.is_string(*of)
                         } else {
                             false
                         }
@@ -518,7 +514,7 @@ impl<'s> MatchTransform<'s> {
                     }
                 }
                 Selection::ScalarField(field) => {
-                    if field.definition.item != self.program.schema().typename_field() {
+                    if field.definition.item != self.program.schema.typename_field() {
                         self.push_fragment_spread_with_module_selection_err(
                             field.definition.location,
                             match_directive.name.location,
@@ -553,7 +549,7 @@ impl<'s> MatchTransform<'s> {
                     seen_types
                         .drain()
                         .map(|type_| {
-                            ConstantValue::String(self.program.schema().get_type_name(type_))
+                            ConstantValue::String(self.program.schema.get_type_name(type_))
                         })
                         .collect(),
                 )),
@@ -578,7 +574,7 @@ impl<'s> MatchTransform<'s> {
     }
 }
 
-impl<'s> Transformer for MatchTransform<'s> {
+impl Transformer for MatchTransform<'_> {
     const NAME: &'static str = "MatchTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -619,13 +615,9 @@ impl<'s> Transformer for MatchTransform<'s> {
 
     // Validate `js` field
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        let field_definition = self.program.schema().field(field.definition.item);
+        let field_definition = self.program.schema.field(field.definition.item);
         if field_definition.name == MATCH_CONSTANTS.js_field_name {
-            match self
-                .program
-                .schema()
-                .get_type(MATCH_CONSTANTS.js_field_type)
-            {
+            match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
                 None => self.errors.push(ValidationError::new(
                     ValidationMessage::MissingServerSchemaDefinition {
                         name: MATCH_CONSTANTS.js_field_name,
@@ -668,13 +660,13 @@ impl<'s> Transformer for MatchTransform<'s> {
             let previous_parent_type = self.parent_type;
             self.parent_type = self
                 .program
-                .schema()
+                .schema
                 .field(field.definition.item)
                 .type_
                 .inner();
             self.path.push(Path {
                 location: field.definition.location,
-                item: field.alias_or_name(self.program.schema()),
+                item: field.alias_or_name(&self.program.schema),
             });
             let result = self.default_transform_linked_field(field);
             self.path.pop();

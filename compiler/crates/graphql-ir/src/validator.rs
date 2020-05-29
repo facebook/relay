@@ -16,11 +16,11 @@ pub trait Validator {
     const VALIDATE_ARGUMENTS: bool;
     const VALIDATE_DIRECTIVES: bool;
 
-    fn validate_program<'s>(&mut self, program: &Program<'s>) -> ValidationResult<()> {
+    fn validate_program(&mut self, program: &Program) -> ValidationResult<()> {
         self.default_validate_program(program)
     }
 
-    fn default_validate_program<'s>(&mut self, program: &Program<'s>) -> ValidationResult<()> {
+    fn default_validate_program(&mut self, program: &Program) -> ValidationResult<()> {
         validate!(
             validate_map(program.operations(), |operation| {
                 self.validate_operation(operation)

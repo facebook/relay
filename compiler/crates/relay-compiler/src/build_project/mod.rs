@@ -40,14 +40,14 @@ use std::sync::Arc;
 pub use validate::validate;
 use write_artifacts::write_artifacts;
 
-fn build_programs<'a>(
+fn build_programs(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
-    schema: &'a Schema,
+    schema: Arc<Schema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger>,
-) -> Result<Programs<'a>, BuildProjectError> {
+) -> Result<Programs, BuildProjectError> {
     let project_name = project_config.name.lookup();
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
@@ -65,7 +65,7 @@ fn build_programs<'a>(
 
     // Turn the IR into a base Program.
     let program = log_event.time("build_program_time", || {
-        Program::from_definitions(&schema, ir)
+        Program::from_definitions(schema, ir)
     });
 
     // Call validation rules that go beyond type checking.
@@ -94,13 +94,13 @@ fn build_programs<'a>(
     Ok(programs)
 }
 
-pub async fn check_project<'schema>(
+pub async fn check_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
-    schema: &'schema Schema,
+    schema: Arc<Schema>,
     perf_logger: Arc<impl PerfLogger>,
-) -> Result<Programs<'schema>, BuildProjectError> {
+) -> Result<Programs, BuildProjectError> {
     let log_event = perf_logger.create_event("check_project");
     let build_time = log_event.start("check_time");
     let project_name = project_config.name.lookup();
@@ -135,7 +135,7 @@ pub async fn build_project(
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event.time("build_schema_time", || {
-        build_schema(compiler_state, project_config)
+        Arc::new(build_schema(compiler_state, project_config))
     });
 
     // Apply different transform pipelines to produce the `Programs`.
@@ -143,7 +143,7 @@ pub async fn build_project(
         project_config,
         compiler_state,
         graphql_asts,
-        &schema,
+        Arc::clone(&schema),
         &log_event,
         Arc::clone(&perf_logger),
     )?;
@@ -182,7 +182,7 @@ pub async fn build_project(
                 config,
                 project_config,
                 &artifacts,
-                programs.normalization.schema(),
+                &programs.normalization.schema,
             )
         })?;
     }

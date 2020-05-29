@@ -107,7 +107,7 @@ use std::sync::Arc;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-pub fn skip_redundant_nodes<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn skip_redundant_nodes(program: &Program) -> Program {
     let mut transform = SkipRedundantNodesTransform::new(program);
     transform
         .transform_program(program)
@@ -120,12 +120,12 @@ struct SelectionMap(HashMap<NodeIdentifier, Option<SelectionMap>, FnvBuildHasher
 type Cache = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 struct SkipRedundantNodesTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     cache: Cache,
 }
 
 impl<'s> SkipRedundantNodesTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             program,
             cache: Default::default(),
@@ -147,7 +147,7 @@ impl<'s> SkipRedundantNodesTransform<'s> {
                 return result.clone();
             }
         }
-        let identifier = NodeIdentifier::from_selection(self.program.schema(), selection);
+        let identifier = NodeIdentifier::from_selection(&self.program.schema, selection);
         let result = match selection {
             Selection::ScalarField(_) => {
                 if selection_map.0.contains_key(&identifier) {

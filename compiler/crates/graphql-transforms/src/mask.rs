@@ -16,7 +16,7 @@ use interner::StringKey;
 use std::sync::Arc;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
-pub fn mask<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn mask(program: &Program) -> Program {
     let mut transform = Mask::new(program);
     transform
         .transform_program(program)
@@ -25,12 +25,12 @@ pub fn mask<'s>(program: &Program<'s>) -> Program<'s> {
 
 type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildHasher>;
 
-struct Mask<'s> {
-    program: &'s Program<'s>,
+struct Mask<'program> {
+    program: &'program Program,
 }
 
-impl<'s> Mask<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> Mask<'program> {
+    fn new(program: &'program Program) -> Self {
         Self { program }
     }
 }
@@ -49,13 +49,13 @@ impl<'s> Transformer for Mask<'s> {
     }
 }
 
-struct MaskFragment<'s> {
-    program: &'s Program<'s>,
-    current_reachable_arguments: Vec<&'s VariableDefinition>,
+struct MaskFragment<'program> {
+    program: &'program Program,
+    current_reachable_arguments: Vec<&'program VariableDefinition>,
 }
 
-impl<'s> MaskFragment<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> MaskFragment<'program> {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             current_reachable_arguments: vec![],
@@ -76,7 +76,7 @@ impl<'s> MaskFragment<'s> {
                     let prev_arg = entry.get();
                     if self
                         .program
-                        .schema()
+                        .schema
                         .is_type_subtype_of(&arg.type_, &prev_arg.type_)
                     {
                         entry.insert(arg);

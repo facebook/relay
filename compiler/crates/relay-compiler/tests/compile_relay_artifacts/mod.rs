@@ -15,7 +15,7 @@ use graphql_transforms::{MATCH_CONSTANTS, OSS_CONNECTION_INTERFACE};
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
 use std::sync::Arc;
-use test_schema::{test_schema, test_schema_with_extensions};
+use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
@@ -30,8 +30,8 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, schema) = match parts.as_slice() {
-        [base, extensions] => (base, test_schema_with_extensions(extensions)),
-        [base] => (base, test_schema()),
+        [base, extensions] => (base, get_test_schema_with_extensions(extensions)),
+        [base] => (base, get_test_schema()),
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
@@ -46,7 +46,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let ast = parse(base, FileKey::new(fixture.file_name)).unwrap();
     let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
-    let program = Program::from_definitions(&schema, ir);
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     validate(&program, &*OSS_CONNECTION_INTERFACE).map_err(validation_errors_to_string)?;
 

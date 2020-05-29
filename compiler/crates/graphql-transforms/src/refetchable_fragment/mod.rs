@@ -47,12 +47,12 @@ use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 ///    and finding the union of all global variables expceted to be defined.
 /// 3. Building the refetch queries, a straightforward copying transform from
 ///    Fragment to Root IR nodes.
-pub fn transform_refetchable_fragment<'schema>(
-    program: &Program<'schema>,
+pub fn transform_refetchable_fragment(
+    program: &Program,
     base_fragment_names: &'_ FnvHashSet<StringKey>,
     for_typegen: bool,
-) -> ValidationResult<Program<'schema>> {
-    let mut next_program = Program::new(program.schema());
+) -> ValidationResult<Program> {
+    let mut next_program = Program::new(Arc::clone(&program.schema));
 
     let mut transformer = RefetchableFragment {
         connection_constants: Default::default(),
@@ -86,15 +86,15 @@ pub fn transform_refetchable_fragment<'schema>(
 
 type ExistingRefetchOperations = FnvHashMap<StringKey, WithLocation<StringKey>>;
 
-struct RefetchableFragment<'schema> {
+struct RefetchableFragment<'program> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
-    program: &'schema Program<'schema>,
-    visitor: InferVariablesVisitor<'schema>,
+    program: &'program Program,
+    visitor: InferVariablesVisitor<'program>,
 }
 
-impl<'schema> RefetchableFragment<'schema> {
+impl RefetchableFragment<'_> {
     fn transform_refetch_fragment(
         &mut self,
         fragment: &Arc<FragmentDefinition>,
@@ -104,7 +104,7 @@ impl<'schema> RefetchableFragment<'schema> {
             let variables_map = self.visitor.infer_fragment_variables(fragment);
             for generator in GENERATORS.iter() {
                 if let Some(refetch_root) = (generator.build_refetch_operation)(
-                    self.program.schema(),
+                    &self.program.schema,
                     fragment,
                     refetch_name,
                     &variables_map,
@@ -158,7 +158,7 @@ impl<'schema> RefetchableFragment<'schema> {
                     Err(vec![ValidationError::new(
                         ValidationMessage::ExpectQueryNameToBeString {
                             query_name_value: print_value(
-                                self.program.schema(),
+                                &self.program.schema,
                                 &query_name_arg.value.item,
                             ),
                         },

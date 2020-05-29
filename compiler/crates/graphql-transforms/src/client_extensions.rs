@@ -20,7 +20,7 @@ use std::sync::Arc;
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.
 /// We mark client selection as  `Transformed::Delete`, and consume them in `transform_selections`.
-pub fn client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn client_extensions(program: &Program) -> Program {
     let mut transform = ClientExtensionsTransform::new(program);
     transform
         .transform_program(program)
@@ -33,14 +33,14 @@ lazy_static! {
     pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: StringKey = "__clientExtension".intern();
 }
 
-struct ClientExtensionsTransform<'s> {
-    program: &'s Program<'s>,
+struct ClientExtensionsTransform<'program> {
+    program: &'program Program,
     empty_location: Location,
     seen: Seen,
 }
 
-impl<'s> ClientExtensionsTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> ClientExtensionsTransform<'program> {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             seen: Default::default(),
@@ -61,7 +61,7 @@ impl<'s> ClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for ClientExtensionsTransform<'s> {
+impl Transformer for ClientExtensionsTransform<'_> {
     const NAME: &'static str = "ClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -138,7 +138,7 @@ impl<'s> Transformer for ClientExtensionsTransform<'s> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(type_condition) = fragment.type_condition {
-            if self.program.schema().is_extension_type(type_condition) {
+            if self.program.schema.is_extension_type(type_condition) {
                 return Transformed::Delete;
             }
         }
@@ -148,7 +148,7 @@ impl<'s> Transformer for ClientExtensionsTransform<'s> {
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         if self
             .program
-            .schema()
+            .schema
             .field(field.definition.item)
             .is_extension
         {
@@ -161,7 +161,7 @@ impl<'s> Transformer for ClientExtensionsTransform<'s> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         if self
             .program
-            .schema()
+            .schema
             .field(field.definition.item)
             .is_extension
         {

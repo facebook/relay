@@ -32,7 +32,7 @@ pub struct Artifact<'a> {
 
 pub fn generate_artifacts<'a>(
     project_config: &ProjectConfig,
-    programs: &'a Programs<'a>,
+    programs: &'a Programs,
 ) -> Result<Vec<Artifact<'a>>, BuildProjectError> {
     let mut artifacts = Vec::new();
     for normalization_operation in programs.normalization.operations() {
@@ -53,7 +53,7 @@ pub fn generate_artifacts<'a>(
             let mut source_string = String::new();
             write_fragment_with_graphqljs_formatting(
                 &mut source_string,
-                programs.source.schema(),
+                &programs.source.schema,
                 &source_fragment,
             )
             .unwrap();
@@ -90,7 +90,7 @@ pub fn generate_artifacts<'a>(
             let mut source_string = String::new();
             write_fragment_with_graphqljs_formatting(
                 &mut source_string,
-                programs.source.schema(),
+                &programs.source.schema,
                 &source_fragment,
             )
             .unwrap();
@@ -114,7 +114,7 @@ pub fn generate_artifacts<'a>(
             let mut source_string = String::new();
             write_operation_with_graphqljs_formatting(
                 &mut source_string,
-                programs.source.schema(),
+                &programs.source.schema,
                 &source_operation,
             )
             .unwrap();
@@ -135,7 +135,7 @@ pub fn generate_artifacts<'a>(
         let mut source_string = String::new();
         write_fragment_with_graphqljs_formatting(
             &mut source_string,
-            programs.source.schema(),
+            &programs.source.schema,
             &source_fragment,
         )
         .unwrap();
@@ -153,7 +153,7 @@ pub fn generate_artifacts<'a>(
 
 fn generate_normalization_artifact<'a>(
     project_config: &ProjectConfig,
-    programs: &'a Programs<'_>,
+    programs: &'a Programs,
     normalization_operation: &'a OperationDefinition,
     source_hash: String,
     source_file: FileKey,
@@ -189,7 +189,7 @@ fn generate_normalization_artifact<'a>(
 
 fn generate_reader_artifact<'a>(
     project_config: &ProjectConfig,
-    programs: &'a Programs<'_>,
+    programs: &'a Programs,
     reader_fragment: &'a FragmentDefinition,
     source_hash: String,
 ) -> Artifact<'a> {

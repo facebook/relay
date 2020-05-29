@@ -196,7 +196,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
 }
 
 /// Finds all the valid fragment names for a given type. Used to complete fragment spreads
-fn get_valid_fragments_for_type(type_: Type, programs: &Programs<'_>) -> Vec<StringKey> {
+fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringKey> {
     let mut valid_fragment_names = vec![];
     for fragment in programs.source.fragments() {
         if fragment.type_condition == type_ {
@@ -209,7 +209,7 @@ fn get_valid_fragments_for_type(type_: Type, programs: &Programs<'_>) -> Vec<Str
 
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
-    programs: &Programs<'_>,
+    programs: &Programs,
 ) -> Vec<CompletionItem> {
     get_valid_fragments_for_type(type_, programs)
         .iter()
@@ -222,7 +222,7 @@ fn resolve_completion_items_for_fragment_spread(
 pub fn completion_items_for_request(
     request: CompletionRequest,
     schema: &Schema,
-    programs: Option<&Programs<'_>>,
+    programs: Option<&Programs>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let leaf_type = request.resolve_leaf_type(schema)?;

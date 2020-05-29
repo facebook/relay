@@ -15,10 +15,10 @@ use interner::StringKey;
 /// This is useful if earlier steps need access to fragments from some base
 /// project, but we don't want to write output files for them and can skip over
 /// some transform steps.
-pub fn remove_base_fragments<'s>(
-    program: &Program<'s>,
+pub fn remove_base_fragments(
+    program: &Program,
     base_fragment_names: &FnvHashSet<StringKey>,
-) -> Program<'s> {
+) -> Program {
     if base_fragment_names.is_empty() {
         // Nothing to remove.
         return program.clone();

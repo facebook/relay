@@ -21,10 +21,10 @@ use graphql_ir::{
 use interner::{Intern, StringKey};
 use std::sync::Arc;
 
-pub fn transform_connections<'s>(
-    program: &Program<'s>,
+pub fn transform_connections(
+    program: &Program,
     connection_interface: &ConnectionInterface,
-) -> Program<'s> {
+) -> Program {
     let mut transform = ConnectionTransform::new(program, connection_interface);
     transform
         .transform_program(program)
@@ -40,11 +40,11 @@ struct ConnectionTransform<'s> {
     empty_location: Location,
     handle_field_constants: HandleFieldConstants,
     handle_field_constants_for_connection: HandleFieldConstants,
-    program: &'s Program<'s>,
+    program: &'s Program,
 }
 
 impl<'s> ConnectionTransform<'s> {
-    fn new(program: &'s Program<'s>, connection_interface: &'s ConnectionInterface) -> Self {
+    fn new(program: &'s Program, connection_interface: &'s ConnectionInterface) -> Self {
         let handle_field_constants = HandleFieldConstants::default();
         Self {
             connection_constants: ConnectionConstants::default(),
@@ -70,7 +70,7 @@ impl<'s> ConnectionTransform<'s> {
     ) -> Vec<Selection> {
         let is_stream_connection = connection_directive.name.item
             == self.connection_constants.stream_connection_directive_name;
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let transformed_selections = self
             .transform_selections(&connection_field.selections)
             .replace_or_else(|| connection_field.selections.clone());
@@ -416,7 +416,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let connection_schema_field = schema.field(field.definition.item);
 
         // TODO(T63626938): Shouldn't need to do this when transformer infra

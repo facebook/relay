@@ -11,6 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_transforms::validate_unused_variables;
+use std::sync::Arc;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
@@ -33,7 +34,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         }
     };
 
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
     let validation_result = validate_unused_variables(&program);
 
     match validation_result {

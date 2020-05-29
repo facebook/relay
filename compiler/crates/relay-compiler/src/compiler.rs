@@ -51,12 +51,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> HashMap<ProjectName, Schema> {
+    ) -> HashMap<ProjectName, Arc<Schema>> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
         self.config.for_each_project(|project_config| {
             let schema = build_schema(compiler_state, project_config);
-            schemas.insert(project_config.name, schema);
+            schemas.insert(project_config.name, Arc::new(schema));
         });
         setup_event.stop(timer);
         schemas
@@ -175,7 +175,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     async fn check_projects(
         &self,
         compiler_state: &mut CompilerState,
-        schemas: &HashMap<ProjectName, Schema>,
+        schemas: &HashMap<ProjectName, Arc<Schema>>,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
         let graphql_asts =
@@ -189,7 +189,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     self.config.projects.get(&project_key).unwrap_or_else(|| {
                         panic!("Expected the project {} to exist", &project_key)
                     });
-                let schema = schemas.get(&project_config.name).unwrap();
+                let schema = Arc::clone(schemas.get(&project_config.name).unwrap());
                 check_project(
                     project_config,
                     compiler_state,
@@ -206,7 +206,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             None => {
                 for project_config in self.config.projects.values() {
                     if compiler_state.project_has_pending_changes(project_config.name) {
-                        let schema = schemas.get(&project_config.name).unwrap();
+                        let schema = Arc::clone(schemas.get(&project_config.name).unwrap());
                         // TODO: consider running all projects in parallel
                         check_project(
                             project_config,

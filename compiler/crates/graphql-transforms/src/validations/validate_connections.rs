@@ -16,8 +16,8 @@ use graphql_ir::{
 use interner::StringKey;
 use schema::{Field, Type, TypeReference};
 
-pub fn validate_connections<'s>(
-    program: &Program<'s>,
+pub fn validate_connections(
+    program: &Program,
     connection_interface: &ConnectionInterface,
 ) -> ValidationResult<()> {
     let mut validator = ConnectionValidation::new(program, connection_interface);
@@ -27,11 +27,11 @@ struct ConnectionValidation<'s> {
     connection_constants: ConnectionConstants,
     connection_interface: &'s ConnectionInterface,
     handle_field_constants: HandleFieldConstants,
-    program: &'s Program<'s>,
+    program: &'s Program,
 }
 
 impl<'s> ConnectionValidation<'s> {
-    fn new(program: &'s Program<'s>, connection_interface: &'s ConnectionInterface) -> Self {
+    fn new(program: &'s Program, connection_interface: &'s ConnectionInterface) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
@@ -47,7 +47,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_schema_field: &Field,
         connection_directive: &Directive,
     ) -> ValidationResult<Type> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let field_type = connection_schema_field.type_.nullable_type();
         if field_type.is_list()
             || (!schema.is_object(field_type.inner()) && !schema.is_interface(field_type.inner()))
@@ -78,7 +78,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_field: &'s LinkedField,
         connection_schema_field: &'s Field,
     ) -> ValidationResult<&'s LinkedField> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
 
         let first_arg = connection_field
             .arguments
@@ -166,7 +166,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_directive: &Directive,
         edges_field: &LinkedField,
     ) -> ValidationResult<()> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
@@ -258,7 +258,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_field_type: Type,
         connection_directive: &Directive,
     ) -> ValidationResult<()> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
@@ -320,7 +320,7 @@ impl<'s> ConnectionValidation<'s> {
         is_valid: impl Fn(&Field, &TypeReference) -> bool,
         error: impl Fn() -> Vec<ValidationError>,
     ) -> ValidationResult<(&Field, &TypeReference)> {
-        let schema = self.program.schema();
+        let schema = &self.program.schema;
         if let Some(field_id) = schema.named_field(parent_type, selection_name) {
             let field = schema.field(field_id);
             let field_type = field.type_.nullable_type();
@@ -537,7 +537,7 @@ impl<'s> ConnectionValidation<'s> {
             .iter()
             .find_map(|sel| match sel {
                 Selection::LinkedField(field) => {
-                    if self.program.schema().field(field.definition.item).name
+                    if self.program.schema.field(field.definition.item).name
                         == self.connection_interface.page_info_selection_name
                     {
                         Some(field)
@@ -571,8 +571,7 @@ impl<'s> Validator for ConnectionValidation<'s> {
         if let Some(connection_directive) =
             extract_connection_directive(&field.directives, self.connection_constants)
         {
-            let schema = self.program.schema();
-            let connection_schema_field = schema.field(field.definition.item);
+            let connection_schema_field = self.program.schema.field(field.definition.item);
 
             let connection_field_type = self.validate_connection_field_type(
                 field,

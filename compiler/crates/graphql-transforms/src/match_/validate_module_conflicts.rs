@@ -18,7 +18,7 @@ use schema::Type;
 
 /// Validate that after flattening, there are no @module selections on the same type, and
 /// under the same linked field, but have different arguments.
-pub fn validate_module_conflicts<'s>(program: &Program<'s>) -> ValidationResult<()> {
+pub fn validate_module_conflicts(program: &Program) -> ValidationResult<()> {
     let mut validator = ValidateModuleConflicts::default();
     validator.validate_program(program)
 }

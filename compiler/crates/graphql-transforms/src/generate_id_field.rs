@@ -19,7 +19,7 @@ use std::sync::Arc;
 
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.
-pub fn generate_id_field<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn generate_id_field(program: &Program) -> Program {
     let mut transform = GenerateIDFieldTransform::new(program);
     transform
         .transform_program(program)
@@ -27,7 +27,7 @@ pub fn generate_id_field<'s>(program: &Program<'s>) -> Program<'s> {
 }
 
 struct GenerateIDFieldTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     id_name: StringKey,
     node_interface: Option<NodeInterface>,
     cache: HashMap<Type, Option<FieldID>>,
@@ -50,13 +50,8 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
         let next_selections = if self.has_unaliased_id_field(&field.selections) {
             selections
         } else {
-            let schema = self.program.schema();
-            let type_ = self
-                .program
-                .schema()
-                .field(field.definition.item)
-                .type_
-                .inner();
+            let schema = &self.program.schema;
+            let type_ = schema.field(field.definition.item).type_.inner();
             match type_ {
                 Type::Object(id) => {
                     let object = schema.object(id);
@@ -117,10 +112,10 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
 }
 
 impl<'s> GenerateIDFieldTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         let id_name = "id".intern();
 
-        let schema = program.schema();
+        let schema = &program.schema;
         let node_interface = match schema.get_type("Node".intern()) {
             Some(Type::Interface(node_interface_id)) => {
                 let node_interface = schema.interface(node_interface_id);
@@ -150,7 +145,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         selections.iter().any(|x| match x {
             Selection::ScalarField(child) => {
                 child.alias.is_none()
-                    && self.program.schema().field(child.definition.item).name == self.id_name
+                    && self.program.schema.field(child.definition.item).name == self.id_name
             }
             _ => false,
         })
@@ -161,9 +156,8 @@ impl<'s> GenerateIDFieldTransform<'s> {
             Entry::Occupied(e) => *e.get(),
             Entry::Vacant(e) => {
                 for id in fields {
-                    let field = self.program.schema().field(*id);
-                    if field.name == self.id_name
-                        && self.program.schema().is_id(field.type_.inner())
+                    let field = &self.program.schema.field(*id);
+                    if field.name == self.id_name && self.program.schema.is_id(field.type_.inner())
                     {
                         let result = Some(*id);
                         e.insert(result);
@@ -190,7 +184,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         let mut should_generate_node = false;
 
         for object_id in concrete_ids {
-            let object = self.program.schema().object(*object_id);
+            let object = self.program.schema.object(*object_id);
             let implements_node = if let Some(ref node_interface) = self.node_interface {
                 object
                     .interfaces

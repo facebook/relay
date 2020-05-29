@@ -20,7 +20,7 @@ lazy_static! {
     pub static ref PRELOADABLE_METADATA_KEY: StringKey = "relayPreloadable".intern();
 }
 
-pub fn generate_preloadable_metadata<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn generate_preloadable_metadata(program: &Program) -> Program {
     let mut transformer = GeneratePreloadableMetadata::new(program);
     transformer
         .transform_program(program)
@@ -28,11 +28,11 @@ pub fn generate_preloadable_metadata<'s>(program: &Program<'s>) -> Program<'s> {
 }
 
 struct GeneratePreloadableMetadata<'s> {
-    pub program: &'s Program<'s>,
+    pub program: &'s Program,
 }
 
 impl<'s> GeneratePreloadableMetadata<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         GeneratePreloadableMetadata { program }
     }
 }

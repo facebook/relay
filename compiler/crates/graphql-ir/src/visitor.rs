@@ -13,11 +13,11 @@ pub trait Visitor {
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
 
-    fn visit_program<'s>(&mut self, program: &Program<'s>) {
+    fn visit_program(&mut self, program: &Program) {
         self.default_visit_program(program)
     }
 
-    fn default_visit_program<'s>(&mut self, program: &Program<'s>) {
+    fn default_visit_program(&mut self, program: &Program) {
         for operation in program.operations() {
             self.visit_operation(operation);
         }

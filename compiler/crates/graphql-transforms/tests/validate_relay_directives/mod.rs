@@ -11,7 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_transforms::validate_relay_directives;
-use test_schema::TEST_SCHEMA;
+use test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let file_key = FileKey::new(fixture.file_name);
@@ -19,8 +19,9 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
     sources.insert(FileKey::new(fixture.file_name), fixture.content);
 
+    let schema = get_test_schema();
     let ast = parse(fixture.content, file_key).unwrap();
-    let ir_result = build(&TEST_SCHEMA, &ast.definitions);
+    let ir_result = build(&schema, &ast.definitions);
     let ir = match ir_result {
         Ok(res) => res,
         Err(errors) => {
@@ -33,7 +34,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         }
     };
 
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(schema, ir);
     let validation_result = validate_relay_directives(&program);
 
     match validation_result {

@@ -33,7 +33,7 @@ lazy_static! {
 ///   relay_early_flush(query_name: QueryName)
 ///   a
 /// }
-pub fn relay_early_flush<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn relay_early_flush(program: &Program) -> ValidationResult<Program> {
     let mut transform = RelayEarlyFlush {
         program,
         errors: Default::default(),
@@ -50,7 +50,7 @@ pub fn relay_early_flush<'s>(program: &Program<'s>) -> ValidationResult<Program<
 }
 
 pub struct RelayEarlyFlush<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     errors: Vec<ValidationError>,
 }
 
@@ -66,7 +66,7 @@ impl<'s> Transformer for RelayEarlyFlush<'s> {
         let early_flush_directive = operation.directives.named(*EARLY_FLUSH_NAME);
         if let Some(early_flush_directive) = early_flush_directive {
             match get_early_flush_field_id_and_query_name_arg(
-                self.program.schema(),
+                &self.program.schema,
                 early_flush_directive.name.location,
             ) {
                 Err(err) => {

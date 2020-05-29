@@ -13,7 +13,7 @@ use graphql_transforms::{
 };
 
 pub fn validate(
-    program: &Program<'_>,
+    program: &Program,
     connection_interface: &ConnectionInterface,
 ) -> ValidationResult<()> {
     try_all(vec![

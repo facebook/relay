@@ -17,16 +17,16 @@ use std::iter::FromIterator;
 pub type VariableMap = IndexMap<StringKey, Variable, FnvBuildHasher>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
 
-pub struct InferVariablesVisitor<'s> {
+pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.
     /// Because @argument values don't matter (only variable names/types),
     /// each reachable fragment only has to be checked once.
     visited_fragments: Visited,
-    program: &'s Program<'s>,
+    program: &'program Program,
 }
 
-impl<'s> InferVariablesVisitor<'s> {
-    pub fn new(program: &'s Program<'s>) -> Self {
+impl<'program> InferVariablesVisitor<'program> {
+    pub fn new(program: &'program Program) -> Self {
         Self {
             visited_fragments: Default::default(),
             program,
@@ -56,17 +56,17 @@ impl<'s> InferVariablesVisitor<'s> {
     }
 }
 
-struct VariablesVisitor<'s> {
+struct VariablesVisitor<'a> {
     variable_map: VariableMap,
-    visited_fragments: &'s mut Visited,
-    program: &'s Program<'s>,
+    visited_fragments: &'a mut Visited,
+    program: &'a Program,
     local_variables: FnvHashSet<StringKey>,
 }
 
-impl<'s> VariablesVisitor<'s> {
+impl<'a> VariablesVisitor<'a> {
     fn new(
-        program: &'s Program<'s>,
-        visited_fragments: &'s mut Visited,
+        program: &'a Program,
+        visited_fragments: &'a mut Visited,
         local_variables: FnvHashSet<StringKey>,
     ) -> Self {
         Self {
@@ -78,7 +78,7 @@ impl<'s> VariablesVisitor<'s> {
     }
 }
 
-impl<'s> VariablesVisitor<'s> {
+impl VariablesVisitor<'_> {
     /// Determine the set of root variables referenced locally in each
     /// fragment. Note that RootArgumentDefinitions in the fragment's
     /// argumentDefinitions can contain spurious entries for legacy

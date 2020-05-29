@@ -11,13 +11,15 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::print_fragment;
 use graphql_transforms::sort_selections;
-use test_schema::TEST_SCHEMA;
+use std::sync::Arc;
+use test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let file_key = FileKey::new(fixture.file_name);
+    let schema = get_test_schema();
     let ast = parse(fixture.content, file_key).unwrap();
-    let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let ir = build(&schema, &ast.definitions).unwrap();
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
     let next_program = sort_selections(&program);
 
     assert_eq!(
@@ -26,7 +28,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     );
     let mut printed = next_program
         .fragments()
-        .map(|def| print_fragment(&TEST_SCHEMA, def))
+        .map(|def| print_fragment(&schema, def))
         .collect::<Vec<_>>();
     printed.sort();
     Ok(printed.join("\n\n"))

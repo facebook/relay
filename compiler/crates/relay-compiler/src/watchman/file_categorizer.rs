@@ -84,7 +84,7 @@ impl FileCategorizer {
                             ProjectSet::ProjectNames(current_projects) => {
                                 let mut next_projects = vec![*project_name];
                                 for current_project in current_projects {
-                                    next_projects.push(current_project.clone());
+                                    next_projects.push(*current_project);
                                 }
                                 ProjectSet::ProjectNames(next_projects)
                             }
@@ -110,7 +110,7 @@ impl FileCategorizer {
                             ProjectSet::ProjectNames(current_projects) => {
                                 let mut next_projects = vec![*project_name];
                                 for current_project in current_projects {
-                                    next_projects.push(current_project.clone());
+                                    next_projects.push(*current_project);
                                 }
                                 ProjectSet::ProjectNames(next_projects)
                             }
@@ -152,7 +152,7 @@ impl FileCategorizer {
                 FileGroup::Generated
             } else {
                 FileGroup::Source {
-                    source_set: self.source_mapping.get(path).clone(),
+                    source_set: self.source_mapping.get(path),
                 }
             }
         } else if extension == "graphql" {

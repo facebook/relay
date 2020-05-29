@@ -94,6 +94,7 @@ impl<'a> ArtifactContent<'a> {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn generate_operation(
     config: &Config,
     project_config: &ProjectConfig,

@@ -181,11 +181,11 @@ impl Config {
         for value in self.sources.values() {
             match value {
                 SourceSet::SourceSetName(name) => {
-                    source_set_names.insert(name.clone());
+                    source_set_names.insert(*name);
                 }
                 SourceSet::SourceSetNames(names) => {
                     for name in names {
-                        source_set_names.insert(name.clone());
+                        source_set_names.insert(*name);
                     }
                 }
             };

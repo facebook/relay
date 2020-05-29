@@ -563,6 +563,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let mut types: Vec<Vec<Prop>> = Vec::new();
 
+        #[allow(clippy::ptr_arg)]
         fn has_typename_selection(selections: &Vec<TypeSelection>) -> bool {
             selections.iter().any(TypeSelection::is_typename)
         }

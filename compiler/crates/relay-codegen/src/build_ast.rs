@@ -35,13 +35,11 @@ pub fn build_request_params_ast_key(
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
     let test_operation_metadata = operation_builder.build_test_operation_metadata(&operation);
-    let params = operation_builder.build_request_parameters(
+    operation_builder.build_request_parameters(
         operation,
         request_parameters,
         test_operation_metadata,
-    );
-
-    params
+    )
 }
 
 pub fn build_request(
@@ -917,7 +915,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_variable_type(&self, type_: &TypeReference) -> Primitive {
         Primitive::String(match type_ {
-            TypeReference::Named(inner) => self.schema.get_type_name(inner.clone()),
+            TypeReference::Named(inner) => self.schema.get_type_name(*inner),
             _ => self.schema.get_type_string(type_).intern(),
         })
     }

@@ -7,7 +7,7 @@
 
 use super::FileGroup;
 use super::WatchmanFile;
-use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
+use crate::compiler_state::{ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
 use std::cmp::Reverse;
 use std::collections::hash_map::Entry;
@@ -39,7 +39,7 @@ pub fn categorize_files(
 /// Watchman into what kind of files they are, such as source files of a
 /// specific source file group or generated files from some project.
 pub struct FileCategorizer {
-    extensions_mapping: PathMapping<ProjectName>,
+    extensions_mapping: PathMapping<ProjectSet>,
     default_generated_dir: &'static OsStr,
     generated_dir_paths: HashSet<PathBuf>,
     source_mapping: PathMapping<SourceSet>,
@@ -56,18 +56,35 @@ impl FileCategorizer {
 
         source_mapping.sort_by_key(|item| Reverse(item.0.clone()));
 
-        let extensions_mapping = PathMapping(
-            config
-                .projects
-                .iter()
-                .flat_map(|(project_name, project_config)| {
-                    project_config
-                        .extensions
-                        .iter()
-                        .map(move |extension_dir| (extension_dir.clone(), *project_name))
-                })
-                .collect(),
-        );
+        let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
+        for (project_name, project_config) in config.projects.iter() {
+            for extension_dir in project_config.extensions.iter() {
+                match extensions_map.entry(extension_dir.clone()) {
+                    Entry::Vacant(entry) => {
+                        entry.insert(ProjectSet::ProjectName(*project_name));
+                    }
+                    Entry::Occupied(mut entry) => {
+                        let next_project_set = match entry.get() {
+                            ProjectSet::ProjectName(current_project) => {
+                                ProjectSet::ProjectNames(vec![*project_name, *current_project])
+                            }
+                            ProjectSet::ProjectNames(current_projects) => {
+                                let mut next_projects = vec![*project_name];
+                                for current_project in current_projects {
+                                    next_projects.push(current_project.clone());
+                                }
+                                ProjectSet::ProjectNames(next_projects)
+                            }
+                        };
+                        entry.insert(next_project_set);
+                    }
+                }
+            }
+        }
+        let mut extensions_mapping = vec![];
+        for (path, project_set) in extensions_map {
+            extensions_mapping.push((path, project_set));
+        }
 
         let mut schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
         for (project_name, project_config) in config.projects.iter() {
@@ -134,7 +151,7 @@ impl FileCategorizer {
             .collect();
 
         Self {
-            extensions_mapping,
+            extensions_mapping: PathMapping(extensions_mapping),
             default_generated_dir,
             generated_dir_paths,
             schema_file_mapping,
@@ -160,8 +177,8 @@ impl FileCategorizer {
                 FileGroup::Schema {
                     project_set: project_set.clone(),
                 }
-            } else if let Some(project_name) = self.extensions_mapping.find(path) {
-                FileGroup::Extension { project_name }
+            } else if let Some(project_set) = self.extensions_mapping.find(path) {
+                FileGroup::Extension { project_set }
             } else if let Some(project_set) = self.schema_dir_mapping.find(path) {
                 FileGroup::Schema { project_set }
             } else {

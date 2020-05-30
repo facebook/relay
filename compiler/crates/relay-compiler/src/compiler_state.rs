@@ -269,12 +269,22 @@ impl CompilerState {
                         }
                     };
                 }
-                FileGroup::Extension { project_name } => {
+                FileGroup::Extension { project_set } => {
                     let extension_sources: Vec<String> = files
                         .iter()
                         .map(|file| read_to_string(&file_source_changes.resolved_root, file))
                         .collect::<Result<Vec<String>>>()?;
-                    extensions.insert(project_name, extension_sources);
+
+                    match project_set {
+                        ProjectSet::ProjectName(project_name) => {
+                            extensions.insert(project_name, extension_sources);
+                        }
+                        ProjectSet::ProjectNames(project_names) => {
+                            for project_name in project_names {
+                                extensions.insert(project_name, extension_sources.clone());
+                            }
+                        }
+                    };
                 }
                 FileGroup::Generated => {
                     // TODO

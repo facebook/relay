@@ -217,7 +217,7 @@ query CheckinSearchQuery(
   $searchInput: CheckinSearchInput
   $searchInputLast: CheckinSearchInput!
 ) {
-  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]}) {
+  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, $searchInputLast]}) {
     query
   }
 }

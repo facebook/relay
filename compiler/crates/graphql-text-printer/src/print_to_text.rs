@@ -471,14 +471,26 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
-                for arg in object {
+                let is_graphqljs_formatting = self.graphqljs_formatting;
+                let mut print_arg = |arg: &Argument| {
                     if first {
                         first = false;
                     } else {
                         write!(self.writer, ", ")?;
                     }
                     write!(self.writer, "{}: ", arg.name.item)?;
-                    self.print_value(&arg.value.item)?;
+                    self.print_value(&arg.value.item)
+                };
+                if is_graphqljs_formatting {
+                    for arg in object {
+                        print_arg(arg)?;
+                    }
+                } else {
+                    for arg in object.iter().filter(|arg| {
+                        !matches!(arg.value.item, Value::Constant(ConstantValue::Null()))
+                    }) {
+                        print_arg(arg)?;
+                    }
                 }
                 write!(self.writer, "}}")?;
                 Ok(())
@@ -486,13 +498,26 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::List(list) => {
                 write!(self.writer, "[")?;
                 let mut first = true;
-                for value in list {
+                let is_graphqljs_formatting = self.graphqljs_formatting;
+                let mut print_value = |value| {
                     if first {
                         first = false;
                     } else {
                         write!(self.writer, ", ")?;
                     }
-                    self.print_value(&value)?;
+                    self.print_value(value)
+                };
+                if is_graphqljs_formatting {
+                    for value in list {
+                        print_value(value)?;
+                    }
+                } else {
+                    for value in list
+                        .iter()
+                        .filter(|value| !matches!(value, Value::Constant(ConstantValue::Null())))
+                    {
+                        print_value(value)?;
+                    }
                 }
                 write!(self.writer, "]")?;
                 Ok(())

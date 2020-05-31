@@ -26,6 +26,16 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) @connection @__clientField(key: "NodeQuery_comments", handle: "connection") {
+        commentEdges: edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
         edges {
           ... on CommentsEdge {
             cursor

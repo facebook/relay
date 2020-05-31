@@ -92,7 +92,9 @@ impl<'s> ConnectionTransform<'s> {
         let edges_schema_field = schema.field(edges_schema_field_id);
         let edges_field_name = edges_schema_field.name;
         let edge_type = edges_schema_field.type_.inner();
+        let mut is_aliased_edges = false;
         let mut transformed_edges_field = if let Some(alias) = edges_field.alias {
+            is_aliased_edges = true;
             // The edges selection has to be generated as non-aliased field (since product
             // code may be accessing the non-aliased response keys).
             if alias.item != edges_field_name {
@@ -160,6 +162,7 @@ impl<'s> ConnectionTransform<'s> {
         let page_info_field_name = page_info_schema_field.name;
         let page_info_type = page_info_schema_field.type_.inner();
         let mut page_info_ix = None;
+        let mut is_aliased_page_info = false;
         let mut transformed_page_info_field = match page_info_selection {
             Some((ix, page_info_field)) => {
                 page_info_ix = Some(ix);
@@ -167,6 +170,7 @@ impl<'s> ConnectionTransform<'s> {
                     // The page_info selection has to be generated as non-aliased field (since product
                     // code may be accessing the non-aliased response keys).
                     if alias.item != page_info_field_name {
+                        is_aliased_page_info = true;
                         // If an alias is present, and it is different from the field name,
                         // we need to build a new page_info field
                         LinkedField {
@@ -261,10 +265,11 @@ impl<'s> ConnectionTransform<'s> {
             .enumerate()
             .map(|(ix, selection)| {
                 if ix == edges_ix {
-                    return Selection::LinkedField(From::from(transformed_edges_field.clone()));
-                }
-                if let Some(page_info_ix) = page_info_ix {
-                    if ix == page_info_ix {
+                    if !is_aliased_edges {
+                        return Selection::LinkedField(From::from(transformed_edges_field.clone()));
+                    }
+                } else if let Some(page_info_ix) = page_info_ix {
+                    if ix == page_info_ix && !is_aliased_page_info {
                         return transformed_page_info_field_selection.clone();
                     }
                 }
@@ -272,8 +277,12 @@ impl<'s> ConnectionTransform<'s> {
             })
             .collect::<Vec<_>>();
 
-        // If a page_info selection didn't exist, append the generated version instead.
-        if page_info_selection.is_none() {
+        // If a page_info selection didn't exist, or the selections are aliased,
+        // append the generated version instead.
+        if is_aliased_edges {
+            next_selections.push(Selection::LinkedField(From::from(transformed_edges_field)));
+        }
+        if page_info_selection.is_none() || is_aliased_page_info {
             next_selections.push(transformed_page_info_field_selection);
         }
         next_selections

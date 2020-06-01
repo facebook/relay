@@ -23,9 +23,9 @@ use std::sync::Arc;
 
 pub fn transform_connections(
     program: &Program,
-    connection_interface: &ConnectionInterface,
+    connection_interface: Arc<ConnectionInterface>,
 ) -> Program {
-    let mut transform = ConnectionTransform::new(program, connection_interface);
+    let mut transform = ConnectionTransform::new(program, &connection_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())

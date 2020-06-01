@@ -84,7 +84,7 @@ fn build_programs(
                 &project_name,
                 Arc::new(program),
                 &base_fragment_names,
-                &*FB_CONNECTION_INTERFACE,
+                Arc::clone(&FB_CONNECTION_INTERFACE),
                 perf_logger,
             ),
             sources,

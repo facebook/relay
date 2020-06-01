@@ -55,7 +55,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         "test",
         Arc::new(program),
         &Default::default(),
-        &*OSS_CONNECTION_INTERFACE,
+        Arc::clone(&OSS_CONNECTION_INTERFACE),
         Arc::new(ConsoleLogger),
     )
     .map_err(validation_errors_to_string)?;

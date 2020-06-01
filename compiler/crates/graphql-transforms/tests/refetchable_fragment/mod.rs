@@ -30,7 +30,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Err(err) => return Err(format!("{:?}", err)),
     };
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
+    let program = transform_connections(&program, Arc::clone(&OSS_CONNECTION_INTERFACE));
     let base_fragments = Default::default();
     let next_program =
         transform_refetchable_fragment(&program, &base_fragments, false).map_err(|errors| {

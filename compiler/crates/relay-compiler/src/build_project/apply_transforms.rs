@@ -33,7 +33,7 @@ pub fn apply_transforms(
     project_name: &str,
     program: Arc<Program>,
     base_fragment_names: &FnvHashSet<StringKey>,
-    connection_interface: &ConnectionInterface,
+    connection_interface: Arc<ConnectionInterface>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Programs> {
     // common
@@ -88,7 +88,7 @@ pub fn apply_transforms(
 fn apply_common_transforms(
     project_name: &str,
     program: Arc<Program>,
-    connection_interface: &ConnectionInterface,
+    connection_interface: Arc<ConnectionInterface>,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {

@@ -53,7 +53,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         }
     }
 
-    let next_program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
+    let next_program = transform_connections(&program, Arc::clone(&OSS_CONNECTION_INTERFACE));
 
     let mut printed = next_program
         .operations()

@@ -8,11 +8,12 @@
 use crate::relay_directive::RelayDirective;
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
-    Transformed, Transformer, VariableDefinition,
+    FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program, ScalarField,
+    Selection, Transformed, Transformer, VariableDefinition,
 };
 use indexmap::{map::Entry, IndexMap};
 use interner::StringKey;
+use std::ops::RangeFull;
 use std::sync::Arc;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
@@ -25,37 +26,13 @@ pub fn mask(program: &Program) -> Program {
 
 type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildHasher>;
 
-struct Mask<'program> {
-    program: &'program Program,
+struct Mask<'s> {
+    program: &'s Program,
+    current_reachable_arguments: Vec<&'s VariableDefinition>,
 }
 
-impl<'program> Mask<'program> {
-    fn new(program: &'program Program) -> Self {
-        Self { program }
-    }
-}
-
-impl<'s> Transformer for Mask<'s> {
-    const NAME: &'static str = "MaskTransform";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
-
-    fn transform_fragment(
-        &mut self,
-        fragment: &FragmentDefinition,
-    ) -> Transformed<FragmentDefinition> {
-        let mut mask_fragment = MaskFragment::new(self.program);
-        mask_fragment.transform_fragment(fragment)
-    }
-}
-
-struct MaskFragment<'program> {
-    program: &'program Program,
-    current_reachable_arguments: Vec<&'program VariableDefinition>,
-}
-
-impl<'program> MaskFragment<'program> {
-    fn new(program: &'program Program) -> Self {
+impl<'s> Mask<'s> {
+    fn new(program: &'s Program) -> Self {
         Self {
             program,
             current_reachable_arguments: vec![],
@@ -84,18 +61,28 @@ impl<'program> MaskFragment<'program> {
                 }
             }
         }
+        let range = RangeFull;
         fragment.used_global_variables = joined_arguments
-            .into_iter()
+            .drain(range)
             .map(|(_, v)| v)
             .cloned()
             .collect();
     }
 }
 
-impl<'s> Transformer for MaskFragment<'s> {
-    const NAME: &'static str = "MaskFragmentTransform";
+impl<'s> Transformer for Mask<'s> {
+    const NAME: &'static str = "MaskTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let result = self.default_transform_operation(operation);
+        self.current_reachable_arguments.clear();
+        result
+    }
 
     fn transform_fragment(
         &mut self,

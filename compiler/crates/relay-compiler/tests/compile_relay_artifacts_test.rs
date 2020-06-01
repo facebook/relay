@@ -1,4 +1,4 @@
-// @generated SignedSource<<f5fc034057b6e5b0a1745bfb13142aa9>>
+// @generated SignedSource<<03a06b70f62fdd58e4cc96835741b910>>
 
 mod compile_relay_artifacts;
 
@@ -654,6 +654,13 @@ fn unmasked_fragment_spreads_local_arguments_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-local-arguments.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-local-arguments.invalid.expected");
     test_fixture(transform_fixture, "unmasked-fragment-spreads-local-arguments.invalid.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-local-arguments.invalid.expected", input, expected);
+}
+
+#[test]
+fn unmasked_fragment_spreads_on_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-on-query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-on-query.expected");
+    test_fixture(transform_fixture, "unmasked-fragment-spreads-on-query.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-on-query.expected", input, expected);
 }
 
 #[test]

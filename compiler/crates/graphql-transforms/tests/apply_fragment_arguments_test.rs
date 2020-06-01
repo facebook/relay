@@ -1,4 +1,4 @@
-// @generated SignedSource<<f9caaba3aa0c3a7f4eb267d134100dfa>>
+// @generated SignedSource<<484bdc0e657aebe7312780a304f9ebe6>>
 
 mod apply_fragment_arguments;
 
@@ -17,6 +17,13 @@ fn deletes_unreferenced_fragments() {
     let input = include_str!("apply_fragment_arguments/fixtures/deletes-unreferenced-fragments.graphql");
     let expected = include_str!("apply_fragment_arguments/fixtures/deletes-unreferenced-fragments.expected");
     test_fixture(transform_fixture, "deletes-unreferenced-fragments.graphql", "apply_fragment_arguments/fixtures/deletes-unreferenced-fragments.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_float_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/fragment-with-float-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/fragment-with-float-argument.expected");
+    test_fixture(transform_fixture, "fragment-with-float-argument.graphql", "apply_fragment_arguments/fixtures/fragment-with-float-argument.expected", input, expected);
 }
 
 #[test]

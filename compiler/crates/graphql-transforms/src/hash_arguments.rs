@@ -6,10 +6,8 @@
  */
 
 use common::murmurhash;
-
 use graphql_ir::{Argument, ConstantValue, Value};
-use serde::Serialize;
-use serde_json::{json, Map as SerdeMap, Value as SerdeValue};
+use std::fmt;
 
 pub fn hash_arguments(args: &[Argument]) -> Option<String> {
     if args.is_empty() {
@@ -24,61 +22,109 @@ pub fn hash_arguments(args: &[Argument]) -> Option<String> {
             .collect();
         converted_args.sort_by(|a, b| a.name.cmp(&b.name));
 
-        let args_string = serde_json::to_string(&converted_args).unwrap();
+        let args_string = format!(
+            "[{}]",
+            converted_args
+                .iter()
+                .map(|item| item.to_string())
+                .collect::<Vec<String>>()
+                .join(",")
+        );
         Some(murmurhash(&args_string))
     }
 }
 
-#[derive(Serialize)]
+#[derive(Debug)]
 struct HashArgument {
     name: &'static str,
     value: IdentiferValue,
 }
 
-#[derive(Serialize)]
-#[serde(rename_all = "lowercase")]
+impl fmt::Display for HashArgument {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{{\"name\":\"{}\",\"value\":{}}}", self.name, self.value)
+    }
+}
+
+#[derive(Debug)]
 enum IdentiferValue {
     Variable(&'static str),
-    Value(SerdeValue),
+    Value(String),
     List(Vec<IdentiferValue>),
     Object(Vec<IdentiferObjectProperty>),
 }
 
-#[derive(Serialize)]
+impl fmt::Display for IdentiferValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self {
+            IdentiferValue::Variable(var) => write!(f, "{{\"variable\":\"{}\"}}", var),
+            IdentiferValue::Value(val) => write!(f, "{{\"value\":{}}}", val),
+            IdentiferValue::Object(obj) => write!(
+                f,
+                "{{\"object\":{{{}}}}}",
+                obj.iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>()
+                    .join(",")
+            ),
+            IdentiferValue::List(list) => write!(
+                f,
+                "{{\"list\":[{}]}}",
+                list.iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>()
+                    .join(",")
+            ),
+        }
+    }
+}
+
+#[derive(Debug)]
 struct IdentiferObjectProperty {
     name: &'static str,
     value: IdentiferValue,
 }
 
-fn build_constant_value(value: &ConstantValue) -> SerdeValue {
+impl fmt::Display for IdentiferObjectProperty {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{{\"name\":\"{}\",\"value\":{}}}", self.name, self.value)
+    }
+}
+
+fn build_constant_value_string(value: &ConstantValue) -> String {
     match value {
-        ConstantValue::Int(val) => json!(val),
-        ConstantValue::Float(val) => json!(val.as_float()),
-        ConstantValue::String(val) => json!(val.lookup()),
-        ConstantValue::Boolean(val) => json!(val),
-        ConstantValue::Null() => json!(null),
-        ConstantValue::Enum(val) => json!(val.lookup()),
+        ConstantValue::Int(val) => val.to_string(),
+        ConstantValue::Float(val) => val.to_string(),
+        ConstantValue::String(val) => format!("\"{}\"", val),
+        ConstantValue::Boolean(val) => val.to_string(),
+        ConstantValue::Null() => "null".to_string(),
+        ConstantValue::Enum(val) => format!("\"{}\"", val),
         ConstantValue::List(val_list) => {
             let json_values = val_list
                 .iter()
-                .map(|val| build_constant_value(val))
-                .collect::<Vec<SerdeValue>>();
-            json!(json_values)
+                .map(|val| build_constant_value_string(val))
+                .collect::<Vec<_>>();
+
+            format!("[{}]", json_values.join(","))
         }
         ConstantValue::Object(val_object) => {
-            let mut map: SerdeMap<String, SerdeValue> = SerdeMap::with_capacity(val_object.len());
+            let mut rows: Vec<String> = Vec::with_capacity(val_object.len());
             for arg in val_object.iter() {
                 let field_name = String::from(arg.name.item.lookup());
-                map.insert(field_name, build_constant_value(&arg.value.item));
+                rows.push(format!(
+                    "\"{}\":{}",
+                    field_name,
+                    build_constant_value_string(&arg.value.item)
+                ));
             }
-            json!(map)
+            format!("{{{}}}", rows.join(","))
         }
     }
 }
 
 fn identifier_for_argument_value(value: &Value) -> IdentiferValue {
     match value {
-        Value::Constant(value) => IdentiferValue::Value(build_constant_value(value)),
+        Value::Constant(value) => IdentiferValue::Value(build_constant_value_string(value)),
         Value::Variable(variable) => IdentiferValue::Variable(variable.name.item.lookup()),
         Value::List(items) => {
             IdentiferValue::List(items.iter().map(identifier_for_argument_value).collect())

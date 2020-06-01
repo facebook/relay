@@ -83,7 +83,7 @@ fn build_programs(
             apply_transforms(
                 &project_name,
                 Arc::new(program),
-                &base_fragment_names,
+                Arc::new(base_fragment_names),
                 Arc::clone(&FB_CONNECTION_INTERFACE),
                 perf_logger,
             ),

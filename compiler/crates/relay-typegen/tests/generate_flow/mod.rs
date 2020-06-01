@@ -32,7 +32,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let programs = apply_transforms(
         "test",
         Arc::new(program),
-        &Default::default(),
+        Default::default(),
         Arc::clone(&OSS_CONNECTION_INTERFACE),
         Arc::new(ConsoleLogger),
     )

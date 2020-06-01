@@ -10,6 +10,7 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 use fnv::FnvHashSet;
 use graphql_ir::{Program, Transformed, Transformer};
 use interner::StringKey;
+use std::sync::Arc;
 
 /// This transform removes the given list of base fragments from the Program.
 /// This is useful if earlier steps need access to fragments from some base
@@ -17,14 +18,14 @@ use interner::StringKey;
 /// some transform steps.
 pub fn remove_base_fragments(
     program: &Program,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
 ) -> Program {
     if base_fragment_names.is_empty() {
         // Nothing to remove.
         return program.clone();
     }
     let mut transform = StripBaseFragmentsTransform {
-        base_fragment_names,
+        base_fragment_names: &base_fragment_names,
     };
     transform
         .transform_program(program)

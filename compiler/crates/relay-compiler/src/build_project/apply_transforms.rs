@@ -32,7 +32,7 @@ pub struct Programs {
 pub fn apply_transforms(
     project_name: &str,
     program: Arc<Program>,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: Arc<ConnectionInterface>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Programs> {
@@ -46,19 +46,19 @@ pub fn apply_transforms(
         project_name,
         Arc::clone(&program),
         connection_interface,
-        base_fragment_names,
+        Arc::clone(&base_fragment_names),
         Arc::clone(&perf_logger),
     )?;
     let reader_program = apply_reader_transforms(
         project_name,
         Arc::clone(&common_program),
-        base_fragment_names,
+        Arc::clone(&base_fragment_names),
         Arc::clone(&perf_logger),
     )?;
     let operation_program = apply_operation_transforms(
         project_name,
         common_program,
-        base_fragment_names,
+        Arc::clone(&base_fragment_names),
         Arc::clone(&perf_logger),
     )?;
     let normalization_program = apply_normalization_transforms(
@@ -71,7 +71,7 @@ pub fn apply_transforms(
     let typegen_program = apply_typegen_transforms(
         project_name,
         Arc::clone(&program),
-        base_fragment_names,
+        Arc::clone(&base_fragment_names),
         Arc::clone(&perf_logger),
     )?;
 
@@ -89,7 +89,7 @@ fn apply_common_transforms(
     project_name: &str,
     program: Arc<Program>,
     connection_interface: Arc<ConnectionInterface>,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
     // JS compiler
@@ -123,7 +123,7 @@ fn apply_common_transforms(
 fn apply_reader_transforms(
     project_name: &str,
     program: Arc<Program>,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
     // JS compiler
@@ -156,7 +156,7 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_name: &str,
     program: Arc<Program>,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
     // JS compiler
@@ -170,7 +170,7 @@ fn apply_operation_transforms(
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("split_module_import", || {
-        split_module_import(&program, base_fragment_names)
+        split_module_import(&program, &base_fragment_names)
     });
     let program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
@@ -274,7 +274,7 @@ fn apply_operation_text_transforms(
 fn apply_typegen_transforms(
     project_name: &str,
     program: Arc<Program>,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
     // JS compiler

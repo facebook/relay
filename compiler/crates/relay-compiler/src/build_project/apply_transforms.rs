@@ -22,16 +22,16 @@ use interner::StringKey;
 use std::sync::Arc;
 
 pub struct Programs {
-    pub source: Program,
-    pub reader: Program,
-    pub normalization: Program,
-    pub operation_text: Program,
-    pub typegen: Program,
+    pub source: Arc<Program>,
+    pub reader: Arc<Program>,
+    pub normalization: Arc<Program>,
+    pub operation_text: Arc<Program>,
+    pub typegen: Arc<Program>,
 }
 
 pub fn apply_transforms(
     project_name: &str,
-    program: Program,
+    program: Arc<Program>,
     base_fragment_names: &FnvHashSet<StringKey>,
     connection_interface: &ConnectionInterface,
     perf_logger: Arc<impl PerfLogger>,
@@ -44,33 +44,33 @@ pub fn apply_transforms(
     // typegen
     let common_program = apply_common_transforms(
         project_name,
-        &program,
+        Arc::clone(&program),
         connection_interface,
         base_fragment_names,
         Arc::clone(&perf_logger),
     )?;
     let reader_program = apply_reader_transforms(
         project_name,
-        &common_program,
+        Arc::clone(&common_program),
         base_fragment_names,
         Arc::clone(&perf_logger),
     )?;
     let operation_program = apply_operation_transforms(
         project_name,
-        &common_program,
+        common_program,
         base_fragment_names,
         Arc::clone(&perf_logger),
     )?;
-    let normalization_program =
-        apply_normalization_transforms(project_name, &operation_program, Arc::clone(&perf_logger))?;
-    let operation_text_program = apply_operation_text_transforms(
+    let normalization_program = apply_normalization_transforms(
         project_name,
-        &operation_program,
+        Arc::clone(&operation_program),
         Arc::clone(&perf_logger),
     )?;
+    let operation_text_program =
+        apply_operation_text_transforms(project_name, operation_program, Arc::clone(&perf_logger))?;
     let typegen_program = apply_typegen_transforms(
         project_name,
-        &program,
+        Arc::clone(&program),
         base_fragment_names,
         Arc::clone(&perf_logger),
     )?;
@@ -87,11 +87,11 @@ pub fn apply_transforms(
 /// Applies transforms that apply to every output.
 fn apply_common_transforms(
     project_name: &str,
-    program: &Program,
+    program: Arc<Program>,
     connection_interface: &ConnectionInterface,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program> {
+) -> ValidationResult<Arc<Program>> {
     // JS compiler
     // * DisallowIdAsAlias (in validate)
     // + ConnectionTransform
@@ -103,7 +103,7 @@ fn apply_common_transforms(
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
     let program = log_event.time("transform_connections", || {
-        transform_connections(program, connection_interface)
+        transform_connections(&program, connection_interface)
     });
     let program = log_event.time("mask", || mask(&program));
     let program = log_event.time("transform_match", || transform_match(&program))?;
@@ -112,20 +112,20 @@ fn apply_common_transforms(
     })?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
-    });
+    })?;
     perf_logger.complete_event(log_event);
 
-    program
+    Ok(Arc::new(program))
 }
 
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
 fn apply_reader_transforms(
     project_name: &str,
-    program: &Program,
+    program: Arc<Program>,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program> {
+) -> ValidationResult<Arc<Program>> {
     // JS compiler
     // + ClientExtensionsTransform
     // + FieldHandleTransform
@@ -148,17 +148,17 @@ fn apply_reader_transforms(
 
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
 fn apply_operation_transforms(
     project_name: &str,
-    program: &Program,
+    program: Arc<Program>,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program> {
+) -> ValidationResult<Arc<Program>> {
     // JS compiler
     // + SplitModuleImportTransform
     // * ValidateUnusedVariablesTransform (Moved to common_transforms)
@@ -190,7 +190,7 @@ fn apply_operation_transforms(
 
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -199,9 +199,9 @@ fn apply_operation_transforms(
 /// Corresponds to the "codegen transforms" in the JS compiler
 fn apply_normalization_transforms(
     project_name: &str,
-    program: &Program,
+    program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program> {
+) -> ValidationResult<Arc<Program>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
@@ -228,7 +228,7 @@ fn apply_normalization_transforms(
 
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 /// After the operation transforms, this applies further transforms that only
@@ -237,9 +237,9 @@ fn apply_normalization_transforms(
 /// Corresponds to the "print transforms" in the JS compiler
 fn apply_operation_text_transforms(
     project_name: &str,
-    program: &Program,
+    program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program> {
+) -> ValidationResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
     // - ClientExtensionsTransform
@@ -268,15 +268,15 @@ fn apply_operation_text_transforms(
     });
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 fn apply_typegen_transforms(
     project_name: &str,
-    program: &Program,
+    program: Arc<Program>,
     base_fragment_names: &FnvHashSet<StringKey>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Program> {
+) -> ValidationResult<Arc<Program>> {
     // JS compiler
     // * RelayDirectiveTransform
     // + MaskTransform
@@ -298,5 +298,5 @@ fn apply_typegen_transforms(
     });
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }

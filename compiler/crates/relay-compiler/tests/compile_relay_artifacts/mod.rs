@@ -53,7 +53,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     // TODO pass base fragment names
     let programs = apply_transforms(
         "test",
-        program,
+        Arc::new(program),
         &Default::default(),
         &*OSS_CONNECTION_INTERFACE,
         Arc::new(ConsoleLogger),

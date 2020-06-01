@@ -82,7 +82,7 @@ fn build_programs(
         add_error_sources(
             apply_transforms(
                 &project_name,
-                program,
+                Arc::new(program),
                 &base_fragment_names,
                 &*FB_CONNECTION_INTERFACE,
                 perf_logger,

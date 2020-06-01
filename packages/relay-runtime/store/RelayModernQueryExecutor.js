@@ -340,6 +340,9 @@ class Executor {
           operation: this._operation.request.node,
           variables: this._operation.request.variables,
         };
+        // In V8, Error objects keep the closure scope chain alive until the
+        // err.stack property is accessed.
+        error.stack;
         throw error;
       } else {
         const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);

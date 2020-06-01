@@ -48,7 +48,7 @@ fn build_programs(
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger>,
 ) -> Result<Programs, BuildProjectError> {
-    let project_name = project_config.name.lookup();
+    let project_name = project_config.name;
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
 
@@ -81,7 +81,7 @@ fn build_programs(
     let programs = log_event.time("apply_transforms_time", || {
         add_error_sources(
             apply_transforms(
-                &project_name,
+                project_name,
                 Arc::new(program),
                 Arc::new(base_fragment_names),
                 Arc::clone(&FB_CONNECTION_INTERFACE),

@@ -30,7 +30,7 @@ pub struct Programs {
 }
 
 pub fn apply_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: Arc<ConnectionInterface>,
@@ -86,7 +86,7 @@ pub fn apply_transforms(
 
 /// Applies transforms that apply to every output.
 fn apply_common_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     connection_interface: Arc<ConnectionInterface>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
@@ -121,7 +121,7 @@ fn apply_common_transforms(
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
 fn apply_reader_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
@@ -154,7 +154,7 @@ fn apply_reader_transforms(
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
 fn apply_operation_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
@@ -198,7 +198,7 @@ fn apply_operation_transforms(
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
 fn apply_normalization_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
@@ -236,7 +236,7 @@ fn apply_normalization_transforms(
 ///
 /// Corresponds to the "print transforms" in the JS compiler
 fn apply_operation_text_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
@@ -272,7 +272,7 @@ fn apply_operation_text_transforms(
 }
 
 fn apply_typegen_transforms(
-    project_name: &str,
+    project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,

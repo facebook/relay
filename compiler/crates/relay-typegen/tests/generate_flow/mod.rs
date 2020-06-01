@@ -11,6 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_transforms::OSS_CONNECTION_INTERFACE;
+use interner::Intern;
 use relay_compiler::apply_transforms;
 use relay_typegen::{self, TypegenConfig};
 use std::sync::Arc;
@@ -30,7 +31,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(Arc::clone(&schema), ir);
     let programs = apply_transforms(
-        "test",
+        "test".intern(),
         Arc::new(program),
         Default::default(),
         Arc::clone(&OSS_CONNECTION_INTERFACE),

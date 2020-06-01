@@ -12,6 +12,7 @@ use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, Valida
 use graphql_syntax::parse;
 use graphql_text_printer::print_full_operation;
 use graphql_transforms::{MATCH_CONSTANTS, OSS_CONNECTION_INTERFACE};
+use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
 use std::sync::Arc;
@@ -52,7 +53,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     // TODO pass base fragment names
     let programs = apply_transforms(
-        "test",
+        "test".intern(),
         Arc::new(program),
         Default::default(),
         Arc::clone(&OSS_CONNECTION_INTERFACE),

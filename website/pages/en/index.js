@@ -33,17 +33,25 @@ Button.defaultProps = {
 class HomeSplash extends React.Component {
   render() {
     return (
-      <div className="homeContainer">
-        <div className="homeSplashFade">
-          <div className="logo">
-            <img src={siteConfig.baseUrl + 'img/relay-white.svg'} />
-          </div>
-          <div className="wrapper homeWrapper">
-            <h2 className="projectTitle">
-              {siteConfig.title}
-              <small>{siteConfig.tagline}</small>
-              <small>{siteConfig.subtagline}</small>
-            </h2>
+      <div>
+        <div className="homeContainer homeContainerWrapper homeBanner">
+          Black Lives Matter.{' '}
+          <a target="_blank" href="https://support.eji.org/give/153413/#!/donation/checkout">
+            Support the Equal Justice Initiative
+          </a>.
+        </div>
+        <div className="homeContainer">
+          <div className="homeSplashFade">
+            <div className="logo">
+              <img src={siteConfig.baseUrl + 'img/relay-white.svg'} />
+            </div>
+            <div className="wrapper homeWrapper">
+              <h2 className="projectTitle">
+                {siteConfig.title}
+                <small>{siteConfig.tagline}</small>
+                <small>{siteConfig.subtagline}</small>
+              </h2>
+            </div>
           </div>
         </div>
       </div>

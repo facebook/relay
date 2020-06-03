@@ -18,7 +18,7 @@ use std::{collections::HashMap, sync::Arc};
 
 pub struct Compiler<TPerfLogger>
 where
-    TPerfLogger: PerfLogger,
+    TPerfLogger: PerfLogger + 'static,
 {
     config: Config,
     perf_logger: Arc<TPerfLogger>,

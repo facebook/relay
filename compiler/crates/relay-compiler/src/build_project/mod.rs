@@ -46,7 +46,7 @@ fn build_programs(
     graphql_asts: &GraphQLAsts<'_>,
     schema: Arc<Schema>,
     log_event: &impl PerfLogEvent,
-    perf_logger: Arc<impl PerfLogger>,
+    perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<Programs, BuildProjectError> {
     let project_name = project_config.name;
     let sources = graphql_asts.sources();
@@ -99,7 +99,7 @@ pub async fn check_project(
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
     schema: Arc<Schema>,
-    perf_logger: Arc<impl PerfLogger>,
+    perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<Programs, BuildProjectError> {
     let log_event = perf_logger.create_event("check_project");
     let build_time = log_event.start("check_time");
@@ -126,7 +126,7 @@ pub async fn build_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts<'_>,
-    perf_logger: Arc<impl PerfLogger>,
+    perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(), BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");

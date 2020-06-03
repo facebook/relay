@@ -29,57 +29,89 @@ pub struct Programs {
     pub typegen: Arc<Program>,
 }
 
-pub fn apply_transforms(
+pub fn apply_transforms<TPerfLogger>(
     project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: Arc<ConnectionInterface>,
-    perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Programs> {
-    // common
+    perf_logger: Arc<TPerfLogger>,
+) -> ValidationResult<Programs>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
+    // The execution pipeline is as follows, where items at the same indentation
+    // can be computed independently and therefore in parallel:
+    // |- common
     //  |- reader
     //  |- operation
     //     |- normalization
     //     |- operation_text
-    // typegen
-    let common_program = apply_common_transforms(
-        project_name,
-        Arc::clone(&program),
-        connection_interface,
-        Arc::clone(&base_fragment_names),
-        Arc::clone(&perf_logger),
-    )?;
-    let reader_program = apply_reader_transforms(
-        project_name,
-        Arc::clone(&common_program),
-        Arc::clone(&base_fragment_names),
-        Arc::clone(&perf_logger),
-    )?;
-    let operation_program = apply_operation_transforms(
-        project_name,
-        common_program,
-        Arc::clone(&base_fragment_names),
-        Arc::clone(&perf_logger),
-    )?;
-    let normalization_program = apply_normalization_transforms(
-        project_name,
-        Arc::clone(&operation_program),
-        Arc::clone(&perf_logger),
-    )?;
-    let operation_text_program =
-        apply_operation_text_transforms(project_name, operation_program, Arc::clone(&perf_logger))?;
-    let typegen_program = apply_typegen_transforms(
-        project_name,
-        Arc::clone(&program),
-        Arc::clone(&base_fragment_names),
-        Arc::clone(&perf_logger),
+    // |- typegen
+    //
+    // NOTE: try_join(f1, f2) prefers the errors from f1 over f2, so process the normalization
+    // program first since it is likely to include more errors (both per-fragment and
+    // whole-operation errors) than the reader_program which just includes per-fragment errors.
+    let (((normalization_program, text_program), reader_program), typegen_program) = try_join(
+        || {
+            let common_program = apply_common_transforms(
+                project_name,
+                Arc::clone(&program),
+                Arc::clone(&connection_interface),
+                Arc::clone(&base_fragment_names),
+                Arc::clone(&perf_logger),
+            )?;
+
+            try_join(
+                || {
+                    let operation_program = apply_operation_transforms(
+                        project_name,
+                        Arc::clone(&common_program),
+                        Arc::clone(&base_fragment_names),
+                        Arc::clone(&perf_logger),
+                    )?;
+
+                    try_join(
+                        || {
+                            apply_normalization_transforms(
+                                project_name,
+                                Arc::clone(&operation_program),
+                                Arc::clone(&perf_logger),
+                            )
+                        },
+                        || {
+                            apply_operation_text_transforms(
+                                project_name,
+                                Arc::clone(&operation_program),
+                                Arc::clone(&perf_logger),
+                            )
+                        },
+                    )
+                },
+                || {
+                    apply_reader_transforms(
+                        project_name,
+                        Arc::clone(&common_program),
+                        Arc::clone(&base_fragment_names),
+                        Arc::clone(&perf_logger),
+                    )
+                },
+            )
+        },
+        || {
+            apply_typegen_transforms(
+                project_name,
+                Arc::clone(&program),
+                Arc::clone(&base_fragment_names),
+                Arc::clone(&perf_logger),
+            )
+        },
     )?;
 
     Ok(Programs {
         source: program,
         reader: reader_program,
         normalization: normalization_program,
-        operation_text: operation_text_program,
+        operation_text: text_program,
         typegen: typegen_program,
     })
 }
@@ -299,4 +331,16 @@ fn apply_typegen_transforms(
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))
+}
+
+fn try_join<T1, F1, T2, F2, E>(f1: F1, f2: F2) -> Result<(T1, T2), Vec<E>>
+where
+    F1: FnOnce() -> Result<T1, Vec<E>> + Send,
+    F2: FnOnce() -> Result<T2, Vec<E>> + Send,
+    T1: Send,
+    T2: Send,
+    E: Send,
+{
+    let (v1, v2) = rayon::join(f1, f2);
+    Ok((v1?, v2?))
 }

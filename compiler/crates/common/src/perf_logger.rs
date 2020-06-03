@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-pub trait PerfLogger {
-    type PerfLogEvent: PerfLogEvent;
+pub trait PerfLogger: Send + Sync {
+    type PerfLogEvent: PerfLogEvent + Send;
     /// Create log event
     fn create_event(&self, name: impl Copy + Into<String>) -> Self::PerfLogEvent;
 

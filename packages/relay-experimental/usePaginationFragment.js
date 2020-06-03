@@ -70,7 +70,6 @@ function usePaginationFragment<
 
   const {
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
     paginationRequest,
     paginationMetadata,
     identifierField,
@@ -96,7 +95,6 @@ function usePaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    fragmentRefPathInResponse,
     identifierField,
     paginationMetadata,
     paginationRequest,
@@ -116,7 +114,6 @@ function usePaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    fragmentRefPathInResponse,
     identifierField,
     paginationMetadata,
     paginationRequest,

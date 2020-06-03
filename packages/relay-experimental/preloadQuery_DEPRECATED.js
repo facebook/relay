@@ -13,8 +13,6 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
-
 const invariant = require('invariant');
 
 const {
@@ -23,6 +21,7 @@ const {
   getRequest,
   getRequestIdentifier,
   Observable,
+  PreloadableQueryRegistry,
   ReplaySubject,
 } = require('relay-runtime');
 
@@ -40,7 +39,6 @@ import type {
   IEnvironment,
   OperationType,
   Subscription,
-  RequestParameters,
 } from 'relay-runtime';
 
 // Expire results by this delay after they resolve.

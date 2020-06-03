@@ -14,12 +14,12 @@
 'use strict';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 
 const {
   Environment,
   Network,
   Observable,
+  PreloadableQueryRegistry,
   RecordSource,
   Store,
   createOperationDescriptor,

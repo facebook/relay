@@ -21,12 +21,12 @@ const TestRenderer = require('react-test-renderer');
 const invariant = require('invariant');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 
 const {
   Environment,
   Network,
   Observable,
+  PreloadableQueryRegistry,
   RecordSource,
   Store,
   createOperationDescriptor,

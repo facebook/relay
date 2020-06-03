@@ -13,12 +13,11 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
-
 const {loadQuery} = require('../loadQuery');
 const {
   Network,
   Observable,
+  PreloadableQueryRegistry,
   createOperationDescriptor,
 } = require('relay-runtime');
 const {

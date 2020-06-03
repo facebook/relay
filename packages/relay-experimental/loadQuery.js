@@ -11,12 +11,12 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
 const React = require('react');
 
 const invariant = require('invariant');
 
 const {
+  PreloadableQueryRegistry,
   ReplaySubject,
   createOperationDescriptor,
   getRequest,

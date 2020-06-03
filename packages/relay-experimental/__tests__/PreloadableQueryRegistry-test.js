@@ -11,7 +11,7 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
+const {PreloadableQueryRegistry} = require('relay-runtime');
 
 import type {ConcreteRequest} from 'relay-runtime';
 

@@ -13,10 +13,12 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
-
 const {loadQuery} = require('../loadQuery');
-const {Network, Observable} = require('relay-runtime');
+const {
+  Network,
+  Observable,
+  PreloadableQueryRegistry,
+} = require('relay-runtime');
 const {
   generateAndCompile,
   createMockEnvironment,

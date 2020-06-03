@@ -14,21 +14,18 @@
 'use strict';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const loadEntryPoint = require('../loadEntryPoint');
-const prepareEntryPoint = require('../prepareEntryPoint_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
-const {loadQuery} = require('../loadQuery');
 
 const {
   Environment,
   Network,
   Observable,
+  PreloadableQueryRegistry,
   RecordSource,
   Store,
 } = require('relay-runtime');

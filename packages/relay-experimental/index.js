@@ -16,7 +16,6 @@
 const EntryPointContainer = require('./EntryPointContainer.react');
 const LazyLoadEntryPointContainer_DEPRECATED = require('./LazyLoadEntryPointContainer_DEPRECATED.react');
 const MatchContainer = require('./MatchContainer');
-const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
 const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
@@ -35,6 +34,7 @@ const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationSta
 const useSubscription = require('./useSubscription');
 
 const {loadQuery} = require('./loadQuery');
+const {PreloadableQueryRegistry} = require('relay-runtime');
 
 export type * from './EntryPointTypes.flow';
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';
@@ -53,6 +53,7 @@ module.exports = {
   MatchContainer: MatchContainer,
   ProfilerContext: ProfilerContext,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
+  // TODO: remove once imports are updated to relay-runtime
   PreloadableQueryRegistry: PreloadableQueryRegistry,
 
   fetchQuery: fetchQuery,

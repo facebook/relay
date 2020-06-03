@@ -13,7 +13,6 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('../PreloadableQueryRegistry');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
@@ -26,6 +25,7 @@ const {
   Environment,
   Network,
   Observable,
+  PreloadableQueryRegistry,
   RecordSource,
   Store,
 } = require('relay-runtime');

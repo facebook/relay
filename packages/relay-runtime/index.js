@@ -15,6 +15,7 @@
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const GraphQLTag = require('./query/GraphQLTag');
+const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
@@ -275,6 +276,7 @@ module.exports = {
   ConnectionInterface,
 
   // Utilities
+  PreloadableQueryRegistry,
   RelayProfiler: RelayProfiler,
   createPayloadFor3DField: createPayloadFor3DField,
 

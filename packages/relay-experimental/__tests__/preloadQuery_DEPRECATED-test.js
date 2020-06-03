@@ -111,7 +111,7 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'network',
-        cacheTime: null,
+        fetchTime: null,
       });
       expect(fetch).toBeCalledTimes(1);
       expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -135,7 +135,7 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'network',
-        cacheTime: null,
+        fetchTime: null,
       });
       expect(fetch).toBeCalledTimes(1);
       expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -149,7 +149,7 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'network',
-        cacheTime: null,
+        fetchTime: null,
       });
       expect(fetch).toBeCalledTimes(1);
       expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -248,14 +248,14 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'cache',
-        cacheTime: fetchTime,
+        fetchTime: fetchTime,
       });
       expect(check).toBeCalledTimes(1);
       expect(fetch).toBeCalledTimes(0);
       expect(preloaded.source).toBe(null);
     });
 
-    it('resolves from cache with cacheTime if data and query are available and operation is retained', () => {
+    it('resolves from cache with fetchTime if data and query are available and operation is retained', () => {
       environment.retain(operation);
       const fetchTime = Date.now();
       jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
@@ -272,14 +272,14 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'cache',
-        cacheTime: fetchTime,
+        fetchTime: fetchTime,
       });
       expect(check).toBeCalledTimes(1);
       expect(fetch).toBeCalledTimes(0);
       expect(preloaded.source).toBe(null);
     });
 
-    it('resolves from cache with cacheTime if data and query are available and operation is in the release buffer', () => {
+    it('resolves from cache with fetchTime if data and query are available and operation is in the release buffer', () => {
       const disposable = environment.retain(operation);
       disposable.dispose();
       const fetchTime = Date.now();
@@ -297,7 +297,7 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'cache',
-        cacheTime: fetchTime,
+        fetchTime: fetchTime,
       });
       expect(check).toBeCalledTimes(1);
       expect(fetch).toBeCalledTimes(0);
@@ -320,7 +320,7 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'cache',
-        cacheTime: fetchTime,
+        fetchTime: fetchTime,
       });
       expect(check).toBeCalledTimes(1);
       expect(fetch).toBeCalledTimes(0);
@@ -349,7 +349,7 @@ describe('with an environment not set for SSR', () => {
       expect(preloaded.status).toEqual({
         cacheConfig: {force: true},
         source: 'cache',
-        cacheTime: fetchTime,
+        fetchTime: fetchTime,
       });
     });
 

@@ -173,7 +173,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
             status: {
               cacheConfig: networkCacheConfig,
               source: 'cache',
-              cacheTime: availability?.fetchTime ?? null,
+              fetchTime: availability?.fetchTime ?? null,
             },
           };
     if (!environment.isServer() && prevQueryEntry == null) {
@@ -209,7 +209,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       status: {
         cacheConfig: networkCacheConfig,
         source: 'network',
-        cacheTime: null,
+        fetchTime: null,
       },
       subject,
       subscription: source

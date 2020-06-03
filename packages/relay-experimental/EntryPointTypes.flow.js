@@ -90,7 +90,7 @@ export type PreloadedQueryInner<TQuery: OperationType> = {|
 export type PreloadQueryStatus = {|
   +cacheConfig: ?CacheConfig,
   +source: 'cache' | 'network',
-  +cacheTime: ?number,
+  +fetchTime: ?number,
 |};
 
 /**

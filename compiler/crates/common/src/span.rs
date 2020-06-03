@@ -41,7 +41,7 @@ impl Span {
         (self.start as usize, self.length as usize)
     }
 
-    pub fn contains(&self, subspan: Span) -> bool {
+    pub fn contains(self, subspan: Span) -> bool {
         subspan.start >= self.start
             && (subspan.start + subspan.length) <= (self.start + self.length)
     }

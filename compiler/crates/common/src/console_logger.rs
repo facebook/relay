@@ -27,7 +27,7 @@ impl PerfLogEvent for ConsoleLogEvent {
     }
     fn stop(&self, timer: Self::Timer) {
         let (name, time) = timer;
-        print_time(&name, &time);
+        print_time(&name, time);
     }
 }
 
@@ -40,7 +40,7 @@ impl PerfLogger for ConsoleLogger {
     fn flush(&self) {}
 }
 
-pub fn print_time(name: &str, time: &Instant) {
+pub fn print_time(name: &str, time: Instant) {
     let elapsed_ms = time.elapsed().as_millis();
     let elapsed_str = format!("{:4}ms", elapsed_ms);
     let elapsed_color = if elapsed_ms < 10 {

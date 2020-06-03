@@ -236,6 +236,21 @@ const builds = [
       },
     ],
   },
+  {
+    package: 'relay-experimental',
+    exports: {
+      index: 'index.js',
+      ReactRelayContext: 'ReactRelayContext.js',
+    },
+    bundles: [
+      {
+        entry: 'index.js',
+        output: 'relay-experimental',
+        libraryName: 'RelayExperimental',
+        libraryTarget: 'umd',
+      },
+    ],
+  },
 ];
 
 const modules = gulp.parallel(

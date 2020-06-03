@@ -84,7 +84,7 @@ pub use match_::{
 pub use node_identifier::NodeIdentifier;
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
-    CONSTANTS as REFETCHABLE_CONSTANTS,
+    RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
 };
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;

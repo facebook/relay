@@ -139,26 +139,42 @@ pub fn build_fragment_metadata_as_directive(
     next_directives
 }
 
-pub fn build_operation_metadata_as_directive(
-    fragment_name: WithLocation<StringKey>,
-) -> Vec<Directive> {
-    // Operation: derivedFrom
-    vec![Directive {
-        name: WithLocation::new(
-            fragment_name.location,
-            CONSTANTS.refetchable_operation_metadata_name,
-        ),
-        arguments: vec![Argument {
+/// Metadata attached to generated refetch queries storing the name of the
+/// fragment the operation was derived from.
+pub struct RefetchableDerivedFromMetadata;
+impl RefetchableDerivedFromMetadata {
+    pub fn create_directive(fragment_name: WithLocation<StringKey>) -> Directive {
+        Directive {
             name: WithLocation::new(
                 fragment_name.location,
                 CONSTANTS.refetchable_operation_metadata_name,
             ),
-            value: WithLocation::new(
-                fragment_name.location,
-                Value::Constant(ConstantValue::String(fragment_name.item)),
-            ),
-        }],
-    }]
+            arguments: vec![Argument {
+                name: WithLocation::new(
+                    fragment_name.location,
+                    CONSTANTS.refetchable_operation_metadata_name,
+                ),
+                value: WithLocation::new(
+                    fragment_name.location,
+                    Value::Constant(ConstantValue::String(fragment_name.item)),
+                ),
+            }],
+        }
+    }
+
+    pub fn from_directives(directives: &[Directive]) -> Option<StringKey> {
+        directives
+            .named(CONSTANTS.refetchable_operation_metadata_name)
+            .map(|directive| {
+                directive
+                    .arguments
+                    .named(CONSTANTS.refetchable_operation_metadata_name)
+                    .unwrap()
+                    .value
+                    .item
+                    .expect_string_literal()
+            })
+    }
 }
 
 pub fn extract_refetch_metadata_from_directive(

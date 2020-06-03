@@ -30,7 +30,9 @@ use schema::Schema;
 use std::fmt::Write;
 use std::sync::Arc;
 use utils::*;
-pub use utils::{extract_refetch_metadata_from_directive, CONSTANTS};
+pub use utils::{
+    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, CONSTANTS,
+};
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 /// This transform synthesizes "refetch" queries for fragments that

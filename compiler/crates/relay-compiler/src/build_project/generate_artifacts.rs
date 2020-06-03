@@ -15,7 +15,7 @@ use graphql_text_printer::{
     print_full_operation, write_fragment_with_graphqljs_formatting,
     write_operation_with_graphqljs_formatting,
 };
-use graphql_transforms::{MATCH_CONSTANTS, REFETCHABLE_CONSTANTS};
+use graphql_transforms::{RefetchableDerivedFromMetadata, MATCH_CONSTANTS};
 use interner::StringKey;
 use md5::{Digest, Md5};
 use std::path::PathBuf;
@@ -72,17 +72,9 @@ pub fn generate_artifacts<'a>(
                 },
                 source_file,
             });
-        } else if let Some(directive) = normalization_operation
-            .directives
-            .named(REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name)
+        } else if let Some(source_name) =
+            RefetchableDerivedFromMetadata::from_directives(&normalization_operation.directives)
         {
-            let source_name = directive
-                .arguments
-                .named(REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name)
-                .unwrap()
-                .value
-                .item
-                .expect_string_literal();
             let source_fragment = programs
                 .source
                 .fragment(source_name)

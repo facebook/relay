@@ -7,8 +7,8 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_metadata_as_directive, build_operation_variable_definitions,
-    build_used_global_variables, QueryGenerator, RefetchRoot, RefetchableMetadata, CONSTANTS,
+    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
+    RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
 use common::WithLocation;
@@ -42,7 +42,9 @@ fn build_refetch_operation(
                 variables_map,
                 &fragment.variable_definitions,
             ),
-            directives: build_operation_metadata_as_directive(fragment.name),
+            directives: vec![RefetchableDerivedFromMetadata::create_directive(
+                fragment.name,
+            )],
             selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                 alias: None,
                 definition: WithLocation::new(fragment.name.location, viewer_field_id),

@@ -90,3 +90,16 @@ impl<'s> Transformer for GeneratePreloadableMetadata<'s> {
         }
     }
 }
+
+/// Check, if the operation is @preloadable
+pub fn is_preloadable_operation(operation: &OperationDefinition) -> bool {
+    let directive = operation.directives.named(*INTERNAL_METADATA_DIRECTIVE);
+    if let Some(directive) = directive {
+        directive
+            .arguments
+            .named(*PRELOADABLE_METADATA_KEY)
+            .is_some()
+    } else {
+        false
+    }
+}

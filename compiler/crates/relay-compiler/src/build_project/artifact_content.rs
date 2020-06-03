@@ -8,7 +8,7 @@
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_transforms::INLINE_DATA_CONSTANTS;
+use graphql_transforms::{is_preloadable_operation, INLINE_DATA_CONSTANTS};
 use relay_codegen::{build_request_params, Printer};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
@@ -166,6 +166,14 @@ fn generate_operation(
     writeln!(content, "if (__DEV__) {{").unwrap();
     writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
     writeln!(content, "}}\n").unwrap();
+    // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
+    if is_preloadable_operation(normalization_operation) {
+        writeln!(
+            content,
+            "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
+        )
+        .unwrap();
+    }
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }

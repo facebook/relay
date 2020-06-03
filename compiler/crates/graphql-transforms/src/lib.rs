@@ -67,7 +67,7 @@ pub use defer_stream::{
 pub use flatten::flatten;
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
-pub use generate_preloadable_metadata::generate_preloadable_metadata;
+pub use generate_preloadable_metadata::{generate_preloadable_metadata, is_preloadable_operation};
 pub use generate_subscription_name_metadata::generate_subscription_name_metadata;
 pub use generate_typename::{generate_typename, TYPE_DISCRIMINATOR_DIRECTIVE_NAME};
 pub use handle_fields::{

@@ -20,7 +20,10 @@ use graphql_ir::{
     Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::{RelayDirective, MATCH_CONSTANTS};
+use graphql_transforms::{
+    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
+    MATCH_CONSTANTS,
+};
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -76,6 +79,12 @@ enum GeneratedInputObject {
     Resolved(AST),
 }
 
+#[derive(Default)]
+struct RuntimeImports {
+    local_3d_payload: bool,
+    fragment_reference: bool,
+}
+
 struct TypeGenerator<'schema, 'config> {
     result: String,
     schema: &'schema Schema,
@@ -84,7 +93,7 @@ struct TypeGenerator<'schema, 'config> {
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'config TypegenConfig,
-    import_local_3d_payload: bool,
+    runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
@@ -98,7 +107,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             used_fragments: Default::default(),
             typegen_config,
             match_fields: Default::default(),
-            import_local_3d_payload: false,
+            runtime_imports: RuntimeImports::default(),
         }
     }
 
@@ -124,8 +133,18 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             None
         };
 
+        let refetchable_fragment_name =
+            RefetchableDerivedFromMetadata::from_directives(&typegen_operation.directives);
+        if refetchable_fragment_name.is_some() {
+            self.runtime_imports.fragment_reference = true;
+        }
+
         self.write_runtime_imports()?;
-        self.write_fragment_imports()?;
+        if let Some(refetchable_fragment_name) = refetchable_fragment_name {
+            self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
+        } else {
+            self.write_fragment_imports()?;
+        }
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
         writeln!(
@@ -251,23 +270,35 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             base_type
         };
+        self.runtime_imports.fragment_reference = true;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
-        writeln!(
-            self.result,
-            "import type {{ FragmentReference }} from \"relay-runtime\";"
-        )?;
+        self.write_runtime_imports()?;
 
-        writeln!(
-            self.result,
-            "declare export opaque type {}: FragmentReference;",
-            old_fragment_type_name
-        )?;
-        writeln!(
-            self.result,
-            "declare export opaque type {}: {};",
-            new_fragment_type_name, old_fragment_type_name
-        )?;
+        let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
+        if let Some(refetchable_metadata) = refetchable_metadata {
+            writeln!(
+                self.result,
+                r#"import type {{ {}, {} }} from "{}.graphql";"#,
+                old_fragment_type_name, new_fragment_type_name, refetchable_metadata.operation_name
+            )?;
+            writeln!(
+                self.result,
+                r#"export type {{ {}, {} }};"#,
+                old_fragment_type_name, new_fragment_type_name
+            )?;
+        } else {
+            writeln!(
+                self.result,
+                "declare export opaque type {}: FragmentReference;",
+                old_fragment_type_name
+            )?;
+            writeln!(
+                self.result,
+                "declare export opaque type {}: {};",
+                new_fragment_type_name, old_fragment_type_name
+            )?;
+        }
         writeln!(
             self.result,
             "export type {} = {};",
@@ -734,7 +765,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             .iter()
             .find(|sel| sel.document_name.is_some())
         {
-            self.import_local_3d_payload = true;
+            self.runtime_imports.local_3d_payload = true;
 
             types.push(AST::Local3DPayload(
                 module_import.document_name.unwrap(),
@@ -920,13 +951,33 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn write_runtime_imports(&mut self) -> Result {
-        if self.import_local_3d_payload {
-            writeln!(
+        match self.runtime_imports {
+            RuntimeImports {
+                local_3d_payload: true,
+                fragment_reference: true,
+            } => writeln!(
+                self.result,
+                r#"import type {{ FragmentReference, Local3DPayload }} from "relay-runtime";"#
+            ),
+            RuntimeImports {
+                local_3d_payload: true,
+                fragment_reference: false,
+            } => writeln!(
                 self.result,
                 r#"import type {{ Local3DPayload }} from "relay-runtime";"#
-            )?;
+            ),
+            RuntimeImports {
+                local_3d_payload: false,
+                fragment_reference: true,
+            } => writeln!(
+                self.result,
+                r#"import type {{ FragmentReference }} from "relay-runtime";"#
+            ),
+            RuntimeImports {
+                local_3d_payload: false,
+                fragment_reference: false,
+            } => Ok(()),
         }
-        Ok(())
     }
 
     fn write_fragment_imports(&mut self) -> Result {
@@ -952,6 +1003,25 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 //   }
             }
         }
+        Ok(())
+    }
+
+    fn write_fragment_refs_for_refetchable(
+        &mut self,
+        refetchable_fragment_name: StringKey,
+    ) -> Result {
+        let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
+        let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
+        writeln!(
+            self.result,
+            "declare export opaque type {}: FragmentReference;",
+            old_fragment_type_name
+        )?;
+        writeln!(
+            self.result,
+            "declare export opaque type {}: {};",
+            new_fragment_type_name, old_fragment_type_name
+        )?;
         Ok(())
     }
 

@@ -88,6 +88,19 @@ fn match_field_in_query() {
     );
 }
 
+#[test]
+fn refetchable() {
+    let input = include_str!("generate_flow/fixtures/refetchable.graphql");
+    let expected = include_str!("generate_flow/fixtures/refetchable.expected");
+    test_fixture(
+        transform_fixture,
+        "refetchable.graphql",
+        "generate_flow/fixtures/refetchable.expected",
+        input,
+        expected,
+    );
+}
+
 // #[test]
 // fn mutaion_with_client_extension() {
 //     let input = include_str!("generate_flow/fixtures/mutaion-with-client-extension.graphql");

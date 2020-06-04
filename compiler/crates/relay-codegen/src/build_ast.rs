@@ -667,10 +667,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
             ];
             if let Some(dynamic_key) = dynamic_key {
-                object.insert(
-                    2,
-                    (CODEGEN_CONSTANTS.dynamic_key, Primitive::Key(dynamic_key)),
-                );
+                object.push((CODEGEN_CONSTANTS.dynamic_key, Primitive::Key(dynamic_key)));
             };
             result.push(Primitive::Key(self.object(object)))
         }

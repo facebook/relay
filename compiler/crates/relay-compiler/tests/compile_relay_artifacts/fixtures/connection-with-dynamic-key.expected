@@ -236,18 +236,18 @@ fragment FeedbackFragment on Feedback
                     "value": "date"
                   }
                 ],
-                "dynamicKey": {
-                  "kind": "Variable",
-                  "name": "__dynamicKey",
-                  "variableName": "commentsKey"
-                },
                 "filters": [
                   "orderby"
                 ],
                 "handle": "connection",
                 "key": "FeedbackFragment_comments",
                 "kind": "LinkedHandle",
-                "name": "comments"
+                "name": "comments",
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                }
               }
             ],
             "type": "Feedback",
@@ -542,18 +542,18 @@ fragment FeedbackFragment on Feedback {
                     "value": "date"
                   }
                 ],
-                "dynamicKey": {
-                  "kind": "Variable",
-                  "name": "__dynamicKey",
-                  "variableName": "commentsKey"
-                },
                 "filters": [
                   "orderby"
                 ],
                 "handle": "connection",
                 "key": "FeedbackFragment_comments",
                 "kind": "LinkedHandle",
-                "name": "comments"
+                "name": "comments",
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                }
               }
             ],
             "type": "Feedback",

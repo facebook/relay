@@ -999,11 +999,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         sorted_args.sort_unstable_by_key(|arg| arg.name.item.lookup());
 
         let args = sorted_args
-             .into_iter()
-             // We are filtering out "null" arguments matching JS behavior
-             .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
-             .map(Primitive::Key)
-             .collect::<Vec<_>>();
+            .into_iter()
+            // We are filtering out "null" arguments matching JS behavior
+            .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
+            .map(Primitive::Key)
+            .collect::<Vec<_>>();
         if args.is_empty() {
             None
         } else {

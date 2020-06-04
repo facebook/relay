@@ -117,7 +117,7 @@ pub fn skip_redundant_nodes(program: &Program) -> Program {
 #[derive(Default, Clone)]
 struct SelectionMap(HashMap<NodeIdentifier, Option<SelectionMap>, FnvBuildHasher>);
 
-type Cache = FnvHashMap<PointerAddress, Transformed<Selection>>;
+type Cache = FnvHashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
 struct SkipRedundantNodesTransform<'s> {
     program: &'s Program,
@@ -143,8 +143,9 @@ impl<'s> SkipRedundantNodesTransform<'s> {
         let is_empty = selection_map.0.is_empty();
         if is_empty {
             let key = PointerAddress::new(selection);
-            if let Some(result) = self.cache.get(&key) {
-                return result.clone();
+            if let Some((cached_result, cached_selection_map)) = self.cache.get(&key).cloned() {
+                *selection_map = cached_selection_map;
+                return cached_result;
             }
         }
         let identifier = NodeIdentifier::from_selection(&self.program.schema, selection);
@@ -229,7 +230,8 @@ impl<'s> SkipRedundantNodesTransform<'s> {
         };
         if is_empty {
             let key = PointerAddress::new(selection);
-            self.cache.insert(key, result.clone());
+            self.cache
+                .insert(key, (result.clone(), selection_map.clone()));
         }
         result
     }

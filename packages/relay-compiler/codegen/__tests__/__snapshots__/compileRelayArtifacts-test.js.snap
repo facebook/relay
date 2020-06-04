@@ -9012,6 +9012,175 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: generate-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment IDFieldTest on IDFieldTests {
+  id_non_null {
+    __typename
+  }
+  id {
+    __typename
+  }
+  list_of_id {
+    __typename
+  }
+  string_non_null {
+    __typename
+  }
+  string {
+    __typename
+  }
+  int_non_null {
+    __typename
+  }
+  int {
+    __typename
+  }
+  object {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "IDFieldTest",
+  selections: [
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsIDNonNull",
+      name: "id_non_null",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsID",
+      name: "id",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsListOfID",
+      name: "list_of_id",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsStringNonNull",
+      name: "string_non_null",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsString",
+      name: "string",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsIntNonNull",
+      name: "int_non_null",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsInt",
+      name: "int",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+    LinkedField {
+      alias: null,
+      args: null,
+      concreteType: "IDFieldIsObject",
+      name: "object",
+      plural: false,
+      selections: [
+        ScalarField {
+          alias: null,
+          args: null,
+          name: "__typename",
+          storageKey: null,
+        },
+      ],
+      storageKey: null,
+    },
+  ],
+  type: "IDFieldTests",
+  abstractKey: null,
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: id-as-alias.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw

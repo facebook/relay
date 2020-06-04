@@ -732,7 +732,9 @@ class Schema {
   assertScalarType(type: TypeID): ScalarTypeID {
     if (!isScalar(type)) {
       throw createCompilerError(
-        `Expected ${this.getTypeString(type)} to be a scalar type.`,
+        `Expected ${this.getTypeString(
+          type,
+        )} to be a scalar type, got ${this.getTypeString(type)}.`,
       );
     }
     return type;

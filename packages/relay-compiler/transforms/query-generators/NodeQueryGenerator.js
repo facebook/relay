@@ -195,7 +195,7 @@ function enforceIDField(schema: Schema, fragment: Fragment): Fragment {
     ...fragment,
     selections: [
       ...fragment.selections,
-      SchemaUtils.generateIDField(schema.expectIdType()),
+      SchemaUtils.generateIDField(schema, fragment.type),
     ],
   };
 }

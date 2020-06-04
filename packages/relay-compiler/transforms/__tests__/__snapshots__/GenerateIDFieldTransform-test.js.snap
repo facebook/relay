@@ -26,6 +26,67 @@ query CommentQuery {
 
 `;
 
+exports[`GenerateIDFieldTransform matches expected output: id-field-types.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment IDFieldTest on IDFieldTests {
+  id_non_null {
+    __typename
+  }
+  id {
+    __typename
+  }
+  list_of_id {
+    __typename
+  }
+  string_non_null {
+    __typename
+  }
+  string {
+    __typename
+  }
+  int_non_null {
+    __typename
+  }
+  int {
+    __typename
+  }
+  object {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment IDFieldTest on IDFieldTests {
+  id_non_null {
+    __typename
+    id
+  }
+  id {
+    __typename
+    id
+  }
+  list_of_id {
+    __typename
+  }
+  string_non_null {
+    __typename
+  }
+  string {
+    __typename
+  }
+  int_non_null {
+    __typename
+  }
+  int {
+    __typename
+  }
+  object {
+    __typename
+  }
+}
+
+`;
+
 exports[`GenerateIDFieldTransform matches expected output: node-union.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query UnionQuery {

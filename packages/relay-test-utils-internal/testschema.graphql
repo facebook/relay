@@ -1133,3 +1133,38 @@ type Settings {
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
 }
+
+type IDFieldTests {
+  id_non_null: IDFieldIsIDNonNull
+  id: IDFieldIsID
+  list_of_id: IDFieldIsListOfID
+  string_non_null: IDFieldIsStringNonNull
+  string: IDFieldIsString
+  int_non_null: IDFieldIsIntNonNull
+  int: IDFieldIsInt
+  object: IDFieldIsObject
+}
+type IDFieldIsIDNonNull {
+  id: ID!
+}
+type IDFieldIsID {
+  id: ID
+}
+type IDFieldIsListOfID {
+  id: [ID]
+}
+type IDFieldIsStringNonNull {
+  id: String!
+}
+type IDFieldIsString {
+  id: String
+}
+type IDFieldIsIntNonNull {
+  id: Int!
+}
+type IDFieldIsInt {
+  id: Int
+}
+type IDFieldIsObject {
+  id: Node
+}

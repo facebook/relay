@@ -747,7 +747,7 @@ export type TestResponse = {|
 export type TestRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +id: ?string,
+      +id: string,
       +foos?: ?$ReadOnlyArray<?{|
         +bar: ?string
       |}>,
@@ -823,7 +823,7 @@ export type TestMutationRawResponse = {|
       +actor: ?({|
         +__typename: "User",
         +__isActor: "User",
-        +id: ?string,
+        +id: string,
         +hometown: ?{|
           +id: string,
           +name: ?string,
@@ -831,7 +831,7 @@ export type TestMutationRawResponse = {|
       |} | {|
         +__typename: "Page",
         +__isActor: "Page",
-        +id: ?string,
+        +id: string,
         +name: ?string,
         +hometown: ?{|
           +id: string,
@@ -842,7 +842,7 @@ export type TestMutationRawResponse = {|
       |} | {|
         +__typename: string,
         +__isActor: string,
-        +id: ?string,
+        +id: string,
       |})
     |}
   |}
@@ -959,7 +959,7 @@ export type InputHasArrayRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +actorCount: ?number,
-      +id: ?string,
+      +id: string,
     |}>
   |}
 |};
@@ -1051,7 +1051,7 @@ export type CommentCreateMutationRawResponse = {|
           |}
         |}>
       |},
-      +id: ?string,
+      +id: string,
     |}
   |}
 |};
@@ -1161,11 +1161,11 @@ export type CommentCreateMutationRawResponse = {|
               +id: string,
               +name: ?string,
             |},
-            +id: ?string,
+            +id: string,
           |}
         |}>
       |},
-      +id: ?string,
+      +id: string,
     |}
   |}
 |};
@@ -1270,13 +1270,13 @@ export type LinkedHandleFieldResponse = {|
 export type LinkedHandleFieldRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +friends: ?{|
       +count: ?number
     |},
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type LinkedHandleField = {|
@@ -1297,11 +1297,11 @@ export type ScalarHandleFieldResponse = {|
 export type ScalarHandleFieldRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type ScalarHandleField = {|
@@ -1369,7 +1369,7 @@ export type MarkdownUserNameRenderer_name = {|
 export type TestRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
       +__module_operation_NameRendererFragment: ?any,
@@ -1391,7 +1391,7 @@ export type TestRawResponse = {|
     |}),
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type Test = {|
@@ -1492,13 +1492,13 @@ export type TestResponse = {|
 export type Test_userRenderer = {|
   +user: ?{|
     +username: ?string,
-    +id: ?string,
+    +id: string,
   |}
 |};
 export type TestRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +plainUserRenderer: ?({|
       +__module_operation_Test_user: ?any,
       +__module_component_Test_user: ?any,
@@ -1507,7 +1507,7 @@ export type TestRawResponse = {|
     |}>),
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type Test = {|
@@ -1640,7 +1640,7 @@ export type MarkdownUserNameRenderer_name = {|
 export type TestRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +username: ?string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
@@ -1663,12 +1663,12 @@ export type TestRawResponse = {|
     |}),
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |}),
   +viewer: ?{|
     +actor: ?({|
       +__typename: "User",
-      +id: ?string,
+      +id: string,
       +name: ?string,
       +nameRenderer: ?({|
         +__typename: "PlainUserNameRenderer",
@@ -1691,7 +1691,7 @@ export type TestRawResponse = {|
       |}),
     |} | {|
       +__typename: string,
-      +id: ?string,
+      +id: string,
     |})
   |},
 |};
@@ -1816,7 +1816,7 @@ export type ExampleQueryResponse = {|
 export type ExampleQueryRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
     +lastName: ?string,
     +feedback: ?{|
@@ -1825,7 +1825,7 @@ export type ExampleQueryRawResponse = {|
     |},
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type ExampleQuery = {|
@@ -1899,7 +1899,7 @@ export type ExampleQueryRawResponse = {|
   +node: ?{|
     +__typename: string,
     +username: ?string,
-    +id: ?string,
+    +id: string,
   |}
 |};
 export type ExampleQuery = {|
@@ -1968,7 +1968,7 @@ export type TestStreamResponse = {|
 export type TestStreamRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -1985,7 +1985,7 @@ export type TestStreamRawResponse = {|
     |},
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type TestStream = {|
@@ -2035,7 +2035,7 @@ export type TestDeferResponse = {|
 export type TestDeferRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -2043,9 +2043,9 @@ export type TestDeferRawResponse = {|
           +actor: ?{|
             +__typename: string,
             +name: ?string,
-            +id: ?string,
+            +id: string,
           |},
-          +id: ?string,
+          +id: string,
           +__typename: "User",
         |},
         +cursor: ?string,
@@ -2057,7 +2057,7 @@ export type TestDeferRawResponse = {|
     |},
   |} | {|
     +__typename: string,
-    +id: ?string,
+    +id: string,
   |})
 |};
 export type TestDefer = {|

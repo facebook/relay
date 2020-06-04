@@ -173,7 +173,7 @@ function enforceIDField(
   if (idSelection) {
     return fragment;
   }
-  const idField = SchemaUtils.generateIDField(schema.expectIdType());
+  const idField = SchemaUtils.generateIDField(schema, fragment.type);
   // idField is uniquely owned here, safe to mutate
   (idField: $FlowFixMe).alias = fetchableIdentifierField;
   // idField is uniquely owned here, safe to mutate

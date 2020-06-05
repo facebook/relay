@@ -22,7 +22,7 @@ use graphql_ir::{
 };
 use graphql_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
-    MATCH_CONSTANTS,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
@@ -442,6 +442,15 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 if !type_condition.is_abstract_type() {
                     selection.concrete_type = Some(type_condition);
                 }
+            }
+        }
+        if inline_fragment
+            .directives
+            .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
+            .is_some()
+        {
+            for selection in &mut selections {
+                selection.conditional = true;
             }
         }
 
@@ -1147,15 +1156,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     panic!("There should be no fragment spreads in the raw response IR.");
                 }
                 Selection::InlineFragment(inline_fragment) => {
-                    // TODO if has client extension directive, mark as conditional:
-                    //
-                    //   return flattenArray(
-                    //     /* $FlowFixMe: selections have already been transformed */
-                    //     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-                    //   ).map(sel => ({
-                    //     ...sel,
-                    //     conditional: true,
-                    //   }));
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)
                 }
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(

@@ -101,18 +101,18 @@ fn refetchable() {
     );
 }
 
-// #[test]
-// fn mutaion_with_client_extension() {
-//     let input = include_str!("generate_flow/fixtures/mutaion-with-client-extension.graphql");
-//     let expected = include_str!("generate_flow/fixtures/mutaion-with-client-extension.expected");
-//     test_fixture(
-//         transform_fixture,
-//         "mutaion-with-client-extension.graphql",
-//         "generate_flow/fixtures/mutaion-with-client-extension.expected",
-//         input,
-//         expected,
-//     );
-// }
+#[test]
+fn mutaion_with_client_extension() {
+    let input = include_str!("generate_flow/fixtures/mutaion-with-client-extension.graphql");
+    let expected = include_str!("generate_flow/fixtures/mutaion-with-client-extension.expected");
+    test_fixture(
+        transform_fixture,
+        "mutaion-with-client-extension.graphql",
+        "generate_flow/fixtures/mutaion-with-client-extension.expected",
+        input,
+        expected,
+    );
+}
 
 #[test]
 fn mutaion_with_response_on_inline_fragments() {

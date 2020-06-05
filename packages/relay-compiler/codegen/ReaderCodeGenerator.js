@@ -46,7 +46,6 @@ import type {
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
-  ReaderRefetchMetadata,
   ReaderScalarField,
   ReaderSelection,
 } from 'relay-runtime';
@@ -158,25 +157,35 @@ function generateArgumentDefinitions(
   schema: Schema,
   nodes: $ReadOnlyArray<ArgumentDefinition>,
 ): $ReadOnlyArray<ReaderArgumentDefinition> {
-  return nodes.map(node => {
-    switch (node.kind) {
-      case 'LocalArgumentDefinition':
-        return {
-          defaultValue: node.defaultValue,
-          kind: 'LocalArgument',
-          name: node.name,
-          type: schema.getTypeString(node.type),
-        };
-      case 'RootArgumentDefinition':
-        return {
-          kind: 'RootArgument',
-          name: node.name,
-          type: node.type ? schema.getTypeString(node.type) : null,
-        };
-      default:
-        throw new Error();
-    }
-  });
+  return nodes
+    .map(node => {
+      switch (node.kind) {
+        case 'LocalArgumentDefinition':
+          return {
+            defaultValue: node.defaultValue,
+            kind: 'LocalArgument',
+            name: node.name,
+            type: schema.getTypeString(node.type),
+          };
+        case 'RootArgumentDefinition':
+          return {
+            kind: 'RootArgument',
+            name: node.name,
+            type: node.type ? schema.getTypeString(node.type) : null,
+          };
+        default:
+          throw new Error();
+      }
+    })
+    .sort((nodeA, nodeB) => {
+      if (nodeA.name > nodeB.name) {
+        return 1;
+      }
+      if (nodeA.name < nodeB.name) {
+        return -1;
+      }
+      return 0;
+    });
 }
 
 function generateClientExtension(

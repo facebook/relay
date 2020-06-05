@@ -976,22 +976,33 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     self.build_variable_type(&def.type_),
                 ),
             ];
-            var_defs.push(Primitive::Key(self.object(object)));
+            var_defs.push((def.name.item, Primitive::Key(self.object(object))));
         }
         for def in global_variable_definitions {
-            var_defs.push(Primitive::Key(self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.root_argument),
-                ),
-                (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                (
-                    CODEGEN_CONSTANTS.type_,
-                    self.build_variable_type(&def.type_),
-                ),
-            ])));
+            var_defs.push((
+                def.name.item,
+                Primitive::Key(self.object(vec![
+                    (
+                        CODEGEN_CONSTANTS.kind,
+                        Primitive::String(CODEGEN_CONSTANTS.root_argument),
+                    ),
+                    (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
+                    (
+                        CODEGEN_CONSTANTS.type_,
+                        self.build_variable_type(&def.type_),
+                    ),
+                ])),
+            ));
         }
-        Primitive::Key(self.array(var_defs))
+
+        var_defs.sort_unstable_by(|(name_a, _), (name_b, _)| name_a.cmp(name_b));
+        let mut sorted_var_defs = Vec::with_capacity(var_defs.len());
+
+        for (_, var_def) in var_defs {
+            sorted_var_defs.push(var_def);
+        }
+
+        Primitive::Key(self.array(sorted_var_defs))
     }
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {

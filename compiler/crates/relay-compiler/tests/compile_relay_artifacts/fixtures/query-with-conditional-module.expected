@@ -68,14 +68,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "fetchModule",
+        "type": "Boolean!"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "fetchModule",
-        "type": "Boolean!"
+        "name": "id",
+        "type": "ID!"
       }
     ],
     "kind": "Fragment",

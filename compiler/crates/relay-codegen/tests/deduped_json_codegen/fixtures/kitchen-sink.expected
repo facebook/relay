@@ -163,6 +163,11 @@ var v0 = [
 return {
   "argumentDefinitions": [
     {
+      "kind": "RootArgument",
+      "name": "PictureSize",
+      "type": "[Int]"
+    },
+    {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "after",
@@ -181,20 +186,15 @@ return {
       "type": "Int"
     },
     {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "size",
-      "type": "[Int]"
-    },
-    {
       "defaultValue": 2,
       "kind": "LocalArgument",
       "name": "scale",
       "type": "Float"
     },
     {
-      "kind": "RootArgument",
-      "name": "PictureSize",
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "size",
       "type": "[Int]"
     }
   ],

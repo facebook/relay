@@ -27,12 +27,6 @@ query CheckinSearchQuery(
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInputText",
-        "type": "String"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
         "name": "searchInput",
         "type": "CheckinSearchInput"
       },
@@ -41,6 +35,12 @@ query CheckinSearchQuery(
         "kind": "LocalArgument",
         "name": "searchInputLast",
         "type": "CheckinSearchInput!"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInputText",
+        "type": "String"
       }
     ],
     "kind": "Fragment",

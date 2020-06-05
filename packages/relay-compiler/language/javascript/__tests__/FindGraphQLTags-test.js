@@ -95,6 +95,15 @@ describe('FindGraphQLTags', () => {
       ).toEqual(['fragment FindGraphQLTags on User { id }']);
     });
 
+    it('parses Flow enum definitions', () => {
+      expect(
+        find(`
+          enum Test { Value }
+          graphql\`fragment FindGraphQLTags on User { id }\`;
+        `),
+      ).toEqual(['fragment FindGraphQLTags on User { id }']);
+    });
+
     it('parses JS with functions sharing names with object prototype methods', () => {
       expect(
         find(`

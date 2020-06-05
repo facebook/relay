@@ -26,14 +26,13 @@ const BABYLON_OPTIONS = {
   allowSuperOutsideMethod: true,
   sourceType: 'module',
   plugins: [
-    // Previously "*"
     'asyncGenerators',
     'classProperties',
     ['decorators', {decoratorsBeforeExport: true}],
     'doExpressions',
     'dynamicImport',
     'exportExtensions',
-    'flow',
+    ['flow', {enums: true}],
     'functionBind',
     'functionSent',
     'jsx',

@@ -60,7 +60,6 @@ function buildRefetchOperation(
       fetchField != null &&
       schema.isObject(fetchField.type) &&
       schema.areEqualTypes(fetchField.type, fragment.type) &&
-      fetchField.args.length === 1 &&
       schema.areEqualTypes(
         schema.getNullableType(fetchField.args[0].type),
         schema.expectIdType(),

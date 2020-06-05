@@ -168,7 +168,6 @@ function generateArgumentDefinitions(
       defaultValue: node.defaultValue,
       kind: 'LocalArgument',
       name: node.name,
-      type: schema.getTypeString(node.type),
     };
   });
 }

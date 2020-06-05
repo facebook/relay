@@ -116,7 +116,6 @@ export type NormalizationLiteralArgument = {|
 export type NormalizationLocalArgumentDefinition = {|
   +kind: 'LocalArgument',
   +name: string,
-  +type: string,
   +defaultValue: mixed,
 |};
 

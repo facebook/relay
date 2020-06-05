@@ -324,7 +324,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "shouldInclude",
-        type: "Boolean!",
       },
     ],
     metadata: null,
@@ -364,7 +363,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "shouldInclude",
-        type: "Boolean!",
       },
     ],
     name: "AbstractTypeRefinement",
@@ -560,7 +558,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "shouldInclude",
-        type: "Boolean!",
       },
     ],
     metadata: null,
@@ -602,7 +599,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "shouldInclude",
-        type: "Boolean!",
       },
     ],
     name: "AbstractTypeRefinement",
@@ -1717,12 +1713,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "input",
-        type: "ActorNameChangeInput!",
       },
       LocalArgument {
         defaultValue: null,
         name: "myVar",
-        type: "Boolean!",
       },
     ],
     metadata: null,
@@ -1798,12 +1792,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "input",
-        type: "ActorNameChangeInput!",
       },
       LocalArgument {
         defaultValue: null,
         name: "myVar",
-        type: "Boolean!",
       },
     ],
     name: "ChangeNameMutation",
@@ -1967,11 +1959,9 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "arg",
-      type: "String",
     },
     RootArgument {
       name: "shouldInclude",
-      type: "Boolean!",
     },
   ],
   metadata: null,
@@ -2125,7 +2115,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "arg",
-      type: "String",
     },
   ],
   metadata: null,
@@ -2314,7 +2303,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -2360,7 +2348,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "FooQuery",
@@ -2424,7 +2411,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "input",
-        type: "UnfriendInput",
       },
     ],
     metadata: null,
@@ -2470,7 +2456,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "input",
-        type: "UnfriendInput",
       },
     ],
     name: "FooMutation",
@@ -2527,7 +2512,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "input",
-        type: "FeedbackLikeInput",
       },
     ],
     metadata: null,
@@ -2573,7 +2557,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "input",
-        type: "FeedbackLikeInput",
       },
     ],
     name: "FooSubscription",
@@ -2736,7 +2719,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -2770,7 +2752,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "FooQuery",
@@ -2993,7 +2974,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -3027,7 +3007,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "FooQuery",
@@ -3344,7 +3323,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "date",
-        type: "String",
       },
     ],
     metadata: null,
@@ -3385,7 +3363,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "date",
-        type: "String",
       },
     ],
     name: "TestQuery",
@@ -3457,22 +3434,18 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "queryText",
-        type: "String!",
       },
       LocalArgument {
         defaultValue: null,
         name: "searchInput",
-        type: "CheckinSearchInput",
       },
       LocalArgument {
         defaultValue: null,
         name: "searchInputLast",
-        type: "CheckinSearchInput!",
       },
       LocalArgument {
         defaultValue: null,
         name: "searchInputText",
-        type: "String",
       },
     ],
     metadata: null,
@@ -3536,22 +3509,18 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "queryText",
-        type: "String!",
       },
       LocalArgument {
         defaultValue: null,
         name: "searchInputText",
-        type: "String",
       },
       LocalArgument {
         defaultValue: null,
         name: "searchInput",
-        type: "CheckinSearchInput",
       },
       LocalArgument {
         defaultValue: null,
         name: "searchInputLast",
-        type: "CheckinSearchInput!",
       },
     ],
     name: "CheckinSearchQuery",
@@ -3645,12 +3614,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "latArg",
-        type: "String",
       },
       LocalArgument {
         defaultValue: null,
         name: "lonArg",
-        type: "String",
       },
     ],
     metadata: null,
@@ -3726,12 +3693,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "latArg",
-        type: "String",
       },
       LocalArgument {
         defaultValue: null,
         name: "lonArg",
-        type: "String",
       },
     ],
     name: "TestQueryWithLiteral",
@@ -3847,7 +3812,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -4039,7 +4003,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NodeQuery",
@@ -4367,7 +4330,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -4525,7 +4487,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NodeQuery",
@@ -4812,12 +4773,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "commentsKey",
-        type: "String",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -4851,12 +4810,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "commentsKey",
-        type: "String",
       },
     ],
     name: "FeedbackQuery",
@@ -5036,22 +4993,18 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "commentsKey",
-        type: "String",
       },
       LocalArgument {
         defaultValue: null,
         name: "count",
-        type: "Int!",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -5094,22 +5047,18 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "commentsKey",
-        type: "String",
       },
       LocalArgument {
         defaultValue: null,
         name: "count",
-        type: "Int!",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID!",
       },
     ],
     name: "PaginationQuery",
@@ -5297,17 +5246,14 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "commentsKey",
-      type: "String",
     },
     LocalArgument {
       defaultValue: 2,
       name: "count",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "cursor",
-      type: "ID",
     },
   ],
   metadata: {
@@ -5510,7 +5456,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -5562,7 +5507,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "QueryWithMultipeDeferredFragmentsOnSameParent",
@@ -6061,7 +6005,6 @@ Fragment {
     LocalArgument {
       defaultValue: false,
       name: "includeEmail",
-      type: "Boolean!",
     },
   ],
   metadata: null,
@@ -6109,12 +6052,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -6148,12 +6089,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -6258,7 +6197,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: {
@@ -6304,7 +6242,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -6359,12 +6296,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -6398,12 +6333,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -6520,7 +6453,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: {
@@ -6564,7 +6496,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -6619,12 +6550,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -6658,12 +6587,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -6762,7 +6689,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: {
@@ -6802,7 +6728,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -6862,12 +6787,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -6891,12 +6814,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -6998,11 +6919,9 @@ Fragment {
     LocalArgument {
       defaultValue: null,
       name: "id",
-      type: "ID!",
     },
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: {
@@ -7060,7 +6979,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -7187,7 +7105,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -7216,7 +7133,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -7320,7 +7236,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: {
@@ -7369,7 +7284,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -7591,7 +7505,6 @@ Fragment {
     LocalArgument {
       defaultValue: null,
       name: "scale",
-      type: "Float",
     },
   ],
   metadata: null,
@@ -7885,7 +7798,6 @@ Fragment {
     LocalArgument {
       defaultValue: null,
       name: "scale",
-      type: "Float",
     },
   ],
   metadata: null,
@@ -8385,7 +8297,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "use3D",
-        type: "Boolean!",
       },
     ],
     metadata: null,
@@ -8439,7 +8350,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "use3D",
-        type: "Boolean!",
       },
     ],
     name: "Test",
@@ -8729,7 +8639,6 @@ Fragment {
     LocalArgument {
       defaultValue: false,
       name: "use3D",
-      type: "Boolean!",
     },
   ],
   metadata: null,
@@ -8835,7 +8744,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -8875,7 +8783,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "QueryWithFragmentWithStream",
@@ -9690,17 +9597,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "PictureSize",
-        type: "[Int]!",
       },
       LocalArgument {
         defaultValue: null,
         name: "cond",
-        type: "Boolean!",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -9763,17 +9667,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "cond",
-        type: "Boolean!",
       },
       LocalArgument {
         defaultValue: null,
         name: "PictureSize",
-        type: "[Int]!",
       },
     ],
     name: "NodeQuery",
@@ -9978,27 +9879,22 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "PictureSize",
-      type: "[Int]",
     },
     LocalArgument {
       defaultValue: null,
       name: "after",
-      type: "ID",
     },
     LocalArgument {
       defaultValue: false,
       name: "cond",
-      type: "Boolean!",
     },
     LocalArgument {
       defaultValue: 5,
       name: "first",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -10165,7 +10061,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -10217,7 +10112,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "LinkedHandleField",
@@ -10750,7 +10644,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -10784,7 +10677,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "FooNameRendererQuery",
@@ -10916,7 +10808,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -10950,7 +10841,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "BarNameRendererQuery",
@@ -12242,15 +12132,12 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "bar",
-      type: "Boolean!",
     },
     RootArgument {
       name: "foo",
-      type: "Boolean!",
     },
     RootArgument {
       name: "sentinel",
-      type: "Boolean!",
     },
   ],
   metadata: null,
@@ -12343,15 +12230,12 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "bar",
-      type: "Boolean!",
     },
     RootArgument {
       name: "foo",
-      type: "Boolean!",
     },
     RootArgument {
       name: "sentinel",
-      type: "Boolean!",
     },
   ],
   metadata: null,
@@ -12470,7 +12354,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -12508,7 +12391,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "BestFriendsQuery",
@@ -12892,12 +12774,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "fetchModule",
-        type: "Boolean!",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -12931,12 +12811,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "fetchModule",
-        type: "Boolean!",
       },
     ],
     name: "NameRendererQuery",
@@ -13086,7 +12964,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "fetchModule",
-      type: "Boolean!",
     },
   ],
   metadata: null,
@@ -13196,19 +13073,16 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "cond",
-        type: "Boolean!",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: [
           128,
         ],
         name: "pictureSize",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -13263,19 +13137,16 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "cond",
-        type: "Boolean!",
       },
       LocalArgument {
         defaultValue: [
           128,
         ],
         name: "pictureSize",
-        type: "[Int]",
       },
     ],
     name: "TestQuery",
@@ -13449,7 +13320,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "pictureSize",
-      type: null,
     },
   ],
   metadata: null,
@@ -13509,7 +13379,6 @@ Fragment {
     LocalArgument {
       defaultValue: null,
       name: "pictureSize",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -13580,7 +13449,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -13614,7 +13482,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NameRendererQuery",
@@ -13981,7 +13848,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -14015,7 +13881,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NameRendererQuery",
@@ -14411,7 +14276,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -14445,7 +14309,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NameRendererQuery",
@@ -14821,7 +14684,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -14855,7 +14717,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NameRendererQuery",
@@ -15221,7 +15082,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -15255,7 +15115,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NameRendererQuery",
@@ -15591,17 +15450,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -15635,17 +15491,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableConnectionQuery",
@@ -15819,11 +15672,9 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "count",
-      type: "Int",
     },
     RootArgument {
       name: "cursor",
-      type: "ID",
     },
   ],
   metadata: {
@@ -15966,17 +15817,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -16010,17 +15858,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableConnectionQuery",
@@ -16194,11 +16039,9 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "count",
-      type: "Int",
     },
     RootArgument {
       name: "cursor",
-      type: "ID",
     },
   ],
   metadata: {
@@ -16337,12 +16180,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
     ],
     metadata: null,
@@ -16376,12 +16217,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "size",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -16486,7 +16325,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: {
@@ -16532,7 +16370,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: "[Int]",
     },
   ],
   metadata: null,
@@ -16594,17 +16431,14 @@ Request {
       LocalArgument {
         defaultValue: 10,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -16647,17 +16481,14 @@ Request {
       LocalArgument {
         defaultValue: 10,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -16845,12 +16676,10 @@ Fragment {
     LocalArgument {
       defaultValue: 10,
       name: "count",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "cursor",
-      type: "ID",
     },
   ],
   metadata: {
@@ -17011,27 +16840,22 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "beforeCursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: 10,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "lastCount",
-        type: "Int",
       },
     ],
     metadata: null,
@@ -17074,27 +16898,22 @@ Request {
       LocalArgument {
         defaultValue: 10,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "beforeCursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "lastCount",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -17313,21 +17132,17 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "beforeCursor",
-      type: "ID",
     },
     LocalArgument {
       defaultValue: 10,
       name: "count",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "cursor",
-      type: "ID",
     },
     RootArgument {
       name: "lastCount",
-      type: "Int",
     },
   ],
   metadata: {
@@ -17499,17 +17314,14 @@ Request {
       LocalArgument {
         defaultValue: 10,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -17552,17 +17364,14 @@ Request {
       LocalArgument {
         defaultValue: 10,
         name: "count",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RefetchableFragmentQuery",
@@ -17766,12 +17575,10 @@ Fragment {
     LocalArgument {
       defaultValue: 10,
       name: "count",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "cursor",
-      type: "ID",
     },
   ],
   metadata: {
@@ -18146,22 +17953,18 @@ Fragment {
     LocalArgument {
       defaultValue: 10,
       name: "count",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "cursor",
-      type: "ID",
     },
     LocalArgument {
       defaultValue: false,
       name: "if",
-      type: "Boolean",
     },
     LocalArgument {
       defaultValue: 5,
       name: "initial_count",
-      type: "Int",
     },
   ],
   metadata: {
@@ -18533,17 +18336,14 @@ Fragment {
     LocalArgument {
       defaultValue: 10,
       name: "count",
-      type: "Int",
     },
     LocalArgument {
       defaultValue: null,
       name: "cursor",
-      type: "ID",
     },
     LocalArgument {
       defaultValue: 5,
       name: "initial_count",
-      type: "Int",
     },
   ],
   metadata: {
@@ -18700,7 +18500,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -18881,7 +18680,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "RelayClientIDFieldQuery",
@@ -19101,7 +18899,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -19143,7 +18940,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "ScalarHandleField",
@@ -19549,7 +19345,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -19679,7 +19474,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "NodeQuery",
@@ -20149,16 +19943,13 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "PictureSize",
-      type: "[Int]",
     },
     RootArgument {
       name: "globalIsRelative",
-      type: "Boolean",
     },
     LocalArgument {
       defaultValue: false,
       name: "localIsRelative",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20222,7 +20013,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "globalIsRelative",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20272,12 +20062,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "ProfilePicture_SIZE",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "isRelative",
-        type: "Boolean",
       },
     ],
     metadata: null,
@@ -20306,12 +20094,10 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "ProfilePicture_SIZE",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "isRelative",
-        type: "Boolean",
       },
     ],
     name: "TestQuery",
@@ -20399,11 +20185,9 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "ProfilePicture_SIZE",
-      type: "[Int]",
     },
     RootArgument {
       name: "isRelative",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20456,7 +20240,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "isRelative",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20549,17 +20332,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "ProfilePicture_SIZE",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "isRelative",
-        type: "Boolean",
       },
       LocalArgument {
         defaultValue: null,
         name: "showFirstName",
-        type: "Boolean",
       },
     ],
     metadata: null,
@@ -20588,17 +20368,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "ProfilePicture_SIZE",
-        type: "[Int]",
       },
       LocalArgument {
         defaultValue: null,
         name: "isRelative",
-        type: "Boolean",
       },
       LocalArgument {
         defaultValue: null,
         name: "showFirstName",
-        type: "Boolean",
       },
     ],
     name: "TestQuery",
@@ -20699,15 +20476,12 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "ProfilePicture_SIZE",
-      type: "[Int]",
     },
     RootArgument {
       name: "isRelative",
-      type: "Boolean",
     },
     RootArgument {
       name: "showFirstName",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20771,11 +20545,9 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "ProfilePicture_SIZE",
-      type: "[Int]",
     },
     RootArgument {
       name: "isRelative",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20828,7 +20600,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "isRelative",
-      type: "Boolean",
     },
   ],
   metadata: null,
@@ -20927,7 +20698,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     metadata: null,
@@ -20961,7 +20731,6 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
     ],
     name: "QueryWithUnusedFragmentArgumentDefinition",
@@ -21066,7 +20835,6 @@ Fragment {
   argumentDefinitions: [
     RootArgument {
       name: "size",
-      type: null,
     },
   ],
   metadata: null,
@@ -21103,7 +20871,6 @@ Fragment {
     LocalArgument {
       defaultValue: null,
       name: "size",
-      type: "Int",
     },
   ],
   metadata: null,
@@ -21194,17 +20961,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "unusedAfter",
-        type: "ID",
       },
       LocalArgument {
         defaultValue: null,
         name: "unusedFirst",
-        type: "Int",
       },
     ],
     metadata: null,
@@ -21249,17 +21013,14 @@ Request {
       LocalArgument {
         defaultValue: null,
         name: "id",
-        type: "ID!",
       },
       LocalArgument {
         defaultValue: null,
         name: "unusedFirst",
-        type: "Int",
       },
       LocalArgument {
         defaultValue: null,
         name: "unusedAfter",
-        type: "ID",
       },
     ],
     name: "QueryWithUnusedVariables",
@@ -21312,15 +21073,12 @@ Fragment {
     LocalArgument {
       defaultValue: false,
       name: "fetchConnection",
-      type: "Boolean",
     },
     RootArgument {
       name: "unusedAfter",
-      type: "ID",
     },
     RootArgument {
       name: "unusedFirst",
-      type: "Int",
     },
   ],
   metadata: null,

@@ -165,13 +165,11 @@ function generateArgumentDefinitions(
             defaultValue: node.defaultValue,
             kind: 'LocalArgument',
             name: node.name,
-            type: schema.getTypeString(node.type),
           };
         case 'RootArgumentDefinition':
           return {
             kind: 'RootArgument',
             name: node.name,
-            type: node.type ? schema.getTypeString(node.type) : null,
           };
         default:
           throw new Error();

@@ -113,7 +113,6 @@ export type ReaderField = ReaderScalarField | ReaderLinkedField;
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
   +name: string,
-  +type: ?string,
 |};
 
 export type ReaderInlineFragment = {|
@@ -157,7 +156,6 @@ export type ReaderLiteralArgument = {|
 export type ReaderLocalArgument = {|
   +kind: 'LocalArgument',
   +name: string,
-  +type: string,
   +defaultValue: mixed,
 |};
 

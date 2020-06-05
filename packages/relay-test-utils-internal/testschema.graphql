@@ -61,6 +61,10 @@ scalar JSON
 
 union MaybeNode = Story | FakeNode | NonNode
 
+interface AllConcreteTypesImplementNode {
+  count: Int
+}
+
 type FakeNode {
   id: ID!
 }
@@ -932,7 +936,7 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField & Entity {
+type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTypesImplementNode {
   actor: Actor
   actors: [Actor]
   actorCount: Int

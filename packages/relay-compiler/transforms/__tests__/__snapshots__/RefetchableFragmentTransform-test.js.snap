@@ -68,6 +68,31 @@ Source: GraphQL request (2:1)
 
 `;
 
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-interface-without-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on AllConcreteTypesImplementNode
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  count
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on AllConcreteTypesImplementNode @refetchable(queryName: "RefetchableFragmentQuery") {
+  count
+  ... on Node {
+    id
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
 exports[`RefetchableFragmentTransform matches expected output: fragment-on-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node

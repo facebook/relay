@@ -70,6 +70,7 @@ function loadEntryPoint<
           fetchPolicy: options?.fetchPolicy,
           networkCacheConfig: options?.networkCacheConfig,
         },
+        environmentProviderOptions,
       );
     });
   }

@@ -57,7 +57,7 @@ export type PreloadedQuery<
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > =
   | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
-  | PreloadedQueryInner<TQuery>;
+  | PreloadedQueryInner<TQuery, TEnvironmentProviderOptions>;
 
 export type PreloadedQueryInner_DEPRECATED<
   TQuery: OperationType,
@@ -76,9 +76,13 @@ export type PreloadedQueryInner_DEPRECATED<
   +status: PreloadQueryStatus,
 |};
 
-export type PreloadedQueryInner<TQuery: OperationType> = {|
+export type PreloadedQueryInner<
+  TQuery: OperationType,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+> = {|
   +dispose: () => void,
   +environment: IEnvironment,
+  +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
   +name: string,

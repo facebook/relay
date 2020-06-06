@@ -50,12 +50,13 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-function loadQuery<TQuery: OperationType>(
+function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: $ElementType<TQuery, 'variables'>,
   options?: LoadQueryOptions,
-): PreloadedQueryInner<TQuery> {
+  environmentProviderOptions?: TEnvironmentProviderOptions,
+): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
   // Flow does not know of React internals (rightly so), but we need to
   // ensure here that this function isn't called inside render.
   const CurrentDispatcher =
@@ -64,7 +65,7 @@ function loadQuery<TQuery: OperationType>(
       ?.ReactCurrentDispatcher?.current;
   invariant(
     RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
-    'Relay: `preloadQuery` (or `prepareEntryPoint`) should not be called inside a React render function.',
+    'Relay: `loadQuery` (or `loadEntryPoint`) should not be called inside a React render function.',
   );
 
   const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
@@ -203,6 +204,7 @@ function loadQuery<TQuery: OperationType>(
   return {
     kind: 'PreloadedQuery',
     environment,
+    environmentProviderOptions,
     dispose: () => {
       unsubscribeFromExecute && unsubscribeFromExecute();
       retainReference && retainReference.dispose();

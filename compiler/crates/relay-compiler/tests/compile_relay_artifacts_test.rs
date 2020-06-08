@@ -1,4 +1,4 @@
-// @generated SignedSource<<03a06b70f62fdd58e4cc96835741b910>>
+// @generated SignedSource<<bf8a1ed49995c73a06c76cd844786b5e>>
 
 mod compile_relay_artifacts;
 
@@ -234,6 +234,13 @@ fn explicit_null_argument() {
     let input = include_str!("compile_relay_artifacts/fixtures/explicit-null-argument.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/explicit-null-argument.expected");
     test_fixture(transform_fixture, "explicit-null-argument.graphql", "compile_relay_artifacts/fixtures/explicit-null-argument.expected", input, expected);
+}
+
+#[test]
+fn explicit_null_default_value() {
+    let input = include_str!("compile_relay_artifacts/fixtures/explicit-null-default-value.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/explicit-null-default-value.expected");
+    test_fixture(transform_fixture, "explicit-null-default-value.graphql", "compile_relay_artifacts/fixtures/explicit-null-default-value.expected", input, expected);
 }
 
 #[test]

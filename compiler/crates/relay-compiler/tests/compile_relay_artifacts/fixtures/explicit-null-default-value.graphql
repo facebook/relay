@@ -1,0 +1,5 @@
+query Test($id: ID = null) {
+  node(id: $id) {
+    __typename
+  }
+}

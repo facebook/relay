@@ -379,8 +379,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
                 if let Some(default_value) = &var_def.default_value {
-                    write!(self.writer, " = ")?;
-                    self.print_constant_value(&default_value)?;
+                    if self.graphqljs_formatting || !matches!(default_value, ConstantValue::Null())
+                    {
+                        write!(self.writer, " = ")?;
+                        self.print_constant_value(&default_value)?;
+                    }
                 }
             }
             if self.graphqljs_formatting {

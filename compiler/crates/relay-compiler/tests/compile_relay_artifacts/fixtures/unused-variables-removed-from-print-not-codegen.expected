@@ -27,20 +27,17 @@ fragment ConnectionFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedAfter",
-        "type": "ID"
+        "name": "unusedAfter"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedFirst",
-        "type": "Int"
+        "name": "unusedFirst"
       }
     ],
     "kind": "Fragment",
@@ -92,20 +89,17 @@ fragment ConnectionFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedFirst",
-        "type": "Int"
+        "name": "unusedFirst"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedAfter",
-        "type": "ID"
+        "name": "unusedAfter"
       }
     ],
     "kind": "Operation",
@@ -170,18 +164,15 @@ query QueryWithUnusedVariables(
     {
       "defaultValue": false,
       "kind": "LocalArgument",
-      "name": "fetchConnection",
-      "type": "Boolean"
+      "name": "fetchConnection"
     },
     {
       "kind": "RootArgument",
-      "name": "unusedAfter",
-      "type": "ID"
+      "name": "unusedAfter"
     },
     {
       "kind": "RootArgument",
-      "name": "unusedFirst",
-      "type": "Int"
+      "name": "unusedFirst"
     }
   ],
   "kind": "Fragment",

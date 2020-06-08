@@ -28,8 +28,7 @@ fragment ProfilePhoto on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -68,8 +67,7 @@ fragment ProfilePhoto on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -191,8 +189,7 @@ fragment ProfilePhoto_18PEfK on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "Int"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
@@ -271,8 +268,7 @@ fragment ProfilePhoto_18PEfK on User {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "size",
-      "type": "Int"
+      "name": "size"
     }
   ],
   "kind": "Fragment",

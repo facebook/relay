@@ -150,8 +150,7 @@ query TestQuery {
     {
       "defaultValue": false,
       "kind": "LocalArgument",
-      "name": "includeEmail",
-      "type": "Boolean!"
+      "name": "includeEmail"
     }
   ],
   "kind": "Fragment",

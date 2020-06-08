@@ -22,14 +22,12 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "input",
-        "type": "ActorNameChangeInput!"
+        "name": "input"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "myVar",
-        "type": "Boolean!"
+        "name": "myVar"
       }
     ],
     "kind": "Fragment",
@@ -116,14 +114,12 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "input",
-        "type": "ActorNameChangeInput!"
+        "name": "input"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "myVar",
-        "type": "Boolean!"
+        "name": "myVar"
       }
     ],
     "kind": "Operation",

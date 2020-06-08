@@ -42,8 +42,7 @@ extend type Mutation {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "input",
-        "type": "UnfriendInput"
+        "name": "input"
       }
     ],
     "kind": "Fragment",
@@ -96,8 +95,7 @@ extend type Mutation {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "input",
-        "type": "UnfriendInput"
+        "name": "input"
       }
     ],
     "kind": "Operation",
@@ -167,8 +165,7 @@ mutation FooMutation(
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -221,8 +218,7 @@ mutation FooMutation(
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",

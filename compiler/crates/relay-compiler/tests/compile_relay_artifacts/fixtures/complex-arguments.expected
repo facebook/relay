@@ -11,8 +11,7 @@ query TestQuery($date: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "date",
-        "type": "String"
+        "name": "date"
       }
     ],
     "kind": "Fragment",
@@ -59,8 +58,7 @@ query TestQuery($date: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "date",
-        "type": "String"
+        "name": "date"
       }
     ],
     "kind": "Operation",

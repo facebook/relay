@@ -25,20 +25,17 @@ fragment PaginationFragment on Node
       {
         "defaultValue": 10,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -88,20 +85,17 @@ fragment PaginationFragment on Node
       {
         "defaultValue": 10,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -336,14 +330,12 @@ fragment PaginationFragment_1G22uz on Node {
     {
       "defaultValue": 10,
       "kind": "LocalArgument",
-      "name": "count",
-      "type": "Int"
+      "name": "count"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "cursor",
-      "type": "ID"
+      "name": "cursor"
     }
   ],
   "kind": "Fragment",

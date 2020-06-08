@@ -30,20 +30,17 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "id",
-    "type": "ID!"
+    "name": "id"
   },
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "orderBy",
-    "type": "String"
+    "name": "orderBy"
   },
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "traits",
-    "type": "[PersonalityTraits]"
+    "name": "traits"
   }
 ],
 v1 = [

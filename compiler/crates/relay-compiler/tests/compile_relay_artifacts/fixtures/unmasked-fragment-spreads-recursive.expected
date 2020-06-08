@@ -32,20 +32,17 @@ fragment UserUtil2_user on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "ProfilePicture_SIZE",
-        "type": "[Int]"
+        "name": "ProfilePicture_SIZE"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "isRelative",
-        "type": "Boolean"
+        "name": "isRelative"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "showFirstName",
-        "type": "Boolean"
+        "name": "showFirstName"
       }
     ],
     "kind": "Fragment",
@@ -78,20 +75,17 @@ fragment UserUtil2_user on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "ProfilePicture_SIZE",
-        "type": "[Int]"
+        "name": "ProfilePicture_SIZE"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "isRelative",
-        "type": "Boolean"
+        "name": "isRelative"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "showFirstName",
-        "type": "Boolean"
+        "name": "showFirstName"
       }
     ],
     "kind": "Operation",
@@ -210,18 +204,15 @@ fragment UserProfile_user on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "ProfilePicture_SIZE",
-      "type": "[Int]"
+      "name": "ProfilePicture_SIZE"
     },
     {
       "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
+      "name": "isRelative"
     },
     {
       "kind": "RootArgument",
-      "name": "showFirstName",
-      "type": "Boolean"
+      "name": "showFirstName"
     }
   ],
   "kind": "Fragment",
@@ -294,8 +285,7 @@ fragment UserProfile_user on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
+      "name": "isRelative"
     }
   ],
   "kind": "Fragment",
@@ -324,13 +314,11 @@ fragment UserProfile_user on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "ProfilePicture_SIZE",
-      "type": "[Int]"
+      "name": "ProfilePicture_SIZE"
     },
     {
       "kind": "RootArgument",
-      "name": "isRelative",
-      "type": "Boolean"
+      "name": "isRelative"
     }
   ],
   "kind": "Fragment",

@@ -172,8 +172,7 @@ fragment UserFragment on User {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "scale",
-      "type": "Float"
+      "name": "scale"
     }
   ],
   "kind": "Fragment",

@@ -29,32 +29,27 @@ fragment PaginationFragment on Node
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "beforeCursor",
-        "type": "ID"
+        "name": "beforeCursor"
       },
       {
         "defaultValue": 10,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "lastCount",
-        "type": "Int"
+        "name": "lastCount"
       }
     ],
     "kind": "Fragment",
@@ -104,32 +99,27 @@ fragment PaginationFragment on Node
       {
         "defaultValue": 10,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "beforeCursor",
-        "type": "ID"
+        "name": "beforeCursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "lastCount",
-        "type": "Int"
+        "name": "lastCount"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -383,25 +373,21 @@ fragment PaginationFragment_1G22uz on Node {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "beforeCursor",
-      "type": "ID"
+      "name": "beforeCursor"
     },
     {
       "defaultValue": 10,
       "kind": "LocalArgument",
-      "name": "count",
-      "type": "Int"
+      "name": "count"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "cursor",
-      "type": "ID"
+      "name": "cursor"
     },
     {
       "kind": "RootArgument",
-      "name": "lastCount",
-      "type": "Int"
+      "name": "lastCount"
     }
   ],
   "kind": "Fragment",

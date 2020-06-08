@@ -29,8 +29,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
+      "name": "globalIsRelative"
     }
   ],
   "kind": "Fragment",
@@ -59,8 +58,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
+      "name": "globalIsRelative"
     }
   ],
   "kind": "Fragment",
@@ -91,19 +89,16 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "[Int]"
+      "name": "PictureSize"
     },
     {
       "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
+      "name": "globalIsRelative"
     },
     {
       "defaultValue": false,
       "kind": "LocalArgument",
-      "name": "localIsRelative",
-      "type": "Boolean"
+      "name": "localIsRelative"
     }
   ],
   "kind": "Fragment",

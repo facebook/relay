@@ -35,20 +35,17 @@ query NodeQuery($id: ID!, $last: Int, $first: Int) {
 var v0 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "first",
-  "type": "Int"
+  "name": "first"
 },
 v1 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "id",
-  "type": "ID!"
+  "name": "id"
 },
 v2 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "last",
-  "type": "Int"
+  "name": "last"
 },
 v3 = [
   {

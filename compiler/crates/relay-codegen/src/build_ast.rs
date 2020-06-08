@@ -24,7 +24,7 @@ use graphql_transforms::{
     INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
-use schema::{Schema, TypeReference};
+use schema::Schema;
 
 pub fn build_request_params_ast_key(
     schema: &Schema,
@@ -910,13 +910,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_variable_type(&self, type_: &TypeReference) -> Primitive {
-        Primitive::String(match type_ {
-            TypeReference::Named(inner) => self.schema.get_type_name(*inner),
-            _ => self.schema.get_type_string(type_).intern(),
-        })
-    }
-
     fn build_operation_variable_definitions(
         &mut self,
         variable_definitions: &[VariableDefinition],
@@ -936,10 +929,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         Primitive::String(CODEGEN_CONSTANTS.local_argument),
                     ),
                     (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                    (
-                        CODEGEN_CONSTANTS.type_,
-                        self.build_variable_type(&def.type_),
-                    ),
                 ]))
             })
             .collect::<Vec<_>>();
@@ -971,10 +960,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Primitive::String(CODEGEN_CONSTANTS.local_argument),
                 ),
                 (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                (
-                    CODEGEN_CONSTANTS.type_,
-                    self.build_variable_type(&def.type_),
-                ),
             ];
             var_defs.push((def.name.item, Primitive::Key(self.object(object))));
         }
@@ -987,10 +972,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         Primitive::String(CODEGEN_CONSTANTS.root_argument),
                     ),
                     (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                    (
-                        CODEGEN_CONSTANTS.type_,
-                        self.build_variable_type(&def.type_),
-                    ),
                 ])),
             ));
         }

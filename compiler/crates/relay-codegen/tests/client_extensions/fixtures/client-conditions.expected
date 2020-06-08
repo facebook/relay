@@ -56,13 +56,11 @@ interface ClientNamed {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "arg",
-      "type": "String"
+      "name": "arg"
     },
     {
       "kind": "RootArgument",
-      "name": "shouldInclude",
-      "type": "Boolean!"
+      "name": "shouldInclude"
     }
   ],
   "kind": "Fragment",

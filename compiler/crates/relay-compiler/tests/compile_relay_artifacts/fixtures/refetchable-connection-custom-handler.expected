@@ -23,20 +23,17 @@ fragment RefetchableConnection_feedback on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -75,20 +72,17 @@ fragment RefetchableConnection_feedback on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -289,13 +283,11 @@ fragment RefetchableConnection_feedback on Feedback {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "count",
-      "type": "Int"
+      "name": "count"
     },
     {
       "kind": "RootArgument",
-      "name": "cursor",
-      "type": "ID"
+      "name": "cursor"
     }
   ],
   "kind": "Fragment",

@@ -68,14 +68,12 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "fetchModule",
-        "type": "Boolean!"
+        "name": "fetchModule"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -114,14 +112,12 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "fetchModule",
-        "type": "Boolean!"
+        "name": "fetchModule"
       }
     ],
     "kind": "Operation",
@@ -288,8 +284,7 @@ fragment NameRendererFragment on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "fetchModule",
-      "type": "Boolean!"
+      "name": "fetchModule"
     }
   ],
   "kind": "Fragment",

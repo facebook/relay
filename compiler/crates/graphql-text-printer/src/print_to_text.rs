@@ -131,7 +131,7 @@ pub fn write_directives(
     mut result: &mut impl Write,
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
-    printer.print_directives(directives, None)
+    printer.print_directives(directives, None, None)
 }
 
 pub fn write_value(schema: &Schema, value: &Value, mut result: &mut impl Write) -> Result {
@@ -170,7 +170,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         let operation_name = operation.name.item;
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
-        self.print_directives(&operation.directives, None)?;
+        self.print_directives(&operation.directives, None, None)?;
         self.print_selections(&operation.selections, 0)
     }
 
@@ -183,8 +183,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             fragment_name, type_condition_name
         )
         .unwrap();
-        self.print_argument_definitions(&fragment.variable_definitions)?;
-        self.print_directives(&fragment.directives, None)?;
+        self.print_directives(
+            &fragment.directives,
+            None,
+            Some(&fragment.variable_definitions),
+        )?;
         self.print_selections(&fragment.selections, 0)
     }
 
@@ -244,7 +247,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         let schema_field = self.schema.field(field.definition.item);
         self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
-        self.print_directives(&field.directives, conditions)
+        self.print_directives(&field.directives, conditions, None)
     }
 
     fn print_linked_field(
@@ -256,7 +259,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         let schema_field = self.schema.field(field.definition.item);
         self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
-        self.print_directives(&field.directives, conditions)?;
+        self.print_directives(&field.directives, conditions, None)?;
         self.print_selections(&field.selections, indent_count)?;
         Ok(())
     }
@@ -268,7 +271,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     ) -> Result {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
-        self.print_directives(&field.directives, conditions)?;
+        self.print_directives(&field.directives, conditions, None)?;
         if !field.arguments.is_empty() {
             write!(self.writer, " @arguments")?;
             self.print_arguments(&field.arguments)
@@ -291,7 +294,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 self.schema.get_type_name(type_condition).lookup(),
             )?;
         };
-        self.print_directives(&field.directives, conditions)?;
+        self.print_directives(&field.directives, conditions, None)?;
         self.print_selections(&field.selections, indent_count)
     }
 
@@ -324,14 +327,25 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         directives: &[Directive],
         conditions: Option<&[Condition]>,
+        fragment_argument_definitions: Option<&[VariableDefinition]>,
     ) -> Result {
         for directive in directives {
-            write!(self.writer, " @{}", directive.name.item)?;
-            self.print_arguments(&directive.arguments)?;
+            if directive.name.item.lookup() == "argumentDefinitions" {
+                self.print_argument_definitions(fragment_argument_definitions.unwrap())?;
+            } else {
+                self.print_directive(directive)?;
+            }
         }
         if let Some(conditions) = conditions {
             self.print_condition_directives(conditions)?;
         }
+        Ok(())
+    }
+
+    fn print_directive(&mut self, directive: &Directive) -> Result {
+        write!(self.writer, " @{}", directive.name.item)?;
+        self.print_arguments(&directive.arguments)?;
+
         Ok(())
     }
 

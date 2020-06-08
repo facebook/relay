@@ -100,6 +100,7 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
+            || name.lookup() == "argumentDefinitions"
     }
 }
 

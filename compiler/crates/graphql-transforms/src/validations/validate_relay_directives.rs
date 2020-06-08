@@ -57,12 +57,7 @@ impl<'program> RelayDirectiveValidation<'program> {
                 vec![spread.fragment.location, fragment.name.location],
             ))
         }
-        if !fragment.variable_definitions.is_empty() {
-            errs.push(ValidationError::new(
-                ValidationMessage::InvalidUnmaskOnFragmentWithArguments(),
-                vec![spread.fragment.location, fragment.name.location],
-            ))
-        }
+
         self.current_reachable_arguments
             .extend(&fragment.used_global_variables);
         if errs.is_empty() {

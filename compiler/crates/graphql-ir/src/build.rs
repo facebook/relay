@@ -112,11 +112,6 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .get(&fragment.name.value)
             .expect("Expected signature to be created");
         let fragment_type = TypeReference::Named(signature.type_condition);
-        let non_arguments_directives: Vec<_> = fragment
-            .directives
-            .iter()
-            .filter(|x| x.name.value.lookup() != "argumentDefinitions")
-            .collect();
 
         self.defined_variables = signature
             .variable_definitions
@@ -124,10 +119,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .map(|x| (x.name.item, x.clone()))
             .collect();
 
-        let directives = self.build_directives(
-            non_arguments_directives,
-            DirectiveLocation::FragmentDefinition,
-        );
+        let directives =
+            self.build_directives(&fragment.directives, DirectiveLocation::FragmentDefinition);
         let selections = self.build_selections(&fragment.selections.items, &fragment_type);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
@@ -792,6 +785,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         directive: &graphql_syntax::Directive,
         location: DirectiveLocation,
     ) -> ValidationResult<Directive> {
+        if directive.name.value.lookup() == "argumentDefinitions" {
+            return Ok(Directive {
+                name: directive.name.name_with_location(self.location.file()),
+                arguments: vec![],
+            });
+        }
         let directive_definition = match self.schema.get_directive(directive.name.value) {
             Some(directive_definition) => directive_definition,
             None => {

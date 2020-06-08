@@ -152,7 +152,15 @@ fragment ChildFragment on Query
             ],
             used_global_variables: [],
             type_condition: Object(0),
-            directives: [],
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: "fragment-with-literal-object-list-arguments.graphql":209:228,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                },
+            ],
             selections: [
                 LinkedField {
                     alias: None,

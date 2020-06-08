@@ -76,7 +76,15 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 },
             ],
             type_condition: Object(65),
-            directives: [],
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: "fragment-with-arguments.graphql":33:52,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                },
+            ],
             selections: [
                 LinkedField {
                     alias: None,
@@ -234,7 +242,15 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             ],
             used_global_variables: [],
             type_condition: Object(65),
-            directives: [],
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: "fragment-with-arguments.graphql":299:318,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                },
+            ],
             selections: [
                 ScalarField {
                     alias: None,

@@ -12,7 +12,7 @@ fragment User_user on User
   url(relative: $isRelative)
 }
 ==================================== ERROR ====================================
-Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions.:
+Cannot use @relay(mask: false) on fragment spreads for fragments with directives.:
 unmasked-fragment-spreads-local-arguments.invalid.graphql:4:8:
     ...User_user @relay(mask: false)
 

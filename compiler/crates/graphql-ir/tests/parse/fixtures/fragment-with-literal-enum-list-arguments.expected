@@ -130,7 +130,15 @@ fragment ChildFragment on User
             ],
             used_global_variables: [],
             type_condition: Object(65),
-            directives: [],
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: "fragment-with-literal-enum-list-arguments.graphql":190:209,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                },
+            ],
             selections: [
                 LinkedField {
                     alias: None,

@@ -486,7 +486,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.alias, build_alias(alias, name)),
+            build_alias(alias, name),
             (
                 CODEGEN_CONSTANTS.args,
                 match args {
@@ -539,13 +539,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 Some(key) => Primitive::Key(key),
             };
             result.push(Primitive::Key(self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.alias,
-                    match field.alias {
-                        None => Primitive::Null,
-                        Some(alias) => Primitive::String(alias.item),
-                    },
-                ),
+                build_alias(field.alias.map(|a| a.item), field_name),
                 (CODEGEN_CONSTANTS.args, arguments),
                 (CODEGEN_CONSTANTS.filters, filters),
                 (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
@@ -577,7 +571,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let args = self.build_arguments(&field.arguments);
         let selections = self.build_selections(&field.selections);
         Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.alias, build_alias(alias, name)),
+            build_alias(alias, name),
             (
                 CODEGEN_CONSTANTS.args,
                 match args {
@@ -643,13 +637,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             };
             let mut object = vec![
-                (
-                    CODEGEN_CONSTANTS.alias,
-                    match field.alias {
-                        Some(alias) => Primitive::String(alias.item),
-                        None => Primitive::Null,
-                    },
-                ),
+                build_alias(field.alias.map(|a| a.item), field_name),
                 (
                     CODEGEN_CONSTANTS.args,
                     match self.build_arguments(&field.arguments) {
@@ -1347,8 +1335,8 @@ fn value_contains_variable(value: &Value) -> bool {
     }
 }
 
-fn build_alias(alias: Option<StringKey>, name: StringKey) -> Primitive {
-    match alias {
+fn build_alias(alias: Option<StringKey>, name: StringKey) -> (StringKey, Primitive) {
+    let alias = match alias {
         None => Primitive::Null,
         Some(alias) => {
             if alias == name {
@@ -1357,5 +1345,6 @@ fn build_alias(alias: Option<StringKey>, name: StringKey) -> Primitive {
                 Primitive::String(alias)
             }
         }
-    }
+    };
+    (CODEGEN_CONSTANTS.alias, alias)
 }

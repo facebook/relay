@@ -132,6 +132,7 @@ query AbstractTypeRefinement(
 ) {
   node(id: "4") {
     __typename
+    __isNode: __typename @include(if: $shouldInclude)
     ...NodeFragment @include(if: $shouldInclude)
     id
   }

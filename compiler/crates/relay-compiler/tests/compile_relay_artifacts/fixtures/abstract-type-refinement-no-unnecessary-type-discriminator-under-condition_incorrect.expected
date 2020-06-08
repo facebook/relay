@@ -12,6 +12,12 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
           canViewerLike
         }
       }
+      ... {
+        ... on Page {
+          canViewerLike
+        }
+        lastName
+      }
     }
   }
 }
@@ -57,6 +63,13 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
             "plural": false,
             "selections": [
               {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              },
+              {
                 "condition": "myVar",
                 "kind": "Condition",
                 "passingValue": true,
@@ -97,6 +110,20 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
                     "abstractKey": null
                   }
                 ]
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "canViewerLike",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Page",
+                "abstractKey": null
               }
             ],
             "storageKey": null
@@ -155,6 +182,17 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
                 "storageKey": null
               },
               {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isActor"
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              },
+              {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
@@ -202,6 +240,20 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
                     "abstractKey": null
                   }
                 ]
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "canViewerLike",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Page",
+                "abstractKey": null
               }
             ],
             "storageKey": null
@@ -229,12 +281,19 @@ mutation ChangeNameMutation(
   actorNameChange(input: $input) {
     actor {
       __typename
+      __isActor: __typename @include(if: $myVar)
       ... on Page @include(if: $myVar) {
         username
       }
+      __isActor: __typename @skip(if: $myVar)
       ... on Page @skip(if: $myVar) {
         canViewerLike
       }
+      __isActor: __typename
+      ... on Page {
+        canViewerLike
+      }
+      lastName
       id
     }
   }

@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::{generate_abstract_type_refinement_key, PointerAddress};
+use crate::util::{
+    generate_abstract_type_refinement_key, is_relay_custom_inline_fragment_directive,
+    PointerAddress,
+};
 use common::{FileKey, Location, Span, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
-    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
-    ScalarField, Selection, Transformed, TransformedValue, Transformer,
+    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
+    Transformer,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -40,6 +44,7 @@ struct GenerateTypenameTransform<'s> {
     program: &'s Program,
     seen: Seen,
     is_for_codegen: bool,
+    parent_type: Option<Type>,
 }
 
 impl<'s> GenerateTypenameTransform<'s> {
@@ -48,6 +53,7 @@ impl<'s> GenerateTypenameTransform<'s> {
             program,
             seen: Default::default(),
             is_for_codegen,
+            parent_type: None,
         }
     }
 }
@@ -57,10 +63,19 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        self.parent_type = Some(operation.type_);
+        self.default_transform_operation(operation)
+    }
+
     fn transform_fragment(
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
+        self.parent_type = Some(fragment.type_condition);
         let schema = &self.program.schema;
         let mut selections = self.transform_selections(&fragment.selections);
         let type_ = fragment.type_condition;
@@ -90,8 +105,11 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = &self.program.schema;
-        let selections = self.transform_selections(&field.selections);
         let field_definition = schema.field(field.definition.item);
+        let parent_type = self.parent_type;
+        self.parent_type = Some(field_definition.type_.inner());
+        let selections = self.transform_selections(&field.selections);
+        self.parent_type = parent_type;
         let is_abstract = schema.is_abstract_type(field_definition.type_.inner());
         let selections = if is_abstract && !has_typename_field(schema, &field.selections) {
             let mut next_selections = Vec::with_capacity(field.selections.len() + 1);
@@ -130,24 +148,38 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
             return prev.clone();
         }
         self.seen.insert(key, Transformed::Delete);
+        let parent_type = self.parent_type;
+        if fragment.type_condition.is_some() {
+            self.parent_type = fragment.type_condition;
+        }
         let mut selections = self.transform_selections(&fragment.selections);
+        self.parent_type = parent_type;
         let schema = &self.program.schema;
-        if let Some(type_) = fragment.type_condition {
-            if !schema.is_extension_type(type_) && schema.is_abstract_type(type_) {
-                let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);
-                next_selections.push(generate_abstract_key_field(
-                    schema,
-                    type_,
-                    *EMPTY_LOCATION,
-                    self.is_for_codegen,
-                ));
-                if let TransformedValue::Replace(selections) = selections {
-                    next_selections.extend(selections.into_iter())
-                } else {
-                    next_selections.extend(fragment.selections.iter().cloned())
-                };
-                selections = TransformedValue::Replace(next_selections);
-            }
+        let type_ = if let Some(type_) = fragment.type_condition {
+            type_
+        } else {
+            parent_type.expect("Expect the parent type to exist.")
+        };
+        if !fragment
+            .directives
+            .iter()
+            .any(is_relay_custom_inline_fragment_directive)
+            && !schema.is_extension_type(type_)
+            && schema.is_abstract_type(type_)
+        {
+            let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);
+            next_selections.push(generate_abstract_key_field(
+                schema,
+                type_,
+                *EMPTY_LOCATION,
+                self.is_for_codegen,
+            ));
+            if let TransformedValue::Replace(selections) = selections {
+                next_selections.extend(selections.into_iter())
+            } else {
+                next_selections.extend(fragment.selections.iter().cloned())
+            };
+            selections = TransformedValue::Replace(next_selections);
         }
         let result = match selections {
             TransformedValue::Keep => Transformed::Keep,

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
 use crate::build_ast::{
     build_fragment, build_operation, build_request, build_request_params,
     build_request_params_ast_key,
@@ -363,11 +363,7 @@ fn write_static_storage_key(
     Ok(())
 }
 
-fn write_argument_value(
-    f: &mut String,
-    builder: &AstBuilder,
-    arg: &[(StringKey, Primitive)],
-) -> FmtResult {
+fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry]) -> FmtResult {
     let (_, key) = arg
         .iter()
         .find(|(key, _)| *key == CODEGEN_CONSTANTS.kind)

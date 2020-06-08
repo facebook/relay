@@ -371,7 +371,20 @@ query NodeQuery($id: ID!) {
   },
   "params": {
     "id": null,
-    "metadata": {},
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ],
+          "stream": true
+        }
+      ]
+    },
     "name": "NodeQuery",
     "operationKind": "query",
     "text": null

@@ -395,7 +395,37 @@ return {
   },
   "params": {
     "id": null,
-    "metadata": {},
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "forwardComments"
+          ]
+        },
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "backward",
+          "path": [
+            "node",
+            "backwardComments"
+          ]
+        },
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "bidirectional",
+          "path": [
+            "node",
+            "mixedDirectionComments"
+          ]
+        }
+      ]
+    },
     "name": "NodeQuery",
     "operationKind": "query",
     "text": null

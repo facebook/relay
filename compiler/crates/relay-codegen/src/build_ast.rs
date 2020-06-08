@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::relay_test_operation::build_test_operation_metadata;
 use common::{NamedItem, WithLocation};
@@ -19,9 +19,10 @@ use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
-    ConnectionConstants, DeferDirective, HandleFieldConstants, RelayDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, INLINE_DATA_CONSTANTS,
-    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    ConnectionConstants, ConnectionMetadata, DeferDirective, HandleFieldConstants, RelayDirective,
+    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
 use schema::Schema;
@@ -123,7 +124,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn object(&mut self, object: Vec<(StringKey, Primitive)>) -> AstKey {
+    fn object(&mut self, object: Vec<ObjectEntry>) -> AstKey {
         self.ast_builder.intern(Ast::Object(object))
     }
 
@@ -234,44 +235,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             &fragment.directives,
             self.connection_constants,
         );
-        let codegen_connection_metadata = if let Some(ref metadata_values) = connection_metadata {
-            let array = metadata_values
-                .iter()
-                .map(|metadata| {
-                    let path = match &metadata.path {
-                        None => Primitive::Null,
-                        Some(path) => Primitive::Key(
-                            self.array(path.iter().cloned().map(Primitive::String).collect()),
-                        ),
-                    };
-                    let (count, cursor) = if metadata.direction
-                        == self.connection_constants.direction_forward
-                    {
-                        (metadata.first, metadata.after)
-                    } else if metadata.direction == self.connection_constants.direction_backward {
-                        (metadata.last, metadata.before)
-                    } else {
-                        (None, None)
-                    };
-                    let mut object = vec![
-                        (CODEGEN_CONSTANTS.count, Primitive::string_or_null(count)),
-                        (CODEGEN_CONSTANTS.cursor, Primitive::string_or_null(cursor)),
-                        (
-                            CODEGEN_CONSTANTS.direction,
-                            Primitive::String(metadata.direction),
-                        ),
-                        (CODEGEN_CONSTANTS.path, path),
-                    ];
-                    if metadata.is_stream_connection {
-                        object.push((DEFER_STREAM_CONSTANTS.stream_name, Primitive::Bool(true)))
-                    }
-                    Primitive::Key(self.object(object))
-                })
-                .collect::<Vec<_>>();
-            Some(Primitive::Key(self.array(array)))
-        } else {
-            None
-        };
 
         let mut plural = false;
         let mut unmask = false;
@@ -281,8 +244,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
 
         let mut metadata = vec![];
-        if let Some(codegen_connection_metadata) = codegen_connection_metadata {
-            metadata.push((CODEGEN_CONSTANTS.connection, codegen_connection_metadata))
+        if let Some(connection_metadata) = &connection_metadata {
+            metadata.push(self.build_connection_metadata(connection_metadata))
         }
         if unmask {
             metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(false)))
@@ -380,6 +343,48 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         } else {
             Primitive::Key(self.object(metadata))
         }
+    }
+
+    fn build_connection_metadata(
+        &mut self,
+        connection_metadata: &[ConnectionMetadata],
+    ) -> ObjectEntry {
+        let array = connection_metadata
+            .iter()
+            .map(|metadata| {
+                let path = match &metadata.path {
+                    None => Primitive::Null,
+                    Some(path) => Primitive::Key(
+                        self.array(path.iter().cloned().map(Primitive::String).collect()),
+                    ),
+                };
+                let (count, cursor) =
+                    if metadata.direction == self.connection_constants.direction_forward {
+                        (metadata.first, metadata.after)
+                    } else if metadata.direction == self.connection_constants.direction_backward {
+                        (metadata.last, metadata.before)
+                    } else {
+                        (None, None)
+                    };
+                let mut object = vec![
+                    (CODEGEN_CONSTANTS.count, Primitive::string_or_null(count)),
+                    (CODEGEN_CONSTANTS.cursor, Primitive::string_or_null(cursor)),
+                    (
+                        CODEGEN_CONSTANTS.direction,
+                        Primitive::String(metadata.direction),
+                    ),
+                    (CODEGEN_CONSTANTS.path, path),
+                ];
+                if metadata.is_stream_connection {
+                    object.push((DEFER_STREAM_CONSTANTS.stream_name, Primitive::Bool(true)))
+                }
+                Primitive::Key(self.object(object))
+            })
+            .collect::<Vec<_>>();
+        (
+            CODEGEN_CONSTANTS.connection,
+            Primitive::Key(self.array(array)),
+        )
     }
 
     fn build_inline_data_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
@@ -1166,7 +1171,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_test_operation_metadata(
         &mut self,
         operation: &OperationDefinition,
-    ) -> Option<(StringKey, Primitive)> {
+    ) -> Option<ObjectEntry> {
         build_test_operation_metadata(self.schema, operation).map(|metadata| {
             let mut selection_type_info_values =
                 Vec::with_capacity(metadata.selection_type_info.len());
@@ -1239,9 +1244,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         operation: &OperationDefinition,
         mut request_parameters: RequestParameters,
         // We need to move test metadata generation back to transforms
-        deprecated_test_operation_metadata: Option<(StringKey, Primitive)>,
+        deprecated_test_operation_metadata: Option<ObjectEntry>,
     ) -> AstKey {
-        let mut metadata_items: Vec<(StringKey, Primitive)> = operation
+        let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
             .iter()
             .filter_map(|directive| {
@@ -1269,6 +1274,15 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         // add test_operation metadata
         if let Some(deprecated_test_operation_metadata) = deprecated_test_operation_metadata {
             metadata_items.push(deprecated_test_operation_metadata);
+        }
+
+        // add connection metadata
+        let connection_metadata = extract_connection_metadata_from_directive(
+            &operation.directives,
+            self.connection_constants,
+        );
+        if let Some(connection_metadata) = connection_metadata {
+            metadata_items.push(self.build_connection_metadata(&connection_metadata))
         }
 
         // add request parameters metadata
@@ -1335,7 +1349,7 @@ fn value_contains_variable(value: &Value) -> bool {
     }
 }
 
-fn build_alias(alias: Option<StringKey>, name: StringKey) -> (StringKey, Primitive) {
+fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
     let alias = match alias {
         None => Primitive::Null,
         Some(alias) => {

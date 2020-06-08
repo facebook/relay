@@ -38,11 +38,7 @@ pub fn write_artifacts(
 }
 
 fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
-    if file_path.exists() {
-        return Ok(());
-    }
-    let file_directory = file_path.parent();
-    if let Some(file_directory) = file_directory {
+    if let Some(file_directory) = file_path.parent() {
         if !file_directory.exists() {
             create_dir_all(file_directory)?;
         }
@@ -52,7 +48,15 @@ fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
 }
 
 fn write_file(path: &PathBuf, content: &[u8]) -> io::Result<()> {
-    ensure_file_directory_exists(path)?;
+    if path.exists() {
+        let existing_content = std::fs::read(path)?;
+        if existing_content == content {
+            return Ok(());
+        }
+    } else {
+        ensure_file_directory_exists(path)?;
+    }
+
     let mut file = File::create(path)?;
     file.write_all(&content)?;
     Ok(())

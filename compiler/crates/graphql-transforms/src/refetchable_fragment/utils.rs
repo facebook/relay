@@ -78,18 +78,21 @@ pub fn build_operation_variable_definitions(
     variable_map: &VariableMap,
     local_variables: &[VariableDefinition],
 ) -> Vec<VariableDefinition> {
-    let mut result = Vec::new();
+    let mut result: Vec<_> = variable_map
+        .values()
+        .map(|var| VariableDefinition {
+            name: var.name,
+            type_: var.type_.clone(),
+            default_value: None,
+            directives: vec![],
+        })
+        .collect();
     for var in local_variables {
         if !variable_map.contains_key(&var.name.item) {
             result.push(var.clone());
         }
     }
-    result.extend(variable_map.values().map(|var| VariableDefinition {
-        name: var.name,
-        type_: var.type_.clone(),
-        default_value: None,
-        directives: vec![],
-    }));
+    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
     result
 }
 

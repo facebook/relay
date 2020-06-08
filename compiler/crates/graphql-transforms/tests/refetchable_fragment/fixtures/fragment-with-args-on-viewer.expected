@@ -19,8 +19,8 @@ fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
 }
 ==================================== OUTPUT ===================================
 query RefetchableFragmentQuery(
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
 ) @__refetchableQueryMetadata(__refetchableQueryMetadata: "RefetchableFragment") {
   viewer {
     ...RefetchableFragment @arguments(size: $size)

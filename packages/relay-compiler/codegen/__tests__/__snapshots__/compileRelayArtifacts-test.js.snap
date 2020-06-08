@@ -16896,16 +16896,16 @@ Request {
   operation: Operation {
     argumentDefinitions: [
       LocalArgument {
+        defaultValue: null,
+        name: "beforeCursor",
+      },
+      LocalArgument {
         defaultValue: 10,
         name: "count",
       },
       LocalArgument {
         defaultValue: null,
         name: "cursor",
-      },
-      LocalArgument {
-        defaultValue: null,
-        name: "beforeCursor",
       },
       LocalArgument {
         defaultValue: null,
@@ -17091,9 +17091,9 @@ Request {
 QUERY:
 
 query RefetchableFragmentQuery(
+  $beforeCursor: ID
   $count: Int = 10
   $cursor: ID
-  $beforeCursor: ID
   $lastCount: Int
   $id: ID!
 ) {

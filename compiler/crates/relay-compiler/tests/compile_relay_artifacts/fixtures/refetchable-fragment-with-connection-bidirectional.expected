@@ -97,6 +97,11 @@ fragment PaginationFragment on Node
   "operation": {
     "argumentDefinitions": [
       {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "beforeCursor"
+      },
+      {
         "defaultValue": 10,
         "kind": "LocalArgument",
         "name": "count"
@@ -105,11 +110,6 @@ fragment PaginationFragment on Node
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "cursor"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "beforeCursor"
       },
       {
         "defaultValue": null,
@@ -332,9 +332,9 @@ fragment PaginationFragment on Node
 QUERY:
 
 query RefetchableFragmentQuery(
+  $beforeCursor: ID
   $count: Int = 10
   $cursor: ID
-  $beforeCursor: ID
   $lastCount: Int
   $id: ID!
 ) {

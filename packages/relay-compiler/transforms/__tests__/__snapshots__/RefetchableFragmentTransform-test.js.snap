@@ -408,9 +408,9 @@ fragment Profile on User @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
+  $count: Int
   $id: ID!
   $pictureSize: [Int]
-  $count: Int
 ) {
   ...RefetchableFragment @arguments(id: $id)
 }
@@ -526,8 +526,8 @@ fragment ProfilePicture on User @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
   $id: ID!
 ) {
   node(id: $id) {
@@ -587,8 +587,8 @@ fragment ProfilePicture on User @argumentDefinitions(
 
 query RefetchableFragmentQuery(
   $id: ID!
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
 ) {
   ...RefetchableFragment @arguments(id: $id, size: $size)
 }
@@ -639,8 +639,8 @@ fragment ProfilePicture on User @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
 ) {
   viewer {
     ...RefetchableFragment @arguments(size: $size)
@@ -772,9 +772,9 @@ fragment PaginationFragment on Node @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
+  $beforeCursor: ID
   $count: Int = 10
   $cursor: ID
-  $beforeCursor: ID
   $lastCount: Int
   $id: ID!
 ) {

@@ -343,7 +343,6 @@ class RelayParser {
                   [variableAst],
                 );
               },
-              {nonStrictEnums: true},
             )
           : null;
       if (defaultValue != null && defaultValue.kind !== 'Literal') {
@@ -1299,7 +1298,6 @@ function transformValue(
     variableAst: VariableNode,
     variableType: InputTypeID,
   ) => ArgumentValue,
-  options: {|+nonStrictEnums: boolean|} = {nonStrictEnums: false},
 ): ArgumentValue {
   if (ast.kind === 'Variable') {
     // Special case variables since there is no value to parse
@@ -1319,13 +1317,7 @@ function transformValue(
       value: null,
     };
   } else {
-    return transformNonNullLiteral(
-      schema,
-      ast,
-      type,
-      transformVariable,
-      options,
-    );
+    return transformNonNullLiteral(schema, ast, type, transformVariable);
   }
 }
 
@@ -1341,7 +1333,6 @@ function transformNonNullLiteral(
     variableAst: VariableNode,
     variableType: InputTypeID,
   ) => ArgumentValue,
-  options: {|+nonStrictEnums: boolean|},
 ): ArgumentValue {
   // Transform the value based on the type without a non-null wrapper.
   // Note that error messages should still use the original `type`
@@ -1367,7 +1358,6 @@ function transformNonNullLiteral(
         ast,
         schema.assertInputType(schema.getListItemType(nullableType)),
         transformVariable,
-        options,
       );
     }
     const itemType = schema.assertInputType(
@@ -1382,7 +1372,6 @@ function transformNonNullLiteral(
         item,
         itemType,
         transformVariable,
-        options,
       );
       if (itemValue.kind === 'Literal') {
         literalList.push(itemValue.value);
@@ -1452,7 +1441,6 @@ function transformNonNullLiteral(
         field.value,
         fieldType,
         transformVariable,
-        options,
       );
       if (fieldValue.kind === 'Literal') {
         literalObject[field.name.value] = fieldValue.value;
@@ -1523,21 +1511,6 @@ function transformNonNullLiteral(
     const enumType = schema.assertEnumType(nullableType);
     const value = schema.parseLiteral(enumType, ast);
     if (value == null) {
-      if (options.nonStrictEnums) {
-        if (ast.kind === 'StringValue' || ast.kind === 'EnumValue') {
-          const alternateValue =
-            schema.parseValue(enumType, ast.value.toUpperCase()) ??
-            schema.parseValue(enumType, ast.value.toLowerCase());
-          if (alternateValue != null) {
-            // Use the original raw value
-            return {
-              kind: 'Literal',
-              loc: buildLocation(ast.loc),
-              value: ast.value,
-            };
-          }
-        }
-      }
       const suggestions = schema.getEnumValues(enumType);
 
       // parseLiteral() should return a non-null JavaScript value

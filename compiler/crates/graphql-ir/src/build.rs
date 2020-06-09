@@ -1106,7 +1106,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
                 Type::Enum(id) => {
                     let type_definition = self.schema.enum_(*id);
-                    self.build_constant_enum(value, type_definition, enum_validation)
+                    self.build_constant_enum(value, type_definition)
                 }
                 Type::Scalar(id) => {
                     let type_definition = self.schema.scalar(*id);
@@ -1199,20 +1199,16 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         node: &graphql_syntax::ConstantValue,
         type_definition: &Enum,
-        validation: ValidationLevel,
     ) -> ValidationResult<ConstantValue> {
         let value = match node {
             graphql_syntax::ConstantValue::Enum(value) => value.value,
-            graphql_syntax::ConstantValue::String(value) => {
-                if validation == ValidationLevel::Strict {
-                    return Err(self
-                        .record_error(ValidationError::new(
-                            ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                            vec![self.location.with_span(node.span())],
-                        ))
-                        .into());
-                }
-                value.value
+            graphql_syntax::ConstantValue::String(_) => {
+                return Err(self
+                    .record_error(ValidationError::new(
+                        ValidationMessage::ExpectedEnumValueGotString(type_definition.name),
+                        vec![self.location.with_span(node.span())],
+                    ))
+                    .into())
             }
             _ => {
                 return Err(self

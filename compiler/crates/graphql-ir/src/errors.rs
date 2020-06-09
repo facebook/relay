@@ -133,6 +133,8 @@ pub enum ValidationMessage {
     UnsupportedNestListType(),
     #[error("Expected a value of type '{0}'")]
     ExpectedValueMatchingType(StringKey),
+    #[error("Expected value of type '{0}' to be a valid enum value, got string. Consider removing quotes.")]
+    ExpectedEnumValueGotString(StringKey),
     #[error("Duplicate values found for field '{0}'")]
     DuplicateInputField(StringKey),
     #[error("Missing required fields '{0:?}' of type '{1}'")] // TODO: print joined

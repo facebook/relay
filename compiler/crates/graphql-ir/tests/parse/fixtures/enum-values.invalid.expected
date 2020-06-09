@@ -27,7 +27,7 @@ query EnumValueQuery3 {
   }
 }
 ==================================== ERROR ====================================
-Expected a value of type 'PhotoSize':
+Expected value of type 'PhotoSize' to be a valid enum value, got string. Consider removing quotes.:
 enum-values.invalid.graphql:3:28:
     profilePicture(preset: "LARGE") {
 

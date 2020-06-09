@@ -164,10 +164,7 @@ fn get_fetch_field_id_and_id_arg<'s>(
             if inner_type == fragment.type_condition {
                 let mut arg_iter = fetch_field.arguments.iter();
                 if let Some(id_arg) = arg_iter.next() {
-                    if !id_arg.type_.is_list()
-                        && schema.is_id(id_arg.type_.inner())
-                        && arg_iter.len() == 0
-                    {
+                    if !id_arg.type_.is_list() && schema.is_id(id_arg.type_.inner()) {
                         return Ok((fetch_field_id, id_arg));
                     }
                 }

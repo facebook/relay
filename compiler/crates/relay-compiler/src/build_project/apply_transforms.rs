@@ -323,8 +323,7 @@ fn apply_typegen_transforms(
     let program = log_event.time("flatten", || flatten(&program, false));
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
-            .expect("Expected errors to be validated in common transforms.")
-    });
+    })?;
     let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });

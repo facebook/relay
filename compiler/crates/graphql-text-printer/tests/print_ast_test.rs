@@ -1,4 +1,4 @@
-// @generated SignedSource<<de31ed137510df6da1cce4613e95b6d6>>
+// @generated SignedSource<<004b4f896b99b6625340c5906981b000>>
 
 mod print_ast;
 
@@ -52,6 +52,13 @@ fn basic_query() {
     let input = include_str!("print_ast/fixtures/basic_query.graphql");
     let expected = include_str!("print_ast/fixtures/basic_query.expected");
     test_fixture(transform_fixture, "basic_query.graphql", "print_ast/fixtures/basic_query.expected", input, expected);
+}
+
+#[test]
+fn basic_query_with_float() {
+    let input = include_str!("print_ast/fixtures/basic_query_with_float.graphql");
+    let expected = include_str!("print_ast/fixtures/basic_query_with_float.expected");
+    test_fixture(transform_fixture, "basic_query_with_float.graphql", "print_ast/fixtures/basic_query_with_float.expected", input, expected);
 }
 
 #[test]

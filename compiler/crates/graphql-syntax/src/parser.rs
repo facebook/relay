@@ -634,10 +634,12 @@ impl<'a> Parser<'a> {
             }
             TokenKind::FloatLiteral => {
                 let value = source.parse::<f64>();
+                let source_value = source.intern();
                 match value {
                     Ok(value) => Ok(ConstantValue::Float(FloatNode {
                         token,
                         value: FloatValue::new(value),
+                        source_value,
                     })),
                     Err(_) => {
                         let error = SyntaxError::new(

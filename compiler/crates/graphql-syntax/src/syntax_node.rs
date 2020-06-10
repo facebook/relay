@@ -328,11 +328,14 @@ impl fmt::Display for IntNode {
 pub struct FloatNode {
     pub token: Token,
     pub value: FloatValue,
+    /// Preserve a value, as it was represented in the source
+    /// TODO: We may remove this, as we migrate from JS
+    pub source_value: StringKey,
 }
 
 impl fmt::Display for FloatNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("{}", self.value))
+        f.write_fmt(format_args!("{}", self.source_value))
     }
 }
 

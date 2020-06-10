@@ -164,13 +164,25 @@ impl DeferStreamTransform<'_> {
             use_customized_batch_arg,
         } = StreamDirective::from(stream);
 
-        if is_literal_false_arg(if_arg) {
-            return Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
-                LinkedField {
-                    directives: remove_directive(&linked_field.directives, stream.name.item),
+        let transformed_linked_field = self.default_transform_linked_field(linked_field);
+        let get_next_selection = |directives| match transformed_linked_field {
+            Transformed::Replace(mut selection) => {
+                selection.set_directives(directives);
+                Transformed::Replace(selection)
+            }
+            Transformed::Keep => {
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    directives,
                     ..linked_field.clone()
-                },
-            ))));
+                })))
+            }
+            Transformed::Delete => Transformed::Delete,
+        };
+        if is_literal_false_arg(if_arg) {
+            return Ok(get_next_selection(remove_directive(
+                &linked_field.directives,
+                stream.name.item,
+            )));
         }
 
         if initial_count_arg.is_none() {
@@ -223,12 +235,10 @@ impl DeferStreamTransform<'_> {
             arguments: next_arguments,
         };
 
-        Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
-            LinkedField {
-                directives: replace_directive(&linked_field.directives, next_stream),
-                ..linked_field.clone()
-            },
-        ))))
+        Ok(get_next_selection(replace_directive(
+            &linked_field.directives,
+            next_stream,
+        )))
     }
 }
 

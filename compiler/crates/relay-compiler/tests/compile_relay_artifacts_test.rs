@@ -1,4 +1,4 @@
-// @generated SignedSource<<bf8a1ed49995c73a06c76cd844786b5e>>
+// @generated SignedSource<<fb65ec870d33117c511d130d5e4a462b>>
 
 mod compile_relay_artifacts;
 
@@ -311,6 +311,13 @@ fn fragment_with_defer_arguments_without_label() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-arguments-without-label.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-arguments-without-label.expected");
     test_fixture(transform_fixture, "fragment-with-defer-arguments-without-label.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-arguments-without-label.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_defer_in_stream() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.expected");
+    test_fixture(transform_fixture, "fragment-with-defer-in-stream.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.expected", input, expected);
 }
 
 #[test]

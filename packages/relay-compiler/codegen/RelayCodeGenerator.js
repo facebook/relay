@@ -15,6 +15,8 @@
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
 
+const sortObjectByKey = require('./sortObjectByKey');
+
 const {createCompilerError} = require('../core/CompilerError');
 
 import type {Fragment, Request, SplitOperation} from '../core/IR';
@@ -57,7 +59,7 @@ function generate(
         operation: NormalizationCodeGenerator.generate(schema, node.root),
         params: {
           id: node.id,
-          metadata: node.metadata,
+          metadata: sortObjectByKey(node.metadata),
           name: node.name,
           operationKind: node.root.operation,
           text: node.text,

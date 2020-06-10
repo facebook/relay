@@ -14,6 +14,7 @@
 
 const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
 const partitionArray = require('../util/partitionArray');
+const sortObjectByKey = require('./sortObjectByKey');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {getStorageKey, stableCopy} = require('relay-runtime');
@@ -97,7 +98,7 @@ function generateSplitOperation(
 ): NormalizationSplitOperation {
   return {
     kind: 'SplitOperation',
-    metadata: node.metadata,
+    metadata: sortObjectByKey(node.metadata),
     name: node.name,
     selections: generateSelections(schema, node.selections),
   };
@@ -428,7 +429,7 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
         : null,
     kind: 'Stream',
     label: node.label,
-    metadata: node.metadata,
+    metadata: sortObjectByKey(node.metadata),
     selections: generateSelections(schema, node.selections),
     useCustomizedBatch:
       node.useCustomizedBatch != null &&

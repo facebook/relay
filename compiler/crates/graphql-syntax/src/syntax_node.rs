@@ -118,6 +118,12 @@ pub struct Argument {
     pub value: Value,
 }
 
+impl fmt::Display for Argument {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}: {}", self.name, self.value))
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Alias {
     pub span: Span,
@@ -125,11 +131,23 @@ pub struct Alias {
     pub colon: Token,
 }
 
+impl fmt::Display for Alias {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.alias))
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TypeCondition {
     pub span: Span,
     pub on: Token,
     pub type_: Identifier,
+}
+
+impl fmt::Display for TypeCondition {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("on {}", self.type_))
+    }
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -159,6 +177,12 @@ pub struct VariableIdentifier {
     pub name: StringKey,
 }
 
+impl fmt::Display for VariableIdentifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("${}", self.name))
+    }
+}
+
 impl VariableIdentifier {
     pub fn name_with_location(&self, file: FileKey) -> WithLocation<StringKey> {
         WithLocation::from_span(file, self.span, self.name)
@@ -172,6 +196,12 @@ pub struct Identifier {
     pub value: StringKey,
 }
 
+impl fmt::Display for Identifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
+}
+
 impl Identifier {
     pub fn name_with_location(&self, file: FileKey) -> WithLocation<StringKey> {
         WithLocation::from_span(file, self.span, self.value)
@@ -183,6 +213,12 @@ pub struct DefaultValue {
     pub span: Span,
     pub equals: Token,
     pub value: ConstantValue,
+}
+
+impl fmt::Display for DefaultValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -212,12 +248,49 @@ impl ConstantValue {
     }
 }
 
+impl fmt::Display for ConstantValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ConstantValue::Int(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::Float(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::String(value) => f.write_fmt(format_args!("\"{}\"", value)),
+            ConstantValue::Boolean(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::Null(_) => f.write_str("null"),
+            ConstantValue::Enum(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::List(value) => f.write_fmt(format_args!(
+                "[{}]",
+                value
+                    .items
+                    .iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            ConstantValue::Object(value) => f.write_fmt(format_args!(
+                "{{{}}}",
+                value
+                    .items
+                    .iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ConstantArgument {
     pub span: Span,
     pub name: Identifier,
     pub colon: Token,
     pub value: ConstantValue,
+}
+
+impl fmt::Display for ConstantArgument {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}: {}", self.name, self.value))
+    }
 }
 
 impl Named for ConstantArgument {
@@ -232,10 +305,22 @@ pub struct IntNode {
     pub value: i64,
 }
 
+impl fmt::Display for IntNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FloatNode {
     pub token: Token,
     pub value: FloatValue,
+}
+
+impl fmt::Display for FloatNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -244,10 +329,22 @@ pub struct StringNode {
     pub value: StringKey,
 }
 
+impl fmt::Display for StringNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct EnumNode {
     pub token: Token,
     pub value: StringKey,
+}
+
+impl fmt::Display for EnumNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -256,12 +353,48 @@ pub struct BooleanNode {
     pub value: bool,
 }
 
+impl fmt::Display for BooleanNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!(
+            "{}",
+            if self.value { "true" } else { "false" }
+        ))
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Value {
     Constant(ConstantValue),
     Variable(VariableIdentifier),
     List(List<Value>),
     Object(List<Argument>),
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Constant(value) => f.write_fmt(format_args!("{}", value)),
+            Value::Variable(value) => f.write_fmt(format_args!("{}", value)),
+            Value::List(value) => f.write_fmt(format_args!(
+                "[{}]",
+                value
+                    .items
+                    .iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            Value::Object(value) => f.write_fmt(format_args!(
+                "{{{}}}",
+                value
+                    .items
+                    .iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+        }
+    }
 }
 
 impl Value {
@@ -320,6 +453,16 @@ pub enum TypeAnnotation {
     Named(Identifier),
     List(Box<ListTypeAnnotation>),
     NonNull(Box<NonNullTypeAnnotation>),
+}
+
+impl fmt::Display for TypeAnnotation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TypeAnnotation::Named(named) => f.write_fmt(format_args!("{}", named)),
+            TypeAnnotation::List(list) => f.write_fmt(format_args!("[{}]", list.type_)),
+            TypeAnnotation::NonNull(non_null) => f.write_fmt(format_args!("{}!", non_null.type_)),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

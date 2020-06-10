@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+fragment MyFragment on Query {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment MyFragment on Query {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+    }
+  }
+}

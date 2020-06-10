@@ -219,8 +219,8 @@ class DataChecker {
           this._recordSourceProxy,
         );
         if (
-          newValue != null &&
-          this._mutator.getStatus(newValue) === EXISTENT
+          newValue !== undefined &&
+          (newValue === null || this._mutator.getStatus(newValue) === EXISTENT)
         ) {
           return newValue;
         }
@@ -251,6 +251,8 @@ class DataChecker {
           if (allItemsKnown) {
             return newValue;
           }
+        } else if (newValue === null) {
+          return null;
         }
       }
     }
@@ -453,6 +455,8 @@ class DataChecker {
       linkedID = this._handleMissingLinkField(field, dataID);
       if (linkedID != null) {
         this._mutator.setLinkedRecordID(dataID, storageKey, linkedID);
+      } else if (linkedID === null) {
+        this._mutator.setValue(dataID, storageKey, null);
       }
     }
     if (linkedID != null) {
@@ -468,6 +472,8 @@ class DataChecker {
       linkedIDs = this._handleMissingPluralLinkField(field, dataID);
       if (linkedIDs != null) {
         this._mutator.setLinkedRecordIDs(dataID, storageKey, linkedIDs);
+      } else if (linkedIDs === null) {
+        this._mutator.setValue(dataID, storageKey, null);
       }
     }
     if (linkedIDs) {

@@ -1342,8 +1342,11 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
-          updatedHometown: undefined,
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
+          updatedHometown: null,
         },
       ],
       [
@@ -1421,6 +1424,14 @@ describe('check()', () => {
         expect(target.toJSON()).toEqual(
           updatedHometown === undefined
             ? {}
+            : updatedHometown === null
+            ? {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  hometown: null,
+                },
+              }
             : {
                 user1: {
                   __id: 'user1',
@@ -1447,8 +1458,11 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
-          updatedScreennames: undefined,
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
+          updatedScreennames: null,
         },
       ],
       [
@@ -1559,8 +1573,16 @@ describe('check()', () => {
         expect(handle).toBeCalledTimes(1);
         expect(status).toEqual(expectedStatus);
         expect(target.toJSON()).toEqual(
-          updatedScreennames == null
+          updatedScreennames === undefined
             ? {}
+            : updatedScreennames === null
+            ? {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  screennames: null,
+                },
+              }
             : {
                 user1: {
                   __id: 'user1',

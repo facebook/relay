@@ -24,7 +24,7 @@ use crate::errors::BuildProjectError;
 use crate::parse_sources::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;
-use build_ir::BuildIRResult;
+use build_ir::{BuildIRResult, SourceHashes};
 pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
 pub use generate_artifacts::{
@@ -47,7 +47,7 @@ fn build_programs(
     schema: Arc<Schema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<Programs, BuildProjectError> {
+) -> Result<(Programs, Arc<SourceHashes>), BuildProjectError> {
     let project_name = project_config.name;
     let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
@@ -56,6 +56,7 @@ fn build_programs(
     let BuildIRResult {
         ir,
         base_fragment_names,
+        source_hashes,
     } = log_event.time("build_ir_time", || {
         add_error_sources(
             build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build),
@@ -91,7 +92,7 @@ fn build_programs(
         )
     })?;
 
-    Ok(programs)
+    Ok((programs, Arc::new(source_hashes)))
 }
 
 pub async fn check_project(
@@ -106,7 +107,7 @@ pub async fn check_project(
     let project_name = project_config.name.lookup();
     log_event.string("project", project_name.to_string());
 
-    let programs = build_programs(
+    let (programs, _) = build_programs(
         project_config,
         compiler_state,
         graphql_asts,
@@ -139,7 +140,7 @@ pub async fn build_project(
     });
 
     // Apply different transform pipelines to produce the `Programs`.
-    let programs = build_programs(
+    let (programs, source_hashes) = build_programs(
         project_config,
         compiler_state,
         graphql_asts,
@@ -147,10 +148,9 @@ pub async fn build_project(
         &log_event,
         Arc::clone(&perf_logger),
     )?;
-
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let mut artifacts = generate_artifacts(project_config, &programs)?;
+    let mut artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))?;
     log_event.stop(artifacts_timer);
 
     // If there is a persist config, persist operations now.

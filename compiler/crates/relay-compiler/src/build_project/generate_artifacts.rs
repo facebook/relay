@@ -7,6 +7,7 @@
 
 use super::apply_transforms::Programs;
 pub use super::artifact_content::ArtifactContent;
+use super::build_ir::SourceHashes;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use common::{FileKey, NamedItem};
@@ -17,8 +18,8 @@ use graphql_text_printer::{
 };
 use graphql_transforms::{RefetchableDerivedFromMetadata, MATCH_CONSTANTS};
 use interner::StringKey;
-use md5::{Digest, Md5};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 /// Represents a generated output artifact.
 pub struct Artifact<'a> {
@@ -33,6 +34,7 @@ pub struct Artifact<'a> {
 pub fn generate_artifacts<'a>(
     project_config: &ProjectConfig,
     programs: &'a Programs,
+    source_hashes: Arc<SourceHashes>,
 ) -> Result<Vec<Artifact<'a>>, BuildProjectError> {
     let mut artifacts = Vec::new();
     for normalization_operation in programs.normalization.operations() {
@@ -57,7 +59,7 @@ pub fn generate_artifacts<'a>(
                 &source_fragment,
             )
             .unwrap();
-            let source_hash = md5(&source_string);
+            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
             let source_file = source_fragment.name.location.file();
             artifacts.push(Artifact {
                 name: normalization_operation.name.item,
@@ -86,7 +88,8 @@ pub fn generate_artifacts<'a>(
                 &source_fragment,
             )
             .unwrap();
-            let source_hash = md5(&source_string);
+            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+
             artifacts.push(generate_normalization_artifact(
                 project_config,
                 programs,
@@ -110,7 +113,10 @@ pub fn generate_artifacts<'a>(
                 &source_operation,
             )
             .unwrap();
-            let source_hash = md5(&source_string);
+            let source_hash = source_hashes
+                .get(&normalization_operation.name.item)
+                .cloned()
+                .unwrap();
             artifacts.push(generate_normalization_artifact(
                 project_config,
                 programs,
@@ -131,7 +137,10 @@ pub fn generate_artifacts<'a>(
             &source_fragment,
         )
         .unwrap();
-        let source_hash = md5(&source_string);
+        let source_hash = source_hashes
+            .get(&reader_fragment.name.item)
+            .cloned()
+            .unwrap();
         artifacts.push(generate_reader_artifact(
             project_config,
             programs,
@@ -252,10 +261,4 @@ fn path_for_js_artifact(
         format!("{}.graphql.js", definition_name),
         false,
     )
-}
-
-fn md5(data: &str) -> String {
-    let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
 }

@@ -33,6 +33,19 @@ impl ExecutableDefinition {
             ExecutableDefinition::Fragment(node) => node.location,
         }
     }
+
+    pub fn name(&self) -> Option<StringKey> {
+        match self {
+            ExecutableDefinition::Operation(node) => {
+                if let Some(name) = &node.name {
+                    Some(name.value)
+                } else {
+                    None
+                }
+            }
+            ExecutableDefinition::Fragment(node) => Some(node.name.value),
+        }
+    }
 }
 
 impl fmt::Debug for ExecutableDefinition {

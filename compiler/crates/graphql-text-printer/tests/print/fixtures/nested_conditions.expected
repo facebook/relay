@@ -33,7 +33,7 @@ fragment QueryFragment on Query {
     ... @include(if: $sentinel) {
       account_user {
         name
-        ... @include(if: $foo) @skip(if: $bar) {
+        ... @skip(if: $bar) @include(if: $foo) {
           alternate_name
           canViewerComment
         }

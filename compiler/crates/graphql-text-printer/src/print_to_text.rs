@@ -216,7 +216,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_selection(
         &mut self,
         selection: &Selection,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         indent_count: usize,
     ) -> Result {
         match selection {
@@ -242,7 +242,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_scalar_field(
         &mut self,
         field: &ScalarField,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
     ) -> Result {
         let schema_field = self.schema.field(field.definition.item);
         self.print_alias_and_name(&field.alias, schema_field.name)?;
@@ -253,7 +253,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_linked_field(
         &mut self,
         field: &LinkedField,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         indent_count: usize,
     ) -> Result {
         let schema_field = self.schema.field(field.definition.item);
@@ -267,7 +267,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_fragment_spread(
         &mut self,
         field: &FragmentSpread,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
     ) -> Result {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
@@ -283,7 +283,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_inline_fragment(
         &mut self,
         field: &InlineFragment,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         indent_count: usize,
     ) -> Result {
         write!(self.writer, "...")?;
@@ -315,7 +315,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                         writeln!(self.writer)?;
                         self.print_indentation(indent_count)?;
                     }
-                    self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
+                    self.print_selection(
+                        &selection,
+                        Some(accum_conditions.iter().rev().collect()),
+                        indent_count,
+                    )?;
                     maybe_current_condition = None;
                 }
             }
@@ -326,7 +330,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_directives(
         &mut self,
         directives: &[Directive],
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         fragment_argument_definitions: Option<&[VariableDefinition]>,
     ) -> Result {
         for directive in directives {
@@ -349,7 +353,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         Ok(())
     }
 
-    fn print_condition_directives(&mut self, conditions: &[Condition]) -> Result {
+    fn print_condition_directives(&mut self, conditions: Vec<&Condition>) -> Result {
         for condition in conditions {
             write!(
                 self.writer,

@@ -9,6 +9,7 @@ use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
 use common::{Location, NamedItem, Span, WithLocation};
+use core::cmp::Ordering;
 use errors::{try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{List, OperationKind};
@@ -330,7 +331,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             next_selection.set_directives(directives);
 
             // And wrap the original selection with `Selection::Condition`
-            Ok(wrap_selection_with_conditions(&next_selection, &conditions))
+            Ok(wrap_selection_with_conditions(next_selection, conditions))
         })
     }
 
@@ -1370,13 +1371,27 @@ pub enum ValidationLevel {
 }
 
 fn split_conditions_and_directives(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
-    directives.iter().cloned().partition(|directive| {
-        directive.name.item.lookup() == "skip" || directive.name.item.lookup() == "include"
-    })
+    let (mut conditions, directives): (Vec<_>, Vec<_>) =
+        directives.iter().cloned().partition(|directive| {
+            let name = directive.name.item.lookup();
+            name == "skip" || name == "include"
+        });
+    conditions.sort_by(
+        |a, b| match (&a.arguments[0].value.item, &b.arguments[0].value.item) {
+            (Value::Variable(a), Value::Variable(b)) => {
+                a.name.item.lookup().cmp(b.name.item.lookup())
+            }
+            (Value::Constant(_), Value::Variable(_)) => Ordering::Less,
+            (Value::Variable(_), Value::Constant(_)) => Ordering::Greater,
+            (Value::Constant(_), Value::Constant(_)) => Ordering::Equal,
+            _ => unreachable!("Unexpected variable type for the condition directive"),
+        },
+    );
+    (conditions, directives)
 }
 
-fn wrap_selection_with_conditions(selection: &Selection, conditions: &[Directive]) -> Selection {
-    let mut result: Selection = selection.clone();
+fn wrap_selection_with_conditions(selection: Selection, conditions: Vec<Directive>) -> Selection {
+    let mut result: Selection = selection;
     for condition in conditions {
         result = wrap_selection_with_condition(&result, &condition)
     }

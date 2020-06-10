@@ -1,4 +1,4 @@
-// @generated SignedSource<<fb65ec870d33117c511d130d5e4a462b>>
+// @generated SignedSource<<6a961584aabdb91c2a63c2a29ec97084>>
 
 mod compile_relay_artifacts;
 
@@ -314,13 +314,6 @@ fn fragment_with_defer_arguments_without_label() {
 }
 
 #[test]
-fn fragment_with_defer_in_stream() {
-    let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.expected");
-    test_fixture(transform_fixture, "fragment-with-defer-in-stream.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.expected", input, expected);
-}
-
-#[test]
 fn fragment_with_defer_on_abstract_type() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-on-abstract-type.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-on-abstract-type.expected");
@@ -437,6 +430,13 @@ fn module_overlap_within_document_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected");
     test_fixture(transform_fixture, "module-overlap-within-document.invalid.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected", input, expected);
+}
+
+#[test]
+fn multiple_conditions() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple_conditions.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple_conditions.expected");
+    test_fixture(transform_fixture, "multiple_conditions.graphql", "compile_relay_artifacts/fixtures/multiple_conditions.expected", input, expected);
 }
 
 #[test]

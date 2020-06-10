@@ -183,6 +183,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         let mut next_selections = vec![];
         let mut should_generate_node = false;
 
+        let mut concrete_types_with_id = Vec::new();
         for object_id in concrete_ids {
             let object = self.program.schema.object(*object_id);
             let implements_node = if let Some(ref node_interface) = self.node_interface {
@@ -198,12 +199,22 @@ impl<'s> GenerateIDFieldTransform<'s> {
             } else if let Some(id_field_id) =
                 self.get_id_field_id(Type::Object(*object_id), &object.fields)
             {
-                next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
-                    field.definition.location,
-                    Type::Object(*object_id),
-                    id_field_id,
-                )));
+                concrete_types_with_id.push((*object_id, id_field_id))
             }
+        }
+
+        if concrete_types_with_id.len() > 1 {
+            concrete_types_with_id.sort_unstable_by_key(|(concrete_type, _)| {
+                self.program.schema.object(*concrete_type).name
+            })
+        }
+
+        for (object_id, id_field_id) in concrete_types_with_id {
+            next_selections.push(Selection::InlineFragment(self.create_inline_id_fragment(
+                field.definition.location,
+                Type::Object(object_id),
+                id_field_id,
+            )));
         }
 
         if next_selections.is_empty() && !should_generate_node {

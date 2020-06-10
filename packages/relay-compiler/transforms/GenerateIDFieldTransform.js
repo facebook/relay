@@ -120,18 +120,23 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     if (schema.mayImplement(unmodifiedType, nodeInterface)) {
       selections.push(state.idFragmentForType(nodeInterface));
     }
-    schema
-      .getPossibleTypes(schema.assertAbstractType(unmodifiedType))
-      .forEach(possibleType => {
-        if (
+    Array.from(
+      schema
+        .getPossibleTypes(schema.assertAbstractType(unmodifiedType))
+        .values(),
+    )
+      .filter(
+        concreteType =>
           !schema.implementsInterface(
-            schema.assertCompositeType(possibleType),
+            schema.assertCompositeType(concreteType),
             nodeInterface,
-          ) &&
-          schema.hasId(possibleType)
-        ) {
-          selections.push(state.idFragmentForType(possibleType));
-        }
+          ) && schema.hasId(concreteType),
+      )
+      .sort((a, b) =>
+        schema.getTypeString(a) < schema.getTypeString(b) ? -1 : 1,
+      )
+      .forEach(concreteType => {
+        selections.push(state.idFragmentForType(concreteType));
       });
     return {
       ...transformedNode,

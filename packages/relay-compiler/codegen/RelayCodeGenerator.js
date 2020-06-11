@@ -14,9 +14,9 @@
 
 const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
 const ReaderCodeGenerator = require('./ReaderCodeGenerator');
-
 const sortObjectByKey = require('./sortObjectByKey');
-
+const md5 = require('../util/md5');
+const nullthrows = require('nullthrows');
 const {createCompilerError} = require('../core/CompilerError');
 
 import type {Fragment, Request, SplitOperation} from '../core/IR';
@@ -57,13 +57,21 @@ function generate(
         fragment: ReaderCodeGenerator.generate(schema, node.fragment),
         kind: 'Request',
         operation: NormalizationCodeGenerator.generate(schema, node.root),
-        params: {
-          id: node.id,
-          metadata: sortObjectByKey(node.metadata),
-          name: node.name,
-          operationKind: node.root.operation,
-          text: node.text,
-        },
+        params:
+          node.id != null
+            ? {
+                id: node.id,
+                metadata: sortObjectByKey(node.metadata),
+                name: node.name,
+                operationKind: node.root.operation,
+              }
+            : {
+                cacheID: md5(nullthrows(node.text)),
+                metadata: sortObjectByKey(node.metadata),
+                name: node.name,
+                operationKind: node.root.operation,
+                text: node.text,
+              },
       };
     case 'SplitOperation':
       return NormalizationCodeGenerator.generate(schema, node);

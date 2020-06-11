@@ -333,15 +333,15 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<Vec<&Condition>>,
         fragment_argument_definitions: Option<&[VariableDefinition]>,
     ) -> Result {
+        if let Some(conditions) = conditions {
+            self.print_condition_directives(conditions)?;
+        }
         for directive in directives {
             if directive.name.item.lookup() == "argumentDefinitions" {
                 self.print_argument_definitions(fragment_argument_definitions.unwrap())?;
             } else {
                 self.print_directive(directive)?;
             }
-        }
-        if let Some(conditions) = conditions {
-            self.print_condition_directives(conditions)?;
         }
         Ok(())
     }

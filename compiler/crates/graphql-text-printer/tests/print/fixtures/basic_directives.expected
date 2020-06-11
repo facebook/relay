@@ -34,7 +34,7 @@ query MyQuery(
 fragment UserFragment on User {
   id
   name @include(if: $cond)
-  otherName: name @customDirective(level: 3) @skip(if: $cond)
+  otherName: name @skip(if: $cond) @customDirective(level: 3)
   address @skip(if: true) {
     city
   }

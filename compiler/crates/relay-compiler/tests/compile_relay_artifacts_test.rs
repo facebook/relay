@@ -1,4 +1,4 @@
-// @generated SignedSource<<6a961584aabdb91c2a63c2a29ec97084>>
+// @generated SignedSource<<3315d7b03cf69b2d481f310fef8bb8dc>>
 
 mod compile_relay_artifacts;
 
@@ -230,6 +230,13 @@ fn defer_multiple_fragments_same_parent() {
 }
 
 #[test]
+fn directive_with_conditions() {
+    let input = include_str!("compile_relay_artifacts/fixtures/directive_with_conditions.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/directive_with_conditions.expected");
+    test_fixture(transform_fixture, "directive_with_conditions.graphql", "compile_relay_artifacts/fixtures/directive_with_conditions.expected", input, expected);
+}
+
+#[test]
 fn explicit_null_argument() {
     let input = include_str!("compile_relay_artifacts/fixtures/explicit-null-argument.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/explicit-null-argument.expected");
@@ -311,6 +318,13 @@ fn fragment_with_defer_arguments_without_label() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-arguments-without-label.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-arguments-without-label.expected");
     test_fixture(transform_fixture, "fragment-with-defer-arguments-without-label.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-arguments-without-label.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_defer_in_stream() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.expected");
+    test_fixture(transform_fixture, "fragment-with-defer-in-stream.graphql", "compile_relay_artifacts/fixtures/fragment-with-defer-in-stream.expected", input, expected);
 }
 
 #[test]

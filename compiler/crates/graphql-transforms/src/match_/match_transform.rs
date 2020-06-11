@@ -7,12 +7,13 @@
 
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
 use common::{Location, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
     TransformedValue, Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
 };
+use indexmap::IndexSet;
 use interner::{Intern, StringKey};
 use schema::{FieldID, ScalarID, Type, TypeReference};
 use std::hash::{Hash, Hasher};
@@ -496,7 +497,7 @@ impl<'program> MatchTransform<'program> {
 
         // Track fragment spread types that has @module
         // Validate that there are only `__typename`, and `...spread @module` selections
-        let mut seen_types = FnvHashSet::default();
+        let mut seen_types = IndexSet::with_hasher(FnvBuildHasher::default());
         for selection in &field.selections {
             match selection {
                 Selection::FragmentSpread(field) => {
@@ -547,7 +548,7 @@ impl<'program> MatchTransform<'program> {
                 field.definition.location,
                 Value::Constant(ConstantValue::List(
                     seen_types
-                        .drain()
+                        .into_iter()
                         .map(|type_| {
                             ConstantValue::String(self.program.schema.get_type_name(type_))
                         })

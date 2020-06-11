@@ -14,6 +14,7 @@
 
 const IRTransformer = require('../core/IRTransformer');
 
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const murmurHash = require('../util/murmurHash');
 
 const {createUserError} = require('../core/CompilerError');
@@ -245,9 +246,16 @@ function getFragmentSpreadName(fragmentSpread: FragmentSpread): string {
   if (fragmentSpread.args.length === 0) {
     return fragmentSpread.name;
   }
-  const sortedArgs = [...fragmentSpread.args].sort((a, b) => {
-    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-  });
+  const sortedArgs = [...fragmentSpread.args]
+    .sort((a, b) => {
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    })
+    .map(argument => {
+      return {
+        name: argument.name,
+        value: getIdentifierForArgumentValue(argument.value),
+      };
+    });
   const hash = murmurHash(JSON.stringify(sortedArgs));
   return `${fragmentSpread.name}_${hash}`;
 }

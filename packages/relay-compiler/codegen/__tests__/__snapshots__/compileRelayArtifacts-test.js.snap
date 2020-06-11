@@ -7629,7 +7629,7 @@ Request {
           },
           Defer {
             if: null,
-            label: "UserFragment$defer$DeferredFragment_4edD5n",
+            label: "UserFragment$defer$DeferredFragment_QMvSr",
             selections: [
               ScalarField {
                 alias: null,
@@ -7668,7 +7668,7 @@ Request {
           },
           Defer {
             if: null,
-            label: "UserFragment$defer$DeferredFragment_2gdat4",
+            label: "UserFragment$defer$DeferredFragment_42I9Ds",
             selections: [
               ScalarField {
                 alias: null,
@@ -7740,8 +7740,8 @@ fragment DeferredFragment_QMvSr on User {
 fragment UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_4edD5n")
-  ...DeferredFragment_42I9Ds @defer(label: "UserFragment$defer$DeferredFragment_2gdat4")
+  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_QMvSr")
+  ...DeferredFragment_42I9Ds @defer(label: "UserFragment$defer$DeferredFragment_42I9Ds")
 }
 
 

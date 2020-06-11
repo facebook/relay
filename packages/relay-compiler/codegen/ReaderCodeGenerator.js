@@ -72,9 +72,9 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
       metadata = metadata ?? {};
       metadata.mask = mask;
     }
-    if (typeof plural === 'boolean') {
+    if (plural === true) {
       metadata = metadata ?? {};
-      metadata.plural = plural;
+      metadata.plural = true;
     }
     if (refetch != null && typeof refetch === 'object') {
       metadata = metadata ?? {};

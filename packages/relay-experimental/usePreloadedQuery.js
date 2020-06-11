@@ -17,11 +17,11 @@ const invariant = require('invariant');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
+const warning = require('warning');
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {useDebugValue} = require('react');
 const {
-  Observable,
   __internal: {fetchQueryDeduped},
 } = require('relay-runtime');
 
@@ -88,14 +88,28 @@ function usePreloadedQuery<TQuery: OperationType>(
     // Thus, if two calls to loadQuery are made with the same environment and identifier
     // (i.e. the same request is made twice), the second query will be deduped
     // and components will suspend for the duration of the first query.
-    const dedupedSource =
-      source != null
-        ? fetchQueryDeduped(
-            environment,
-            operation.request.identifier,
-            () => source,
-          )
-        : null;
+    const dedupedSource = fetchQueryDeduped(
+      environment,
+      operation.request.identifier,
+      () => {
+        if (source && environment === preloadedQuery.environment) {
+          return source;
+        } else {
+          // if a call to loadQuery is made with a particular environment, and that
+          // preloaded query is passed to usePreloadedQuery in a different environmental
+          // context, we cannot re-use the existing preloaded query. Instead, we must
+          // re-execute the query with the new environment (at render time.)
+          // TODO T68036756 track occurences of this warning and turn it into a hard error
+          warning(
+            false,
+            'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query ' +
+              'that was created with a different environment than the one that is currently ' +
+              'in context. In the future, this will become a hard error.',
+          );
+          return environment.execute({operation});
+        }
+      },
+    );
 
     useLazyLoadQueryNodeParams = {
       componentDisplayName: 'usePreloadedQuery()',

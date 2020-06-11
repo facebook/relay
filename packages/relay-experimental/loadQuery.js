@@ -69,6 +69,10 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   );
 
   const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
+  const networkCacheConfig = {
+    ...options?.networkCacheConfig,
+    force: true,
+  };
 
   let madeNetworkRequest = false;
   const makeNetworkRequest = (params): Observable<GraphQLResponse> => {
@@ -77,10 +81,11 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 
     madeNetworkRequest = true;
     const network = environment.getNetwork();
-    const sourceObservable = network.execute(params, variables, {
-      force: true,
-      ...options?.networkCacheConfig,
-    });
+    const sourceObservable = network.execute(
+      params,
+      variables,
+      networkCacheConfig,
+    );
 
     const subject = new ReplaySubject();
     sourceObservable.subscribe({
@@ -213,6 +218,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     },
     id: moduleId,
     name: params.name,
+    networkCacheConfig,
     fetchPolicy,
     source: madeNetworkRequest ? returnedObservable : undefined,
     variables,

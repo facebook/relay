@@ -86,6 +86,7 @@ export type PreloadedQueryInner<
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
   +name: string,
+  +networkCacheConfig: ?CacheConfig,
   +source: ?Observable<GraphQLResponse>,
   +kind: 'PreloadedQuery',
   +variables: $ElementType<TQuery, 'variables'>,

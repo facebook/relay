@@ -929,5 +929,52 @@ describe('usePreloadedQuery', () => {
         });
       });
     });
+
+    describe('when environments do not match', () => {
+      it('should fetch the data at render time, even if the query has already resolved', () => {
+        let altDataSource;
+        const altFetch = jest.fn((_query, _variables, _cacheConfig) =>
+          Observable.create(sink => {
+            altDataSource = sink;
+          }),
+        );
+        const altEnvironment = new Environment({
+          network: Network.create(altFetch),
+          store: new Store(new RecordSource()),
+        });
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '4',
+        });
+        let data;
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next(response);
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+
+        expect(altFetch).not.toHaveBeenCalled();
+        function Component(props) {
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node.name;
+        }
+        const renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={altEnvironment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(altFetch).toHaveBeenCalledTimes(1);
+        expect(altDataSource).toBeDefined();
+        if (altDataSource) {
+          altDataSource.next(response);
+        }
+
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck');
+      });
+    });
   });
 });

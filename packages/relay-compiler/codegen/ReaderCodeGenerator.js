@@ -162,7 +162,7 @@ function generateArgumentDefinitions(
       switch (node.kind) {
         case 'LocalArgumentDefinition':
           return {
-            defaultValue: node.defaultValue,
+            defaultValue: stableCopy(node.defaultValue),
             kind: 'LocalArgument',
             name: node.name,
           };

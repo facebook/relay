@@ -166,7 +166,7 @@ function generateArgumentDefinitions(
 ): $ReadOnlyArray<NormalizationLocalArgumentDefinition> {
   return nodes.map(node => {
     return {
-      defaultValue: node.defaultValue,
+      defaultValue: stableCopy(node.defaultValue),
       kind: 'LocalArgument',
       name: node.name,
     };

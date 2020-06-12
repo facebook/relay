@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
+use crate::util::CUSTOM_METADATA_DIRECTIVES;
 use graphql_ir::Selection;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
@@ -23,16 +23,12 @@ pub fn skip_client_extensions(program: &Program) -> Program {
 }
 
 struct SkipClientExtensionsTransform<'s> {
-    custom_metadata_directives: CustomMetadataDirectives,
     program: &'s Program,
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
     fn new(program: &'s Program) -> Self {
-        Self {
-            custom_metadata_directives: Default::default(),
-            program,
-        }
+        Self { program }
     }
 }
 
@@ -43,8 +39,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
         //   metadata in the IR
         // - or, directive is a client-defined directive, not present
         //   in the server schema
-        self.custom_metadata_directives
-            .is_custom_metadata_directive(name)
+        CUSTOM_METADATA_DIRECTIVES.is_custom_metadata_directive(name)
             || self.program.schema.is_extension_directive(name)
     }
 }

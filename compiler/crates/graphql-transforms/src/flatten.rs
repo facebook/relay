@@ -5,14 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
+use crate::util::{
+    is_relay_custom_inline_fragment_directive, PointerAddress, CUSTOM_METADATA_DIRECTIVES,
+};
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, Selection,
+    Program, ScalarField, Selection,
 };
 use schema::TypeReference;
 
-use crate::node_identifier::NodeIdentifier;
+use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
+use common::NamedItem;
 use fnv::FnvHashMap;
 use parking_lot::RwLock;
 use rayon::prelude::*;
@@ -227,11 +230,22 @@ impl FlattenTransform {
                                 .field(flattened_node.definition.item)
                                 .type_
                                 .clone();
+                            let should_merge_handles = selection.directives().iter().any(|d| {
+                                CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
+                            });
+                            let next_directives = if should_merge_handles {
+                                merge_handle_directives(
+                                    &flattened_node.directives,
+                                    selection.directives(),
+                                )
+                            } else {
+                                flattened_node.directives.clone()
+                            };
                             *flattened_selection = Selection::LinkedField(Arc::new(LinkedField {
                                 alias: flattened_node.alias,
                                 definition: flattened_node.definition,
                                 arguments: flattened_node.arguments.clone(),
-                                directives: flattened_node.directives.clone(),
+                                directives: next_directives,
                                 selections: self.merge_selections(
                                     &flattened_node.selections,
                                     &node_selections,
@@ -255,7 +269,23 @@ impl FlattenTransform {
                                 ),
                             }));
                         }
-                        Selection::ScalarField(_) => {}
+                        Selection::ScalarField(flattened_node) => {
+                            let should_merge_handles = selection.directives().iter().any(|d| {
+                                CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
+                            });
+                            if should_merge_handles {
+                                *flattened_selection =
+                                    Selection::ScalarField(Arc::new(ScalarField {
+                                        alias: flattened_node.alias,
+                                        definition: flattened_node.definition,
+                                        arguments: flattened_node.arguments.clone(),
+                                        directives: merge_handle_directives(
+                                            &flattened_node.directives,
+                                            selection.directives(),
+                                        ),
+                                    }))
+                            }
+                        }
                         Selection::FragmentSpread(_) => {}
                     };
                 }
@@ -301,4 +331,52 @@ fn should_flatten_inline_fragment(
                 )
         }
     }
+}
+
+fn merge_handle_directives(
+    directives_a: &[Directive],
+    directives_b: &[Directive],
+) -> Vec<Directive> {
+    let (mut handles, mut directives): (Vec<_>, Vec<_>) =
+        directives_a.iter().cloned().partition(|directive| {
+            CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(directive.name.item)
+        });
+    for directive in directives_b {
+        if CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(directive.name.item) {
+            if handles.is_empty() {
+                handles.push(directive.clone());
+            } else {
+                let current_handler_arg = directive.arguments.named(
+                    CUSTOM_METADATA_DIRECTIVES
+                        .handle_field_constants
+                        .handler_arg_name,
+                );
+                let current_name_arg = directive.arguments.named(
+                    CUSTOM_METADATA_DIRECTIVES
+                        .handle_field_constants
+                        .key_arg_name,
+                );
+                let is_duplicate_handle = handles.iter().any(|handle| {
+                    current_handler_arg.location_agnostic_eq(
+                        &handle.arguments.named(
+                            CUSTOM_METADATA_DIRECTIVES
+                                .handle_field_constants
+                                .handler_arg_name,
+                        ),
+                    ) && current_name_arg.location_agnostic_eq(
+                        &handle.arguments.named(
+                            CUSTOM_METADATA_DIRECTIVES
+                                .handle_field_constants
+                                .key_arg_name,
+                        ),
+                    )
+                });
+                if !is_duplicate_handle {
+                    handles.push(directive.clone());
+                }
+            }
+        }
+    }
+    directives.extend(handles.into_iter());
+    directives
 }

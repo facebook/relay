@@ -14,7 +14,7 @@ use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 
 use fnv::FnvHashSet;
-use graphql_ir::{Argument, Directive, Value};
+use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type};
@@ -78,17 +78,8 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 pub struct CustomMetadataDirectives {
-    connection_constants: ConnectionConstants,
-    handle_field_constants: HandleFieldConstants,
-}
-
-impl Default for CustomMetadataDirectives {
-    fn default() -> Self {
-        Self {
-            connection_constants: ConnectionConstants::default(),
-            handle_field_constants: HandleFieldConstants::default(),
-        }
-    }
+    pub connection_constants: ConnectionConstants,
+    pub handle_field_constants: HandleFieldConstants,
 }
 
 impl CustomMetadataDirectives {
@@ -100,7 +91,21 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
-            || name.lookup() == "argumentDefinitions"
+            || name == *ARGUMENT_DEFINITION
+    }
+
+    pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {
+        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
+            || name == self.connection_constants.connection_metadata_directive_name
+            || name == self.handle_field_constants.handle_field_directive_name
+            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
+            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
+            || name == *INTERNAL_METADATA_DIRECTIVE
+            || name == *ARGUMENT_DEFINITION
+    }
+
+    pub fn is_handle_field_directive(&self, name: StringKey) -> bool {
+        name == self.handle_field_constants.handle_field_directive_name
     }
 }
 
@@ -113,6 +118,11 @@ lazy_static! {
     ]
     .into_iter()
     .collect();
+    pub static ref CUSTOM_METADATA_DIRECTIVES: CustomMetadataDirectives =
+        CustomMetadataDirectives {
+            connection_constants: ConnectionConstants::default(),
+            handle_field_constants: HandleFieldConstants::default(),
+        };
 }
 
 pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {

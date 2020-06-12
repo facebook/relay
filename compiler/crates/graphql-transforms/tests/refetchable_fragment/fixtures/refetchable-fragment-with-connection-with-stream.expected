@@ -36,7 +36,7 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
   id
   ... on User {
     name
-    friends(after: $cursor, first: $count) @stream_connection @__clientField(key: "PaginationFragment_friends", handle: "connection") {
+    friends(after: $cursor, first: $count) @__clientField(key: "PaginationFragment_friends", handle: "connection") {
       edges @stream(label: "PaginationFragment_friends", initial_count: 1) {
         node {
           id

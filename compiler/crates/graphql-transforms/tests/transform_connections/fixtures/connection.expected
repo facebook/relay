@@ -29,12 +29,12 @@ query NodeQuery(
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10) @connection @__clientField(key: "NodeQuery_comments", handle: "connection") {
+      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection") {
         edges {
           node {
             actor {
               name
-              friends(first: 10) @connection @__clientField(key: "NodeQuery_friends", handle: "connection") {
+              friends(first: 10) @__clientField(key: "NodeQuery_friends", handle: "connection") {
                 edges {
                   node {
                     name

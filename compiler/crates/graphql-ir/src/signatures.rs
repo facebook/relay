@@ -6,6 +6,7 @@
  */
 
 use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
+use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
 use common::{Location, NamedItem, WithLocation};
@@ -103,7 +104,7 @@ fn build_fragment_signature(
     let argument_definition_directives = fragment
         .directives
         .iter()
-        .filter(|x| x.name.value.lookup() == "argumentDefinitions")
+        .filter(|x| x.name.value == *ARGUMENT_DEFINITION)
         .collect::<Vec<_>>();
     if argument_definition_directives.len() > 1 {
         return Err(ValidationError::new(

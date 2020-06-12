@@ -19,10 +19,6 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ast = parse(fixture.content, file_key).unwrap();
     let schema = get_test_schema_with_extensions(
         r#"
-directive @__clientExtension(
-  label: String!
-  if: Boolean = true
-) on INLINE_FRAGMENT
 directive @serverInlineDirective on INLINE_FRAGMENT"#,
     );
     let ir = build(&schema, &ast.definitions).unwrap();

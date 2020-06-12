@@ -56,7 +56,7 @@ fn test_fields() {
         // When there is an alias, we only compare the alias instead of the original name
         r#"
                 fragment Left on User {
-                    name: username @customDirective(level: 1) 
+                    name: username @customDirective(level: 1)
                 }
                 fragment Right on User {
                     name @customDirective(level: 1)
@@ -207,6 +207,24 @@ fn test_fragment_spreads() {
                 }
             "#
     ));
+
+    assert!(are_selections_equal(
+        // Ignore null arguments
+        r#"
+                fragment Left on User {
+                    ...CommonFragment @arguments(pictureSize: [42], arg: null)
+                }
+                fragment Right on User {
+                    ...CommonFragment @arguments(arg: null, pictureSize: [42])
+                }
+                fragment CommonFragment on User
+                    @argumentDefinitions(pictureSize: {type: "[Int]"}, arg: {type: "Int"}) {
+                    profilePicture(size: $pictureSize) {
+                        uri
+                    }
+                }
+            "#
+    ));
 }
 
 #[test]
@@ -217,7 +235,7 @@ fn test_conditions() {
                     ...CommonFragment @include(if: $conditional1) @skip(if: $conditional3)
                 }
                 fragment Right on User {
-                    ...CommonFragment @include(if: $conditional1) @skip(if: $conditional3) 
+                    ...CommonFragment @include(if: $conditional1) @skip(if: $conditional3)
                 }
                 fragment CommonFragment on User {
                     name
@@ -228,7 +246,7 @@ fn test_conditions() {
     assert!(!are_selections_equal(
         r#"
             fragment Left on User {
-                ...CommonFragment @include(if: $conditional1) 
+                ...CommonFragment @include(if: $conditional1)
             }
             fragment Right on User {
                 ...CommonFragment @include(if: $conditional2)

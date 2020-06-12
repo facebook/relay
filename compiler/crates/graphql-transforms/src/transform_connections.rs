@@ -301,10 +301,6 @@ impl<'s> ConnectionTransform<'s> {
             Some(self.connection_constants.connection_directive_name),
             get_default_filters(connection_field, self.connection_constants),
         );
-        let stripped_connection_directive = Directive {
-            name: connection_directive.name,
-            arguments: Vec::new(),
-        };
         let mut next_directives = connection_field
             .directives
             .iter()
@@ -316,7 +312,6 @@ impl<'s> ConnectionTransform<'s> {
         // Add an internal (untyped) directive to pass down the connection handle
         // metadata attached to this field.
         // TODO(T63388023): Use typed directives/metadata instead
-        next_directives.push(stripped_connection_directive);
         next_directives.push(connection_handle_directive);
         next_directives
     }

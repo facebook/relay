@@ -7,10 +7,11 @@
 
 #![deny(warnings)]
 #![deny(rust_2018_idioms)]
-// #![deny(clippy::all)]
+#![deny(clippy::all)]
 #![deny(clippy::clone_on_ref_ptr)]
 
 mod build;
+mod constants;
 mod errors;
 mod ir;
 mod program;
@@ -23,6 +24,7 @@ pub use crate::errors::{
     Sources, ValidationError, ValidationErrorWithSources, ValidationMessage, ValidationResult,
 };
 pub use build::build_ir as build;
+pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
 pub use transform::{Transformed, TransformedMulti, TransformedValue, Transformer};

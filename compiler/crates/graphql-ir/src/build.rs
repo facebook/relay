@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
@@ -786,7 +787,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         directive: &graphql_syntax::Directive,
         location: DirectiveLocation,
     ) -> ValidationResult<Directive> {
-        if directive.name.value.lookup() == "argumentDefinitions" {
+        if directive.name.value == *ARGUMENT_DEFINITION {
             return Ok(Directive {
                 name: directive.name.name_with_location(self.location.file()),
                 arguments: vec![],

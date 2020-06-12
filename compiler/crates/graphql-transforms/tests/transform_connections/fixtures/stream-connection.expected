@@ -31,7 +31,7 @@ query NodeQuery(
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10) @stream_connection @__clientField(key: "NodeQuery_comments", handle: "connection") {
+      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection") {
         edges @stream(label: "NodeQuery_comments", initial_count: 0) {
           node {
             actor {

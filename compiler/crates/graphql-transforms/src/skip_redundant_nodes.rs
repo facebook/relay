@@ -315,11 +315,7 @@ impl<'s> SkipRedundantNodesTransform {
         }
         let mut result: Vec<Selection> = Vec::new();
         let mut has_changes = false;
-        let partitioned = get_partitioned_selections(selections);
-        let selections = match partitioned {
-            Some(ref partitioned) => partitioned.as_slice(),
-            _ => selections,
-        };
+        let selections = get_partitioned_selections(selections);
 
         for (index, prev_item) in selections.iter().enumerate() {
             let next_item = self.transform_selection(prev_item, selection_map);
@@ -334,7 +330,7 @@ impl<'s> SkipRedundantNodesTransform {
                         debug_assert!(result.capacity() == 0);
                         // assume most items won't be skipped and allocate space for all items
                         result.reserve(selections.len());
-                        result.extend(selections.iter().take(index).cloned());
+                        result.extend(selections.iter().take(index).map(|&x| x.clone()));
                         has_changes = true;
                     }
                 }
@@ -343,7 +339,7 @@ impl<'s> SkipRedundantNodesTransform {
                         debug_assert!(result.capacity() == 0);
                         // assume most items won't be skipped and allocate space for all items
                         result.reserve(selections.len());
-                        result.extend(selections.iter().take(index).cloned());
+                        result.extend(selections.iter().take(index).map(|&x| x.clone()));
                         has_changes = true;
                     }
                     result.push(next_item);
@@ -353,10 +349,7 @@ impl<'s> SkipRedundantNodesTransform {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            match partitioned {
-                Some(partitioned) => TransformedValue::Replace(partitioned),
-                _ => TransformedValue::Keep,
-            }
+            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
         }
     }
 
@@ -420,15 +413,28 @@ impl<'s> SkipRedundantNodesTransform {
  * guaranteed to be fetched are encountered prior to any duplicates that may be
  * fetched within a conditional.
  */
-fn get_partitioned_selections(selections: &[Selection]) -> Option<Vec<Selection>> {
-    let (mut left, right): (Vec<_>, Vec<_>) =
-        selections.iter().cloned().partition(|sel| match sel {
+fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
+    let mut result = Vec::with_capacity(selections.len());
+    unsafe { result.set_len(selections.len()) };
+    let mut non_field_index = selections
+        .iter()
+        .filter(|sel| match sel {
             Selection::LinkedField(_) | Selection::ScalarField(_) => true,
             _ => false,
-        });
-    if left.len() == selections.len() {
-        return None;
+        })
+        .count();
+    let mut field_index = 0;
+    for sel in selections.iter() {
+        match sel {
+            Selection::LinkedField(_) | Selection::ScalarField(_) => {
+                result[field_index] = sel;
+                field_index += 1;
+            }
+            _ => {
+                result[non_field_index] = sel;
+                non_field_index += 1;
+            }
+        }
     }
-    left.extend(right);
-    Some(left)
+    result
 }

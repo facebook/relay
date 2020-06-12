@@ -32,7 +32,7 @@ impl<'program> InferVariablesVisitor<'program> {
         }
     }
 
-    /// Determine the set of root variables set of root variables that are transitively
+    /// Determine the set of root variables that are transitively
     /// referenced by each fragment, ie the union of all root variables used in the
     /// fragment and any fragments it transitively spreads.
     pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {

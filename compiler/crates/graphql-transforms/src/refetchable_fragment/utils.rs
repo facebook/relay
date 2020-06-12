@@ -108,6 +108,17 @@ pub fn build_used_global_variables(variable_map: &VariableMap) -> Vec<VariableDe
         .collect()
 }
 
+pub fn filter_fragment_variable_definitions(
+    variables_map: &VariableMap,
+    variable_definitions: &[VariableDefinition],
+) -> Vec<VariableDefinition> {
+    variable_definitions
+        .iter()
+        .filter(|var| !variables_map.contains_key(&var.name.item))
+        .cloned()
+        .collect()
+}
+
 /// Attach metadata to the operation and fragment.
 pub fn build_fragment_metadata_as_directive(
     fragment: &FragmentDefinition,

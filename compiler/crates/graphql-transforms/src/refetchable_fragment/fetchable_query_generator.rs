@@ -7,7 +7,8 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
+    build_operation_variable_definitions, build_used_global_variables,
+    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
@@ -86,7 +87,10 @@ fn build_refetch_operation(
             }),
             fragment: Arc::new(FragmentDefinition {
                 name: fragment.name,
-                variable_definitions: fragment.variable_definitions.clone(),
+                variable_definitions: filter_fragment_variable_definitions(
+                    variables_map,
+                    &fragment.variable_definitions,
+                ),
                 used_global_variables: build_used_global_variables(variables_map),
                 type_condition: fragment.type_condition,
                 directives: build_fragment_metadata_as_directive(

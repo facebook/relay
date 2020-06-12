@@ -7,7 +7,8 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
+    build_operation_variable_definitions, build_used_global_variables,
+    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
@@ -134,6 +135,10 @@ fn build_refetch_operation(
                         },
                     ),
                     used_global_variables: build_used_global_variables(variables_map),
+                    variable_definitions: filter_fragment_variable_definitions(
+                        variables_map,
+                        &fragment.variable_definitions,
+                    ),
                     selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
                     ..fragment.as_ref().clone()
                 }),

@@ -442,11 +442,23 @@ class RelayResponseNormalizer {
           return;
         }
       }
+      if (selection.kind === SCALAR_FIELD && __DEV__) {
+        this._validateConflictingFieldsWithIdenticalId(
+          record,
+          storageKey,
+          fieldValue,
+        );
+      }
       RelayModernRecord.setValue(record, storageKey, null);
       return;
     }
 
     if (selection.kind === SCALAR_FIELD) {
+      this._validateConflictingFieldsWithIdenticalId(
+        record,
+        storageKey,
+        fieldValue,
+      );
       RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.kind === LINKED_FIELD) {
       this._path.push(responseKey);
@@ -496,6 +508,14 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
       storageKey,
     );
+    if (__DEV__) {
+      this._validateConflictingLinkedFieldsWithIdenticalId(
+        record,
+        RelayModernRecord.getLinkedRecordID(record, storageKey),
+        nextID,
+        storageKey,
+      );
+    }
     RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
@@ -577,6 +597,14 @@ class RelayResponseNormalizer {
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
+      if (prevIDs && __DEV__) {
+        this._validateConflictingLinkedFieldsWithIdenticalId(
+          record,
+          prevIDs[nextIndex],
+          nextID,
+          storageKey,
+        );
+      }
       /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
        * suppresses an error found when Flow v0.98 was deployed. To see the
        * error delete this comment and run Flow. */
@@ -608,6 +636,56 @@ class RelayResponseNormalizer {
       RelayModernRecord.getType(record),
       typeName,
     );
+  }
+
+  /**
+   * Warns if a single response contains conflicting fields with the same id
+   */
+  _validateConflictingFieldsWithIdenticalId(
+    record: Record,
+    storageKey: string,
+    fieldValue: mixed,
+  ): void {
+    if (__DEV__) {
+      const dataID = RelayModernRecord.getDataID(record);
+      var previousValue = RelayModernRecord.getValue(record, storageKey);
+      warning(
+        storageKey === TYPENAME_KEY ||
+          previousValue === undefined ||
+          previousValue === fieldValue,
+        'RelayResponseNormalizer: Invalid record. The record contains two ' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s.' +
+          'If two fields are different but share' +
+          'the same id, one field will overwrite the other.',
+        dataID,
+        storageKey,
+        previousValue,
+        fieldValue,
+      );
+    }
+  }
+
+  /**
+   * Warns if a single response contains conflicting fields with the same id
+   */
+  _validateConflictingLinkedFieldsWithIdenticalId(
+    record: Record,
+    prevID: ?DataID,
+    nextID: DataID,
+    storageKey: string,
+  ): void {
+    if (__DEV__) {
+      warning(
+        prevID === undefined || prevID === nextID,
+        'RelayResponseNormalizer: Invalid record. The record contains ' +
+          'references to the conflicting field, %s and its id values: %s and %s. ' +
+          'We need to make sure that the record the field points ' +
+          'to remains consistent or one field will overwrite the other.',
+        storageKey,
+        prevID,
+        nextID,
+      );
+    }
   }
 }
 

@@ -15,6 +15,7 @@ const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
 const defaultGetDataID = require('../defaultGetDataID');
+const warning = require('warning');
 
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {normalize} = require('../RelayResponseNormalizer');
@@ -37,6 +38,8 @@ describe('RelayResponseNormalizer', () => {
   });
 
   it('normalizes queries', () => {
+    jest.mock('warning');
+
     const {FooQuery} = generateWithTransforms(
       `
       query FooQuery($id: ID, $size: [Int]) {
@@ -2483,6 +2486,361 @@ describe('RelayResponseNormalizer', () => {
       'name',
       'name',
     ]);
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting fields with the same id', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Claire',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains two ' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s.' +
+          'If two fields are different but share' +
+          'the same id, one field will overwrite the other.',
+      ),
+      'a',
+      'firstName',
+      'Bob',
+      'Claire',
+    );
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting fields with multiple same ids', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 4) {
+              edges {
+                node {
+                  id
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+            {
+              node: {
+                id: 'b',
+                firstName: 'Claire',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Carlos',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Shirley',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains two ' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s.' +
+          'If two fields are different but share' +
+          'the same id, one field will overwrite the other.',
+      ),
+      'a',
+      'firstName',
+      'Bob',
+      'Carlos',
+    );
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting linked fields', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                  comments(first:1) {
+                    edges {
+                      node {
+                        id
+                        body {
+                          text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '2',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '3',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains ' +
+          'references to the conflicting field, %s and its id values: %s and %s. ' +
+          'We need to make sure that the record the field points ' +
+          'to remains consistent or one field will overwrite the other.',
+      ),
+      'node',
+      '2',
+      '3',
+    );
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting linked fields with null values', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                  comments(first:1) {
+                    edges {
+                      node {
+                        id
+                        body {
+                          text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '2',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            null,
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '3',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains ' +
+          'references to the conflicting field, %s and its id values: %s and %s. ' +
+          'We need to make sure that the record the field points ' +
+          'to remains consistent or one field will overwrite the other.',
+      ),
+      'node',
+      '2',
+      '3',
+    );
   });
 
   it('warns in __DEV__ if payload contains inconsistent types for a record', () => {

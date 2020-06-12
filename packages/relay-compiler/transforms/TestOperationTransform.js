@@ -47,12 +47,12 @@ function getTypeDetails(schema: Schema, fieldType: TypeID): TypeDetails {
   const type = schema.getRawType(nullableType);
 
   return {
-    type: schema.getTypeString(type),
     enumValues: schema.isEnum(type)
       ? schema.getEnumValues(schema.assertEnumType(type))
       : null,
-    plural: isPlural,
     nullable: isNullable,
+    plural: isPlural,
+    type: schema.getTypeString(type),
   };
 }
 
@@ -114,6 +114,16 @@ function visitRoot(node: Root) {
       }
     });
   }
+
+  // Sort selectionsTypeInfo
+  const keys = Object.keys(selectionsTypeInfo).sort((a, b) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  );
+  const sortedSelectionsTypeInfo = {};
+  keys.forEach(key => {
+    sortedSelectionsTypeInfo[key] = selectionsTypeInfo[key];
+  });
+
   return {
     ...node,
     directives: node.directives.filter(
@@ -121,7 +131,7 @@ function visitRoot(node: Root) {
     ),
     metadata: {
       ...(node.metadata || {}),
-      relayTestingSelectionTypeInfo: selectionsTypeInfo,
+      relayTestingSelectionTypeInfo: sortedSelectionsTypeInfo,
     },
   };
 }

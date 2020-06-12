@@ -384,7 +384,7 @@ impl LocationAgnosticHash for ConditionValue {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
         match self {
             ConditionValue::Constant(constant) => constant.hash(state),
-            ConditionValue::Variable(variable) => variable.location_agnostic_hash(state),
+            ConditionValue::Variable(variable) => variable.name.item.hash(state),
         }
     }
 }
@@ -394,7 +394,7 @@ impl LocationAgnosticPartialEq for ConditionValue {
         match (self, other) {
             (ConditionValue::Constant(left), ConditionValue::Constant(right)) => left == right,
             (ConditionValue::Variable(left), ConditionValue::Variable(right)) => {
-                left.location_agnostic_eq(right)
+                left.name.item.eq(&right.name.item)
             }
             (ConditionValue::Constant(_), _) => false,
             (ConditionValue::Variable(_), _) => false,

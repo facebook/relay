@@ -7,7 +7,6 @@
 
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
-use crate::relay_test_operation::build_test_operation_metadata;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -35,12 +34,7 @@ pub fn build_request_params_ast_key(
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
-    let test_operation_metadata = operation_builder.build_test_operation_metadata(&operation);
-    operation_builder.build_request_parameters(
-        operation,
-        request_parameters,
-        test_operation_metadata,
-    )
+    operation_builder.build_request_parameters(operation, request_parameters)
 }
 
 pub fn build_request(
@@ -1168,57 +1162,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         Primitive::Key(self.array(vec![selection]))
     }
 
-    fn build_test_operation_metadata(
-        &mut self,
-        operation: &OperationDefinition,
-    ) -> Option<ObjectEntry> {
-        build_test_operation_metadata(self.schema, operation).map(|metadata| {
-            let mut selection_type_info_values =
-                Vec::with_capacity(metadata.selection_type_info.len());
-            for (key, value) in metadata.selection_type_info.iter() {
-                let enum_value = value.enum_values.clone().map(|enum_values| {
-                    self.array(
-                        enum_values
-                            .iter()
-                            .map(|enum_value| Primitive::String(enum_value.value))
-                            .collect(),
-                    )
-                });
-
-                selection_type_info_values.push((
-                    *key,
-                    Primitive::Key(self.object(vec![
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_type,
-                            Primitive::String(value.type_),
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_enum_values,
-                            match enum_value {
-                                Some(values) => Primitive::Key(values),
-                                None => Primitive::Null,
-                            },
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_plural,
-                            Primitive::Bool(value.plural),
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_nullable,
-                            Primitive::Bool(value.nullable),
-                        ),
-                    ])),
-                ));
-            }
-            let selection_type_info = Primitive::Key(self.object(selection_type_info_values));
-
-            (
-                CODEGEN_CONSTANTS.relay_test_operation_selection_type_info,
-                selection_type_info,
-            )
-        })
-    }
-
     /// This method will wrap inline fragment with @__inline directive
     // (created by `inline_fragment_data` transform)
     /// with the node `InlineDataFragmentSpread`
@@ -1243,8 +1186,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         &mut self,
         operation: &OperationDefinition,
         mut request_parameters: RequestParameters,
-        // We need to move test metadata generation back to transforms
-        deprecated_test_operation_metadata: Option<ObjectEntry>,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
@@ -1270,11 +1211,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             })
             .collect();
-
-        // add test_operation metadata
-        if let Some(deprecated_test_operation_metadata) = deprecated_test_operation_metadata {
-            metadata_items.push(deprecated_test_operation_metadata);
-        }
 
         // add connection metadata
         let connection_metadata = extract_connection_metadata_from_directive(

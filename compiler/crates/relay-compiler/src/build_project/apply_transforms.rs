@@ -11,12 +11,12 @@ use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, dedupe_type_discriminator, flatten,
     generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
-    generate_subscription_name_metadata, generate_typename, handle_field_transform,
-    inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
-    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
-    skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
-    transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
-    validate_module_conflicts, ConnectionInterface,
+    generate_subscription_name_metadata, generate_test_operation_metadata, generate_typename,
+    handle_field_transform, inline_data_fragment, inline_fragments, mask, relay_early_flush,
+    remove_base_fragments, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
+    skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
+    transform_defer_stream, transform_match, transform_refetchable_fragment,
+    unwrap_custom_directive_selection, validate_module_conflicts, ConnectionInterface,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -254,6 +254,9 @@ fn apply_normalization_transforms(
         validate_module_conflicts(&program)
     })?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("generate_test_operation_metadata", || {
+        generate_test_operation_metadata(&program)
+    });
     let program = log_event.time("dedupe_type_discriminator", || {
         dedupe_type_discriminator(&program)
     });

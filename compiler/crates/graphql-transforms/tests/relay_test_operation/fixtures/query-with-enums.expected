@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query QueryWitEnums @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      environment
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query QueryWitEnums @__metadata(relayTestingSelectionTypeInfo: {node: {enumValues: null, nullable: true, plural: false, type: "Node"}, node.id: {enumValues: null, nullable: false, plural: false, type: "ID"}, node.name: {enumValues: null, nullable: true, plural: false, type: "String"}, node.environment: {enumValues: ["WEB", "MOBILE"], nullable: true, plural: false, type: "Environment"}}) {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      environment
+    }
+  }
+}

@@ -8,6 +8,7 @@
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use indexmap::IndexMap;
 use interner::StringKey;
+use rayon::{iter::ParallelIterator, prelude::*};
 use schema::Schema;
 use std::sync::Arc;
 
@@ -80,8 +81,16 @@ impl Program {
         self.operations.iter()
     }
 
+    pub fn par_operations(&self) -> impl ParallelIterator<Item = &Arc<OperationDefinition>> {
+        self.operations.par_iter()
+    }
+
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
+    }
+
+    pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
+        self.fragments.par_values()
     }
 
     pub fn document_count(&self) -> usize {

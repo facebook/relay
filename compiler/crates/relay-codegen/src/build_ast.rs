@@ -24,6 +24,7 @@ use graphql_transforms::{
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
+use md5::{Digest, Md5};
 use schema::Schema;
 
 pub fn build_request_params_ast_key(
@@ -1228,42 +1229,55 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
 
         // sort metadata keys
-        metadata_items.sort_unstable_by(|l, r| l.0.cmp(&r.0));
+        metadata_items.sort_unstable_by_key(|(key, _value)| *key);
 
-        // Construct  metadata object
-        let metadata = Primitive::Key(self.object(metadata_items));
+        // Construct metadata object
+        let metadata_prop = (
+            CODEGEN_CONSTANTS.metadata,
+            Primitive::Key(self.object(metadata_items)),
+        );
+        let name_prop = (
+            CODEGEN_CONSTANTS.name,
+            Primitive::String(request_parameters.name),
+        );
+        let operation_kind_prop = (
+            CODEGEN_CONSTANTS.operation_kind,
+            Primitive::String(match request_parameters.operation_kind {
+                OperationKind::Query => CODEGEN_CONSTANTS.query,
+                OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
+                OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
+            }),
+        );
 
-        let object = vec![
-            (
-                CODEGEN_CONSTANTS.id,
-                match request_parameters.id {
-                    None => Primitive::Null,
-                    Some(str) => Primitive::RawString(str),
-                },
-            ),
-            (CODEGEN_CONSTANTS.metadata, metadata),
-            (
-                CODEGEN_CONSTANTS.name,
-                Primitive::String(request_parameters.name),
-            ),
-            (
-                CODEGEN_CONSTANTS.operation_kind,
-                Primitive::String(match request_parameters.operation_kind {
-                    OperationKind::Query => CODEGEN_CONSTANTS.query,
-                    OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
-                    OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
-                }),
-            ),
-            (
-                CODEGEN_CONSTANTS.text,
-                match request_parameters.text {
-                    None => Primitive::Null,
-                    Some(text) => Primitive::RawString(text),
-                },
-            ),
-        ];
+        let id_prop = (
+            CODEGEN_CONSTANTS.id,
+            if let Some(id) = request_parameters.id {
+                Primitive::RawString(id)
+            } else {
+                Primitive::Null
+            },
+        );
 
-        self.object(object)
+        let params_object = if let Some(text) = request_parameters.text {
+            vec![
+                (CODEGEN_CONSTANTS.cache_id, Primitive::RawString(md5(&text))),
+                id_prop,
+                metadata_prop,
+                name_prop,
+                operation_kind_prop,
+                (CODEGEN_CONSTANTS.text, Primitive::RawString(text)),
+            ]
+        } else {
+            vec![
+                id_prop,
+                metadata_prop,
+                name_prop,
+                operation_kind_prop,
+                (CODEGEN_CONSTANTS.text, Primitive::Null),
+            ]
+        };
+
+        self.object(params_object)
     }
 }
 
@@ -1297,4 +1311,11 @@ fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
         }
     };
     (CODEGEN_CONSTANTS.alias, alias)
+}
+
+/// Computes the md5 hash of a string.
+pub fn md5(data: &str) -> String {
+    let mut md5 = Md5::new();
+    md5.input(data);
+    hex::encode(md5.result())
 }

@@ -42,8 +42,25 @@ fn build_refetch_operation(
         let (fetch_field_id, id_arg) =
             get_fetch_field_id_and_id_arg(fragment, schema, query_type, fetch_field_name)?;
 
-        let mut variable_definitions =
-            build_operation_variable_definitions(variables_map, &fragment.variable_definitions);
+        let fragment = Arc::new(FragmentDefinition {
+            name: fragment.name,
+            variable_definitions: filter_fragment_variable_definitions(
+                variables_map,
+                &fragment.variable_definitions,
+            ),
+            used_global_variables: build_used_global_variables(variables_map),
+            type_condition: fragment.type_condition,
+            directives: build_fragment_metadata_as_directive(
+                fragment,
+                RefetchableMetadata {
+                    operation_name: query_name,
+                    path: vec![fetch_field_name],
+                    identifier_field: Some(identifier_field_name),
+                },
+            ),
+            selections: enforce_selections_with_id_field(fragment, identifier_field_id),
+        });
+        let mut variable_definitions = build_operation_variable_definitions(&fragment);
         if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
             return Err(vec![ValidationError::new(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
@@ -82,27 +99,10 @@ fn build_refetch_operation(
                         ),
                     }],
                     directives: vec![],
-                    selections: vec![build_fragment_spread(fragment)],
+                    selections: vec![build_fragment_spread(&fragment)],
                 }))],
             }),
-            fragment: Arc::new(FragmentDefinition {
-                name: fragment.name,
-                variable_definitions: filter_fragment_variable_definitions(
-                    variables_map,
-                    &fragment.variable_definitions,
-                ),
-                used_global_variables: build_used_global_variables(variables_map),
-                type_condition: fragment.type_condition,
-                directives: build_fragment_metadata_as_directive(
-                    fragment,
-                    RefetchableMetadata {
-                        operation_name: query_name,
-                        path: vec![fetch_field_name],
-                        identifier_field: Some(identifier_field_name),
-                    },
-                ),
-                selections: enforce_selections_with_id_field(fragment, identifier_field_id),
-            }),
+            fragment,
         }))
     } else {
         Ok(None)

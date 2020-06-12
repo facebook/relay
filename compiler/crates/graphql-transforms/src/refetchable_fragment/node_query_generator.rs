@@ -70,9 +70,31 @@ fn build_refetch_operation(
             let query_type = schema.query_type().unwrap();
             let (node_field_id, id_arg) =
                 get_node_field_id_and_id_arg(schema, query_type, fragment)?;
+            let node_interface = schema.interface(node_interface_id);
+            let id_field_id = *node_interface
+                .fields
+                .iter()
+                .find(|&&id| schema.field(id).name == CONSTANTS.id_name)
+                .expect("Expected `Node` to contain a field named `id`.");
 
-            let mut variable_definitions =
-                build_operation_variable_definitions(variables_map, &fragment.variable_definitions);
+            let fragment = Arc::new(FragmentDefinition {
+                directives: build_fragment_metadata_as_directive(
+                    fragment,
+                    RefetchableMetadata {
+                        operation_name: query_name,
+                        path: vec![CONSTANTS.node_field_name],
+                        identifier_field: Some(CONSTANTS.id_name),
+                    },
+                ),
+                used_global_variables: build_used_global_variables(variables_map),
+                variable_definitions: filter_fragment_variable_definitions(
+                    variables_map,
+                    &fragment.variable_definitions,
+                ),
+                selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
+                ..fragment.as_ref().clone()
+            });
+            let mut variable_definitions = build_operation_variable_definitions(&fragment);
             if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
                 return Err(vec![ValidationError::new(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
@@ -88,14 +110,6 @@ fn build_refetch_operation(
                 default_value: None,
                 directives: vec![],
             });
-
-            let node_interface = schema.interface(node_interface_id);
-            let id_field_id = *node_interface
-                .fields
-                .iter()
-                .find(|&&id| schema.field(id).name == CONSTANTS.id_name)
-                .expect("Expected `Node` to contain a field named `id`.");
-
             Ok(Some(RefetchRoot {
                 operation: Arc::new(OperationDefinition {
                     kind: OperationKind::Query,
@@ -122,26 +136,10 @@ fn build_refetch_operation(
                             ),
                         }],
                         directives: vec![],
-                        selections: vec![build_fragment_spread(fragment)],
+                        selections: vec![build_fragment_spread(&fragment)],
                     }))],
                 }),
-                fragment: Arc::new(FragmentDefinition {
-                    directives: build_fragment_metadata_as_directive(
-                        fragment,
-                        RefetchableMetadata {
-                            operation_name: query_name,
-                            path: vec![CONSTANTS.node_field_name],
-                            identifier_field: Some(CONSTANTS.id_name),
-                        },
-                    ),
-                    used_global_variables: build_used_global_variables(variables_map),
-                    variable_definitions: filter_fragment_variable_definitions(
-                        variables_map,
-                        &fragment.variable_definitions,
-                    ),
-                    selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
-                    ..fragment.as_ref().clone()
-                }),
+                fragment,
             }))
         }
     }

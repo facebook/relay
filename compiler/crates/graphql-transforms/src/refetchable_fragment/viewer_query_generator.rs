@@ -34,15 +34,28 @@ fn build_refetch_operation(
     let query_type = schema.query_type().unwrap();
     let viewer_field_id = get_viewer_field_id(schema, query_type, fragment)?;
 
+    let fragment = Arc::new(FragmentDefinition {
+        directives: build_fragment_metadata_as_directive(
+            fragment,
+            RefetchableMetadata {
+                operation_name: query_name,
+                path: vec![CONSTANTS.viewer_field_name],
+                identifier_field: None,
+            },
+        ),
+        used_global_variables: build_used_global_variables(variables_map),
+        variable_definitions: filter_fragment_variable_definitions(
+            variables_map,
+            &fragment.variable_definitions,
+        ),
+        ..fragment.as_ref().clone()
+    });
     Ok(Some(RefetchRoot {
         operation: Arc::new(OperationDefinition {
             kind: OperationKind::Query,
             name: WithLocation::new(fragment.name.location, query_name),
             type_: query_type,
-            variable_definitions: build_operation_variable_definitions(
-                variables_map,
-                &fragment.variable_definitions,
-            ),
+            variable_definitions: build_operation_variable_definitions(&fragment),
             directives: vec![RefetchableDerivedFromMetadata::create_directive(
                 fragment.name,
             )],
@@ -51,25 +64,10 @@ fn build_refetch_operation(
                 definition: WithLocation::new(fragment.name.location, viewer_field_id),
                 arguments: vec![],
                 directives: vec![],
-                selections: vec![build_fragment_spread(fragment)],
+                selections: vec![build_fragment_spread(&fragment)],
             }))],
         }),
-        fragment: Arc::new(FragmentDefinition {
-            directives: build_fragment_metadata_as_directive(
-                fragment,
-                RefetchableMetadata {
-                    operation_name: query_name,
-                    path: vec![CONSTANTS.viewer_field_name],
-                    identifier_field: None,
-                },
-            ),
-            used_global_variables: build_used_global_variables(variables_map),
-            variable_definitions: filter_fragment_variable_definitions(
-                variables_map,
-                &fragment.variable_definitions,
-            ),
-            ..fragment.as_ref().clone()
-        }),
+        fragment,
     }))
 }
 

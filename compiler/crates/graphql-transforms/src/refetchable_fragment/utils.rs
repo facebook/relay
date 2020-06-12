@@ -75,23 +75,14 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
 }
 
 pub fn build_operation_variable_definitions(
-    variable_map: &VariableMap,
-    local_variables: &[VariableDefinition],
+    fragment: &FragmentDefinition,
 ) -> Vec<VariableDefinition> {
-    let mut result: Vec<_> = variable_map
-        .values()
-        .map(|var| VariableDefinition {
-            name: var.name,
-            type_: var.type_.clone(),
-            default_value: None,
-            directives: vec![],
-        })
+    let mut result: Vec<_> = fragment
+        .used_global_variables
+        .iter()
+        .chain(fragment.variable_definitions.iter())
+        .cloned()
         .collect();
-    for var in local_variables {
-        if !variable_map.contains_key(&var.name.item) {
-            result.push(var.clone());
-        }
-    }
     result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
     result
 }

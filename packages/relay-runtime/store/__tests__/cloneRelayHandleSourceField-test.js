@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @flow strict-local
  * @format
  */
 
@@ -36,7 +37,7 @@ describe('cloneRelayHandleSourceField()', () => {
   it('returns a clone of the source, with the same name as the handle', () => {
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     const sourceField = selections.find(node => node.kind === LINKED_FIELD);
-    const clone = cloneRelayHandleSourceField(handleField, selections);
+    const clone = cloneRelayHandleSourceField(handleField, selections, {});
 
     expect(clone.kind).toBe(LINKED_FIELD);
     expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
@@ -48,7 +49,7 @@ describe('cloneRelayHandleSourceField()', () => {
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
     expect(() =>
-      cloneRelayHandleSourceField(handleField, selections),
+      cloneRelayHandleSourceField(handleField, selections, {}),
     ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',

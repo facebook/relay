@@ -21,6 +21,7 @@ const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
@@ -342,7 +343,7 @@ class DataChecker {
           }
           break;
         }
-        case LINKED_HANDLE:
+        case LINKED_HANDLE: {
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
           const handleField = cloneRelayHandleSourceField(
@@ -356,6 +357,17 @@ class DataChecker {
             this._checkLink(handleField, dataID);
           }
           break;
+        }
+        case SCALAR_HANDLE: {
+          const handleField = cloneRelayScalarHandleSourceField(
+            selection,
+            selections,
+            this._variables,
+          );
+
+          this._checkScalar(handleField, dataID);
+          break;
+        }
         case MODULE_IMPORT:
           this._checkModuleImport(selection, dataID);
           break;
@@ -363,7 +375,6 @@ class DataChecker {
         case STREAM:
           this._traverseSelections(selection.selections, dataID);
           break;
-        case SCALAR_HANDLE:
         case FRAGMENT_SPREAD:
           invariant(
             false,

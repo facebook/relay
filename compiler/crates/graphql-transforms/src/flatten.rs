@@ -14,9 +14,12 @@ use schema::TypeReference;
 
 use crate::node_identifier::NodeIdentifier;
 use fnv::FnvHashMap;
+use parking_lot::RwLock;
+use rayon::prelude::*;
+use schema::Schema;
 use std::sync::Arc;
 
-type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
+type SeenLinkedFields = Arc<RwLock<FnvHashMap<PointerAddress, Arc<LinkedField>>>>;
 
 ///
 /// Transform that flattens inline fragments, fragment spreads, merges linked fields selections.
@@ -29,34 +32,42 @@ type SeenLinkedFields = FnvHashMap<PointerAddress, Arc<LinkedField>>;
 /// directives (@defer, @__clientExtensions).
 ///
 pub fn flatten(program: &Program, is_for_codegen: bool) -> Program {
-    let mut next_program = Program::new(Arc::clone(&program.schema));
-    let mut transform = FlattenTransform::new(program, is_for_codegen);
+    let next_program = Arc::new(RwLock::new(Program::new(Arc::clone(&program.schema))));
+    let transform = FlattenTransform::new(program, is_for_codegen);
 
-    for operation in program.operations() {
-        next_program.insert_operation(Arc::new(transform.transform_operation(operation)));
-    }
-    for fragment in program.fragments() {
-        next_program.insert_fragment(Arc::new(transform.transform_fragment(fragment)));
-    }
-    next_program
+    program.par_operations().for_each(|operation| {
+        let operation = Arc::new(transform.transform_operation(operation));
+        {
+            let mut next_program = next_program.write();
+            next_program.insert_operation(operation);
+        }
+    });
+    program.par_fragments().for_each(|fragment| {
+        let fragment = Arc::new(transform.transform_fragment(fragment));
+        {
+            let mut next_program = next_program.write();
+            next_program.insert_fragment(fragment);
+        }
+    });
+    Arc::try_unwrap(next_program).unwrap().into_inner()
 }
 
-struct FlattenTransform<'s> {
-    program: &'s Program,
+struct FlattenTransform {
+    schema: Arc<Schema>,
     is_for_codegen: bool,
     seen_linked_fields: SeenLinkedFields,
 }
 
-impl<'s> FlattenTransform<'s> {
-    fn new(program: &'s Program, is_for_codegen: bool) -> Self {
+impl FlattenTransform {
+    fn new(program: &'_ Program, is_for_codegen: bool) -> Self {
         Self {
-            program,
+            schema: Arc::clone(&program.schema),
             is_for_codegen,
             seen_linked_fields: Default::default(),
         }
     }
 
-    fn transform_operation(&mut self, operation: &OperationDefinition) -> OperationDefinition {
+    fn transform_operation(&self, operation: &OperationDefinition) -> OperationDefinition {
         OperationDefinition {
             kind: operation.kind,
             name: operation.name,
@@ -70,7 +81,7 @@ impl<'s> FlattenTransform<'s> {
         }
     }
 
-    fn transform_fragment(&mut self, fragment: &FragmentDefinition) -> FragmentDefinition {
+    fn transform_fragment(&self, fragment: &FragmentDefinition) -> FragmentDefinition {
         FragmentDefinition {
             name: fragment.name,
             type_condition: fragment.type_condition,
@@ -85,7 +96,7 @@ impl<'s> FlattenTransform<'s> {
     }
 
     fn tranform_selections(
-        &mut self,
+        &self,
         selections: &[Selection],
         parent_type: &TypeReference,
     ) -> Vec<Selection> {
@@ -99,34 +110,36 @@ impl<'s> FlattenTransform<'s> {
         flattened_selections
     }
 
-    fn transform_linked_field(&mut self, linked_field: &Arc<LinkedField>) -> Arc<LinkedField> {
+    fn transform_linked_field(&self, linked_field: &Arc<LinkedField>) -> Arc<LinkedField> {
         let key = PointerAddress::new(Arc::as_ref(linked_field));
-        if let Some(prev) = self.seen_linked_fields.get(&key) {
-            return Arc::clone(prev);
+        {
+            let seen_linked_fields = self.seen_linked_fields.read();
+            if let Some(prev) = seen_linked_fields.get(&key) {
+                return Arc::clone(prev);
+            }
         }
+        let type_ = &self
+            .schema
+            .field(linked_field.definition.item)
+            .type_
+            .clone();
         let result = Arc::new(LinkedField {
             alias: linked_field.alias,
             definition: linked_field.definition,
             arguments: linked_field.arguments.clone(),
             directives: linked_field.directives.clone(),
-            selections: self.tranform_selections(
-                &linked_field.selections,
-                &self
-                    .program
-                    .schema
-                    .field(linked_field.definition.item)
-                    .type_,
-            ),
+            selections: self.tranform_selections(&linked_field.selections, &type_),
         });
-        self.seen_linked_fields.insert(key, Arc::clone(&result));
+        let mut seen_linked_fields = self.seen_linked_fields.write();
+        // If another thread computed this in the meantime, use that result
+        if let Some(prev) = seen_linked_fields.get(&key) {
+            return Arc::clone(prev);
+        }
+        seen_linked_fields.insert(key, Arc::clone(&result));
         result
     }
 
-    fn transform_selection(
-        &mut self,
-        selection: &Selection,
-        parent_type: &TypeReference,
-    ) -> Selection {
+    fn transform_selection(&self, selection: &Selection, parent_type: &TypeReference) -> Selection {
         match selection {
             Selection::InlineFragment(node) => {
                 let next_parent_type: TypeReference = match node.type_condition {
@@ -153,7 +166,7 @@ impl<'s> FlattenTransform<'s> {
     }
 
     fn flatten_selections(
-        &mut self,
+        &self,
         flattened_selections: &mut Vec<Selection>,
         selections: &[Selection],
         parent_type: &TypeReference,
@@ -173,7 +186,7 @@ impl<'s> FlattenTransform<'s> {
 
             let flattened_selection = flattened_selections
                 .iter_mut()
-                .find(|sel| NodeIdentifier::are_equal(&self.program.schema, sel, selection));
+                .find(|sel| NodeIdentifier::are_equal(&self.schema, sel, selection));
 
             match flattened_selection {
                 None => {
@@ -209,6 +222,11 @@ impl<'s> FlattenTransform<'s> {
                                 Selection::LinkedField(node) => &node.selections,
                                 _ => unreachable!("FlattenTransform: Expected a LinkedField."),
                             };
+                            let type_ = &self
+                                .schema
+                                .field(flattened_node.definition.item)
+                                .type_
+                                .clone();
                             *flattened_selection = Selection::LinkedField(Arc::new(LinkedField {
                                 alias: flattened_node.alias,
                                 definition: flattened_node.definition,
@@ -217,11 +235,7 @@ impl<'s> FlattenTransform<'s> {
                                 selections: self.merge_selections(
                                     &flattened_node.selections,
                                     &node_selections,
-                                    &self
-                                        .program
-                                        .schema
-                                        .field(flattened_node.definition.item)
-                                        .type_,
+                                    &type_,
                                 ),
                             }));
                         }
@@ -250,7 +264,7 @@ impl<'s> FlattenTransform<'s> {
     }
 
     fn merge_selections(
-        &mut self,
+        &self,
         selections_a: &[Selection],
         selections_b: &[Selection],
         parent_type: &TypeReference,

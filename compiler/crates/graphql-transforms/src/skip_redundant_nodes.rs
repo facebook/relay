@@ -15,7 +15,6 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue,
 };
 use im::HashMap;
-use parking_lot::RwLock;
 use rayon::prelude::*;
 use schema::Schema;
 use std::iter::Iterator;
@@ -316,7 +315,11 @@ impl<'s> SkipRedundantNodesTransform {
         }
         let mut result: Vec<Selection> = Vec::new();
         let mut has_changes = false;
-        let selections = get_partitioned_selections(selections);
+        let partitioned = get_partitioned_selections(selections);
+        let selections = match partitioned {
+            Some(ref partitioned) => partitioned.as_slice(),
+            _ => selections,
+        };
 
         for (index, prev_item) in selections.iter().enumerate() {
             let next_item = self.transform_selection(prev_item, selection_map);
@@ -331,7 +334,7 @@ impl<'s> SkipRedundantNodesTransform {
                         debug_assert!(result.capacity() == 0);
                         // assume most items won't be skipped and allocate space for all items
                         result.reserve(selections.len());
-                        result.extend(selections.iter().take(index).map(|&x| x.clone()));
+                        result.extend(selections.iter().take(index).cloned());
                         has_changes = true;
                     }
                 }
@@ -340,7 +343,7 @@ impl<'s> SkipRedundantNodesTransform {
                         debug_assert!(result.capacity() == 0);
                         // assume most items won't be skipped and allocate space for all items
                         result.reserve(selections.len());
-                        result.extend(selections.iter().take(index).map(|&x| x.clone()));
+                        result.extend(selections.iter().take(index).cloned());
                         has_changes = true;
                     }
                     result.push(next_item);
@@ -350,9 +353,10 @@ impl<'s> SkipRedundantNodesTransform {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            // TODO: This should return `Transformed::Keep`
-            // For JS parity, clone the selections as the JS transform does
-            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
+            match partitioned {
+                Some(partitioned) => TransformedValue::Replace(partitioned),
+                _ => TransformedValue::Keep,
+            }
         }
     }
 
@@ -384,35 +388,30 @@ impl<'s> SkipRedundantNodesTransform {
     }
 
     fn transform_program(&self, program: &Program) -> TransformedValue<Program> {
-        let next_program = Arc::new(RwLock::new(Program::new(Arc::clone(&program.schema))));
-        program
+        let operations: Vec<Arc<OperationDefinition>> = program
             .par_operations()
-            .for_each(|operation| match self.transform_operation(operation) {
-                Transformed::Delete => {}
-                Transformed::Keep => {
-                    let mut next_program = next_program.write();
-                    next_program.insert_operation(Arc::clone(operation))
-                }
-                Transformed::Replace(replacement) => {
-                    let mut next_program = next_program.write();
-                    next_program.insert_operation(Arc::new(replacement))
-                }
-            });
-        program
+            .filter_map(|operation| match self.transform_operation(operation) {
+                Transformed::Delete => None,
+                Transformed::Keep => Some(Arc::clone(operation)),
+                Transformed::Replace(replacement) => Some(Arc::new(replacement)),
+            })
+            .collect();
+        let fragments: Vec<Arc<FragmentDefinition>> = program
             .par_fragments()
-            .for_each(|fragment| match self.transform_fragment(fragment) {
-                Transformed::Delete => {}
-                Transformed::Keep => {
-                    let mut next_program = next_program.write();
-                    next_program.insert_fragment(Arc::clone(fragment))
-                }
-                Transformed::Replace(replacement) => {
-                    let mut next_program = next_program.write();
-                    next_program.insert_fragment(Arc::new(replacement))
-                }
-            });
-        let next_program = Arc::try_unwrap(next_program).unwrap();
-        TransformedValue::Replace(next_program.into_inner())
+            .filter_map(|fragment| match self.transform_fragment(fragment) {
+                Transformed::Delete => None,
+                Transformed::Keep => Some(Arc::clone(fragment)),
+                Transformed::Replace(replacement) => Some(Arc::new(replacement)),
+            })
+            .collect();
+        let mut next_program = Program::new(Arc::clone(&program.schema));
+        for operation in operations {
+            next_program.insert_operation(operation);
+        }
+        for fragment in fragments {
+            next_program.insert_fragment(fragment);
+        }
+        TransformedValue::Replace(next_program)
     }
 }
 
@@ -421,28 +420,15 @@ impl<'s> SkipRedundantNodesTransform {
  * guaranteed to be fetched are encountered prior to any duplicates that may be
  * fetched within a conditional.
  */
-fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
-    let mut result = Vec::with_capacity(selections.len());
-    unsafe { result.set_len(selections.len()) };
-    let mut non_field_index = selections
-        .iter()
-        .filter(|sel| match sel {
+fn get_partitioned_selections(selections: &[Selection]) -> Option<Vec<Selection>> {
+    let (mut left, right): (Vec<_>, Vec<_>) =
+        selections.iter().cloned().partition(|sel| match sel {
             Selection::LinkedField(_) | Selection::ScalarField(_) => true,
             _ => false,
-        })
-        .count();
-    let mut field_index = 0;
-    for sel in selections.iter() {
-        match sel {
-            Selection::LinkedField(_) | Selection::ScalarField(_) => {
-                result[field_index] = sel;
-                field_index += 1;
-            }
-            _ => {
-                result[non_field_index] = sel;
-                non_field_index += 1;
-            }
-        }
+        });
+    if left.len() == selections.len() {
+        return None;
     }
-    result
+    left.extend(right);
+    Some(left)
 }

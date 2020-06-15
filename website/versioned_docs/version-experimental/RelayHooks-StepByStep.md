@@ -150,7 +150,7 @@ First we'll add the necessary packages. Note that Relay is comprised of three ke
 ```bash
 # NPM Users
 npm install --save relay-runtime react-relay@experimental
-npm install --save-dev relay-compiler graphql
+npm install --save-dev relay-compiler graphql babel-plugin-relay
 
 # Yarn Users
 yarn add relay-runtime react-relay@experimental
@@ -167,6 +167,7 @@ Next let's configure Relay compiler. We'll need a copy of the schema as a `.grap
 cd your-app-name
 curl https://raw.githubusercontent.com/relayjs/relay-examples/master/issue-tracker/schema/schema.graphql > schema.graphql
 ```
+*Note:* On Windows, the `.graphql` file has to be explicitly saved with UTF-8 encoding, not the default UTF-16. See this [issue](https://github.com/prisma-labs/get-graphql-schema/issues/30) for more details. 
 
 If you're using your own API we suggest using the [`get-graphql-schema`](https://www.npmjs.com/package/get-graphql-schema) utility to download your schema into a `.graphql` file.
 

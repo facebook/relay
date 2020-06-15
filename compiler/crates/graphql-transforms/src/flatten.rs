@@ -12,7 +12,7 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, ScalarField, Selection,
 };
-use schema::TypeReference;
+use schema::Type;
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
 use common::NamedItem;
@@ -23,6 +23,7 @@ use schema::Schema;
 use std::sync::Arc;
 
 type SeenLinkedFields = Arc<RwLock<FnvHashMap<PointerAddress, Arc<LinkedField>>>>;
+type SeenInlineFragments = Arc<RwLock<FnvHashMap<(PointerAddress, Type), Arc<InlineFragment>>>>;
 
 ///
 /// Transform that flattens inline fragments, fragment spreads, merges linked fields selections.
@@ -59,6 +60,7 @@ struct FlattenTransform {
     schema: Arc<Schema>,
     is_for_codegen: bool,
     seen_linked_fields: SeenLinkedFields,
+    seen_inline_fragments: SeenInlineFragments,
 }
 
 impl FlattenTransform {
@@ -67,6 +69,7 @@ impl FlattenTransform {
             schema: Arc::clone(&program.schema),
             is_for_codegen,
             seen_linked_fields: Default::default(),
+            seen_inline_fragments: Default::default(),
         }
     }
 
@@ -77,10 +80,7 @@ impl FlattenTransform {
             type_: operation.type_,
             directives: operation.directives.clone(),
             variable_definitions: operation.variable_definitions.clone(),
-            selections: self.tranform_selections(
-                &operation.selections,
-                &TypeReference::Named(operation.type_),
-            ),
+            selections: self.tranform_selections(&operation.selections, operation.type_),
         }
     }
 
@@ -91,18 +91,11 @@ impl FlattenTransform {
             directives: fragment.directives.clone(),
             variable_definitions: fragment.variable_definitions.clone(),
             used_global_variables: fragment.used_global_variables.clone(),
-            selections: self.tranform_selections(
-                &fragment.selections,
-                &TypeReference::Named(fragment.type_condition),
-            ),
+            selections: self.tranform_selections(&fragment.selections, fragment.type_condition),
         }
     }
 
-    fn tranform_selections(
-        &self,
-        selections: &[Selection],
-        parent_type: &TypeReference,
-    ) -> Vec<Selection> {
+    fn tranform_selections(&self, selections: &[Selection], parent_type: Type) -> Vec<Selection> {
         let next_selections = selections
             .iter()
             .map(|s| self.transform_selection(s, parent_type))
@@ -114,46 +107,74 @@ impl FlattenTransform {
     }
 
     fn transform_linked_field(&self, linked_field: &Arc<LinkedField>) -> Arc<LinkedField> {
+        let should_cache = Arc::strong_count(linked_field) > 1;
         let key = PointerAddress::new(Arc::as_ref(linked_field));
-        {
+        if should_cache {
             let seen_linked_fields = self.seen_linked_fields.read();
             if let Some(prev) = seen_linked_fields.get(&key) {
                 return Arc::clone(prev);
             }
         }
-        let type_ = &self
+        let type_ = self
             .schema
             .field(linked_field.definition.item)
             .type_
-            .clone();
+            .inner();
         let result = Arc::new(LinkedField {
             alias: linked_field.alias,
             definition: linked_field.definition,
             arguments: linked_field.arguments.clone(),
             directives: linked_field.directives.clone(),
-            selections: self.tranform_selections(&linked_field.selections, &type_),
+            selections: self.tranform_selections(&linked_field.selections, type_),
         });
-        let mut seen_linked_fields = self.seen_linked_fields.write();
-        // If another thread computed this in the meantime, use that result
-        if let Some(prev) = seen_linked_fields.get(&key) {
-            return Arc::clone(prev);
+        if should_cache {
+            let mut seen_linked_fields = self.seen_linked_fields.write();
+            // If another thread computed this in the meantime, use that result
+            if let Some(prev) = seen_linked_fields.get(&key) {
+                return Arc::clone(prev);
+            }
+            seen_linked_fields.insert(key, Arc::clone(&result));
         }
-        seen_linked_fields.insert(key, Arc::clone(&result));
         result
     }
 
-    fn transform_selection(&self, selection: &Selection, parent_type: &TypeReference) -> Selection {
+    fn transform_inline_fragment(
+        &self,
+        fragment: &Arc<InlineFragment>,
+        parent_type: Type,
+    ) -> Arc<InlineFragment> {
+        let should_cache = Arc::strong_count(fragment) > 1;
+        let key = (PointerAddress::new(Arc::as_ref(fragment)), parent_type);
+        if should_cache {
+            let seen_inline_fragments = self.seen_inline_fragments.read();
+            if let Some(prev) = seen_inline_fragments.get(&key) {
+                return Arc::clone(prev);
+            }
+        }
+        let next_parent_type = match fragment.type_condition {
+            Some(type_condition) => type_condition,
+            None => parent_type,
+        };
+        let result = Arc::new(InlineFragment {
+            type_condition: fragment.type_condition,
+            directives: fragment.directives.clone(),
+            selections: self.tranform_selections(&fragment.selections, next_parent_type),
+        });
+        if should_cache {
+            let mut seen_inline_fragments = self.seen_inline_fragments.write();
+            // If another thread computed this in the meantime, use that result
+            if let Some(prev) = seen_inline_fragments.get(&key) {
+                return Arc::clone(prev);
+            }
+            seen_inline_fragments.insert(key, Arc::clone(&result));
+        }
+        result
+    }
+
+    fn transform_selection(&self, selection: &Selection, parent_type: Type) -> Selection {
         match selection {
             Selection::InlineFragment(node) => {
-                let next_parent_type: TypeReference = match node.type_condition {
-                    Some(type_condition) => TypeReference::Named(type_condition),
-                    None => parent_type.clone(),
-                };
-                Selection::InlineFragment(Arc::new(InlineFragment {
-                    type_condition: node.type_condition,
-                    directives: node.directives.clone(),
-                    selections: self.tranform_selections(&node.selections, &next_parent_type),
-                }))
+                Selection::InlineFragment(self.transform_inline_fragment(node, parent_type))
             }
             Selection::LinkedField(node) => {
                 Selection::LinkedField(self.transform_linked_field(node))
@@ -172,7 +193,7 @@ impl FlattenTransform {
         &self,
         flattened_selections: &mut Vec<Selection>,
         selections: &[Selection],
-        parent_type: &TypeReference,
+        parent_type: Type,
     ) {
         for selection in selections {
             if let Selection::InlineFragment(inline_fragment) = selection {
@@ -198,10 +219,9 @@ impl FlattenTransform {
                 Some(flattened_selection) => {
                     match flattened_selection {
                         Selection::InlineFragment(flattened_node) => {
-                            let type_condition: TypeReference = match flattened_node.type_condition
-                            {
-                                Some(type_condition) => TypeReference::Named(type_condition),
-                                None => parent_type.clone(),
+                            let type_condition = match flattened_node.type_condition {
+                                Some(type_condition) => type_condition,
+                                None => parent_type,
                             };
 
                             let node_selections = match selection {
@@ -216,7 +236,7 @@ impl FlattenTransform {
                                     selections: self.merge_selections(
                                         &flattened_node.selections,
                                         &node_selections,
-                                        &type_condition,
+                                        type_condition,
                                     ),
                                 }));
                         }
@@ -225,11 +245,11 @@ impl FlattenTransform {
                                 Selection::LinkedField(node) => &node.selections,
                                 _ => unreachable!("FlattenTransform: Expected a LinkedField."),
                             };
-                            let type_ = &self
+                            let type_ = self
                                 .schema
                                 .field(flattened_node.definition.item)
                                 .type_
-                                .clone();
+                                .inner();
                             let should_merge_handles = selection.directives().iter().any(|d| {
                                 CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
                             });
@@ -249,7 +269,7 @@ impl FlattenTransform {
                                 selections: self.merge_selections(
                                     &flattened_node.selections,
                                     &node_selections,
-                                    &type_,
+                                    type_,
                                 ),
                             }));
                         }
@@ -297,7 +317,7 @@ impl FlattenTransform {
         &self,
         selections_a: &[Selection],
         selections_b: &[Selection],
-        parent_type: &TypeReference,
+        parent_type: Type,
     ) -> Vec<Selection> {
         let mut flattened_selections = Vec::with_capacity(selections_a.len());
         self.flatten_selections(&mut flattened_selections, selections_a, parent_type);
@@ -318,13 +338,13 @@ fn should_flatten_inline_with_directives(directives: &[Directive], is_for_codege
 
 fn should_flatten_inline_fragment(
     inline_fragment: &InlineFragment,
-    parent_type: &TypeReference,
+    parent_type: Type,
     is_for_codegen: bool,
 ) -> bool {
     match inline_fragment.type_condition {
         None => should_flatten_inline_with_directives(&inline_fragment.directives, is_for_codegen),
         Some(type_condition) => {
-            type_condition == parent_type.inner()
+            type_condition == parent_type
                 && should_flatten_inline_with_directives(
                     &inline_fragment.directives,
                     is_for_codegen,

@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 fragment NameRendererFragment on User {
   id
-  nameRenderer {
+  nameRenderer @match {
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
@@ -29,9 +29,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment NameRendererFragment on User {
+fragment NameRendererFragment on User @__dataDrivenDependencyMetadata(NameRendererFragment.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") {
   id
-  nameRenderer {
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     ... on PlainUserNameRenderer @__module(key: "NameRendererFragment", id: "NameRendererFragment.nameRenderer", module: "PlainUserNameRenderer.react", sourceDocument: "NameRendererFragment", name: "PlainUserNameRenderer_name") {
       ...PlainUserNameRenderer_name
       __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")

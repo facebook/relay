@@ -8,7 +8,9 @@
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_transforms::{is_preloadable_operation, INLINE_DATA_CONSTANTS};
+use graphql_transforms::{
+    is_preloadable_operation, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
+};
 use relay_codegen::{build_request_params, Printer};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
@@ -234,6 +236,24 @@ fn generate_fragment(
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
+    let relay_3d_metadata = reader_fragment
+        .directives
+        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    if let Some(relay_3d_metadata) = relay_3d_metadata {
+        for arg in &relay_3d_metadata.arguments {
+            let value = match arg.value.item {
+                graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
+                _ => panic!("Unexpected value for Relay 3d argument"),
+            };
+            writeln!(
+                content,
+                "// @dataDrivenDependency {} {}\n",
+                arg.name.item, value
+            )
+            .unwrap();
+        }
+    }
+
     let reader_node_flow_type = if reader_fragment
         .directives
         .named(INLINE_DATA_CONSTANTS.directive_name)

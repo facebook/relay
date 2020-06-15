@@ -40,7 +40,7 @@ lazy_static! {
         module_component_key_prefix: "__module_component_",
         module_operation_key_prefix: "__module_operation_",
         custom_module_directive_name: "__module".intern(),
-        source_document_arg: "sourceDocuement".intern(),
+        source_document_arg: "sourceDocument".intern(),
         parent_sources_arg: "parentSources".intern(),
         derived_from_arg: "derivedFrom".intern(),
     };

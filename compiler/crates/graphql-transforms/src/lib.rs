@@ -18,6 +18,7 @@ mod connections;
 mod dedupe_type_discriminator;
 mod defer_stream;
 mod flatten;
+mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
 mod generate_preloadable_metadata;
@@ -67,6 +68,9 @@ pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
 pub use flatten::flatten;
+pub use generate_data_driven_dependency_metadata::{
+    generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+};
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
 pub use generate_preloadable_metadata::{generate_preloadable_metadata, is_preloadable_operation};

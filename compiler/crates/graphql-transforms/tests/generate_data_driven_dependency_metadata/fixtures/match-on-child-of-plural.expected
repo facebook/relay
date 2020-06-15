@@ -24,7 +24,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
-fragment ActorsRendererFragment on Node {
+fragment ActorsRendererFragment on Node @__dataDrivenDependencyMetadata(ActorsRendererFragment.actors.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") {
   id
   actors {
     nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {

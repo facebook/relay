@@ -145,16 +145,8 @@ impl<'s> SkipRedundantNodesTransform {
         // If it's the same node, and selection_map is empty
         // result of transform_selection has to be the same.
         let is_empty = selection_map.0.is_empty();
-        if is_empty {
-            let key = PointerAddress::new(selection);
-            if let Some(cached) = self.cache.get(&key) {
-                let (cached_result, cached_selection_map) = cached.clone();
-                *selection_map = cached_selection_map;
-                return cached_result;
-            }
-        }
         let identifier = NodeIdentifier::from_selection(&self.schema, selection);
-        let result = match selection {
+        match selection {
             Selection::ScalarField(_) => {
                 if selection_map.0.contains_key(&identifier) {
                     Transformed::Delete
@@ -172,7 +164,18 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::LinkedField(selection) => {
-                if let Some(Some(linked_selection_map)) = selection_map.0.get_mut(&identifier) {
+                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                if should_cache {
+                    let key = PointerAddress::new(selection);
+                    if let Some(cached) = self.cache.get(&key) {
+                        let (cached_result, cached_selection_map) = cached.clone();
+                        *selection_map = cached_selection_map;
+                        return cached_result;
+                    }
+                }
+                let result = if let Some(Some(linked_selection_map)) =
+                    selection_map.0.get_mut(&identifier)
+                {
                     self.transform_linked_field(selection, linked_selection_map)
                         .map(Selection::LinkedField)
                 } else {
@@ -186,7 +189,13 @@ impl<'s> SkipRedundantNodesTransform {
                             .insert(identifier, Some(linked_selection_map));
                     }
                     result
+                };
+                if should_cache {
+                    let key = PointerAddress::new(selection);
+                    self.cache
+                        .insert(key, (result.clone(), selection_map.clone()));
                 }
+                result
             }
             Selection::Condition(selection) => {
                 if let Some(Some(existing_selection_map)) = selection_map.0.get_mut(&identifier) {
@@ -204,7 +213,18 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::InlineFragment(selection) => {
-                if let Some(Some(existing_selection_map)) = selection_map.0.get_mut(&identifier) {
+                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                if should_cache {
+                    let key = PointerAddress::new(selection);
+                    if let Some(cached) = self.cache.get(&key) {
+                        let (cached_result, cached_selection_map) = cached.clone();
+                        *selection_map = cached_selection_map;
+                        return cached_result;
+                    }
+                }
+                let result = if let Some(Some(existing_selection_map)) =
+                    selection_map.0.get_mut(&identifier)
+                {
                     self.transform_inline_fragment(selection, existing_selection_map)
                         .map(Selection::InlineFragment)
                 } else if selection
@@ -230,15 +250,15 @@ impl<'s> SkipRedundantNodesTransform {
                         .map(Selection::InlineFragment);
                     selection_map.0.insert(identifier, Some(next_selection_map));
                     result
+                };
+                if should_cache {
+                    let key = PointerAddress::new(selection);
+                    self.cache
+                        .insert(key, (result.clone(), selection_map.clone()));
                 }
+                result
             }
-        };
-        if is_empty {
-            let key = PointerAddress::new(selection);
-            self.cache
-                .insert(key, (result.clone(), selection_map.clone()));
         }
-        result
     }
 
     fn transform_linked_field(

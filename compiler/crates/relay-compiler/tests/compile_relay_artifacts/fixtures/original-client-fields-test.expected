@@ -275,7 +275,6 @@ query BestFriendsQuery(
   node(id: $id) {
     __typename
     ...BestFriends
-    ...OnlyClientFields
     id
   }
 }
@@ -288,8 +287,6 @@ fragment NodeFragment on Node {
   __isNode: __typename
   id
 }
-
-fragment OnlyClientFields on User
 
 
 {

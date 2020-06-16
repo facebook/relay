@@ -209,6 +209,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             writeln!(self.writer)?;
             self.print_indentation(indent_count)?;
             write!(self.writer, "}}")?;
+        } else {
+            panic!("Cannot print empty selections. Please, check transforms that may produce invalid selections.");
         }
         Ok(())
     }

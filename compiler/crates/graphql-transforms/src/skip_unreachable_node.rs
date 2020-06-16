@@ -16,7 +16,13 @@ use std::sync::Arc;
 pub fn skip_unreachable_node(program: &Program) -> Program {
     let fragments = program
         .fragments()
-        .map(|fragment| (fragment.name.item, (Arc::clone(fragment), None)))
+        .filter_map(|fragment| {
+            if fragment.selections.is_empty() {
+                None
+            } else {
+                Some((fragment.name.item, (Arc::clone(fragment), None)))
+            }
+        })
         .collect();
 
     let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(fragments);
@@ -139,12 +145,12 @@ impl SkipUnreachableNodeTransform {
 
     fn should_delete_fragment_definition(&mut self, key: StringKey) -> bool {
         let fragment = {
-            let (fragment, visited_opt) = self.visited_fragments.get(&key).unwrap_or_else(|| {
-                panic!(
-                    "Attempted to look up FragmentDefinition {}, but it did not exist.",
-                    key
-                )
-            });
+            let (fragment, visited_opt) = if let Some(entry) = self.visited_fragments.get(&key) {
+                entry
+            } else {
+                return true;
+            };
+
             if let Some(visited) = visited_opt {
                 return matches!(visited, Transformed::Delete);
             }

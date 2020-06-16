@@ -9,12 +9,10 @@ use crate::node_identifier::NodeIdentifier;
 use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
 
 use dashmap::DashMap;
-use fnv::FnvBuildHasher;
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
     Selection, Transformed, TransformedValue,
 };
-use im::HashMap;
 use rayon::prelude::*;
 use schema::Schema;
 use std::iter::Iterator;
@@ -119,7 +117,7 @@ pub fn skip_redundant_nodes(program: &Program) -> Program {
 }
 
 #[derive(Default, Clone)]
-struct SelectionMap(HashMap<NodeIdentifier, Option<SelectionMap>, FnvBuildHasher>);
+struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
@@ -457,4 +455,67 @@ fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
         }
     }
     result
+}
+
+/// NOTE: intentionally local to this file, this is not a fully-general purpose
+/// immutable map. see comments on methods below.
+struct VecMap<K, V> {
+    data: Arc<Vec<(K, V)>>,
+}
+
+impl<K, V> VecMap<K, V> {
+    fn new() -> Self {
+        Self {
+            data: Arc::new(Vec::new()),
+        }
+    }
+}
+
+impl<K, V> VecMap<K, V>
+where
+    K: Eq + Clone,
+    V: Clone,
+{
+    fn contains_key(&self, key: &K) -> bool {
+        self.data.iter().any(|(k, _v)| k == key)
+    }
+
+    #[allow(dead_code)]
+    fn get(&self, key: &K) -> Option<&V> {
+        self.data.iter().find(|(k, _v)| k == key).map(|(_k, v)| v)
+    }
+
+    fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+        let data = Arc::make_mut(&mut self.data);
+        data.iter_mut().find(|(k, _v)| k == key).map(|(_k, v)| v)
+    }
+
+    fn insert(&mut self, key: K, value: V) {
+        // NOTE: this is intentionally *not* a general-purpose insert, which should
+        // update the value for the existig key if present. skip_redundant_nodes
+        // always checks for the key first, so any call to insert() is guaranteed to
+        // be for a non-present key. thanks to that we can bypass the existence check
+        // to make insert faster.
+        debug_assert!(!self.contains_key(&key));
+        let data = Arc::make_mut(&mut self.data);
+        data.push((key, value));
+    }
+
+    fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+}
+
+impl<K, V> Clone for VecMap<K, V> {
+    fn clone(&self) -> Self {
+        Self {
+            data: Arc::clone(&self.data),
+        }
+    }
+}
+
+impl<K, V> Default for VecMap<K, V> {
+    fn default() -> Self {
+        Self::new()
+    }
 }

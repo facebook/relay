@@ -23,17 +23,18 @@ fn test_sign_file() {
 }
 
 #[test]
-#[should_panic]
 fn test_sign_file_preexisting_token() {
-    sign_file(
-        "# \x40generated SignedSource<<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee>>\nalready signed test",
+    assert_eq!(
+        try_sign_file(
+            "# \x40generated SignedSource<<eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee>>\nalready signed test",
+        ),
+        None
     );
 }
 
 #[test]
-#[should_panic]
 fn test_sign_file_without_token() {
-    sign_file("# \x40generated no-token\nnot signed");
+    assert_eq!(try_sign_file("# \x40generated no-token\nnot signed"), None);
 }
 
 #[test]

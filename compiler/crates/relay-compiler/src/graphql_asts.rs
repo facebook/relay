@@ -5,20 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{CompilerState, GraphQLSources, SourceSetName};
+use crate::compiler_state::{GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
 use common::FileKey;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::Sources;
 use graphql_syntax::ExecutableDefinition;
 use interner::StringKey;
-
-/// Parses all source files for all projects into ASTs and builds up a Sources map that can
-/// be used to print errors with source code listing.
-/// Additionally collects the set of definition names that changed,given the compiler state
-pub fn parse_sources<'state>(compiler_state: &'state CompilerState) -> Result<GraphQLAsts<'state>> {
-    GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
-}
 
 #[derive(Debug)]
 pub struct GraphQLAsts<'state> {
@@ -28,7 +21,10 @@ pub struct GraphQLAsts<'state> {
 }
 
 impl<'state> GraphQLAsts<'state> {
-    fn from_graphql_sources(graphql_sources: &'state GraphQLSources) -> Result<Self> {
+    /// Parses all source files for all projects into ASTs and builds up a Sources map that can
+    /// be used to print errors with source code listing.
+    /// Additionally collects the set of definition names that changed,given the compiler state
+    pub fn from_graphql_sources(graphql_sources: &'state GraphQLSources) -> Result<Self> {
         let mut grouped_asts = FnvHashMap::default();
         let mut graphql_source_strings: Sources<'state> = FnvHashMap::default();
         let mut grouped_changed_definition_names = FnvHashMap::default();

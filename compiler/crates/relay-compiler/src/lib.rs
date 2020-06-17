@@ -15,7 +15,7 @@ pub mod compiler;
 pub mod compiler_state;
 pub mod config;
 pub mod errors;
-mod parse_sources;
+mod graphql_asts;
 mod watchman;
 
 pub use build_project::{
@@ -23,5 +23,5 @@ pub use build_project::{
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
     validate, Artifact, ArtifactContent, Programs,
 };
-pub use parse_sources::parse_sources;
+pub use graphql_asts::GraphQLAsts;
 pub use watchman::{FileSource, FileSourceResult, FileSourceSubscription};

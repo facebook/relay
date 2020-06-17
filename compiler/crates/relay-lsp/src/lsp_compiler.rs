@@ -13,7 +13,7 @@ use relay_compiler::compiler_state::{CompilerState, ProjectName};
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::FileSourceSubscription;
-use relay_compiler::{build_schema, check_project, parse_sources, Programs};
+use relay_compiler::{build_schema, check_project, GraphQLAsts, Programs};
 use schema::Schema;
 
 use common::{PerfLogEvent, PerfLogger};
@@ -203,8 +203,9 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
     }
 
     async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> Result<()> {
-        let graphql_asts =
-            setup_event.time("parse_sources_time", || parse_sources(&self.compiler_state))?;
+        let graphql_asts = setup_event.time("parse_sources_time", || {
+            GraphQLAsts::from_graphql_sources(&self.compiler_state.graphql_sources)
+        })?;
         let mut check_project_errors = vec![];
         let mut project_programs = HashMap::new();
         match self.config.only_project {

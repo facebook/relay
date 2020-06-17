@@ -6,7 +6,7 @@
  */
 
 use crate::config::ProjectConfig;
-use crate::parse_sources::GraphQLAsts;
+use crate::graphql_asts::GraphQLAsts;
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::ValidationError;

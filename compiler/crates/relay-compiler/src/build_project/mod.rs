@@ -21,7 +21,7 @@ mod write_artifacts;
 use crate::compiler_state::CompilerState;
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use crate::parse_sources::GraphQLAsts;
+use crate::graphql_asts::GraphQLAsts;
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;
 use build_ir::{BuildIRResult, SourceHashes};

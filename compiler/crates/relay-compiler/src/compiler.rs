@@ -9,7 +9,7 @@ use crate::build_project::{build_project, build_schema, check_project};
 use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
-use crate::parse_sources::parse_sources;
+use crate::graphql_asts::GraphQLAsts;
 use crate::{artifact_map::ArtifactMap, watchman::FileSource};
 use common::{PerfLogEvent, PerfLogger};
 use log::{error, info};
@@ -178,8 +178,9 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         schemas: &HashMap<ProjectName, Arc<Schema>>,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        let graphql_asts =
-            setup_event.time("parse_sources_time", || parse_sources(&compiler_state))?;
+        let graphql_asts = setup_event.time("parse_sources_time", || {
+            GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
+        })?;
 
         let mut build_project_errors = vec![];
 
@@ -239,8 +240,9 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        let graphql_asts =
-            setup_event.time("parse_sources_time", || parse_sources(&compiler_state))?;
+        let graphql_asts = setup_event.time("parse_sources_time", || {
+            GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
+        })?;
 
         let mut build_project_errors = vec![];
         let next_artifacts: ArtifactMap = Default::default();

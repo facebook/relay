@@ -14,12 +14,13 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    Argument, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, ScalarField,
+    Selection, ValidationError, ValidationMessage, ValidationResult, Value, Variable,
+    VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Argument as ArgumentDef, FieldID, Schema, Type};
+use schema::{Argument as ArgumentDef, FieldID, InterfaceID, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
@@ -67,6 +68,11 @@ fn build_refetch_operation(
                 return Ok(None);
             }
 
+            // Check if the fragment type have an `id` field
+            let should_generate_inline_fragment_on_node = schema
+                .named_field(fragment.type_condition, CONSTANTS.id_name)
+                .is_none();
+
             let query_type = schema.query_type().unwrap();
             let (node_field_id, id_arg) =
                 get_node_field_id_and_id_arg(schema, query_type, fragment)?;
@@ -91,7 +97,16 @@ fn build_refetch_operation(
                     variables_map,
                     &fragment.variable_definitions,
                 ),
-                selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
+                selections: enforce_selections_with_id_field(
+                    fragment,
+                    schema,
+                    id_field_id,
+                    if should_generate_inline_fragment_on_node {
+                        Some(node_interface_id)
+                    } else {
+                        None
+                    },
+                ),
                 ..fragment.as_ref().clone()
             });
             let mut variable_definitions = build_operation_variable_definitions(&fragment);
@@ -172,6 +187,7 @@ fn enforce_selections_with_id_field(
     fragment: &FragmentDefinition,
     schema: &Schema,
     id_field_id: FieldID,
+    node_interface_id: Option<InterfaceID>,
 ) -> Vec<Selection> {
     let mut next_selections = fragment.selections.clone();
     let has_id_field = next_selections.iter().any(|sel| {
@@ -185,12 +201,27 @@ fn enforce_selections_with_id_field(
     if has_id_field {
         next_selections
     } else {
-        next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
-            alias: None,
-            definition: WithLocation::new(fragment.name.location, id_field_id),
-            arguments: vec![],
-            directives: vec![],
-        })));
+        let id_selection: Selection = if let Some(node_interface_id) = node_interface_id {
+            Selection::InlineFragment(Arc::new(InlineFragment {
+                type_condition: Some(Type::Interface(node_interface_id)),
+                directives: vec![],
+                selections: vec![Selection::ScalarField(Arc::new(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(fragment.name.location, id_field_id),
+                    arguments: vec![],
+                    directives: vec![],
+                }))],
+            }))
+        } else {
+            Selection::ScalarField(Arc::new(ScalarField {
+                alias: None,
+                definition: WithLocation::new(fragment.name.location, id_field_id),
+                arguments: vec![],
+                directives: vec![],
+            }))
+        };
+
+        next_selections.push(id_selection);
         next_selections
     }
 }

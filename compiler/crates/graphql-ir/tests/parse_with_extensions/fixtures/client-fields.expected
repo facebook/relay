@@ -133,7 +133,7 @@ type Foo {
                     definition: WithLocation {
                         location: "client-fields.graphql":109:173,
                         item: FieldID(
-                            449,
+                            450,
                         ),
                     },
                     arguments: [],
@@ -144,7 +144,7 @@ type Foo {
                     definition: WithLocation {
                         location: "client-fields.graphql":173:239,
                         item: FieldID(
-                            500,
+                            501,
                         ),
                     },
                     arguments: [],
@@ -155,7 +155,7 @@ type Foo {
                             definition: WithLocation {
                                 location: "client-fields.graphql":240:251,
                                 item: FieldID(
-                                    169,
+                                    170,
                                 ),
                             },
                             arguments: [],
@@ -166,7 +166,7 @@ type Foo {
                                     definition: WithLocation {
                                         location: "client-fields.graphql":252:265,
                                         item: FieldID(
-                                            171,
+                                            172,
                                         ),
                                     },
                                     arguments: [],
@@ -177,7 +177,7 @@ type Foo {
                                     definition: WithLocation {
                                         location: "client-fields.graphql":265:277,
                                         item: FieldID(
-                                            172,
+                                            173,
                                         ),
                                     },
                                     arguments: [],
@@ -188,7 +188,7 @@ type Foo {
                                             definition: WithLocation {
                                                 location: "client-fields.graphql":278:289,
                                                 item: FieldID(
-                                                    449,
+                                                    450,
                                                 ),
                                             },
                                             arguments: [],
@@ -203,7 +203,7 @@ type Foo {
                             definition: WithLocation {
                                 location: "client-fields.graphql":303:317,
                                 item: FieldID(
-                                    170,
+                                    171,
                                 ),
                             },
                             arguments: [],
@@ -214,7 +214,7 @@ type Foo {
                                     definition: WithLocation {
                                         location: "client-fields.graphql":318:336,
                                         item: FieldID(
-                                            286,
+                                            287,
                                         ),
                                     },
                                     arguments: [],
@@ -235,7 +235,7 @@ type Foo {
                             definition: WithLocation {
                                 location: "client-fields.graphql":362:371,
                                 item: FieldID(
-                                    501,
+                                    502,
                                 ),
                             },
                             arguments: [],
@@ -260,7 +260,7 @@ type Foo {
                                             definition: WithLocation {
                                                 location: "client-fields.graphql":461:472,
                                                 item: FieldID(
-                                                    502,
+                                                    503,
                                                 ),
                                             },
                                             arguments: [],
@@ -291,7 +291,7 @@ type Foo {
                     definition: WithLocation {
                         location: "client-fields.graphql":523:528,
                         item: FieldID(
-                            502,
+                            503,
                         ),
                     },
                     arguments: [],

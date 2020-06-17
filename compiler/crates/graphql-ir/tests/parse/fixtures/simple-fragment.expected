@@ -20,7 +20,7 @@ fragment TestFragment on User {
                     definition: WithLocation {
                         location: "simple-fragment.graphql":31:36,
                         item: FieldID(
-                            449,
+                            450,
                         ),
                     },
                     arguments: [],

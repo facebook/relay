@@ -79,7 +79,7 @@ query ListArgumentQuery {
                             definition: WithLocation {
                                 location: "list-argument.graphql":74:85,
                                 item: FieldID(
-                                    29,
+                                    30,
                                 ),
                             },
                             arguments: [],
@@ -90,7 +90,7 @@ query ListArgumentQuery {
                                     definition: WithLocation {
                                         location: "list-argument.graphql":86:97,
                                         item: FieldID(
-                                            32,
+                                            33,
                                         ),
                                     },
                                     arguments: [],

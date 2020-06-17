@@ -35,7 +35,7 @@ query EnumValueQuery {
                             definition: WithLocation {
                                 location: "enum-values.graphql":29:48,
                                 item: FieldID(
-                                    463,
+                                    464,
                                 ),
                             },
                             arguments: [
@@ -61,7 +61,7 @@ query EnumValueQuery {
                                     definition: WithLocation {
                                         location: "enum-values.graphql":65:75,
                                         item: FieldID(
-                                            174,
+                                            175,
                                         ),
                                     },
                                     arguments: [],

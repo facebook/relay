@@ -22,7 +22,7 @@ fragment ScalarHandleField on User {
                     definition: WithLocation {
                         location: "scalar-handle-field.graphql":36:43,
                         item: FieldID(
-                            455,
+                            456,
                         ),
                     },
                     arguments: [],

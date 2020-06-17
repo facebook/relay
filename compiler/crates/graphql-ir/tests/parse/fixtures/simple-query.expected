@@ -73,7 +73,7 @@ query TestQuery($id: ID!) {
                             definition: WithLocation {
                                 location: "simple-query.graphql":50:57,
                                 item: FieldID(
-                                    209,
+                                    210,
                                 ),
                             },
                             arguments: [],

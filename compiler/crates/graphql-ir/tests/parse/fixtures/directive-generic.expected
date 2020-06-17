@@ -20,7 +20,7 @@ fragment TestFragment on User {
                     definition: WithLocation {
                         location: "directive-generic.graphql":31:37,
                         item: FieldID(
-                            449,
+                            450,
                         ),
                     },
                     arguments: [],

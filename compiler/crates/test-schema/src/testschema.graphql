@@ -75,6 +75,10 @@ type NonNodeNoID implements MaybeNodeInterface {
 
 union NeverNode = FakeNode | NonNode
 
+interface AllConcreteTypesImplementNode {
+  count: Int
+}
+
 type Task {
   title: String
 }
@@ -920,7 +924,7 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField {
+type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImplementNode {
   actor: Actor
   actors: [Actor]
   actorCount: Int

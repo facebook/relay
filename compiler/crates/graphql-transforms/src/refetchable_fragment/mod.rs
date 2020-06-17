@@ -69,16 +69,14 @@ pub fn transform_refetchable_fragment(
     }
 
     validate_map(program.fragments(), |fragment| {
-        if base_fragment_names.contains(&fragment.name.item) {
-            next_program.insert_fragment(Arc::clone(fragment));
-        } else {
-            let operation_result = transformer.transform_refetch_fragment(fragment)?;
-            if let Some(operation_result) = operation_result {
-                next_program.insert_fragment(operation_result.fragment);
+        let operation_result = transformer.transform_refetch_fragment(fragment)?;
+        if let Some(operation_result) = operation_result {
+            next_program.insert_fragment(operation_result.fragment);
+            if !base_fragment_names.contains(&fragment.name.item) {
                 next_program.insert_operation(operation_result.operation);
-            } else {
-                next_program.insert_fragment(Arc::clone(fragment));
             }
+        } else {
+            next_program.insert_fragment(Arc::clone(fragment));
         }
         Ok(())
     })?;

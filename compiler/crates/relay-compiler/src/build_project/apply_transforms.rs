@@ -14,10 +14,10 @@ use graphql_transforms::{
     generate_preloadable_metadata, generate_subscription_name_metadata,
     generate_test_operation_metadata, generate_typename, handle_field_transform,
     inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
-    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
-    skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
-    transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
-    validate_module_conflicts, ConnectionInterface,
+    skip_client_directives, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
+    skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
+    transform_defer_stream, transform_match, transform_refetchable_fragment,
+    unwrap_custom_directive_selection, validate_module_conflicts, ConnectionInterface,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -287,7 +287,7 @@ fn apply_operation_text_transforms(
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: false
     // - SkipHandleFieldTransform
-    // - FilterDirectivesTransform
+    // + FilterDirectivesTransform
     // + SkipUnusedVariablesTransform
     // - ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
@@ -302,6 +302,10 @@ fn apply_operation_text_transforms(
     let program = log_event.time("generate_typename", || generate_typename(&program, false));
     let program = log_event.time("flatten", || flatten(&program, false));
     let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
+    let program = log_event.time("skip_client_directives", || {
+        skip_client_directives(&program)
+    });
+
     let program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });

@@ -191,7 +191,8 @@ function printSelection(
     );
     str = subSelections.join('\n' + indent + INDENT);
   } else if (selection.kind === 'Stream') {
-    let streamStr = ` @stream(label: "${selection.label}"`;
+    let streamStr = parentDirectives;
+    streamStr += ` @stream(label: "${selection.label}"`;
     if (selection.if !== null) {
       streamStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
@@ -210,7 +211,6 @@ function printSelection(
       ) ?? 'false'}`;
     }
     streamStr += ')';
-    streamStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>
       printSelection(schema, sel, indent, {
         parentDirectives: streamStr,
@@ -219,12 +219,12 @@ function printSelection(
     );
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'Defer') {
-    let deferStr = ` @defer(label: "${selection.label}"`;
+    let deferStr = parentDirectives;
+    deferStr += ` @defer(label: "${selection.label}"`;
     if (selection.if !== null) {
       deferStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     deferStr += ')';
-    deferStr += parentDirectives;
     if (
       selection.selections.every(
         subSelection =>

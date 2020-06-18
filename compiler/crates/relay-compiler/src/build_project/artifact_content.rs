@@ -247,11 +247,12 @@ fn generate_fragment(
             };
             writeln!(
                 content,
-                "// @dataDrivenDependency {} {}\n",
+                "// @dataDrivenDependency {} {}",
                 arg.name.item, value
             )
             .unwrap();
         }
+        writeln!(content).unwrap();
     }
 
     let reader_node_flow_type = if reader_fragment

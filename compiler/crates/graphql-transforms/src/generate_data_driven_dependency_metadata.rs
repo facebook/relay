@@ -62,7 +62,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                 .field(linked_filed.definition.item)
                                 .type_;
                             processing_queue.push(ProcessingItem {
-                                plural: field_type.is_list(),
+                                plural: processing_item.plural || field_type.is_list(),
                                 parent_type: field_type.clone(),
                                 selections: &linked_filed.selections,
                             });

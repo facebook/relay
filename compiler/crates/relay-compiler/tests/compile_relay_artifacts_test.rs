@@ -1,4 +1,4 @@
-// @generated SignedSource<<3315d7b03cf69b2d481f310fef8bb8dc>>
+// @generated SignedSource<<627234228c1e1c98c009805c07569711>>
 
 mod compile_relay_artifacts;
 
@@ -430,6 +430,13 @@ fn missing_argument_on_field_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.expected");
     test_fixture(transform_fixture, "missing-argument-on-field.invalid.graphql", "compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.expected", input, expected);
+}
+
+#[test]
+fn module_in_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-in-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-in-inline-fragment.expected");
+    test_fixture(transform_fixture, "module-in-inline-fragment.graphql", "compile_relay_artifacts/fixtures/module-in-inline-fragment.expected", input, expected);
 }
 
 #[test]

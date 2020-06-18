@@ -17,7 +17,7 @@ use graphql_transforms::{
     skip_client_directives, skip_client_extensions, skip_redundant_nodes, skip_split_operation,
     skip_unreachable_node, skip_unused_variables, split_module_import, transform_connections,
     transform_defer_stream, transform_match, transform_refetchable_fragment,
-    unwrap_custom_directive_selection, validate_module_conflicts, ConnectionInterface,
+    unwrap_custom_directive_selection, ConnectionInterface,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -176,7 +176,7 @@ fn apply_reader_transforms(
     let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    let program = log_event.time("flatten", || flatten(&program, true));
+    let program = log_event.time("flatten", || flatten(&program, true))?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     let program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
@@ -253,10 +253,7 @@ fn apply_normalization_transforms(
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program, true));
-    let program = log_event.time("flatten", || flatten(&program, true));
-    log_event.time("validate_module_conflicts", || {
-        validate_module_conflicts(&program)
-    })?;
+    let program = log_event.time("flatten", || flatten(&program, true))?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     let program = log_event.time("generate_test_operation_metadata", || {
         generate_test_operation_metadata(&program)
@@ -300,7 +297,7 @@ fn apply_operation_text_transforms(
     });
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program, false));
-    let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("flatten", || flatten(&program, false))?;
     let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
     let program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
@@ -331,7 +328,7 @@ fn apply_typegen_transforms(
 
     let program = log_event.time("mask", || mask(&program));
     let program = log_event.time("transform_match", || transform_match(&program))?;
-    let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("flatten", || flatten(&program, false))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
     })?;

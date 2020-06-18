@@ -381,15 +381,19 @@ impl<'program> MatchTransform<'program> {
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
                 InlineFragment {
                     type_condition: Some(fragment.type_condition),
-                    directives: vec![build_module_metadata_as_directive(
-                        module_key,
-                        module_id,
-                        module_name,
-                        self.document_name,
-                        spread.fragment.item,
-                        module_directive.name.location,
-                    )],
-                    selections: vec![next_spread, operation_field, component_field],
+                    directives: vec![],
+                    selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
+                        type_condition: Some(fragment.type_condition),
+                        directives: vec![build_module_metadata_as_directive(
+                            module_key,
+                            module_id,
+                            module_name,
+                            self.document_name,
+                            spread.fragment.item,
+                            module_directive.name.location,
+                        )],
+                        selections: vec![next_spread, operation_field, component_field],
+                    }))],
                 },
             ))))
         } else {

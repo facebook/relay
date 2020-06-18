@@ -417,20 +417,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
                     vec![self.build_defer(&inline_frag, defer)]
-                } else {
+                } else if let Some(inline_data_directive) = inline_frag
+                    .directives
+                    .named(INLINE_DATA_CONSTANTS.internal_directive_name)
+                {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    if let Some(inline_data_directive) = inline_frag
-                        .directives
-                        .named(INLINE_DATA_CONSTANTS.internal_directive_name)
-                    {
-                        vec![self.build_inline_data_fragment_spread(
-                            &inline_frag,
-                            &inline_data_directive,
-                        )]
-                    } else {
-                        vec![self.build_inline_fragment(&inline_frag)]
-                    }
+                    vec![self
+                        .build_inline_data_fragment_spread(&inline_frag, &inline_data_directive)]
+                } else if let Some(match_directive) = inline_frag
+                    .directives
+                    .named(MATCH_CONSTANTS.custom_module_directive_name)
+                {
+                    self.build_module_import_selections(match_directive)
+                } else {
+                    vec![self.build_inline_fragment(&inline_frag)]
                 }
             }
             Selection::LinkedField(field) => {
@@ -839,15 +840,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             }
             Some(type_condition) => {
-                let selections = if inline_frag
-                    .directives
-                    .named(MATCH_CONSTANTS.custom_module_directive_name)
-                    .is_some()
-                {
-                    self.build_module_import_selections(&inline_frag.directives[0])
-                } else {
-                    self.build_selections(&inline_frag.selections)
-                };
+                let selections = self.build_selections(&inline_frag.selections);
                 Primitive::Key(self.object(vec![
                     (
                         CODEGEN_CONSTANTS.kind,
@@ -1123,7 +1116,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_module_import_selections(&mut self, directive: &Directive) -> Primitive {
+    fn build_module_import_selections(&mut self, directive: &Directive) -> Vec<Primitive> {
         let fragment_name = directive
             .arguments
             .named(MATCH_CONSTANTS.name_arg)
@@ -1160,7 +1153,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 Primitive::String(CODEGEN_CONSTANTS.module_import),
             ),
         ]));
-        Primitive::Key(self.array(vec![selection]))
+        vec![selection]
     }
 
     /// This method will wrap inline fragment with @__inline directive

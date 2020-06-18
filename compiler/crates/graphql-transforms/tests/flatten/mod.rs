@@ -23,7 +23,7 @@ directive @serverInlineDirective on INLINE_FRAGMENT"#,
     );
     let ir = build(&schema, &ast.definitions).unwrap();
     let context = Program::from_definitions(Arc::clone(&schema), ir);
-    let flatten_context = flatten(&context, !fixture.content.contains("%for_printing%"));
+    let flatten_context = flatten(&context, !fixture.content.contains("%for_printing%")).unwrap();
 
     assert_eq!(
         context.fragments().count(),

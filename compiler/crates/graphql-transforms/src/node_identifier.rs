@@ -6,6 +6,7 @@
  */
 
 use crate::util::CUSTOM_METADATA_DIRECTIVES;
+use crate::MATCH_CONSTANTS;
 use common::WithLocation;
 use graphql_ir::*;
 use interner::StringKey;
@@ -253,7 +254,9 @@ impl LocationAgnosticPartialEq for Vec<Directive> {
 
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        if !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(self.name.item) {
+        if self.name.item == MATCH_CONSTANTS.custom_module_directive_name {
+            MATCH_CONSTANTS.custom_module_directive_name.hash(state);
+        } else if !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
         }
@@ -263,7 +266,8 @@ impl LocationAgnosticHash for Directive {
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         self.name.location_agnostic_eq(&other.name)
-            && self.arguments.location_agnostic_eq(&other.arguments)
+            && (self.name.item == MATCH_CONSTANTS.custom_module_directive_name
+                || self.arguments.location_agnostic_eq(&other.arguments))
     }
 }
 

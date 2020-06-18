@@ -6,7 +6,7 @@
  */
 
 use crate::util::PointerAddress;
-use common::{FileKey, Location, Span, WithLocation};
+use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
@@ -35,7 +35,6 @@ lazy_static! {
 
 struct ClientExtensionsTransform<'program> {
     program: &'program Program,
-    empty_location: Location,
     seen: Seen,
 }
 
@@ -44,18 +43,13 @@ impl<'program> ClientExtensionsTransform<'program> {
         Self {
             program,
             seen: Default::default(),
-            empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
         }
     }
 
     // TODO(T63388023): Returns a typed directive
     fn build_client_extension_directive(self: &Self) -> Directive {
         Directive {
-            name: WithLocation::new(
-                // The directive is only used at codegen step, location is not necessary
-                self.empty_location,
-                *CLIENT_EXTENSION_DIRECTIVE_NAME,
-            ),
+            name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
             arguments: Default::default(),
         }
     }

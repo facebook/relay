@@ -13,7 +13,7 @@ use crate::connections::{
 };
 use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::handle_fields::{build_handle_field_directive, HandleFieldConstants};
-use common::{FileKey, Location, Span, WithLocation};
+use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
@@ -37,7 +37,6 @@ struct ConnectionTransform<'s> {
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
     current_document_name: StringKey,
-    empty_location: Location,
     handle_field_constants: HandleFieldConstants,
     handle_field_constants_for_connection: HandleFieldConstants,
     program: &'s Program,
@@ -52,7 +51,6 @@ impl<'s> ConnectionTransform<'s> {
             current_path: None,
             current_document_name: connection_interface.cursor_selection_name, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
-            empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
             handle_field_constants,
             handle_field_constants_for_connection: HandleFieldConstants {
                 handler_arg_name: "handler".intern(),
@@ -102,8 +100,7 @@ impl<'s> ConnectionTransform<'s> {
                 // we need to build a new edges_selection
                 LinkedField {
                     alias: None,
-                    // TODO(T63626569): Add support for derived locations
-                    definition: WithLocation::new(self.empty_location, edges_schema_field_id),
+                    definition: WithLocation::generated(edges_schema_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                     selections: Vec::new(),
@@ -122,7 +119,6 @@ impl<'s> ConnectionTransform<'s> {
                 schema,
                 edge_type,
                 self.connection_interface,
-                &self.empty_location,
             ));
         if is_stream_connection {
             let mut arguments = vec![];
@@ -175,11 +171,7 @@ impl<'s> ConnectionTransform<'s> {
                         // we need to build a new page_info field
                         LinkedField {
                             alias: None,
-                            // TODO(T63626569): Add support for derived locations
-                            definition: WithLocation::new(
-                                self.empty_location,
-                                page_info_schema_field_id,
-                            ),
+                            definition: WithLocation::generated(page_info_schema_field_id),
                             arguments: Vec::new(),
                             directives: Vec::new(),
                             selections: Vec::new(),
@@ -195,8 +187,7 @@ impl<'s> ConnectionTransform<'s> {
             }
             None => LinkedField {
                 alias: None,
-                // TODO(T63626569): Add support for derived locations
-                definition: WithLocation::new(self.empty_location, page_info_schema_field_id),
+                definition: WithLocation::generated(page_info_schema_field_id),
                 arguments: Vec::new(),
                 directives: Vec::new(),
                 selections: Vec::new(),
@@ -210,7 +201,6 @@ impl<'s> ConnectionTransform<'s> {
                 &connection_metadata,
                 self.connection_constants,
                 self.connection_interface,
-                &self.empty_location,
             ));
 
         let transformed_page_info_field_selection = if is_stream_connection {
@@ -297,7 +287,6 @@ impl<'s> ConnectionTransform<'s> {
             connection_directive,
             self.handle_field_constants,
             self.handle_field_constants_for_connection,
-            &self.empty_location,
             Some(self.connection_constants.connection_directive_name),
             get_default_filters(connection_field, self.connection_constants),
         );
@@ -376,7 +365,6 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         let connection_metadata_directive = build_connection_metadata_as_directive(
             &self.current_connection_metadata,
             self.connection_constants,
-            &self.empty_location,
         );
 
         transformed_operation
@@ -409,7 +397,6 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         let connection_metadata_directive = build_connection_metadata_as_directive(
             &self.current_connection_metadata,
             self.connection_constants,
-            &self.empty_location,
         );
 
         transformed_fragment

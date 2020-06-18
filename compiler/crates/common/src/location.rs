@@ -11,11 +11,23 @@ use interner::{Intern, StringKey};
 use std::fmt;
 use std::path::PathBuf;
 
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref GENERATED_FILE_KEY: FileKey = FileKey("<generated>".intern());
+}
+
 /// An interned file path
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FileKey(StringKey);
 
 impl FileKey {
+    /// Returns a FileKey that's not backed by a real file. In most cases it's
+    /// preferred to use a related real file.
+    pub fn generated() -> Self {
+        *GENERATED_FILE_KEY
+    }
+
     pub fn new(path: &str) -> Self {
         FileKey(path.intern())
     }
@@ -54,6 +66,12 @@ impl fmt::Debug for Location {
 }
 
 impl Location {
+    /// Returns a location that's not backed by a real file. In most cases it's
+    /// preferred to use a related real location.
+    pub fn generated() -> Self {
+        Location::new(FileKey::generated(), Span::new(0, 0))
+    }
+
     pub fn new(file: FileKey, span: Span) -> Self {
         Self { file, span }
     }
@@ -121,5 +139,15 @@ impl<T> WithLocation<T> {
 
     pub fn new(location: Location, item: T) -> Self {
         Self { location, item }
+    }
+
+    /// Wraps the given item in a `WithLocation`, without associating it with
+    /// any real location. In most cases it's preferred to use a related real
+    /// location the item was derived from.
+    pub fn generated(item: T) -> Self {
+        Self {
+            location: Location::generated(),
+            item,
+        }
     }
 }

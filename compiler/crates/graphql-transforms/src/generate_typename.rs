@@ -9,7 +9,7 @@ use crate::util::{
     generate_abstract_type_refinement_key, is_relay_custom_inline_fragment_directive,
     PointerAddress,
 };
-use common::{FileKey, Location, Span, WithLocation};
+use common::{Location, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -23,7 +23,6 @@ use std::sync::Arc;
 
 lazy_static! {
     pub static ref TYPE_DISCRIMINATOR_DIRECTIVE_NAME: StringKey = "__TypeDiscriminator".intern();
-    static ref EMPTY_LOCATION: Location = Location::new(FileKey::new(""), Span::new(0, 0));
 }
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an
@@ -171,7 +170,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
             next_selections.push(generate_abstract_key_field(
                 schema,
                 type_,
-                *EMPTY_LOCATION,
+                Location::generated(),
                 self.is_for_codegen,
             ));
             if let TransformedValue::Replace(selections) = selections {

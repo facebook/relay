@@ -6,7 +6,7 @@
  */
 
 use crate::handle_fields::HandleFieldConstants;
-use common::{Location, WithLocation};
+use common::WithLocation;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
 use interner::{Intern, StringKey};
 
@@ -143,8 +143,6 @@ pub fn build_handle_field_directive(
     handle_field_directive: &Directive,
     handle_field_constants: HandleFieldConstants,
     handle_field_constants_for_extracting: HandleFieldConstants,
-    // TODO(T63626569): Add support for derived locations
-    empty_location: &Location,
     default_handler: Option<StringKey>,
     default_filters: Option<Vec<StringKey>>,
 ) -> Directive {
@@ -162,45 +160,35 @@ pub fn build_handle_field_directive(
 
     let directive_arguments = vec![
         Argument {
-            name: WithLocation::new(*empty_location, handle_field_constants.key_arg_name),
-            value: WithLocation::new(*empty_location, Value::Constant(ConstantValue::String(key))),
+            name: WithLocation::generated(handle_field_constants.key_arg_name),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(key))),
         },
         Argument {
-            name: WithLocation::new(*empty_location, handle_field_constants.handler_arg_name),
-            value: WithLocation::new(
-                *empty_location,
-                Value::Constant(ConstantValue::String(handle)),
-            ),
+            name: WithLocation::generated(handle_field_constants.handler_arg_name),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(handle))),
         },
         Argument {
-            name: WithLocation::new(*empty_location, handle_field_constants.filters_arg_name),
-            value: WithLocation::new(
-                *empty_location,
-                Value::Constant(match filters {
-                    Some(filters) => ConstantValue::List(
-                        filters
-                            .iter()
-                            .map(|filter| ConstantValue::String(*filter))
-                            .collect(),
-                    ),
-                    None => ConstantValue::Null(),
-                }),
-            ),
+            name: WithLocation::generated(handle_field_constants.filters_arg_name),
+            value: WithLocation::generated(Value::Constant(match filters {
+                Some(filters) => ConstantValue::List(
+                    filters
+                        .iter()
+                        .map(|filter| ConstantValue::String(*filter))
+                        .collect(),
+                ),
+                None => ConstantValue::Null(),
+            })),
         },
         Argument {
-            name: WithLocation::new(*empty_location, handle_field_constants.dynamic_key_arg_name),
-            value: WithLocation::new(
-                *empty_location,
+            name: WithLocation::generated(handle_field_constants.dynamic_key_arg_name),
+            value: WithLocation::generated(
                 dynamic_key.unwrap_or_else(|| Value::Constant(ConstantValue::Null())),
             ),
         },
     ];
 
     Directive {
-        name: WithLocation::new(
-            *empty_location,
-            handle_field_constants.handle_field_directive_name,
-        ),
+        name: WithLocation::generated(handle_field_constants.handle_field_directive_name),
         arguments: directive_arguments,
     }
 }

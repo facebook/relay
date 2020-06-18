@@ -6,7 +6,7 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::{FileKey, Location, NamedItem, Span, WithLocation};
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program, Selection,
     Transformed, Transformer, Value,
@@ -20,7 +20,6 @@ use schema::{EnumValue, Field, Schema, Type};
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();
     static ref TEST_OPERATION_METADATA_KEY: StringKey = "relayTestingSelectionTypeInfo".intern();
-    static ref EMPTY_LOCATION: Location = Location::new(FileKey::new(""), Span::new(0, 0));
     static ref ENUM_VALUES_KEY: StringKey = "enumValues".intern();
     static ref NULLABLE_KEY: StringKey = "nullable".intern();
     static ref PLURAL_KEY: StringKey = "plural".intern();
@@ -109,11 +108,8 @@ impl From<RelayTestOperationMetadata> for Vec<ConstantArgument> {
             Vec::with_capacity(test_metadata.selection_type_info.len());
         for (path, type_info) in test_metadata.selection_type_info {
             metadata.push(ConstantArgument {
-                name: WithLocation::new(*EMPTY_LOCATION, path),
-                value: WithLocation::new(
-                    *EMPTY_LOCATION,
-                    ConstantValue::Object(From::from(type_info)),
-                ),
+                name: WithLocation::generated(path),
+                value: WithLocation::generated(ConstantValue::Object(From::from(type_info))),
             })
         }
         metadata
@@ -124,34 +120,28 @@ impl From<RelayTestOperationSelectionTypeInfo> for Vec<ConstantArgument> {
     fn from(type_info: RelayTestOperationSelectionTypeInfo) -> Self {
         vec![
             ConstantArgument {
-                name: WithLocation::new(*EMPTY_LOCATION, *ENUM_VALUES_KEY),
-                value: WithLocation::new(
-                    *EMPTY_LOCATION,
-                    match type_info.enum_values {
-                        Some(enums) => ConstantValue::List(
-                            enums
-                                .iter()
-                                .map(|enum_| ConstantValue::String(enum_.value))
-                                .collect(),
-                        ),
-                        None => ConstantValue::Null(),
-                    },
-                ),
+                name: WithLocation::generated(*ENUM_VALUES_KEY),
+                value: WithLocation::generated(match type_info.enum_values {
+                    Some(enums) => ConstantValue::List(
+                        enums
+                            .iter()
+                            .map(|enum_| ConstantValue::String(enum_.value))
+                            .collect(),
+                    ),
+                    None => ConstantValue::Null(),
+                }),
             },
             ConstantArgument {
-                name: WithLocation::new(*EMPTY_LOCATION, *NULLABLE_KEY),
-                value: WithLocation::new(
-                    *EMPTY_LOCATION,
-                    ConstantValue::Boolean(type_info.nullable),
-                ),
+                name: WithLocation::generated(*NULLABLE_KEY),
+                value: WithLocation::generated(ConstantValue::Boolean(type_info.nullable)),
             },
             ConstantArgument {
-                name: WithLocation::new(*EMPTY_LOCATION, *PLURAL_KEY),
-                value: WithLocation::new(*EMPTY_LOCATION, ConstantValue::Boolean(type_info.plural)),
+                name: WithLocation::generated(*PLURAL_KEY),
+                value: WithLocation::generated(ConstantValue::Boolean(type_info.plural)),
             },
             ConstantArgument {
-                name: WithLocation::new(*EMPTY_LOCATION, *TYPE_KEY),
-                value: WithLocation::new(*EMPTY_LOCATION, ConstantValue::String(type_info.type_)),
+                name: WithLocation::generated(*TYPE_KEY),
+                value: WithLocation::generated(ConstantValue::String(type_info.type_)),
             },
         ]
     }

@@ -7,7 +7,7 @@
 
 use crate::connections::{ConnectionConstants, ConnectionInterface};
 use crate::util::extract_variable_name;
-use common::{Location, NamedItem, WithLocation};
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
 };
@@ -109,29 +109,20 @@ pub fn build_connection_metadata(
 pub fn build_connection_metadata_as_directive(
     connection_metadata: &[ConnectionMetadata],
     connection_constants: ConnectionConstants,
-    // TODO(T63626569): Add support for derived locations
-    empty_location: &Location,
 ) -> Directive {
     let connection_metadata_values = connection_metadata
         .iter()
         .map(|metadata| build_connection_metadata_value(metadata))
         .collect::<Vec<ConstantValue>>();
     let metadata_argument = Argument {
-        name: WithLocation::new(
-            *empty_location,
-            connection_constants.connection_metadata_argument_name,
-        ),
-        value: WithLocation::new(
-            *empty_location,
-            Value::Constant(ConstantValue::List(connection_metadata_values)),
-        ),
+        name: WithLocation::generated(connection_constants.connection_metadata_argument_name),
+        value: WithLocation::generated(Value::Constant(ConstantValue::List(
+            connection_metadata_values,
+        ))),
     };
 
     Directive {
-        name: WithLocation::new(
-            *empty_location,
-            connection_constants.connection_metadata_directive_name,
-        ),
+        name: WithLocation::generated(connection_constants.connection_metadata_directive_name),
         arguments: vec![metadata_argument],
     }
 }
@@ -275,8 +266,6 @@ pub fn build_edge_selections(
     schema: &Schema,
     edge_type: Type,
     connection_interface: &ConnectionInterface,
-    // TODO(T63626569): Add support for derived locations
-    empty_location: &Location,
 ) -> Selection {
     let cursor_field_id = schema
         .named_field(edge_type, connection_interface.cursor_selection_name)
@@ -292,20 +281,20 @@ pub fn build_edge_selections(
         selections: vec![
             Selection::ScalarField(From::from(ScalarField {
                 alias: None,
-                definition: WithLocation::new(*empty_location, cursor_field_id),
+                definition: WithLocation::generated(cursor_field_id),
                 arguments: Vec::new(),
                 directives: Vec::new(),
             })),
             Selection::LinkedField(From::from(LinkedField {
                 alias: None,
-                definition: WithLocation::new(*empty_location, node_field_id),
+                definition: WithLocation::generated(node_field_id),
                 arguments: Vec::new(),
                 directives: Vec::new(),
                 selections: vec![
                     // We rely on generate_id_transform to add "id"
                     Selection::ScalarField(From::from(ScalarField {
                         alias: None,
-                        definition: WithLocation::new(*empty_location, typename_field_id),
+                        definition: WithLocation::generated(typename_field_id),
                         arguments: Vec::new(),
                         directives: Vec::new(),
                     })),
@@ -323,8 +312,6 @@ pub fn build_page_info_selections(
     connection_metadata: &ConnectionMetadata,
     connection_constants: ConnectionConstants,
     connection_interface: &ConnectionInterface,
-    // TODO(T63626569): Add support for derived locations
-    empty_location: &Location,
 ) -> Selection {
     let end_cursor_field_id = schema
         .named_field(
@@ -358,13 +345,13 @@ pub fn build_page_info_selections(
             selections: vec![
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, end_cursor_field_id),
+                    definition: WithLocation::generated(end_cursor_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, has_next_page_field_id),
+                    definition: WithLocation::generated(has_next_page_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
@@ -377,13 +364,13 @@ pub fn build_page_info_selections(
             selections: vec![
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, has_prev_page_field_id),
+                    definition: WithLocation::generated(has_prev_page_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, start_cursor_field_id),
+                    definition: WithLocation::generated(start_cursor_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
@@ -396,25 +383,25 @@ pub fn build_page_info_selections(
             selections: vec![
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, end_cursor_field_id),
+                    definition: WithLocation::generated(end_cursor_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, has_next_page_field_id),
+                    definition: WithLocation::generated(has_next_page_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, has_prev_page_field_id),
+                    definition: WithLocation::generated(has_prev_page_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),
                 Selection::ScalarField(From::from(ScalarField {
                     alias: None,
-                    definition: WithLocation::new(*empty_location, start_cursor_field_id),
+                    definition: WithLocation::generated(start_cursor_field_id),
                     arguments: Vec::new(),
                     directives: Vec::new(),
                 })),

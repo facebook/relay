@@ -6,7 +6,7 @@
  */
 
 use super::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
-use common::{FileKey, Location, NamedItem, Span, WithLocation};
+use common::{NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, Program, Selection, Transformed,
@@ -17,7 +17,6 @@ use lazy_static::lazy_static;
 use schema::TypeReference;
 
 lazy_static! {
-    static ref EMPTY_LOCATION: Location = Location::new(FileKey::new(""), Span::new(0, 0));
     pub static ref DATA_DRIVEN_DEPENDENCY_METADATA_KEY: StringKey =
         "__dataDrivenDependencyMetadata".intern();
 }
@@ -189,17 +188,16 @@ fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>)
     let mut arguments: Vec<Argument> = Vec::with_capacity(module_entries.len());
     for (key, module_entry) in module_entries {
         arguments.push(Argument {
-            name: WithLocation::new(*EMPTY_LOCATION, key),
-            value: WithLocation::new(
-                *EMPTY_LOCATION,
-                Value::Constant(ConstantValue::String(From::from(module_entry))),
-            ),
+            name: WithLocation::generated(key),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(From::from(
+                module_entry,
+            )))),
         })
     }
     arguments.sort_unstable_by(|a, b| a.name.item.cmp(&b.name.item));
 
     Directive {
-        name: WithLocation::new(*EMPTY_LOCATION, *DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
+        name: WithLocation::generated(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
         arguments,
     }
 }

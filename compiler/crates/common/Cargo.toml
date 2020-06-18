@@ -10,5 +10,6 @@ include = ["src/**/*.rs"]
 [dependencies]
 interner = { path = "../interner" }
 colored = "1.9"
+lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
 lsp-types = "0.73.0"

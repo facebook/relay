@@ -34,7 +34,6 @@ path = "tests/json_codegen_test.rs"
 common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 schema = { path = "../schema" }

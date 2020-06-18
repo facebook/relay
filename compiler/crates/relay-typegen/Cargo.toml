@@ -17,7 +17,6 @@ path = "tests/generate_flow_test.rs"
 [dependencies]
 common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
-graphql-syntax = { path = "../graphql-syntax" }
 graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 schema = { path = "../schema" }
@@ -28,5 +27,6 @@ serde = { version = "1.0", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+graphql-syntax = { path = "../graphql-syntax" }
 relay-compiler = { path = "../relay-compiler" }
 test-schema = { path = "../test-schema" }

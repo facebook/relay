@@ -55,6 +55,9 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
 
+use signedsource as _; // used in main.rs, cargo only
+use structopt as _; // used in main.rs, cargo only
+
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
 }

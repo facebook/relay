@@ -29,7 +29,6 @@ relay-codegen = { path = "../relay-codegen" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }
-env_logger = "0.7"
 fnv = "1.0"
 futures = { version = "0.3", features = ["async-await", "compat"] }
 hex = "0.4"

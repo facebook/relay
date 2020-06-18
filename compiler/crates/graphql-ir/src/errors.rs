@@ -492,4 +492,7 @@ pub enum ValidationMessage {
         "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
     )]
     LiveQueryTransformInvalidConfigId { query_name: StringKey },
+
+    #[error("Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough.")]
+    RedundantPreloadableDirective,
 }

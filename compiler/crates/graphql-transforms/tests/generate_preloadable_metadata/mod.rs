@@ -29,7 +29,14 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     };
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let next_program = generate_preloadable_metadata(&program);
+    let next_program = generate_preloadable_metadata(&program).map_err(|errors| {
+        let mut errors = errors
+            .into_iter()
+            .map(|err| err.print(&sources))
+            .collect::<Vec<_>>();
+        errors.sort();
+        errors.join("\n\n")
+    })?;
 
     let mut printed = next_program
         .operations()

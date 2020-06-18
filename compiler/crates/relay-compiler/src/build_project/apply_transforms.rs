@@ -216,7 +216,7 @@ fn apply_operation_transforms(
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
     let program = log_event.time("generate_preloadable_metadata", || {
         generate_preloadable_metadata(&program)
-    });
+    })?;
     let program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)
     })?;

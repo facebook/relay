@@ -9,7 +9,7 @@ use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
-    Value,
+    ValidationError, ValidationMessage, ValidationResult, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -20,20 +20,30 @@ lazy_static! {
     pub static ref PRELOADABLE_METADATA_KEY: StringKey = "relayPreloadable".intern();
 }
 
-pub fn generate_preloadable_metadata(program: &Program) -> Program {
+pub fn generate_preloadable_metadata(program: &Program) -> ValidationResult<Program> {
     let mut transformer = GeneratePreloadableMetadata::new(program);
-    transformer
+    let next_program = transformer
         .transform_program(program)
-        .replace_or_else(|| program.clone())
+        .replace_or_else(|| program.clone());
+
+    if transformer.errors.is_empty() {
+        Ok(next_program)
+    } else {
+        Err(transformer.errors)
+    }
 }
 
 struct GeneratePreloadableMetadata<'s> {
     pub program: &'s Program,
+    pub errors: Vec<ValidationError>,
 }
 
 impl<'s> GeneratePreloadableMetadata<'s> {
     fn new(program: &'s Program) -> Self {
-        GeneratePreloadableMetadata { program }
+        GeneratePreloadableMetadata {
+            program,
+            errors: vec![],
+        }
     }
 }
 
@@ -48,14 +58,16 @@ impl<'s> Transformer for GeneratePreloadableMetadata<'s> {
     ) -> Transformed<OperationDefinition> {
         match operation.kind {
             OperationKind::Query => {
-                if operation
+                let preloadable_directives_len = operation
                     .directives
-                    .named(*PRELOADABLE_DIRECTIVE_NAME)
-                    .is_some()
-                {
+                    .iter()
+                    .filter(|directive| directive.name.item == *PRELOADABLE_DIRECTIVE_NAME)
+                    .count();
+
+                if preloadable_directives_len == 1 {
                     let mut next_directives = Vec::with_capacity(operation.directives.len());
                     for directive in &operation.directives {
-                        // replace @preloadable with @metadata
+                        // replace @preloadable with @__metadata
                         if directive.name.item == *PRELOADABLE_DIRECTIVE_NAME {
                             next_directives.push(Directive {
                                 name: WithLocation::new(
@@ -82,7 +94,23 @@ impl<'s> Transformer for GeneratePreloadableMetadata<'s> {
                         directives: next_directives,
                         ..operation.clone()
                     })
+                } else if preloadable_directives_len == 0 {
+                    Transformed::Keep
                 } else {
+                    self.errors.push(ValidationError::new(
+                        ValidationMessage::RedundantPreloadableDirective,
+                        operation
+                            .directives
+                            .iter()
+                            .filter_map(|directive| {
+                                if directive.name.item == *PRELOADABLE_DIRECTIVE_NAME {
+                                    Some(directive.name.location)
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect::<Vec<_>>(),
+                    ));
                     Transformed::Keep
                 }
             }

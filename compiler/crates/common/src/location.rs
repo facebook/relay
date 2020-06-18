@@ -84,13 +84,6 @@ impl Location {
         &self.span
     }
 
-    pub fn new_from_path(path: &str, span: Span) -> Self {
-        Self {
-            file: FileKey::new(path),
-            span,
-        }
-    }
-
     pub fn with_span(&self, span: Span) -> Self {
         Self {
             file: self.file,

@@ -84,7 +84,7 @@ impl Scope {
 mod tests {
     use super::*;
 
-    use common::{Location, Span, WithLocation};
+    use common::{FileKey, Location, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
     use graphql_syntax::OperationKind;
     use interner::Intern;
@@ -93,7 +93,7 @@ mod tests {
     use test_schema::TEST_SCHEMA;
 
     fn default_location() -> Location {
-        Location::new_from_path("test-file", Span::new(0, 0))
+        Location::new(FileKey::new("test-file"), Span::new(0, 0))
     }
 
     fn with_test_location<T>(item: T) -> WithLocation<T> {

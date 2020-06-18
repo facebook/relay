@@ -9,8 +9,8 @@ use super::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
 use common::{NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, Program, Selection, Transformed,
-    Transformer, Value,
+    Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
+    Selection, Transformed, Transformer, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -36,45 +36,18 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
     fn new(program: &'s Program) -> Self {
         GenerateDataDrivenDependencyMetadata { program }
     }
-}
 
-#[derive(Debug, Copy, Clone)]
-struct Branch {
-    component: StringKey,
-    fragment: StringKey,
-}
-
-type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
-
-#[derive(Debug)]
-struct ModuleEntry {
-    id: StringKey,
-    branches: FnvHashMap<String, Branch>,
-    plural: bool,
-}
-
-#[derive(Debug)]
-struct ProcessingItem<'a> {
-    plural: bool,
-    parent_type: TypeReference,
-    selections: &'a [Selection],
-}
-
-impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
-    const NAME: &'static str = "GenerateDataDrivenDependencyMetadata";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
-
-    fn transform_fragment(
+    fn generate_data_driven_dependency_for_selections(
         &mut self,
-        fragment: &FragmentDefinition,
-    ) -> Transformed<FragmentDefinition> {
-        let parent_type = TypeReference::Named(fragment.type_condition);
+        type_: TypeReference,
+        selections: &[Selection],
+    ) -> Option<Directive> {
         let mut processing_queue: Vec<ProcessingItem<'_>> = vec![ProcessingItem {
             plural: false,
-            parent_type,
-            selections: &fragment.selections,
+            parent_type: type_,
+            selections,
         }];
+
         let mut module_entries: ModuleEntries = Default::default();
 
         while !processing_queue.is_empty() {
@@ -170,9 +143,85 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
         }
 
         if !module_entries.is_empty() {
+            Some(create_metadata_directive(module_entries))
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Branch {
+    component: StringKey,
+    fragment: StringKey,
+}
+
+type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
+
+#[derive(Debug)]
+struct ModuleEntry {
+    id: StringKey,
+    branches: FnvHashMap<String, Branch>,
+    plural: bool,
+}
+
+#[derive(Debug)]
+struct ProcessingItem<'a> {
+    plural: bool,
+    parent_type: TypeReference,
+    selections: &'a [Selection],
+}
+
+impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
+    const NAME: &'static str = "GenerateDataDrivenDependencyMetadata";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        if let Some(query_type) = self.program.schema.query_type() {
+            let generated_directive = self.generate_data_driven_dependency_for_selections(
+                TypeReference::Named(query_type),
+                &operation.selections,
+            );
+            if let Some(generated_directive) = generated_directive {
+                let mut next_directives: Vec<Directive> =
+                    Vec::with_capacity(operation.directives.len() + 1);
+                for diretive in operation.directives.iter() {
+                    next_directives.push(diretive.clone());
+                }
+
+                next_directives.push(generated_directive);
+
+                Transformed::Replace(OperationDefinition {
+                    directives: next_directives,
+                    ..operation.clone()
+                })
+            } else {
+                Transformed::Keep
+            }
+        } else {
+            Transformed::Keep
+        }
+    }
+
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        let generated_directive = self.generate_data_driven_dependency_for_selections(
+            TypeReference::Named(fragment.type_condition),
+            &fragment.selections,
+        );
+        if let Some(generated_directive) = generated_directive {
             let mut next_directives: Vec<Directive> =
                 Vec::with_capacity(fragment.directives.len() + 1);
-            next_directives.push(create_metadata_directive(module_entries));
+            for diretive in fragment.directives.iter() {
+                next_directives.push(diretive.clone());
+            }
+            next_directives.push(generated_directive);
 
             Transformed::Replace(FragmentDefinition {
                 directives: next_directives,

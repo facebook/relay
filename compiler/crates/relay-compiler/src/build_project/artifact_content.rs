@@ -7,7 +7,7 @@
 
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use graphql_transforms::{
     is_preloadable_operation, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
 };
@@ -15,7 +15,7 @@ use relay_codegen::{build_request_params, Printer};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};
-use std::fmt::Write;
+use std::fmt::{Result, Write};
 
 pub enum ArtifactContent<'a> {
     Operation {
@@ -96,6 +96,25 @@ impl<'a> ArtifactContent<'a> {
     }
 }
 
+fn write_data_driven_dependency_annotation(
+    content: &mut String,
+    data_driven_dependency_directive: &Directive,
+) -> Result {
+    for arg in &data_driven_dependency_directive.arguments {
+        let value = match arg.value.item {
+            graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
+            _ => panic!("Unexpected argument value for @__dataDrivenDependencyMetadata directive"),
+        };
+        writeln!(
+            content,
+            "// @dataDrivenDependency {} {}",
+            arg.name.item, value
+        )?;
+    }
+
+    Ok(())
+}
+
 #[allow(clippy::too_many_arguments)]
 fn generate_operation(
     config: &Config,
@@ -140,8 +159,20 @@ fn generate_operation(
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
     if let Some(id) = &request_parameters.id {
-        writeln!(content, "// @relayRequestID {}\n", id).unwrap();
+        writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
+    let data_driven_dependency_metadata = operation_fragment
+        .directives
+        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
+        write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
+            .unwrap();
+    }
+
+    if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
+        writeln!(content).unwrap();
+    }
+
     writeln!(
         content,
         "/*::\nimport type {{ ConcreteRequest }} from 'relay-runtime';\n{}*/\n",
@@ -171,10 +202,10 @@ fn generate_operation(
     // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
     if is_preloadable_operation(normalization_operation) {
         writeln!(
-            content,
-            "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
-        )
-        .unwrap();
+              content,
+              "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
+          )
+          .unwrap();
     }
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
@@ -236,22 +267,13 @@ fn generate_fragment(
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
-    let relay_3d_metadata = reader_fragment
+    let data_driven_dependency_metadata = reader_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
-    if let Some(relay_3d_metadata) = relay_3d_metadata {
-        for arg in &relay_3d_metadata.arguments {
-            let value = match arg.value.item {
-                graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
-                _ => panic!("Unexpected value for Relay 3d argument"),
-            };
-            writeln!(
-                content,
-                "// @dataDrivenDependency {} {}",
-                arg.name.item, value
-            )
+    if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
+        write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
             .unwrap();
-        }
+
         writeln!(content).unwrap();
     }
 

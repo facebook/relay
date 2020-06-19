@@ -51,14 +51,14 @@ type Foo {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: "client-fields.graphql":6:22,
+                location: client-fields.graphql:6:22,
                 item: "BestFriendsQuery",
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
-                        location: "client-fields.graphql":23:26,
+                        location: client-fields.graphql:23:26,
                         item: "id",
                     },
                     type_: NonNull(
@@ -75,7 +75,7 @@ type Foo {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "client-fields.graphql":34:41,
+                        location: client-fields.graphql:34:41,
                         item: FieldID(
                             9,
                         ),
@@ -83,15 +83,15 @@ type Foo {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "client-fields.graphql":42:44,
+                                location: client-fields.graphql:42:44,
                                 item: "id",
                             },
                             value: WithLocation {
-                                location: "client-fields.graphql":46:49,
+                                location: client-fields.graphql:46:49,
                                 item: Variable(
                                     Variable {
                                         name: WithLocation {
-                                            location: "client-fields.graphql":46:49,
+                                            location: client-fields.graphql:46:49,
                                             item: "id",
                                         },
                                         type_: Named(
@@ -106,7 +106,7 @@ type Foo {
                     selections: [
                         FragmentSpread {
                             fragment: WithLocation {
-                                location: "client-fields.graphql":60:71,
+                                location: client-fields.graphql:60:71,
                                 item: "BestFriends",
                             },
                             arguments: [],
@@ -120,7 +120,7 @@ type Foo {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "client-fields.graphql":88:100,
+                location: client-fields.graphql:88:100,
                 item: "BestFriends",
             },
             variable_definitions: [],
@@ -131,7 +131,7 @@ type Foo {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "client-fields.graphql":109:173,
+                        location: client-fields.graphql:109:173,
                         item: FieldID(
                             450,
                         ),
@@ -142,7 +142,7 @@ type Foo {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "client-fields.graphql":173:239,
+                        location: client-fields.graphql:173:239,
                         item: FieldID(
                             501,
                         ),
@@ -153,7 +153,7 @@ type Foo {
                         LinkedField {
                             alias: None,
                             definition: WithLocation {
-                                location: "client-fields.graphql":240:251,
+                                location: client-fields.graphql:240:251,
                                 item: FieldID(
                                     170,
                                 ),
@@ -164,7 +164,7 @@ type Foo {
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: "client-fields.graphql":252:265,
+                                        location: client-fields.graphql:252:265,
                                         item: FieldID(
                                             172,
                                         ),
@@ -175,7 +175,7 @@ type Foo {
                                 LinkedField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: "client-fields.graphql":265:277,
+                                        location: client-fields.graphql:265:277,
                                         item: FieldID(
                                             173,
                                         ),
@@ -186,7 +186,7 @@ type Foo {
                                         ScalarField {
                                             alias: None,
                                             definition: WithLocation {
-                                                location: "client-fields.graphql":278:289,
+                                                location: client-fields.graphql:278:289,
                                                 item: FieldID(
                                                     450,
                                                 ),
@@ -201,7 +201,7 @@ type Foo {
                         LinkedField {
                             alias: None,
                             definition: WithLocation {
-                                location: "client-fields.graphql":303:317,
+                                location: client-fields.graphql:303:317,
                                 item: FieldID(
                                     171,
                                 ),
@@ -212,7 +212,7 @@ type Foo {
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: "client-fields.graphql":318:336,
+                                        location: client-fields.graphql:318:336,
                                         item: FieldID(
                                             287,
                                         ),
@@ -233,7 +233,7 @@ type Foo {
                         LinkedField {
                             alias: None,
                             definition: WithLocation {
-                                location: "client-fields.graphql":362:371,
+                                location: client-fields.graphql:362:371,
                                 item: FieldID(
                                     502,
                                 ),
@@ -243,7 +243,7 @@ type Foo {
                             selections: [
                                 FragmentSpread {
                                     fragment: WithLocation {
-                                        location: "client-fields.graphql":431:442,
+                                        location: client-fields.graphql:431:442,
                                         item: "FooFragment",
                                     },
                                     arguments: [],
@@ -258,7 +258,7 @@ type Foo {
                                         ScalarField {
                                             alias: None,
                                             definition: WithLocation {
-                                                location: "client-fields.graphql":461:472,
+                                                location: client-fields.graphql:461:472,
                                                 item: FieldID(
                                                     503,
                                                 ),
@@ -278,7 +278,7 @@ type Foo {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "client-fields.graphql":503:515,
+                location: client-fields.graphql:503:515,
                 item: "FooFragment",
             },
             variable_definitions: [],
@@ -289,7 +289,7 @@ type Foo {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "client-fields.graphql":523:528,
+                        location: client-fields.graphql:523:528,
                         item: FieldID(
                             503,
                         ),

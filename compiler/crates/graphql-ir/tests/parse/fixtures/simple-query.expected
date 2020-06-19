@@ -10,14 +10,14 @@ query TestQuery($id: ID!) {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: "simple-query.graphql":6:15,
+                location: simple-query.graphql:6:15,
                 item: "TestQuery",
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
-                        location: "simple-query.graphql":16:19,
+                        location: simple-query.graphql:16:19,
                         item: "id",
                     },
                     type_: NonNull(
@@ -34,12 +34,12 @@ query TestQuery($id: ID!) {
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: "simple-query.graphql":27:33,
+                            location: simple-query.graphql:27:33,
                             item: "foo",
                         },
                     ),
                     definition: WithLocation {
-                        location: "simple-query.graphql":35:39,
+                        location: simple-query.graphql:35:39,
                         item: FieldID(
                             9,
                         ),
@@ -47,15 +47,15 @@ query TestQuery($id: ID!) {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "simple-query.graphql":40:42,
+                                location: simple-query.graphql:40:42,
                                 item: "id",
                             },
                             value: WithLocation {
-                                location: "simple-query.graphql":44:47,
+                                location: simple-query.graphql:44:47,
                                 item: Variable(
                                     Variable {
                                         name: WithLocation {
-                                            location: "simple-query.graphql":44:47,
+                                            location: simple-query.graphql:44:47,
                                             item: "id",
                                         },
                                         type_: Named(
@@ -71,7 +71,7 @@ query TestQuery($id: ID!) {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "simple-query.graphql":50:57,
+                                location: simple-query.graphql:50:57,
                                 item: FieldID(
                                     210,
                                 ),

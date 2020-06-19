@@ -7,7 +7,7 @@ Document {
     span: 0:55,
     definitions: [
         OperationDefinition {
-            location: "keyword_as_name.graphql":0:55,
+            location: keyword_as_name.graphql:0:55,
             operation: Some(
                 (
                     Token {

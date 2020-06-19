@@ -56,11 +56,10 @@ pub struct Location {
 
 impl fmt::Debug for Location {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let path = PathBuf::from(self.file.lookup());
-        if let Some(file_name) = path.file_name() {
-            write!(f, "{:?}:{:?}", file_name, self.span)
+        if let Some(file_name) = self.file.lookup().rsplitn(2, ":").last() {
+            write!(f, "{}:{:?}", file_name, self.span)
         } else {
-            write!(f, "invalid file path: {:?}:{:?}", path, self.span)
+            write!(f, "invalid file: {:?}", self.file)
         }
     }
 }
@@ -142,5 +141,21 @@ impl<T> WithLocation<T> {
             location: Location::generated(),
             item,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn location_debug_printing() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                Location::new(FileKey::new("example/file.js:99"), Span::new(10, 20))
+            ),
+            "example/file.js:10:30".to_string()
+        );
     }
 }

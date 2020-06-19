@@ -11,7 +11,7 @@ query Test {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: "fixme_fat_interface_on_union.graphql":6:11,
+                location: fixme_fat_interface_on_union.graphql:6:11,
                 item: "Test",
             },
             type_: Object(0),
@@ -21,7 +21,7 @@ query Test {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "fixme_fat_interface_on_union.graphql":12:45,
+                        location: fixme_fat_interface_on_union.graphql:12:45,
                         item: FieldID(
                             5,
                         ),
@@ -32,7 +32,7 @@ query Test {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "fixme_fat_interface_on_union.graphql":46:54,
+                                location: fixme_fat_interface_on_union.graphql:46:54,
                                 item: FieldID(
                                     370,
                                 ),
@@ -41,7 +41,7 @@ query Test {
                             directives: [
                                 Directive {
                                     name: WithLocation {
-                                        location: "fixme_fat_interface_on_union.graphql":55:74,
+                                        location: fixme_fat_interface_on_union.graphql:55:74,
                                         item: "fixme_fat_interface",
                                     },
                                     arguments: [],

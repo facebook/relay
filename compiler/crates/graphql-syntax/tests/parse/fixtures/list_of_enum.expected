@@ -7,7 +7,7 @@ Document {
     span: 0:65,
     definitions: [
         FragmentDefinition {
-            location: "list_of_enum.graphql":0:65,
+            location: list_of_enum.graphql:0:65,
             fragment: Token {
                 span: "0:9",
                 kind: Identifier,

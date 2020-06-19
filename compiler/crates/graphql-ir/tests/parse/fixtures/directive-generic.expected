@@ -7,7 +7,7 @@ fragment TestFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "directive-generic.graphql":9:22,
+                location: directive-generic.graphql:9:22,
                 item: "TestFragment",
             },
             variable_definitions: [],
@@ -18,7 +18,7 @@ fragment TestFragment on User {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "directive-generic.graphql":31:37,
+                        location: directive-generic.graphql:31:37,
                         item: FieldID(
                             450,
                         ),
@@ -27,17 +27,17 @@ fragment TestFragment on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: "directive-generic.graphql":38:53,
+                                location: directive-generic.graphql:38:53,
                                 item: "customDirective",
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
-                                        location: "directive-generic.graphql":54:59,
+                                        location: directive-generic.graphql:54:59,
                                         item: "level",
                                     },
                                     value: WithLocation {
-                                        location: "directive-generic.graphql":61:63,
+                                        location: directive-generic.graphql:61:63,
                                         item: Constant(
                                             Int(
                                                 11,

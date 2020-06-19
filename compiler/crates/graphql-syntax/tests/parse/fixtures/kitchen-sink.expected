@@ -68,7 +68,7 @@ Document {
     span: 0:1123,
     definitions: [
         OperationDefinition {
-            location: "kitchen-sink.graphql":0:391,
+            location: kitchen-sink.graphql:0:391,
             operation: Some(
                 (
                     Token {
@@ -763,7 +763,7 @@ Document {
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":391:497,
+            location: kitchen-sink.graphql:391:497,
             operation: Some(
                 (
                     Token {
@@ -959,7 +959,7 @@ Document {
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":497:727,
+            location: kitchen-sink.graphql:497:727,
             operation: Some(
                 (
                     Token {
@@ -1229,7 +1229,7 @@ Document {
             },
         },
         FragmentDefinition {
-            location: "kitchen-sink.graphql":727:1033,
+            location: kitchen-sink.graphql:727:1033,
             fragment: Token {
                 span: "727:896",
                 kind: Identifier,
@@ -1476,7 +1476,7 @@ Document {
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":1033:1099,
+            location: kitchen-sink.graphql:1033:1099,
             operation: None,
             name: None,
             variable_definitions: None,
@@ -1613,7 +1613,7 @@ Document {
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":1099:1123,
+            location: kitchen-sink.graphql:1099:1123,
             operation: Some(
                 (
                     Token {

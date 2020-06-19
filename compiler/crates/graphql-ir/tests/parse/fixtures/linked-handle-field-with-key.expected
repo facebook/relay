@@ -10,7 +10,7 @@ fragment LinkedHandleField on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "linked-handle-field-with-key.graphql":9:27,
+                location: linked-handle-field-with-key.graphql:9:27,
                 item: "LinkedHandleField",
             },
             variable_definitions: [],
@@ -21,7 +21,7 @@ fragment LinkedHandleField on User {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "linked-handle-field-with-key.graphql":36:46,
+                        location: linked-handle-field-with-key.graphql:36:46,
                         item: FieldID(
                             448,
                         ),
@@ -29,11 +29,11 @@ fragment LinkedHandleField on User {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "linked-handle-field-with-key.graphql":47:52,
+                                location: linked-handle-field-with-key.graphql:47:52,
                                 item: "first",
                             },
                             value: WithLocation {
-                                location: "linked-handle-field-with-key.graphql":54:56,
+                                location: linked-handle-field-with-key.graphql:54:56,
                                 item: Constant(
                                     Int(
                                         10,
@@ -45,17 +45,17 @@ fragment LinkedHandleField on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: "linked-handle-field-with-key.graphql":63:76,
+                                location: linked-handle-field-with-key.graphql:63:76,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
-                                        location: "linked-handle-field-with-key.graphql":77:83,
+                                        location: linked-handle-field-with-key.graphql:77:83,
                                         item: "handle",
                                     },
                                     value: WithLocation {
-                                        location: "linked-handle-field-with-key.graphql":85:102,
+                                        location: linked-handle-field-with-key.graphql:85:102,
                                         item: Constant(
                                             String(
                                                 "clientFriends",
@@ -65,11 +65,11 @@ fragment LinkedHandleField on User {
                                 },
                                 Argument {
                                     name: WithLocation {
-                                        location: "linked-handle-field-with-key.graphql":102:105,
+                                        location: linked-handle-field-with-key.graphql:102:105,
                                         item: "key",
                                     },
                                     value: WithLocation {
-                                        location: "linked-handle-field-with-key.graphql":107:134,
+                                        location: linked-handle-field-with-key.graphql:107:134,
                                         item: Constant(
                                             String(
                                                 "LinkedHandleField_friends",
@@ -84,7 +84,7 @@ fragment LinkedHandleField on User {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "linked-handle-field-with-key.graphql":137:147,
+                                location: linked-handle-field-with-key.graphql:137:147,
                                 item: FieldID(
                                     169,
                                 ),

@@ -20,6 +20,9 @@ const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
 
+const generateAbstractTypeRefinementKey = require('../../util/generateAbstractTypeRefinementKey');
+const partitionArray = require('../../util/partitionArray');
+
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -692,7 +695,37 @@ function appendLocal3DPayload(
 
 // Visitor for generating raw response type
 function createRawResponseTypeVisitor(schema: Schema, state: State) {
-  const visitor = {
+  return {
+    enter: {
+      // Process TypeDiscriminator as NormalizationCodeGenerator does
+      InlineFragment(node) {
+        const rawType = schema.getRawType(node.typeCondition);
+        const isAbstractType = schema.isAbstractType(rawType);
+        if (isAbstractType) {
+          const abstractKey = generateAbstractTypeRefinementKey(
+            schema,
+            rawType,
+          );
+          const [discriminators, otherSelections] = partitionArray(
+            node.selections,
+            selection =>
+              selection.kind === 'ScalarField' &&
+              selection.metadata?.abstractKey === abstractKey,
+          );
+          const discriminator = discriminators[0];
+          if (discriminator != null) {
+            if (otherSelections.length === 0) {
+              return discriminator;
+            } else {
+              return {
+                selections: otherSelections,
+                ...node,
+              };
+            }
+          }
+        }
+      },
+    },
     leave: {
       Root(node) {
         return exportType(
@@ -748,7 +781,6 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       },
     },
   };
-  return visitor;
 }
 
 // Dedupe the generated type of module selections to reduce file size

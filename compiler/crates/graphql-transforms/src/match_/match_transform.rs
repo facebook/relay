@@ -588,10 +588,11 @@ impl Transformer for MatchTransform<'_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.parent_type = fragment.type_condition;
         self.document_name = fragment.name.item;
-        self.path = Default::default();
         self.matches_for_path = Default::default();
+        self.module_key = None;
+        self.parent_type = fragment.type_condition;
+        self.path = Default::default();
         self.default_transform_fragment(fragment)
     }
 
@@ -599,10 +600,11 @@ impl Transformer for MatchTransform<'_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.parent_type = operation.type_;
         self.document_name = operation.name.item;
-        self.path = Default::default();
         self.matches_for_path = Default::default();
+        self.module_key = None;
+        self.parent_type = operation.type_;
+        self.path = Default::default();
         self.default_transform_operation(operation)
     }
 
@@ -649,10 +651,11 @@ impl Transformer for MatchTransform<'_> {
     // Validate and transform `@match`
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
+        let module_key = self.module_key;
         self.module_key = None;
 
         // Only process fields with @match
-        if let Some(match_directive) = match_directive {
+        let result = if let Some(match_directive) = match_directive {
             match self.validate_transform_linked_field_with_match_directive(field, match_directive)
             {
                 Ok(result) => result,
@@ -677,7 +680,9 @@ impl Transformer for MatchTransform<'_> {
             self.path.pop();
             self.parent_type = previous_parent_type;
             result
-        }
+        };
+        self.module_key = module_key;
+        result
     }
 
     // validate and transform `@module` into a custom directive for codegen

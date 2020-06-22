@@ -718,8 +718,8 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
               return discriminator;
             } else {
               return {
-                selections: otherSelections,
                 ...node,
+                selections: otherSelections,
               };
             }
           }

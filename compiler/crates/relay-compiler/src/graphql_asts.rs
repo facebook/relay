@@ -7,7 +7,7 @@
 
 use crate::compiler_state::{GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
-use common::FileKey;
+use common::SourceLocationKey;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::Sources;
 use graphql_syntax::ExecutableDefinition;
@@ -65,9 +65,9 @@ impl<'state> GraphQLAsts<'state> {
                 };
 
                 for (index, graphql_source) in graphql_sources.iter().enumerate() {
-                    let file_key =
-                        FileKey::new(&format!("{}:{}", file_name.to_string_lossy(), index));
-                    match graphql_syntax::parse(&graphql_source.text, file_key) {
+                    let source_location =
+                        SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
+                    match graphql_syntax::parse(&graphql_source.text, source_location) {
                         Ok(document) => {
                             definitions_for_file.extend(document.definitions);
                         }
@@ -77,7 +77,7 @@ impl<'state> GraphQLAsts<'state> {
                                 .map(|error| error.with_source(graphql_source.clone())),
                         ),
                     }
-                    graphql_source_strings.insert(file_key, &graphql_source);
+                    graphql_source_strings.insert(source_location, &graphql_source);
                 }
 
                 // If we used any pending sources for the current file, collect the
@@ -113,9 +113,9 @@ impl<'state> GraphQLAsts<'state> {
                 if !parsed_files.contains(file_name) {
                     let mut definitions_for_file = Vec::new();
                     for (index, graphql_source) in file_state.graphql_sources.iter().enumerate() {
-                        let file_key =
-                            FileKey::new(&format!("{}:{}", file_name.to_string_lossy(), index));
-                        match graphql_syntax::parse(&graphql_source.text, file_key) {
+                        let source_location =
+                            SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
+                        match graphql_syntax::parse(&graphql_source.text, source_location) {
                             Ok(document) => {
                                 definitions_for_file.extend(document.definitions);
                             }
@@ -125,7 +125,7 @@ impl<'state> GraphQLAsts<'state> {
                                     .map(|error| error.with_source(graphql_source.clone())),
                             ),
                         }
-                        graphql_source_strings.insert(file_key, &graphql_source);
+                        graphql_source_strings.insert(source_location, &graphql_source);
                     }
                     asts.extend(definitions_for_file);
                 }

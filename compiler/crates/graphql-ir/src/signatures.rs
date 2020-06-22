@@ -122,7 +122,9 @@ fn build_fragment_signature(
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
     Ok(FragmentSignature {
-        name: fragment.name.name_with_location(fragment.location.file()),
+        name: fragment
+            .name
+            .name_with_location(fragment.location.source_location()),
         type_condition,
         variable_definitions,
     })
@@ -178,7 +180,7 @@ fn build_fragment_variable_definitions(
                     Ok(VariableDefinition {
                         name: variable_arg
                             .name
-                            .name_with_location(fragment.location.file()),
+                            .name_with_location(fragment.location.source_location()),
                         type_,
                         directives: Default::default(),
                         default_value,
@@ -215,8 +217,8 @@ fn get_argument_type(
         _ => None,
     };
     if let Some(type_name) = type_name {
-        let type_ast =
-            graphql_syntax::parse_type(type_name, location.file()).map_err(|errors| {
+        let type_ast = graphql_syntax::parse_type(type_name, location.source_location()).map_err(
+            |errors| {
                 errors
                     .into_iter()
                     .map(|x| {
@@ -226,7 +228,8 @@ fn get_argument_type(
                         )
                     })
                     .collect::<Vec<_>>()
-            })?;
+            },
+        )?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {

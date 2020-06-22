@@ -9,7 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-use common::FileKey;
+use common::SourceLocationKey;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
@@ -31,7 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             continue;
         }
         let file_name = file_path.file_stem().unwrap().to_str().unwrap();
-        let file_key = FileKey::new(file_name);
+        let source_location = SourceLocationKey::standalone(file_name);
         let file_data = fs::read_to_string(&file_path).unwrap();
         let parts: Vec<_> = file_data.split("%extensions%").collect();
         let (source, schema) = match parts.as_slice() {
@@ -39,7 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             [source] => (source, get_test_schema()),
             _ => panic!("Expected at most one %extensions% separator."),
         };
-        let ast = parse(source, file_key)
+        let ast = parse(source, source_location)
             .unwrap_or_else(|error| panic!("failed to parse: {}: {:?}", file_name, error));
         let ir = build(&schema, &ast.definitions)
             .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));

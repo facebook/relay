@@ -6,7 +6,7 @@
  */
 
 use super::{artifact_content::ArtifactContent, Artifact, ProjectConfig};
-use common::FileKey;
+use common::SourceLocationKey;
 use graphql_ir::OperationDefinition;
 use interner::StringKey;
 use schema::Schema;
@@ -17,7 +17,7 @@ pub struct GenerateExtraArtifactArgs<'schema, 'artifact> {
     pub project_config: &'artifact ProjectConfig,
     pub normalization_operation: &'artifact OperationDefinition,
     pub name: StringKey,
-    pub source_file: FileKey,
+    pub source_file: SourceLocationKey,
     pub text: &'artifact str,
     pub id: Option<&'artifact String>,
 }

@@ -7,7 +7,7 @@
 
 use crate::syntax_error::SyntaxError;
 use crate::token_kind::TokenKind;
-use common::{FileKey, Location, Named, Span, WithLocation};
+use common::{Location, Named, SourceLocationKey, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;
 
@@ -197,7 +197,7 @@ impl fmt::Display for VariableIdentifier {
 }
 
 impl VariableIdentifier {
-    pub fn name_with_location(&self, file: FileKey) -> WithLocation<StringKey> {
+    pub fn name_with_location(&self, file: SourceLocationKey) -> WithLocation<StringKey> {
         WithLocation::from_span(file, self.span, self.name)
     }
 }
@@ -216,7 +216,7 @@ impl fmt::Display for Identifier {
 }
 
 impl Identifier {
-    pub fn name_with_location(&self, file: FileKey) -> WithLocation<StringKey> {
+    pub fn name_with_location(&self, file: SourceLocationKey) -> WithLocation<StringKey> {
         WithLocation::from_span(file, self.span, self.value)
     }
 }

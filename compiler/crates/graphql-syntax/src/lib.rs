@@ -23,14 +23,17 @@ pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource};
 pub use syntax_node::*;
 
 use crate::parser::Parser;
-use common::FileKey;
+use common::SourceLocationKey;
 
-pub fn parse(source: &str, file: FileKey) -> SyntaxResult<Document> {
-    let parser = Parser::new(source, file);
+pub fn parse(source: &str, source_location: SourceLocationKey) -> SyntaxResult<Document> {
+    let parser = Parser::new(source, source_location);
     parser.parse_document()
 }
 
-pub fn parse_type(source: &str, file: FileKey) -> SyntaxResult<TypeAnnotation> {
-    let parser = Parser::new(source, file);
+pub fn parse_type(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> SyntaxResult<TypeAnnotation> {
+    let parser = Parser::new(source, source_location);
     parser.parse_type()
 }

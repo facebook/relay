@@ -5,18 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_syntax::{parse, GraphQLSource};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    parse(fixture.content, FileKey::new(fixture.file_name))
-        .map(|x| format!("{:#?}", x))
-        .map_err(|errors| {
-            errors
-                .into_iter()
-                .map(|error| error.print(&GraphQLSource::new(fixture.content, 0, 0)))
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        })
+    parse(
+        fixture.content,
+        SourceLocationKey::standalone(fixture.file_name),
+    )
+    .map(|x| format!("{:#?}", x))
+    .map_err(|errors| {
+        errors
+            .into_iter()
+            .map(|error| error.print(&GraphQLSource::new(fixture.content, 0, 0)))
+            .collect::<Vec<_>>()
+            .join("\n\n")
+    })
 }

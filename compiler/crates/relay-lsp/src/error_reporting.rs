@@ -11,13 +11,10 @@ use crate::lsp::{
 };
 use crate::lsp::{Connection, Url};
 use crate::state::ServerState;
-
 use relay_compiler::errors::{
     BuildProjectError, SyntaxErrorWithSource, ValidationError, ValidationErrorWithSources,
 };
-
 use std::fs;
-use std::path::PathBuf;
 
 /// Report errors that occur during the `build_project` step
 pub fn report_build_project_errors(
@@ -96,9 +93,7 @@ pub fn report_syntax_errors(
     for SyntaxErrorWithSource { error, source } in errors {
         // Remove the index from the end of the path, resolve the absolute path
         let file_path = {
-            let file_path_and_index = error.location.file().lookup();
-            let file_path_and_index: Vec<&str> = file_path_and_index.split(':').collect();
-            let file_path = PathBuf::from(file_path_and_index[0]);
+            let file_path = error.location.source_location().path();
             fs::canonicalize(server_state.root_dir.join(file_path)).unwrap()
         };
 

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::build;
@@ -13,10 +13,10 @@ use graphql_syntax::parse;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let file_key = FileKey::new(fixture.file_name);
-    let ast = parse(fixture.content, file_key).unwrap();
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+    let ast = parse(fixture.content, source_location).unwrap();
     let mut sources = FnvHashMap::default();
-    sources.insert(file_key, fixture.content);
+    sources.insert(source_location, fixture.content);
 
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|x| format!("{:#?}", x))

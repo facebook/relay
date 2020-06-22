@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FileKey};
+use common::{ConsoleLogger, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
@@ -25,9 +25,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         _ => panic!(),
     };
 
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+
     let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), source);
-    let ast = parse(source, FileKey::new(fixture.file_name)).unwrap();
+    sources.insert(source_location, source);
+    let ast = parse(source, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(Arc::clone(&schema), ir);
     let programs = apply_transforms(

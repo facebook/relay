@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use graphql_ir::{build, ExecutableDefinition, Selection};
 use graphql_syntax::parse;
 use graphql_transforms::NodeIdentifier;
@@ -20,8 +20,8 @@ fn get_selection(def: &ExecutableDefinition) -> &Selection {
 }
 
 fn are_selections_equal(graphql: &str) -> bool {
-    let file_key = FileKey::new("test");
-    let ast = parse(graphql, file_key).unwrap();
+    let source_location = SourceLocationKey::standalone("test");
+    let ast = parse(graphql, source_location).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let left = NodeIdentifier::from_selection(&TEST_SCHEMA, get_selection(&ir[0]));
     let right = NodeIdentifier::from_selection(&TEST_SCHEMA, get_selection(&ir[1]));

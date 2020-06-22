@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FileKey, NamedItem};
+use common::{ConsoleLogger, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, ValidationError};
@@ -19,8 +19,10 @@ use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+
     let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
+    sources.insert(source_location, fixture.content);
 
     if fixture.content.find("%TODO%").is_some() {
         if fixture.content.find("expected-to-throw").is_some() {
@@ -45,7 +47,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         errs.join("\n\n")
     };
 
-    let ast = parse(base, FileKey::new(fixture.file_name)).unwrap();
+    let ast = parse(base, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 

@@ -7,7 +7,7 @@
 
 //! Utilities for providing the completion language feature
 use crate::lsp::Position;
-use common::{FileKey, Span};
+use common::{SourceLocationKey, Span};
 use graphql_syntax::{parse, Document, GraphQLSource};
 use interner::StringKey;
 use log::info;
@@ -524,7 +524,10 @@ pub fn get_completion_request(
         None => return None,
     };
 
-    match parse(&graphql_source.text, FileKey::new(&url.to_string())) {
+    match parse(
+        &graphql_source.text,
+        SourceLocationKey::standalone(&url.to_string()),
+    ) {
         Ok(document) => {
             // Now we need to take the `Position` and map that to an offset relative
             // to this GraphQL document, as the `Span`s in the document are relative.

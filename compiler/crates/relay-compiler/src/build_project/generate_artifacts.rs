@@ -10,7 +10,7 @@ pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
-use common::{FileKey, NamedItem};
+use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::{
     print_full_operation, write_fragment_with_graphqljs_formatting,
@@ -28,7 +28,7 @@ pub struct Artifact<'a> {
     pub content: ArtifactContent<'a>,
     /// The source file responsible for generating this file.
     /// For example: `my_project/Component.react.js`
-    pub source_file: FileKey,
+    pub source_file: SourceLocationKey,
 }
 
 pub fn generate_artifacts<'a>(
@@ -60,7 +60,7 @@ pub fn generate_artifacts<'a>(
             )
             .unwrap();
             let source_hash = source_hashes.get(&source_name).cloned().unwrap();
-            let source_file = source_fragment.name.location.file();
+            let source_file = source_fragment.name.location.source_location();
             artifacts.push(Artifact {
                 name: normalization_operation.name.item,
                 path: path_for_js_artifact(
@@ -95,7 +95,7 @@ pub fn generate_artifacts<'a>(
                 programs,
                 normalization_operation,
                 source_hash,
-                source_fragment.name.location.file(),
+                source_fragment.name.location.source_location(),
             )?);
         } else {
             let source_operation = programs
@@ -122,7 +122,7 @@ pub fn generate_artifacts<'a>(
                 programs,
                 normalization_operation,
                 source_hash,
-                normalization_operation.name.location.file(),
+                normalization_operation.name.location.source_location(),
             )?);
         }
     }
@@ -157,7 +157,7 @@ fn generate_normalization_artifact<'a>(
     programs: &'a Programs,
     normalization_operation: &'a OperationDefinition,
     source_hash: String,
-    source_file: FileKey,
+    source_file: SourceLocationKey,
 ) -> Result<Artifact<'a>, BuildProjectError> {
     let name = normalization_operation.name.item;
     let print_operation = programs
@@ -184,7 +184,7 @@ fn generate_normalization_artifact<'a>(
             text,
             id_and_text_hash: None,
         },
-        source_file: normalization_operation.name.location.file(),
+        source_file: normalization_operation.name.location.source_location(),
     })
 }
 
@@ -201,20 +201,24 @@ fn generate_reader_artifact<'a>(
         .expect("a type fragment should be generated for this fragment");
     Artifact {
         name,
-        path: path_for_js_artifact(project_config, reader_fragment.name.location.file(), name),
+        path: path_for_js_artifact(
+            project_config,
+            reader_fragment.name.location.source_location(),
+            name,
+        ),
         content: ArtifactContent::Fragment {
             reader_fragment,
             typegen_fragment,
             source_hash,
         },
-        source_file: reader_fragment.name.location.file(),
+        source_file: reader_fragment.name.location.source_location(),
     }
 }
 
 /// This function will create a correct path for artifact based on the project configuration
 pub fn create_path_for_artifact(
     project_config: &ProjectConfig,
-    source_file: FileKey,
+    source_file: SourceLocationKey,
     artifact_file_name: String,
     use_extra_artifact_dir: bool,
 ) -> PathBuf {
@@ -231,7 +235,7 @@ pub fn create_path_for_artifact(
         Some(output) => {
             if project_config.shard_output {
                 if let Some(ref regex) = project_config.shard_strip_regex {
-                    let full_source_path = regex.replace_all(source_file.lookup(), "");
+                    let full_source_path = regex.replace_all(source_file.path(), "");
                     let mut output = output.join(full_source_path.to_string());
                     output.pop();
                     output
@@ -252,7 +256,7 @@ pub fn create_path_for_artifact(
 
 fn path_for_js_artifact(
     project_config: &ProjectConfig,
-    source_file: FileKey,
+    source_file: SourceLocationKey,
     definition_name: StringKey,
 ) -> PathBuf {
     create_path_for_artifact(

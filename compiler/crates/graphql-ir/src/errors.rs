@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FileKey, Location};
+use common::{Location, SourceLocationKey};
 use fnv::FnvHashMap;
 use graphql_syntax::{GraphQLSource, OperationKind};
 use interner::StringKey;
@@ -15,7 +15,7 @@ use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
 
-pub type Sources<'a> = FnvHashMap<FileKey, &'a GraphQLSource>;
+pub type Sources<'a> = FnvHashMap<SourceLocationKey, &'a GraphQLSource>;
 
 impl From<ValidationError> for Vec<ValidationError> {
     fn from(error: ValidationError) -> Self {
@@ -47,7 +47,7 @@ impl ValidationError {
         let sources = self
             .locations
             .iter()
-            .map(|location| sources.get(&location.file()))
+            .map(|location| sources.get(&location.source_location()))
             .map(|source| source.map(|source| (**source).clone()))
             .collect();
         ValidationErrorWithSources {
@@ -56,14 +56,14 @@ impl ValidationError {
         }
     }
 
-    pub fn print(&self, sources: &FnvHashMap<FileKey, &str>) -> String {
+    pub fn print(&self, sources: &FnvHashMap<SourceLocationKey, &str>) -> String {
         format!(
             "{}:\n{}",
             self.message,
             self.locations
                 .iter()
                 .map(|location| {
-                    let source = match sources.get(&location.file()) {
+                    let source = match sources.get(&location.source_location()) {
                         Some(source) => source,
                         None => "<source not found>",
                     };

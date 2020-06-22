@@ -17,7 +17,7 @@ mod perf_logger;
 mod span;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
-pub use location::{FileKey, Location, WithLocation};
+pub use location::{Location, SourceLocationKey, WithLocation};
 pub use murmurhash::murmurhash;
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{PerfLogEvent, PerfLogger};

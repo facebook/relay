@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
@@ -14,15 +14,18 @@ use graphql_transforms::disallow_id_as_alias;
 use test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let file_key = FileKey::new(fixture.file_name);
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();
-    let ast = parse(fixture.content, file_key).unwrap();
+    let ast = parse(fixture.content, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(schema, ir);
     let validation_result = disallow_id_as_alias(&program);
 
     let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
+    sources.insert(
+        SourceLocationKey::standalone(fixture.file_name),
+        fixture.content,
+    );
 
     match validation_result {
         Ok(_) => Ok("OK".to_owned()),

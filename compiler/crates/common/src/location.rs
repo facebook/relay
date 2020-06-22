@@ -11,33 +11,52 @@ use interner::{Intern, StringKey};
 use std::fmt;
 use std::path::PathBuf;
 
-use lazy_static::lazy_static;
-
-lazy_static! {
-    static ref GENERATED_FILE_KEY: FileKey = FileKey("<generated>".intern());
+/// The location of a source. Could be a standalone file (e.g. test.graphql),
+/// an embedded source (GraphQL tag in a JS file) or generated code without a
+/// location.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum SourceLocationKey {
+    /// A source embedded within a file. The 0-based index is an index into the
+    /// embedded sources. E.g. the second graphql tag has index 1.
+    Embedded {
+        path: StringKey,
+        index: usize,
+    },
+    Standalone {
+        path: StringKey,
+    },
+    Generated,
 }
 
-/// An interned file path
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct FileKey(StringKey);
-
-impl FileKey {
-    /// Returns a FileKey that's not backed by a real file. In most cases it's
-    /// preferred to use a related real file.
+impl SourceLocationKey {
+    /// Returns a `SourceLocationKey` that's not backed by a real file. In most
+    /// cases it's preferred to use a related real file.
     pub fn generated() -> Self {
-        *GENERATED_FILE_KEY
+        SourceLocationKey::Generated
     }
 
-    pub fn new(path: &str) -> Self {
-        FileKey(path.intern())
+    pub fn standalone(path: &str) -> Self {
+        SourceLocationKey::Standalone {
+            path: path.intern(),
+        }
+    }
+    pub fn embedded(path: &str, index: usize) -> Self {
+        SourceLocationKey::Embedded {
+            path: path.intern(),
+            index,
+        }
     }
 
-    pub fn lookup(self) -> &'static str {
-        self.0.lookup()
+    pub fn path(self) -> &'static str {
+        match self {
+            SourceLocationKey::Embedded { path, .. } => path.lookup(),
+            SourceLocationKey::Standalone { path } => path.lookup(),
+            SourceLocationKey::Generated => "<generated>",
+        }
     }
 
     pub fn get_dir(self) -> PathBuf {
-        let mut path = PathBuf::from(self.0.lookup());
+        let mut path = PathBuf::from(self.path());
         path.pop();
         path
     }
@@ -47,8 +66,8 @@ impl FileKey {
 /// with that file.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Location {
-    /// The (interned) path of the file containing this location
-    file: FileKey,
+    /// The source containing this location (e.g. embedded or standalone file).
+    source_location: SourceLocationKey,
 
     /// Relative position with the file
     span: Span,
@@ -56,11 +75,7 @@ pub struct Location {
 
 impl fmt::Debug for Location {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(file_name) = self.file.lookup().rsplitn(2, ":").last() {
-            write!(f, "{}:{:?}", file_name, self.span)
-        } else {
-            write!(f, "invalid file: {:?}", self.file)
-        }
+        write!(f, "{}:{:?}", self.source_location.path(), self.span)
     }
 }
 
@@ -68,15 +83,18 @@ impl Location {
     /// Returns a location that's not backed by a real file. In most cases it's
     /// preferred to use a related real location.
     pub fn generated() -> Self {
-        Location::new(FileKey::generated(), Span::new(0, 0))
+        Location::new(SourceLocationKey::generated(), Span::new(0, 0))
     }
 
-    pub fn new(file: FileKey, span: Span) -> Self {
-        Self { file, span }
+    pub fn new(source_location: SourceLocationKey, span: Span) -> Self {
+        Self {
+            source_location,
+            span,
+        }
     }
 
-    pub fn file(&self) -> FileKey {
-        self.file
+    pub fn source_location(&self) -> SourceLocationKey {
+        self.source_location
     }
 
     pub fn span(&self) -> &Span {
@@ -85,7 +103,7 @@ impl Location {
 
     pub fn with_span(&self, span: Span) -> Self {
         Self {
-            file: self.file,
+            source_location: self.source_location,
             span,
         }
     }
@@ -97,7 +115,7 @@ impl Location {
     pub fn print(&self, source: &str, line_offset: usize, column_offset: usize) -> String {
         format!(
             "{}:{}",
-            self.file.lookup(),
+            self.source_location.path(),
             self.span.print(source, line_offset, column_offset)
         )
     }
@@ -122,9 +140,9 @@ impl<T: PartialOrd> PartialOrd for WithLocation<T> {
 }
 
 impl<T> WithLocation<T> {
-    pub fn from_span(file: FileKey, span: Span, item: T) -> Self {
+    pub fn from_span(source_location: SourceLocationKey, span: Span, item: T) -> Self {
         Self {
-            location: Location::new(file, span),
+            location: Location::new(source_location, span),
             item,
         }
     }
@@ -153,7 +171,10 @@ mod tests {
         assert_eq!(
             format!(
                 "{:?}",
-                Location::new(FileKey::new("example/file.js:99"), Span::new(10, 20))
+                Location::new(
+                    SourceLocationKey::embedded("example/file.js", 2),
+                    Span::new(10, 20)
+                )
             ),
             "example/file.js:10:30".to_string()
         );

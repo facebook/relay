@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use dependency_analyzer::*;
 use fixture_tests::Fixture;
 use fnv::FnvHashSet;
@@ -34,11 +34,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map(|name| name.intern())
         .collect();
 
-    let file_key = FileKey::new(fixture.file_name);
-    let mut asts = parse(parts[0], file_key).unwrap().definitions;
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+    let mut asts = parse(parts[0], source_location).unwrap().definitions;
     let mut base_names = FnvHashSet::default();
     for part in parts.iter().skip(1) {
-        let defs = parse(part, file_key).unwrap().definitions;
+        let defs = parse(part, source_location).unwrap().definitions;
         for def in defs {
             base_names.insert(match &def {
                 graphql_syntax::ExecutableDefinition::Operation(node) => {

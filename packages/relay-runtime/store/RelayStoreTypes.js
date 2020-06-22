@@ -463,6 +463,7 @@ export type LogEvent =
     |}
   | {|
       +name: 'store.gc',
+      +references: Set<DataID>,
     |}
   | {|
       +name: 'store.notify.start',

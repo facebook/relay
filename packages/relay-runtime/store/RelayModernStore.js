@@ -668,6 +668,7 @@ class RelayModernStore implements Store {
       if (log != null) {
         log({
           name: 'store.gc',
+          references,
         });
       }
 

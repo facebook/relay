@@ -12,6 +12,7 @@
 
 'use strict';
 
+const argumentContainsVariables = require('../util/argumentContainsVariables');
 const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
 const partitionArray = require('../util/partitionArray');
 const sortObjectByKey = require('./sortObjectByKey');
@@ -539,7 +540,7 @@ function getStaticStorageKey(
   if (
     !field.args ||
     field.args.length === 0 ||
-    field.args.some(arg => arg.kind !== 'Literal')
+    field.args.some(argumentContainsVariables)
   ) {
     return null;
   }

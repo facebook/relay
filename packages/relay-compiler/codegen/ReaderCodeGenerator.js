@@ -14,6 +14,7 @@
 
 const CodeMarker = require('../util/CodeMarker');
 
+const argumentContainsVariables = require('../util/argumentContainsVariables');
 const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
@@ -460,7 +461,7 @@ function getStaticStorageKey(field: ReaderField, metadata: Metadata): ?string {
   if (
     !field.args ||
     field.args.length === 0 ||
-    field.args.some(arg => arg.kind !== 'Literal')
+    field.args.some(argumentContainsVariables)
   ) {
     return null;
   }

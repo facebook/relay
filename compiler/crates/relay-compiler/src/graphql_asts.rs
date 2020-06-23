@@ -43,7 +43,7 @@ impl GraphQLAsts {
             let pending_source_set =
                 graphql_sources.pending_sources_for_source_set(*source_set_name);
 
-            for (file_name, file_state) in source_set.iter() {
+            for (file_name, graphql_sources) in source_set.iter() {
                 let mut definitions_for_file = Vec::new();
 
                 // Check for graphql strings in the pending sources for
@@ -51,14 +51,14 @@ impl GraphQLAsts {
                 // available
                 let mut used_pending_sources = false;
                 let graphql_sources = if let Some(pending_source_set) = pending_source_set {
-                    if let Some(pending_file_state) = pending_source_set.get(file_name) {
+                    if let Some(pending_graphql_sources) = pending_source_set.get(file_name) {
                         used_pending_sources = true;
-                        &pending_file_state.graphql_sources
+                        pending_graphql_sources
                     } else {
-                        &file_state.graphql_sources
+                        graphql_sources
                     }
                 } else {
-                    &file_state.graphql_sources
+                    graphql_sources
                 };
 
                 for (index, graphql_source) in graphql_sources.iter().enumerate() {
@@ -104,11 +104,11 @@ impl GraphQLAsts {
                 .entry(*source_set_name)
                 .or_insert_with(Vec::new);
 
-            for (file_name, file_state) in source_set.iter() {
+            for (file_name, graphql_sources) in source_set.iter() {
                 // Only parse the file if it isn't already been parsed.
                 if !parsed_files.contains(file_name) {
                     let mut definitions_for_file = Vec::new();
-                    for (index, graphql_source) in file_state.graphql_sources.iter().enumerate() {
+                    for (index, graphql_source) in graphql_sources.iter().enumerate() {
                         let source_location =
                             SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
                         match graphql_syntax::parse(&graphql_source.text, source_location) {

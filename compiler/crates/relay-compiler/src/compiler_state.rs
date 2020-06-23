@@ -64,13 +64,7 @@ impl fmt::Display for SourceSet {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct FileState {
-    pub graphql_sources: Vec<GraphQLSource>,
-    pub exists: bool,
-}
-
-type GraphQLSourceSet = IndexMap<PathBuf, FileState>;
+type GraphQLSourceSet = IndexMap<PathBuf, Vec<GraphQLSource>>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GraphQLSources {
@@ -208,38 +202,20 @@ impl CompilerState {
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
+                        .filter(|file| *file.exists)
                         .filter_map(|file| {
-                            let exists = *file.exists;
-                            if !exists {
-                                return Some(Ok((
-                                    (*file.name).to_owned(),
-                                    FileState {
-                                        graphql_sources: Vec::new(),
-                                        exists,
-                                    },
-                                )));
-                            }
-
                             match extract_graphql_strings_from_file(
                                 &file_source_changes.resolved_root,
                                 &file,
                             ) {
-                                // NOTE: Some of the JS files might not contain any graphql, so we
-                                // ignore them here by returning None.
-                                // Note that we explicitly track deleted files during watch mode
-                                // by checking the `exists` flag from watchman
                                 Ok(graphql_strings) if graphql_strings.is_empty() => None,
-                                Ok(graphql_strings) => Some(Ok((
-                                    (*file.name).to_owned(),
-                                    FileState {
-                                        graphql_sources: graphql_strings,
-                                        exists,
-                                    },
-                                ))),
+                                Ok(graphql_strings) => {
+                                    Some(Ok(((*file.name).to_owned(), graphql_strings)))
+                                }
                                 Err(err) => Some(Err(err)),
                             }
                         })
-                        .collect::<Result<IndexMap<PathBuf, FileState>>>()?;
+                        .collect::<Result<IndexMap<_, _>>>()?;
                     log_event.stop(extract_timer);
                     match source_set {
                         SourceSet::SourceSetName(source_set_name) => {

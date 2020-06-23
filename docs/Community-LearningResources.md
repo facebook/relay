@@ -7,6 +7,7 @@ title: Community Learning Resources
 
 These projects serve as an example of how to use Relay in real world applications. Some of them are even with educational videos.
 
+- https://github.com/relayjs/relay-examples
 - https://github.com/adeira/relay-example
 - https://github.com/juffalow/react-relay-example
 

@@ -335,7 +335,7 @@ export default createFragmentContainer(ArtistHeader, {
                 {
                   title: 'Type safety',
                   content:
-                    '<p>Relay generates Flow or Typescript types for each of your React components that use Relay, which represent the data that each component receives, so you can make changes more quickly and safely while knowing that correctness is guaranteed.</p>',
+                    '<p>Relay generates Flow or TypeScript types for each of your React components that use Relay, which represent the data that each component receives, so you can make changes more quickly and safely while knowing that correctness is guaranteed.</p>',
                 },
               ]}
             />

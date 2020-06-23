@@ -95,7 +95,10 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     _ => panic!("Expected to have a fragment spread"),
                                 };
 
-                                let type_name = self.program.schema.get_type_string(&parent_type);
+                                let type_name = self
+                                    .program
+                                    .schema
+                                    .get_type_string(&processing_item.parent_type);
                                 module_entries
                                     .entry(id)
                                     .and_modify(|module_entry| {

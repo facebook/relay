@@ -112,7 +112,7 @@ class Index extends React.Component {
                 {
                   title: 'Automatic data consistency',
                   content:
-                    '<p>Relay automatically keeps all of your components up to date whenever data that affects them changes, and efficiently update them only when strictly necessary.</p><p>Relay also support executing GraphQL Mutations, optionally with optimistic updates, and updates to local data, while ensuring that visible data on the screen is always kept up to date.</p>',
+                    '<p>Relay automatically keeps all of your components up to date whenever data that affects them changes, and efficiently update them only when strictly necessary.</p><p>Relay also supports executing GraphQL Mutations, optionally with optimistic updates, and updates to local data, while ensuring that visible data on the screen is always kept up to date.</p>',
                 },
               ]}
             />

@@ -22,6 +22,7 @@ use graphql_transforms::{
 use interner::StringKey;
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct Programs {
     pub source: Arc<Program>,
     pub reader: Arc<Program>,

@@ -29,7 +29,7 @@ lazy_static! {
 
 pub async fn persist_operations(
     config: &Config,
-    artifacts: &mut [Artifact<'_>],
+    artifacts: &mut [Artifact],
     persist_config: &PersistConfig,
 ) -> Result<(), BuildProjectError> {
     let mut handles = Vec::new();

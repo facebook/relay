@@ -223,7 +223,6 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                     schema,
                     Arc::new(ConsoleLogger),
                 )
-                .await
                 .map_err(|err| {
                     check_project_errors.push(err);
                 });
@@ -246,7 +245,6 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                             schema,
                             Arc::new(ConsoleLogger),
                         )
-                        .await
                         .map_err(|err| {
                             check_project_errors.push(err);
                         })

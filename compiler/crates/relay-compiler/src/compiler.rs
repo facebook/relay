@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, check_project};
+use crate::build_project::{build_project, build_schema, check_project, commit_project};
 use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
@@ -17,6 +17,7 @@ use crate::{
 use common::{PerfLogEvent, PerfLogger};
 use graphql_ir::ValidationError;
 use log::{error, info};
+use rayon::prelude::*;
 use schema::Schema;
 use std::fmt::Write;
 use std::{collections::HashMap, sync::Arc};
@@ -203,7 +204,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     schema,
                     Arc::clone(&self.perf_logger),
                 )
-                .await
                 .map_err(|err| {
                     build_project_errors.push(err);
                 })
@@ -221,7 +221,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             schema,
                             Arc::clone(&self.perf_logger),
                         )
-                        .await
                         .map_err(|err| {
                             build_project_errors.push(err);
                         })
@@ -249,90 +248,109 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
         })?;
 
-        let mut build_project_errors = vec![];
         let next_artifacts: ArtifactMap = Default::default();
 
-        let mut process_build_result = |result, _name| match result {
-            Ok(_written_artifacts) => {
-                // next_artifacts.insert(name, written_artifacts);
-            }
-            Err(err) => build_project_errors.push(err),
-        };
-
-        if let Some(only_project) = self.config.only_project {
+        let build_results: Vec<_> = if let Some(only_project) = self.config.only_project {
             let project_config = self
                 .config
                 .projects
                 .get(&only_project)
                 .unwrap_or_else(|| panic!("Expected the project {} to exist", &only_project));
-            process_build_result(
-                build_project(
-                    &self.config,
-                    project_config,
-                    compiler_state,
-                    &graphql_asts,
-                    Arc::clone(&self.perf_logger),
-                )
-                .await,
-                project_config.name,
-            )
+            vec![build_project(
+                project_config,
+                compiler_state,
+                &graphql_asts,
+                Arc::clone(&self.perf_logger),
+            )]
         } else {
-            for project_config in self.config.projects.values() {
-                if compiler_state.project_has_pending_changes(project_config.name) {
-                    // TODO: consider running all projects in parallel
-                    process_build_result(
-                        build_project(
-                            &self.config,
+            self.config
+                .projects
+                .par_iter()
+                .filter_map(|(_name, project_config)| {
+                    if compiler_state.project_has_pending_changes(project_config.name) {
+                        Some(build_project(
                             project_config,
                             compiler_state,
                             &graphql_asts,
                             Arc::clone(&self.perf_logger),
-                        )
-                        .await,
-                        project_config.name,
-                    )
+                        ))
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        };
+        let mut results = Vec::new();
+        let mut errors = Vec::new();
+        for result in build_results {
+            match result {
+                Ok(result) => results.push(result),
+                Err(error) => errors.push(error),
+            }
+        }
+
+        if errors.is_empty() {
+            for result in results {
+                let (project_name, schema, programs, artifacts) = result;
+                let project_config =
+                    self.config.projects.get(&project_name).unwrap_or_else(|| {
+                        panic!("Expected the project {} to exist", project_name)
+                    });
+                let result = commit_project(
+                    &self.config,
+                    project_config,
+                    Arc::clone(&self.perf_logger),
+                    &schema,
+                    programs,
+                    artifacts,
+                )
+                .await;
+                match result {
+                    Ok(_) => {}
+                    Err(error) => {
+                        errors.push(error);
+                        break;
+                    }
                 }
             }
         }
 
-        if build_project_errors.is_empty() {
+        if errors.is_empty() {
             compiler_state.complete_compilation(next_artifacts);
             Ok(())
         } else {
-            for error in &build_project_errors {
-                if let BuildProjectError::ValidationErrors { errors } = error {
-                    for ValidationError { message, locations } in errors {
-                        let locations_and_source: Vec<_> = locations
-                            .iter()
-                            .map(|&location| {
-                                let source = source_for_location(&self.config.root_dir, location);
-                                (location, source)
-                            })
-                            .collect();
-                        let mut error_message = format!("{}", message);
-                        for (location, source) in locations_and_source {
-                            if let Some(source) = source {
-                                write!(
-                                    error_message,
-                                    "\n{}",
-                                    location.print(
-                                        &source.text,
-                                        source.line_index,
-                                        source.column_index
-                                    )
-                                )
-                                .unwrap();
-                            } else {
-                                write!(error_message, "\n{:?}", location).unwrap();
-                            }
-                        }
-                        error!("{}", error_message);
-                    }
-                };
+            for error in &errors {
+                self.print_project_error(error);
             }
-            Err(Error::BuildProjectsErrors {
-                errors: build_project_errors,
-            })
+            Err(Error::BuildProjectsErrors { errors })
         }
+    }
+
+    fn print_project_error(&self, error: &BuildProjectError) {
+        if let BuildProjectError::ValidationErrors { errors } = error {
+            for ValidationError { message, locations } in errors {
+                let locations_and_source: Vec<_> = locations
+                    .iter()
+                    .map(|&location| {
+                        let source = source_for_location(&self.config.root_dir, location);
+                        (location, source)
+                    })
+                    .collect();
+                let mut error_message = format!("{}", message);
+                for (location, source) in locations_and_source {
+                    if let Some(source) = source {
+                        write!(
+                            error_message,
+                            "\n{}",
+                            location.print(&source.text, source.line_index, source.column_index)
+                        )
+                        .unwrap();
+                    } else {
+                        write!(error_message, "\n{:?}", location).unwrap();
+                    }
+                }
+                error!("{}", error_message);
+            }
+        };
     }
 }

@@ -16,23 +16,24 @@ use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
+use std::sync::Arc;
 
-pub enum ArtifactContent<'a> {
+pub enum ArtifactContent {
     Operation {
-        normalization_operation: &'a OperationDefinition,
-        reader_operation: &'a OperationDefinition,
-        typegen_operation: &'a OperationDefinition,
+        normalization_operation: Arc<OperationDefinition>,
+        reader_operation: Arc<OperationDefinition>,
+        typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
         text: String,
         id_and_text_hash: Option<(String, String)>,
     },
     Fragment {
-        reader_fragment: &'a FragmentDefinition,
-        typegen_fragment: &'a FragmentDefinition,
+        reader_fragment: Arc<FragmentDefinition>,
+        typegen_fragment: Arc<FragmentDefinition>,
         source_hash: String,
     },
     SplitOperation {
-        normalization_operation: &'a OperationDefinition,
+        normalization_operation: Arc<OperationDefinition>,
         source_hash: String,
     },
     Generic {
@@ -40,7 +41,7 @@ pub enum ArtifactContent<'a> {
     },
 }
 
-impl<'a> ArtifactContent<'a> {
+impl ArtifactContent {
     pub fn as_bytes(
         &self,
         config: &Config,

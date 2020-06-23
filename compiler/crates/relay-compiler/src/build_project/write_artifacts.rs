@@ -18,7 +18,7 @@ use std::path::PathBuf;
 pub fn write_artifacts(
     config: &Config,
     project_config: &ProjectConfig,
-    artifacts: &[Artifact<'_>],
+    artifacts: &[Artifact],
     schema: &Schema,
 ) -> Result<(), BuildProjectError> {
     let mut printer = Printer::default();

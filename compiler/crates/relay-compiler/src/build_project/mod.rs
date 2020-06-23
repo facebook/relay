@@ -18,7 +18,7 @@ mod persist_operations;
 mod validate;
 mod write_artifacts;
 
-use crate::compiler_state::CompilerState;
+use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::graphql_asts::GraphQLAsts;
@@ -88,7 +88,7 @@ fn build_programs(
     Ok((programs, Arc::new(source_hashes)))
 }
 
-pub async fn check_project(
+pub fn check_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts,
@@ -115,13 +115,12 @@ pub async fn check_project(
     Ok(programs)
 }
 
-pub async fn build_project(
-    config: &Config,
+pub fn build_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &GraphQLAsts,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(), BuildProjectError> {
+) -> Result<(ProjectName, Arc<Schema>, Programs, Vec<Artifact>), BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
@@ -141,10 +140,27 @@ pub async fn build_project(
         &log_event,
         Arc::clone(&perf_logger),
     )?;
+
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let mut artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))?;
+    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))?;
     log_event.stop(artifacts_timer);
+
+    log_event.stop(build_time);
+    perf_logger.complete_event(log_event);
+    Ok((project_config.name, schema, programs, artifacts))
+}
+
+pub async fn commit_project(
+    config: &Config,
+    project_config: &ProjectConfig,
+    perf_logger: Arc<impl PerfLogger + 'static>,
+    schema: &Schema,
+    programs: Programs,
+    mut artifacts: Vec<Artifact>,
+) -> Result<(), BuildProjectError> {
+    let log_event = perf_logger.create_event("commit_project");
+    let commit_time = log_event.start("commit_project_time");
 
     // If there is a persist config, persist operations now.
     if let Some(ref persist_config) = project_config.persist {
@@ -158,7 +174,7 @@ pub async fn build_project(
     if let Some(generate_extra_artifacts_fn) = &config.generate_extra_operation_artifacts {
         log_event.time("generate_extra_operation_artifacts_time", || {
             generate_extra_artifacts(
-                &schema,
+                schema,
                 project_config,
                 &mut artifacts,
                 generate_extra_artifacts_fn,
@@ -192,7 +208,7 @@ pub async fn build_project(
         programs.normalization.document_count(),
         programs.operation_text.document_count()
     );
-    log_event.stop(build_time);
+    log_event.stop(commit_time);
     perf_logger.complete_event(log_event);
     Ok(())
 }

@@ -22,20 +22,20 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Represents a generated output artifact.
-pub struct Artifact<'a> {
+pub struct Artifact {
     pub name: StringKey,
     pub path: PathBuf,
-    pub content: ArtifactContent<'a>,
+    pub content: ArtifactContent,
     /// The source file responsible for generating this file.
     /// For example: `my_project/Component.react.js`
     pub source_file: SourceLocationKey,
 }
 
-pub fn generate_artifacts<'a>(
+pub fn generate_artifacts(
     project_config: &ProjectConfig,
-    programs: &'a Programs,
+    programs: &Programs,
     source_hashes: Arc<SourceHashes>,
-) -> Result<Vec<Artifact<'a>>, BuildProjectError> {
+) -> Result<Vec<Artifact>, BuildProjectError> {
     let mut artifacts = Vec::new();
     for normalization_operation in programs.normalization.operations() {
         if let Some(directive) = normalization_operation
@@ -69,7 +69,7 @@ pub fn generate_artifacts<'a>(
                     normalization_operation.name.item,
                 ),
                 content: ArtifactContent::SplitOperation {
-                    normalization_operation,
+                    normalization_operation: Arc::clone(normalization_operation),
                     source_hash,
                 },
                 source_file,
@@ -155,10 +155,10 @@ pub fn generate_artifacts<'a>(
 fn generate_normalization_artifact<'a>(
     project_config: &ProjectConfig,
     programs: &'a Programs,
-    normalization_operation: &'a OperationDefinition,
+    normalization_operation: &Arc<OperationDefinition>,
     source_hash: String,
     source_file: SourceLocationKey,
-) -> Result<Artifact<'a>, BuildProjectError> {
+) -> Result<Artifact, BuildProjectError> {
     let name = normalization_operation.name.item;
     let print_operation = programs
         .operation_text
@@ -177,9 +177,9 @@ fn generate_normalization_artifact<'a>(
         name,
         path: path_for_js_artifact(project_config, source_file, name),
         content: ArtifactContent::Operation {
-            normalization_operation,
-            reader_operation,
-            typegen_operation,
+            normalization_operation: Arc::clone(normalization_operation),
+            reader_operation: Arc::clone(reader_operation),
+            typegen_operation: Arc::clone(typegen_operation),
             source_hash,
             text,
             id_and_text_hash: None,
@@ -188,12 +188,12 @@ fn generate_normalization_artifact<'a>(
     })
 }
 
-fn generate_reader_artifact<'a>(
+fn generate_reader_artifact(
     project_config: &ProjectConfig,
-    programs: &'a Programs,
-    reader_fragment: &'a FragmentDefinition,
+    programs: &Programs,
+    reader_fragment: &Arc<FragmentDefinition>,
     source_hash: String,
-) -> Artifact<'a> {
+) -> Artifact {
     let name = reader_fragment.name.item;
     let typegen_fragment = programs
         .typegen
@@ -207,8 +207,8 @@ fn generate_reader_artifact<'a>(
             name,
         ),
         content: ArtifactContent::Fragment {
-            reader_fragment,
-            typegen_fragment,
+            reader_fragment: Arc::clone(reader_fragment),
+            typegen_fragment: Arc::clone(typegen_fragment),
             source_hash,
         },
         source_file: reader_fragment.name.location.source_location(),

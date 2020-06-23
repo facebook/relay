@@ -34,7 +34,7 @@ impl Sha1Hash {
 pub struct ArtifactMap(HashMap<DefinitionName, Vec<ArtifactTuple>>);
 
 impl ArtifactMap {
-    pub fn insert(&mut self, artifact: Artifact<'_>) {
+    pub fn insert(&mut self, artifact: Artifact) {
         let artifact_tuple = (
             artifact.path,
             Sha1Hash::hash(

@@ -10,25 +10,26 @@ use common::SourceLocationKey;
 use graphql_ir::OperationDefinition;
 use interner::StringKey;
 use schema::Schema;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct GenerateExtraArtifactArgs<'schema, 'artifact> {
-    pub schema: &'schema Schema,
-    pub project_config: &'artifact ProjectConfig,
-    pub normalization_operation: &'artifact OperationDefinition,
+    pub id: Option<&'artifact String>,
     pub name: StringKey,
+    pub normalization_operation: Arc<OperationDefinition>,
+    pub project_config: &'artifact ProjectConfig,
+    pub schema: &'schema Schema,
     pub source_file: SourceLocationKey,
     pub text: &'artifact str,
-    pub id: Option<&'artifact String>,
 }
 
 pub type GenerateExtraArtifactsFn =
-    Box<dyn for<'schema> Fn(GenerateExtraArtifactArgs<'schema, '_>) -> Vec<Artifact<'static>>>;
+    Box<dyn for<'schema> Fn(GenerateExtraArtifactArgs<'schema, '_>) -> Vec<Artifact> + Send + Sync>;
 
 pub fn generate_extra_artifacts(
     schema: &Schema,
     project_config: &ProjectConfig,
-    artifacts: &mut Vec<Artifact<'_>>,
+    artifacts: &mut Vec<Artifact>,
     generate_extra_operation_artifacts: &GenerateExtraArtifactsFn,
 ) {
     let mut extra_artifacts = Vec::new();
@@ -42,13 +43,13 @@ pub fn generate_extra_artifacts(
         {
             extra_artifacts.extend(generate_extra_operation_artifacts(
                 GenerateExtraArtifactArgs {
-                    schema,
-                    project_config,
-                    normalization_operation,
+                    id: id_and_text_hash.as_ref().map(|(id, _)| id),
                     name: artifact.name,
+                    normalization_operation: Arc::clone(normalization_operation),
+                    project_config,
+                    schema,
                     source_file: artifact.source_file,
                     text,
-                    id: id_and_text_hash.as_ref().map(|(id, _)| id),
                 },
             ));
         }

@@ -384,19 +384,21 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
         let array = builder.lookup(items.assert_key()).assert_array();
 
         f.push('[');
+        let mut after_first = false;
         for key_or_null in array {
             match key_or_null {
-                Primitive::Null => f.push_str("null,"),
+                Primitive::Null => {}
                 Primitive::Key(key) => {
+                    if after_first {
+                        f.push(',');
+                    } else {
+                        after_first = true;
+                    }
                     let object = builder.lookup(*key).assert_object();
                     write_argument_value(f, builder, object)?;
-                    f.push(',');
                 }
                 _ => panic!("Expected an object key or null"),
             }
-        }
-        if !array.is_empty() {
-            f.pop();
         }
         f.push(']');
     } else {

@@ -289,31 +289,40 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             }
         }
 
-        if errors.is_empty() {
+        let errors = if errors.is_empty() {
+            let mut handles = Vec::new();
+            let errors_mutex = Arc::new(std::sync::Mutex::new(errors));
             for result in results {
-                let (project_name, schema, programs, artifacts) = result;
-                let project_config =
-                    self.config.projects.get(&project_name).unwrap_or_else(|| {
-                        panic!("Expected the project {} to exist", project_name)
-                    });
-                let result = commit_project(
-                    &self.config,
-                    project_config,
-                    Arc::clone(&self.perf_logger),
-                    &schema,
-                    programs,
-                    artifacts,
-                )
-                .await;
-                match result {
-                    Ok(_) => {}
-                    Err(error) => {
-                        errors.push(error);
-                        break;
+                let errors_mutex = Arc::clone(&errors_mutex);
+                handles.push(async move {
+                    let (project_name, schema, programs, artifacts) = result;
+                    let project_config =
+                        self.config.projects.get(&project_name).unwrap_or_else(|| {
+                            panic!("Expected the project {} to exist", project_name)
+                        });
+                    let result = commit_project(
+                        &self.config,
+                        project_config,
+                        Arc::clone(&self.perf_logger),
+                        &schema,
+                        programs,
+                        artifacts,
+                    )
+                    .await;
+                    match result {
+                        Ok(_) => {}
+                        Err(error) => {
+                            let mut errors = errors_mutex.lock().unwrap();
+                            errors.push(error);
+                        }
                     }
-                }
+                })
             }
-        }
+            futures::future::join_all(handles).await;
+            Arc::try_unwrap(errors_mutex).unwrap().into_inner().unwrap()
+        } else {
+            errors
+        };
 
         if errors.is_empty() {
             compiler_state.complete_compilation(next_artifacts);

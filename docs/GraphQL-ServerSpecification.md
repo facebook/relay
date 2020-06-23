@@ -32,7 +32,7 @@ It is also assumed that the reader is already familiar with [Star Wars](https://
 
 ## Schema
 
-The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js [`schemaPrinter`](https://github.com/graphql/graphql-js/blob/master/src/utilities/schemaPrinter.js).
+The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js [`printSchema`](https://github.com/graphql/graphql-js/blob/master/src/utilities/printSchema.js).
 
 ```
 interface Node {

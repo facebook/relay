@@ -24,4 +24,4 @@ pub use build_project::{
     validate, Artifact, ArtifactContent, Programs,
 };
 pub use graphql_asts::GraphQLAsts;
-pub use watchman::{FileSource, FileSourceResult, FileSourceSubscription};
+pub use watchman::{source_for_location, FileSource, FileSourceResult, FileSourceSubscription};

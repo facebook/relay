@@ -7,15 +7,13 @@
 
 use common::{Location, SourceLocationKey};
 use fnv::FnvHashMap;
-use graphql_syntax::{GraphQLSource, OperationKind};
+use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Type, TypeReference};
 use std::fmt;
 use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
-
-pub type Sources<'a> = FnvHashMap<SourceLocationKey, &'a GraphQLSource>;
 
 impl From<ValidationError> for Vec<ValidationError> {
     fn from(error: ValidationError) -> Self {
@@ -41,21 +39,6 @@ impl ValidationError {
         Self { message, locations }
     }
 
-    /// Attaches sources to the error to allow it to be printed with a code
-    /// listing without requiring additional context.
-    pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
-        let sources = self
-            .locations
-            .iter()
-            .map(|location| sources.get(&location.source_location()))
-            .map(|source| source.map(|source| (**source).clone()))
-            .collect();
-        ValidationErrorWithSources {
-            error: self,
-            sources,
-        }
-    }
-
     pub fn print(&self, sources: &FnvHashMap<SourceLocationKey, &str>) -> String {
         format!(
             "{}:\n{}",
@@ -75,25 +58,15 @@ impl ValidationError {
     }
 }
 
-#[derive(Debug)]
-pub struct ValidationErrorWithSources {
-    pub error: ValidationError,
-    pub sources: Vec<Option<GraphQLSource>>,
-}
-impl fmt::Display for ValidationErrorWithSources {
+impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "{}:\n{}",
-            self.error.message,
-            self.error
-                .locations
+            self.message,
+            self.locations
                 .iter()
-                .zip(&self.sources)
-                .map(|(location, source)| match source {
-                    Some(source) => location.print(&source.text, source.line_index + 1, source.column_index + 1),
-                    None => "<source not found>".to_string(),
-                })
+                .map(|location| format!("{:?}", location))
                 .collect::<Vec<_>>()
                 .join("\n\n")
         )

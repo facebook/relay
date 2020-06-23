@@ -9,24 +9,21 @@ use crate::compiler_state::{GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
 use common::SourceLocationKey;
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::Sources;
 use graphql_syntax::ExecutableDefinition;
 use interner::StringKey;
 
 #[derive(Debug)]
-pub struct GraphQLAsts<'state> {
+pub struct GraphQLAsts {
     grouped_asts: FnvHashMap<SourceSetName, Vec<ExecutableDefinition>>,
     grouped_changed_definition_names: FnvHashMap<SourceSetName, FnvHashSet<StringKey>>,
-    graphql_source_strings: Sources<'state>,
 }
 
-impl<'state> GraphQLAsts<'state> {
+impl GraphQLAsts {
     /// Parses all source files for all projects into ASTs and builds up a Sources map that can
     /// be used to print errors with source code listing.
     /// Additionally collects the set of definition names that changed,given the compiler state
-    pub fn from_graphql_sources(graphql_sources: &'state GraphQLSources) -> Result<Self> {
+    pub fn from_graphql_sources(graphql_sources: &GraphQLSources) -> Result<Self> {
         let mut grouped_asts = FnvHashMap::default();
-        let mut graphql_source_strings: Sources<'state> = FnvHashMap::default();
         let mut grouped_changed_definition_names = FnvHashMap::default();
 
         let mut parsed_files = FnvHashSet::default();
@@ -77,7 +74,6 @@ impl<'state> GraphQLAsts<'state> {
                                 .map(|error| error.with_source(graphql_source.clone())),
                         ),
                     }
-                    graphql_source_strings.insert(source_location, &graphql_source);
                 }
 
                 // If we used any pending sources for the current file, collect the
@@ -125,7 +121,6 @@ impl<'state> GraphQLAsts<'state> {
                                     .map(|error| error.with_source(graphql_source.clone())),
                             ),
                         }
-                        graphql_source_strings.insert(source_location, &graphql_source);
                     }
                     asts.extend(definitions_for_file);
                 }
@@ -136,17 +131,12 @@ impl<'state> GraphQLAsts<'state> {
             Ok(Self {
                 grouped_asts,
                 grouped_changed_definition_names,
-                graphql_source_strings,
             })
         } else {
             Err(Error::SyntaxErrors {
                 errors: syntax_errors,
             })
         }
-    }
-
-    pub fn sources(&self) -> &Sources<'state> {
-        &self.graphql_source_strings
     }
 
     pub fn asts_for_source_set(&self, source_set_name: SourceSetName) -> Vec<ExecutableDefinition> {

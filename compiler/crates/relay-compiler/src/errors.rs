@@ -6,7 +6,7 @@
  */
 
 use crate::compiler_state::ProjectName;
-pub use graphql_ir::{ValidationError, ValidationErrorWithSources};
+pub use graphql_ir::ValidationError;
 pub use graphql_syntax::SyntaxErrorWithSource;
 use persist_query::PersistError;
 use serde_json::error::Error as SerdeError;
@@ -172,9 +172,7 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    ValidationErrors {
-        errors: Vec<ValidationErrorWithSources>,
-    },
+    ValidationErrors { errors: Vec<ValidationError> },
 
     #[error("Persisting operation(s) failed:{0}",
         errors

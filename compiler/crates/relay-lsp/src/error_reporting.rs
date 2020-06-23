@@ -11,8 +11,9 @@ use crate::lsp::{
 };
 use crate::lsp::{Connection, Url};
 use crate::state::ServerState;
-use relay_compiler::errors::{
-    BuildProjectError, SyntaxErrorWithSource, ValidationError, ValidationErrorWithSources,
+use relay_compiler::{
+    errors::{BuildProjectError, SyntaxErrorWithSource, ValidationError},
+    source_for_location,
 };
 use std::fs;
 
@@ -25,13 +26,11 @@ pub fn report_build_project_errors(
     for error in errors {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
-                for ValidationErrorWithSources { error, sources } in errors {
-                    let ValidationError { message, locations } = error;
-
+                for ValidationError { message, locations } in errors {
                     let message = format!("{}", message);
 
-                    let (source, location) = match (sources.first(), locations.first()) {
-                        (Some(Some(source)), Some(location)) => (source, location),
+                    let location = match locations.first() {
+                        Some(&location) => location,
                         _ => {
                             // If we can't get the source and location we can't report the error, so
                             // exit early.
@@ -51,6 +50,13 @@ pub fn report_build_project_errors(
 
                     server_state.register_url_with_diagnostics(url.clone());
 
+                    let source = if let Some(source) =
+                        source_for_location(&server_state.root_dir, location)
+                    {
+                        source
+                    } else {
+                        return;
+                    };
                     let range = location.span().to_range(
                         &source.text,
                         source.line_index,

@@ -20,9 +20,7 @@ mod transform;
 mod validator;
 mod visitor;
 
-pub use crate::errors::{
-    Sources, ValidationError, ValidationErrorWithSources, ValidationMessage, ValidationResult,
-};
+pub use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 pub use build::build_ir as build;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;

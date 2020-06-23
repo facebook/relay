@@ -26,7 +26,7 @@ pub type SourceHashes = FnvHashMap<StringKey, String>;
 pub fn build_ir(
     project_config: &ProjectConfig,
     schema: &Schema,
-    graphql_asts: &GraphQLAsts<'_>,
+    graphql_asts: &GraphQLAsts,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<ValidationError>> {
     let project_asts = graphql_asts.asts_for_source_set(project_config.name);

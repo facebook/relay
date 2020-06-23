@@ -8,12 +8,17 @@
 use crate::build_project::{build_project, build_schema, check_project};
 use crate::compiler_state::{CompilerState, ProjectName};
 use crate::config::Config;
-use crate::errors::{Error, Result};
+use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
-use crate::{artifact_map::ArtifactMap, watchman::FileSource};
+use crate::{
+    artifact_map::ArtifactMap,
+    watchman::{source_for_location, FileSource},
+};
 use common::{PerfLogEvent, PerfLogger};
+use graphql_ir::ValidationError;
 use log::{error, info};
 use schema::Schema;
+use std::fmt::Write;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct Compiler<TPerfLogger>
@@ -294,6 +299,37 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state.complete_compilation(next_artifacts);
             Ok(())
         } else {
+            for error in &build_project_errors {
+                if let BuildProjectError::ValidationErrors { errors } = error {
+                    for ValidationError { message, locations } in errors {
+                        let locations_and_source: Vec<_> = locations
+                            .iter()
+                            .map(|&location| {
+                                let source = source_for_location(&self.config.root_dir, location);
+                                (location, source)
+                            })
+                            .collect();
+                        let mut error_message = format!("{}", message);
+                        for (location, source) in locations_and_source {
+                            if let Some(source) = source {
+                                write!(
+                                    error_message,
+                                    "\n{}",
+                                    location.print(
+                                        &source.text,
+                                        source.line_index,
+                                        source.column_index
+                                    )
+                                )
+                                .unwrap();
+                            } else {
+                                write!(error_message, "\n{:?}", location).unwrap();
+                            }
+                        }
+                        error!("{}", error_message);
+                    }
+                };
+            }
             Err(Error::BuildProjectsErrors {
                 errors: build_project_errors,
             })

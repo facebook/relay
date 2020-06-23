@@ -31,7 +31,7 @@ pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
 use generate_extra_artifacts::generate_extra_artifacts;
-use graphql_ir::{Program, Sources, ValidationError};
+use graphql_ir::Program;
 use graphql_transforms::FB_CONNECTION_INTERFACE;
 use log::info;
 use persist_operations::persist_operations;
@@ -43,13 +43,12 @@ use write_artifacts::write_artifacts;
 fn build_programs(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &GraphQLAsts<'_>,
+    graphql_asts: &GraphQLAsts,
     schema: Arc<Schema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(Programs, Arc<SourceHashes>), BuildProjectError> {
     let project_name = project_config.name;
-    let sources = graphql_asts.sources();
     let is_incremental_build = compiler_state.has_processed_changes();
 
     // Build a type aware IR.
@@ -58,10 +57,8 @@ fn build_programs(
         base_fragment_names,
         source_hashes,
     } = log_event.time("build_ir_time", || {
-        add_error_sources(
-            build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build),
-            sources,
-        )
+        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
+            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     // Turn the IR into a base Program.
@@ -71,25 +68,21 @@ fn build_programs(
 
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
-        add_error_sources(
-            // TODO(T63482263): Pass connection interface from configuration
-            validate(&program, &*FB_CONNECTION_INTERFACE),
-            sources,
-        )
+        // TODO(T63482263): Pass connection interface from configuration
+        validate(&program, &*FB_CONNECTION_INTERFACE)
+            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = log_event.time("apply_transforms_time", || {
-        add_error_sources(
-            apply_transforms(
-                project_name,
-                Arc::new(program),
-                Arc::new(base_fragment_names),
-                Arc::clone(&FB_CONNECTION_INTERFACE),
-                perf_logger,
-            ),
-            sources,
+        apply_transforms(
+            project_name,
+            Arc::new(program),
+            Arc::new(base_fragment_names),
+            Arc::clone(&FB_CONNECTION_INTERFACE),
+            perf_logger,
         )
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     Ok((programs, Arc::new(source_hashes)))
@@ -98,7 +91,7 @@ fn build_programs(
 pub async fn check_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &GraphQLAsts<'_>,
+    graphql_asts: &GraphQLAsts,
     schema: Arc<Schema>,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<Programs, BuildProjectError> {
@@ -126,7 +119,7 @@ pub async fn build_project(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &GraphQLAsts<'_>,
+    graphql_asts: &GraphQLAsts,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(), BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");
@@ -202,16 +195,4 @@ pub async fn build_project(
     log_event.stop(build_time);
     perf_logger.complete_event(log_event);
     Ok(())
-}
-
-fn add_error_sources<T>(
-    result: Result<T, Vec<ValidationError>>,
-    sources: &Sources<'_>,
-) -> Result<T, BuildProjectError> {
-    result.map_err(|validation_errors| BuildProjectError::ValidationErrors {
-        errors: validation_errors
-            .into_iter()
-            .map(|error| error.with_sources(sources))
-            .collect(),
-    })
 }

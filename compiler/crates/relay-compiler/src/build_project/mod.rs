@@ -146,6 +146,11 @@ pub fn build_project(
     let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))?;
     log_event.stop(artifacts_timer);
 
+    log_event.number(
+        "generated_artifacts",
+        programs.reader.document_count() + programs.normalization.document_count(),
+    );
+
     log_event.stop(build_time);
     perf_logger.complete_event(log_event);
     Ok((project_config.name, schema, programs, artifacts))
@@ -195,11 +200,6 @@ pub async fn commit_project(
             )
         })?;
     }
-
-    log_event.number(
-        "generated_artifacts",
-        programs.reader.document_count() + programs.normalization.document_count(),
-    );
 
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",

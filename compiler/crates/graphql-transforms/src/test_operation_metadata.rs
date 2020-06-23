@@ -11,7 +11,6 @@ use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program, Selection,
     Transformed, Transformer, Value,
 };
-use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -52,52 +51,47 @@ impl<'s> Transformer for GenerateTestOperationMetadata<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        match operation.kind {
-            OperationKind::Query => {
-                if operation
-                    .directives
-                    .named(*TEST_OPERATION_DIRECTIVE)
-                    .is_some()
-                {
-                    let mut next_directives = Vec::with_capacity(operation.directives.len());
-                    for directive in &operation.directives {
-                        // replace @relay_test_operation with @__metadata
-                        if directive.name.item == *TEST_OPERATION_DIRECTIVE {
-                            next_directives.push(Directive {
-                                name: WithLocation::new(
-                                    operation.name.location,
-                                    *INTERNAL_METADATA_DIRECTIVE,
-                                ),
-                                arguments: vec![Argument {
-                                    name: WithLocation::new(
-                                        operation.name.location,
-                                        *TEST_OPERATION_METADATA_KEY,
+        if operation
+            .directives
+            .named(*TEST_OPERATION_DIRECTIVE)
+            .is_some()
+        {
+            let mut next_directives = Vec::with_capacity(operation.directives.len());
+            for directive in &operation.directives {
+                // replace @relay_test_operation with @__metadata
+                if directive.name.item == *TEST_OPERATION_DIRECTIVE {
+                    next_directives.push(Directive {
+                        name: WithLocation::new(
+                            operation.name.location,
+                            *INTERNAL_METADATA_DIRECTIVE,
+                        ),
+                        arguments: vec![Argument {
+                            name: WithLocation::new(
+                                operation.name.location,
+                                *TEST_OPERATION_METADATA_KEY,
+                            ),
+                            value: WithLocation::new(
+                                operation.name.location,
+                                Value::Constant(ConstantValue::Object(From::from(
+                                    RelayTestOperationMetadata::new(
+                                        &self.program.schema,
+                                        &operation.selections,
                                     ),
-                                    value: WithLocation::new(
-                                        operation.name.location,
-                                        Value::Constant(ConstantValue::Object(From::from(
-                                            RelayTestOperationMetadata::new(
-                                                &self.program.schema,
-                                                &operation.selections,
-                                            ),
-                                        ))),
-                                    ),
-                                }],
-                            });
-                        } else {
-                            next_directives.push(directive.clone());
-                        }
-                    }
-
-                    Transformed::Replace(OperationDefinition {
-                        directives: next_directives,
-                        ..operation.clone()
-                    })
+                                ))),
+                            ),
+                        }],
+                    });
                 } else {
-                    Transformed::Keep
+                    next_directives.push(directive.clone());
                 }
             }
-            _ => Transformed::Keep,
+
+            Transformed::Replace(OperationDefinition {
+                directives: next_directives,
+                ..operation.clone()
+            })
+        } else {
+            Transformed::Keep
         }
     }
 }

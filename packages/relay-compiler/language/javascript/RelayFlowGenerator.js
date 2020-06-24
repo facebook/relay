@@ -696,36 +696,6 @@ function appendLocal3DPayload(
 // Visitor for generating raw response type
 function createRawResponseTypeVisitor(schema: Schema, state: State) {
   return {
-    enter: {
-      // Process TypeDiscriminator as NormalizationCodeGenerator does
-      InlineFragment(node) {
-        const rawType = schema.getRawType(node.typeCondition);
-        const isAbstractType = schema.isAbstractType(rawType);
-        if (isAbstractType) {
-          const abstractKey = generateAbstractTypeRefinementKey(
-            schema,
-            rawType,
-          );
-          const [discriminators, otherSelections] = partitionArray(
-            node.selections,
-            selection =>
-              selection.kind === 'ScalarField' &&
-              selection.metadata?.abstractKey === abstractKey,
-          );
-          const discriminator = discriminators[0];
-          if (discriminator != null) {
-            if (otherSelections.length === 0) {
-              return discriminator;
-            } else {
-              return {
-                ...node,
-                selections: otherSelections,
-              };
-            }
-          }
-        }
-      },
-    },
     leave: {
       Root(node) {
         return exportType(

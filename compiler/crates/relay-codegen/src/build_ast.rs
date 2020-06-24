@@ -134,7 +134,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
-                let selections = self.build_selections(&operation.selections);
+                let selections = self.build_selections(operation.selections.iter());
                 self.object(vec![
                     (
                         CODEGEN_CONSTANTS.kind,
@@ -151,7 +151,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             None => {
                 let argument_definitions =
                     self.build_operation_variable_definitions(&operation.variable_definitions);
-                let selections = self.build_selections(&operation.selections);
+                let selections = self.build_selections(operation.selections.iter());
                 self.object(vec![
                     (CODEGEN_CONSTANTS.argument_definitions, argument_definitions),
                     (
@@ -204,7 +204,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
             (
                 CODEGEN_CONSTANTS.selections,
-                self.build_selections(&fragment.selections),
+                self.build_selections(fragment.selections.iter()),
             ),
             (
                 CODEGEN_CONSTANTS.type_,
@@ -396,9 +396,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         self.object(object)
     }
 
-    fn build_selections(&mut self, selections: &[Selection]) -> Primitive {
+    fn build_selections<'a, Selections>(&mut self, selections: Selections) -> Primitive
+    where
+        Selections: Iterator<Item = &'a Selection>,
+    {
         let selections = selections
-            .iter()
             .flat_map(|selection| self.build_selections_from_selection(selection))
             .collect();
         Primitive::Key(self.array(selections))
@@ -448,7 +450,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 {
                     match self.variant {
                         CodegenVariant::Reader => vec![],
-                        CodegenVariant::Normalization => self.build_type_discriminator(field),
+                        CodegenVariant::Normalization => vec![self.build_type_discriminator(field)],
                     }
                 } else {
                     self.build_scalar_field_and_handles(field)
@@ -457,8 +459,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_type_discriminator(&mut self, field: &ScalarField) -> Vec<Primitive> {
-        vec![Primitive::Key(self.object(vec![
+    fn build_type_discriminator(&mut self, field: &ScalarField) -> Primitive {
+        Primitive::Key(self.object(vec![
             (CODEGEN_CONSTANTS.kind, Primitive::String(CODEGEN_CONSTANTS.type_discriminator)),
             (
                 CODEGEN_CONSTANTS.abstract_key,
@@ -466,7 +468,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     "Expected the type discriminator field to contain the abstract key alias.",
                 ).item),
             ),
-        ]))]
+        ]))
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
@@ -570,7 +572,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let selections = self.build_selections(&field.selections);
+        let selections = self.build_selections(field.selections.iter());
         Primitive::Key(self.object(vec![
             build_alias(alias, name),
             (
@@ -730,7 +732,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let next_selections = vec![self.build_fragment_spread(frag_spread)];
                 Primitive::Key(self.array(next_selections))
             } else {
-                self.build_selections(&inline_fragment.selections)
+                self.build_selections(inline_fragment.selections.iter())
             };
 
         Primitive::Key(self.object(vec![
@@ -747,7 +749,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         inline_fragment: &InlineFragment,
         defer: &Directive,
     ) -> Primitive {
-        let next_selections = self.build_selections(&inline_fragment.selections);
+        let next_selections = self.build_selections(inline_fragment.selections.iter());
         let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
         let if_variable_name = extract_variable_name(if_arg);
         let label_name = label_arg.unwrap().value.item.expect_string_literal();
@@ -823,7 +825,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 if inline_frag.directives.len() == 1
                     && inline_frag.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME
                 {
-                    let selections = self.build_selections(&inline_frag.selections);
+                    let selections = self.build_selections(inline_frag.selections.iter());
                     Primitive::Key(self.object(vec![
                         (
                             CODEGEN_CONSTANTS.kind,
@@ -840,7 +842,79 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             }
             Some(type_condition) => {
-                let selections = self.build_selections(&inline_frag.selections);
+                if self.variant == CodegenVariant::Normalization {
+                    let is_abstract_inline_fragment = self.schema.is_abstract_type(type_condition);
+                    if is_abstract_inline_fragment {
+                        // Maintain a few invariants:
+                        // - InlineFragment (and `selections` arrays generally) cannot be empty
+                        // - Don't emit a TypeDiscriminator under an InlineFragment unless it has
+                        //   a different abstractKey
+                        // This means we have to handle two cases:
+                        // - The inline fragment only contains a TypeDiscriminator with the same
+                        //   abstractKey: replace the Fragment w the Discriminator
+                        // - The inline fragment contains other selections: return all the selections
+                        //   minus any Discriminators w the same key
+                        let type_discriminator_index =
+                            inline_frag.selections.iter().position(|selection| {
+                                if let Selection::ScalarField(selection) = selection {
+                                    selection
+                                        .directives
+                                        .named(*TYPE_DISCRIMINATOR_DIRECTIVE_NAME)
+                                        .is_some()
+                                } else {
+                                    false
+                                }
+                            });
+
+                        if let Some(type_discriminator_index) = type_discriminator_index {
+                            if inline_frag.selections.len() == 1 {
+                                return self.build_type_discriminator(
+                                    if let Selection::ScalarField(field) =
+                                        &inline_frag.selections[0]
+                                    {
+                                        field
+                                    } else {
+                                        panic!("Expected a scalar field.")
+                                    },
+                                );
+                            } else {
+                                let selections = self.build_selections(
+                                    inline_frag
+                                        .selections
+                                        .iter()
+                                        .take(type_discriminator_index)
+                                        .chain(
+                                            inline_frag
+                                                .selections
+                                                .iter()
+                                                .skip(type_discriminator_index + 1),
+                                        ),
+                                );
+                                return Primitive::Key(self.object(vec![
+                                    (
+                                        CODEGEN_CONSTANTS.kind,
+                                        Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
+                                    ),
+                                    (CODEGEN_CONSTANTS.selections, selections),
+                                    (
+                                        CODEGEN_CONSTANTS.type_,
+                                        Primitive::String(
+                                            self.schema.get_type_name(type_condition),
+                                        ),
+                                    ),
+                                    (
+                                        CODEGEN_CONSTANTS.abstract_key,
+                                        Primitive::String(generate_abstract_type_refinement_key(
+                                            self.schema,
+                                            type_condition,
+                                        )),
+                                    ),
+                                ]));
+                            }
+                        }
+                    }
+                }
+                let selections = self.build_selections(inline_frag.selections.iter());
                 Primitive::Key(self.object(vec![
                     (
                         CODEGEN_CONSTANTS.kind,
@@ -868,7 +942,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_condition(&mut self, condition: &Condition) -> Primitive {
-        let selections = self.build_selections(&condition.selections);
+        let selections = self.build_selections(condition.selections.iter());
         Primitive::Key(self.object(vec![
             (
                 CODEGEN_CONSTANTS.condition,
@@ -1164,7 +1238,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         inline_fragment: &InlineFragment,
         directive: &Directive,
     ) -> Primitive {
-        let selections = self.build_selections(&inline_fragment.selections);
+        let selections = self.build_selections(inline_fragment.selections.iter());
         let fragment_name: StringKey = directive.arguments[0].value.item.expect_string_literal();
         Primitive::Key(self.object(vec![
             (

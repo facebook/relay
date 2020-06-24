@@ -186,7 +186,14 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
         let graphql_asts = setup_event.time("parse_sources_time", || {
-            GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
+            compiler_state
+                .graphql_sources
+                .iter()
+                .map(|(&source_set_name, sources)| {
+                    let asts = GraphQLAsts::from_graphql_sources(sources)?;
+                    Ok((source_set_name, asts))
+                })
+                .collect::<Result<_>>()
         })?;
 
         let mut build_project_errors = vec![];
@@ -304,7 +311,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     compiler_state: &CompilerState,
 ) -> Result<ArtifactMap> {
     let graphql_asts = setup_event.time("parse_sources_time", || {
-        GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
+        GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
     })?;
 
     let build_results: Vec<_> = if let Some(only_project) = config.only_project {

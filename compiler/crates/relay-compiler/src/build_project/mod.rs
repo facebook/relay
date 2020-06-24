@@ -18,7 +18,7 @@ mod persist_operations;
 mod validate;
 mod write_artifacts;
 
-use crate::compiler_state::{CompilerState, ProjectName};
+use crate::compiler_state::{CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::graphql_asts::GraphQLAsts;
@@ -27,6 +27,7 @@ pub use apply_transforms::Programs;
 use build_ir::{BuildIRResult, SourceHashes};
 pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
+use fnv::FnvHashMap;
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
@@ -43,7 +44,7 @@ use write_artifacts::write_artifacts;
 fn build_programs(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &GraphQLAsts,
+    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<Schema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
@@ -91,7 +92,7 @@ fn build_programs(
 pub fn check_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &GraphQLAsts,
+    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<Schema>,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<Programs, BuildProjectError> {
@@ -118,7 +119,7 @@ pub fn check_project(
 pub fn build_project(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &GraphQLAsts,
+    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(ProjectName, Arc<Schema>, Programs, Vec<Artifact>), BuildProjectError> {
     let log_event = perf_logger.create_event("build_project");

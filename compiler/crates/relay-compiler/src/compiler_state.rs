@@ -15,12 +15,10 @@ use crate::watchman::{
 use common::{PerfLogEvent, PerfLogger};
 use fnv::FnvHashMap;
 use graphql_syntax::GraphQLSource;
-use indexmap::map::IndexMap;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::hash_map::Entry;
 use std::fmt;
 use std::path::PathBuf;
 use std::{fs::File, io};
@@ -64,96 +62,26 @@ impl fmt::Display for SourceSet {
     }
 }
 
-type GraphQLSourceSet = IndexMap<PathBuf, Vec<GraphQLSource>>;
+type GraphQLSourceSet = FnvHashMap<PathBuf, Vec<GraphQLSource>>;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct GraphQLSources {
-    grouped_pending_sources: FnvHashMap<SourceSetName, GraphQLSourceSet>,
-    grouped_processed_sources: FnvHashMap<SourceSetName, GraphQLSourceSet>,
-}
-
-impl Default for GraphQLSources {
-    fn default() -> Self {
-        Self {
-            grouped_pending_sources: Default::default(),
-            grouped_processed_sources: Default::default(),
-        }
-    }
+    pub pending: GraphQLSourceSet,
+    pub processed: GraphQLSourceSet,
 }
 
 impl GraphQLSources {
-    pub fn pending_sources(&self) -> impl Iterator<Item = (&SourceSetName, &GraphQLSourceSet)> {
-        self.grouped_pending_sources.iter()
-    }
-
-    pub fn processed_sources(&self) -> impl Iterator<Item = (&SourceSetName, &GraphQLSourceSet)> {
-        self.grouped_processed_sources.iter()
-    }
-
-    pub fn pending_sources_for_source_set(
-        &self,
-        source_set_name: SourceSetName,
-    ) -> Option<&GraphQLSourceSet> {
-        self.grouped_pending_sources.get(&source_set_name)
-    }
-
-    fn has_pending_sources(&self) -> bool {
-        !self.grouped_pending_sources.is_empty()
-    }
-
-    fn source_set_has_pending_sources(&self, source_set_name: SourceSetName) -> bool {
-        match self.pending_sources_for_source_set(source_set_name) {
-            Some(pending_source_set) => !pending_source_set.is_empty(),
-            None => false,
-        }
-    }
-
-    fn has_processed_sources(&self) -> bool {
-        !self.grouped_processed_sources.is_empty()
-    }
-
-    fn set_pending_source_set(
-        &mut self,
-        source_set_name: SourceSetName,
-        source_set: GraphQLSourceSet,
-    ) {
-        match self.grouped_pending_sources.entry(source_set_name) {
-            Entry::Occupied(mut entry) => {
-                for (path, file_state) in source_set {
-                    entry.get_mut().insert(path, file_state);
-                }
-            }
-            Entry::Vacant(entry) => {
-                entry.insert(source_set);
-            }
-        }
-    }
-
     /// Merges additional pending sources into this states pending sources.
-    fn merge_pending_sources(
-        &mut self,
-        source_set_name: SourceSetName,
-        additional_pending_sources: GraphQLSourceSet,
-    ) {
-        self.grouped_pending_sources
-            .entry(source_set_name)
-            .or_insert_with(Default::default)
-            .extend(additional_pending_sources.into_iter());
+    fn merge_pending_sources(&mut self, additional_pending_sources: GraphQLSourceSet) {
+        self.pending.extend(additional_pending_sources.into_iter());
     }
 
     fn commit_pending_sources(&mut self) {
-        for (source_set_name, pending_source_set) in self.grouped_pending_sources.drain() {
-            let base_source_set = self
-                .grouped_processed_sources
-                .entry(source_set_name)
-                .or_insert_with(Default::default);
-
-            for (file_name, pending_graphql_sources) in pending_source_set {
-                if pending_graphql_sources.is_empty() {
-                    base_source_set.remove(&file_name);
-                } else {
-                    base_source_set.insert(file_name, pending_graphql_sources);
-                }
+        for (file_name, pending_graphql_sources) in self.pending.drain() {
+            if pending_graphql_sources.is_empty() {
+                self.processed.remove(&file_name);
+            } else {
+                self.processed.insert(file_name, pending_graphql_sources);
             }
         }
     }
@@ -163,7 +91,7 @@ pub type SchemaSources = FnvHashMap<ProjectName, Vec<String>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
-    pub graphql_sources: GraphQLSources,
+    pub graphql_sources: FnvHashMap<SourceSetName, GraphQLSources>,
     pub schemas: SchemaSources,
     pub extensions: SchemaSources,
     pub artifacts: FnvHashMap<ProjectName, ArtifactMap>,
@@ -171,6 +99,23 @@ pub struct CompilerState {
 }
 
 impl CompilerState {
+    fn set_pending_source_set(
+        &mut self,
+        source_set_name: SourceSetName,
+        source_set: GraphQLSourceSet,
+    ) {
+        let pending_entry = &mut self
+            .graphql_sources
+            .entry(source_set_name)
+            .or_default()
+            .pending;
+        if pending_entry.is_empty() {
+            *pending_entry = source_set;
+        } else {
+            pending_entry.extend(source_set);
+        }
+    }
+
     pub fn from_file_source_changes(
         config: &Config,
         file_source_changes: &FileSourceResult,
@@ -181,10 +126,13 @@ impl CompilerState {
             categorize_files(config, &file_source_changes.files)
         });
 
-        let artifacts = FnvHashMap::default();
-        let mut schemas = FnvHashMap::default();
-        let mut extensions = FnvHashMap::default();
-        let mut graphql_sources = GraphQLSources::default();
+        let mut result = Self {
+            graphql_sources: Default::default(),
+            artifacts: Default::default(),
+            extensions: Default::default(),
+            schemas: Default::default(),
+            clock: file_source_changes.clock.clone(),
+        };
 
         for (category, files) in categorized {
             match category {
@@ -207,16 +155,15 @@ impl CompilerState {
                                 Err(err) => Some(Err(err)),
                             }
                         })
-                        .collect::<Result<IndexMap<_, _>>>()?;
+                        .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
                     match source_set {
                         SourceSet::SourceSetName(source_set_name) => {
-                            graphql_sources.set_pending_source_set(source_set_name, sources);
+                            result.set_pending_source_set(source_set_name, sources);
                         }
                         SourceSet::SourceSetNames(names) => {
                             for source_set_name in names {
-                                graphql_sources
-                                    .set_pending_source_set(source_set_name, sources.clone());
+                                result.set_pending_source_set(source_set_name, sources.clone());
                             }
                         }
                     }
@@ -228,11 +175,11 @@ impl CompilerState {
                         .collect::<Result<Vec<String>>>()?;
                     match project_set {
                         ProjectSet::ProjectName(project_name) => {
-                            schemas.insert(project_name, schema_sources);
+                            result.schemas.insert(project_name, schema_sources);
                         }
                         ProjectSet::ProjectNames(project_names) => {
                             for project_name in project_names {
-                                schemas.insert(project_name, schema_sources.clone());
+                                result.schemas.insert(project_name, schema_sources.clone());
                             }
                         }
                     };
@@ -245,11 +192,13 @@ impl CompilerState {
 
                     match project_set {
                         ProjectSet::ProjectName(project_name) => {
-                            extensions.insert(project_name, extension_sources);
+                            result.extensions.insert(project_name, extension_sources);
                         }
                         ProjectSet::ProjectNames(project_names) => {
                             for project_name in project_names {
-                                extensions.insert(project_name, extension_sources.clone());
+                                result
+                                    .extensions
+                                    .insert(project_name, extension_sources.clone());
                             }
                         }
                     };
@@ -260,26 +209,25 @@ impl CompilerState {
             }
         }
 
-        Ok(Self {
-            graphql_sources,
-            artifacts,
-            extensions,
-            schemas,
-            clock: file_source_changes.clock.clone(),
-        })
+        Ok(result)
     }
 
     pub fn has_pending_changes(&self) -> bool {
-        self.graphql_sources.has_pending_sources()
+        self.graphql_sources
+            .values()
+            .any(|sources| !sources.pending.is_empty())
     }
 
     pub fn project_has_pending_changes(&self, project_name: ProjectName) -> bool {
         self.graphql_sources
-            .source_set_has_pending_sources(project_name)
+            .get(&project_name)
+            .map_or(false, |sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {
-        self.graphql_sources.has_processed_sources()
+        self.graphql_sources
+            .values()
+            .any(|sources| !sources.processed.is_empty())
     }
 
     /// Merges the provided pending changes from the file source into the compiler state.
@@ -320,17 +268,21 @@ impl CompilerState {
                             };
                             Ok(((*file.name).to_owned(), graphql_strings))
                         })
-                        .collect::<Result<IndexMap<_, _>>>()?;
+                        .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
                     match source_set {
                         SourceSet::SourceSetName(source_set_name) => {
                             self.graphql_sources
-                                .merge_pending_sources(source_set_name, sources);
+                                .entry(source_set_name)
+                                .or_default()
+                                .merge_pending_sources(sources);
                         }
                         SourceSet::SourceSetNames(names) => {
                             for source_set_name in names {
                                 self.graphql_sources
-                                    .merge_pending_sources(source_set_name, sources.clone());
+                                    .entry(source_set_name)
+                                    .or_default()
+                                    .merge_pending_sources(sources.clone());
                             }
                         }
                     }
@@ -382,10 +334,6 @@ impl CompilerState {
         Ok(has_changed)
     }
 
-    pub fn commit_pending_file_source_changes(&mut self) {
-        self.graphql_sources.commit_pending_sources();
-    }
-
     /// The initial implementation of the `update_artifacts_map` do not handle incremental updates
     /// of the artifacts map
     /// This will be added in the next iterations
@@ -400,7 +348,9 @@ impl CompilerState {
 
     pub fn complete_compilation(&mut self, written_artifacts: ArtifactMap) {
         self.update_artifacts_map(written_artifacts);
-        self.commit_pending_file_source_changes();
+        for sources in self.graphql_sources.values_mut() {
+            sources.commit_pending_sources();
+        }
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {

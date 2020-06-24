@@ -6,7 +6,7 @@
  */
 
 use crate::config::ProjectConfig;
-use crate::graphql_asts::GraphQLAsts;
+use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::ValidationError;
@@ -26,13 +26,19 @@ pub type SourceHashes = FnvHashMap<StringKey, String>;
 pub fn build_ir(
     project_config: &ProjectConfig,
     schema: &Schema,
-    graphql_asts: &GraphQLAsts,
+    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<ValidationError>> {
-    let project_asts = graphql_asts.asts_for_source_set(project_config.name);
+    let project_asts = graphql_asts
+        .get(&project_config.name)
+        .map(|asts| asts.asts.clone())
+        .unwrap_or_default();
     let (base_project_asts, base_definition_names) = match project_config.base {
         Some(base_project_name) => {
-            let base_project_asts = graphql_asts.asts_for_source_set(base_project_name);
+            let base_project_asts = graphql_asts
+                .get(&base_project_name)
+                .map(|asts| asts.asts.clone())
+                .unwrap_or_default();
             let base_definition_names = base_project_asts
                 .iter()
                 .filter_map(|definition| match definition {
@@ -64,9 +70,17 @@ pub fn build_ir(
 
     let ir = graphql_ir::build(&schema, &reachable_ast)?;
     if is_incremental_build {
-        let mut changed_names = graphql_asts.changed_names_for_source_set(project_config.name);
+        let mut changed_names = graphql_asts
+            .get(&project_config.name)
+            .map(|asts| asts.changed_definition_names.clone())
+            .unwrap_or_default();
         if let Some(base_project_name) = project_config.base {
-            changed_names.extend(graphql_asts.changed_names_for_source_set(base_project_name));
+            changed_names.extend(
+                graphql_asts
+                    .get(&base_project_name)
+                    .map(|asts| asts.changed_definition_names.clone())
+                    .unwrap_or_default(),
+            );
         }
         let affected_ir = get_reachable_ir(ir, base_definition_names, changed_names);
         Ok(BuildIRResult {

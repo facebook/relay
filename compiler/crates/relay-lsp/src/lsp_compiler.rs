@@ -204,7 +204,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
 
     async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> Result<()> {
         let graphql_asts = setup_event.time("parse_sources_time", || {
-            GraphQLAsts::from_graphql_sources(&self.compiler_state.graphql_sources)
+            GraphQLAsts::from_graphql_sources_map(&self.compiler_state.graphql_sources)
         })?;
         let mut check_project_errors = vec![];
         let mut project_programs = HashMap::new();

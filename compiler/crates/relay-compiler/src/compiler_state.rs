@@ -30,11 +30,26 @@ pub type ProjectName = StringKey;
 /// that can be shared by multiple compiler projects
 pub type SourceSetName = StringKey;
 
-/// Set of the projects
+/// Set of project names.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ProjectSet {
     ProjectName(ProjectName),
     ProjectNames(Vec<ProjectName>),
+}
+impl ProjectSet {
+    /// Inserts a new project name into this set.
+    pub fn insert(&mut self, project_name: ProjectName) {
+        match self {
+            ProjectSet::ProjectName(existing_name) => {
+                assert!(*existing_name != project_name);
+                *self = ProjectSet::ProjectNames(vec![*existing_name, project_name]);
+            }
+            ProjectSet::ProjectNames(existing_names) => {
+                assert!(!existing_names.contains(&project_name));
+                existing_names.push(project_name);
+            }
+        }
+    }
 }
 
 /// Represents the name of the source set, or list of source sets

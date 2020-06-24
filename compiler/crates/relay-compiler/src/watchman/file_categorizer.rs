@@ -57,26 +57,14 @@ impl FileCategorizer {
         source_mapping.sort_by_key(|item| Reverse(item.0.clone()));
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
-        for (project_name, project_config) in config.projects.iter() {
-            for extension_dir in project_config.extensions.iter() {
+        for (&project_name, project_config) in &config.projects {
+            for extension_dir in &project_config.extensions {
                 match extensions_map.entry(extension_dir.clone()) {
                     Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::ProjectName(*project_name));
+                        entry.insert(ProjectSet::ProjectName(project_name));
                     }
                     Entry::Occupied(mut entry) => {
-                        let next_project_set = match entry.get() {
-                            ProjectSet::ProjectName(current_project) => {
-                                ProjectSet::ProjectNames(vec![*project_name, *current_project])
-                            }
-                            ProjectSet::ProjectNames(current_projects) => {
-                                let mut next_projects = vec![*project_name];
-                                for current_project in current_projects {
-                                    next_projects.push(current_project.clone());
-                                }
-                                ProjectSet::ProjectNames(next_projects)
-                            }
-                        };
-                        entry.insert(next_project_set);
+                        entry.get_mut().insert(project_name);
                     }
                 }
             }
@@ -87,52 +75,28 @@ impl FileCategorizer {
         }
 
         let mut schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
-        for (project_name, project_config) in config.projects.iter() {
+        for (&project_name, project_config) in &config.projects {
             if let SchemaLocation::File(schema_file) = &project_config.schema_location {
                 match schema_file_mapping.entry(schema_file.clone()) {
                     Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::ProjectName(*project_name));
+                        entry.insert(ProjectSet::ProjectName(project_name));
                     }
                     Entry::Occupied(mut entry) => {
-                        let next_project_set = match entry.get() {
-                            ProjectSet::ProjectName(current_project) => {
-                                ProjectSet::ProjectNames(vec![*project_name, *current_project])
-                            }
-                            ProjectSet::ProjectNames(current_projects) => {
-                                let mut next_projects = vec![*project_name];
-                                for current_project in current_projects {
-                                    next_projects.push(*current_project);
-                                }
-                                ProjectSet::ProjectNames(next_projects)
-                            }
-                        };
-                        entry.insert(next_project_set);
+                        entry.get_mut().insert(project_name);
                     }
                 }
             }
         }
 
         let mut schema_dir_mapping_map: HashMap<PathBuf, ProjectSet> = Default::default();
-        for (project_name, project_config) in config.projects.iter() {
+        for (&project_name, project_config) in &config.projects {
             if let SchemaLocation::Directory(directory) = &project_config.schema_location {
                 match schema_dir_mapping_map.entry(directory.clone()) {
                     Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::ProjectName(*project_name));
+                        entry.insert(ProjectSet::ProjectName(project_name));
                     }
                     Entry::Occupied(mut entry) => {
-                        let next_project_set = match entry.get() {
-                            ProjectSet::ProjectName(current_project) => {
-                                ProjectSet::ProjectNames(vec![*project_name, *current_project])
-                            }
-                            ProjectSet::ProjectNames(current_projects) => {
-                                let mut next_projects = vec![*project_name];
-                                for current_project in current_projects {
-                                    next_projects.push(*current_project);
-                                }
-                                ProjectSet::ProjectNames(next_projects)
-                            }
-                        };
-                        entry.insert(next_project_set);
+                        entry.get_mut().insert(project_name);
                     }
                 }
             }

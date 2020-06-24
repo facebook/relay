@@ -21,19 +21,20 @@ use rayon::prelude::*;
 use schema::Schema;
 use std::fmt::Write;
 use std::{collections::HashMap, sync::Arc};
+use tokio::task;
 
 pub struct Compiler<TPerfLogger>
 where
     TPerfLogger: PerfLogger + 'static,
 {
-    config: Config,
+    config: Arc<Config>,
     perf_logger: Arc<TPerfLogger>,
 }
 
 impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     pub fn new(config: Config, perf_logger: Arc<TPerfLogger>) -> Self {
         Self {
-            config,
+            config: Arc::new(config),
             perf_logger,
         }
     }
@@ -244,94 +245,26 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        let graphql_asts = setup_event.time("parse_sources_time", || {
-            GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
-        })?;
-
-        let next_artifacts: ArtifactMap = Default::default();
-
-        let build_results: Vec<_> = if let Some(only_project) = self.config.only_project {
-            let project_config = self
-                .config
-                .projects
-                .get(&only_project)
-                .unwrap_or_else(|| panic!("Expected the project {} to exist", &only_project));
-            vec![build_project(
-                project_config,
-                compiler_state,
-                &graphql_asts,
-                Arc::clone(&self.perf_logger),
-            )]
-        } else {
-            self.config
-                .projects
-                .par_iter()
-                .filter_map(|(_name, project_config)| {
-                    if compiler_state.project_has_pending_changes(project_config.name) {
-                        Some(build_project(
-                            project_config,
-                            compiler_state,
-                            &graphql_asts,
-                            Arc::clone(&self.perf_logger),
-                        ))
-                    } else {
-                        None
+        let result = build_projects(
+            Arc::clone(&self.config),
+            Arc::clone(&self.perf_logger),
+            setup_event,
+            &compiler_state,
+        )
+        .await;
+        match result {
+            Ok(next_artifacts) => {
+                compiler_state.complete_compilation(next_artifacts);
+                Ok(())
+            }
+            Err(error) => {
+                if let Error::BuildProjectsErrors { errors } = &error {
+                    for error in errors {
+                        self.print_project_error(error);
                     }
-                })
-                .collect()
-        };
-        let mut results = Vec::new();
-        let mut errors = Vec::new();
-        for result in build_results {
-            match result {
-                Ok(result) => results.push(result),
-                Err(error) => errors.push(error),
+                }
+                Err(error)
             }
-        }
-
-        let errors = if errors.is_empty() {
-            let mut handles = Vec::new();
-            let errors_mutex = Arc::new(std::sync::Mutex::new(errors));
-            for result in results {
-                let errors_mutex = Arc::clone(&errors_mutex);
-                handles.push(async move {
-                    let (project_name, schema, programs, artifacts) = result;
-                    let project_config =
-                        self.config.projects.get(&project_name).unwrap_or_else(|| {
-                            panic!("Expected the project {} to exist", project_name)
-                        });
-                    let result = commit_project(
-                        &self.config,
-                        project_config,
-                        Arc::clone(&self.perf_logger),
-                        &schema,
-                        programs,
-                        artifacts,
-                    )
-                    .await;
-                    match result {
-                        Ok(_) => {}
-                        Err(error) => {
-                            let mut errors = errors_mutex.lock().unwrap();
-                            errors.push(error);
-                        }
-                    }
-                })
-            }
-            futures::future::join_all(handles).await;
-            Arc::try_unwrap(errors_mutex).unwrap().into_inner().unwrap()
-        } else {
-            errors
-        };
-
-        if errors.is_empty() {
-            compiler_state.complete_compilation(next_artifacts);
-            Ok(())
-        } else {
-            for error in &errors {
-                self.print_project_error(error);
-            }
-            Err(Error::BuildProjectsErrors { errors })
         }
     }
 
@@ -361,5 +294,98 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 error!("{}", error_message);
             }
         };
+    }
+}
+
+async fn build_projects<TPerfLogger: PerfLogger + 'static>(
+    config: Arc<Config>,
+    perf_logger: Arc<TPerfLogger>,
+    setup_event: &impl PerfLogEvent,
+    compiler_state: &CompilerState,
+) -> Result<ArtifactMap> {
+    let graphql_asts = setup_event.time("parse_sources_time", || {
+        GraphQLAsts::from_graphql_sources(&compiler_state.graphql_sources)
+    })?;
+
+    let build_results: Vec<_> = if let Some(only_project) = config.only_project {
+        let project_config = config
+            .projects
+            .get(&only_project)
+            .unwrap_or_else(|| panic!("Expected the project {} to exist", &only_project));
+        vec![build_project(
+            project_config,
+            compiler_state,
+            &graphql_asts,
+            Arc::clone(&perf_logger),
+        )]
+    } else {
+        config
+            .projects
+            .par_iter()
+            .filter_map(|(_name, project_config)| {
+                if compiler_state.project_has_pending_changes(project_config.name) {
+                    Some(build_project(
+                        project_config,
+                        compiler_state,
+                        &graphql_asts,
+                        Arc::clone(&perf_logger),
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    };
+    let mut results = Vec::new();
+    let mut errors = Vec::new();
+    for result in build_results {
+        match result {
+            Ok(result) => results.push(result),
+            Err(error) => errors.push(error),
+        }
+    }
+
+    let errors = if errors.is_empty() {
+        let mut handles = Vec::new();
+        let errors_mutex = Arc::new(std::sync::Mutex::new(errors));
+        for result in results {
+            let config = Arc::clone(&config);
+            let errors_mutex = Arc::clone(&errors_mutex);
+            let perf_logger = Arc::clone(&perf_logger);
+            handles.push(task::spawn(async move {
+                let (project_name, schema, programs, artifacts) = result;
+                let project_config = config
+                    .projects
+                    .get(&project_name)
+                    .unwrap_or_else(|| panic!("Expected the project {} to exist", project_name));
+                let result = commit_project(
+                    &config,
+                    project_config,
+                    perf_logger,
+                    &schema,
+                    programs,
+                    artifacts,
+                )
+                .await;
+                match result {
+                    Ok(_) => {}
+                    Err(error) => {
+                        let mut errors = errors_mutex.lock().unwrap();
+                        errors.push(error);
+                    }
+                }
+            }))
+        }
+        futures::future::join_all(handles).await;
+        Arc::try_unwrap(errors_mutex).unwrap().into_inner().unwrap()
+    } else {
+        errors
+    };
+
+    if errors.is_empty() {
+        let next_artifacts: ArtifactMap = Default::default();
+        Ok(next_artifacts)
+    } else {
+        Err(Error::BuildProjectsErrors { errors })
     }
 }

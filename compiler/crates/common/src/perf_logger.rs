@@ -17,8 +17,8 @@ pub trait PerfLogger: Send + Sync {
     fn flush(&self);
 }
 
-pub trait PerfLogEvent {
-    type Timer;
+pub trait PerfLogEvent: Send + Sync {
+    type Timer: Send + Sync;
 
     /// Log number
     fn number(&self, name: impl Copy + Into<String>, number: usize);

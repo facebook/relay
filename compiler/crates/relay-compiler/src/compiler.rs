@@ -96,7 +96,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
-                let had_new_changes = compiler_state.add_pending_file_source_changes(
+                let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
                     &file_source_changes,
                     &incremental_check_event,
@@ -152,7 +152,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 // 2 watchman change events for the same file
 
                 info!("\n\n[watch-mode] Change detected");
-                let had_new_changes = compiler_state.add_pending_file_source_changes(
+                let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
                     &file_source_changes,
                     &incremental_build_event,

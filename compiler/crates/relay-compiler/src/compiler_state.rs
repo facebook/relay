@@ -129,17 +129,16 @@ impl GraphQLSources {
         }
     }
 
-    fn add_pending_sources(&mut self, pending_graphql_sources: &GraphQLSources) {
-        for (source_set_name, pending_source_set) in pending_graphql_sources.pending_sources() {
-            let base_source_set = self
-                .grouped_pending_sources
-                .entry(*source_set_name)
-                .or_insert_with(Default::default);
-
-            for (file_name, pending_file_state) in pending_source_set.iter() {
-                base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
-            }
-        }
+    /// Merges additional pending sources into this states pending sources.
+    fn merge_pending_sources(
+        &mut self,
+        source_set_name: SourceSetName,
+        additional_pending_sources: GraphQLSourceSet,
+    ) {
+        self.grouped_pending_sources
+            .entry(source_set_name)
+            .or_insert_with(Default::default)
+            .extend(additional_pending_sources.into_iter());
     }
 
     fn commit_pending_sources(&mut self) {
@@ -149,8 +148,12 @@ impl GraphQLSources {
                 .entry(source_set_name)
                 .or_insert_with(Default::default);
 
-            for (file_name, pending_file_state) in pending_source_set.iter() {
-                base_source_set.insert(file_name.to_owned(), pending_file_state.to_owned());
+            for (file_name, pending_graphql_sources) in pending_source_set {
+                if pending_graphql_sources.is_empty() {
+                    base_source_set.remove(&file_name);
+                } else {
+                    base_source_set.insert(file_name, pending_graphql_sources);
+                }
             }
         }
     }
@@ -165,17 +168,6 @@ pub struct CompilerState {
     pub extensions: SchemaSources,
     pub artifacts: FnvHashMap<ProjectName, ArtifactMap>,
     pub clock: Clock,
-}
-
-fn merge_schema_sources(
-    current_schemas: SchemaSources,
-    new_schemas: SchemaSources,
-) -> SchemaSources {
-    let mut next_schemas: SchemaSources = current_schemas;
-    for (project_name, schema_sources) in new_schemas {
-        next_schemas.insert(project_name, schema_sources.to_owned());
-    }
-    next_schemas
 }
 
 impl CompilerState {
@@ -292,45 +284,102 @@ impl CompilerState {
 
     /// Merges the provided pending changes from the file source into the compiler state.
     /// Returns a boolean indicating if any new changes were merged.
-    pub fn add_pending_file_source_changes(
+    pub fn merge_file_source_changes(
         &mut self,
         config: &Config,
         file_source_changes: &FileSourceResult,
         setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<bool> {
-        let pending_compiler_state = CompilerState::from_file_source_changes(
-            config,
-            file_source_changes,
-            setup_event,
-            perf_logger,
-        )?;
+        let mut has_changed = false;
 
-        if !pending_compiler_state.schemas.is_empty() {
-            // TODO support watching schema changes
-            self.schemas =
-                merge_schema_sources(self.schemas.to_owned(), pending_compiler_state.schemas);
-        }
-        if !pending_compiler_state.extensions.is_empty() {
-            // TODO support watching extension changes
-            self.extensions = merge_schema_sources(
-                self.extensions.to_owned(),
-                pending_compiler_state.extensions,
-            );
+        let categorized = setup_event.time("categorize_files_time", || {
+            categorize_files(config, &file_source_changes.files)
+        });
+
+        for (category, files) in categorized {
+            match category {
+                FileGroup::Source { source_set } => {
+                    // TODO: possible optimization to only set this if the
+                    // extracted sources actually differ.
+                    has_changed = true;
+
+                    let log_event = perf_logger.create_event("categorize");
+                    log_event.string("source_set_name", source_set.to_string());
+                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
+                    let sources = files
+                        .par_iter()
+                        .map(|file| {
+                            let graphql_strings = if *file.exists {
+                                extract_graphql_strings_from_file(
+                                    &file_source_changes.resolved_root,
+                                    &file,
+                                )?
+                            } else {
+                                Vec::new()
+                            };
+                            Ok(((*file.name).to_owned(), graphql_strings))
+                        })
+                        .collect::<Result<IndexMap<_, _>>>()?;
+                    log_event.stop(extract_timer);
+                    match source_set {
+                        SourceSet::SourceSetName(source_set_name) => {
+                            self.graphql_sources
+                                .merge_pending_sources(source_set_name, sources);
+                        }
+                        SourceSet::SourceSetNames(names) => {
+                            for source_set_name in names {
+                                self.graphql_sources
+                                    .merge_pending_sources(source_set_name, sources.clone());
+                            }
+                        }
+                    }
+                }
+                FileGroup::Schema { project_set } => {
+                    has_changed = true;
+
+                    let schema_sources = files
+                        .iter()
+                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
+                        .collect::<Result<Vec<String>>>()?;
+                    match project_set {
+                        ProjectSet::ProjectName(project_name) => {
+                            self.schemas.insert(project_name, schema_sources);
+                        }
+                        ProjectSet::ProjectNames(project_names) => {
+                            for project_name in project_names {
+                                self.schemas.insert(project_name, schema_sources.clone());
+                            }
+                        }
+                    };
+                }
+                FileGroup::Extension { project_set } => {
+                    has_changed = true;
+
+                    let extension_sources: Vec<String> = files
+                        .iter()
+                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
+                        .collect::<Result<Vec<String>>>()?;
+
+                    match project_set {
+                        ProjectSet::ProjectName(project_name) => {
+                            self.extensions.insert(project_name, extension_sources);
+                        }
+                        ProjectSet::ProjectNames(project_names) => {
+                            for project_name in project_names {
+                                self.extensions
+                                    .insert(project_name, extension_sources.clone());
+                            }
+                        }
+                    };
+                }
+                FileGroup::Generated => {
+                    // TODO
+                }
+            }
         }
 
-        let pending_graphql_sources = pending_compiler_state.graphql_sources;
-        if !pending_graphql_sources.has_pending_sources() {
-            // If there are no source changes, don't notify the subscriber of changes,
-            // otherwise we'll enter an infinite loop if we don't handle artifact
-            // changes
-            // TODO support watching artifact changes
-            return Ok(false);
-        }
-
-        self.graphql_sources
-            .add_pending_sources(&pending_graphql_sources);
-        Ok(true)
+        Ok(has_changed)
     }
 
     pub fn commit_pending_file_source_changes(&mut self) {

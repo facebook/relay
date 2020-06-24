@@ -64,7 +64,7 @@ impl<'config> FileSource<'config> {
             let file_source_result = self
                 .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
                 .await?;
-            compiler_state.add_pending_file_source_changes(
+            compiler_state.merge_file_source_changes(
                 &self.config,
                 &file_source_result,
                 perf_logger_event,

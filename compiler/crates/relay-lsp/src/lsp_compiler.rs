@@ -126,7 +126,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         ConsoleLogger.create_event("incremental_check_event");
                     let incremental_check_time =
                         incremental_check_event.start("incremental_check_time");
-                    let had_new_changes = self.compiler_state.add_pending_file_source_changes(
+                    let had_new_changes = self.compiler_state.merge_file_source_changes(
                         &self.config,
                         &file_source_changes,
                         &incremental_check_event,

@@ -9,7 +9,6 @@ use super::FileGroup;
 use super::WatchmanFile;
 use crate::compiler_state::{ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
-use std::cmp::Reverse;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
@@ -53,8 +52,11 @@ impl FileCategorizer {
         for (path, source_set) in &config.sources {
             source_mapping.push((path.clone(), source_set.clone()));
         }
-
-        source_mapping.sort_by_key(|item| Reverse(item.0.clone()));
+        // Sort so that more specific paths come first, i.e.
+        // - foo/bar -> A
+        // - foo -> B
+        // which ensures we categorize foo/bar/x.js as A.
+        source_mapping.sort_by(|(path_a, _), (path_b, _)| path_b.cmp(path_a));
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {

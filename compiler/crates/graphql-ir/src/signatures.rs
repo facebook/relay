@@ -10,7 +10,7 @@ use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
 use common::{Location, NamedItem, WithLocation};
-use errors::{try2, try_map};
+use errors::{par_try_map, try2};
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::Intern;
 use interner::StringKey;
@@ -50,7 +50,7 @@ pub fn build_signatures(
 ) -> ValidationResult<FragmentSignatures> {
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
         FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
-    let signatures = try_map(definitions, |definition| match definition {
+    let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
             Ok(Some(build_fragment_signature(schema, &fragment)?))
         }

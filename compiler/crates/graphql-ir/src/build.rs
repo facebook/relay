@@ -11,7 +11,7 @@ use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
 use common::{Location, NamedItem, Span, WithLocation};
 use core::cmp::Ordering;
-use errors::{try2, try3, try_map};
+use errors::{par_try_map, try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{List, OperationKind};
 use indexmap::IndexMap;
@@ -29,7 +29,7 @@ pub fn build_ir(
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> ValidationResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
-    try_map(definitions, |definition| {
+    par_try_map(definitions, |definition| {
         let mut builder = Builder::new(schema, &signatures, definition.location());
         builder.build_definition(definition)
     })

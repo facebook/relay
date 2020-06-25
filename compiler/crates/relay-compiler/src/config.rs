@@ -8,7 +8,7 @@
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
-use interner::StringKey;
+use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
 use serde::Deserialize;
@@ -32,8 +32,6 @@ pub struct Config {
     pub codegen_command: Option<String>,
     /// If this is false, the compiler won't write any artifact files.
     pub write_artifacts: bool,
-    /// If set, the compiler will only compile the given project
-    pub only_project: Option<StringKey>,
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to genetate extra
@@ -41,25 +39,19 @@ pub struct Config {
 }
 
 impl Config {
-    /// Call a function for every active project in this Config
-    pub fn for_each_project<F>(&self, mut func: F)
-    where
-        F: FnMut(&ProjectConfig) -> (),
-    {
-        match self.only_project {
-            Some(project_key) => {
-                let project_config = self
-                    .projects
-                    .get(&project_key)
-                    .unwrap_or_else(|| panic!("Expected the project {} to exist", &project_key));
-                func(project_config)
-            }
-            None => {
-                for project in self.projects.values() {
-                    func(project)
-                }
-            }
-        }
+    /// Iterator over projects that are enabled.
+    pub fn enabled_projects(&self) -> impl Iterator<Item = &ProjectConfig> {
+        self.projects
+            .values()
+            .filter(|project_config| project_config.enabled)
+    }
+
+    /// Rayon parallel iterator over projects that are enabled.
+    pub fn par_enabled_projects(&self) -> impl ParallelIterator<Item = &ProjectConfig> {
+        self.projects
+            .par_iter()
+            .map(|(_project_name, project_config)| project_config)
+            .filter(|project_config| project_config.enabled)
     }
 
     pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
@@ -131,6 +123,7 @@ impl Config {
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
+                    enabled: true,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
@@ -155,7 +148,6 @@ impl Config {
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             write_artifacts: true,
-            only_project: None,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
         };
@@ -278,7 +270,6 @@ impl fmt::Debug for Config {
             header,
             codegen_command,
             write_artifacts,
-            only_project,
             load_saved_state_file,
             generate_extra_operation_artifacts,
         } = self;
@@ -290,7 +281,6 @@ impl fmt::Debug for Config {
             .field("header", header)
             .field("codegen_command", codegen_command)
             .field("write_artifacts", write_artifacts)
-            .field("only_project", only_project)
             .field("load_saved_state_file", load_saved_state_file)
             .field(
                 "generate_extra_operation_artifacts",
@@ -314,6 +304,7 @@ pub struct ProjectConfig {
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
+    pub enabled: bool,
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,

@@ -194,10 +194,10 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
     ) -> SchemaMap {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
-        config.for_each_project(|project_config| {
+        for project_config in config.enabled_projects() {
             let schema = Arc::new(build_schema(compiler_state, project_config));
             schemas.insert(project_config.name, schema);
-        });
+        }
         setup_event.stop(timer);
         schemas
     }
@@ -208,14 +208,13 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
         })?;
         let mut check_project_errors = vec![];
         let mut project_programs = HashMap::new();
-        match self.config.only_project {
-            Some(project_key) => {
-                let project_config =
-                    self.config.projects.get(&project_key).unwrap_or_else(|| {
-                        panic!("Expected the project {} to exist", &project_key)
-                    });
-
+        for project_config in self.config.enabled_projects() {
+            if self
+                .compiler_state
+                .project_has_pending_changes(project_config.name)
+            {
                 let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
+                // TODO: consider running all projects in parallel
                 let programs = check_project(
                     project_config,
                     &self.compiler_state,
@@ -225,34 +224,10 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                 )
                 .map_err(|err| {
                     check_project_errors.push(err);
-                });
-                if let Ok(programs) = programs {
-                    project_programs.insert(project_key, programs);
-                }
-            }
-            None => {
-                for project_config in self.config.projects.values() {
-                    if self
-                        .compiler_state
-                        .project_has_pending_changes(project_config.name)
-                    {
-                        let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
-                        // TODO: consider running all projects in parallel
-                        let programs = check_project(
-                            project_config,
-                            &self.compiler_state,
-                            &graphql_asts,
-                            schema,
-                            Arc::new(ConsoleLogger),
-                        )
-                        .map_err(|err| {
-                            check_project_errors.push(err);
-                        })
-                        .ok();
-                        if let Some(programs) = programs {
-                            project_programs.insert(project_config.name, programs);
-                        }
-                    }
+                })
+                .ok();
+                if let Some(programs) = programs {
+                    project_programs.insert(project_config.name, programs);
                 }
             }
         }

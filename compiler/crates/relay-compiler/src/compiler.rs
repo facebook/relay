@@ -61,10 +61,10 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     ) -> HashMap<ProjectName, Arc<Schema>> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
-        self.config.for_each_project(|project_config| {
+        for project_config in self.config.enabled_projects() {
             let schema = build_schema(compiler_state, project_config);
             schemas.insert(project_config.name, Arc::new(schema));
-        });
+        }
         setup_event.stop(timer);
         schemas
     }
@@ -198,13 +198,10 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
         let mut build_project_errors = vec![];
 
-        match self.config.only_project {
-            Some(project_key) => {
-                let project_config =
-                    self.config.projects.get(&project_key).unwrap_or_else(|| {
-                        panic!("Expected the project {} to exist", &project_key)
-                    });
+        for project_config in self.config.enabled_projects() {
+            if compiler_state.project_has_pending_changes(project_config.name) {
                 let schema = Arc::clone(schemas.get(&project_config.name).unwrap());
+                // TODO: consider running all projects in parallel
                 check_project(
                     project_config,
                     compiler_state,
@@ -216,25 +213,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     build_project_errors.push(err);
                 })
                 .ok();
-            }
-            None => {
-                for project_config in self.config.projects.values() {
-                    if compiler_state.project_has_pending_changes(project_config.name) {
-                        let schema = Arc::clone(schemas.get(&project_config.name).unwrap());
-                        // TODO: consider running all projects in parallel
-                        check_project(
-                            project_config,
-                            compiler_state,
-                            &graphql_asts,
-                            schema,
-                            Arc::clone(&self.perf_logger),
-                        )
-                        .map_err(|err| {
-                            build_project_errors.push(err);
-                        })
-                        .ok();
-                    }
-                }
             }
         }
 
@@ -314,35 +292,18 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
     })?;
 
-    let build_results: Vec<_> = if let Some(only_project) = config.only_project {
-        let project_config = config
-            .projects
-            .get(&only_project)
-            .unwrap_or_else(|| panic!("Expected the project {} to exist", &only_project));
-        vec![build_project(
-            project_config,
-            compiler_state,
-            &graphql_asts,
-            Arc::clone(&perf_logger),
-        )]
-    } else {
-        config
-            .projects
-            .par_iter()
-            .filter_map(|(_name, project_config)| {
-                if compiler_state.project_has_pending_changes(project_config.name) {
-                    Some(build_project(
-                        project_config,
-                        compiler_state,
-                        &graphql_asts,
-                        Arc::clone(&perf_logger),
-                    ))
-                } else {
-                    None
-                }
-            })
-            .collect()
-    };
+    let build_results: Vec<_> = config
+        .par_enabled_projects()
+        .filter(|project_config| compiler_state.project_has_pending_changes(project_config.name))
+        .map(|project_config| {
+            build_project(
+                project_config,
+                compiler_state,
+                &graphql_asts,
+                Arc::clone(&perf_logger),
+            )
+        })
+        .collect();
     let mut results = Vec::new();
     let mut errors = Vec::new();
     for result in build_results {
@@ -361,10 +322,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             let perf_logger = Arc::clone(&perf_logger);
             handles.push(task::spawn(async move {
                 let (project_name, schema, programs, artifacts) = result;
-                let project_config = config
-                    .projects
-                    .get(&project_name)
-                    .unwrap_or_else(|| panic!("Expected the project {} to exist", project_name));
+                let project_config = &config.projects[&project_name];
                 let result = commit_project(
                     &config,
                     project_config,

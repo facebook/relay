@@ -7,7 +7,9 @@
 
 use crate::node_identifier::NodeIdentifier;
 use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
+use crate::DEFER_STREAM_CONSTANTS;
 
+use common::NamedItem;
 use dashmap::DashMap;
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
@@ -436,25 +438,30 @@ fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
     unsafe { result.set_len(selections.len()) };
     let mut non_field_index = selections
         .iter()
-        .filter(|sel| match sel {
-            Selection::LinkedField(_) | Selection::ScalarField(_) => true,
-            _ => false,
-        })
+        .filter(|sel| is_selection_linked_or_scalar(sel))
         .count();
     let mut field_index = 0;
     for sel in selections.iter() {
-        match sel {
-            Selection::LinkedField(_) | Selection::ScalarField(_) => {
-                result[field_index] = sel;
-                field_index += 1;
-            }
-            _ => {
-                result[non_field_index] = sel;
-                non_field_index += 1;
-            }
+        if is_selection_linked_or_scalar(sel) {
+            result[field_index] = sel;
+            field_index += 1;
+        } else {
+            result[non_field_index] = sel;
+            non_field_index += 1;
         }
     }
     result
+}
+
+fn is_selection_linked_or_scalar(selection: &Selection) -> bool {
+    match selection {
+        Selection::LinkedField(field) => field
+            .directives
+            .named(DEFER_STREAM_CONSTANTS.stream_name)
+            .is_none(),
+        Selection::ScalarField(_) => true,
+        _ => false,
+    }
 }
 
 /// NOTE: intentionally local to this file, this is not a fully-general purpose

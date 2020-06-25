@@ -126,6 +126,9 @@ impl FileCategorizer {
         }
     }
 
+    /// Categorizes a file. This method should be kept as cheap as possible by
+    /// preprocessing the config in `from_config` and then re-using the
+    /// `FileCategorizer`.
     pub fn categorize(&self, path: &PathBuf) -> FileGroup {
         let extension = path
             .extension()

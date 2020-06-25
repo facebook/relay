@@ -403,25 +403,25 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
         f.push(']');
     } else {
         // We filtered out Variables, here it should only be ObjectValue
-        let (_, value) = arg
+        let (_, fields) = arg
             .iter()
             .find(|(key, _)| *key == CODEGEN_CONSTANTS.fields)
             .expect("Expected `fields` to exist");
-        let array = builder.lookup(value.assert_key()).assert_array();
+        let fields = builder.lookup(fields.assert_key()).assert_array();
 
         f.push('{');
-        for key in array {
-            let (_, name) = arg
+        for field in fields {
+            let field = builder.lookup(field.assert_key()).assert_object();
+            let (_, name) = field
                 .iter()
                 .find(|(key, _)| *key == CODEGEN_CONSTANTS.name)
                 .expect("Expected `name` to exist");
             let name = name.assert_string();
             write!(f, "\\\"{}\\\":", name)?;
-            let object = builder.lookup(key.assert_key()).assert_object();
-            write_argument_value(f, builder, object)?;
+            write_argument_value(f, builder, field)?;
             f.push(',');
         }
-        if !array.is_empty() {
+        if !fields.is_empty() {
             f.pop();
         }
         f.push('}');

@@ -437,13 +437,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         inline_fragment: &InlineFragment,
     ) {
         let mut selections = self.raw_response_visit_selections(&inline_fragment.selections);
-        if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in &mut selections {
-                if !type_condition.is_abstract_type() {
-                    selection.concrete_type = Some(type_condition);
-                }
-            }
-        }
         if inline_fragment
             .directives
             .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
@@ -478,6 +471,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 .item
                 .expect_string_literal();
 
+            if let Some(type_condition) = inline_fragment.type_condition {
+                if !type_condition.is_abstract_type() {
+                    for selection in &mut selections {
+                        selection.concrete_type = Some(type_condition);
+                    }
+                }
+            }
             if !self.match_fields.contains_key(&directive_arg_name) {
                 let match_field = self.raw_response_selections_to_babel(
                     selections
@@ -498,14 +498,20 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 value: None,
                 node_type: None,
                 conditional: false,
-                concrete_type: inline_fragment.type_condition,
+                concrete_type: None,
                 ref_: None,
                 node_selections: None,
                 document_name: Some(directive_arg_key),
             });
             return;
         }
-
+        if let Some(type_condition) = inline_fragment.type_condition {
+            if !type_condition.is_abstract_type() {
+                for selection in &mut selections {
+                    selection.concrete_type = Some(type_condition);
+                }
+            }
+        }
         type_selections.append(&mut selections);
     }
 

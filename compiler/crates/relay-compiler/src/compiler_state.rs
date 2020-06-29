@@ -13,7 +13,7 @@ use crate::watchman::{
     FileSourceResult,
 };
 use common::{PerfLogEvent, PerfLogger};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
@@ -105,11 +105,21 @@ impl GraphQLSources {
 pub type SchemaSources = FnvHashMap<ProjectName, Vec<String>>;
 
 #[derive(Serialize, Deserialize, Debug)]
+pub enum ArtifactMapKind {
+    /// A simple set of paths of generated files. This kind is used when the
+    /// compiler starts without a saved state and doesn't know the connection
+    /// between generated files and the artifacts that produced them.
+    Unconnected(FnvHashSet<PathBuf>),
+    /// A known mapping from input documents to generated outputs.
+    Mapping(ArtifactMap),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<SourceSetName, GraphQLSources>,
     pub schemas: SchemaSources,
     pub extensions: SchemaSources,
-    pub artifacts: FnvHashMap<ProjectName, ArtifactMap>,
+    pub artifacts: FnvHashMap<ProjectName, ArtifactMapKind>,
     pub clock: Clock,
 }
 
@@ -218,8 +228,16 @@ impl CompilerState {
                         }
                     };
                 }
-                FileGroup::Generated { project_name: _ } => {
-                    // TODO
+                FileGroup::Generated { project_name } => {
+                    result.artifacts.insert(
+                        project_name,
+                        ArtifactMapKind::Unconnected(
+                            files
+                                .into_iter()
+                                .map(|file| file.name.into_inner())
+                                .collect(),
+                        ),
+                    );
                 }
             }
         }

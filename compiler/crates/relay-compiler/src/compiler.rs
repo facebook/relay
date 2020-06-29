@@ -6,14 +6,11 @@
  */
 
 use crate::build_project::{build_project, build_schema, check_project, commit_project};
-use crate::compiler_state::{CompilerState, ProjectName};
+use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
-use crate::{
-    artifact_map::ArtifactMap,
-    watchman::{source_for_location, FileSource},
-};
+use crate::watchman::{source_for_location, FileSource};
 use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
 use graphql_ir::ValidationError;
@@ -235,12 +232,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
             setup_event,
-            &compiler_state,
+            compiler_state,
         )
         .await;
         match result {
-            Ok(next_artifacts) => {
-                compiler_state.complete_compilation(next_artifacts);
+            Ok(()) => {
+                compiler_state.complete_compilation();
                 Ok(())
             }
             Err(error) => {
@@ -287,8 +284,8 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     config: Arc<Config>,
     perf_logger: Arc<TPerfLogger>,
     setup_event: &impl PerfLogEvent,
-    compiler_state: &CompilerState,
-) -> Result<ArtifactMap> {
+    compiler_state: &mut CompilerState,
+) -> Result<()> {
     let graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
     })?;
@@ -319,22 +316,36 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);
             let perf_logger = Arc::clone(&perf_logger);
+            let artifact_map = compiler_state
+                .artifacts
+                .get(&project_name)
+                .cloned()
+                .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
-                commit_project(
-                    &config,
-                    project_config,
-                    perf_logger,
-                    &schema,
-                    programs,
-                    artifacts,
-                )
-                .await
+                Ok((
+                    project_name,
+                    commit_project(
+                        &config,
+                        project_config,
+                        perf_logger,
+                        &schema,
+                        programs,
+                        artifacts,
+                        artifact_map,
+                    )
+                    .await?,
+                ))
             }));
         }
         for commit_result in join_all(handles).await {
             match commit_result.unwrap() {
-                Ok(_) => {}
+                Ok((project_name, next_artifact_map)) => {
+                    let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
+                    compiler_state
+                        .artifacts
+                        .insert(project_name, next_artifact_map);
+                }
                 Err(error) => {
                     errors.push(error);
                 }
@@ -343,8 +354,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     };
 
     if errors.is_empty() {
-        let next_artifacts: ArtifactMap = Default::default();
-        Ok(next_artifacts)
+        Ok(())
     } else {
         Err(Error::BuildProjectsErrors { errors })
     }

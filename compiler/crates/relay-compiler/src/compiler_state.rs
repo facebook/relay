@@ -21,7 +21,7 @@ use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::path::PathBuf;
-use std::{fs::File, io};
+use std::{fs::File, io, sync::Arc};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -119,7 +119,7 @@ pub struct CompilerState {
     pub graphql_sources: FnvHashMap<SourceSetName, GraphQLSources>,
     pub schemas: SchemaSources,
     pub extensions: SchemaSources,
-    pub artifacts: FnvHashMap<ProjectName, ArtifactMapKind>,
+    pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
 }
 
@@ -231,12 +231,12 @@ impl CompilerState {
                 FileGroup::Generated { project_name } => {
                     result.artifacts.insert(
                         project_name,
-                        ArtifactMapKind::Unconnected(
+                        Arc::new(ArtifactMapKind::Unconnected(
                             files
                                 .into_iter()
                                 .map(|file| file.name.into_inner())
                                 .collect(),
-                        ),
+                        )),
                     );
                 }
             }
@@ -367,20 +367,7 @@ impl CompilerState {
         Ok(has_changed)
     }
 
-    /// The initial implementation of the `update_artifacts_map` do not handle incremental updates
-    /// of the artifacts map
-    /// This will be added in the next iterations
-    fn update_artifacts_map(&mut self, _written_artifacts: ArtifactMap) {
-        // for (project_name, project_written_artifacts) in written_artifacts.iter() {
-        //     self.artifacts.insert(
-        //         project_name.to_owned(),
-        //         ArtifactMap::new(project_written_artifacts.to_owned()),
-        //     );
-        // }
-    }
-
-    pub fn complete_compilation(&mut self, written_artifacts: ArtifactMap) {
-        self.update_artifacts_map(written_artifacts);
+    pub fn complete_compilation(&mut self) {
         for sources in self.graphql_sources.values_mut() {
             sources.commit_pending_sources();
         }

@@ -18,10 +18,10 @@ mod persist_operations;
 mod validate;
 mod write_artifacts;
 
-use crate::compiler_state::{CompilerState, ProjectName, SourceSetName};
+use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use crate::graphql_asts::GraphQLAsts;
+use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;
 use build_ir::{BuildIRResult, SourceHashes};
@@ -164,7 +164,8 @@ pub async fn commit_project(
     schema: &Schema,
     programs: Programs,
     mut artifacts: Vec<Artifact>,
-) -> Result<(), BuildProjectError> {
+    artifact_map: Arc<ArtifactMapKind>,
+) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
 
@@ -202,6 +203,43 @@ pub async fn commit_project(
         })?;
     }
 
+    let next_artifact_map = match Arc::as_ref(&artifact_map) {
+        ArtifactMapKind::Unconnected(existing_artifacts) => {
+            let mut existing_artifacts = existing_artifacts.clone();
+            for generated_artifact in &artifacts {
+                if !existing_artifacts.remove(&generated_artifact.path) {
+                    info!(
+                        "[{}] NEW: {} -> {:?}",
+                        project_config.name, &generated_artifact.name, &generated_artifact.path
+                    );
+                }
+            }
+
+            if config.write_artifacts {
+                for remaining_artifact in &existing_artifacts {
+                    std::fs::remove_file(config.root_dir.join(remaining_artifact)).unwrap_or_else(
+                        |_| {
+                            info!(
+                                "tried to delete already deleted file: {:?}",
+                                remaining_artifact
+                            );
+                        },
+                    );
+                }
+            }
+
+            info!(
+                "[{}] DELETE: {:?}",
+                project_config.name, &existing_artifacts
+            );
+
+            ArtifactMap::from(artifacts)
+        }
+        ArtifactMapKind::Mapping(_) => {
+            todo!("need to implement incremental update of artifact map")
+        }
+    };
+
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",
         project_config.name,
@@ -211,5 +249,6 @@ pub async fn commit_project(
     );
     log_event.stop(commit_time);
     perf_logger.complete_event(log_event);
-    Ok(())
+
+    Ok(next_artifact_map)
 }

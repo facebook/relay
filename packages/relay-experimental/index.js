@@ -23,11 +23,13 @@ const fetchQuery = require('./fetchQuery');
 const loadEntryPoint = require('./loadEntryPoint');
 const prepareEntryPoint_DEPRECATED = require('./prepareEntryPoint_DEPRECATED');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
+const useEntryPointLoader = require('./useEntryPointLoader');
 const useFragment = require('./useFragment');
 const useLazyLoadQuery = require('./useLazyLoadQuery');
 const useMutation = require('./useMutation');
 const usePaginationFragment = require('./usePaginationFragment');
 const usePreloadedQuery = require('./usePreloadedQuery');
+const useQueryLoader = require('./useQueryLoader');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationState');
@@ -63,6 +65,8 @@ module.exports = {
   useBlockingPaginationFragment: useBlockingPaginationFragment,
   useFragment: useFragment,
   useLazyLoadQuery: useLazyLoadQuery,
+  useEntryPointLoader: useEntryPointLoader,
+  useQueryLoader: useQueryLoader,
   useMutation: useMutation,
   usePaginationFragment: usePaginationFragment,
   usePreloadedQuery: usePreloadedQuery,

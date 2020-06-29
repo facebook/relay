@@ -15,6 +15,7 @@ use crate::{
     watchman::{source_for_location, FileSource},
 };
 use common::{PerfLogEvent, PerfLogger};
+use futures::future::join_all;
 use graphql_ir::ValidationError;
 use log::{error, info};
 use rayon::prelude::*;
@@ -313,17 +314,14 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         }
     }
 
-    let errors = if errors.is_empty() {
+    if errors.is_empty() {
         let mut handles = Vec::new();
-        let errors_mutex = Arc::new(std::sync::Mutex::new(errors));
-        for result in results {
+        for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);
-            let errors_mutex = Arc::clone(&errors_mutex);
             let perf_logger = Arc::clone(&perf_logger);
             handles.push(task::spawn(async move {
-                let (project_name, schema, programs, artifacts) = result;
                 let project_config = &config.projects[&project_name];
-                let result = commit_project(
+                commit_project(
                     &config,
                     project_config,
                     perf_logger,
@@ -331,20 +329,17 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                     programs,
                     artifacts,
                 )
-                .await;
-                match result {
-                    Ok(_) => {}
-                    Err(error) => {
-                        let mut errors = errors_mutex.lock().unwrap();
-                        errors.push(error);
-                    }
-                }
-            }))
+                .await
+            }));
         }
-        futures::future::join_all(handles).await;
-        Arc::try_unwrap(errors_mutex).unwrap().into_inner().unwrap()
-    } else {
-        errors
+        for commit_result in join_all(handles).await {
+            match commit_result.unwrap() {
+                Ok(_) => {}
+                Err(error) => {
+                    errors.push(error);
+                }
+            }
+        }
     };
 
     if errors.is_empty() {

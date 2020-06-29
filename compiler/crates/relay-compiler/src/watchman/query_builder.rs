@@ -109,13 +109,19 @@ fn get_extension_roots(config: &Config) -> Vec<PathBuf> {
         .collect()
 }
 
-/// Returns all output directories for the config.
+/// Returns all output and extra artifact output directories for the config.
 fn get_output_dir_paths(config: &Config) -> Vec<PathBuf> {
-    config
+    let output_dirs = config
         .projects
         .values()
-        .filter_map(|project_config| project_config.output.clone())
-        .collect()
+        .filter_map(|project_config| project_config.output.clone());
+
+    let extra_artifact_output_dirs = config
+        .projects
+        .values()
+        .filter_map(|project_config| project_config.extra_artifacts_output.clone());
+
+    output_dirs.chain(extra_artifact_output_dirs).collect()
 }
 
 /// Returns all paths that contain GraphQL schema files for the config.

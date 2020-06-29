@@ -105,6 +105,9 @@ impl FileCategorizer {
             if let Some(output) = &project_config.output {
                 generated_dir_mapping.push((output.clone(), project_name));
             }
+            if let Some(extra_artifacts_output) = &project_config.extra_artifacts_output {
+                generated_dir_mapping.push((extra_artifacts_output.clone(), project_name));
+            }
         }
 
         Self {

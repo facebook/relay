@@ -218,7 +218,7 @@ impl CompilerState {
                         }
                     };
                 }
-                FileGroup::Generated => {
+                FileGroup::Generated { project_name: _ } => {
                     // TODO
                 }
             }
@@ -340,7 +340,7 @@ impl CompilerState {
                         }
                     };
                 }
-                FileGroup::Generated => {
+                FileGroup::Generated { project_name: _ } => {
                     // TODO
                 }
             }

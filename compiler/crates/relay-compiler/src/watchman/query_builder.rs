@@ -41,6 +41,12 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
 
     let mut expressions = vec![sources_expr];
 
+    let output_dir_paths = get_output_dir_paths(&config);
+    if !output_dir_paths.is_empty() {
+        let output_dir_expr = expr_files_in_dirs(output_dir_paths);
+        expressions.push(output_dir_expr);
+    }
+
     let schema_file_paths = get_schema_file_paths(&config);
     if !schema_file_paths.is_empty() {
         let schema_file_expr = Expr::Name(NameTerm {
@@ -73,12 +79,14 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
 /// relevant to the compiler should be in these directories.
 pub fn get_all_roots(config: &Config) -> Vec<PathBuf> {
     let source_roots = get_source_roots(config);
+    let output_roots = get_output_dir_paths(config);
     let extension_roots = get_extension_roots(config);
     let schema_file_roots = get_schema_file_roots(config);
     let schema_dir_roots = get_schema_dir_paths(config);
     unify_roots(
         source_roots
             .into_iter()
+            .chain(output_roots)
             .chain(extension_roots)
             .chain(schema_file_roots)
             .chain(schema_dir_roots)
@@ -98,6 +106,15 @@ fn get_extension_roots(config: &Config) -> Vec<PathBuf> {
         .projects
         .values()
         .flat_map(|project_config| project_config.extensions.iter().cloned())
+        .collect()
+}
+
+/// Returns all output directories for the config.
+fn get_output_dir_paths(config: &Config) -> Vec<PathBuf> {
+    config
+        .projects
+        .values()
+        .filter_map(|project_config| project_config.output.clone())
         .collect()
 }
 
@@ -137,17 +154,21 @@ fn get_schema_file_roots(config: &Config) -> impl Iterator<Item = PathBuf> {
         })
 }
 
+fn expr_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
+    expr_any(
+        roots
+            .into_iter()
+            .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
+            .collect(),
+    )
+}
+
 fn expr_graphql_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
     Expr::All(vec![
         // ending in *.graphql
         Expr::Suffix(vec!["graphql".into()]),
         // in one of the extension directories
-        expr_any(
-            roots
-                .into_iter()
-                .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
-                .collect(),
-        ),
+        expr_files_in_dirs(roots),
     ])
 }
 

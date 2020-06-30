@@ -34,7 +34,7 @@ pub struct Config {
     pub write_artifacts: bool,
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
-    /// Function to genetate extra
+    /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
 }
 
@@ -127,15 +127,11 @@ impl Config {
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
-                    extra_artifacts_generation_enabled: config_file_project
-                        .extra_artifacts_generation_enabled,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
-                    should_generate_parameters_file: config_file_project
-                        .should_generate_parameters_file,
                 };
                 Ok((project_name, project_config))
             })
@@ -300,7 +296,6 @@ pub struct ProjectConfig {
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
     pub extra_artifacts_output: Option<PathBuf>,
-    pub extra_artifacts_generation_enabled: bool,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
@@ -308,7 +303,6 @@ pub struct ProjectConfig {
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
-    pub should_generate_parameters_file: bool,
 }
 
 #[derive(Clone, Debug)]

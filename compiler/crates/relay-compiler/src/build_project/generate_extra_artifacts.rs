@@ -30,7 +30,7 @@ pub fn generate_extra_artifacts(
     schema: &Schema,
     project_config: &ProjectConfig,
     artifacts: &mut Vec<Artifact>,
-    generate_extra_operation_artifacts: &GenerateExtraArtifactsFn,
+    generate_extra_operation_artifacts_fn: &GenerateExtraArtifactsFn,
 ) {
     let mut extra_artifacts = Vec::new();
     for artifact in artifacts.iter() {
@@ -41,7 +41,7 @@ pub fn generate_extra_artifacts(
             ..
         } = &artifact.content
         {
-            extra_artifacts.extend(generate_extra_operation_artifacts(
+            extra_artifacts.extend(generate_extra_operation_artifacts_fn(
                 GenerateExtraArtifactArgs {
                     id: id_and_text_hash.as_ref().map(|(id, _)| id),
                     name: artifact.name,

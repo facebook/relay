@@ -26,7 +26,7 @@ pub fn print_fragment_ast(node: &FragmentDefinition) -> String {
     printer.output
 }
 
-pub fn print_exectutable_definition_ast(node: &ExecutableDefinition) -> String {
+pub fn print_executable_definition_ast(node: &ExecutableDefinition) -> String {
     match node {
         ExecutableDefinition::Operation(operation) => print_operation_ast(operation),
         ExecutableDefinition::Fragment(fragment) => print_fragment_ast(fragment),

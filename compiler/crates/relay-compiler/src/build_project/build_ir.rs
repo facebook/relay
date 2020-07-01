@@ -10,7 +10,7 @@ use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::ValidationError;
-use graphql_text_printer::print_exectutable_definition_ast;
+use graphql_text_printer::print_executable_definition_ast;
 use interner::StringKey;
 use md5::{Digest, Md5};
 use schema::Schema;
@@ -64,7 +64,7 @@ pub fn build_ir(
     let mut source_hashes: SourceHashes = Default::default();
     for ast in &reachable_ast {
         if let Some(name) = ast.name() {
-            source_hashes.insert(name, md5(&print_exectutable_definition_ast(ast)));
+            source_hashes.insert(name, md5(&print_executable_definition_ast(ast)));
         }
     }
 

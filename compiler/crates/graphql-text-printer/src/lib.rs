@@ -14,7 +14,7 @@ mod print_full_operation;
 mod print_to_text;
 
 pub use print_ast_to_text::{
-    print_exectutable_definition_ast, print_fragment_ast, print_operation_ast,
+    print_executable_definition_ast, print_fragment_ast, print_operation_ast,
 };
 pub use print_full_operation::print_full_operation;
 pub use print_to_text::{

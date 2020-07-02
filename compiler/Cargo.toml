@@ -1,0 +1,18 @@
+[workspace]
+members = [
+    "crates/common",
+    "crates/dependency-analyzer",
+    "crates/extract-graphql",
+    "crates/fixture-tests",
+    "crates/graphql-finder-watchman",
+    "crates/graphql-ir",
+    "crates/graphql-printer",
+    "crates/graphql-syntax",
+    "crates/graphql-transforms",
+    "crates/interner",
+    "crates/relay-compiler",
+    "crates/schema",
+    "crates/schema-diff",
+    "crates/signedsource",
+    "crates/test-schema",
+]

@@ -52,6 +52,34 @@ jobs:
       - name: Flow
         run: yarn run typecheck
 
+  check-rust:
+    name: Check Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --manifest-path=compiler/Cargo.toml
+
+  test-rust:
+    name: Test Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --manifest-path=compiler/Cargo.toml
+
   master-release:
     name: Publish master tag to npm
     runs-on: ubuntu-latest

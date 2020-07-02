@@ -474,7 +474,6 @@ class Executor {
         {
           getDataID: this._getDataID,
           path: [],
-          request: this._operation.request,
           treatMissingFieldsAsNull,
         },
       );
@@ -552,7 +551,6 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
-        request: this._operation.request,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -628,7 +626,6 @@ class Executor {
           getDataID: this._getDataID,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           path: [],
-          request: this._operation.request,
         },
       );
       this._publishQueue.commitPayload(
@@ -1000,7 +997,6 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: placeholder.path,
-        request: this._operation.request,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -1215,7 +1211,6 @@ class Executor {
     const relayPayload = normalizeResponse(response, selector, typeName, {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      request: this._operation.request,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {

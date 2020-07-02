@@ -63,7 +63,6 @@ import type {
   NormalizationSelector,
   Record,
   RelayResponsePayload,
-  RequestDescriptor,
 } from './RelayStoreTypes';
 
 export type GetDataID = (
@@ -75,7 +74,6 @@ export type NormalizationOptions = {|
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
-  +request: RequestDescriptor,
 |};
 
 /**
@@ -112,7 +110,6 @@ class RelayResponseNormalizer {
   _moduleImportPayloads: Array<ModuleImportPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
-  _request: RequestDescriptor;
   _variables: Variables;
 
   constructor(
@@ -129,7 +126,6 @@ class RelayResponseNormalizer {
     this._moduleImportPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
-    this._request = options.request;
     this._variables = variables;
   }
 

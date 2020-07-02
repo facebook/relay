@@ -10,6 +10,7 @@ use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::ValidationError;
+use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use interner::StringKey;
 use md5::{Digest, Md5};
@@ -21,7 +22,24 @@ pub struct BuildIRResult {
     pub base_fragment_names: FnvHashSet<StringKey>,
 }
 
-pub type SourceHashes = FnvHashMap<StringKey, String>;
+/// Map fragments and queries definition names to the md5 of they printed source
+pub struct SourceHashes(FnvHashMap<StringKey, String>);
+
+impl SourceHashes {
+    pub fn from_definitions(definitions: &[ExecutableDefinition]) -> Self {
+        let mut source_hashes = FnvHashMap::default();
+        for ast in definitions {
+            if let Some(name) = ast.name() {
+                source_hashes.insert(name, md5(&print_executable_definition_ast(ast)));
+            }
+        }
+        Self(source_hashes)
+    }
+
+    pub fn get(&self, k: &StringKey) -> Option<&String> {
+        self.0.get(k)
+    }
+}
 
 pub fn build_ir(
     project_config: &ProjectConfig,
@@ -61,13 +79,7 @@ pub fn build_ir(
         base_fragment_names,
     } = get_reachable_ast(project_asts, base_project_asts).unwrap();
 
-    let mut source_hashes: SourceHashes = Default::default();
-    for ast in &reachable_ast {
-        if let Some(name) = ast.name() {
-            source_hashes.insert(name, md5(&print_executable_definition_ast(ast)));
-        }
-    }
-
+    let source_hashes = SourceHashes::from_definitions(&reachable_ast);
     let ir = graphql_ir::build(&schema, &reachable_ast)?;
     if is_incremental_build {
         let mut changed_names = graphql_asts

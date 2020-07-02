@@ -21,7 +21,7 @@ mod watchman;
 pub use build_project::{
     apply_transforms, build_schema, check_project, create_path_for_artifact,
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
-    validate, Artifact, ArtifactContent, Programs,
+    validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };
 pub use graphql_asts::GraphQLAsts;
 pub use watchman::{source_for_location, FileSource, FileSourceResult, FileSourceSubscription};

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches expected output: delete-from-store.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteRecord
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @__clientField(handle: "deleteRecord")
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-on-unspported-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    __typename @deleteRecord
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @deleteRecord on field '__typename'. Expected field type ID, got String!.
+
+Source: GraphQL request (4:16)
+3:   commentDelete(input: $input) {
+4:     __typename @deleteRecord
+                  ^
+5:   }
+
+`;

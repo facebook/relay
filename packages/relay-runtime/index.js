@@ -15,6 +15,7 @@
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const GraphQLTag = require('./query/GraphQLTag');
+const MutationHandlers = require('./handlers/connection/MutationHandlers');
 const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
@@ -261,6 +262,7 @@ module.exports = {
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler,
+  MutationHandlers,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 

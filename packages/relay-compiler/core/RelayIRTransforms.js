@@ -15,6 +15,7 @@
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const ConnectionTransform = require('../transforms/ConnectionTransform');
+const DeclarativeConnectionMutationTransform = require('../transforms/DeclarativeConnectionMutationTransform');
 const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
 const DisallowTypenameOnRoot = require('../transforms/DisallowTypenameOnRoot');
@@ -47,12 +48,13 @@ import type {IRTransform} from './CompilerContext';
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: $ReadOnlyArray<string> = [
   ConnectionTransform.SCHEMA_EXTENSION,
-  MatchTransform.SCHEMA_EXTENSION,
-  RelayDirectiveTransform.SCHEMA_EXTENSION,
-  RefetchableFragmentTransform.SCHEMA_EXTENSION,
-  TestOperationTransform.SCHEMA_EXTENSION,
+  DeclarativeConnectionMutationTransform.SCHEMA_EXTENSION,
   InlineDataFragmentTransform.SCHEMA_EXTENSION,
+  MatchTransform.SCHEMA_EXTENSION,
+  RefetchableFragmentTransform.SCHEMA_EXTENSION,
+  RelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayFlowGenerator.SCHEMA_EXTENSION,
+  TestOperationTransform.SCHEMA_EXTENSION,
   ValidateUnusedVariablesTransform.SCHEMA_EXTENSION,
 ];
 
@@ -86,6 +88,7 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   ApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,
   GenerateIDFieldTransform.transform,
+  DeclarativeConnectionMutationTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.

@@ -13,8 +13,7 @@
 
 'use strict';
 
-const useFragment = require('../useFragment');
-
+import useFragment from '../useFragment';
 import {
   fragmentInput,
   keyAnotherNonNullable,

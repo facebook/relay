@@ -173,6 +173,12 @@ const users = [
     infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
     pinned: false,
   },
+  {
+    caption: 'PaGamO',
+    image: '/img/logos/pagamo.png',
+    infoLink: 'https://www.pagamo.org/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

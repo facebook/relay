@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
-use graphql_transforms::OSS_CONNECTION_INTERFACE;
+use graphql_transforms::CONNECTION_INTERFACE;
 use interner::Intern;
 use relay_compiler::apply_transforms;
 use relay_typegen::{self, TypegenConfig};
@@ -36,7 +36,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         "test".intern(),
         Arc::new(program),
         Default::default(),
-        Arc::clone(&OSS_CONNECTION_INTERFACE),
+        Arc::clone(&CONNECTION_INTERFACE),
         Arc::new(ConsoleLogger),
     )
     .unwrap();

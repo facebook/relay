@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse;
-use graphql_transforms::{validate_connections, OSS_CONNECTION_INTERFACE};
+use graphql_transforms::{validate_connections, CONNECTION_INTERFACE};
 use std::sync::Arc;
 use test_schema::get_test_schema_with_extensions;
 
@@ -26,7 +26,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        let result = validate_connections(&program, &*OSS_CONNECTION_INTERFACE);
+        let result = validate_connections(&program, &*CONNECTION_INTERFACE);
 
         match result {
             Ok(_) => Ok("OK".to_owned()),

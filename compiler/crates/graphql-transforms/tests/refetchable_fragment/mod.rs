@@ -12,7 +12,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse;
 use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::{
-    transform_connections, transform_refetchable_fragment, OSS_CONNECTION_INTERFACE,
+    transform_connections, transform_refetchable_fragment, CONNECTION_INTERFACE,
 };
 use std::sync::Arc;
 use test_schema::get_test_schema;
@@ -30,7 +30,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Err(err) => return Err(format!("{:?}", err)),
     };
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let program = transform_connections(&program, Arc::clone(&OSS_CONNECTION_INTERFACE));
+    let program = transform_connections(&program, Arc::clone(&CONNECTION_INTERFACE));
     let base_fragments = Default::default();
     let next_program =
         transform_refetchable_fragment(&program, &base_fragments, false).map_err(|errors| {

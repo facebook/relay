@@ -20,5 +20,5 @@ pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
 pub use location::{Location, SourceLocationKey, WithLocation};
 pub use murmurhash::murmurhash;
 pub use named_item::{Named, NamedItem};
-pub use perf_logger::{PerfLogEvent, PerfLogger};
+pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
 pub use span::{Span, Spanned};

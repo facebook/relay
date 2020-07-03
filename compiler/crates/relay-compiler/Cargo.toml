@@ -15,6 +15,8 @@ name = "relay_compiler_compile_relay_artifacts_test"
 path = "tests/compile_relay_artifacts_test.rs"
 
 [dependencies]
+env_logger = "0.7"
+structopt = "0.3.8"
 common = { path = "../common" }
 dependency-analyzer = { path = "../dependency-analyzer" }
 errors = { path = "../errors" }

@@ -1,0 +1,12 @@
+{
+  "sources": {
+    "compiler/test-project": "test"
+  },
+  "projects": {
+    "test": {
+      "customScalarTypes": {},
+      "enumModuleSuffix": ".test",
+      "schema": "packages/relay-test-utils-internal/testschema.graphql"
+    }
+  }
+}

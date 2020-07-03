@@ -1,0 +1,56 @@
+use env_logger::Env;
+use log::{error, info};
+use relay_compiler::{compiler::Compiler, config::Config};
+use std::{path::PathBuf, sync::Arc};
+use structopt::StructOpt;
+
+#[derive(StructOpt)]
+#[structopt(
+    name = "Relay Compiler",
+    about = "Compiler to produce Relay generated files."
+)]
+struct Opt {
+    /// Compile and watch for changes
+    #[structopt(long, short)]
+    watch: bool,
+
+    /// Path to the compiler config file
+    config: PathBuf,
+
+    /// Root directory of the project
+    root: PathBuf,
+}
+
+#[tokio::main]
+async fn main() {
+    env_logger::from_env(Env::default().default_filter_or("info, error, warn")).init();
+
+    let opt = Opt::from_args();
+
+    let config = match Config::load(opt.root, opt.config) {
+        Ok(config) => config,
+        Err(err) => {
+            error!("{}", err);
+            std::process::exit(1);
+        }
+    };
+
+    let compiler = Compiler::new(config, Arc::new(common::NoopPerfLogger));
+
+    if opt.watch {
+        if let Err(err) = compiler.watch().await {
+            error!("{}", err);
+            std::process::exit(1);
+        }
+    } else {
+        match compiler.compile().await {
+            Ok(_compiler_state) => {
+                info!("Done");
+            }
+            Err(err) => {
+                error!("{}", err);
+                std::process::exit(1);
+            }
+        }
+    }
+}

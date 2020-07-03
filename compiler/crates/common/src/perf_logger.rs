@@ -43,3 +43,22 @@ pub trait PerfLogEvent: Send + Sync {
         res
     }
 }
+
+pub struct NoopPerfLogger;
+impl PerfLogger for NoopPerfLogger {
+    type PerfLogEvent = NoopPerfLoggerEvent;
+    fn create_event(&self, _name: impl Copy + Into<String>) -> Self::PerfLogEvent {
+        NoopPerfLoggerEvent
+    }
+    fn complete_event(&self, _event: Self::PerfLogEvent) {}
+    fn flush(&self) {}
+}
+
+pub struct NoopPerfLoggerEvent;
+impl PerfLogEvent for NoopPerfLoggerEvent {
+    type Timer = ();
+    fn number(&self, _name: impl Copy + Into<String>, _number: usize) {}
+    fn string(&self, _name: impl Copy + Into<String>, _value: String) {}
+    fn start(&self, _name: impl Copy + Into<String>) -> Self::Timer {}
+    fn stop(&self, _timer: Self::Timer) {}
+}

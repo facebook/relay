@@ -19,17 +19,23 @@ const invariant = require('invariant');
 import type CompilerContext from '../core/CompilerContext';
 import type {InlineFragment, Fragment, FragmentSpread} from '../core/IR';
 
+type TransformOptions = {|+includeFragments: boolean|}; 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
 type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
 /**
  * A transform that inlines all fragments and removes them.
  */
-function inlineFragmentsTransform(context: CompilerContext): CompilerContext {
-  const visitFragmentSpread = fragmentSpreadVisitor(new Map());
-  return IRTransformer.transform(context, {
-    Fragment: visitFragment,
-    FragmentSpread: visitFragmentSpread,
-  });
+function transformWithOptions(options: TransformOptions): ((context: CompilerContext) => CompilerContext) {
+  return function inlineFragmentsTransform(context: CompilerContext): CompilerContext {
+    const visitFragmentSpread = fragmentSpreadVisitor(new Map());
+    const visitors = options.includeFragments ? {
+      FragmentSpread: visitFragmentSpread
+    } : {
+      Fragment: visitFragment,
+      FragmentSpread: visitFragmentSpread,
+    };
+    return IRTransformer.transform(context, visitors);
+  };
 }
 
 function visitFragment(fragment: Fragment): null {
@@ -66,6 +72,9 @@ function fragmentSpreadVisitor(cache: FragmentVisitorCache): FragmentVisitor {
   };
 }
 
+const transform: (context: CompilerContext) => CompilerContext = transformWithOptions({includeFragments: false});
+
 module.exports = {
-  transform: inlineFragmentsTransform,
+  transform,
+  transformWithOptions: transformWithOptions,
 };

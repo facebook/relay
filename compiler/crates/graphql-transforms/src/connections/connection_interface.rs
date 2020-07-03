@@ -22,27 +22,32 @@ pub struct ConnectionInterface {
     pub start_cursor_selection_name: StringKey,
 }
 
-lazy_static! {
-    pub static ref OSS_CONNECTION_INTERFACE: Arc<ConnectionInterface> =
-        Arc::new(ConnectionInterface {
-            cursor_selection_name: "cursor".intern(),
-            edges_selection_name: "edges".intern(),
-            end_cursor_selection_name: "endCursor".intern(),
-            has_next_page_selection_name: "hasNextPage".intern(),
-            has_prev_page_selection_name: "hasPreviousPage".intern(),
-            node_selection_name: "node".intern(),
-            page_info_selection_name: "pageInfo".intern(),
-            start_cursor_selection_name: "startCursor".intern(),
-        });
-    pub static ref FB_CONNECTION_INTERFACE: Arc<ConnectionInterface> =
-        Arc::new(ConnectionInterface {
-            cursor_selection_name: "cursor".intern(),
-            edges_selection_name: "edges".intern(),
-            end_cursor_selection_name: "end_cursor".intern(),
-            has_next_page_selection_name: "has_next_page".intern(),
-            has_prev_page_selection_name: "has_previous_page".intern(),
-            node_selection_name: "node".intern(),
-            page_info_selection_name: "page_info".intern(),
-            start_cursor_selection_name: "start_cursor".intern(),
-        });
-}
+#[cfg(feature = "is_FB")]
+    lazy_static! {
+        pub static ref CONNECTION_INTERFACE: Arc<ConnectionInterface> =
+            Arc::new(ConnectionInterface {
+                cursor_selection_name: "cursor".intern(),
+                edges_selection_name: "edges".intern(),
+                end_cursor_selection_name: "end_cursor".intern(),
+                has_next_page_selection_name: "has_next_page".intern(),
+                has_prev_page_selection_name: "has_previous_page".intern(),
+                node_selection_name: "node".intern(),
+                page_info_selection_name: "page_info".intern(),
+                start_cursor_selection_name: "start_cursor".intern(),
+            });
+    }
+
+#[cfg(not(feature = "is_FB"))]
+    lazy_static! {
+       pub static ref CONNECTION_INTERFACE: Arc<ConnectionInterface> =
+            Arc::new(ConnectionInterface {
+                cursor_selection_name: "cursor".intern(),
+                edges_selection_name: "edges".intern(),
+                end_cursor_selection_name: "endCursor".intern(),
+                has_next_page_selection_name: "hasNextPage".intern(),
+                has_prev_page_selection_name: "hasPreviousPage".intern(),
+                node_selection_name: "node".intern(),
+                page_info_selection_name: "pageInfo".intern(),
+                start_cursor_selection_name: "startCursor".intern(),
+            });
+    }

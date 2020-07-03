@@ -34,7 +34,7 @@ pub use generate_artifacts::{
 };
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
-use graphql_transforms::FB_CONNECTION_INTERFACE;
+use graphql_transforms::CONNECTION_INTERFACE;
 use log::info;
 use persist_operations::persist_operations;
 use schema::Schema;
@@ -71,7 +71,7 @@ fn build_programs(
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
         // TODO(T63482263): Pass connection interface from configuration
-        validate(&program, &*FB_CONNECTION_INTERFACE)
+        validate(&program, &*CONNECTION_INTERFACE)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
@@ -81,7 +81,7 @@ fn build_programs(
             project_name,
             Arc::new(program),
             Arc::new(base_fragment_names),
-            Arc::clone(&FB_CONNECTION_INTERFACE),
+            Arc::clone(&CONNECTION_INTERFACE),
             perf_logger,
         )
         .map_err(|errors| BuildProjectError::ValidationErrors { errors })

@@ -106,7 +106,7 @@ const users = [
     infoLink: 'https://www.autoguru.com.au/',
     pinned: true,
     description:
-      'Used by AutoGuru extensivly in their workshop management tools, and customer facing website',
+      'Used at autoguru.com.au, and affiliates',
   },
   {
     caption: 'Foton',

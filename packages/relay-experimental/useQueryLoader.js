@@ -13,6 +13,7 @@
 
 'use strict';
 
+const useIsMountedRef = require('./useIsMountedRef');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
 const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
@@ -68,7 +69,7 @@ function useLoadQuery<TQuery: OperationType>(
   const environment = useRelayEnvironment();
   useTrackLoadQueryInRender();
 
-  const isUnmounted = useRef(false);
+  const isMountedRef = useIsMountedRef();
   const undisposedQueryReferencesRef = useRef(
     new Set([initialNullQueryReferenceState]),
   );
@@ -78,14 +79,14 @@ function useLoadQuery<TQuery: OperationType>(
   >(initialNullQueryReferenceState);
 
   const disposeQuery = useCallback(() => {
-    if (!isUnmounted.current) {
+    if (isMountedRef.current) {
       const nullQueryReference = {
         kind: 'NullQueryReference',
       };
       undisposedQueryReferencesRef.current.add(nullQueryReference);
       setQueryReference(nullQueryReference);
     }
-  }, [setQueryReference]);
+  }, [setQueryReference, isMountedRef]);
 
   useEffect(
     function ensureQueryReferenceDisposal() {
@@ -103,7 +104,7 @@ function useLoadQuery<TQuery: OperationType>(
       // phase.)
       const undisposedQueryReferences = undisposedQueryReferencesRef.current;
 
-      if (!isUnmounted.current) {
+      if (isMountedRef.current) {
         for (const undisposedQueryReference of undisposedQueryReferences) {
           if (undisposedQueryReference === queryReference) {
             break;
@@ -116,12 +117,11 @@ function useLoadQuery<TQuery: OperationType>(
         }
       }
     },
-    [queryReference],
+    [queryReference, isMountedRef],
   );
 
   useEffect(() => {
     return function disposeAllRemainingQueryReferences() {
-      isUnmounted.current = true;
       // undisposedQueryReferences.current is never reassigned
       // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
@@ -137,7 +137,7 @@ function useLoadQuery<TQuery: OperationType>(
       variables: $ElementType<TQuery, 'variables'>,
       options?: LoadQueryOptions,
     ) => {
-      if (!isUnmounted.current) {
+      if (isMountedRef.current) {
         const updatedQueryReference = loadQuery(
           environment,
           preloadableRequest,
@@ -148,7 +148,7 @@ function useLoadQuery<TQuery: OperationType>(
         setQueryReference(updatedQueryReference);
       }
     },
-    [environment, preloadableRequest, setQueryReference],
+    [environment, preloadableRequest, setQueryReference, isMountedRef],
   );
 
   return [

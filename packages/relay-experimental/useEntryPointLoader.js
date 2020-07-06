@@ -14,6 +14,7 @@
 'use strict';
 
 const loadEntryPoint = require('./loadEntryPoint');
+const useIsMountedRef = require('./useIsMountedRef');
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {useCallback, useEffect, useRef, useState} = require('react');
@@ -98,7 +99,7 @@ function useLoadEntryPoint<
 
   useTrackLoadQueryInRender();
 
-  const isUnmounted = useRef(false);
+  const isMountedRef = useIsMountedRef();
   const undisposedEntryPointReferencesRef = useRef<
     Set<PreloadedEntryPoint<TEntryPointComponent> | NullEntryPointReference>,
   >(new Set([initialNullEntryPointReferenceState]));
@@ -108,14 +109,14 @@ function useLoadEntryPoint<
   >(initialNullEntryPointReferenceState);
 
   const disposeEntryPoint = useCallback(() => {
-    if (!isUnmounted.current) {
+    if (isMountedRef.current) {
       const nullEntryPointReference = {
         kind: 'NullEntryPointReference',
       };
       undisposedEntryPointReferencesRef.current.add(nullEntryPointReference);
       setEntryPointReference(nullEntryPointReference);
     }
-  }, [setEntryPointReference]);
+  }, [setEntryPointReference, isMountedRef]);
 
   useEffect(
     function disposePriorEntryPointReferences() {
@@ -134,7 +135,7 @@ function useLoadEntryPoint<
       const undisposedEntryPointReferences =
         undisposedEntryPointReferencesRef.current;
 
-      if (!isUnmounted.current) {
+      if (isMountedRef.current) {
         for (const undisposedEntryPointReference of undisposedEntryPointReferences) {
           if (undisposedEntryPointReference === entryPointReference) {
             break;
@@ -149,12 +150,11 @@ function useLoadEntryPoint<
         }
       }
     },
-    [entryPointReference],
+    [entryPointReference, isMountedRef],
   );
 
   useEffect(() => {
     return function disposeAllRemainingEntryPointReferences() {
-      isUnmounted.current = true;
       // undisposedEntryPointReferences.current is never reassigned
       // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const unhandledStateChange of undisposedEntryPointReferencesRef.current) {
@@ -167,7 +167,7 @@ function useLoadEntryPoint<
 
   const entryPointLoaderCallback = useCallback(
     (params: TEntryPointParams) => {
-      if (!isUnmounted.current) {
+      if (isMountedRef.current) {
         const updatedEntryPointReference = loadEntryPoint(
           environmentProvider,
           entryPoint,
@@ -179,7 +179,7 @@ function useLoadEntryPoint<
         setEntryPointReference(updatedEntryPointReference);
       }
     },
-    [environmentProvider, entryPoint, setEntryPointReference],
+    [environmentProvider, entryPoint, setEntryPointReference, isMountedRef],
   );
 
   return [

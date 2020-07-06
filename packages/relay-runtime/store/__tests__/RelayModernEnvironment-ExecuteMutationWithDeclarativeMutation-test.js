@@ -164,14 +164,10 @@ describe('deleteFromStore', () => {
       })
       .subscribe(callbacks);
 
-    callback.mockClear();
     expect(complete).not.toBeCalled();
     expect(error).not.toBeCalled();
-    expect(environment.lookup(queryOperation.fragment).data).toEqual({
-      node: null,
-    });
-    // TODO: The snapshot doesn't update in an optimisitc response when a record is deleted
-    // expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls.length).toBe(1);
+    expect(callback.mock.calls[0][0].data).toEqual({node: null});
   });
 
   it('removes different `id`s in optimistic update and the server response', () => {
@@ -193,8 +189,10 @@ describe('deleteFromStore', () => {
     });
     jest.runAllTimers();
 
-    const snapshot = environment.lookup(anotherQueryOperation.fragment);
-    expect(snapshot.data).toEqual({
+    const serverSnapshot = environment.lookup(anotherQueryOperation.fragment);
+    const clientSnapshot = environment.lookup(queryOperation.fragment);
+
+    expect(serverSnapshot.data).toEqual({
       node: {
         id: anotherCommentId,
         body: {
@@ -202,8 +200,10 @@ describe('deleteFromStore', () => {
         },
       },
     });
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
+    const serverCallback = jest.fn();
+    const clientCallback = jest.fn();
+    environment.subscribe(serverSnapshot, serverCallback);
+    environment.subscribe(clientSnapshot, clientCallback);
 
     environment
       .executeMutation({
@@ -216,14 +216,15 @@ describe('deleteFromStore', () => {
       })
       .subscribe(callbacks);
 
-    callback.mockClear();
     expect(complete).not.toBeCalled();
     expect(error).not.toBeCalled();
     // Removes `commentId`
+    expect(clientCallback.mock.calls.length).toBe(1);
     expect(environment.lookup(queryOperation.fragment).data).toEqual({
       node: null,
     });
     // Doesn't remove `serverCommentId`
+    expect(serverCallback.mock.calls.length).toBe(0);
     expect(environment.lookup(anotherQueryOperation.fragment).data).toEqual({
       node: {
         id: anotherCommentId,
@@ -232,8 +233,9 @@ describe('deleteFromStore', () => {
         },
       },
     });
-    expect(callback.mock.calls.length).toBe(0);
 
+    clientCallback.mockClear();
+    serverCallback.mockClear();
     subject.next({
       data: {
         commentDelete: {
@@ -242,9 +244,9 @@ describe('deleteFromStore', () => {
       },
     });
     subject.complete();
-    expect(callback.mock.calls.length).toBe(1);
     // Reverts `commentId`
-    expect(environment.lookup(queryOperation.fragment).data).toEqual({
+    expect(clientCallback.mock.calls.length).toBe(1);
+    expect(clientCallback.mock.calls[0][0].data).toEqual({
       node: {
         id: commentId,
         body: {
@@ -253,6 +255,7 @@ describe('deleteFromStore', () => {
       },
     });
     // Removes `serverCommentId`
-    expect(callback.mock.calls[0][0].data).toEqual({node: null});
+    expect(serverCallback.mock.calls.length).toBe(1);
+    expect(serverCallback.mock.calls[0][0].data).toEqual({node: null});
   });
 });

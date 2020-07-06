@@ -29,6 +29,7 @@ import type {
   IEnvironment,
   OperationDescriptor,
   OperationType,
+  VariablesOf,
 } from 'relay-runtime';
 
 /**
@@ -111,7 +112,7 @@ import type {
 function fetchQuery<TQuery: OperationType>(
   environment: IEnvironment,
   query: GraphQLTaggedNode,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: $ReadOnly<{|
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,

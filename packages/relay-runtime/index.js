@@ -189,6 +189,7 @@ export type {
   OperationType,
   RenderPolicy,
   Variables,
+  VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
 

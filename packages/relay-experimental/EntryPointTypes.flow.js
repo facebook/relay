@@ -23,7 +23,10 @@ import type {
   Observable,
   OperationType,
   RequestParameters,
+  VariablesOf as _VariablesOf,
 } from 'relay-runtime';
+
+export type VariablesOf<T> = _VariablesOf<T>;
 
 export type PreloadFetchPolicy =
   | 'store-or-network'

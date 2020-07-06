@@ -51,6 +51,7 @@ import type {
   ReaderFragment,
   RenderPolicy,
   Variables,
+  VariablesOf,
 } from 'relay-runtime';
 
 export type RefetchFn<
@@ -103,13 +104,13 @@ type RefetchFnBase<TVars, TOptions> = (
 ) => Disposable;
 
 type RefetchFnExact<TQuery: OperationType, TOptions = Options> = RefetchFnBase<
-  $ElementType<TQuery, 'variables'>,
+  VariablesOf<TQuery>,
   TOptions,
 >;
 type RefetchFnInexact<
   TQuery: OperationType,
   TOptions = Options,
-> = RefetchFnBase<$Shape<$ElementType<TQuery, 'variables'>>, TOptions>;
+> = RefetchFnBase<$Shape<VariablesOf<TQuery>>, TOptions>;
 
 type Action =
   | {|

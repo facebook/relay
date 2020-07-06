@@ -24,11 +24,12 @@ import type {
   GraphQLTaggedNode,
   OperationType,
   RenderPolicy,
+  VariablesOf,
 } from 'relay-runtime';
 
 function useLazyLoadQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: {|
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,

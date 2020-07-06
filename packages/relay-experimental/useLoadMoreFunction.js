@@ -41,6 +41,7 @@ import type {
   OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
+  VariablesOf,
 } from 'relay-runtime';
 
 export type Direction = 'forward' | 'backward';
@@ -49,7 +50,7 @@ export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {|
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<$ElementType<TQuery, 'variables'>>,
+    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
   |},
 ) => Disposable;
 

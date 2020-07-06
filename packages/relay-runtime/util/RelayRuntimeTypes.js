@@ -38,6 +38,8 @@ export type OperationType = {|
   +rawResponse?: {...},
 |};
 
+export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
+
 /**
  * Settings for how a query response may be cached.
  *

@@ -31,6 +31,7 @@ import type {
   PreloadFetchPolicy,
   PreloadOptions,
   PreloadQueryStatus,
+  VariablesOf,
 } from './EntryPointTypes.flow';
 import type {
   ConcreteRequest,
@@ -76,7 +77,7 @@ type PendingQueryEntry =
 function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
@@ -126,7 +127,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   environment: Environment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options: ?PreloadOptions,
 ): PendingQueryEntry {
   let params;

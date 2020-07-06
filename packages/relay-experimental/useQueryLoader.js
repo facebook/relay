@@ -111,8 +111,7 @@ function useLoadQuery<TQuery: OperationType>(
 
           undisposedQueryReferences.delete(undisposedQueryReference);
           if (undisposedQueryReference.kind !== 'NullQueryReference') {
-            const dispose = undisposedQueryReference.dispose;
-            dispose && dispose();
+            undisposedQueryReference.dispose();
           }
         }
       }
@@ -127,8 +126,7 @@ function useLoadQuery<TQuery: OperationType>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
         if (unhandledStateChange.kind !== 'NullQueryReference') {
-          const dispose = unhandledStateChange.dispose;
-          dispose && dispose();
+          unhandledStateChange.dispose();
         }
       }
     };

@@ -18,7 +18,7 @@ import type {
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
-  PreloadedEntryPointInner,
+  PreloadedEntryPoint,
 } from 'relay-experimental/EntryPointTypes.flow';
 
 function loadEntryPoint<
@@ -38,7 +38,7 @@ function loadEntryPoint<
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
   entryPointParams: TEntryPointParams,
-): PreloadedEntryPointInner<TEntryPointComponent> {
+): PreloadedEntryPoint<TEntryPointComponent> {
   // Start loading the code for the entrypoint
   let loadingPromise = null;
   if (entryPoint.root.getModuleIfRequired() == null) {
@@ -98,14 +98,13 @@ function loadEntryPoint<
     if (preloadedQueries != null) {
       Object.values(preloadedQueries).forEach(
         ({dispose: innerDispose}: $FlowFixMe) => {
-          innerDispose && innerDispose();
+          innerDispose();
         },
       );
     }
   };
 
   return {
-    kind: 'PreloadedEntryPoint',
     dispose,
     entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
     extraProps: extraProps ?? null,

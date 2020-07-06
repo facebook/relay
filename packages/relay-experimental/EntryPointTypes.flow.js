@@ -192,24 +192,9 @@ export type PreloadProps<
   >,
 |}>;
 
-export type PreloadedEntryPoint<TEntryPointComponent> =
-  | PreloadedEntryPointInner<TEntryPointComponent>
-  | PreloadedEntryPointInner_DEPRECATED<TEntryPointComponent>;
-
-export type PreloadedEntryPointInner<
-  TEntryPointComponent,
-> = PreloadedEntryPointWithKind<TEntryPointComponent, 'PreloadedEntryPoint'>;
-export type PreloadedEntryPointInner_DEPRECATED<
-  TEntryPointComponent,
-> = PreloadedEntryPointWithKind<
-  TEntryPointComponent,
-  'PreloadedEntryPoint_DEPRECATED',
->;
-
-// Return type of the `prepareEntryPoint(...)` and `loadEntryPoint(...)` functions
-type PreloadedEntryPointWithKind<TEntryPointComponent, Kind> = $ReadOnly<{|
-  dispose?: () => void,
-  kind: Kind,
+// Return type of `loadEntryPoint(...)`
+export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
+  dispose: () => void,
   entryPoints: $PropertyType<
     ElementConfig<TEntryPointComponent>,
     'entryPoints',

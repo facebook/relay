@@ -144,8 +144,7 @@ function useLoadEntryPoint<
           if (
             undisposedEntryPointReference.kind !== 'NullEntryPointReference'
           ) {
-            const dispose = undisposedEntryPointReference.dispose;
-            dispose && dispose();
+            undisposedEntryPointReference.dispose();
           }
         }
       }
@@ -160,8 +159,7 @@ function useLoadEntryPoint<
       // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const unhandledStateChange of undisposedEntryPointReferencesRef.current) {
         if (unhandledStateChange.kind !== 'NullEntryPointReference') {
-          const dispose = unhandledStateChange.dispose;
-          dispose && dispose();
+          unhandledStateChange.dispose();
         }
       }
     };

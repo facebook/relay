@@ -246,6 +246,13 @@ export type EntryPoint<
   $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
 >;
 
+type ExtractFirstParam = <P, R>((P) => R) => P;
+type GetPreloadPropsType<T> = $ElementType<T, 'getPreloadProps'>;
+export type PreloadParamsOf<T> = $Call<
+  ExtractFirstParam,
+  GetPreloadPropsType<T>,
+>;
+
 export type IEnvironmentProvider<TOptions> = {|
   getEnvironment(options: ?TOptions): IEnvironment,
 |};

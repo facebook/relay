@@ -503,6 +503,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
             (CODEGEN_CONSTANTS.name, Primitive::String(name)),
             (
+                CODEGEN_CONSTANTS.type_,
+                Primitive::String(self.schema.get_type_name(schema_field.type_.inner())),
+            ),
+            (
                 CODEGEN_CONSTANTS.storage_key,
                 match args {
                     None => Primitive::Null,

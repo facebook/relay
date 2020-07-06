@@ -322,7 +322,11 @@ function printHandles(schema: Schema, field: Field): string {
       handle.filters == null
         ? ''
         : `, filters: ${JSON.stringify(Array.from(handle.filters).sort())}`;
-    return `@__clientField(handle: "${handle.name}"${key}${filters})`;
+    const handleArgs =
+      handle.handleArgs == null
+        ? ''
+        : `, handleArgs: ${printArguments(schema, handle.handleArgs)}`;
+    return `@__clientField(handle: "${handle.name}"${key}${filters}${handleArgs})`;
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }

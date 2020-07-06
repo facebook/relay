@@ -305,6 +305,15 @@ function generateLinkedField(
             },
           };
         }
+        if (handle.handleArgs != null) {
+          const handleArgs = generateArgs(handle.handleArgs);
+          if (handleArgs != null) {
+            handleNode = {
+              ...handleNode,
+              handleArgs,
+            };
+          }
+        }
         return handleNode;
       })) ||
     [];

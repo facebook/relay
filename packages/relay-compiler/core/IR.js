@@ -181,6 +181,7 @@ export type Handle = {|
   // T45504512: new connection model
   +dynamicKey: Variable | null,
   +filters: ?$ReadOnlyArray<string>,
+  +handleArgs?: $ReadOnlyArray<Argument>,
 |};
 
 export type ClientExtension = {|

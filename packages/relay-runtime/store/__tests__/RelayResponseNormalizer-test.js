@@ -215,6 +215,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: 'pet',
       fieldKey: 'name',
       handle: 'friendsName',
+      handleArgs: {},
       handleKey: '__name_friendsName',
     });
     expect(fieldPayloads[1]).toEqual({
@@ -222,6 +223,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: '4',
       fieldKey: 'friends(first:1)',
       handle: 'bestFriends',
+      handleArgs: {},
       handleKey: '__friends_bestFriends',
     });
   });
@@ -295,6 +297,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: '4',
       fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["last name"])',
       handle: 'bestFriends',
+      handleArgs: {},
       handleKey:
         '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["last name"])',
     });
@@ -333,6 +336,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: '4',
       fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["first name"])',
       handle: 'bestFriends',
+      handleArgs: {},
       handleKey:
         '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["first name"])',
     });

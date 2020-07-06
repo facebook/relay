@@ -693,6 +693,8 @@ export type HandleFieldPayload = {|
   // The (storage) key at which the handle's data should be written by the
   // handler.
   +handleKey: string,
+  // The arguments applied to the handle
+  +handleArgs: Variables,
 |};
 
 /**

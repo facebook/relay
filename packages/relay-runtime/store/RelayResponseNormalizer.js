@@ -257,6 +257,9 @@ class RelayResponseNormalizer {
             fieldKey,
             handle: selection.handle,
             handleKey,
+            handleArgs: selection.handleArgs
+              ? getArgumentValues(selection.handleArgs, this._variables)
+              : {},
           });
           break;
         case MODULE_IMPORT:

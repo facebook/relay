@@ -21,11 +21,11 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                 .collect(),
         ),
     ];
-    // not blacklisted by any glob
-    if !config.blacklist.is_empty() {
+    // not excluded by any glob
+    if !config.excludes.is_empty() {
         sources_conditions.push(Expr::Not(Box::new(expr_any(
             config
-                .blacklist
+                .excludes
                 .iter()
                 .map(|item| {
                     Expr::Match(MatchTerm {

@@ -26,7 +26,7 @@ pub struct Config {
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
     pub sources: HashMap<PathBuf, SourceSet>,
-    pub blacklist: Vec<String>,
+    pub excludes: Vec<String>,
     pub projects: HashMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
@@ -139,7 +139,7 @@ impl Config {
         let config = Self {
             root_dir,
             sources: config_file.sources,
-            blacklist: config_file.blacklist,
+            excludes: config_file.excludes,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
@@ -261,7 +261,7 @@ impl fmt::Debug for Config {
         let Config {
             root_dir,
             sources,
-            blacklist,
+            excludes,
             projects,
             header,
             codegen_command,
@@ -272,7 +272,7 @@ impl fmt::Debug for Config {
         f.debug_struct("Config")
             .field("root_dir", root_dir)
             .field("sources", sources)
-            .field("blacklist", blacklist)
+            .field("excludes", excludes)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
@@ -328,7 +328,7 @@ struct ConfigFile {
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
     #[serde(default)]
-    blacklist: Vec<String>,
+    excludes: Vec<String>,
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,

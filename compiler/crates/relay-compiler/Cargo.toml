@@ -30,7 +30,7 @@ relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }
 fnv = "1.0"
-futures = { version = "0.3", features = ["async-await", "compat"] }
+futures = { version = "0.3.5", features = ["async-await", "compat"] }
 hex = "0.4"
 lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }

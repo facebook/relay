@@ -45,7 +45,7 @@ fn main() {
             let path = dir_entry.unwrap().path();
             if path
                 .extension()
-                .expect(&format!("unexpected path {:?}", &path))
+                .unwrap_or_else(|| panic!("unexpected path {:?}", &path))
                 == TODO
             {
                 continue;

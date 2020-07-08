@@ -439,14 +439,14 @@ function useRefetchFunction<TQuery: OperationType>(
       // all variables required by the fragment when calling `refetch()`.
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
-      /* $FlowFixMe(>=0.123.0) This comment suppresses an error found
-       * when Flow v0.123.0 was deployed. To see the error delete this comment
-       * and run Flow. */
+      /* $FlowFixMe[cannot-spread-indexer] (>=0.123.0) This comment suppresses
+       * an error found when Flow v0.123.0 was deployed. To see the error
+       * delete this comment and run Flow. */
       const refetchVariables = {
         ...parentVariables,
-        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-         * Flow v0.111.0 was deployed. To see the error, delete this comment
-         * and run Flow. */
+        /* $FlowFixMe[exponential-spread] (>=0.111.0) This comment suppresses
+         * an error found when Flow v0.111.0 was deployed. To see the error,
+         * delete this comment and run Flow. */
         ...fragmentVariables,
         ...providedRefetchVariables,
       };
@@ -605,7 +605,7 @@ if (__DEV__) {
         return;
       }
       const {ID_KEY} = require('relay-runtime');
-      // $FlowExpectedError
+      // $FlowExpectedError[incompatible-use]
       const resultID = refetchedFragmentRef[ID_KEY];
       if (resultID != null && resultID !== previousIDAndTypename.id) {
         warning(

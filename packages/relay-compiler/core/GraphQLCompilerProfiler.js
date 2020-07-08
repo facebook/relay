@@ -142,7 +142,7 @@ function instrument<F: (...$FlowFixMe) => mixed>(fn: F, name?: string): F {
   }
   const profileName =
     name ??
-    // $FlowFixMe - Flow no longer considers statics of functions as any
+    // $FlowFixMe[prop-missing] - Flow no longer considers statics of functions as any
     fn.displayName ??
     fn.name;
   const instrumented = function() {
@@ -179,7 +179,7 @@ function instrumentAsyncContext<F: (...$FlowFixMe) => Promise<$FlowFixMe>>(
 
   const profileName: string =
     name ??
-    // $FlowFixMe - Flow no longer considers statics of functions as any
+    // $FlowFixMe[prop-missing] - Flow no longer considers statics of functions as any
     fn.displayName ??
     fn.name;
   const instrumented = async function() {
@@ -210,7 +210,7 @@ function instrumentWait<F: (...$FlowFixMe) => Promise<$FlowFixMe>>(
   }
   const profileName: string =
     name ??
-    // $FlowFixMe - Flow no longer considers statics of functions as any
+    // $FlowFixMe[prop-missing] - Flow no longer considers statics of functions as any
     fn.displayName ??
     fn.name;
   const instrumented = async function() {

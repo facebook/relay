@@ -90,7 +90,8 @@ function traverseSelections<T: Node>(
   }
   let result = nodeCache.get(parentType);
   if (result != null) {
-    // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+    /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
+     * changing result type */
     return result;
   }
   const schema = compilerContext.getSchema();
@@ -182,7 +183,8 @@ function traverseSelections<T: Node>(
     };
   }
   nodeCache.set(parentType, result);
-  // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+  /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
+   * changing result type */
   return result;
 }
 

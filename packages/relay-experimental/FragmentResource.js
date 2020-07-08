@@ -425,7 +425,7 @@ class FragmentResourceImpl {
       });
     this._cache.set(cacheKey, promise);
 
-    // $FlowExpectedError Expando to annotate Promises.
+    // $FlowExpectedError[prop-missing] Expando to annotate Promises.
     promise.displayName = 'Relay(' + fragmentOwner.node.params.name + ')';
     return promise;
   }

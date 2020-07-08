@@ -370,7 +370,7 @@ class DataChecker {
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',
             selection.kind,
           );
-          // $FlowExpectedError - we need the break; for OSS linter
+          // $FlowExpectedError[unreachable-code] - we need the break; for OSS linter
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;

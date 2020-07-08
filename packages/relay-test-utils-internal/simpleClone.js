@@ -25,7 +25,7 @@ function simpleClone<T>(value: T): T {
     for (const key in value) {
       result[key] = simpleClone(value[key]);
     }
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-return]
     return result;
   } else {
     return value;

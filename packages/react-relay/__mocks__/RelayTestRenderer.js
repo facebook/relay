@@ -72,7 +72,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
         {React.cloneElement(
           this.props.children,
           newProps,
-          // $FlowFixMe: error found when enabling flow for this file.
+          // $FlowFixMe[prop-missing] : error found when enabling flow for this file.
           this.props.children.children,
         )}
       </ReactRelayContext.Provider>

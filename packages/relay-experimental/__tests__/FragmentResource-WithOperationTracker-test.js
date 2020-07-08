@@ -164,7 +164,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       ),
       jest.fn(),
     );
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     warning.mockClear();
   });
 
@@ -188,9 +188,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       plaintext: undefined,
     });
     expect(warning).toBeCalled();
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     expect(warning.mock.calls[0][0]).toBe(false);
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     expect(warning.mock.calls[0][1]).toMatch(/it has missing data/);
   });
 
@@ -313,7 +313,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     environment.mock.complete(nodeOperation);
     // To make sure promise is resolved
     jest.runAllTimers();
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     warning.mockClear();
     const snapshot = FragmentResource.read(
       PlainUserNameRenderer_name,

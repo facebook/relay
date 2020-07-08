@@ -256,7 +256,6 @@ class RelayParser {
       );
     }
     const variableDirective = variableDirectives[0];
-    // $FlowIssue: refining directly on `variableDirective.arguments` doesn't
     // work, below accesses all report arguments could still be null/undefined.
     const args = variableDirective.arguments;
     if (variableDirective == null || !Array.isArray(args)) {
@@ -668,7 +667,7 @@ class GraphQLDefinitionParser {
       name: getName(fragment),
       selections,
       type,
-      // $FlowFixMe - could be null
+      // $FlowFixMe[incompatible-return] - could be null
       argumentDefinitions,
     };
   }
@@ -785,7 +784,7 @@ class GraphQLDefinitionParser {
       const [conditions, directives] = this._splitConditions(node.directives);
       const conditionalNodes = applyConditions(
         conditions,
-        // $FlowFixMe(>=0.28.0)
+        // $FlowFixMe[incompatible-call] (>=0.28.0)
         [{...node, directives}],
       );
       if (conditionalNodes.length !== 1) {
@@ -1126,7 +1125,7 @@ class GraphQLDefinitionParser {
               [filtersArgument.value],
             );
           }
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-cast]
           filters = (maybeFilters: Array<string>);
         }
         const dynamicKeyArgument = (clientFieldDirective.arguments || []).find(

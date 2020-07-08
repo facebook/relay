@@ -215,7 +215,7 @@ it('does not dispose the query before the new component tree unsuspends in concu
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -289,7 +289,7 @@ it('disposes query references associated with previous suspensions when multiple
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -388,7 +388,7 @@ it('disposes query references associated with subsequent suspensions when multip
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });

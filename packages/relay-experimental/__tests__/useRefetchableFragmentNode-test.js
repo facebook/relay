@@ -304,14 +304,12 @@ describe('useRefetchableFragmentNode', () => {
       return TestRenderer.create(
         <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
           <React.Suspense fallback={<Fallback />}>
-            {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-             * type of React$Node */}
             <ContextProvider>
               <Container owner={query} {...props} />
             </ContextProvider>
           </React.Suspense>
         </ErrorBoundary>,
-        // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
         {unstable_isConcurrent: isConcurrent},
       );
     };
@@ -525,7 +523,7 @@ describe('useRefetchableFragmentNode', () => {
 
       expect(warning).toHaveBeenCalledTimes(1);
       expect(
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         warning.mock.calls[0][1].includes(
           'Relay: Unexpected call to `refetch` on unmounted component',
         ),
@@ -544,7 +542,7 @@ describe('useRefetchableFragmentNode', () => {
 
       expect(warning).toHaveBeenCalledTimes(1);
       expect(
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         warning.mock.calls[0][1].includes(
           'Relay: Unexpected call to `refetch` while using a null fragment ref',
         ),
@@ -574,7 +572,7 @@ describe('useRefetchableFragmentNode', () => {
 
       expect(warning).toHaveBeenCalledTimes(1);
       expect(
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         warning.mock.calls[0][1].includes(
           'Relay: Unexpected call to `refetch` at a priority higher than expected',
         ),
@@ -1303,7 +1301,7 @@ describe('useRefetchableFragmentNode', () => {
 
       const warning = require('warning');
 
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       const warningCalls = warning.mock.calls.filter(call => call[0] === false);
       expect(warningCalls.length).toEqual(2); // the other warnings are from FragmentResource.js
       expect(
@@ -1366,7 +1364,7 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       const warning = require('warning');
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       const warningCalls = warning.mock.calls.filter(call => call[0] === false);
       expect(warningCalls.length).toEqual(2);
       expect(
@@ -1430,7 +1428,7 @@ describe('useRefetchableFragmentNode', () => {
 
       const warning = require('warning');
       expect(
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         warning.mock.calls.filter(call => call[0] === false).length,
       ).toEqual(0);
     });

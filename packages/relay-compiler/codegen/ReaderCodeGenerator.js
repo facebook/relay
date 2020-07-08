@@ -83,7 +83,7 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
         connection: refetch.connection,
         fragmentPathInResult: refetch.fragmentPathInResult,
         operation: CodeMarker.moduleDependency(
-          // $FlowFixMe
+          // $FlowFixMe[unclear-addition]
           refetch.operation + '.graphql',
         ),
       };
@@ -102,7 +102,7 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
       node.argumentDefinitions,
     ),
     kind: 'Fragment',
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-return]
     metadata,
     name: node.name,
     selections: generateSelections(schema, node.selections),

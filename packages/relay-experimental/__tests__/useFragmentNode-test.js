@@ -292,13 +292,11 @@ beforeEach(() => {
     const {isConcurrent = false, ...props} = args ?? {};
     return TestRenderer.create(
       <React.Suspense fallback="Singular Fallback">
-        {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-         * type of React$Node */}
         <ContextProvider>
           <SingularContainer owner={singularQuery} {...props} />
         </ContextProvider>
       </React.Suspense>,
-      // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+      // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
       {unstable_isConcurrent: isConcurrent},
     );
   };
@@ -312,13 +310,11 @@ beforeEach(() => {
     const {isConcurrent = false, ...props} = args ?? {};
     return TestRenderer.create(
       <React.Suspense fallback="Plural Fallback">
-        {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-         * type of React$Node */}
         <ContextProvider>
           <PluralContainer owner={pluralQuery} {...props} />
         </ContextProvider>
       </React.Suspense>,
-      // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+      // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
       {unstable_isConcurrent: isConcurrent},
     );
   };
@@ -1123,19 +1119,19 @@ it('should throw an error if fragment reference is non-null but read-out data is
   // an error to be thrown in this case.
   (environment.getStore().getSource(): $FlowFixMe).clear();
   const warning = require('warning');
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
 
   renderSingularFragment();
   expect(warning).toBeCalledTimes(2);
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   const [, warningMessage] = warning.mock.calls[1];
   expect(
     warningMessage.startsWith(
       'Relay: Expected to have been able to read non-null data for fragment `%s`',
     ),
   ).toEqual(true);
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
 });
 
@@ -1158,7 +1154,7 @@ it('should warn if data is missing and there are no pending requests', () => {
     },
   });
 
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
   TestRenderer.act(() => {
     renderSingularFragment({owner: missingDataQuery});
@@ -1166,7 +1162,7 @@ it('should warn if data is missing and there are no pending requests', () => {
 
   // Assert warning message
   expect(warning).toHaveBeenCalledTimes(1);
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   const [, warningMessage, ...warningArgs] = warning.mock.calls[0];
   expect(
     warningMessage.startsWith(
@@ -1215,7 +1211,7 @@ it('should subscribe for updates even if there is missing data', () => {
     },
   });
 
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
   renderSingularFragment({owner: missingDataQuery});
 
@@ -1276,7 +1272,7 @@ it('should subscribe for updates to plural fragments even if there is missing da
     ],
   });
 
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
   renderPluralFragment({owner: missingDataQuery});
 

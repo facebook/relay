@@ -61,7 +61,7 @@ function readInlineData(
     'readInlineData(): Expected an object, got `%s`.',
     typeof fragmentRef,
   );
-  // $FlowFixMe
+  // $FlowFixMe[incompatible-use]
   const inlineData = fragmentRef[FRAGMENTS_KEY]?.[inlineDataFragment.name];
   invariant(
     inlineData != null,

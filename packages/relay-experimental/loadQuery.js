@@ -44,7 +44,7 @@ function useTrackLoadQueryInRender() {
     // Flow does not know of React internals (rightly so), but we need to
     // ensure here that this function isn't called inside render.
     RenderDispatcher =
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
         ?.ReactCurrentDispatcher?.current;
   }
@@ -60,7 +60,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   // Flow does not know of React internals (rightly so), but we need to
   // ensure here that this function isn't called inside render.
   const CurrentDispatcher =
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
       ?.ReactCurrentDispatcher?.current;
   invariant(

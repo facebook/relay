@@ -145,7 +145,7 @@ describe('useRefetchableFragment', () => {
     const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
             query.request.variables.id ?? query.request.variables.nodeID,
@@ -181,13 +181,11 @@ describe('useRefetchableFragment', () => {
       const {isConcurrent = false, ...props} = args ?? {};
       return TestRenderer.create(
         <React.Suspense fallback="Fallback">
-          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-           * type of React$Node */}
           <ContextProvider>
             <Container owner={query} {...props} />
           </ContextProvider>
         </React.Suspense>,
-        // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
         {unstable_isConcurrent: isConcurrent},
       );
     };

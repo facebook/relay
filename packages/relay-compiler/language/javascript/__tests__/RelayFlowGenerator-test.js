@@ -47,12 +47,16 @@ function generate(text, options: TypeGeneratorOptions, context?) {
       doc =>
         `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(
           extendedSchema,
-          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          /* $FlowFixMe[incompatible-call] - `SplitOperation` is incompatible
+           * with union type. */
           doc,
-          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          // $FlowFixMe[prop-missing] - `SplitOperation` is incompatible with union type.
           {
             ...options,
-            // $FlowFixMe - `SplitOperation` is incompatible with union type.
+            /* $FlowFixMe[incompatible-call] - `SplitOperation` is incompatible
+             * with union type. */
+            /* $FlowFixMe[prop-missing] - `SplitOperation` is incompatible with
+             * union type. */
             normalizationIR: context ? context.get(doc.name) : undefined,
           },
         )}`,

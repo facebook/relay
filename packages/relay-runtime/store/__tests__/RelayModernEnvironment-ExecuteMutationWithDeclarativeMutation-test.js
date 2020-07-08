@@ -456,7 +456,7 @@ describe('connection mutations', () => {
     expect(complete).toBeCalled();
     expect(error).not.toBeCalled();
     expect(callback.mock.calls.length).toBe(1);
-    // $FlowExpectedError
+    // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         cursor: 'cursor-1',
@@ -503,7 +503,7 @@ describe('connection mutations', () => {
     });
     subject.complete();
     expect(callback.mock.calls.length).toBe(1);
-    // $FlowExpectedError
+    // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         cursor: 'cursor-prepend',
@@ -559,7 +559,7 @@ describe('connection mutations', () => {
       .subscribe(callbacks);
 
     expect(callback.mock.calls.length).toBe(1);
-    // $FlowExpectedError
+    // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         cursor: 'cursor-1',
@@ -603,7 +603,7 @@ describe('connection mutations', () => {
     expect(complete).toBeCalled();
     expect(error).not.toBeCalled();
     expect(callback.mock.calls.length).toBe(1);
-    // $FlowExpectedError
+    // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         cursor: 'cursor-1',

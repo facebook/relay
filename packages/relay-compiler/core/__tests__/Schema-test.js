@@ -173,7 +173,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
       const fragment = parse('fragment F on MyType { id }');
       expect(
         schema.getTypeString(
-          // $FlowExpectedError
+          // $FlowExpectedError[prop-missing]
           schema.expectTypeFromAST(fragment.definitions[0]?.typeCondition),
         ),
       ).toBe('MyType');
@@ -928,7 +928,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
           }
       `),
       );
-      // $FlowExpectedError
+      // $FlowExpectedError[incompatible-use]
       expect(schema[method](schema.expectTypeFromString(typeName))).toBe(
         expected,
       );
@@ -1077,7 +1077,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     ) {
       types.forEach(type =>
         expect(() => {
-          // $FlowExpectedError
+          // $FlowExpectedError[incompatible-use]
           schema[assertion](schema.expectTypeFromString(type));
         }).not.toThrow(),
       );
@@ -1089,7 +1089,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
     ) {
       types.forEach(type =>
         expect(() => {
-          // $FlowExpectedError
+          // $FlowExpectedError[incompatible-use]
           schema[assertion](schema.expectTypeFromString(type));
         }).toThrow(),
       );

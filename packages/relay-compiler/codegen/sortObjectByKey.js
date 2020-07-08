@@ -18,7 +18,7 @@ function sortObjectByKey<T: ?{[key: string]: mixed}>(obj: T): T {
   for (const key of Object.keys(obj).sort()) {
     result[key] = obj[key];
   }
-  // $FlowFixMe
+  // $FlowFixMe[incompatible-return]
   return result;
 }
 

@@ -495,7 +495,7 @@ describe('usePaginationFragment', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });
@@ -2541,7 +2541,7 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-use]
           disposable.dispose();
 
           // Assert request was canceled

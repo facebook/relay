@@ -805,7 +805,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         const zuck = source.get('4');
         expect(zuck).toBeTruthy();
         expect(() => {
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           RelayModernRecord.setValue(zuck, 'pet', 'Beast');
         }).toThrow(TypeError);
       });
@@ -835,7 +835,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(() => {
           const mergedRecord = source.get('4');
           expect(mergedRecord).toBeTruthy();
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           RelayModernRecord.setValue(mergedRecord, 'pet', null);
         }).toThrow(TypeError);
         // Cannot modify the published record, even though it isn't in the store
@@ -1090,7 +1090,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('returns missing if a linked record is missing', () => {
-        // $FlowFixMe found deploying v0.109.0
+        // $FlowFixMe[incompatible-type] found deploying v0.109.0
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);

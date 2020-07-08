@@ -309,7 +309,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           `${node.name}Response`,
           selectionsToBabel(
             schema,
-            /* $FlowFixMe: selections have already been transformed */
+            // $FlowFixMe[incompatible-cast] : selections have already been transformed
             (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
             state,
             false,
@@ -386,7 +386,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       },
       Fragment(node) {
         let selections = flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         );
         const numConecreteSelections = selections.filter(s => s.concreteType)
@@ -461,7 +461,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       },
       InlineFragment(node) {
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(typeSelection => {
           return schema.isAbstractType(node.typeCondition)
@@ -477,7 +477,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       },
       Condition(node) {
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(selection => {
           return {
@@ -531,7 +531,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
 
 function visitNodeWithSelectionsOnly(node) {
   return flattenArray(
-    /* $FlowFixMe: selections have already been transformed */
+    // $FlowFixMe[incompatible-cast] : selections have already been transformed
     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
   );
 }
@@ -554,7 +554,7 @@ function visitLinkedField(node) {
       nodeType: node.type,
       nodeSelections: selectionsToMap(
         flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ),
         /*
@@ -702,7 +702,7 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
           `${node.name}RawResponse`,
           selectionsToRawResponseBabel(
             schema,
-            /* $FlowFixMe: selections have already been transformed */
+            // $FlowFixMe[incompatible-cast] : selections have already been transformed
             (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
             state,
             null,
@@ -712,7 +712,7 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       InlineFragment(node) {
         const typeCondition = node.typeCondition;
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(typeSelection => {
           return schema.isAbstractType(typeCondition)
@@ -728,7 +728,7 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       },
       ClientExtension(node) {
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(sel => ({
           ...sel,
@@ -762,14 +762,14 @@ function visitRawResposneModuleImport(
   const {selections, name: key} = node;
   const moduleSelections = selections
     .filter(
-      // $FlowFixMe selections have already been transformed
+      // $FlowFixMe[prop-missing] selections have already been transformed
       sel => sel.length && sel[0].schemaName === 'js',
     )
     .map(arr => arr[0]);
   if (!state.matchFields.has(key)) {
     const ast = selectionsToRawResponseBabel(
       schema,
-      /* $FlowFixMe: selections have already been transformed */
+      // $FlowFixMe[incompatible-cast] : selections have already been transformed
       (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>).filter(
         sel => sel.length > 1 || sel[0].schemaName !== 'js',
       ),

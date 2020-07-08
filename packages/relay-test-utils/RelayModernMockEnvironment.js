@@ -435,7 +435,7 @@ function createMockEnvironment(
     return pendingOperation;
   };
 
-  // $FlowExpectedError
+  // $FlowExpectedError[prop-missing]
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
     network: Network.create(execute, execute),
@@ -457,14 +457,14 @@ function createMockEnvironment(
     };
   };
 
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.execute = createExecuteProxy(environment, environment.execute);
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.executeWithSource = createExecuteProxy(
     environment,
     environment.executeWithSource,
   );
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.executeMutation = createExecuteProxy(
     environment,
     environment.executeMutation,
@@ -517,10 +517,10 @@ function createMockEnvironment(
     queueOperationResolver,
   };
 
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.mock = mock;
 
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.mockClear = () => {
     environment.applyUpdate.mockClear();
     environment.commitPayload.mockClear();

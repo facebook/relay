@@ -504,7 +504,7 @@ class QueryResourceImpl {
           resolveNetworkPromise = resolve;
         });
 
-        // $FlowExpectedError Expando to annotate Promises.
+        // $FlowExpectedError[prop-missing] Expando to annotate Promises.
         networkPromise.displayName =
           'Relay(' + operation.fragment.node.name + ')';
 

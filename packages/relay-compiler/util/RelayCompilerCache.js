@@ -75,7 +75,7 @@ class RelayCompilerCache<T> {
       }
       const value = compute();
       try {
-        // $FlowFixMe(>=0.95.0) JSON.stringify can return undefined
+        // $FlowFixMe[incompatible-call] (>=0.95.0) JSON.stringify can return undefined
         fs.writeFileSync(cacheFile, JSON.stringify(value), 'utf8');
       } catch {
         // ignore

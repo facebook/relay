@@ -130,7 +130,7 @@ describe('useLazyLoadQueryNode', () => {
     });
     release = jest.fn();
     const originalRetain = environment.retain.bind(environment);
-    // $FlowFixMe
+    // $FlowFixMe[cannot-write]
     environment.retain = jest.fn((...args) => {
       const originalDisposable = originalRetain(...args);
       return {

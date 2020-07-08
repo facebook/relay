@@ -83,10 +83,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       const [startTransition, isPendingNext] = useTransition(
         PAGINATION_SUSPENSE_CONFIG,
       );
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-call]
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         fragmentRef,
       );
       loadNext = (...args) => {
@@ -97,7 +97,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return disposable;
       };
       refetch = result.refetch;
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       result.isPendingNext = isPendingNext;
 
       useEffect(() => {
@@ -405,7 +405,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: userData,
         } = useBlockingPaginationFragmentWithSuspenseTransition(
           fragment,
-          // $FlowFixMe
+          // $FlowFixMe[prop-missing]
           userRef,
         );
         return <Renderer user={userData} />;
@@ -443,14 +443,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return TestRenderer.create(
           <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
             <React.Suspense fallback={<Fallback />}>
-              {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-               * type of React$Node */}
               <ContextProvider>
                 <Container owner={query} {...props} />
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };

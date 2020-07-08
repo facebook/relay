@@ -60,7 +60,8 @@ function useRefetchableFragment<
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data: fragmentData});
   }
-  // $FlowExpectedError: Exposed options is a subset of internal options
+  /* $FlowExpectedError[prop-missing] : Exposed options is a subset of internal
+   * options */
   return [fragmentData, (refetch: RefetchFnDynamic<TQuery, TKey>)];
 }
 

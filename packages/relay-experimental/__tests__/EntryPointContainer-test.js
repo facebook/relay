@@ -33,7 +33,6 @@ const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {ConcreteRequest} from 'relay-runtime';
 
-// $FlowFixMe
 const query: ConcreteRequest = generateAndCompile(`
   query TestQuery($id: ID!) {
     node(id: $id) {

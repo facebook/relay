@@ -9,6 +9,7 @@
 
 const CompLibrary = require('../../core/CompLibrary.js');
 const React = require('react');
+const Code = require(process.cwd() + '/core/Code.js');
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
 
@@ -146,14 +147,14 @@ class Index extends React.Component {
 
               <div className="radiusLeft">
                 <pre>
-                  <code>
+                  <Code>
                     {`
 import React from "react"
 import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
 import environment from "./lib/createRelayEnvironment"
-import ArtistHeader from "./ArtistHeader" // Below
+import ArtistHeader from "./ArtistHeader"
 
-// You can usually use one query renderer per page
+// Below you can usually use one query renderer per page
 // and it represents the root of a query
 export default function ArtistRenderer({artistID}) {
   return (
@@ -181,7 +182,7 @@ export default function ArtistRenderer({artistID}) {
   );
 }
                   `}
-                  </code>
+                  </Code>
                 </pre>
               </div>
 
@@ -211,7 +212,7 @@ export default function ArtistRenderer({artistID}) {
               </div>
               <div>
                 <pre>
-                  <code>
+                  <Code>
                     {`
 import React from "react"
 import { createFragmentContainer, graphql } from "react-relay"
@@ -250,7 +251,7 @@ export default createFragmentContainer(ArtistHeader, {
   \`,
 });
                   `}
-                  </code>
+                  </Code>
                 </pre>
               </div>
             </div>

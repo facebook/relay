@@ -925,25 +925,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
-        // const customType = state.customScalars[typeName];
-        // if (typeof customType === 'function') {
-        //   return customType(t);
-        // }
-        // switch (customType ?? typeName) {
-        //   case 'ID':
-        //   case 'String':
-        //     return t.stringTypeAnnotation();
-        //   case 'Float':
-        //   case 'Int':
-        //     return t.numberTypeAnnotation();
-        //   case 'Boolean':
-        //     return t.booleanTypeAnnotation();
-        //   default:
-        //     return customType == null
-        //       ? t.anyTypeAnnotation()
-        //       : t.genericTypeAnnotation(t.identifier(customType));
-        // }
-
         let scalar_name = self.schema.scalar(scalar).name;
         if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String

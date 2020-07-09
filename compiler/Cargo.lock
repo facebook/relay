@@ -1508,6 +1508,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "dependency-analyzer",
+ "env_logger",
  "errors",
  "extract-graphql",
  "fixture-tests",
@@ -1532,6 +1533,7 @@ dependencies = [
  "serde_json",
  "sha-1",
  "signedsource",
+ "structopt",
  "test-schema",
  "thiserror",
  "tokio",

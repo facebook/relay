@@ -39,13 +39,6 @@ const users = [
     description: 'Used on facebook.com, and in the React Native mobile app.',
   },
   {
-    caption: 'Gatsby',
-    image: '/img/logos/gatsby.png',
-    infoLink: 'https://www.gatsbyjs.org/',
-    pinned: true,
-    description: 'Underpins the static site generation tool.',
-  },
-  {
     caption: 'Oculus',
     image: '/img/logos/oculus.png',
     infoLink: 'https://www.oculus.com/',
@@ -111,7 +104,8 @@ const users = [
     caption: 'AutoGuru',
     image: '/img/logos/autoguru.png',
     infoLink: 'https://www.autoguru.com.au/',
-    pinned: false,
+    pinned: true,
+    description: 'Used at autoguru.com.au, and affiliates',
   },
   {
     caption: 'Foton',

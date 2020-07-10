@@ -37,7 +37,6 @@ import type {ScalarField, LinkedField, Root, Handle} from '../core/IR';
 
 function transform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
-    Root: visitRoot,
     ScalarField: visitScalarField,
     LinkedField: visitLinkedField,
     SplitOperation: skip,
@@ -47,13 +46,6 @@ function transform(context: CompilerContext): CompilerContext {
 
 function skip<T>(node: T): T {
   return node;
-}
-
-function visitRoot(root: Root): Root {
-  if (root.operation !== 'mutation') {
-    return root;
-  }
-  return this.traverse(root);
 }
 
 function visitScalarField(field: ScalarField): ScalarField {

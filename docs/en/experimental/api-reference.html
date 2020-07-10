@@ -122,69 +122,174 @@
 
 <span class="hljs-built_in">module</span>.exports = Root;
 </code></pre>
-<h3><a class="anchor" aria-hidden="true" id="usepreloadedquery"></a><a href="#usepreloadedquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>usePreloadedQuery</code></h3>
-<p>Hook used to access data fetched by an earlier call to <code>preloadQuery()</code>. This implements the &quot;Render-as-You-Fetch&quot; pattern:</p>
-<ul>
-<li>Call <code>preloadQuery()</code> <em>before</em> rendering to fetch the query results if necessary (see the <a href="#preloadquery"><code>preloadQuery()</code></a> for detailed behavior). This function is non-blocking and will fetch the results in the background.</li>
-<li>Then immediately render/update the application, calling <code>usePreloadedQuery()</code> to access the results of the <code>preloadQuery()</code> call.</li>
-</ul>
-<p><code>usePreloadedQuery()</code> will suspend if the query is still pending, throw an error if it failed, and otherwise return the query results. This pattern is encouraged over <code>useLazyLoadQuery()</code> as it can allow fetching data earlier while not blocking rendering.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<h3><a class="anchor" aria-hidden="true" id="usequeryloader"></a><a href="#usequeryloader" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useQueryLoader</code></h3>
+<p>Hook used to make it easy to safely load queries, while avoiding data leaking into the Relay store. It will keep a query reference stored in state, and dispose of it when it is no longer accessible via state.</p>
+<p>This hook is designed to be used with <a href="#usepreloadedquery"><code>usePreloadedQuery</code></a> to implement the <a href="https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense">“render-as-you-fetch”</a> pattern.</p>
+<pre><code class="hljs css language-javascript">const React = require('React');
+const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, preloadQuery, usePreloadedQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
-
-<span class="hljs-keyword">const</span> AppEnvironment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./AppEnvironment'</span>); <span class="hljs-comment">// user-defined</span>
-
-<span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`
+const query = graphql`
   query AppQuery($id: ID!) {
     user(id: $id) {
       name
     }
   }
-`</span>;
+`;
 
-<span class="hljs-comment">// Note: call in an event-handler or similar, not during render</span>
-<span class="hljs-keyword">const</span> result = preloadQuery(
-  AppEnvironment,
-  query,
-  {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
-  {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
-);
+function QueryFetcherExample(): React.MixedElement {
+  const [
+    queryReference,
+    loadQuery,
+    disposeQuery,
+  ] = useQueryLoader(query);
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">const</span> data = usePreloadedQuery&lt;AppQuery&gt;(query, result);
+  return (&lt;&gt;
+    {
+      queryReference == null &amp;&amp; (&lt;Button
+        onClick={() =&gt; loadQuery({})}
+      &gt;
+        Click to reveal the name
+      &lt;/Button&gt;)
+    }
+    {
+      queryReference != null &amp;&amp; (&lt;&gt;
+        &lt;Button onClick={disposeQuery}&gt;
+          Click to hide the name and dispose the query.
+        &lt;/Button&gt;
+        &lt;React.Suspense fallback="Loading"&gt;
+          &lt;NameDisplay queryReference={queryReference} /&gt;
+        &lt;/React.Suspense&gt;
+      &lt;/&gt;)
+    }
+  &lt;/&gt;);
+}
 
-  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>;
+function NameDisplay({ queryReference }) {
+  const data = usePreloadedQuery&lt;AppQuery&gt;(query, queryReference);
+
+  return &lt;h1&gt;{data.user?.name}&lt;/h1&gt;;
 }
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="arguments"></a><a href="#arguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
-<li><code>query</code>: GraphQL query specified using a <code>graphql</code> template literal.</li>
-<li><code>preloadedQuery</code>: The result of calling <a href="#preloadquery"><code>preloadQuery()</code></a>. Note that the same query should be used in the call to <code>preloadQuery()</code> and <code>usePreloadedQuery()</code>.</li>
+<li><code>query</code>: the graphql tagged node containing a query.</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="flow-type-parameters"></a><a href="#flow-type-parameters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
-<li><code>TQuery</code>: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: <code>&lt;query_name&gt;.graphql.js</code>.</li>
+<li><code>TQuery</code>: the type of the query</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="return-value"></a><a href="#return-value" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<p>A tuple containing the following values:</p>
+<ul>
+<li><p><code>queryReference</code>: the query reference, or null.</p></li>
+<li><p><code>loadQuery</code>: a callback that, when executed, will load a query, which will be accessible as <code>queryReference</code>. If a previous query was loaded, it will dispose of it. It will throw an error if called during React’s render phase.</p>
+<ul>
+<li>Parameters
+<ul>
+<li><code>variables</code>: the variables with which the query is loaded.</li>
+<li><code>options</code>: LoadQueryOptions. An optional options object, containing the following keys:
+<ul>
+<li><code>fetchPolicy</code>: Optional. Determines if cached data should be used, and when to send a network request based on the cached data that is currently available in the Relay store (for more details, see our <a href="https://relay.dev/docs/en/a-guided-tour-of-relay#fetch-policies">Fetch Policies</a> and <a href="https://relay.dev/docs/en/a-guided-tour-of-relay#garbage-collection-in-relay">Garbage Collection</a> guides):
+<ul>
+<li><code>&quot;store-or-network&quot;</code>: (default) will reuse locally cached data and will only send a network request if any data for the query is missing. If the query is fully cached, a network request will not be made.</li>
+<li><code>&quot;store-and-network&quot;</code>: will reuse locally cached data and will always send a network request, regardless of whether any data was missing from the local cache or not.</li>
+<li><code>&quot;network-only&quot;</code>: will not reuse locally cached data, and will always send a network request to fetch the query, ignoring any data that might be locally cached in Relay.</li>
+</ul></li>
+<li><code>networkCacheConfig</code>: Optional. Object containing cache config options for the network layer. Note the the network layer contains a additional query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass <code>{force: true}</code> as the value for this option.</li>
+<li><code>onQueryAstLoadTimeout</code>: Optional. Callback that is executed if the request to fetch the query AST does not complete in time.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><p><code>disposeQuery</code>: a callback that, when executed, will set queryReference to null and call <code>.dispose()</code> on it. It has type <code>() =&gt; void</code>. It should not be called during React’s render phase.</p></li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="behavior"></a><a href="#behavior" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<ul>
+<li>The <code>loadQuery</code> callback will fetch data. Once the data are available, the data from the query will be written to the store. This differs from the behavior of <code>preloadQuery_DEPRECATED</code>, which would only write data to the store when the query was passed to <code>usePreloadedQuery</code>.</li>
+<li>This query reference will be retained by the Relay store, preventing the data from being garbage collected. Once <code>.dispose()</code> is called on the query reference, the data is liable to be garbage collected.</li>
+<li>The <code>loadQuery</code> will throw an error if it is called during React’s render phase.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="usepreloadedquery"></a><a href="#usepreloadedquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>usePreloadedQuery</code></h3>
+<p>Hook used to access data fetched by an earlier call to <code>loadQuery()</code>[#loadquery] or from <code>useQueryLoader</code>[#usequeryloader]. This implements the &quot;Render-as-You-Fetch&quot; pattern:</p>
+<ul>
+<li>Call the <code>loadQuery</code> callback returned from <code>useQueryLoader</code>. This will store a query reference in React state.
+<ul>
+<li>You can also call the imported <code>loadQuery</code> directly, which returns a query reference. In that case, store the item in state or in a React ref, and call <code>dispose()</code> on the value when you are no longer using it.</li>
+</ul></li>
+<li>Then, in your render method, consume the query reference with <code>usePreloadedQuery()</code>. This call will suspend if the query is still pending, throw an error if it failed, and otherwise return the query results.</li>
+<li>This pattern is encouraged over <code>useLazyLoadQuery()</code> as it can allow fetching data earlier while not blocking rendering.</li>
+</ul>
+<pre><code class="hljs css language-javascript">const React = require('React');
+const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
+
+const query = graphql`
+  query AppQuery($id: ID!) {
+    user(id: $id) {
+      name
+    }
+  }
+`;
+
+function QueryFetcherExample(): React.MixedElement {
+  const [
+    queryReference,
+    loadQuery,
+    disposeQuery,
+  ] = useQueryLoader(query);
+
+  return (&lt;&gt;
+    {
+      queryReference == null &amp;&amp; (&lt;Button
+        onClick={() =&gt; loadQuery({})}
+      &gt;
+        Click to reveal the name
+      &lt;/Button&gt;)
+    }
+    {
+      queryReference != null &amp;&amp; (&lt;&gt;
+        &lt;Button onClick={disposeQuery}&gt;
+          Click to hide the name and dispose the query.
+        &lt;/Button&gt;
+        &lt;React.Suspense fallback="Loading"&gt;
+          &lt;NameDisplay queryReference={queryReference} /&gt;
+        &lt;/React.Suspense&gt;
+      &lt;/&gt;)
+    }
+  &lt;/&gt;);
+}
+
+function NameDisplay({ queryReference }) {
+  const data = usePreloadedQuery&lt;AppQuery&gt;(query, queryReference);
+
+  return &lt;h1&gt;{data.user?.name}&lt;/h1&gt;;
+}
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<ul>
+<li><code>query</code>: GraphQL query specified using a <code>graphql</code> template literal.</li>
+<li><code>preloadedQuery</code>: The result of calling <a href="#preloadquery"><code>preloadQuery_DEPRECATED()</code></a>. Note that the same query should be used in the call to <code>preloadQuery_DEPRECATED()</code> and <code>usePreloadedQuery()</code>.</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-1"></a><a href="#flow-type-parameters-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<ul>
+<li><code>TQuery</code>: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: <code>&lt;query_name&gt;.graphql.js</code>.</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="return-value-1"></a><a href="#return-value-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <ul>
 <li><code>data</code>: Object that contains data which has been read out from the Relay store; the object matches the shape of specified query.
 <ul>
 <li>The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of <code>data</code> above is: <code>{| user: ?{| name: ?string |} |}</code>.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="behavior"></a><a href="#behavior" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<h4><a class="anchor" aria-hidden="true" id="behavior-1"></a><a href="#behavior-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
 <ul>
 <li>It is expected for <code>usePreloadedQuery</code> to have been rendered under a <a href="#relayenvironmentprovider"><code>RelayEnvironmentProvider</code></a>, in order to access the correct Relay environment, otherwise an error will be thrown.</li>
-<li>Calling <code>usePreloadedQuery</code> will return the data for this query if the <code>preloadQuery()</code> call has completed. It will <a href="a-guided-tour-of-relay#loading-states-with-suspense"><em><em>suspend</em></em></a> while the network request is in flight. If <code>usePreloadedQuery</code> causes the component to suspend, you'll need to make sure that there's a <code>Suspense</code> ancestor wrapping this component in order to show the appropriate loading state. This hook will throw an error if the <code>preloadQuery()</code> fetch fails.
+<li>Calling <code>usePreloadedQuery</code> will return the data for this query if the <code>preloadQuery_DEPRECATED()</code> call has completed. It will <a href="a-guided-tour-of-relay#loading-states-with-suspense"><em><em>suspend</em></em></a> while the network request is in flight. If <code>usePreloadedQuery</code> causes the component to suspend, you'll need to make sure that there's a <code>Suspense</code> ancestor wrapping this component in order to show the appropriate loading state. This hook will throw an error if the <code>preloadQuery_DEPRECATED()</code> fetch fails.
 <ul>
 <li>For more details on Suspense, see our <a href="a-guided-tour-of-relay#loading-states-with-suspense">Loading States with Suspense</a> guide.</li>
 </ul></li>
 <li>The component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="uselazyloadquery"></a><a href="#uselazyloadquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useLazyLoadQuery</code></h3>
-<p>Hook used to fetch a GraphQL query <em>during</em> render. Note that this pattern is generally not recommended: where possible, prefer <a href="#preloadquery"><code>preloadQuery()</code></a> and <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> instead.</p>
+<p>Hook used to fetch a GraphQL query <em>during</em> render. This hook can trigger multiple round trips, thereby degrading performance. Instead, prefer <a href="#usequeryloader"><code>useQueryLoader()</code></a> and <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> instead.</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
 
 <span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
@@ -207,7 +312,7 @@
   <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>;
 }
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-2"></a><a href="#arguments-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>query</code>: GraphQL query specified using a <code>graphql</code> template literal.</li>
 <li><code>variables</code>: Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.</li>
@@ -224,18 +329,18 @@
 <li><code>networkCacheConfig</code>: <em><em>[Optional]</em></em> Object containing cache config options for the <strong><em>network layer.</em></strong> Note the the network layer may contain an <em>additional</em> query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass <code>{force: true}</code> as the value for this option.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-1"></a><a href="#flow-type-parameters-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-2"></a><a href="#flow-type-parameters-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
 <li><code>TQuery</code>: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: <code>&lt;query_name&gt;.graphql.js</code>.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-1"></a><a href="#return-value-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<h4><a class="anchor" aria-hidden="true" id="return-value-2"></a><a href="#return-value-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <ul>
 <li><code>data</code>: Object that contains data which has been read out from the Relay store; the object matches the shape of specified query.
 <ul>
 <li>The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of <code>data</code> above is: <code>{| user: ?{| name: ?string |} |}</code>.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="behavior-1"></a><a href="#behavior-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<h4><a class="anchor" aria-hidden="true" id="behavior-2"></a><a href="#behavior-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
 <ul>
 <li>It is expected for <code>useLazyLoadQuery</code> to have been rendered under a <a href="#relayenvironmentprovider"><code>RelayEnvironmentProvider</code></a>, in order to access the correct Relay environment, otherwise an error will be thrown.</li>
 <li>Calling <code>useLazyLoadQuery</code> will fetch and render the data for this query, and it may <a href="a-guided-tour-of-relay#loading-states-with-suspense"><em><em>suspend</em></em></a> while the network request is in flight, depending on the specified <code>fetchPolicy</code>, and whether cached data is available, or if it needs to send and wait for a network request. If <code>useLazyLoadQuery</code> causes the component to suspend, you'll need to make sure that there's a <code>Suspense</code> ancestor wrapping this component in order to show the appropriate loading state.
@@ -290,7 +395,7 @@ type Props = {|
   );
 }
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-2"></a><a href="#arguments-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-3"></a><a href="#arguments-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>fragment</code>: GraphQL fragment specified using a <code>graphql</code> template literal.</li>
 <li><code>fragmentReference</code>: The <strong><em>fragment reference</em></strong> is an opaque Relay object that Relay uses to read the data for the fragment from the store; more specifically, it contains information about which particular object instance the data should be read from.
@@ -298,14 +403,14 @@ type Props = {|
 <li>The type of the fragment reference can be imported from the generated Flow types, from the file <code>&lt;fragment_name&gt;.graphql.js</code>, and can be used to declare the type of your <code>Props</code>. The name of the fragment reference type will be: <code>&lt;fragment_name&gt;$key</code>. We use our <a href="https://github.com/relayjs/eslint-plugin-relay">lint rule</a> to enforce that the type of the fragment reference prop is correctly declared.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-2"></a><a href="#return-value-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<h4><a class="anchor" aria-hidden="true" id="return-value-3"></a><a href="#return-value-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <ul>
 <li><code>data</code>: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
 <ul>
 <li>The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of <code>data</code> above is: <code>{| name: ?string, profile_picture: ?{| uri: ?string |} |}</code>.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="behavior-2"></a><a href="#behavior-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<h4><a class="anchor" aria-hidden="true" id="behavior-3"></a><a href="#behavior-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
 <ul>
 <li>The component is automatically subscribed to updates to the fragment data: if the data for this particular <code>User</code> is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.</li>
 <li>The component will suspend if any data for that specific fragment is missing, and the data is currently being fetched by a parent query.
@@ -360,7 +465,7 @@ type Props = {|
 
 <span class="hljs-built_in">module</span>.exports = CommentBody;
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-3"></a><a href="#arguments-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-4"></a><a href="#arguments-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>fragment</code>: GraphQL fragment specified using a <code>graphql</code> template literal. This fragment must have a <strong><code>@refetchable</code></strong> directive, otherwise using it will throw an error. The <code>@refetchable</code> directive can only be added to fragments that are “refetchable”, that is, on fragments that are declared on <code>Viewer</code> or  <code>Query</code> types, or on a type that implements <code>Node</code> (i.e. a type that has an <code>id</code>).
 <ul>
@@ -371,12 +476,12 @@ type Props = {|
 <li>The type of the fragment reference can be imported from the generated Flow types, from the file <code>&lt;fragment_name&gt;.graphql.js</code>, and can be used to declare the type of your <code>Props</code>. The name of the fragment reference type will be: <code>&lt;fragment_name&gt;$key</code>. We use our <a href="https://github.com/relayjs/eslint-plugin-relay">lint rule</a> to enforce that the type of the fragment reference prop is correctly declared.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-2"></a><a href="#flow-type-parameters-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-3"></a><a href="#flow-type-parameters-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
 <li><code>TQuery</code>: Type parameter that should corresponds the Flow type for the <code>@refetchable</code> query. This type is available to import from the the auto-generated file: <code>&lt;queryName&gt;.graphql.js</code>.</li>
 <li><code>TFragmentRef</code>: Type parameter corresponds to the type of the fragment reference argument (i.e. <code>&lt;fragment_name&gt;$key</code>). This type usually does not need to be explicitly specified, and can be passed as <code>_</code> to let Flow infer the concrete type.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-3"></a><a href="#return-value-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<h4><a class="anchor" aria-hidden="true" id="return-value-4"></a><a href="#return-value-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <p>Tuple containing the following values</p>
 <ul>
 <li>[0] <code>data</code>: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
@@ -414,7 +519,7 @@ type Props = {|
 </ul></li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="behavior-3"></a><a href="#behavior-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<h4><a class="anchor" aria-hidden="true" id="behavior-4"></a><a href="#behavior-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
 <ul>
 <li>The component is automatically subscribed to updates to the fragment data: if the data for this particular <code>User</code> is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.</li>
 <li>The component will suspend if any data for that specific fragment is missing, and the data is currently being fetched by a parent query.
@@ -490,7 +595,7 @@ type Props = {|
 
 <span class="hljs-built_in">module</span>.exports = FriendsList;
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-4"></a><a href="#arguments-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-5"></a><a href="#arguments-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>fragment</code>: GraphQL fragment specified using a <code>graphql</code> template literal.
 <ul>
@@ -505,12 +610,12 @@ type Props = {|
 <li>The type of the fragment reference can be imported from the generated Flow types, from the file <code>&lt;fragment_name&gt;.graphql.js</code>, and can be used to declare the type of your <code>Props</code>. The name of the fragment reference type will be: <code>&lt;fragment_name&gt;$key</code>. We use our <a href="https://github.com/relayjs/eslint-plugin-relay">lint rule</a> to enforce that the type of the fragment reference prop is correctly declared.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-3"></a><a href="#flow-type-parameters-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-4"></a><a href="#flow-type-parameters-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
 <li><code>TQuery</code>: Type parameter that should corresponds the Flow type for the <code>@refetchable</code> pagination query. This type is available to import from the the auto-generated file: <code>&lt;queryName&gt;.graphql.js</code>.</li>
 <li><code>TFragmentRef</code>: Type parameter corresponds to the type of the fragment reference argument (i.e. <code>&lt;fragment_name&gt;$key</code>). This type usually does not need to be explicitly specified, and can be passed as <code>_</code> to let Flow infer the concrete type.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-4"></a><a href="#return-value-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<h4><a class="anchor" aria-hidden="true" id="return-value-5"></a><a href="#return-value-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <p>Object containing the following properties:</p>
 <ul>
 <li><code>data</code>: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
@@ -592,7 +697,7 @@ type Props = {|
 </ul></li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="behavior-4"></a><a href="#behavior-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<h4><a class="anchor" aria-hidden="true" id="behavior-5"></a><a href="#behavior-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
 <ul>
 <li>The component is automatically subscribed to updates to the fragment data: if the data for this particular <code>User</code> is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.</li>
 <li>The component will suspend if any data for that specific fragment is missing, and the data is currently being fetched by a parent query.
@@ -661,16 +766,16 @@ type Props = {|
   );
 }
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-5"></a><a href="#arguments-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-6"></a><a href="#arguments-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>mutation</code>: GraphQL mutation specified using a <code>graphql</code> template literal.</li>
 <li><code>commitMutationFn</code>: An optional function with the same signature as <code>commitMutation</code> to call in its stead.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-4"></a><a href="#flow-type-parameters-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-5"></a><a href="#flow-type-parameters-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
 <li><code>TMutation</code>: Type parameter that should corresponds the Flow type for the mutation query. This type is available to import from the the auto-generated file: <code>&lt;mutationName&gt;.graphql.js</code>.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-5"></a><a href="#return-value-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<h4><a class="anchor" aria-hidden="true" id="return-value-6"></a><a href="#return-value-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <p>Tuple containing the following values:</p>
 <ul>
 <li>[0] <code>commit</code>: The function that will execute the mutation
@@ -718,14 +823,79 @@ type Props = {|
 <li>Unsubscribe from that subscription when the component is unmounted</li>
 </ul>
 <p>If you have the need to do something more complicated, such as imperatively requesting a subscription, please use the <code>requestSubscription</code> API directly.</p>
-<h4><a class="anchor" aria-hidden="true" id="arguments-6"></a><a href="#arguments-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-7"></a><a href="#arguments-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>config</code>: the same config passed to <code>requestSubscription</code></li>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="non-react-apis"></a><a href="#non-react-apis" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Non-React APIs</h2>
-<h3><a class="anchor" aria-hidden="true" id="preloadquery"></a><a href="#preloadquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>preloadQuery</code></h3>
+<h3><a class="anchor" aria-hidden="true" id="loadquery"></a><a href="#loadquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>loadQuery</code></h3>
+<p>This function is designed to be used with the <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> hook to implement the &quot;render-as-you-fetch&quot;.</p>
+<p>Query references returned from <code>loadQuery</code> will leak data into the Relay store if <code>.dispose()</code> is not called on them once they are no longer referenced. <em>As such, prefer calling <a href="#usequeryloader"><code>useQueryLoader</code></a> when possible</em>, which ensures that query references are disposed for you.</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> {loadQuery, useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+
+<span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`
+  query AppQuery($id: ID!) {
+    user(id: $id) {
+      name
+    }
+  }
+`</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MyComponent</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// Do not call this during render</span>
+  <span class="hljs-keyword">const</span> onClick = React.useCallback(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> queryReference = loadQuery(
+      RelayFBEnvironment,
+      query,
+      {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
+      {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+    );
+
+    processQuery(queryQeference);
+    <span class="hljs-comment">// the processQuery function must ensure that `queryReference.dispose()` is called.</span>
+  });
+
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{onClick}</span>&gt;</span>Click me<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>;
+}
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="arguments-8"></a><a href="#arguments-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<ul>
+<li><code>environment</code>: A Relay Environment instance on which to execute the request. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using <a href="#userelayenvironment">useRelayEnvironment</a>.</li>
+<li><code>query</code>: GraphQL query to fetch, specified using a graphql template literal.</li>
+<li><code>variables</code>: Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.</li>
+<li><code>options</code>: <em><em>[Optional]</em></em> options object
+<ul>
+<li><code>fetchPolicy</code>: Determines if cached data should be used, and when to send a network request based on the cached data that is currently available in the Relay store (for more details, see our <a href="a-guided-tour-of-relay#fetch-policies">Fetch Policies</a> and <a href="a-guided-tour-of-relay#garbage-collection-in-relay">Garbage Collection</a> guides):
+<ul>
+<li><strong>&quot;store-or-network&quot;</strong>: <em><em>(default)</em></em> <strong><em>will</em></strong> reuse locally cached data and will <strong><em>only</em></strong> send a network request if any data for the query is missing. If the query is fully cached, a network request will <strong><em>not</em></strong> be made.</li>
+<li><strong>&quot;store-and-network&quot;</strong>: <strong><em>will</em></strong> reuse locally cached data and will <strong><em>always</em></strong> send a network request, regardless of whether any data was missing from the local cache or not.</li>
+<li><strong>&quot;network-only&quot;</strong>: <strong><em>will not</em></strong> reuse locally cached data, and will <strong><em>always</em></strong> send a network request to fetch the query, ignoring any data that might be locally cached in Relay.</li>
+</ul></li>
+<li>networkCacheConfig: <em><em>[Optional]</em></em> Object containing cache config options for the <em>network layer.</em> Note the the network layer may contain an additional query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass <code>{force: true}</code> as the value for this option.</li>
+</ul></li>
+<li><code>environmentProviderOptions</code>: <em><em>[Optional]</em></em> options object. Will be part of the returned query reference. <strong><em>However, this parameter is likely to be removed in a future release. You should not rely on it.</em></strong></li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-6"></a><a href="#flow-type-parameters-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<ul>
+<li><code>TQuery</code>: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: <code>&lt;query_name&gt;.graphql.js</code>.</li>
+<li><code>TEnvironmentProviderOptions</code>: The type of the <code>environmentProviderOptions</code> parameter.</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="return-value-7"></a><a href="#return-value-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<p>A query reference with the following properties:</p>
+<ul>
+<li><code>dispose</code>: a method that will release the query reference from being retained by the store. This can cause the data referenced by the query reference to be garbage collected.</li>
+</ul>
+<p>The exact format of the return value is unstable and highly likely to change. We strongly recommend not using any other properties of the return value, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of <code>loadQuery()</code> to <code>usePreloadedQuery()</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="behavior-6"></a><a href="#behavior-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<ul>
+<li><code>loadQuery()</code> will fetch data. Once available, the data from the query will be written to the store. This differs from the behavior of <code>preloadQuery_DEPRECATED</code>, which would only write data to the store if the query was passed to <code>usePreloadedQuery</code>.</li>
+<li>the query reference returned from loadQuery will be retained by the relay store, preventing it the data from being garbage collected. Once you call <code>.dispose()</code> on the query reference, it can be garbage collected.</li>
+<li><code>loadQuery()</code> will throw an error if it is called during React’s render phase.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="preloadquery_deprecated"></a><a href="#preloadquery_deprecated" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>preloadQuery_DEPRECATED</code></h3>
 <p>This function is designed to be used with the <code>usePreloadedQuery()</code> hook to implement the &quot;render-as-you-fetch&quot; pattern in conjunction with <code>usePreloadedQuery</code>. See the <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> docs for a more complete example.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql, preloadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql, preloadQuery_DEPRECATED} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
 
 <span class="hljs-keyword">const</span> AppEnvironment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./AppEnvironment'</span>); <span class="hljs-comment">// user-defined</span>
 
@@ -737,7 +907,7 @@ type Props = {|
   }
 `</span>;
 
-<span class="hljs-keyword">const</span> result = preloadQuery(
+<span class="hljs-keyword">const</span> result = preloadQuery_DEPRECATED(
   AppEnvironment,
   query,
   {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
@@ -746,7 +916,7 @@ type Props = {|
 
 <span class="hljs-comment">// later: pass result to usePreloadedQuery()</span>
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-7"></a><a href="#arguments-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-9"></a><a href="#arguments-9" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>environment</code>: A Relay Environment instance to execute the request on. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using <a href="#userelayenvironment"><code>useRelayEnvironment</code></a>.</li>
 <li><code>query</code>: GraphQL query to fetch, specified using a <code>graphql</code> template literal.</li>
@@ -759,16 +929,16 @@ type Props = {|
 <li><strong>&quot;store-and-network&quot;</strong>: <strong><em>will</em></strong> reuse locally cached data and will <strong><em>always</em></strong> send a network request, regardless of whether any data was missing from the local cache or not.</li>
 <li><strong>&quot;network-only&quot;</strong>: <strong><em>will not</em></strong> reuse locally cached data, and will <strong><em>always</em></strong> send a network request to fetch the query, ignoring any data that might be locally cached in Relay.</li>
 </ul></li>
-<li><code>fetchKey</code>: A <code>fetchKey</code> can be passed to force a refetch of the query and variables. <code>preloadQuery()</code> will cache requests while they are in-flight and for a brief duration afterwards, but using a distinct <code>fetchKey</code> can ensure that data is refetched (generally when used in conjunction with fetchPolicy=network-only).</li>
+<li><code>fetchKey</code>: A <code>fetchKey</code> can be passed to force a refetch of the query and variables. <code>preloadQuery_DEPRECATED()</code> will cache requests while they are in-flight and for a brief duration afterwards, but using a distinct <code>fetchKey</code> can ensure that data is refetched (generally when used in conjunction with fetchPolicy=network-only).</li>
 <li><code>networkCacheConfig</code>: <em><em>[Optional]</em></em> Object containing cache config options for the <strong><em>network layer.</em></strong> Note the the network layer may contain an <em>additional</em> query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass <code>{force: true}</code> as the value for this option.</li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-5"></a><a href="#flow-type-parameters-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-7"></a><a href="#flow-type-parameters-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
 <li><code>TQuery</code>: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: <code>&lt;query_name&gt;.graphql.js</code>.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-6"></a><a href="#return-value-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
-<p>The exact format of the return value is <em>unstable and highly likely to change</em>. We strongly recommend not inspecting the contents in your code, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of <code>preloadQuery()</code> to <code>usePreloadedQuery()</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="return-value-8"></a><a href="#return-value-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<p>The exact format of the return value is <em>unstable and highly likely to change</em>. We strongly recommend not inspecting the contents in your code, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of <code>preloadQuery_DEPRECATED()</code> to <code>usePreloadedQuery()</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="fetchquery"></a><a href="#fetchquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>fetchQuery</code></h3>
 <p>If you want to fetch a query outside of React, you can use the <strong><code>fetchQuery</code></strong> function from <code>react-relay/hooks</code>:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
@@ -793,7 +963,7 @@ fetchQuery&lt;AppQuery&gt;(
   <span class="hljs-attr">next</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {...}
 });
 </code></pre>
-<h4><a class="anchor" aria-hidden="true" id="arguments-8"></a><a href="#arguments-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<h4><a class="anchor" aria-hidden="true" id="arguments-10"></a><a href="#arguments-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
 <li><code>environment</code>: A Relay Environment instance to execute the request on. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using <a href="#userelayenvironment"><code>useRelayEnvironment</code></a>.</li>
 <li><code>query</code>: GraphQL query to fetch, specified using a <code>graphql</code> template literal.</li>
@@ -806,11 +976,11 @@ fetchQuery&lt;AppQuery&gt;(
 </ul></li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-6"></a><a href="#flow-type-parameters-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
+<h4><a class="anchor" aria-hidden="true" id="flow-type-parameters-8"></a><a href="#flow-type-parameters-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flow Type Parameters</h4>
 <ul>
 <li><code>TQuery</code>: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: <code>&lt;query_name&gt;.graphql.js</code>.</li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="return-value-7"></a><a href="#return-value-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
+<h4><a class="anchor" aria-hidden="true" id="return-value-9"></a><a href="#return-value-9" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Return Value</h4>
 <ul>
 <li><code>observable</code>: Returns an observable instance. To start the request, <code>subscribe</code> or <code>toPromise</code> must be called on the observable. Exposes the following methods:
 <ul>
@@ -841,12 +1011,12 @@ fetchQuery&lt;AppQuery&gt;(
 </ul></li>
 </ul></li>
 </ul>
-<h4><a class="anchor" aria-hidden="true" id="behavior-5"></a><a href="#behavior-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
+<h4><a class="anchor" aria-hidden="true" id="behavior-7"></a><a href="#behavior-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Behavior</h4>
 <ul>
 <li><code>fetchQuery</code> will automatically save the fetched data to the in-memory Relay store, and notify any components subscribed to the relevant data.</li>
 <li><code>fetchQuery</code> will <strong><em>NOT</em></strong> retain the data for the query, meaning that it is not guaranteed that the data will remain saved in the Relay store at any point after the request completes. If you wish to make sure that the data is retained outside of the scope of the request, you need to call <code>environment.retain()</code> directly on the query to ensure it doesn't get deleted. See our section on <a href="a-guided-tour-of-relay/#controlling-relays-garbage-collection-policy">Controlling Relay's GC Policy</a> for more details.</li>
 </ul>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 6/18/2020 by Fabrizio Cucci</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/experimental/a-guided-tour-of-relay"><span class="arrow-prev">← </span><span>Previous</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#relay-hooks">Relay Hooks</a><ul class="toc-headings"><li><a href="#benefits">Benefits</a></li><li><a href="#caveats">Caveats</a></li><li><a href="#relayenvironmentprovider"><code>RelayEnvironmentProvider</code></a></li><li><a href="#userelayenvironment"><code>useRelayEnvironment</code></a></li><li><a href="#usepreloadedquery"><code>usePreloadedQuery</code></a></li><li><a href="#uselazyloadquery"><code>useLazyLoadQuery</code></a></li><li><a href="#usefragment"><code>useFragment</code></a></li><li><a href="#userefetchablefragment"><code>useRefetchableFragment</code></a></li><li><a href="#usepaginationfragment"><code>usePaginationFragment</code></a></li><li><a href="#useblockingpaginationfragment"><code>useBlockingPaginationFragment</code></a></li><li><a href="#usemutation"><code>useMutation</code></a></li><li><a href="#usesubscription"><code>useSubscription</code></a></li></ul></li><li><a href="#non-react-apis">Non-React APIs</a><ul class="toc-headings"><li><a href="#preloadquery"><code>preloadQuery</code></a></li><li><a href="#fetchquery"><code>fetchQuery</code></a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 7/10/2020 by Robert Balicki</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/experimental/a-guided-tour-of-relay"><span class="arrow-prev">← </span><span>Previous</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#relay-hooks">Relay Hooks</a><ul class="toc-headings"><li><a href="#benefits">Benefits</a></li><li><a href="#caveats">Caveats</a></li><li><a href="#relayenvironmentprovider"><code>RelayEnvironmentProvider</code></a></li><li><a href="#userelayenvironment"><code>useRelayEnvironment</code></a></li><li><a href="#usequeryloader"><code>useQueryLoader</code></a></li><li><a href="#usepreloadedquery"><code>usePreloadedQuery</code></a></li><li><a href="#uselazyloadquery"><code>useLazyLoadQuery</code></a></li><li><a href="#usefragment"><code>useFragment</code></a></li><li><a href="#userefetchablefragment"><code>useRefetchableFragment</code></a></li><li><a href="#usepaginationfragment"><code>usePaginationFragment</code></a></li><li><a href="#useblockingpaginationfragment"><code>useBlockingPaginationFragment</code></a></li><li><a href="#usemutation"><code>useMutation</code></a></li><li><a href="#usesubscription"><code>useSubscription</code></a></li></ul></li><li><a href="#non-react-apis">Non-React APIs</a><ul class="toc-headings"><li><a href="#loadquery"><code>loadQuery</code></a></li><li><a href="#preloadquery_deprecated"><code>preloadQuery_DEPRECATED</code></a></li><li><a href="#fetchquery"><code>fetchQuery</code></a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

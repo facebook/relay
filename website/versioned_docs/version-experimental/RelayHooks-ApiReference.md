@@ -80,21 +80,15 @@ function MyComponent() {
 module.exports = Root;
 ```
 
-### `usePreloadedQuery`
+### `useQueryLoader`
 
-Hook used to access data fetched by an earlier call to `preloadQuery()`. This implements the "Render-as-You-Fetch" pattern:
-* Call `preloadQuery()` *before* rendering to fetch the query results if necessary (see the [`preloadQuery()`](#preloadquery) for detailed behavior). This function is non-blocking and will fetch the results in the background.
-* Then immediately render/update the application, calling `usePreloadedQuery()` to access the results of the `preloadQuery()` call.
+Hook used to make it easy to safely load queries, while avoiding data leaking into the Relay store. It will keep a query reference stored in state, and dispose of it when it is no longer accessible via state.
 
-`usePreloadedQuery()` will suspend if the query is still pending, throw an error if it failed, and otherwise return the query results. This pattern is encouraged over `useLazyLoadQuery()` as it can allow fetching data earlier while not blocking rendering.
+This hook is designed to be used with [`usePreloadedQuery`](#usepreloadedquery) to implement the [“render-as-you-fetch”](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense) pattern.
 
 ```javascript
-import type {AppQuery} from 'AppQuery.graphql';
-
 const React = require('React');
-const {graphql, preloadQuery, usePreloadedQuery} = require('react-relay/hooks');
-
-const AppEnvironment = require('./AppEnvironment'); // user-defined
+const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
 
 const query = graphql`
   query AppQuery($id: ID!) {
@@ -104,16 +98,123 @@ const query = graphql`
   }
 `;
 
-// Note: call in an event-handler or similar, not during render
-const result = preloadQuery(
-  AppEnvironment,
-  query,
-  {id: '4'},
-  {fetchPolicy: 'store-or-network'},
-);
+function QueryFetcherExample(): React.MixedElement {
+  const [
+    queryReference,
+    loadQuery,
+    disposeQuery,
+  ] = useQueryLoader(query);
 
-function App() {
-  const data = usePreloadedQuery<AppQuery>(query, result);
+  return (<>
+    {
+      queryReference == null && (<Button
+        onClick={() => loadQuery({})}
+      >
+        Click to reveal the name
+      </Button>)
+    }
+    {
+      queryReference != null && (<>
+        <Button onClick={disposeQuery}>
+          Click to hide the name and dispose the query.
+        </Button>
+        <React.Suspense fallback="Loading">
+          <NameDisplay queryReference={queryReference} />
+        </React.Suspense>
+      </>)
+    }
+  </>);
+}
+
+function NameDisplay({ queryReference }) {
+  const data = usePreloadedQuery<AppQuery>(query, queryReference);
+
+  return <h1>{data.user?.name}</h1>;
+}
+```
+
+#### Arguments
+
+* `query`: the graphql tagged node containing a query.
+
+#### Flow Type Parameters
+
+* `TQuery`: the type of the query
+
+#### Return Value
+
+A tuple containing the following values:
+* `queryReference`: the query reference, or null.
+* `loadQuery`: a callback that, when executed, will load a query, which will be accessible as `queryReference`. If a previous query was loaded, it will dispose of it. It will throw an error if called during React’s render phase.
+
+  * Parameters
+    * `variables`: the variables with which the query is loaded.
+    * `options`: LoadQueryOptions. An optional options object, containing the following keys:
+      * `fetchPolicy`: Optional. Determines if cached data should be used, and when to send a network request based on the cached data that is currently available in the Relay store (for more details, see our [Fetch Policies](https://relay.dev/docs/en/a-guided-tour-of-relay#fetch-policies) and [Garbage Collection](https://relay.dev/docs/en/a-guided-tour-of-relay#garbage-collection-in-relay) guides):
+        * `"store-or-network"`: (default) will reuse locally cached data and will only send a network request if any data for the query is missing. If the query is fully cached, a network request will not be made.
+        * `"store-and-network"`: will reuse locally cached data and will always send a network request, regardless of whether any data was missing from the local cache or not.
+        * `"network-only"`: will not reuse locally cached data, and will always send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
+      * `networkCacheConfig`: Optional. Object containing cache config options for the network layer. Note the the network layer contains a additional query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
+      * `onQueryAstLoadTimeout`: Optional. Callback that is executed if the request to fetch the query AST does not complete in time.
+* `disposeQuery`: a callback that, when executed, will set queryReference to null and call `.dispose()` on it. It has type `() => void`. It should not be called during React’s render phase.
+
+#### Behavior
+
+* The `loadQuery` callback will fetch data. Once the data are available, the data from the query will be written to the store. This differs from the behavior of `preloadQuery_DEPRECATED`, which would only write data to the store when the query was passed to `usePreloadedQuery`.
+* This query reference will be retained by the Relay store, preventing the data from being garbage collected. Once `.dispose()` is called on the query reference, the data is liable to be garbage collected.
+* The `loadQuery` will throw an error if it is called during React’s render phase.
+
+### `usePreloadedQuery`
+
+Hook used to access data fetched by an earlier call to `loadQuery()`[#loadquery] or from `useQueryLoader`[#usequeryloader]. This implements the "Render-as-You-Fetch" pattern:
+
+* Call the `loadQuery` callback returned from `useQueryLoader`. This will store a query reference in React state.
+    * You can also call the imported `loadQuery` directly, which returns a query reference. In that case, store the item in state or in a React ref, and call `dispose()` on the value when you are no longer using it.
+* Then, in your render method, consume the query reference with `usePreloadedQuery()`. This call will suspend if the query is still pending, throw an error if it failed, and otherwise return the query results.
+* This pattern is encouraged over `useLazyLoadQuery()` as it can allow fetching data earlier while not blocking rendering.
+
+```javascript
+const React = require('React');
+const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
+
+const query = graphql`
+  query AppQuery($id: ID!) {
+    user(id: $id) {
+      name
+    }
+  }
+`;
+
+function QueryFetcherExample(): React.MixedElement {
+  const [
+    queryReference,
+    loadQuery,
+    disposeQuery,
+  ] = useQueryLoader(query);
+
+  return (<>
+    {
+      queryReference == null && (<Button
+        onClick={() => loadQuery({})}
+      >
+        Click to reveal the name
+      </Button>)
+    }
+    {
+      queryReference != null && (<>
+        <Button onClick={disposeQuery}>
+          Click to hide the name and dispose the query.
+        </Button>
+        <React.Suspense fallback="Loading">
+          <NameDisplay queryReference={queryReference} />
+        </React.Suspense>
+      </>)
+    }
+  </>);
+}
+
+function NameDisplay({ queryReference }) {
+  const data = usePreloadedQuery<AppQuery>(query, queryReference);
 
   return <h1>{data.user?.name}</h1>;
 }
@@ -122,7 +223,7 @@ function App() {
 #### Arguments
 
 * `query`: GraphQL query specified using a `graphql` template literal.
-* `preloadedQuery`: The result of calling [`preloadQuery()`](#preloadquery). Note that the same query should be used in the call to `preloadQuery()` and `usePreloadedQuery()`.
+* `preloadedQuery`: The result of calling [`preloadQuery_DEPRECATED()`](#preloadquery). Note that the same query should be used in the call to `preloadQuery_DEPRECATED()` and `usePreloadedQuery()`.
 
 #### Flow Type Parameters
 
@@ -136,14 +237,14 @@ function App() {
 #### Behavior
 
 * It is expected for `usePreloadedQuery` to have been rendered under a [`RelayEnvironmentProvider`](#relayenvironmentprovider), in order to access the correct Relay environment, otherwise an error will be thrown.
-* Calling `usePreloadedQuery` will return the data for this query if the `preloadQuery()` call has completed. It will [*_suspend_*](a-guided-tour-of-relay#loading-states-with-suspense) while the network request is in flight. If `usePreloadedQuery` causes the component to suspend, you'll need to make sure that there's a `Suspense` ancestor wrapping this component in order to show the appropriate loading state. This hook will throw an error if the `preloadQuery()` fetch fails.
+* Calling `usePreloadedQuery` will return the data for this query if the `preloadQuery_DEPRECATED()` call has completed. It will [*_suspend_*](a-guided-tour-of-relay#loading-states-with-suspense) while the network request is in flight. If `usePreloadedQuery` causes the component to suspend, you'll need to make sure that there's a `Suspense` ancestor wrapping this component in order to show the appropriate loading state. This hook will throw an error if the `preloadQuery_DEPRECATED()` fetch fails.
     * For more details on Suspense, see our [Loading States with Suspense](a-guided-tour-of-relay#loading-states-with-suspense) guide.
 * The component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
 
 
 ### `useLazyLoadQuery`
 
-Hook used to fetch a GraphQL query *during* render. Note that this pattern is generally not recommended: where possible, prefer [`preloadQuery()`](#preloadquery) and [`usePreloadedQuery()`](#usepreloadedquery) instead.
+Hook used to fetch a GraphQL query *during* render. This hook can trigger multiple round trips, thereby degrading performance. Instead, prefer [`useQueryLoader()`](#usequeryloader) and [`usePreloadedQuery()`](#usepreloadedquery) instead.
 
 ```javascript
 import type {AppQuery} from 'AppQuery.graphql';
@@ -623,12 +724,80 @@ If you have the need to do something more complicated, such as imperatively requ
 
 ## Non-React APIs
 
-### `preloadQuery`
+### `loadQuery`
+
+This function is designed to be used with the [`usePreloadedQuery()`](#usepreloadedquery) hook to implement the "render-as-you-fetch".
+
+Query references returned from `loadQuery` will leak data into the Relay store if `.dispose()` is not called on them once they are no longer referenced. *As such, prefer calling [`useQueryLoader`](#usequeryloader) when possible*, which ensures that query references are disposed for you.
+
+```javascript
+const React = require('React');
+const {loadQuery, useRelayEnvironment} = require('react-relay/hooks');
+
+const query = graphql`
+  query AppQuery($id: ID!) {
+    user(id: $id) {
+      name
+    }
+  }
+`;
+
+function MyComponent() {
+  // Do not call this during render
+  const onClick = React.useCallback(() => {
+    const queryReference = loadQuery(
+      RelayFBEnvironment,
+      query,
+      {id: '4'},
+      {fetchPolicy: 'store-or-network'},
+    );
+
+    processQuery(queryQeference);
+    // the processQuery function must ensure that `queryReference.dispose()` is called.
+  });
+
+  return <div onClick={onClick}>Click me</div>;
+}
+```
+
+#### Arguments
+
+* `environment`: A Relay Environment instance on which to execute the request. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using [useRelayEnvironment](#userelayenvironment).
+* `query`: GraphQL query to fetch, specified using a graphql template literal.
+* `variables`: Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.
+* `options`: _*[Optional]*_ options object
+    * `fetchPolicy`: Determines if cached data should be used, and when to send a network request based on the cached data that is currently available in the Relay store (for more details, see our [Fetch Policies](a-guided-tour-of-relay#fetch-policies) and [Garbage Collection](a-guided-tour-of-relay#garbage-collection-in-relay) guides):
+        * **"store-or-network"**: _*(default)*_ ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is missing. If the query is fully cached, a network request will ***not*** be made.
+        * **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was missing from the local cache or not.
+        * **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
+    * networkCacheConfig: _*[Optional]*_ Object containing cache config options for the *network layer.* Note the the network layer may contain an additional query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
+* `environmentProviderOptions`: _*[Optional]*_ options object. Will be part of the returned query reference. ***However, this parameter is likely to be removed in a future release. You should not rely on it.***
+
+#### Flow Type Parameters
+
+* `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`.
+* `TEnvironmentProviderOptions`: The type of the `environmentProviderOptions` parameter.
+
+#### Return Value
+
+A query reference with the following properties:
+
+* `dispose`: a method that will release the query reference from being retained by the store. This can cause the data referenced by the query reference to be garbage collected.
+
+The exact format of the return value is unstable and highly likely to change. We strongly recommend not using any other properties of the return value, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of `loadQuery()` to `usePreloadedQuery()`.
+
+#### Behavior
+
+* `loadQuery()` will fetch data. Once available, the data from the query will be written to the store. This differs from the behavior of `preloadQuery_DEPRECATED`, which would only write data to the store if the query was passed to `usePreloadedQuery`.
+* the query reference returned from loadQuery will be retained by the relay store, preventing it the data from being garbage collected. Once you call `.dispose()` on the query reference, it can be garbage collected.
+* `loadQuery()` will throw an error if it is called during React’s render phase.
+
+### `preloadQuery_DEPRECATED`
 
 This function is designed to be used with the `usePreloadedQuery()` hook to implement the "render-as-you-fetch" pattern in conjunction with `usePreloadedQuery`. See the [`usePreloadedQuery()`](#usepreloadedquery) docs for a more complete example.
 
 ```javascript
-const {graphql, preloadQuery} = require('react-relay/hooks');
+const {graphql, preloadQuery_DEPRECATED} = require('react-relay/hooks');
 
 const AppEnvironment = require('./AppEnvironment'); // user-defined
 
@@ -640,7 +809,7 @@ const query = graphql`
   }
 `;
 
-const result = preloadQuery(
+const result = preloadQuery_DEPRECATED(
   AppEnvironment,
   query,
   {id: '4'},
@@ -660,7 +829,7 @@ const result = preloadQuery(
         * **"store-or-network"**: _*(default)*_ ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is missing. If the query is fully cached, a network request will ***not*** be made.
         * **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was missing from the local cache or not.
         * **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
-    * `fetchKey`: A `fetchKey` can be passed to force a refetch of the query and variables. `preloadQuery()` will cache requests while they are in-flight and for a brief duration afterwards, but using a distinct `fetchKey` can ensure that data is refetched (generally when used in conjunction with fetchPolicy=network-only).
+    * `fetchKey`: A `fetchKey` can be passed to force a refetch of the query and variables. `preloadQuery_DEPRECATED()` will cache requests while they are in-flight and for a brief duration afterwards, but using a distinct `fetchKey` can ensure that data is refetched (generally when used in conjunction with fetchPolicy=network-only).
     * `networkCacheConfig`: _*[Optional]*_ Object containing cache config options for the ***network layer.*** Note the the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
 
 #### Flow Type Parameters
@@ -669,7 +838,7 @@ const result = preloadQuery(
 
 #### Return Value
 
-The exact format of the return value is *unstable and highly likely to change*. We strongly recommend not inspecting the contents in your code, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of `preloadQuery()` to `usePreloadedQuery()`.
+The exact format of the return value is *unstable and highly likely to change*. We strongly recommend not inspecting the contents in your code, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of `preloadQuery_DEPRECATED()` to `usePreloadedQuery()`.
 
 ### `fetchQuery`
 

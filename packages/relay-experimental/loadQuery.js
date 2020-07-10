@@ -35,7 +35,7 @@ import type {
   GraphQLResponse,
 } from 'relay-runtime';
 
-const LOAD_QUERY_AST_MAX_TIMEOUT = 30 * 1000;
+const LOAD_QUERY_AST_MAX_TIMEOUT = 60 * 1000;
 
 let RenderDispatcher = null;
 

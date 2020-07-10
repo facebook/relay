@@ -15,7 +15,8 @@
     "@babel/runtime": "^7.0.0",
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.1",
-    "relay-runtime": "10.0.1"
+    "relay-runtime": "10.0.1",
+    "scheduler": "^0.19.1"
   },
   "peerDependencies": {
     "react": "^16.9.0"

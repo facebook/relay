@@ -70,6 +70,7 @@
     "react": "16.13.1",
     "react-refresh": "^0.4.0",
     "react-test-renderer": "16.13.1",
+    "scheduler": "^0.19.1",
     "signedsource": "^1.0.0",
     "webpack": "^4.30.0",
     "webpack-stream": "^5.1.1",

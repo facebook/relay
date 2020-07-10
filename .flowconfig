@@ -1,5 +1,6 @@
 [ignore]
 <PROJECT_ROOT>/dist/.*
+<PROJECT_ROOT>/compiler/.*
 
 [options]
 module.system=haste

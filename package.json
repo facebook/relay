@@ -66,9 +66,16 @@
     "nullthrows": "^1.1.1",
     "prettier": "1.19.1",
     "promise-polyfill": "6.1.0",
+<<<<<<< HEAD
     "react": "17.0.1",
     "react-refresh": "^0.9.0",
     "react-test-renderer": "17.0.1",
+=======
+    "react": "16.13.1",
+    "react-refresh": "^0.4.0",
+    "react-test-renderer": "16.13.1",
+    "scheduler": "^0.19.1",
+>>>>>>> Add "scheduler": "^0.19.1" as a dependency to react-relay and relay
     "signedsource": "^1.0.0",
     "webpack": "^4.30.0",
     "webpack-stream": "^5.1.1",

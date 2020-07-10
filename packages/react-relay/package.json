@@ -15,7 +15,12 @@
     "@babel/runtime": "^7.0.0",
     "fbjs": "^3.0.0",
     "nullthrows": "^1.1.1",
+<<<<<<< HEAD
     "relay-runtime": "10.1.0"
+=======
+    "relay-runtime": "10.0.1",
+    "scheduler": "^0.19.1"
+>>>>>>> Add "scheduler": "^0.19.1" as a dependency to react-relay and relay
   },
   "peerDependencies": {
     "react": "^16.9.0 || ^17"

@@ -23,6 +23,7 @@ const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {useDebugValue} = require('react');
 const {
   __internal: {fetchQueryDeduped},
+  Observable,
 } = require('relay-runtime');
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
@@ -93,7 +94,11 @@ function usePreloadedQuery<TQuery: OperationType>(
       operation.request.identifier,
       () => {
         if (source && environment === preloadedQuery.environment) {
-          return source;
+          return source.ifEmpty(
+            Observable.create(sink => {
+              return environment.execute({operation}).subscribe(sink);
+            }),
+          );
         } else {
           // if a call to loadQuery is made with a particular environment, and that
           // preloaded query is passed to usePreloadedQuery in a different environmental

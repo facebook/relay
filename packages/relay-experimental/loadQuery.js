@@ -35,7 +35,7 @@ import type {
   GraphQLResponse,
 } from 'relay-runtime';
 
-const LOAD_QUERY_AST_MAX_TIMEOUT = 60 * 1000;
+const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
 
 let RenderDispatcher = null;
 
@@ -180,15 +180,13 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ));
       loadQueryAstTimeoutId = setTimeout(() => {
         cancelOnLoadCallback();
-        const onError = options?.onQueryAstLoadTimeout;
-        const error = new Error(
-          `Relay: Query AST did not load in time for preloadable query ${params.name}`,
-        );
-        if (onError) {
-          onError(error);
-        } else {
-          throw error;
+        const onTimeout = options?.onQueryAstLoadTimeout;
+        if (onTimeout) {
+          onTimeout();
         }
+        // complete() the subject so that the observer knows no (additional) payloads
+        // will be delivered
+        normalizationSubject.complete();
       }, LOAD_QUERY_AST_MAX_TIMEOUT);
     }
   } else {

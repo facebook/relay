@@ -23,9 +23,6 @@ struct Opt {
 
     /// Path to the compiler config file
     config: PathBuf,
-
-    /// Root directory of the project
-    root: PathBuf,
 }
 
 #[tokio::main]
@@ -34,7 +31,7 @@ async fn main() {
 
     let opt = Opt::from_args();
 
-    let config = match Config::load(opt.root, opt.config) {
+    let config = match Config::load(opt.config) {
         Ok(config) => config,
         Err(err) => {
             error!("{}", err);

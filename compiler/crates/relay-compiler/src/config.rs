@@ -54,20 +54,19 @@ impl Config {
             .filter(|project_config| project_config.enabled)
     }
 
-    pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
+    pub fn load(config_path: PathBuf) -> Result<Self> {
         let config_string =
             std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
                 config_path: config_path.clone(),
                 source: err,
             })?;
-        Self::from_string(root_dir, config_path, &config_string, true)
+        Self::from_string(config_path, &config_string, true)
     }
 
     /// Loads a config file without validation for use in tests.
     #[cfg(test)]
     pub fn from_string_for_test(config_string: &str) -> Result<Self> {
         Self::from_string(
-            "/virtual/root".into(),
             "/virtual/root/virtual_config.json".into(),
             config_string,
             false,
@@ -75,12 +74,7 @@ impl Config {
     }
 
     /// `validate_fs` disables all filesystem checks for existence of files
-    fn from_string(
-        root_dir: PathBuf,
-        config_path: PathBuf,
-        config_string: &str,
-        validate_fs: bool,
-    ) -> Result<Self> {
+    fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
         let config_file: ConfigFile =
             serde_json::from_str(&config_string).map_err(|err| Error::ConfigFileParse {
                 config_path: config_path.clone(),
@@ -136,6 +130,14 @@ impl Config {
                 Ok((project_name, project_config))
             })
             .collect::<Result<HashMap<_, _>>>()?;
+
+        let config_file_dir = config_path.parent().unwrap();
+        let root_dir = if let Some(config_root) = config_file.root {
+            config_file_dir.join(config_root).canonicalize().unwrap()
+        } else {
+            config_file_dir.to_owned()
+        };
+
         let config = Self {
             root_dir,
             sources: config_file.sources,
@@ -315,6 +317,11 @@ pub enum SchemaLocation {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    /// Root directory relative to the config file. Defaults to the directory
+    /// where the config is located.
+    #[serde(default)]
+    root: Option<PathBuf>,
+
     #[serde(default)]
     header: Vec<String>,
     #[serde(default)]

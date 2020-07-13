@@ -151,8 +151,7 @@ fn load_config() -> Config {
         "{}/fbsource/fbcode/relay/config/config.test.json",
         home
     ));
-    let root_dir = PathBuf::from(format!("{}/fbsource", home));
-    let mut config = Config::load(root_dir, config_path).unwrap();
+    let mut config = Config::load(config_path).unwrap();
     // Don't write artifacts by default
     config.write_artifacts = false;
     config

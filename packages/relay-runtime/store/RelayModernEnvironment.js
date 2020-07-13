@@ -352,13 +352,15 @@ class RelayModernEnvironment implements IEnvironment {
       operation.request.variables,
     );
     return RelayObservable.create(sink => {
-      const source = this._network.execute(
-        operation.request.node.params,
-        operation.request.variables,
-        cacheConfig || {},
-        null,
-        logRequestInfo,
-      );
+      const source = this._network
+        .execute(
+          operation.request.node.params,
+          operation.request.variables,
+          cacheConfig || {},
+          null,
+          logRequestInfo,
+        )
+        .do(logObserver);
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
@@ -375,7 +377,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -416,16 +418,18 @@ class RelayModernEnvironment implements IEnvironment {
           updater: optimisticUpdater,
         };
       }
-      const source = this._network.execute(
-        operation.request.node.params,
-        operation.request.variables,
-        {
-          ...cacheConfig,
-          force: true,
-        },
-        uploadables,
-        logRequestInfo,
-      );
+      const source = this._network
+        .execute(
+          operation.request.node.params,
+          operation.request.variables,
+          {
+            ...cacheConfig,
+            force: true,
+          },
+          uploadables,
+          logRequestInfo,
+        )
+        .do(logObserver);
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
@@ -442,7 +446,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**

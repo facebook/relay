@@ -76,9 +76,7 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   function useBlockingPaginationFragment(fragmentNode, fragmentRef) {
-    /* $FlowFixMe[incompatible-call] (>=0.108.0 site=www,mobile,react_native_
-     * fb,oss) This comment suppresses an error found when Flow v0.108.0 was
-     * deployed. To see the error delete this comment and run Flow. */
+    // $FlowFixMe[incompatible-call]
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe[incompatible-call]
@@ -383,12 +381,8 @@ describe('useBlockingPaginationFragment', () => {
       setOwner = _setOwner;
       forceUpdate = _setCount;
 
-      /* $FlowFixMe[incompatible-call] (>=0.108.0 site=www,mobile,react_native_
-       * fb,oss) This comment suppresses an error found when Flow v0.108.0 was
-       * deployed. To see the error delete this comment and run Flow. */
-      /* $FlowFixMe[prop-missing] (>=0.108.0 site=www,mobile,react_native_
-       * fb,oss) This comment suppresses an error found when Flow v0.108.0 was
-       * deployed. To see the error delete this comment and run Flow. */
+      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[prop-missing]
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };

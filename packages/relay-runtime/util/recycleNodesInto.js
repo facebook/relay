@@ -59,17 +59,11 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
         if (nextValue !== nextObject[key]) {
           if (__DEV__) {
             if (!Object.isFrozen(nextObject)) {
-              /* $FlowFixMe[cannot-write] (>=0.98.0 site=www,mobile,react_
-               * native_fb,oss) This comment suppresses an error found when
-               * Flow v0.98 was deployed. To see the error delete this comment
-               * and run Flow. */
+              // $FlowFixMe[cannot-write]
               nextObject[key] = nextValue;
             }
           } else {
-            /* $FlowFixMe[cannot-write] (>=0.98.0 site=www,mobile,react_native_
-             * fb,oss) This comment suppresses an error found when Flow v0.98
-             * was deployed. To see the error delete this comment and run Flow.
-             */
+            // $FlowFixMe[cannot-write]
             nextObject[key] = nextValue;
           }
         }

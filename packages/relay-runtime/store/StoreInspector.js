@@ -147,9 +147,7 @@ if (__DEV__) {
               return getWrappedRecord(source, value.__ref);
             }
             if (Array.isArray(value.__refs)) {
-              /* $FlowFixMe[incompatible-call] (>=0.111.0) This comment
-               * suppresses an error found when Flow v0.111.0 was deployed. To
-               * see the error, delete this comment and run Flow. */
+              // $FlowFixMe[incompatible-call]
               return value.__refs.map(ref => getWrappedRecord(source, ref));
             }
           }

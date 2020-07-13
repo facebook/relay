@@ -784,7 +784,7 @@ class GraphQLDefinitionParser {
       const [conditions, directives] = this._splitConditions(node.directives);
       const conditionalNodes = applyConditions(
         conditions,
-        // $FlowFixMe[incompatible-call] (>=0.28.0)
+        // $FlowFixMe[incompatible-call]
         [{...node, directives}],
       );
       if (conditionalNodes.length !== 1) {

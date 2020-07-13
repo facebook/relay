@@ -318,9 +318,7 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
-    /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_native_
-     * fb,oss) This comment suppresses an error found when Flow v0.98 was
-     * deployed. To see the error delete this comment and run Flow. */
+    // $FlowFixMe[incompatible-variance]
     data[applicationName] = this._traverse(field, linkedID, prevData);
   }
 
@@ -356,9 +354,7 @@ class RelayReader {
         if (linkedID === undefined) {
           this._isMissingData = true;
         }
-        /* $FlowFixMe[cannot-write] (>=0.98.0 site=www,mobile,react_native_
-         * fb,oss) This comment suppresses an error found when Flow v0.98 was
-         * deployed. To see the error delete this comment and run Flow. */
+        // $FlowFixMe[cannot-write]
         linkedArray[nextIndex] = linkedID;
         return;
       }
@@ -371,12 +367,8 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
-      /* $FlowFixMe[cannot-write] (>=0.98.0 site=www,mobile,react_native_
-       * fb,oss) This comment suppresses an error found when Flow v0.98 was
-       * deployed. To see the error delete this comment and run Flow. */
-      /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-       * native_fb,oss) This comment suppresses an error found when Flow v0.98
-       * was deployed. To see the error delete this comment and run Flow. */
+      // $FlowFixMe[cannot-write]
+      // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
     data[applicationName] = linkedArray;

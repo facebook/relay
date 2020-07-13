@@ -58,9 +58,7 @@ function visitRelayMetadata<T: Fragment | FragmentSpread>(
       directives: node.directives.filter(
         directive => directive !== relayDirective,
       ),
-      /* $FlowFixMe[cannot-spread-indexer] (>=0.123.0) This comment suppresses
-       * an error found when Flow v0.123.0 was deployed. To see the error,
-       * delete this comment and run Flow. */
+      // $FlowFixMe[cannot-spread-indexer]
       metadata: {
         ...(node.metadata || {}),
         ...metadata,

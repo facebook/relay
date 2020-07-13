@@ -490,15 +490,9 @@ class RelayResponseNormalizer {
     );
     const nextID =
       this._getDataId(
-        /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-         * native_fb,oss) This comment suppresses an error found when Flow
-         * v0.98 was deployed. To see the error delete this comment and run
-         * Flow. */
+        // $FlowFixMe[incompatible-variance]
         fieldValue,
-        /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-         * native_fb,oss) This comment suppresses an error found when Flow
-         * v0.98 was deployed. To see the error delete this comment and run
-         * Flow. */
+        // $FlowFixMe[incompatible-variance]
         field.concreteType ?? this._getRecordType(fieldValue),
       ) ||
       // Reuse previously generated client IDs
@@ -520,18 +514,14 @@ class RelayResponseNormalizer {
     RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
-      /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-       * native_fb,oss) This comment suppresses an error found when Flow v0.98
-       * was deployed. To see the error delete this comment and run Flow. */
+      // $FlowFixMe[incompatible-variance]
       const typeName = field.concreteType || this._getRecordType(fieldValue);
       nextRecord = RelayModernRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
-    /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_native_
-     * fb,oss) This comment suppresses an error found when Flow v0.98 was
-     * deployed. To see the error delete this comment and run Flow. */
+    // $FlowFixMe[incompatible-variance]
     this._traverseSelections(field, nextRecord, fieldValue);
   }
 
@@ -564,15 +554,9 @@ class RelayResponseNormalizer {
       );
       const nextID =
         this._getDataId(
-          /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-           * native_fb,oss) This comment suppresses an error found when Flow
-           * v0.98 was deployed. To see the error delete this comment and run
-           * Flow. */
+          // $FlowFixMe[incompatible-variance]
           item,
-          /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-           * native_fb,oss) This comment suppresses an error found when Flow
-           * v0.98 was deployed. To see the error delete this comment and run
-           * Flow. */
+          // $FlowFixMe[incompatible-variance]
           field.concreteType ?? this._getRecordType(item),
         ) ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs:
@@ -591,10 +575,7 @@ class RelayResponseNormalizer {
       nextIDs.push(nextID);
       let nextRecord = this._recordSource.get(nextID);
       if (!nextRecord) {
-        /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-         * native_fb,oss) This comment suppresses an error found when Flow
-         * v0.98 was deployed. To see the error delete this comment and run
-         * Flow. */
+        // $FlowFixMe[incompatible-variance]
         const typeName = field.concreteType || this._getRecordType(item);
         nextRecord = RelayModernRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
@@ -609,9 +590,7 @@ class RelayResponseNormalizer {
           storageKey,
         );
       }
-      /* $FlowFixMe[incompatible-variance] (>=0.98.0 site=www,mobile,react_
-       * native_fb,oss) This comment suppresses an error found when Flow v0.98
-       * was deployed. To see the error delete this comment and run Flow. */
+      // $FlowFixMe[incompatible-variance]
       this._traverseSelections(field, nextRecord, item);
       this._path.pop();
     });

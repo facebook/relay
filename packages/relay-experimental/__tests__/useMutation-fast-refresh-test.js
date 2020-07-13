@@ -84,6 +84,7 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   it('force a refetch in fast refresh', () => {
+    // $FlowFixMe[cannot-resolve-module] This module is not available on www.
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;

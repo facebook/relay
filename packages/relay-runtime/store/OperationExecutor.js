@@ -508,7 +508,7 @@ class Executor<TMutation: MutationParameters> {
     if (responsesWithData.length === 0) {
       // no results with data, nothing to process
       // this can occur with extensions-only payloads
-      const isFinal = responses.some(x => x.extensions?.is_final === true);
+      const isFinal = responses.some((x) => responseIsFinal(x));
       if (isFinal) {
         this._state = 'loading_final';
         this._updateActiveState();
@@ -1302,7 +1302,7 @@ class Executor<TMutation: MutationParameters> {
         incrementalPlaceholders: null,
         followupPayloads: null,
         source: RelayRecordSource.create(),
-        isFinal: response.extensions?.is_final === true,
+        isFinal: responseIsFinal(response),
       };
       this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
@@ -1661,7 +1661,7 @@ function normalizeResponse(
   return {
     ...relayPayload,
     errors,
-    isFinal: response.extensions?.is_final === true,
+    isFinal: responseIsFinal(response),
   };
 }
 
@@ -1681,6 +1681,19 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
+}
+
+/**
+ * Check for both FB specific (extensions?.is_final)
+ * and spec-complaint (hasNext) properties.
+ */
+function responseIsFinal(response: GraphQLSingularResponse): boolean {
+  if (response.extensions?.is_final === true) {
+    return true;
+  } else if (response.hasNext === false) {
+    return true;
+  }
+  return false;
 }
 
 module.exports = {

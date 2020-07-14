@@ -21,7 +21,7 @@ commitMutation(
   config: {
     mutation: GraphQLTaggedNode,
     variables: {[name: string]: mixed},
-    onCompleted?: ?(response: ?Object, errors: ?Array<Error>) => void,
+    onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
     optimisticResponse?: Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,

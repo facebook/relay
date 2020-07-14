@@ -90,7 +90,7 @@ class RelayModernStore implements Store {
   _globalInvalidationEpoch: ?number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: Set<DataID>;
-  _log: ?LogFunction;
+  __log: ?LogFunction;
   _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
@@ -141,7 +141,7 @@ class RelayModernStore implements Store {
     this._globalInvalidationEpoch = null;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
-    this._log = options?.log ?? null;
+    this.__log = options?.log ?? null;
     this._queryCacheExpirationTime = options?.queryCacheExpirationTime;
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
@@ -285,7 +285,7 @@ class RelayModernStore implements Store {
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor> {
-    const log = this._log;
+    const log = this.__log;
     if (log != null) {
       log({
         name: 'store.notify.start',
@@ -375,7 +375,7 @@ class RelayModernStore implements Store {
     );
     // NOTE: log *after* processing the source so that even if a bad log function
     // mutates the source, it doesn't affect Relay processing of it.
-    const log = this._log;
+    const log = this.__log;
     if (log != null) {
       log({
         name: 'store.publish',
@@ -533,7 +533,7 @@ class RelayModernStore implements Store {
       'RelayModernStore: Unexpected call to snapshot() while a previous ' +
         'snapshot exists.',
     );
-    const log = this._log;
+    const log = this.__log;
     if (log != null) {
       log({
         name: 'store.snapshot',
@@ -577,7 +577,7 @@ class RelayModernStore implements Store {
       'RelayModernStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
-    const log = this._log;
+    const log = this.__log;
     if (log != null) {
       log({
         name: 'store.restore',
@@ -664,7 +664,7 @@ class RelayModernStore implements Store {
         }
       }
 
-      const log = this._log;
+      const log = this.__log;
       if (log != null) {
         log({
           name: 'store.gc',

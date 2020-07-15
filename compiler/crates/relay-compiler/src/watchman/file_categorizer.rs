@@ -9,6 +9,7 @@ use super::FileGroup;
 use super::WatchmanFile;
 use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
+use fnv::FnvHashSet;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::ffi::OsStr;
@@ -25,11 +26,50 @@ pub fn categorize_files(
 ) -> HashMap<FileGroup, Vec<WatchmanFile>> {
     let categorizer = FileCategorizer::from_config(config);
     let mut categorized = HashMap::new();
+
+    let mut has_disabled = false;
+    let mut relevant_projects = FnvHashSet::default();
+    for (project_name, project_config) in &config.projects {
+        if project_config.enabled {
+            relevant_projects.insert(project_name);
+            if let Some(base_project) = &project_config.base {
+                relevant_projects.insert(base_project);
+            }
+        } else {
+            has_disabled = true;
+        }
+    }
+
     for file in files {
-        categorized
-            .entry(categorizer.categorize(&file.name))
-            .or_insert_with(Vec::new)
-            .push(file.clone());
+        let file_group = categorizer.categorize(&file.name);
+        let should_skip = has_disabled
+            && match &file_group {
+                FileGroup::Source {
+                    source_set: SourceSet::SourceSetName(name),
+                }
+                | FileGroup::Schema {
+                    project_set: ProjectSet::ProjectName(name),
+                }
+                | FileGroup::Extension {
+                    project_set: ProjectSet::ProjectName(name),
+                }
+                | FileGroup::Generated { project_name: name } => !relevant_projects.contains(name),
+                FileGroup::Source {
+                    source_set: SourceSet::SourceSetNames(names),
+                }
+                | FileGroup::Schema {
+                    project_set: ProjectSet::ProjectNames(names),
+                }
+                | FileGroup::Extension {
+                    project_set: ProjectSet::ProjectNames(names),
+                } => !names.iter().any(|name| relevant_projects.contains(name)),
+            };
+        if !should_skip {
+            categorized
+                .entry(file_group)
+                .or_insert_with(Vec::new)
+                .push(file.clone());
+        }
     }
     categorized
 }

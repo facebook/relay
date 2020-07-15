@@ -2550,8 +2550,8 @@ describe('RelayResponseNormalizer', () => {
       false,
       expect.stringContaining(
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
-          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s.' +
-          'If two fields are different but share' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
+          'If two fields are different but share ' +
           'the same id, one field will overwrite the other.',
       ),
       'a',
@@ -2631,8 +2631,8 @@ describe('RelayResponseNormalizer', () => {
       false,
       expect.stringContaining(
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
-          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s.' +
-          'If two fields are different but share' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
+          'If two fields are different but share ' +
           'the same id, one field will overwrite the other.',
       ),
       'a',

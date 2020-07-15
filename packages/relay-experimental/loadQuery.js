@@ -194,13 +194,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
 
-    ({id: moduleId} = params);
-    invariant(
-      moduleId !== null,
-      'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id',
-      params.name,
-    );
-
     checkAvailabilityAndExecute(request);
   }
 

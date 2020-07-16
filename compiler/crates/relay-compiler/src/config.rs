@@ -33,8 +33,6 @@ pub struct Config {
     pub projects: HashMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
-    /// If this is false, the compiler won't write any artifact files.
-    pub write_artifacts: bool,
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
@@ -150,7 +148,6 @@ impl Config {
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
-            write_artifacts: true,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
             codegen_filepath: None,
@@ -281,7 +278,6 @@ impl fmt::Debug for Config {
             projects,
             header,
             codegen_command,
-            write_artifacts,
             load_saved_state_file,
             generate_extra_operation_artifacts,
             codegen_filepath,
@@ -293,7 +289,6 @@ impl fmt::Debug for Config {
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
-            .field("write_artifacts", write_artifacts)
             .field("load_saved_state_file", load_saved_state_file)
             .field(
                 "generate_extra_operation_artifacts",

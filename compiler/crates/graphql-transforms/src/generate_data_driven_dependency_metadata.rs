@@ -192,8 +192,8 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
             if let Some(generated_directive) = generated_directive {
                 let mut next_directives: Vec<Directive> =
                     Vec::with_capacity(operation.directives.len() + 1);
-                for diretive in operation.directives.iter() {
-                    next_directives.push(diretive.clone());
+                for directive in operation.directives.iter() {
+                    next_directives.push(directive.clone());
                 }
 
                 next_directives.push(generated_directive);
@@ -221,8 +221,8 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
         if let Some(generated_directive) = generated_directive {
             let mut next_directives: Vec<Directive> =
                 Vec::with_capacity(fragment.directives.len() + 1);
-            for diretive in fragment.directives.iter() {
-                next_directives.push(diretive.clone());
+            for directive in fragment.directives.iter() {
+                next_directives.push(directive.clone());
             }
             next_directives.push(generated_directive);
 

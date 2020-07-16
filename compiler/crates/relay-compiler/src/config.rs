@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::artifact_writer::{
+    ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter,
+};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
@@ -36,6 +39,8 @@ pub struct Config {
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
+    /// Path to which to write the output of the compilation
+    pub codegen_filepath: Option<PathBuf>,
 }
 
 impl Config {
@@ -148,6 +153,7 @@ impl Config {
             write_artifacts: true,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
+            codegen_filepath: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -256,6 +262,14 @@ impl Config {
             }
         }
     }
+
+    pub fn create_artifact_writer(&self) -> Box<dyn ArtifactWriter> {
+        if let Some(ref codegen_filepath) = self.codegen_filepath {
+            Box::new(ArtifactDifferenceWriter::new(codegen_filepath.clone()))
+        } else {
+            Box::new(ArtifactFileWriter {})
+        }
+    }
 }
 
 impl fmt::Debug for Config {
@@ -270,6 +284,7 @@ impl fmt::Debug for Config {
             write_artifacts,
             load_saved_state_file,
             generate_extra_operation_artifacts,
+            codegen_filepath,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
@@ -288,6 +303,7 @@ impl fmt::Debug for Config {
                     &"None"
                 },
             )
+            .field("codegen_filepath", codegen_filepath)
             .finish()
     }
 }

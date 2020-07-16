@@ -10,13 +10,13 @@
 
 mod apply_transforms;
 mod artifact_content;
+pub mod artifact_writer;
 mod build_ir;
 mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod persist_operations;
 mod validate;
-mod write_artifacts;
 
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
@@ -37,10 +37,10 @@ use graphql_ir::Program;
 use graphql_transforms::FB_CONNECTION_INTERFACE;
 use log::info;
 use persist_operations::persist_operations;
+use relay_codegen::Printer;
 use schema::Schema;
 use std::sync::Arc;
 pub use validate::validate;
-use write_artifacts::write_artifacts;
 
 fn build_programs(
     project_config: &ProjectConfig,
@@ -190,49 +190,44 @@ pub async fn commit_project(
         });
     }
 
-    // Write the generated artifacts to disk. This step is separate from
-    // generating artifacts or persisting to avoid partial writes in case of
-    // errors as much as possible.
-    if config.write_artifacts {
-        log_event.time("write_artifacts_time", || {
-            write_artifacts(
-                config,
-                project_config,
-                &artifacts,
-                &programs.normalization.schema,
-            )
-        })?;
-    }
-
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            for generated_artifact in &artifacts {
-                if !existing_artifacts.remove(&generated_artifact.path) {
-                    info!(
-                        "[{}] NEW: {} -> {:?}",
-                        project_config.name, &generated_artifact.name, &generated_artifact.path
-                    );
-                }
-            }
 
-            if config.write_artifacts {
+            // Write the generated artifacts to disk. This step is separate from
+            // generating artifacts or persisting to avoid partial writes in case of
+            // errors as much as possible.
+            let mut artifact_writer = config.create_artifact_writer();
+            let mut printer = Printer::default();
+
+            log_event.time("write_artifacts_time", || {
+                for artifact in &artifacts {
+                    if !existing_artifacts.remove(&artifact.path) {
+                        info!(
+                            "[{}] NEW: {} -> {:?}",
+                            project_config.name, &artifact.name, &artifact.path
+                        );
+                    }
+
+                    let path = config.root_dir.join(&artifact.path);
+                    let content =
+                        artifact
+                            .content
+                            .as_bytes(config, project_config, &mut printer, schema);
+                    artifact_writer.write_if_changed(path, content)?;
+                }
+                Ok(())
+            })?;
+
+            log_event.time("delete_artifacts_time", || {
                 for remaining_artifact in &existing_artifacts {
-                    std::fs::remove_file(config.root_dir.join(remaining_artifact)).unwrap_or_else(
-                        |_| {
-                            info!(
-                                "tried to delete already deleted file: {:?}",
-                                remaining_artifact
-                            );
-                        },
-                    );
+                    let path = config.root_dir.join(remaining_artifact);
+                    artifact_writer.remove(path)?;
                 }
-            }
+                Ok(())
+            })?;
 
-            info!(
-                "[{}] DELETE: {:?}",
-                project_config.name, &existing_artifacts
-            );
+            log_event.time("finalize_artifacts_time", || artifact_writer.finalize())?;
 
             ArtifactMap::from(artifacts)
         }

@@ -16,7 +16,7 @@ use std::path::PathBuf;
 type BuildProjectResult = Result<(), BuildProjectError>;
 
 pub trait ArtifactWriter {
-    fn write_if_changed(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
+    fn write(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
     fn remove(&mut self, path: PathBuf) -> BuildProjectResult;
     fn finalize(self: Box<Self>) -> BuildProjectResult;
 }
@@ -24,7 +24,7 @@ pub trait ArtifactWriter {
 pub struct ArtifactFileWriter {}
 
 impl ArtifactWriter for ArtifactFileWriter {
-    fn write_if_changed(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+    fn write(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
         write_file(&path, &content).map_err(|error| BuildProjectError::WriteFileError {
             file: path,
             source: error,
@@ -87,19 +87,11 @@ impl ArtifactDifferenceWriter {
 }
 
 impl ArtifactWriter for ArtifactDifferenceWriter {
-    fn write_if_changed(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        let content_is_same = content_is_same(&path, &content).map_err(|error| {
-            BuildProjectError::WriteFileError {
-                file: path.clone(),
-                source: error,
-            }
-        })?;
-        if !content_is_same {
-            self.codegen_records.changed.push(ArtifactUpdateRecord {
-                path,
-                data: content,
-            });
-        }
+    fn write(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+        self.codegen_records.changed.push(ArtifactUpdateRecord {
+            path,
+            data: content,
+        });
         Ok(())
     }
 
@@ -145,13 +137,4 @@ fn write_file(path: &PathBuf, content: &[u8]) -> io::Result<()> {
     let mut file = File::create(path)?;
     file.write_all(&content)?;
     Ok(())
-}
-
-fn content_is_same(path: &PathBuf, content: &Vec<u8>) -> io::Result<bool> {
-    if path.exists() {
-        let existing_content = std::fs::read(path)?;
-        Ok(&existing_content == content)
-    } else {
-        Ok(false)
-    }
 }

@@ -35,6 +35,7 @@ mod refetchable_fragment;
 mod relay_directive;
 mod relay_early_flush;
 mod remove_base_fragments;
+mod required_directive;
 mod root_variables;
 mod skip_client_directives;
 mod skip_client_extensions;
@@ -94,6 +95,7 @@ pub use refetchable_fragment::{
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
 pub use remove_base_fragments::remove_base_fragments;
+pub use required_directive::required_directive;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_redundant_nodes::skip_redundant_nodes;

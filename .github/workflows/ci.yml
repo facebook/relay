@@ -90,8 +90,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
       - name: npm install
@@ -111,8 +113,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
       - name: Install `wasm-pack`
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Build an extension

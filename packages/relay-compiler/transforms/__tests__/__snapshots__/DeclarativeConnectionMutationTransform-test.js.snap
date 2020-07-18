@@ -79,6 +79,25 @@ mutation CommentDeleteMutation(
 
 `;
 
+exports[`matches expected output: delete-from-store-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation($input: CommentsDeleteInput) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteRecord
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @__clientField(handle: "deleteRecord")
+  }
+}
+
+`;
+
 exports[`matches expected output: delete-on-unspported-type.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw

@@ -19,7 +19,7 @@ mod graphql_asts;
 mod watchman;
 
 pub use build_project::{
-    apply_transforms, build_schema, check_project, create_path_for_artifact,
+    apply_transforms, build_schema, check_project, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
     validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };

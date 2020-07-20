@@ -51,7 +51,8 @@ fn build_programs(
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(Programs, Arc<SourceHashes>), BuildProjectError> {
     let project_name = project_config.name;
-    let is_incremental_build = compiler_state.has_processed_changes();
+    let is_incremental_build =
+        compiler_state.has_processed_changes() && !compiler_state.has_breaking_schema_change();
 
     // Build a type aware IR.
     let BuildIRResult {

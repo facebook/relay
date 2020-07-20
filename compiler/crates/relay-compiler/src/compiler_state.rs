@@ -10,7 +10,7 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
     categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
-    FileSourceResult,
+    FileSourceResult, WatchmanFile,
 };
 use common::{PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -21,7 +21,7 @@ use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::path::PathBuf;
-use std::{fs::File, io, sync::Arc};
+use std::{fs::File, hash::Hash, io, sync::Arc};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -77,17 +77,26 @@ impl fmt::Display for SourceSet {
     }
 }
 
-type GraphQLSourceSet = FnvHashMap<PathBuf, Vec<GraphQLSource>>;
-
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
-pub struct GraphQLSources {
-    pub pending: GraphQLSourceSet,
-    pub processed: GraphQLSourceSet,
+pub trait Source {
+    fn is_empty(&self) -> bool;
 }
 
-impl GraphQLSources {
+impl Source for Vec<GraphQLSource> {
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
+type IncrementalSourceSet<K, V> = FnvHashMap<K, V>;
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct IncrementalSources<K: Eq + Hash, V: Source> {
+    pub pending: IncrementalSourceSet<K, V>,
+    pub processed: IncrementalSourceSet<K, V>,
+}
+
+impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
     /// Merges additional pending sources into this states pending sources.
-    fn merge_pending_sources(&mut self, additional_pending_sources: GraphQLSourceSet) {
+    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<K, V>) {
         self.pending.extend(additional_pending_sources.into_iter());
     }
 
@@ -102,8 +111,40 @@ impl GraphQLSources {
     }
 }
 
-pub type SchemaSources = FnvHashMap<ProjectName, Vec<String>>;
+impl<K: Eq + Hash, V: Source> Default for IncrementalSources<K, V> {
+    fn default() -> Self {
+        IncrementalSources {
+            pending: FnvHashMap::default(),
+            processed: FnvHashMap::default(),
+        }
+    }
+}
 
+type GraphQLSourceSet = IncrementalSourceSet<PathBuf, Vec<GraphQLSource>>;
+pub type GraphQLSources = IncrementalSources<PathBuf, Vec<GraphQLSource>>;
+pub type SchemaSources = IncrementalSources<PathBuf, String>;
+
+impl Source for String {
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
+impl SchemaSources {
+    pub fn get_sources(&self) -> Vec<&String> {
+        if self.pending.is_empty() {
+            self.processed.values().collect()
+        } else {
+            let mut result: Vec<&String> = self.pending.values().collect();
+            for (key, value) in self.processed.iter() {
+                if !self.pending.contains_key(key) {
+                    result.push(value);
+                }
+            }
+            result
+        }
+    }
+}
 #[derive(Serialize, Deserialize, Debug)]
 pub enum ArtifactMapKind {
     /// A simple set of paths of generated files. This kind is used when the
@@ -117,30 +158,13 @@ pub enum ArtifactMapKind {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<SourceSetName, GraphQLSources>,
-    pub schemas: SchemaSources,
-    pub extensions: SchemaSources,
+    pub schemas: FnvHashMap<ProjectName, SchemaSources>,
+    pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
 }
 
 impl CompilerState {
-    fn set_pending_source_set(
-        &mut self,
-        source_set_name: SourceSetName,
-        source_set: GraphQLSourceSet,
-    ) {
-        let pending_entry = &mut self
-            .graphql_sources
-            .entry(source_set_name)
-            .or_default()
-            .pending;
-        if pending_entry.is_empty() {
-            *pending_entry = source_set;
-        } else {
-            pending_entry.extend(source_set);
-        }
-    }
-
     pub fn from_file_source_changes(
         config: &Config,
         file_source_changes: &FileSourceResult,
@@ -194,39 +218,20 @@ impl CompilerState {
                     }
                 }
                 FileGroup::Schema { project_set } => {
-                    let schema_sources = files
-                        .iter()
-                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<Result<Vec<String>>>()?;
-                    match project_set {
-                        ProjectSet::ProjectName(project_name) => {
-                            result.schemas.insert(project_name, schema_sources);
-                        }
-                        ProjectSet::ProjectNames(project_names) => {
-                            for project_name in project_names {
-                                result.schemas.insert(project_name, schema_sources.clone());
-                            }
-                        }
-                    };
+                    Self::process_schema_change(
+                        file_source_changes,
+                        files,
+                        project_set,
+                        &mut result.schemas,
+                    )?;
                 }
                 FileGroup::Extension { project_set } => {
-                    let extension_sources: Vec<String> = files
-                        .iter()
-                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<Result<Vec<String>>>()?;
-
-                    match project_set {
-                        ProjectSet::ProjectName(project_name) => {
-                            result.extensions.insert(project_name, extension_sources);
-                        }
-                        ProjectSet::ProjectNames(project_names) => {
-                            for project_name in project_names {
-                                result
-                                    .extensions
-                                    .insert(project_name, extension_sources.clone());
-                            }
-                        }
-                    };
+                    Self::process_schema_change(
+                        file_source_changes,
+                        files,
+                        project_set,
+                        &mut result.extensions,
+                    )?;
                 }
                 FileGroup::Generated { project_name } => {
                     result.artifacts.insert(
@@ -245,22 +250,42 @@ impl CompilerState {
         Ok(result)
     }
 
-    pub fn has_pending_changes(&self) -> bool {
-        self.graphql_sources
-            .values()
-            .any(|sources| !sources.pending.is_empty())
-    }
-
     pub fn project_has_pending_changes(&self, project_name: ProjectName) -> bool {
         self.graphql_sources
             .get(&project_name)
             .map_or(false, |sources| !sources.pending.is_empty())
+            || self
+                .schemas
+                .get(&project_name)
+                .map_or(false, |sources| !sources.pending.is_empty())
+            || self
+                .extensions
+                .get(&project_name)
+                .map_or(false, |sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {
         self.graphql_sources
             .values()
             .any(|sources| !sources.processed.is_empty())
+            || self
+                .schemas
+                .values()
+                .any(|sources| !sources.processed.is_empty())
+            || self
+                .extensions
+                .values()
+                .any(|sources| !sources.processed.is_empty())
+    }
+
+    pub fn has_breaking_schema_change(&self) -> bool {
+        self.extensions
+            .values()
+            .any(|sources| !sources.pending.is_empty())
+            || self
+                .schemas
+                .values()
+                .any(|sources| !sources.pending.is_empty())
     }
 
     /// Merges the provided pending changes from the file source into the compiler state.
@@ -322,41 +347,21 @@ impl CompilerState {
                 }
                 FileGroup::Schema { project_set } => {
                     has_changed = true;
-
-                    let schema_sources = files
-                        .iter()
-                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<Result<Vec<String>>>()?;
-                    match project_set {
-                        ProjectSet::ProjectName(project_name) => {
-                            self.schemas.insert(project_name, schema_sources);
-                        }
-                        ProjectSet::ProjectNames(project_names) => {
-                            for project_name in project_names {
-                                self.schemas.insert(project_name, schema_sources.clone());
-                            }
-                        }
-                    };
+                    Self::process_schema_change(
+                        file_source_changes,
+                        files,
+                        project_set,
+                        &mut self.schemas,
+                    )?;
                 }
                 FileGroup::Extension { project_set } => {
                     has_changed = true;
-
-                    let extension_sources: Vec<String> = files
-                        .iter()
-                        .map(|file| read_to_string(&file_source_changes.resolved_root, file))
-                        .collect::<Result<Vec<String>>>()?;
-
-                    match project_set {
-                        ProjectSet::ProjectName(project_name) => {
-                            self.extensions.insert(project_name, extension_sources);
-                        }
-                        ProjectSet::ProjectNames(project_names) => {
-                            for project_name in project_names {
-                                self.extensions
-                                    .insert(project_name, extension_sources.clone());
-                            }
-                        }
-                    };
+                    Self::process_schema_change(
+                        file_source_changes,
+                        files,
+                        project_set,
+                        &mut self.extensions,
+                    )?;
                 }
                 FileGroup::Generated { project_name: _ } => {
                     // TODO
@@ -369,6 +374,12 @@ impl CompilerState {
 
     pub fn complete_compilation(&mut self) {
         for sources in self.graphql_sources.values_mut() {
+            sources.commit_pending_sources();
+        }
+        for sources in self.schemas.values_mut() {
+            sources.commit_pending_sources();
+        }
+        for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
     }
@@ -396,5 +407,55 @@ impl CompilerState {
             source: err,
         })?;
         Ok(state)
+    }
+
+    fn set_pending_source_set(
+        &mut self,
+        source_set_name: SourceSetName,
+        source_set: GraphQLSourceSet,
+    ) {
+        let pending_entry = &mut self
+            .graphql_sources
+            .entry(source_set_name)
+            .or_default()
+            .pending;
+        if pending_entry.is_empty() {
+            *pending_entry = source_set;
+        } else {
+            pending_entry.extend(source_set);
+        }
+    }
+
+    fn process_schema_change(
+        file_source_changes: &FileSourceResult,
+        files: Vec<WatchmanFile>,
+        project_set: ProjectSet,
+        source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
+    ) -> Result<()> {
+        // TODO: Handle deletion of schema/extension files
+        let schema_sources = files
+            .iter()
+            .map(|file| {
+                read_to_string(&file_source_changes.resolved_root, file)
+                    .map(|text| ((*file.name).to_owned(), text))
+            })
+            .collect::<Result<_>>()?;
+        match project_set {
+            ProjectSet::ProjectName(project_name) => {
+                source_map
+                    .entry(project_name)
+                    .or_default()
+                    .merge_pending_sources(schema_sources);
+            }
+            ProjectSet::ProjectNames(project_names) => {
+                for project_name in project_names {
+                    source_map
+                        .entry(project_name)
+                        .or_default()
+                        .merge_pending_sources(schema_sources.clone());
+                }
+            }
+        };
+        Ok(())
     }
 }

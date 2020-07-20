@@ -13,17 +13,18 @@ pub fn build_schema(compiler_state: &CompilerState, project_config: &ProjectConf
     let relay_extensions = String::from(schema::RELAY_EXTENSIONS);
     let mut extensions = vec![&relay_extensions];
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
-        extensions.extend(project_extensions);
+        extensions.extend(project_extensions.get_sources());
     }
     if let Some(base_project_name) = project_config.base {
         if let Some(base_project_extensions) = compiler_state.extensions.get(&base_project_name) {
-            extensions.extend(base_project_extensions);
+            extensions.extend(base_project_extensions.get_sources());
         }
     }
     let mut schema_sources = Vec::new();
     schema_sources.extend(
         compiler_state.schemas[&project_config.name]
-            .iter()
+            .get_sources()
+            .into_iter()
             .map(String::as_str),
     );
     schema::build_schema_with_extensions(&schema_sources, &extensions).unwrap()

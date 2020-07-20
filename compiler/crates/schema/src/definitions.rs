@@ -1257,6 +1257,12 @@ pub struct Directive {
     pub is_extension: bool,
 }
 
+impl Named for Directive {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Scalar {
     pub name: StringKey,

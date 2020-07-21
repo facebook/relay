@@ -41,14 +41,14 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 Schema {
-query_type: Some(
+ query_type: Some(
     ObjectID(
         0,
     ),
 )
-mutation_type: None
-subscription_type: None
-directives: [
+ mutation_type: None
+ subscription_type: None
+ directives: [
     Directive {
         name: "include",
         arguments: [
@@ -90,7 +90,7 @@ directives: [
         is_extension: false,
     },
 ]
-type_map: {
+ type_map: {
     "Actor": Union(0),
     "Boolean": Scalar(3),
     "ClientType": Object(3),
@@ -104,7 +104,7 @@ type_map: {
     "String": Scalar(2),
     "User": Object(1),
 }
-enums: [
+ enums: [
     Enum {
         name: "PageType",
         is_extension: false,
@@ -137,7 +137,7 @@ enums: [
         directives: [],
     },
 ]
-fields: [
+ fields: [
     Field {
         name: "node",
         is_extension: false,
@@ -285,8 +285,8 @@ fields: [
         directives: [],
     },
 ]
-input_objects: []
-interfaces: [
+ input_objects: []
+ interfaces: [
     Interface {
         name: "Node",
         is_extension: false,
@@ -303,7 +303,7 @@ interfaces: [
         directives: [],
     },
 ]
-objects: [
+ objects: [
     Object {
         name: "Query",
         is_extension: false,
@@ -368,7 +368,7 @@ objects: [
         directives: [],
     },
 ]
-scalars: [
+ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -395,7 +395,7 @@ scalars: [
         directives: [],
     },
 ]
-unions: [
+ unions: [
     Union {
         name: "Actor",
         is_extension: false,
@@ -410,4 +410,4 @@ unions: [
         directives: [],
     },
 ]
-}
+ }

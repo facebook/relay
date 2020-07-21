@@ -46,14 +46,14 @@ union Address @source(schema: "facebook", name: "Address") =
   | MailingAddress
 ==================================== OUTPUT ===================================
 Schema {
-query_type: Some(
+ query_type: Some(
     ObjectID(
         0,
     ),
 )
-mutation_type: None
-subscription_type: None
-directives: [
+ mutation_type: None
+ subscription_type: None
+ directives: [
     Directive {
         name: "extern_type",
         arguments: [
@@ -180,7 +180,7 @@ directives: [
         is_extension: false,
     },
 ]
-type_map: {
+ type_map: {
     "Address": Union(0),
     "Boolean": Scalar(3),
     "Country": InputObject(0),
@@ -194,8 +194,8 @@ type_map: {
     "XIGHuman": Interface(0),
     "XIGStory": Object(3),
 }
-enums: []
-fields: [
+ enums: []
+ fields: [
     Field {
         name: "fetch__User",
         is_extension: false,
@@ -360,7 +360,7 @@ fields: [
         directives: [],
     },
 ]
-input_objects: [
+ input_objects: [
     InputObject {
         name: "Country",
         fields: [
@@ -395,7 +395,7 @@ input_objects: [
         ],
     },
 ]
-interfaces: [
+ interfaces: [
     Interface {
         name: "XIGHuman",
         is_extension: false,
@@ -430,7 +430,7 @@ interfaces: [
         ],
     },
 ]
-objects: [
+ objects: [
     Object {
         name: "Query",
         is_extension: false,
@@ -539,7 +539,7 @@ objects: [
         ],
     },
 ]
-scalars: [
+ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -589,7 +589,7 @@ scalars: [
         ],
     },
 ]
-unions: [
+ unions: [
     Union {
         name: "Address",
         is_extension: false,
@@ -622,4 +622,4 @@ unions: [
         ],
     },
 ]
-}
+ }

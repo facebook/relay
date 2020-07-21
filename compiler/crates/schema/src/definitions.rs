@@ -318,6 +318,7 @@ impl Schema {
         self.directives.values()
     }
 
+    /// Returns all directives applicable for a given location(Query, Field, etc).
     pub fn directives_for_location(&self, location: DirectiveLocation) -> Vec<&Directive> {
         self.directives
             .values()
@@ -331,6 +332,10 @@ impl Schema {
 
     pub fn get_interfaces(&self) -> impl Iterator<Item = &Interface> {
         self.interfaces.iter()
+    }
+
+    pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
+        self.objects.iter()
     }
 
     pub fn has_directive(&self, directive_name: StringKey) -> bool {
@@ -457,6 +462,8 @@ impl Schema {
         Ok(union_id)
     }
 
+    /// Sets argument definitions for a given input object.
+    /// Any existing argument definitions will be erased.
     pub fn set_input_object_args(
         &mut self,
         input_object_id: InputObjectID,
@@ -470,6 +477,8 @@ impl Schema {
         Ok(input_object_id)
     }
 
+    /// Sets argument definitions for a given field.
+    /// Any existing argument definitions on the field will be erased.
     pub fn set_field_args(
         &mut self,
         field_id: FieldID,
@@ -480,6 +489,8 @@ impl Schema {
         Ok(field_id)
     }
 
+    /// Replaces the definition of interface type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
     pub fn replace_interface(&mut self, id: InterfaceID, interface: Interface) -> Result<()> {
         if id.as_usize() >= self.interfaces.len() {
             return Err(SchemaError::UnknownTypeID(
@@ -494,6 +505,74 @@ impl Schema {
         Ok(())
     }
 
+    /// Replaces the definition of object type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_object(&mut self, id: ObjectID, object: Object) -> Result<()> {
+        if id.as_usize() >= self.objects.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Object"),
+            ));
+        }
+        self.type_map.remove(&self.get_type_name(Type::Object(id)));
+        self.type_map.insert(object.name, Type::Object(id));
+        self.objects[id.as_usize()] = object;
+        Ok(())
+    }
+
+    /// Replaces the definition of enum type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_enum(&mut self, id: EnumID, enum_: Enum) -> Result<()> {
+        if id.as_usize() >= self.enums.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Enum"),
+            ));
+        }
+        self.type_map.remove(&self.get_type_name(Type::Enum(id)));
+        self.type_map.insert(enum_.name, Type::Enum(id));
+        self.enums[id.as_usize()] = enum_;
+        Ok(())
+    }
+
+    /// Replaces the definition of input object type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_input_object(
+        &mut self,
+        id: InputObjectID,
+        input_object: InputObject,
+    ) -> Result<()> {
+        if id.as_usize() >= self.enums.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Input Object"),
+            ));
+        }
+        self.type_map
+            .remove(&self.get_type_name(Type::InputObject(id)));
+        self.type_map
+            .insert(input_object.name, Type::InputObject(id));
+        self.input_objects[id.as_usize()] = input_object;
+        Ok(())
+    }
+
+    /// Replaces the definition of union type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_union(&mut self, id: UnionID, union: Union) -> Result<()> {
+        if id.as_usize() >= self.enums.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Union"),
+            ));
+        }
+        self.type_map.remove(&self.get_type_name(Type::Union(id)));
+        self.type_map.insert(union.name, Type::Union(id));
+        self.unions[id.as_usize()] = union;
+        Ok(())
+    }
+
+    /// Replaces the definition of field, but keeps the same id.
+    /// Existing references to the old field now reference the replacement.
     pub fn replace_field(&mut self, id: FieldID, field: Field) -> Result<()> {
         let id = id.as_usize();
         if id >= self.fields.len() {
@@ -1027,19 +1106,19 @@ impl Schema {
 
         format!(
             r#"Schema {{
-query_type: {:#?}
-mutation_type: {:#?}
-subscription_type: {:#?}
-directives: {:#?}
-type_map: {:#?}
-enums: {:#?}
-fields: {:#?}
-input_objects: {:#?}
-interfaces: {:#?}
-objects: {:#?}
-scalars: {:#?}
-unions: {:#?}
-}}"#,
+ query_type: {:#?}
+ mutation_type: {:#?}
+ subscription_type: {:#?}
+ directives: {:#?}
+ type_map: {:#?}
+ enums: {:#?}
+ fields: {:#?}
+ input_objects: {:#?}
+ interfaces: {:#?}
+ objects: {:#?}
+ scalars: {:#?}
+ unions: {:#?}
+ }}"#,
             query_type,
             mutation_type,
             subscription_type,

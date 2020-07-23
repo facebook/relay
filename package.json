@@ -62,7 +62,7 @@
     "gulp-once": "2.0.3",
     "gulp-rename": "^2.0.0",
     "gulp-util": "3.0.8",
-    "immutable": "~3.7.6",
+    "immutable": "3.8.2",
     "jest": "^24.8.0",
     "nullthrows": "^1.1.1",
     "prettier": "1.19.1",

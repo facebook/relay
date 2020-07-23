@@ -102,6 +102,13 @@ function loadEntryPoint<
         },
       );
     }
+    if (preloadedEntryPoints != null) {
+      Object.values(preloadedEntryPoints).forEach(
+        ({dispose: innerDispose}: $FlowFixMe) => {
+          innerDispose();
+        },
+      );
+    }
   };
 
   return {

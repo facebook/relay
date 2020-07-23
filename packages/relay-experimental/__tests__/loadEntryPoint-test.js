@@ -356,6 +356,84 @@ test('it should preload entry point with both queries and nested entry points', 
   });
 });
 
+test('it should dispose nested entry points', () => {
+  const env = createMockEnvironment();
+  const nestedEntryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myNestedQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyNestedQuery',
+                id: 'nested-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(null): $FlowFixMe),
+  };
+  const entryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'root-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+        entryPoints: {
+          myNestedEntryPoint: {
+            entryPoint: nestedEntryPoint,
+            entryPointParams: {
+              id: 'nested-' + params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(null): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {},
+  );
+  const {dispose} = preloadedEntryPoint;
+  const nestedEntryPointDisposeSpy = jest.spyOn(
+    preloadedEntryPoint.entryPoints.myNestedEntryPoint,
+    'dispose',
+  );
+  expect(dispose).toBeDefined();
+  if (dispose) {
+    expect(nestedEntryPointDisposeSpy).not.toHaveBeenCalled();
+    dispose();
+    expect(nestedEntryPointDisposeSpy).toHaveBeenCalled();
+  }
+});
+
 test('with `getEnvironment` function', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');

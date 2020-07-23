@@ -368,6 +368,12 @@ pub enum ValidationMessage {
     #[error("Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'.")]
     UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
 
+    #[error("Operation '{operation_name}' references undefined variable{variables_string}.")]
+    GlobalVariables {
+        operation_name: StringKey,
+        variables_string: String,
+    },
+
     #[error("Expected the 'queryName' argument of @refetchable to be provided")]
     QueryNameRequired,
 

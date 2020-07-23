@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query QueryWithUnusedVariable {
+  node(id: $id) {
+    id
+  }
+}
+==================================== ERROR ====================================
+Expected operation variables to be defined:
+query-with-undefined-variable.invalid.graphql:2:12:
+  node(id: $id) {

@@ -215,7 +215,7 @@ pub async fn commit_project(
                         artifact
                             .content
                             .as_bytes(config, project_config, &mut printer, schema);
-                    artifact_writer.write(path, content)?;
+                    artifact_writer.write_if_changed(path, content)?;
                 }
                 Ok(())
             })?;

@@ -23,7 +23,9 @@ const PREPEND_EDGE = 'prependEdge';
 const LINKED_FIELD_DIRECTIVES = [APPEND_EDGE, PREPEND_EDGE];
 
 const SCHEMA_EXTENSION = `
-  directive @${DELETE_RECORD} on FIELD
+  directive @${DELETE_RECORD}(
+    connections: [String!]
+  ) on FIELD
   directive @${APPEND_EDGE}(
     connections: [String!]!
   ) on FIELD
@@ -73,11 +75,15 @@ function visitScalarField(field: ScalarField): ScalarField {
       [deleteDirective.loc],
     );
   }
+  const connectionsArg = deleteDirective.args.find(
+    arg => arg.name === 'connections',
+  );
   const handle: Handle = {
-    name: DELETE_RECORD,
+    name: deleteDirective.name,
     key: '',
     dynamicKey: null,
     filters: null,
+    handleArgs: connectionsArg ? [connectionsArg] : undefined,
   };
   return {
     ...field,

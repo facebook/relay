@@ -272,10 +272,12 @@ describe('connection mutations', () => {
   let query;
   let source;
   let store;
+  let DeleteCommentMutation;
   let AppendCommentMutation;
   let PrependCommentMutation;
   let appendOperation;
   let prependOperation;
+  let deleteOperation;
   const clientID =
     'client:<feedbackid>:__FeedbackFragment_comments_connection(orderby:"date")';
 
@@ -288,6 +290,7 @@ describe('connection mutations', () => {
       FeedbackQuery: query,
       AppendCommentMutation,
       PrependCommentMutation,
+      DeleteCommentMutation,
     } = generateAndCompile(`
       query FeedbackQuery($id: ID!) {
         node(id: $id) {
@@ -332,6 +335,15 @@ describe('connection mutations', () => {
           }
         }
       }
+
+      mutation DeleteCommentMutation(
+        $connections: [String!]
+        $input: CommentDeleteInput
+      ) {
+        commentDelete(input: $input) {
+          deletedCommentId @deleteRecord(connections: $connections)
+        }
+      }
     `));
     const variables = {
       id: '<feedbackid>',
@@ -342,6 +354,10 @@ describe('connection mutations', () => {
       input: {},
     });
     prependOperation = createOperationDescriptor(PrependCommentMutation, {
+      connections: [clientID],
+      input: {},
+    });
+    deleteOperation = createOperationDescriptor(DeleteCommentMutation, {
       connections: [clientID],
       input: {},
     });
@@ -624,6 +640,42 @@ describe('connection mutations', () => {
         node: {
           __typename: 'Comment',
           id: 'node-append',
+        },
+      },
+    ]);
+  });
+
+  it('commits the mutation and removes comment edges from the provided connection', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: deleteOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentDelete: {
+          deletedCommentId: 'node-1',
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
         },
       },
     ]);

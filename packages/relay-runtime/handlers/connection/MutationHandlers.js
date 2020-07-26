@@ -27,9 +27,37 @@ import type {
 const DeleteRecordHandler = {
   update: (store: RecordSourceProxy, payload: HandleFieldPayload) => {
     const record = store.get(payload.dataID);
+
     if (record != null) {
       const id = record.getValue(payload.fieldKey);
+
       if (typeof id === 'string') {
+        const {connections} = payload.handleArgs;
+
+        if (connections != null) {
+          for (const connectionID of connections) {
+            const connection = store.get(connectionID);
+            if (connection == null) {
+              warning(
+                false,
+                `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
+              );
+              continue;
+            }
+            const edges = connection.getLinkedRecords('edges');
+
+            if (edges == null) {
+              warning(
+                false,
+                `[Relay][Mutation] The connection with id '${connectionID}' has no edges.`,
+              );
+              continue;
+            }
+
+            ConnectionHandler.deleteNode(connection, id);
+          }
+        }
+
         store.delete(id);
       }
     }

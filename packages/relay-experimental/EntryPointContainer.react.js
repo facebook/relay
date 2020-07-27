@@ -15,6 +15,8 @@
 
 const React = require('react');
 
+const warning = require('warning');
+
 import type {
   EntryPointComponent,
   PreloadedEntryPoint,
@@ -38,6 +40,13 @@ function EntryPointContainer<
   entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
   props: TRuntimeProps,
 |}>): React.MixedElement {
+  warning(
+    entryPointReference.isDisposed === false,
+    '<EntryPointContainer>: Expected entryPointReference to not be disposed ' +
+      'yet. This is because disposing the entrypoint marks it for future garbage ' +
+      'collection, and as such may no longer be present in the Relay store. ' +
+      'In the future, this will become a hard error.',
+  );
   const {getComponent, queries, entryPoints, extraProps} = entryPointReference;
   const Component = getComponent();
   return (

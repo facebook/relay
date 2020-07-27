@@ -13,6 +13,7 @@
 
 'use strict';
 
+jest.mock('warning');
 const EntryPointContainer = require('../EntryPointContainer.react');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -20,6 +21,7 @@ const TestRenderer = require('react-test-renderer');
 
 const loadEntryPoint = require('../loadEntryPoint');
 const usePreloadedQuery = require('../usePreloadedQuery');
+const warning = require('warning');
 
 const {
   Environment,
@@ -101,6 +103,8 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -139,6 +143,10 @@ beforeEach(() => {
     },
     root: (new FakeJSResource(): $FlowFixMe),
   };
+});
+
+afterAll(() => {
+  jest.clearAllMocks();
 });
 
 it('suspends while the query and component are pending', () => {
@@ -249,4 +257,45 @@ it('renders synchronously when the component has already loaded and the data arr
   expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(2);
   expect(nestedEntryPointResource.load).toBeCalledTimes(0);
   expect(preloadedQuery).not.toBe(null);
+});
+
+it('warns if the entryPointReference has already been disposed', () => {
+  const expectWarningMessage = expect.stringMatching(
+    /^<EntryPointContainer>: Expected entryPointReference to not be disposed/,
+  );
+  entryPointReference = loadEntryPoint(
+    {
+      getEnvironment: () => environment,
+    },
+    entrypoint,
+    {},
+  );
+  const render = () => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <EntryPointContainer
+            entryPointReference={entryPointReference}
+            props={{}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+    TestRenderer.act(() => jest.runAllImmediates());
+  };
+
+  render();
+  expect(warning).toBeCalledTimes(1);
+  expect(warning).toHaveBeenLastCalledWith(
+    true, // invariant holds
+    expectWarningMessage,
+  );
+
+  entryPointReference.dispose();
+  render();
+  expect(warning).toBeCalledTimes(2);
+  expect(warning).toHaveBeenLastCalledWith(
+    false, // invariant broken
+    expectWarningMessage,
+  );
 });

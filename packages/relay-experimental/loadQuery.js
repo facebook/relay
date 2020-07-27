@@ -197,17 +197,26 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     checkAvailabilityAndExecute(request);
   }
 
+  let isDisposed = false;
   return {
     kind: 'PreloadedQuery',
     environment,
     environmentProviderOptions,
-    dispose: () => {
+    dispose() {
+      if (isDisposed) {
+        return;
+      }
       unsubscribeFromExecute && unsubscribeFromExecute();
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();
       loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
+      isDisposed = true;
     },
     id: moduleId,
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get isDisposed() {
+      return isDisposed;
+    },
     name: params.name,
     networkCacheConfig,
     fetchPolicy,

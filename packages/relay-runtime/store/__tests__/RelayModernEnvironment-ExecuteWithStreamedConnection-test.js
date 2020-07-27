@@ -83,16 +83,6 @@ describe('execute() fetches a @stream-ed @connection', () => {
             }
           }
         }
-
-        fragment FeedEdgeFragment on NewsFeedEdge {
-          cursor
-          node {
-            id
-            feedback {
-              id
-            }
-          }
-        }
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
@@ -1264,6 +1254,137 @@ describe('execute() fetches a @stream-ed @connection', () => {
         pageInfo: {
           endCursor: 'cursor-1', // updated
           hasNextPage: true, // updated
+        },
+      },
+    });
+  });
+
+  it('does not garbage collect the server connection when a pagination query is in flight', () => {
+    environment.retain(operation);
+    const initialSnapshot = environment.lookup(selector);
+    callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    // populate the first "page" of results (one item) using the query
+    // with streaming disabled
+    variables = {enableStream: false, after: null};
+    operation = createOperationDescriptor(query, variables);
+    environment.execute({operation}).subscribe({});
+    dataSource.next({
+      data: {
+        viewer: {
+          newsFeed: {
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Story',
+                  id: '1',
+                  feedback: {
+                    id: 'feedback-1',
+                    actors: [
+                      {
+                        id: 'actor-1',
+                        __typename: 'User',
+                        name: 'Alice',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: true,
+              endCursor: 'cursor-1',
+            },
+          },
+        },
+      },
+    });
+    dataSource.complete();
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    // Start pagination query
+    const paginationOperation = createOperationDescriptor(query, {
+      enableStream: true,
+      after: 'cursor-1',
+    });
+    environment.execute({operation: paginationOperation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
+        viewer: {
+          newsFeed: {
+            edges: [],
+          },
+        },
+      },
+    });
+    jest.runAllTimers();
+    next.mockClear();
+    callback.mockClear();
+
+    // Triggers a GC
+    store.__gc();
+    jest.runAllTimers();
+
+    // Second edge should be appended correctly
+    dataSource.next({
+      data: {
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Story',
+          id: '2',
+          feedback: {
+            id: 'feedback-2',
+            actors: [
+              {
+                id: 'actor-2',
+                __typename: 'User',
+                name: 'Bob',
+              },
+            ],
+          },
+        },
+      },
+      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      path: ['viewer', 'newsFeed', 'edges', 0],
+    });
+    expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
+    expect(next).toBeCalledTimes(1);
+    expect(callback).toBeCalledTimes(1);
+    const snapshot = callback.mock.calls[0][0];
+    expect(snapshot.isMissingData).toBe(false);
+    expect(snapshot.data).toEqual({
+      newsFeed: {
+        edges: [
+          {
+            cursor: 'cursor-1',
+            node: {
+              __typename: 'Story',
+              id: '1',
+              feedback: {
+                id: 'feedback-1',
+                actors: [{id: 'actor-1', name: 'ALICE'}],
+              },
+            },
+          },
+          {
+            cursor: 'cursor-2',
+            node: {
+              __typename: 'Story',
+              id: '2',
+              feedback: {
+                id: 'feedback-2',
+                actors: [{id: 'actor-2', name: 'BOB'}],
+              },
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: 'cursor-1',
+          hasNextPage: true,
         },
       },
     });

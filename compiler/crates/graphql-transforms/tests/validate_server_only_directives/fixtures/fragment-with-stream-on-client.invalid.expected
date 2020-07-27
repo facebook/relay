@@ -29,6 +29,5 @@ fragment-with-stream-on-client.invalid.graphql:10:9:
   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
 
 
-fragment-with-stream-on-client.invalid.graphql:9:5:
-  id
+fragment-with-stream-on-client.invalid.graphql:10:3:
   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {

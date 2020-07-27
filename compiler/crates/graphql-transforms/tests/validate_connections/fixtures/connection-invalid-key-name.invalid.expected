@@ -20,6 +20,5 @@ connection-invalid-key-name.invalid.graphql:5:44:
       comments(first: 10) @connection(key: "invalid") {
 
 
-connection-invalid-key-name.invalid.graphql:4:19:
-    ... on Story {
+connection-invalid-key-name.invalid.graphql:5:7:
       comments(first: 10) @connection(key: "invalid") {

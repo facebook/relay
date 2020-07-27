@@ -10,7 +10,7 @@ query LiteralObjectArgument {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: literal-object-argument.graphql:6:28,
+                location: literal-object-argument.graphql:6:27,
                 item: "LiteralObjectArgument",
             },
             type_: Object(0),
@@ -20,7 +20,7 @@ query LiteralObjectArgument {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: literal-object-argument.graphql:29:50,
+                        location: literal-object-argument.graphql:32:50,
                         item: FieldID(
                             0,
                         ),
@@ -59,7 +59,7 @@ query LiteralObjectArgument {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: literal-object-argument.graphql:80:90,
+                                location: literal-object-argument.graphql:85:90,
                                 item: FieldID(
                                     56,
                                 ),

@@ -166,7 +166,6 @@ impl fmt::Display for TypeCondition {
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Token {
     pub span: Span,
-    pub inner_span: Span,
     pub kind: TokenKind,
 }
 

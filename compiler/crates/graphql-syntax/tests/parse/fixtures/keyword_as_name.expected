@@ -4,14 +4,14 @@ query KeywordAsName {
 }
 ==================================== OUTPUT ===================================
 Document {
-    span: 0:55,
+    span: 0:56,
     definitions: [
         OperationDefinition {
-            location: keyword_as_name.graphql:0:55,
+            location: keyword_as_name.graphql:0:56,
             operation: Some(
                 (
                     Token {
-                        span: "0:6",
+                        span: "0:5",
                         kind: Identifier,
                     },
                     Query,
@@ -19,9 +19,9 @@ Document {
             ),
             name: Some(
                 Identifier {
-                    span: 6:20,
+                    span: 6:19,
                     token: Token {
-                        span: "6:20",
+                        span: "6:19",
                         kind: Identifier,
                     },
                     value: "KeywordAsName",
@@ -30,26 +30,26 @@ Document {
             variable_definitions: None,
             directives: [],
             selections: List {
-                span: 20:55,
+                span: 20:56,
                 start: Token {
                     span: "20:21",
                     kind: OpenBrace,
                 },
                 items: [
                     ScalarField {
-                        span: 21:53,
+                        span: 24:54,
                         alias: None,
                         name: Identifier {
-                            span: 21:38,
+                            span: 24:38,
                             token: Token {
-                                span: "21:38",
+                                span: "24:38",
                                 kind: Identifier,
                             },
                             value: "search_results",
                         },
                         arguments: Some(
                             List {
-                                span: 38:53,
+                                span: 38:54,
                                 start: Token {
                                     span: "38:39",
                                     kind: OpenParen,
@@ -66,7 +66,7 @@ Document {
                                             value: "query",
                                         },
                                         colon: Token {
-                                            span: "44:46",
+                                            span: "44:45",
                                             kind: Colon,
                                         },
                                         value: Constant(
@@ -92,7 +92,7 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "53:55",
+                    span: "54:55",
                     kind: CloseBrace,
                 },
             },

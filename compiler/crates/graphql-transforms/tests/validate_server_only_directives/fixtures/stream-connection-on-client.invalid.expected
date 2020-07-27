@@ -36,6 +36,5 @@ stream-connection-on-client.invalid.graphql:6:10:
         @stream_connection(
 
 
-stream-connection-on-client.invalid.graphql:4:19:
-    ... on Story {
+stream-connection-on-client.invalid.graphql:5:7:
       clientComments(first: 10)

@@ -4,18 +4,18 @@ fragment TestFrag on MyType {
 }
 ==================================== OUTPUT ===================================
 Document {
-    span: 0:65,
+    span: 0:66,
     definitions: [
         FragmentDefinition {
-            location: list_of_enum.graphql:0:65,
+            location: list_of_enum.graphql:0:66,
             fragment: Token {
-                span: "0:9",
+                span: "0:8",
                 kind: Identifier,
             },
             name: Identifier {
-                span: 9:18,
+                span: 9:17,
                 token: Token {
-                    span: "9:18",
+                    span: "9:17",
                     kind: Identifier,
                 },
                 value: "TestFrag",
@@ -23,13 +23,13 @@ Document {
             type_condition: TypeCondition {
                 span: 18:28,
                 on: Token {
-                    span: "18:21",
+                    span: "18:20",
                     kind: Identifier,
                 },
                 type_: Identifier {
-                    span: 21:28,
+                    span: 21:27,
                     token: Token {
-                        span: "21:28",
+                        span: "21:27",
                         kind: Identifier,
                     },
                     value: "MyType",
@@ -37,26 +37,26 @@ Document {
             },
             directives: [],
             selections: List {
-                span: 28:65,
+                span: 28:66,
                 start: Token {
                     span: "28:29",
                     kind: OpenBrace,
                 },
                 items: [
                     ScalarField {
-                        span: 29:63,
+                        span: 32:64,
                         alias: None,
                         name: Identifier {
-                            span: 29:38,
+                            span: 32:38,
                             token: Token {
-                                span: "29:38",
+                                span: "32:38",
                                 kind: Identifier,
                             },
                             value: "issues",
                         },
                         arguments: Some(
                             List {
-                                span: 38:63,
+                                span: 38:64,
                                 start: Token {
                                     span: "38:39",
                                     kind: OpenParen,
@@ -73,7 +73,7 @@ Document {
                                             value: "orderby",
                                         },
                                         colon: Token {
-                                            span: "46:48",
+                                            span: "46:47",
                                             kind: Colon,
                                         },
                                         value: Constant(
@@ -114,7 +114,7 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "63:65",
+                    span: "64:65",
                     kind: CloseBrace,
                 },
             },

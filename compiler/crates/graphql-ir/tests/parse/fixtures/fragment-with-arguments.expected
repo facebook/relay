@@ -21,13 +21,13 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-arguments.graphql:9:22,
+                location: fragment-with-arguments.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
-                        location: fragment-with-arguments.graphql:53:60,
+                        location: fragment-with-arguments.graphql:58:60,
                         item: "id",
                     },
                     type_: NonNull(
@@ -40,7 +40,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 },
                 VariableDefinition {
                     name: WithLocation {
-                        location: fragment-with-arguments.graphql:75:84,
+                        location: fragment-with-arguments.graphql:80:84,
                         item: "size",
                     },
                     type_: List(
@@ -89,7 +89,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: fragment-with-arguments.graphql:128:145,
+                        location: fragment-with-arguments.graphql:131:145,
                         item: FieldID(
                             464,
                         ),
@@ -123,7 +123,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-arguments.graphql:167:175,
+                                location: fragment-with-arguments.graphql:172:175,
                                 item: FieldID(
                                     175,
                                 ),
@@ -136,7 +136,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: fragment-with-arguments.graphql:179:196,
+                            location: fragment-with-arguments.graphql:182:196,
                             item: "withDefaultArg",
                         },
                     ),
@@ -175,7 +175,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-arguments.graphql:227:235,
+                                location: fragment-with-arguments.graphql:232:235,
                                 item: FieldID(
                                     175,
                                 ),
@@ -187,7 +187,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 },
                 FragmentSpread {
                     fragment: WithLocation {
-                        location: fragment-with-arguments.graphql:245:249,
+                        location: fragment-with-arguments.graphql:245:248,
                         item: "Foo",
                     },
                     arguments: [
@@ -222,7 +222,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-arguments.graphql:286:290,
+                location: fragment-with-arguments.graphql:286:289,
                 item: "Foo",
             },
             variable_definitions: [
@@ -255,7 +255,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: fragment-with-arguments.graphql:344:349,
+                        location: fragment-with-arguments.graphql:347:349,
                         item: FieldID(
                             450,
                         ),

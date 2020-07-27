@@ -17,7 +17,7 @@ fragment ChildFragment on Query
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-object-list-arguments.graphql:9:24,
+                location: fragment-with-literal-object-list-arguments.graphql:9:23,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -28,7 +28,7 @@ fragment ChildFragment on Query
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: fragment-with-literal-object-list-arguments.graphql:34:52,
+                            location: fragment-with-literal-object-list-arguments.graphql:37:52,
                             item: "mobile_checkins",
                         },
                     ),
@@ -72,7 +72,7 @@ fragment ChildFragment on Query
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-object-list-arguments.graphql:100:110,
+                                location: fragment-with-literal-object-list-arguments.graphql:105:110,
                                 item: FieldID(
                                     56,
                                 ),
@@ -84,7 +84,7 @@ fragment ChildFragment on Query
                 },
                 FragmentSpread {
                     fragment: WithLocation {
-                        location: fragment-with-literal-object-list-arguments.graphql:120:134,
+                        location: fragment-with-literal-object-list-arguments.graphql:120:133,
                         item: "ChildFragment",
                     },
                     arguments: [
@@ -128,7 +128,7 @@ fragment ChildFragment on Query
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-object-list-arguments.graphql:183:197,
+                location: fragment-with-literal-object-list-arguments.graphql:183:196,
                 item: "ChildFragment",
             },
             variable_definitions: [
@@ -165,7 +165,7 @@ fragment ChildFragment on Query
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: fragment-with-literal-object-list-arguments.graphql:272:293,
+                        location: fragment-with-literal-object-list-arguments.graphql:275:293,
                         item: FieldID(
                             0,
                         ),
@@ -186,7 +186,7 @@ fragment ChildFragment on Query
                                                 item: "query",
                                             },
                                             value: WithLocation {
-                                                location: fragment-with-literal-object-list-arguments.graphql:309:316,
+                                                location: fragment-with-literal-object-list-arguments.graphql:309:314,
                                                 item: Constant(
                                                     String(
                                                         "foo",
@@ -226,7 +226,7 @@ fragment ChildFragment on Query
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-object-list-arguments.graphql:335:345,
+                                location: fragment-with-literal-object-list-arguments.graphql:340:345,
                                 item: FieldID(
                                     56,
                                 ),

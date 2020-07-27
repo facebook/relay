@@ -36,7 +36,6 @@ query LiteralListArgumentQuery3 {
 Expected a value of type 'String':
 literal-list-argument.invalid.graphql:5:14:
         lat: 0.0 # error: float not string
-        lon: "0.0"
 
 
 Expected a value of type 'WayPoint':

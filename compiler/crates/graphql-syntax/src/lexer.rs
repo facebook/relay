@@ -14,9 +14,8 @@ use common::Span;
 /// Lexer for the *executable* subset of the GraphQL specification:
 /// https://github.com/graphql/graphql-spec/blob/master/spec/Appendix%20B%20--%20Grammar%20Summary.md
 ///
-/// Lazily transforms a source str into a sequence of `Token`s that encode leading trivia,
-/// a kind, trailing trivia, and inner/outer spans (outer includes the span of the trivia,
-/// inner excludes the spans of the trivia).
+/// Lazily transforms a source str into a sequence of `Token`s that encode
+/// leading trivia, a kind, trailing trivia, and spans that exclude the trivia.
 #[derive(Clone, Debug)]
 pub struct Lexer<'a> {
     position: LexerPosition<'a>,
@@ -31,18 +30,12 @@ impl<'a> Lexer<'a> {
 
     /// Advance the lexer and return the next token.
     pub fn next(&mut self) -> Token {
-        let start = self.position.index();
         self.skip_leading_trivia();
-        let inner_start = self.position.index();
+        let start = self.position.index();
         let kind = self.next_kind();
-        let inner_span = Span::from_usize(inner_start, self.position.index() - inner_start);
-        self.skip_trailing_trivia();
         let span = Span::from_usize(start, self.position.index() - start);
-        Token {
-            span,
-            kind,
-            inner_span,
-        }
+        self.skip_trailing_trivia();
+        Token { kind, span }
     }
 
     fn peek(&self) -> TokenKind {
@@ -403,19 +396,6 @@ mod tests {
                 Lexer::new($src).next(),
                 $crate::syntax_node::Token {
                     span: Span::new($start, $length),
-                    inner_span: Span::new($start, $length),
-                    kind: $kind
-                },
-                "Testing the lexing of string '{}'",
-                $src
-            );
-        };
-        ($src:expr, $kind:expr, $start:expr, $length:expr, $inner_start:expr, $inner_length: expr) => {
-            assert_eq!(
-                Lexer::new($src).next(),
-                $crate::syntax_node::Token {
-                    span: Span::new($start, $length),
-                    inner_span: Span::new($inner_start, $inner_length),
                     kind: $kind
                 },
                 "Testing the lexing of string '{}'",
@@ -466,35 +446,12 @@ mod tests {
 
         // check that we don't consume trailing valid items
         assert_token!("1.23.4{}", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token!(
-            "1.23.4 {}",
-            TokenKind::ErrorUnsupportedNumberLiteral,
-            0,
-            7,
-            0,
-            6
-        );
-        assert_token!(
-            "1.23.4 []",
-            TokenKind::ErrorUnsupportedNumberLiteral,
-            0,
-            7,
-            0,
-            6
-        );
-        assert_token!(
-            "1.23.4 foo",
-            TokenKind::ErrorUnsupportedNumberLiteral,
-            0,
-            7,
-            0,
-            6
-        );
+        assert_token!("1.23.4 {}", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
+        assert_token!("1.23.4 []", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
+        assert_token!("1.23.4 foo", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
         assert_token!(
             "1.23.4 $foo",
             TokenKind::ErrorUnsupportedNumberLiteral,
-            0,
-            7,
             0,
             6
         );

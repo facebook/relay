@@ -33,9 +33,8 @@ impl<'a> Parser<'a> {
         // first real token.
         let lexer = Lexer::new(source);
         let dummy = Token {
-            span: Span::empty(),
             kind: TokenKind::EndOfFile,
-            inner_span: Span::empty(),
+            span: Span::empty(),
         };
         let mut parser = Parser {
             current: dummy,
@@ -685,7 +684,7 @@ impl<'a> Parser<'a> {
     /// Variable : $ Name
     fn parse_variable_identifier(&mut self) -> ParseResult<VariableIdentifier> {
         let token = self.parse_token();
-        let (start, length) = token.inner_span.as_usize();
+        let (start, length) = token.span.as_usize();
         let source = &self.source[start + 1..start + length];
         let span = token.span;
         if token.kind == TokenKind::VariableIdentifier {
@@ -810,7 +809,7 @@ impl<'a> Parser<'a> {
 
     /// A &str for the source of the inner span of the given token.
     fn source(&self, token: &Token) -> &str {
-        let (start, length) = token.inner_span.as_usize();
+        let (start, length) = token.span.as_usize();
         &self.source[start..start + length]
     }
 
@@ -861,7 +860,7 @@ impl<'a> Parser<'a> {
         } else {
             let error = SyntaxError::new(
                 SyntaxErrorKind::ExpectedKeyword(expected),
-                Location::new(self.source_location, token.inner_span),
+                Location::new(self.source_location, token.span),
             );
             self.record_error(error);
             Err(())

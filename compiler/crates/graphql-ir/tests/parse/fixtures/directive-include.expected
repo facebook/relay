@@ -15,7 +15,7 @@ fragment Foo on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: directive-include.graphql:9:22,
+                location: directive-include.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
@@ -42,7 +42,7 @@ fragment Foo on User {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: directive-include.graphql:31:37,
+                                location: directive-include.graphql:34:36,
                                 item: FieldID(
                                     450,
                                 ),
@@ -77,7 +77,7 @@ fragment Foo on User {
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: directive-include.graphql:92:106,
+                                        location: directive-include.graphql:97:106,
                                         item: FieldID(
                                             447,
                                         ),
@@ -107,7 +107,7 @@ fragment Foo on User {
                     selections: [
                         FragmentSpread {
                             fragment: WithLocation {
-                                location: directive-include.graphql:116:120,
+                                location: directive-include.graphql:116:119,
                                 item: "Foo",
                             },
                             arguments: [],
@@ -135,7 +135,7 @@ fragment Foo on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: directive-include.graphql:152:156,
+                location: directive-include.graphql:152:155,
                 item: "Foo",
             },
             variable_definitions: [],
@@ -146,7 +146,7 @@ fragment Foo on User {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: directive-include.graphql:165:170,
+                        location: directive-include.graphql:168:170,
                         item: FieldID(
                             450,
                         ),

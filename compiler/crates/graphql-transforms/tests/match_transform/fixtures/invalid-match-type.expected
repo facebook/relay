@@ -20,7 +20,6 @@ fragment User_user on User {
 }
 ==================================== ERROR ====================================
 Invalid fragment spread 'User_user', the type of this fragment ('User') can never occur for parent type 'UserNameRenderer':
-invalid-match-type.graphql:4:79:
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+invalid-match-type.graphql:5:5:
     ...User_user @module(name: "User.react")
   }

@@ -7,7 +7,7 @@ fragment TestFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: list-of-enums.graphql:9:22,
+                location: list-of-enums.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
@@ -18,7 +18,7 @@ fragment TestFragment on User {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: list-of-enums.graphql:31:67,
+                        location: list-of-enums.graphql:34:40,
                         item: FieldID(
                             472,
                         ),

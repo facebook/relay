@@ -23,6 +23,5 @@ connection-filters-null.invalid.graphql:6:57:
         @connection(key: "NodeQuery_comments", filters: null) {
 
 
-connection-filters-null.invalid.graphql:4:19:
-    ... on Story {
+connection-filters-null.invalid.graphql:5:7:
       comments(first: 10, orderby: $orderBy)

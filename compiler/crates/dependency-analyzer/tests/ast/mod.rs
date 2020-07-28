@@ -10,15 +10,6 @@ use dependency_analyzer::{get_reachable_ast, ReachableAst};
 use fixture_tests::Fixture;
 use graphql_syntax::*;
 
-fn format_definition(def: ExecutableDefinition) -> String {
-    match def {
-        ExecutableDefinition::Operation(operation) => {
-            format!("Operation: {}", operation.name.unwrap().value)
-        }
-        ExecutableDefinition::Fragment(fragment) => format!("Fragment: {}", fragment.name.value),
-    }
-}
-
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts: Vec<&str> = fixture.content.split("%definitions%").collect();
 
@@ -36,7 +27,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut texts = result
         .into_iter()
-        .map(format_definition)
+        .map(|def| def.name().unwrap().to_string())
         .collect::<Vec<_>>();
     texts.sort_unstable();
     texts.push("========== Base definitions ==========".to_string());
@@ -46,5 +37,5 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .collect::<Vec<_>>();
     defs.sort_unstable();
     texts.push(defs.join(", "));
-    Ok(texts.join("\n\n"))
+    Ok(texts.join("\n"))
 }

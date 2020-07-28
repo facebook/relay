@@ -44,15 +44,6 @@ const DeleteRecordHandler = {
               );
               continue;
             }
-            const edges = connection.getLinkedRecords('edges');
-
-            if (edges == null) {
-              warning(
-                false,
-                `[Relay][Mutation] The connection with id '${connectionID}' has no edges.`,
-              );
-              continue;
-            }
 
             ConnectionHandler.deleteNode(connection, id);
           }

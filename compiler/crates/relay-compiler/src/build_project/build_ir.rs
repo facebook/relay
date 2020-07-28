@@ -59,16 +59,8 @@ pub fn build_ir(
                 .unwrap_or_default();
             let base_definition_names = base_project_asts
                 .iter()
-                .filter_map(|definition| match definition {
-                    graphql_syntax::ExecutableDefinition::Operation(operation) => {
-                        // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
-                        let operation_name = operation.name.clone();
-                        operation_name.map(|name| name.value)
-                    }
-                    graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
-                        Some(fragment.name.value)
-                    }
-                })
+                // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
+                .filter_map(|definition| definition.name())
                 .collect::<FnvHashSet<_>>();
             (base_project_asts, base_definition_names)
         }

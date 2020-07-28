@@ -96,6 +96,8 @@ fn create_configs() -> (Config, ProjectConfig) {
         projects: Default::default(),
         root_dir: Default::default(),
         sources: Default::default(),
+        saved_state_config: None,
+        saved_state_loader: None,
     };
 
     (config, project_config)

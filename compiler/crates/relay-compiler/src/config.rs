@@ -11,6 +11,7 @@ use crate::build_project::artifact_writer::{
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::saved_state::SavedStateLoader;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
@@ -18,6 +19,7 @@ use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::PathBuf;
+use watchman_client::pdu::ScmAwareClockData;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -39,6 +41,9 @@ pub struct Config {
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
     pub codegen_filepath: Option<PathBuf>,
+
+    pub saved_state_config: Option<ScmAwareClockData>,
+    pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
 }
 
 impl Config {
@@ -151,6 +156,8 @@ impl Config {
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
             codegen_filepath: None,
+            saved_state_config: config_file.saved_state_config,
+            saved_state_loader: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -281,6 +288,8 @@ impl fmt::Debug for Config {
             load_saved_state_file,
             generate_extra_operation_artifacts,
             codegen_filepath,
+            saved_state_config,
+            saved_state_loader,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
@@ -290,6 +299,7 @@ impl fmt::Debug for Config {
             .field("header", header)
             .field("codegen_command", codegen_command)
             .field("load_saved_state_file", load_saved_state_file)
+            .field("saved_state_config", saved_state_config)
             .field(
                 "generate_extra_operation_artifacts",
                 if generate_extra_operation_artifacts.is_some() {
@@ -299,6 +309,14 @@ impl fmt::Debug for Config {
                 },
             )
             .field("codegen_filepath", codegen_filepath)
+            .field(
+                "saved_state_loader",
+                if saved_state_loader.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
             .finish()
     }
 }
@@ -350,6 +368,9 @@ struct ConfigFile {
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,
+
+    /// Watchman saved state config.
+    saved_state_config: Option<ScmAwareClockData>,
 }
 
 #[derive(Debug, Deserialize)]

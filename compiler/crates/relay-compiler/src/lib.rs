@@ -16,6 +16,7 @@ pub mod compiler_state;
 pub mod config;
 pub mod errors;
 mod graphql_asts;
+pub mod saved_state;
 mod watchman;
 
 pub use build_project::{

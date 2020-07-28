@@ -363,7 +363,7 @@ impl CompilerState {
                         &mut self.extensions,
                     )?;
                 }
-                FileGroup::Generated { project_name: _ } => {
+                FileGroup::Generated { .. } => {
                     // TODO
                 }
             }

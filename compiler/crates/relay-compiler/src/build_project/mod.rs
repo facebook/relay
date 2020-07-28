@@ -35,6 +35,7 @@ pub use generate_artifacts::{
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use graphql_transforms::FB_CONNECTION_INTERFACE;
+use interner::StringKey;
 use log::info;
 use persist_operations::persist_operations;
 use relay_codegen::Printer;
@@ -167,6 +168,7 @@ pub async fn commit_project(
     programs: Programs,
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
+    removed_definition_names: Vec<StringKey>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
@@ -191,13 +193,12 @@ pub async fn commit_project(
         });
     }
 
+    // Write the generated artifacts to disk. This step is separate from
+    // generating artifacts or persisting to avoid partial writes in case of
+    // errors as much as possible.
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-
-            // Write the generated artifacts to disk. This step is separate from
-            // generating artifacts or persisting to avoid partial writes in case of
-            // errors as much as possible.
             let mut artifact_writer = config.create_artifact_writer();
             let mut printer = Printer::default();
 
@@ -232,8 +233,41 @@ pub async fn commit_project(
 
             ArtifactMap::from(artifacts)
         }
-        ArtifactMapKind::Mapping(_) => {
-            todo!("need to implement incremental update of artifact map")
+        ArtifactMapKind::Mapping(artifact_map) => {
+            let mut artifact_writer = config.create_artifact_writer();
+            let mut printer = Printer::default();
+            let mut artifact_map = artifact_map.clone();
+
+            // Delete all generated paths for removed definitions
+            log_event.time("delete_artifacts_time", || {
+                for name in &removed_definition_names {
+                    if let Some(artifact) = artifact_map.remove(&name) {
+                        for (path, _) in artifact {
+                            let path = config.root_dir.join(path);
+                            artifact_writer.remove(path)?;
+                        }
+                    }
+                }
+                Ok(())
+            })?;
+
+            // Update artifacts and remove deleted artifacts
+            log_event.time("write_artifacts_time", || {
+                let mut current_paths_map = ArtifactMap::default();
+                for artifact in artifacts {
+                    let path = config.root_dir.join(&artifact.path);
+                    let content =
+                        artifact
+                            .content
+                            .as_bytes(config, project_config, &mut printer, schema);
+                    artifact_writer.write_if_changed(path, content)?;
+                    current_paths_map.insert(artifact);
+                }
+                artifact_map.update_and_remove(current_paths_map, &mut artifact_writer)?;
+                Ok(())
+            })?;
+
+            artifact_map
         }
     };
 

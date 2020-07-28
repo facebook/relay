@@ -286,7 +286,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     setup_event: &impl PerfLogEvent,
     compiler_state: &mut CompilerState,
 ) -> Result<()> {
-    let graphql_asts = setup_event.time("parse_sources_time", || {
+    let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
     })?;
 
@@ -321,6 +321,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 .get(&project_name)
                 .cloned()
                 .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
+            let removed_definition_names = graphql_asts
+                .remove(&project_name)
+                .expect("Expect GraphQLAsts to exist.")
+                .removed_definition_names;
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
                 Ok((
@@ -333,6 +337,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         programs,
                         artifacts,
                         artifact_map,
+                        removed_definition_names,
                     )
                     .await?,
                 ))

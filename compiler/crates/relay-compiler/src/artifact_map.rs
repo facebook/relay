@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::Artifact;
+use crate::build_project::{artifact_writer::ArtifactWriter, Artifact};
+use crate::errors::BuildProjectError;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
@@ -49,6 +50,34 @@ impl ArtifactMap {
                 entry.insert(vec![artifact_tuple]);
             }
         }
+    }
+
+    pub fn remove(&mut self, name: &StringKey) -> Option<Vec<ArtifactTuple>> {
+        self.0.remove(name)
+    }
+
+    pub fn update_and_remove(
+        &mut self,
+        update: ArtifactMap,
+        artifact_writer: &mut Box<dyn ArtifactWriter>,
+    ) -> Result<(), BuildProjectError> {
+        for (definition_name, artifact_tuples) in update.0 {
+            match self.0.entry(definition_name) {
+                Entry::Occupied(mut entry) => {
+                    let prev_tuples = entry.get_mut();
+                    for (prev_path, _) in prev_tuples.drain(..) {
+                        if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
+                            artifact_writer.remove(prev_path.clone())?;
+                        }
+                    }
+                    prev_tuples.extend(artifact_tuples.into_iter());
+                }
+                Entry::Vacant(entry) => {
+                    entry.insert(artifact_tuples);
+                }
+            }
+        }
+        Ok(())
     }
 }
 

@@ -16,6 +16,7 @@ use interner::StringKey;
 pub struct GraphQLAsts {
     pub asts: Vec<ExecutableDefinition>,
     pub changed_definition_names: FnvHashSet<StringKey>,
+    pub removed_definition_names: Vec<StringKey>,
 }
 
 impl GraphQLAsts {
@@ -40,6 +41,7 @@ impl GraphQLAsts {
 
         let mut asts = Vec::new();
         let mut changed_definition_names = FnvHashSet::default();
+        let mut processed_definition_names = FnvHashSet::default();
 
         // Iterate over all processed sources and parse each graphql string.
         // If any of the processed sources also exist in the pending source set,
@@ -78,16 +80,36 @@ impl GraphQLAsts {
             // If we used any pending sources for the current file, collect the
             // parsed definition names as part of the set of definition names
             // that have changed.
+            // Then parse the original source to get all processed definition names
+            // that could potentially be deleted
             if used_pending_sources {
                 changed_definition_names.extend(
                     definitions_for_file
                         .iter()
                         .flat_map(|definition| definition.name()),
                 );
+                for (index, graphql_source) in graphql_sources_for_file.iter().enumerate() {
+                    // TODO: parse name instead of the whole graphql text
+                    let source_location =
+                        SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
+                    if let Ok(document) =
+                        graphql_syntax::parse(&graphql_source.text, source_location)
+                    {
+                        for def in document.definitions {
+                            let name = def.name().expect("Expected operation name to exist.");
+                            processed_definition_names.insert(name);
+                        }
+                    }
+                }
             }
             parsed_files.insert(file_name);
             asts.extend(definitions_for_file);
         }
+
+        let removed_definition_names = processed_definition_names
+            .difference(&changed_definition_names)
+            .cloned()
+            .collect();
 
         // Iterate over all pending sources, and parse any graphql strings that
         // weren't already parsed in the previous pass over the processed sources.
@@ -102,6 +124,14 @@ impl GraphQLAsts {
                         SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
                     match graphql_syntax::parse(&graphql_source.text, source_location) {
                         Ok(document) => {
+                            // Those definitions appear again in other paths. Generate artifacts for
+                            // those definitions again so we can write to the new paths
+                            for def in &document.definitions {
+                                let name = def.name().expect("Expected operation name to exist.");
+                                if processed_definition_names.contains(&name) {
+                                    changed_definition_names.insert(name);
+                                }
+                            }
                             definitions_for_file.extend(document.definitions);
                         }
                         Err(errors) => syntax_errors.extend(
@@ -119,6 +149,7 @@ impl GraphQLAsts {
             Ok(Self {
                 asts,
                 changed_definition_names,
+                removed_definition_names,
             })
         } else {
             Err(Error::SyntaxErrors {

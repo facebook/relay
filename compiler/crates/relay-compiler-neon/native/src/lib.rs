@@ -141,7 +141,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
             &mut printer,
             &programs.normalization.schema,
         );
-        let name = cx.string(artifact.name.lookup().to_string());
+        let name = cx.string(artifact.source_definition_name.lookup().to_string());
         let path = cx.string(artifact.path.to_string_lossy());
         let content = cx.string(str::from_utf8(&content).unwrap().to_string());
         artifact_object.set(&mut cx, "name", name).unwrap();

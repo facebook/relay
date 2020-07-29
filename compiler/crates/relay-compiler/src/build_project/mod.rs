@@ -40,7 +40,7 @@ use log::info;
 use persist_operations::persist_operations;
 use relay_codegen::Printer;
 use schema::Schema;
-use std::sync::Arc;
+use std::{collections::hash_map::Entry, sync::Arc};
 pub use validate::validate;
 
 fn build_programs(
@@ -207,7 +207,7 @@ pub async fn commit_project(
                     if !existing_artifacts.remove(&artifact.path) {
                         info!(
                             "[{}] NEW: {} -> {:?}",
-                            project_config.name, &artifact.name, &artifact.path
+                            project_config.name, &artifact.source_definition_name, &artifact.path
                         );
                     }
 
@@ -241,7 +241,7 @@ pub async fn commit_project(
             // Delete all generated paths for removed definitions
             log_event.time("delete_artifacts_time", || {
                 for name in &removed_definition_names {
-                    if let Some(artifact) = artifact_map.remove(&name) {
+                    if let Some(artifact) = artifact_map.0.remove(&name) {
                         for (path, _) in artifact {
                             let path = config.root_dir.join(path);
                             artifact_writer.remove(path)?;
@@ -263,7 +263,22 @@ pub async fn commit_project(
                     artifact_writer.write_if_changed(path, content)?;
                     current_paths_map.insert(artifact);
                 }
-                artifact_map.update_and_remove(current_paths_map, &mut artifact_writer)?;
+                for (definition_name, artifact_tuples) in current_paths_map.0 {
+                    match artifact_map.0.entry(definition_name) {
+                        Entry::Occupied(mut entry) => {
+                            let prev_tuples = entry.get_mut();
+                            for (prev_path, _) in prev_tuples.drain(..) {
+                                if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
+                                    artifact_writer.remove(config.root_dir.join(prev_path))?;
+                                }
+                            }
+                            prev_tuples.extend(artifact_tuples.into_iter());
+                        }
+                        Entry::Vacant(entry) => {
+                            entry.insert(artifact_tuples);
+                        }
+                    }
+                }
                 Ok(())
             })?;
 

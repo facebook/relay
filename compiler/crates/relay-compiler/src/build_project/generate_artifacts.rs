@@ -23,7 +23,7 @@ use std::sync::Arc;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
-    pub name: StringKey,
+    pub source_definition_name: StringKey,
     pub path: PathBuf,
     pub content: ArtifactContent,
     /// The source file responsible for generating this file.
@@ -47,10 +47,10 @@ pub fn generate_artifacts(
                 .arguments
                 .named(MATCH_CONSTANTS.derived_from_arg)
                 .unwrap();
-            let source_name = name_arg.value.item.expect_string_literal();
+            let source_definition_name = name_arg.value.item.expect_string_literal();
             let source_fragment = programs
                 .source
-                .fragment(source_name)
+                .fragment(source_definition_name)
                 .expect("Expected the source document for the SplitOperation to exist.");
             let mut source_string = String::new();
             write_fragment_with_graphqljs_formatting(
@@ -59,10 +59,10 @@ pub fn generate_artifacts(
                 &source_fragment,
             )
             .unwrap();
-            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+            let source_hash = source_hashes.get(&source_definition_name).cloned().unwrap();
             let source_file = source_fragment.name.location.source_location();
             artifacts.push(Artifact {
-                name: normalization_operation.name.item,
+                source_definition_name,
                 path: path_for_js_artifact(
                     project_config,
                     source_file,
@@ -91,6 +91,7 @@ pub fn generate_artifacts(
             let source_hash = source_hashes.get(&source_name).cloned().unwrap();
 
             artifacts.push(generate_normalization_artifact(
+                source_name,
                 project_config,
                 programs,
                 normalization_operation,
@@ -118,6 +119,7 @@ pub fn generate_artifacts(
                 .cloned()
                 .unwrap();
             artifacts.push(generate_normalization_artifact(
+                normalization_operation.name.item,
                 project_config,
                 programs,
                 normalization_operation,
@@ -153,6 +155,7 @@ pub fn generate_artifacts(
 }
 
 fn generate_normalization_artifact<'a>(
+    source_definition_name: StringKey,
     project_config: &ProjectConfig,
     programs: &'a Programs,
     normalization_operation: &Arc<OperationDefinition>,
@@ -174,7 +177,7 @@ fn generate_normalization_artifact<'a>(
         .operation(name)
         .expect("a type fragment should be generated for this operation");
     Ok(Artifact {
-        name,
+        source_definition_name,
         path: path_for_js_artifact(project_config, source_file, name),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization_operation),
@@ -200,7 +203,7 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        name,
+        source_definition_name: name,
         path: path_for_js_artifact(
             project_config,
             reader_fragment.name.location.source_location(),

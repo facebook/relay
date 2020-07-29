@@ -90,6 +90,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         codegen_command: None,
         codegen_filepath: None,
         excludes: vec![],
+        full_build: false,
         generate_extra_operation_artifacts: None,
         header: vec![],
         load_saved_state_file: None,

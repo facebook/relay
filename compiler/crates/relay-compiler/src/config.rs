@@ -41,6 +41,7 @@ pub struct Config {
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
     pub codegen_filepath: Option<PathBuf>,
+    pub full_build: bool,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
@@ -150,6 +151,7 @@ impl Config {
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
+            full_build: false,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
@@ -282,6 +284,7 @@ impl fmt::Debug for Config {
             root_dir,
             sources,
             excludes,
+            full_build,
             projects,
             header,
             codegen_command,
@@ -295,6 +298,7 @@ impl fmt::Debug for Config {
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
+            .field("full_build", full_build)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)

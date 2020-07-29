@@ -76,8 +76,10 @@ impl<'config> FileSource<'config> {
             return Ok(compiler_state);
         }
 
-        // If saved state is configured, try using saved state.
+        // If saved state is configured, try using saved state unless the config
+        // forces a full build.
         if let Config {
+            full_build: false,
             saved_state_config: Some(saved_state_config),
             saved_state_loader: Some(saved_state_loader),
             ..

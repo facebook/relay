@@ -27,7 +27,7 @@ query QUnrelated {
   ...BUnrelated
 }
 
-fragment BUnrelated on User {
+fragment BUnrelated1 on User {
   name
 }
 
@@ -48,7 +48,7 @@ fragment B5 on User {
   name
 }
 
-fragment BUnrelated on User {
+fragment BUnrelated2 on User {
   name
 }
 ==================================== OUTPUT ===================================

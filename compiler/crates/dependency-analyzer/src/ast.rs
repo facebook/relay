@@ -32,17 +32,14 @@ pub fn get_reachable_ast(
     let mut reachable_base_asts = FnvHashSet::default();
     let mut base_definitions_map = FnvHashMap::default();
 
-    // Duplicate between base defnitions are allowed until they are referenced by the project definition
-    let mut duplicate_base_definitions = FnvHashSet::default();
-
     // Preprocess all base fragment definitions
     // Skipping operations because project definitions can't reference base operations
     for base_definition in base_definitions {
         match &base_definition {
             ExecutableDefinition::Fragment(fragment) => {
-                let key = fragment.name.value;
-                if base_definitions_map.insert(key, base_definition).is_some() {
-                    duplicate_base_definitions.insert(key);
+                let name = fragment.name.value;
+                if base_definitions_map.insert(name, base_definition).is_some() {
+                    return Err(format!("duplicate definition of {:?}", name));
                 }
             }
             ExecutableDefinition::Operation(_) => {}
@@ -60,7 +57,6 @@ pub fn get_reachable_ast(
         visit_selections(
             &base_definitions_map,
             &mut reachable_base_asts,
-            &duplicate_base_definitions,
             &selections,
             false,
         )?
@@ -80,7 +76,6 @@ pub fn get_reachable_ast(
 fn visit_selections(
     base_definitions_map: &FnvHashMap<StringKey, ExecutableDefinition>,
     reachable_base_asts: &mut FnvHashSet<StringKey>,
-    duplicate_base_definitions: &FnvHashSet<StringKey>,
     selections: &List<Selection>,
     is_base: bool,
 ) -> Result<(), String> {
@@ -91,7 +86,6 @@ fn visit_selections(
                     traverse_base_ast_definition(
                         base_definitions_map,
                         reachable_base_asts,
-                        duplicate_base_definitions,
                         selection.name.value,
                     )?
                 }
@@ -99,14 +93,12 @@ fn visit_selections(
             graphql_syntax::Selection::LinkedField(selection) => visit_selections(
                 base_definitions_map,
                 reachable_base_asts,
-                duplicate_base_definitions,
                 &selection.selections,
                 is_base,
             )?,
             graphql_syntax::Selection::InlineFragment(selection) => visit_selections(
                 base_definitions_map,
                 reachable_base_asts,
-                duplicate_base_definitions,
                 &selection.selections,
                 is_base,
             )?,
@@ -119,7 +111,6 @@ fn visit_selections(
 fn traverse_base_ast_definition(
     base_definitions_map: &FnvHashMap<StringKey, ExecutableDefinition>,
     reachable_base_asts: &mut FnvHashSet<StringKey>,
-    duplicate_base_definitions: &FnvHashSet<StringKey>,
     key: StringKey,
 ) -> Result<(), String> {
     if reachable_base_asts.contains(&key) {
@@ -131,24 +122,12 @@ fn traverse_base_ast_definition(
             return Err(format!("Missing fragment definition: {}", key));
         }
         Some(definition) => {
-            if duplicate_base_definitions.contains(&key) {
-                return Err(format!(
-                    "Found multiple fragments with the same name: {}.",
-                    key
-                ));
-            }
             reachable_base_asts.insert(key);
             let selections = match definition {
                 ExecutableDefinition::Operation(definition) => &definition.selections,
                 ExecutableDefinition::Fragment(definition) => &definition.selections,
             };
-            visit_selections(
-                base_definitions_map,
-                reachable_base_asts,
-                duplicate_base_definitions,
-                selections,
-                true,
-            )?
+            visit_selections(base_definitions_map, reachable_base_asts, selections, true)?
         }
     }
     Ok(())

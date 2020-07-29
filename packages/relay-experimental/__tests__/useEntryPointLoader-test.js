@@ -301,6 +301,7 @@ it('disposes entry point references associated with previous suspensions when mu
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadEntryPoint).toHaveBeenCalledTimes(1);
     expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
@@ -308,6 +309,7 @@ it('disposes entry point references associated with previous suspensions when mu
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise2);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadEntryPoint).toHaveBeenCalledTimes(2);
     expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;
@@ -315,6 +317,7 @@ it('disposes entry point references associated with previous suspensions when mu
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadEntryPoint).toHaveBeenCalledTimes(3);
     expect(instance.toJSON()).toEqual('fallback');
     const thirdDispose = dispose;
@@ -405,6 +408,7 @@ it('disposes entry point references associated with subsequent suspensions when 
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
+    jest.runOnlyPendingTimers();
     expect(loadEntryPoint).toHaveBeenCalledTimes(1);
     expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
@@ -412,6 +416,7 @@ it('disposes entry point references associated with subsequent suspensions when 
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
+    jest.runOnlyPendingTimers();
     expect(loadEntryPoint).toHaveBeenCalledTimes(2);
     expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;

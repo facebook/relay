@@ -15,8 +15,9 @@ use graphql_transforms::{
     handle_field_transform, inline_data_fragment, inline_fragments, mask, relay_early_flush,
     remove_base_fragments, skip_client_directives, skip_client_extensions, skip_redundant_nodes,
     skip_split_operation, skip_unreachable_node, skip_unused_variables, split_module_import,
-    transform_connections, transform_defer_stream, transform_match, transform_refetchable_fragment,
-    unwrap_custom_directive_selection, ConnectionInterface,
+    transform_connections, transform_declarative_connection, transform_defer_stream,
+    transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
+    ConnectionInterface,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -67,6 +68,7 @@ where
                     let operation_program = apply_operation_transforms(
                         project_name,
                         Arc::clone(&common_program),
+                        connection_interface,
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )?;
@@ -192,6 +194,7 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {
@@ -212,6 +215,9 @@ fn apply_operation_transforms(
         apply_fragment_arguments(&program)
     })?;
     let program = log_event.time("generate_id_field", || generate_id_field(&program));
+    let program = log_event.time("declarative_connection", || {
+        transform_declarative_connection(&program, connection_interface)
+    })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
     let program = log_event.time("generate_preloadable_metadata", || {

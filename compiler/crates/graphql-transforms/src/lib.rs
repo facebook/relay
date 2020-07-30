@@ -15,6 +15,7 @@ mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
+mod declarative_connection;
 mod dedupe_type_discriminator;
 mod defer_stream;
 mod flatten;
@@ -64,6 +65,7 @@ pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
     ConnectionMetadata,
 };
+pub use declarative_connection::transform_declarative_connection;
 pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,

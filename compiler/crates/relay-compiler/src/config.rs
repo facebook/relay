@@ -12,6 +12,7 @@ use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
+use graphql_transforms::ConnectionInterface;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
@@ -42,6 +43,8 @@ pub struct Config {
     /// Path to which to write the output of the compilation
     pub codegen_filepath: Option<PathBuf>,
     pub full_build: bool,
+
+    pub connection_interface: ConnectionInterface,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
@@ -160,6 +163,7 @@ impl Config {
             codegen_filepath: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
+            connection_interface: config_file.connection_interface,
         };
 
         let mut validation_errors = Vec::new();
@@ -293,6 +297,7 @@ impl fmt::Debug for Config {
             codegen_filepath,
             saved_state_config,
             saved_state_loader,
+            connection_interface,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
@@ -321,6 +326,7 @@ impl fmt::Debug for Config {
                     &"None"
                 },
             )
+            .field("connection_interface", connection_interface)
             .finish()
     }
 }
@@ -372,6 +378,9 @@ struct ConfigFile {
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,
+
+    #[serde(default)]
+    connection_interface: ConnectionInterface,
 
     /// Watchman saved state config.
     saved_state_config: Option<ScmAwareClockData>,

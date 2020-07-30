@@ -27,13 +27,13 @@ pub fn assert_connection_selections<'s>(
     for (ix, selection) in selections.iter().enumerate() {
         if let Selection::LinkedField(field) = selection {
             let field_name = schema.field(field.definition.item).name;
-            if field_name == connection_interface.edges_selection_name {
+            if field_name == connection_interface.edges {
                 if edges_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for edges")
                 }
                 edges_selection = Some((ix, field.as_ref()));
             }
-            if field_name == connection_interface.page_info_selection_name {
+            if field_name == connection_interface.page_info {
                 if page_info_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for page_info")
                 }
@@ -268,10 +268,10 @@ pub fn build_edge_selections(
     connection_interface: &ConnectionInterface,
 ) -> Selection {
     let cursor_field_id = schema
-        .named_field(edge_type, connection_interface.cursor_selection_name)
+        .named_field(edge_type, connection_interface.cursor)
         .expect("Expected presence of cursor field to have been previously validated.");
     let node_field_id = schema
-        .named_field(edge_type, connection_interface.node_selection_name)
+        .named_field(edge_type, connection_interface.node)
         .expect("Expected presence of node field to have been previously validated.");
     let typename_field_id = schema.typename_field();
 
@@ -314,28 +314,16 @@ pub fn build_page_info_selections(
     connection_interface: &ConnectionInterface,
 ) -> Selection {
     let end_cursor_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.end_cursor_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.end_cursor)
         .expect("Expected presence of end_cursor field to have been previously validated.");
     let has_next_page_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.has_next_page_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.has_next_page)
         .expect("Expected presence of has_next_page field to have been previously validated.");
     let has_prev_page_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.has_prev_page_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.has_previous_page)
         .expect("Expected presence of has_previous_page field to have been previously validated.");
     let start_cursor_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.start_cursor_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.start_cursor)
         .expect("Expected presence of start_cursor field to have been previously validated.");
 
     if connection_metadata.direction == connection_constants.direction_forward {

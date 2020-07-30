@@ -198,6 +198,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         .filter(|project_config| compiler_state.project_has_pending_changes(project_config.name))
         .map(|project_config| {
             build_project(
+                &config,
                 project_config,
                 compiler_state,
                 &graphql_asts,

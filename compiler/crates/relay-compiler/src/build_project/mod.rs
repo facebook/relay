@@ -34,7 +34,6 @@ pub use generate_artifacts::{
 };
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
-use graphql_transforms::FB_CONNECTION_INTERFACE;
 use interner::StringKey;
 use log::info;
 use persist_operations::persist_operations;
@@ -44,6 +43,7 @@ use std::{collections::hash_map::Entry, sync::Arc};
 pub use validate::validate;
 
 fn build_programs(
+    config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
@@ -73,7 +73,7 @@ fn build_programs(
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
         // TODO(T63482263): Pass connection interface from configuration
-        validate(&program, &*FB_CONNECTION_INTERFACE)
+        validate(&program, &config.connection_interface)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
@@ -83,7 +83,7 @@ fn build_programs(
             project_name,
             Arc::new(program),
             Arc::new(base_fragment_names),
-            Arc::clone(&FB_CONNECTION_INTERFACE),
+            &config.connection_interface,
             perf_logger,
         )
         .map_err(|errors| BuildProjectError::ValidationErrors { errors })
@@ -93,6 +93,7 @@ fn build_programs(
 }
 
 pub fn check_project(
+    config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
@@ -105,6 +106,7 @@ pub fn check_project(
     log_event.string("project", project_name.to_string());
 
     let (programs, _) = build_programs(
+        config,
         project_config,
         compiler_state,
         graphql_asts,
@@ -120,6 +122,7 @@ pub fn check_project(
 }
 
 pub fn build_project(
+    config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
@@ -137,6 +140,7 @@ pub fn build_project(
 
     // Apply different transform pipelines to produce the `Programs`.
     let (programs, source_hashes) = build_programs(
+        config,
         project_config,
         compiler_state,
         graphql_asts,

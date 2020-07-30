@@ -10,9 +10,7 @@ mod connection_interface;
 mod connection_util;
 
 pub use connection_constants::ConnectionConstants;
-pub use connection_interface::{
-    ConnectionInterface, FB_CONNECTION_INTERFACE, OSS_CONNECTION_INTERFACE,
-};
+pub use connection_interface::ConnectionInterface;
 pub use connection_util::{
     assert_connection_selections, build_connection_metadata,
     build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,

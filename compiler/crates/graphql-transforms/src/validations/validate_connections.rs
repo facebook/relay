@@ -97,7 +97,7 @@ impl<'s> ConnectionValidation<'s> {
             )]);
         }
 
-        let edges_selection_name = self.connection_interface.edges_selection_name;
+        let edges_selection_name = self.connection_interface.edges;
         let edges_selection: Option<&Selection> =
             connection_field.selections.iter().find(|sel| match sel {
                 Selection::LinkedField(field) => {
@@ -170,7 +170,7 @@ impl<'s> ConnectionValidation<'s> {
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
-        let edges_selection_name = self.connection_interface.edges_selection_name;
+        let edges_selection_name = self.connection_interface.edges;
 
         // Validate edges selection
         let (_, edges_type) = self.validate_selection(
@@ -198,8 +198,8 @@ impl<'s> ConnectionValidation<'s> {
         )?;
 
         let edge_type = edges_type.inner();
-        let node_selection_name = self.connection_interface.node_selection_name;
-        let cursor_selection_name = self.connection_interface.cursor_selection_name;
+        let node_selection_name = self.connection_interface.node;
+        let cursor_selection_name = self.connection_interface.cursor;
         validate!(
             // Validate edges.node selection
             self.validate_selection(
@@ -262,7 +262,7 @@ impl<'s> ConnectionValidation<'s> {
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
-        let page_info_selection_name = self.connection_interface.page_info_selection_name;
+        let page_info_selection_name = self.connection_interface.page_info;
 
         // Validate page_info selection
         let (_, page_info_type) = self.validate_selection(
@@ -286,10 +286,10 @@ impl<'s> ConnectionValidation<'s> {
 
         let page_info_type = page_info_type.inner();
         let page_info_sub_fields = vec![
-            self.connection_interface.end_cursor_selection_name,
-            self.connection_interface.has_next_page_selection_name,
-            self.connection_interface.has_prev_page_selection_name,
-            self.connection_interface.start_cursor_selection_name,
+            self.connection_interface.end_cursor,
+            self.connection_interface.has_next_page,
+            self.connection_interface.has_previous_page,
+            self.connection_interface.start_cursor,
         ];
 
         validate_map(page_info_sub_fields.iter(), |page_info_sub_field_name| {
@@ -526,7 +526,7 @@ impl<'s> ConnectionValidation<'s> {
         if edges_field.alias.is_some() {
             return Err(vec![ValidationError::new(
                 ValidationMessage::UnsupportedAliasingInStreamConnection {
-                    field_name: self.connection_interface.edges_selection_name,
+                    field_name: self.connection_interface.edges,
                 },
                 vec![edges_field.definition.location],
             )]);
@@ -538,7 +538,7 @@ impl<'s> ConnectionValidation<'s> {
             .find_map(|sel| match sel {
                 Selection::LinkedField(field) => {
                     if self.program.schema.field(field.definition.item).name
-                        == self.connection_interface.page_info_selection_name
+                        == self.connection_interface.page_info
                     {
                         Some(field)
                     } else {
@@ -551,7 +551,7 @@ impl<'s> ConnectionValidation<'s> {
             if page_info_selection.alias.is_some() {
                 return Err(vec![ValidationError::new(
                     ValidationMessage::UnsupportedAliasingInStreamConnection {
-                        field_name: self.connection_interface.page_info_selection_name,
+                        field_name: self.connection_interface.page_info,
                     },
                     vec![page_info_selection.definition.location],
                 )]);

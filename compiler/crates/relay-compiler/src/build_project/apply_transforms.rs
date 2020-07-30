@@ -34,7 +34,7 @@ pub fn apply_transforms<TPerfLogger>(
     project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
-    connection_interface: Arc<ConnectionInterface>,
+    connection_interface: &ConnectionInterface,
     perf_logger: Arc<TPerfLogger>,
 ) -> ValidationResult<Programs>
 where
@@ -57,7 +57,7 @@ where
             let common_program = apply_common_transforms(
                 project_name,
                 Arc::clone(&program),
-                Arc::clone(&connection_interface),
+                connection_interface,
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -121,7 +121,7 @@ where
 fn apply_common_transforms(
     project_name: StringKey,
     program: Arc<Program>,
-    connection_interface: Arc<ConnectionInterface>,
+    connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {

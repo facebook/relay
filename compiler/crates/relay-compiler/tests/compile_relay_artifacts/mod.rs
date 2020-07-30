@@ -11,7 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, ValidationError};
 use graphql_syntax::parse;
 use graphql_text_printer::print_full_operation;
-use graphql_transforms::{MATCH_CONSTANTS, OSS_CONNECTION_INTERFACE};
+use graphql_transforms::{ConnectionInterface, MATCH_CONSTANTS};
 use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
@@ -51,14 +51,16 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    validate(&program, &*OSS_CONNECTION_INTERFACE).map_err(validation_errors_to_string)?;
+    let connection_interface = ConnectionInterface::default();
+
+    validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
 
     // TODO pass base fragment names
     let programs = apply_transforms(
         "test".intern(),
         Arc::new(program),
         Default::default(),
-        Arc::clone(&OSS_CONNECTION_INTERFACE),
+        &connection_interface,
         Arc::new(ConsoleLogger),
     )
     .map_err(validation_errors_to_string)?;

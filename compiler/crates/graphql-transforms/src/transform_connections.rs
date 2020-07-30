@@ -23,9 +23,9 @@ use std::sync::Arc;
 
 pub fn transform_connections(
     program: &Program,
-    connection_interface: Arc<ConnectionInterface>,
+    connection_interface: &ConnectionInterface,
 ) -> Program {
-    let mut transform = ConnectionTransform::new(program, &connection_interface);
+    let mut transform = ConnectionTransform::new(program, connection_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -49,7 +49,7 @@ impl<'s> ConnectionTransform<'s> {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
             current_path: None,
-            current_document_name: connection_interface.cursor_selection_name, // Set an arbitrary value to avoid Option
+            current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
             handle_field_constants,
             handle_field_constants_for_connection: HandleFieldConstants {
@@ -82,10 +82,7 @@ impl<'s> ConnectionTransform<'s> {
 
         // Construct edges selection
         let edges_schema_field_id = schema
-            .named_field(
-                connection_field_type,
-                self.connection_interface.edges_selection_name,
-            )
+            .named_field(connection_field_type, self.connection_interface.edges)
             .expect("Expected presence of edges field to have been previously validated.");
         let edges_schema_field = schema.field(edges_schema_field_id);
         let edges_field_name = edges_schema_field.name;
@@ -149,10 +146,7 @@ impl<'s> ConnectionTransform<'s> {
 
         // Construct page_info selection
         let page_info_schema_field_id = schema
-            .named_field(
-                connection_field_type,
-                self.connection_interface.page_info_selection_name,
-            )
+            .named_field(connection_field_type, self.connection_interface.page_info)
             .expect("Expected presence of page_info field to have been previously validated.");
         let page_info_schema_field = schema.field(page_info_schema_field_id);
         let page_info_field_name = page_info_schema_field.name;
@@ -222,7 +216,7 @@ impl<'s> ConnectionTransform<'s> {
                                     "{}$defer${}${}",
                                     self.current_document_name,
                                     key.lookup(),
-                                    self.connection_interface.page_info_selection_name
+                                    self.connection_interface.page_info
                                 )
                                 .intern(),
                             )),

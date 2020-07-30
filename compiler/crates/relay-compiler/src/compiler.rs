@@ -133,9 +133,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
-        if let Err(errors) = self.build_projects(&mut compiler_state, &setup_event).await {
-            // TODO correctly print errors
-            error!("Errors: {:#?}", errors)
+        if let Err(err) = self.build_projects(&mut compiler_state, &setup_event).await {
+            if let Error::BuildProjectsErrors { .. } = err {
+                error!("Compilation failed, see errors above.");
+            } else {
+                error!("{}", err);
+            }
         }
         self.perf_logger.complete_event(setup_event);
 
@@ -158,12 +161,15 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 )?;
 
                 if had_new_changes {
-                    if let Err(errors) = self
+                    if let Err(err) = self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
                     {
-                        // TODO correctly print errors
-                        error!("Errors: {:#?}", errors)
+                        if let Error::BuildProjectsErrors { .. } = err {
+                            error!("Compilation failed, see errors above.");
+                        } else {
+                            error!("{}", err);
+                        }
                     }
                 } else {
                     info!("[watch-mode] No re-compilation required");

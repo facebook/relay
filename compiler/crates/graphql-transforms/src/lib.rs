@@ -79,7 +79,7 @@ pub use generate_subscription_name_metadata::generate_subscription_name_metadata
 pub use generate_typename::{generate_typename, TYPE_DISCRIMINATOR_DIRECTIVE_NAME};
 pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,
-    handle_field_transform, HandleFieldConstants,
+    handle_field_transform,
 };
 pub use hash_arguments::hash_arguments;
 pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};

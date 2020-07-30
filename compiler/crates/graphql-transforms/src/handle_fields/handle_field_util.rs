@@ -5,10 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::handle_fields::HandleFieldConstants;
 use common::WithLocation;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
 use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub static ref CONNECTION_HANDLER_ARG_NAME: StringKey = "handler".intern();
+    pub static ref HANDLE_FIELD_DIRECTIVE_NAME: StringKey = "__clientField".intern();
+    pub static ref HANDLER_ARG_NAME: StringKey = "handle".intern();
+    pub static ref FILTERS_ARG_NAME: StringKey = "filters".intern();
+    pub static ref KEY_ARG_NAME: StringKey = "key".intern();
+    pub static ref DYNAMIC_KEY_ARG_NAME: StringKey = "dynamicKey_UNSTABLE".intern();
+}
 
 pub struct HandleFieldDirectiveArgs<'s> {
     pub handler_arg: Option<(&'s Argument, &'s ConstantValue)>,
@@ -17,12 +26,116 @@ pub struct HandleFieldDirectiveArgs<'s> {
     pub dynamic_key_arg: Option<(&'s Argument, &'s Value)>,
 }
 
+pub struct HandleFieldDirectiveValues {
+    pub handle: StringKey,
+    pub key: StringKey,
+    pub filters: Option<Vec<StringKey>>,
+    pub dynamic_key: Option<Value>,
+}
+
+/// We have two handler keys, "handler" in connection, and "handle" in everywhere else
+/// Speicific helpers are created separately for connection
+
 /// Helper to extract handle field arguments that are present
 /// on the directive, without any validation or assumption of
 /// correctness of values.
-pub fn extract_handle_field_directive_args(
+pub fn extract_handle_field_directive_args_for_connection(
     handle_field_directive: &Directive,
-    handle_field_constants: HandleFieldConstants,
+) -> HandleFieldDirectiveArgs<'_> {
+    extract_handle_field_directive_args_helper(handle_field_directive, *CONNECTION_HANDLER_ARG_NAME)
+}
+
+/// Helper to extract the values for handle field arguments that are present
+/// on the input handle field directive (e.g. a @__clientField or @connection).
+/// This function will panic if the expected argument values aren't
+/// present on the directive, with the assumption that the directive
+/// has already been validated.
+pub fn extract_values_from_handle_field_directive(
+    handle_field_directive: &Directive,
+) -> HandleFieldDirectiveValues {
+    extract_values_from_handle_field_directive_helper(
+        handle_field_directive,
+        *HANDLER_ARG_NAME,
+        None,
+        None,
+    )
+}
+
+/// Helper to build an internal, custom handle field directive (@__clientField)
+/// based an input handle field directive that has already been validated (e.g. a @__clientField or @connection).
+/// This directive will be used to store the appropriate metadata for the handle,
+/// to be later used in codegen.
+/// This function will panic if the expected arguments aren't present on the input directive,
+/// with the assumption that the input directive has already been validated.
+pub fn build_handle_field_directive_from_connection_directive(
+    handle_field_directive: &Directive,
+    default_handler: Option<StringKey>,
+    default_filters: Option<Vec<StringKey>>,
+) -> Directive {
+    let values = extract_values_from_handle_field_directive_helper(
+        handle_field_directive,
+        *CONNECTION_HANDLER_ARG_NAME,
+        default_handler,
+        default_filters,
+    );
+    build_handle_field_directive(values)
+}
+
+pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Directive {
+    let HandleFieldDirectiveValues {
+        handle,
+        key,
+        filters,
+        dynamic_key,
+    } = values;
+    let directive_arguments = vec![
+        Argument {
+            name: WithLocation::generated(*KEY_ARG_NAME),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(key))),
+        },
+        Argument {
+            name: WithLocation::generated(*HANDLER_ARG_NAME),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(handle))),
+        },
+        Argument {
+            name: WithLocation::generated(*FILTERS_ARG_NAME),
+            value: WithLocation::generated(Value::Constant(match filters {
+                Some(filters) => ConstantValue::List(
+                    filters
+                        .iter()
+                        .map(|filter| ConstantValue::String(*filter))
+                        .collect(),
+                ),
+                None => ConstantValue::Null(),
+            })),
+        },
+        Argument {
+            name: WithLocation::generated(*DYNAMIC_KEY_ARG_NAME),
+            value: WithLocation::generated(
+                dynamic_key.unwrap_or_else(|| Value::Constant(ConstantValue::Null())),
+            ),
+        },
+    ];
+
+    Directive {
+        name: WithLocation::generated(*HANDLE_FIELD_DIRECTIVE_NAME),
+        arguments: directive_arguments,
+    }
+}
+
+/// Helper to extract the handle field directive if present in the given list of
+/// of directives
+pub fn extract_handle_field_directives(
+    directives: &[Directive],
+) -> impl Iterator<Item = &Directive> {
+    directives
+        .iter()
+        .filter(move |directive| directive.name.item == *HANDLE_FIELD_DIRECTIVE_NAME)
+}
+
+fn extract_handle_field_directive_args_helper(
+    handle_field_directive: &Directive,
+    handler_arg_name: StringKey,
 ) -> HandleFieldDirectiveArgs<'_> {
     let mut handler_arg = None;
     let mut key_arg = None;
@@ -32,18 +145,18 @@ pub fn extract_handle_field_directive_args(
     for arg in handle_field_directive.arguments.iter() {
         match &arg.value.item {
             Value::Constant(constant_val) => {
-                if arg.name.item == handle_field_constants.handler_arg_name {
+                if arg.name.item == handler_arg_name {
                     handler_arg = Some((arg, constant_val));
                 }
-                if arg.name.item == handle_field_constants.key_arg_name {
+                if arg.name.item == *KEY_ARG_NAME {
                     key_arg = Some((arg, constant_val));
                 }
-                if arg.name.item == handle_field_constants.filters_arg_name {
+                if arg.name.item == *FILTERS_ARG_NAME {
                     filters_arg = Some((arg, constant_val));
                 }
             }
             _ => {
-                if arg.name.item == handle_field_constants.dynamic_key_arg_name {
+                if arg.name.item == *DYNAMIC_KEY_ARG_NAME {
                     dynamic_key_arg = Some((arg, &arg.value.item));
                 }
             }
@@ -58,21 +171,9 @@ pub fn extract_handle_field_directive_args(
     }
 }
 
-pub struct HandleFieldDirectiveValues {
-    pub handle: StringKey,
-    pub key: StringKey,
-    pub filters: Option<Vec<StringKey>>,
-    pub dynamic_key: Option<Value>,
-}
-
-/// Helper to extract the values for handle field arguments that are present
-/// on the input handle field directive (e.g. a @__clientField or @connection).
-/// This function will panic if the expected argument values aren't
-/// present on the directive, with the assumption that the directive
-/// has already been validated.
-pub fn extract_values_from_handle_field_directive(
+fn extract_values_from_handle_field_directive_helper(
     handle_field_directive: &Directive,
-    handle_field_constants: HandleFieldConstants,
+    hanlder_arg_name: StringKey,
     default_handler: Option<StringKey>,
     default_filters: Option<Vec<StringKey>>,
 ) -> HandleFieldDirectiveValues {
@@ -81,7 +182,7 @@ pub fn extract_values_from_handle_field_directive(
         filters_arg,
         key_arg,
         dynamic_key_arg,
-    } = extract_handle_field_directive_args(handle_field_directive, handle_field_constants);
+    } = extract_handle_field_directive_args_helper(handle_field_directive, hanlder_arg_name);
 
     // We expect these values to be available since they should've been
     // validated first as part of validate_connections validation step.
@@ -131,75 +232,4 @@ pub fn extract_values_from_handle_field_directive(
         filters,
         dynamic_key,
     }
-}
-
-/// Helper to build an internal, custom handle field directive (@__clientField)
-/// based an input handle field directive that has already been validated (e.g. a @__clientField or @connection).
-/// This directive will be used to store the appropriate metadata for the handle,
-/// to be later used in codegen.
-/// This function will panic if the expected arguments aren't present on the input directive,
-/// with the assumption that the input directive has already been validated.
-pub fn build_handle_field_directive(
-    handle_field_directive: &Directive,
-    handle_field_constants: HandleFieldConstants,
-    handle_field_constants_for_extracting: HandleFieldConstants,
-    default_handler: Option<StringKey>,
-    default_filters: Option<Vec<StringKey>>,
-) -> Directive {
-    let HandleFieldDirectiveValues {
-        handle,
-        key,
-        filters,
-        dynamic_key,
-    } = extract_values_from_handle_field_directive(
-        handle_field_directive,
-        handle_field_constants_for_extracting,
-        default_handler,
-        default_filters,
-    );
-
-    let directive_arguments = vec![
-        Argument {
-            name: WithLocation::generated(handle_field_constants.key_arg_name),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(key))),
-        },
-        Argument {
-            name: WithLocation::generated(handle_field_constants.handler_arg_name),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(handle))),
-        },
-        Argument {
-            name: WithLocation::generated(handle_field_constants.filters_arg_name),
-            value: WithLocation::generated(Value::Constant(match filters {
-                Some(filters) => ConstantValue::List(
-                    filters
-                        .iter()
-                        .map(|filter| ConstantValue::String(*filter))
-                        .collect(),
-                ),
-                None => ConstantValue::Null(),
-            })),
-        },
-        Argument {
-            name: WithLocation::generated(handle_field_constants.dynamic_key_arg_name),
-            value: WithLocation::generated(
-                dynamic_key.unwrap_or_else(|| Value::Constant(ConstantValue::Null())),
-            ),
-        },
-    ];
-
-    Directive {
-        name: WithLocation::generated(handle_field_constants.handle_field_directive_name),
-        arguments: directive_arguments,
-    }
-}
-
-/// Helper to extract the handle field directive if present in the given list of
-/// of directives
-pub fn extract_handle_field_directives(
-    directives: &[Directive],
-    handle_field_constants: HandleFieldConstants,
-) -> impl Iterator<Item = &Directive> {
-    directives.iter().filter(move |directive| {
-        directive.name.item == handle_field_constants.handle_field_directive_name
-    })
 }

@@ -8899,6 +8899,30 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: fragment-with-react-flight-component.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment MyStory_item on Story {
+  flightComponent
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "MyStory_item",
+  selections: [
+    FlightField {
+      alias: null,
+      args: null,
+      name: "flightComponent",
+      storageKey: null,
+    },
+  ],
+  type: "Story",
+  abstractKey: null,
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: fragment-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
@@ -15596,6 +15620,82 @@ query ViewerQuery {
       __typename
       id
     }
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: query-with-react-flight-component.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyStory {
+  story {
+    flightComponent
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [],
+    metadata: null,
+    name: "MyStory",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: null,
+        concreteType: "Story",
+        name: "story",
+        plural: false,
+        selections: [
+          FlightField {
+            alias: null,
+            args: null,
+            name: "flightComponent",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [],
+    name: "MyStory",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: null,
+        concreteType: "Story",
+        name: "story",
+        plural: false,
+        selections: [
+          FlightField {
+            alias: null,
+            args: null,
+            name: "flightComponent",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query MyStory {
+  story {
+    flightComponent
+    id
   }
 }
 

@@ -43,6 +43,7 @@ import type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
@@ -335,7 +336,7 @@ function generateModuleImport(
 function generateScalarField(
   schema: Schema,
   node: ScalarField,
-): ReaderScalarField {
+): ReaderScalarField | ReaderFlightField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -349,7 +350,7 @@ function generateScalarField(
   //     'ReaderCodeGenerator: unexpected handles',
   //   );
 
-  let field: ReaderScalarField = {
+  let field = {
     alias: node.alias === node.name ? null : node.alias,
     args: generateArgs(node.args),
     kind: 'ScalarField',
@@ -360,6 +361,9 @@ function generateScalarField(
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey) {
     field = {...field, storageKey};
+  }
+  if (node.metadata?.flight === true) {
+    field = {...field, kind: 'FlightField'};
   }
   return field;
 }

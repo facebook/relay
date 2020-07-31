@@ -179,6 +179,14 @@ export type ReaderScalarField = {|
   +storageKey: ?string,
 |};
 
+export type ReaderFlightField = {|
+  +kind: 'FlightField',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +storageKey: ?string,
+|};
+
 export type ReaderDefer = {|
   +kind: 'Defer',
   +selections: $ReadOnlyArray<ReaderSelection>,
@@ -194,6 +202,7 @@ export type ReaderSelection =
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
+  | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderInlineDataFragmentSpread
   | ReaderInlineFragment

@@ -138,6 +138,14 @@ export type NormalizationScalarField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationFlightField = {|
+  +kind: 'FlightField',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +storageKey: ?string,
+|};
+
 export type NormalizationTypeDiscriminator = {|
   +kind: 'TypeDiscriminator',
   +abstractKey: string,
@@ -148,6 +156,7 @@ export type NormalizationSelection =
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
+  | NormalizationFlightField
   | NormalizationHandle
   | NormalizationInlineFragment
   | NormalizationModuleImport

@@ -56,6 +56,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -409,6 +410,8 @@ class DataChecker {
             } // else: if it does or doesn't implement, we don't need to check or skip anything else
           }
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

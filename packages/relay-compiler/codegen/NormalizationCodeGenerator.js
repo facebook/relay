@@ -46,7 +46,6 @@ import type {
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationOperation,
-  NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
@@ -403,7 +402,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
         };
       })) ||
     [];
-  let field: NormalizationScalarField = {
+  let field = {
     alias: node.alias === node.name ? null : node.alias,
     args: generateArgs(node.args),
     kind: 'ScalarField',
@@ -414,6 +413,9 @@ function generateScalarField(node): Array<NormalizationSelection> {
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey != null) {
     field = {...field, storageKey};
+  }
+  if (node.metadata?.flight === true) {
+    field = {...field, kind: 'FlightField'};
   }
   return [field].concat(handles);
 }

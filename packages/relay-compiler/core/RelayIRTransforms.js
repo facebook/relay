@@ -28,6 +28,7 @@ const InlineDataFragmentTransform = require('../transforms/InlineDataFragmentTra
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
 const MaskTransform = require('../transforms/MaskTransform');
 const MatchTransform = require('../transforms/MatchTransform');
+const ReactFlightComponentTransform = require('../transforms/ReactFlightComponentTransform');
 const RefetchableFragmentTransform = require('../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../transforms/RelayDirectiveTransform');
 const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
@@ -68,6 +69,7 @@ const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   MatchTransform.transform,
   RefetchableFragmentTransform.transform,
   DeferStreamTransform.transform,
+  ReactFlightComponentTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store

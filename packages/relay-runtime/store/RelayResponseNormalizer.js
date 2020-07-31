@@ -23,6 +23,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -277,6 +278,8 @@ class RelayResponseNormalizer {
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

@@ -21,6 +21,7 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -268,6 +269,8 @@ class RelayReader {
         case STREAM:
           this._traverseSelections(selection.selections, record, data);
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

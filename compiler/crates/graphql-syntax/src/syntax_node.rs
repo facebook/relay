@@ -163,23 +163,10 @@ impl fmt::Display for TypeCondition {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Token {
     pub span: Span,
     pub kind: TokenKind,
-}
-
-impl fmt::Debug for Token {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut s = f.debug_struct("Token");
-        s.field(
-            "span",
-            // TODO: switch to span's default
-            &format!("{}:{}", self.span.start, self.span.start + self.span.length),
-        );
-        s.field("kind", &self.kind);
-        s.finish()
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

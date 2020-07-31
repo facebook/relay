@@ -10,51 +10,48 @@ use std::cmp;
 use std::convert::TryFrom;
 use std::fmt;
 
-use lsp_types::{Position, Range};
-
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Span {
-    pub length: u32,
     pub start: u32,
+    pub end: u32,
 }
 
 impl Span {
     pub fn empty() -> Self {
-        Self {
-            length: 0,
-            start: 0,
-        }
+        Self { start: 0, end: 0 }
     }
 
-    pub fn new(start: u32, length: u32) -> Self {
-        Self { length, start }
+    pub fn new(start: u32, end: u32) -> Self {
+        debug_assert!(start <= end);
+        Self { start, end }
     }
 
-    pub fn from_usize(start: usize, length: usize) -> Self {
-        Self {
-            length: u32::try_from(length).unwrap(),
-            start: u32::try_from(start).unwrap(),
-        }
+    pub fn from_usize(start: usize, end: usize) -> Self {
+        Self::new(u32::try_from(start).unwrap(), u32::try_from(end).unwrap())
     }
 
     pub fn as_usize(self) -> (usize, usize) {
-        (self.start as usize, self.length as usize)
+        (self.start as usize, self.end as usize)
     }
 
     pub fn contains(self, subspan: Span) -> bool {
-        subspan.start >= self.start
-            && (subspan.start + subspan.length) <= (self.start + self.length)
+        subspan.start >= self.start && subspan.end <= self.end
     }
 
-    pub fn to_range(self, source: &str, line_offset: usize, character_offset: usize) -> Range {
+    pub fn to_range(
+        self,
+        source: &str,
+        line_offset: usize,
+        character_offset: usize,
+    ) -> lsp_types::Range {
         let start = self.start as usize;
-        let end = (self.start + self.length) as usize;
+        let end = self.end as usize;
         // Zero-indexed line offset in the document
         let mut line = line_offset;
         // Zero-indexed character offset on the line
         let mut character = character_offset;
-        let mut start_position = Position::default();
-        let mut end_position = Position::default();
+        let mut start_position = lsp_types::Position::default();
+        let mut end_position = lsp_types::Position::default();
         let mut chars = source.chars().enumerate().peekable();
 
         while let Some((index, chr)) = chars.next() {
@@ -75,10 +72,10 @@ impl Span {
                 character = 0;
             }
             if index == start {
-                start_position = Position::new(line as u64, character as u64);
+                start_position = lsp_types::Position::new(line as u64, character as u64);
             }
             if index == end {
-                end_position = Position::new(line as u64, character as u64);
+                end_position = lsp_types::Position::new(line as u64, character as u64);
                 break;
             }
             // Make sure to only increment the character offset if this
@@ -87,7 +84,7 @@ impl Span {
                 character += 1;
             }
         }
-        Range::new(start_position, end_position)
+        lsp_types::Range::new(start_position, end_position)
     }
 
     pub fn print(
@@ -97,7 +94,7 @@ impl Span {
         start_line_offset: usize,
     ) -> String {
         let start = self.start as usize;
-        let end = start + self.length as usize;
+        let end = self.end as usize;
 
         let mut index = 0;
         let mut line_offset = start_line_offset;
@@ -142,7 +139,7 @@ impl Span {
 
 impl fmt::Debug for Span {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt.write_str(&format!("{}:{}", self.start, self.start + self.length))
+        fmt.write_str(&format!("{}:{}", self.start, self.end))
     }
 }
 

@@ -80,8 +80,8 @@ impl<'a> Parser<'a> {
     fn parse_document_impl(&mut self) -> ParseResult<Document> {
         let start = self.index();
         let definitions = self.parse_list(|s| s.peek_definition(), |s| s.parse_definition())?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(Document { span, definitions })
     }
 
@@ -142,8 +142,8 @@ impl<'a> Parser<'a> {
         let type_condition = self.parse_type_condition()?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(FragmentDefinition {
             location: Location::new(self.source_location, span),
             fragment,
@@ -162,7 +162,7 @@ impl<'a> Parser<'a> {
         // Special case: anonymous query
         if self.peek_token_kind() == TokenKind::OpenBrace {
             let selections = self.parse_selections()?;
-            let span = Span::new(start, self.index() - start);
+            let span = Span::new(start, self.index());
             return Ok(OperationDefinition {
                 location: Location::new(self.source_location, span),
                 operation: None,
@@ -203,7 +203,7 @@ impl<'a> Parser<'a> {
             })?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(OperationDefinition {
             location: Location::new(self.source_location, span),
             operation: Some(operation),
@@ -226,8 +226,7 @@ impl<'a> Parser<'a> {
             None
         };
         let directives = self.parse_directives()?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let span = Span::new(start, self.index());
         Ok(VariableDefinition {
             span,
             name,
@@ -243,7 +242,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let equals = self.parse_kind(TokenKind::Equals)?;
         let value = self.parse_constant_value()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(DefaultValue {
             span,
             equals,
@@ -265,7 +264,7 @@ impl<'a> Parser<'a> {
                 let type_ = self.parse_type_annotation()?;
                 let close = self.parse_kind(TokenKind::CloseBracket)?;
                 TypeAnnotation::List(Box::new(ListTypeAnnotation {
-                    span: Span::new(start, self.index() - start),
+                    span: Span::new(start, self.index()),
                     open,
                     type_,
                     close,
@@ -283,7 +282,7 @@ impl<'a> Parser<'a> {
         if self.peek_token_kind() == TokenKind::Exclamation {
             let exclamation = self.parse_kind(TokenKind::Exclamation)?;
             Ok(TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 type_: type_annotation,
                 exclamation,
             })))
@@ -307,8 +306,7 @@ impl<'a> Parser<'a> {
         let at = self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
         let arguments = self.parse_optional_arguments()?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let span = Span::new(start, self.index());
         Ok(Directive {
             span,
             at,
@@ -324,7 +322,7 @@ impl<'a> Parser<'a> {
         let on = self.parse_keyword("on")?;
         let type_ = self.parse_identifier()?;
         Ok(TypeCondition {
-            span: Span::new(start, self.index() - start),
+            span: Span::new(start, self.index()),
             on,
             type_,
         })
@@ -377,7 +375,7 @@ impl<'a> Parser<'a> {
             (
                 name,
                 Some(Alias {
-                    span: Span::new(start, self.index() - start),
+                    span: Span::new(start, self.index()),
                     alias,
                     colon,
                 }),
@@ -390,7 +388,7 @@ impl<'a> Parser<'a> {
         if self.peek_token_kind() == TokenKind::OpenBrace {
             let selections = self.parse_selections()?;
             Ok(Selection::LinkedField(LinkedField {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 alias,
                 name,
                 arguments,
@@ -399,7 +397,7 @@ impl<'a> Parser<'a> {
             }))
         } else {
             Ok(Selection::ScalarField(ScalarField {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 alias,
                 name,
                 arguments,
@@ -419,7 +417,7 @@ impl<'a> Parser<'a> {
             let name = self.parse_identifier()?;
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 spread,
                 name,
                 directives,
@@ -434,7 +432,7 @@ impl<'a> Parser<'a> {
             let directives = self.parse_directives()?;
             let selections = self.parse_selections()?;
             Ok(Selection::InlineFragment(InlineFragment {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 spread,
                 type_condition,
                 directives,
@@ -465,7 +463,7 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let value = self.parse_value()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(Argument {
             span,
             name,
@@ -591,7 +589,7 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let value = self.parse_constant_value()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(ConstantArgument {
             span,
             name,
@@ -684,8 +682,8 @@ impl<'a> Parser<'a> {
     /// Variable : $ Name
     fn parse_variable_identifier(&mut self) -> ParseResult<VariableIdentifier> {
         let token = self.parse_token();
-        let (start, length) = token.span.as_usize();
-        let source = &self.source[start + 1..start + length];
+        let (start, end) = token.span.as_usize();
+        let source = &self.source[start + 1..end];
         let span = token.span;
         if token.kind == TokenKind::VariableIdentifier {
             Ok(VariableIdentifier {
@@ -778,8 +776,7 @@ impl<'a> Parser<'a> {
     {
         let span_start = self.index();
         let (start, items, end) = self.parse_delimited_items(start_kind, end_kind, parse)?;
-        let length = self.index() - span_start;
-        let span = Span::new(span_start, length);
+        let span = Span::new(span_start, self.index());
         Ok(List {
             span,
             start,
@@ -809,8 +806,8 @@ impl<'a> Parser<'a> {
 
     /// A &str for the source of the inner span of the given token.
     fn source(&self, token: &Token) -> &str {
-        let (start, length) = token.span.as_usize();
-        &self.source[start..start + length]
+        let (start, end) = token.span.as_usize();
+        &self.source[start..end]
     }
 
     /// Peek at the next token
@@ -836,10 +833,9 @@ impl<'a> Parser<'a> {
         if token.kind == expected {
             Ok(token)
         } else {
-            let length = self.index() - start;
             let error = SyntaxError::new(
                 SyntaxErrorKind::Expected(expected),
-                Location::new(self.source_location, Span::new(start, length)),
+                Location::new(self.source_location, Span::new(start, self.index())),
             );
             self.record_error(error);
             Err(())

@@ -452,8 +452,8 @@ pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Sp
         }
 
         if line_index == position.line {
-            let start_offset = index_of_last_line + position.character;
-            return Some(Span::new(start_offset as u32, 0));
+            let start_offset = (index_of_last_line + position.character) as u32;
+            return Some(Span::new(start_offset, start_offset));
         }
     }
     None

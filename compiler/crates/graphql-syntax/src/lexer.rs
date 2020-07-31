@@ -33,7 +33,7 @@ impl<'a> Lexer<'a> {
         self.skip_leading_trivia();
         let start = self.position.index();
         let kind = self.next_kind();
-        let span = Span::from_usize(start, self.position.index() - start);
+        let span = Span::from_usize(start, self.position.index());
         self.skip_trailing_trivia();
         Token { kind, span }
     }
@@ -390,12 +390,12 @@ fn is_newline(ch: char) -> bool {
 mod tests {
     use super::*;
 
-    fn assert_token(source: &str, kind: TokenKind, start: u32, length: u32) {
+    fn assert_token(source: &str, kind: TokenKind, length: u32) {
         assert_eq!(
             Lexer::new(source).next(),
             Token {
                 kind,
-                span: Span::new(start, length)
+                span: Span::new(0, length)
             },
             "Testing the lexing of string '{}'",
             source
@@ -404,54 +404,49 @@ mod tests {
 
     #[test]
     fn test_number_successes() {
-        assert_token("4", TokenKind::IntegerLiteral, 0, 1);
-        assert_token("4.123", TokenKind::FloatLiteral, 0, 5);
-        assert_token("-4", TokenKind::IntegerLiteral, 0, 2);
-        assert_token("9", TokenKind::IntegerLiteral, 0, 1);
-        assert_token("0", TokenKind::IntegerLiteral, 0, 1);
-        assert_token("-4.123", TokenKind::FloatLiteral, 0, 6);
-        assert_token("0.123", TokenKind::FloatLiteral, 0, 5);
-        assert_token("123e4", TokenKind::FloatLiteral, 0, 5);
-        assert_token("123E4", TokenKind::FloatLiteral, 0, 5);
-        assert_token("123e-4", TokenKind::FloatLiteral, 0, 6);
-        assert_token("123e+4", TokenKind::FloatLiteral, 0, 6);
-        assert_token("-1.123e4", TokenKind::FloatLiteral, 0, 8);
-        assert_token("-1.123E4", TokenKind::FloatLiteral, 0, 8);
-        assert_token("-1.123e-4", TokenKind::FloatLiteral, 0, 9);
-        assert_token("-1.123e+4", TokenKind::FloatLiteral, 0, 9);
-        assert_token("-1.123e4567", TokenKind::FloatLiteral, 0, 11);
-        assert_token("-0", TokenKind::IntegerLiteral, 0, 2);
+        assert_token("4", TokenKind::IntegerLiteral, 1);
+        assert_token("4.123", TokenKind::FloatLiteral, 5);
+        assert_token("-4", TokenKind::IntegerLiteral, 2);
+        assert_token("9", TokenKind::IntegerLiteral, 1);
+        assert_token("0", TokenKind::IntegerLiteral, 1);
+        assert_token("-4.123", TokenKind::FloatLiteral, 6);
+        assert_token("0.123", TokenKind::FloatLiteral, 5);
+        assert_token("123e4", TokenKind::FloatLiteral, 5);
+        assert_token("123E4", TokenKind::FloatLiteral, 5);
+        assert_token("123e-4", TokenKind::FloatLiteral, 6);
+        assert_token("123e+4", TokenKind::FloatLiteral, 6);
+        assert_token("-1.123e4", TokenKind::FloatLiteral, 8);
+        assert_token("-1.123E4", TokenKind::FloatLiteral, 8);
+        assert_token("-1.123e-4", TokenKind::FloatLiteral, 9);
+        assert_token("-1.123e+4", TokenKind::FloatLiteral, 9);
+        assert_token("-1.123e4567", TokenKind::FloatLiteral, 11);
+        assert_token("-0", TokenKind::IntegerLiteral, 2);
     }
 
     #[test]
     fn test_number_failures() {
-        assert_token("00", TokenKind::ErrorUnsupportedNumberLiteral, 0, 2);
-        assert_token("01", TokenKind::ErrorUnsupportedNumberLiteral, 0, 2);
-        assert_token("-01", TokenKind::ErrorUnsupportedNumberLiteral, 0, 3);
-        assert_token("+1", TokenKind::ErrorUnsupportedNumberLiteral, 0, 2);
-        assert_token("01.23", TokenKind::ErrorUnsupportedNumberLiteral, 0, 5);
-        assert_token("1.", TokenKind::ErrorUnsupportedNumberLiteral, 0, 2);
-        assert_token("1e", TokenKind::ErrorUnsupportedNumberLiteral, 0, 2);
-        assert_token("1.e1", TokenKind::ErrorUnsupportedNumberLiteral, 0, 4);
-        assert_token("1.A", TokenKind::ErrorUnsupportedNumberLiteral, 0, 3);
-        assert_token("-A", TokenKind::ErrorUnsupportedNumberLiteral, 0, 2);
-        assert_token("1.0e", TokenKind::ErrorUnsupportedNumberLiteral, 0, 4);
-        assert_token("1.0eA", TokenKind::ErrorUnsupportedNumberLiteral, 0, 5);
-        assert_token("1.2e3e", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token("1.2e3.4", TokenKind::ErrorUnsupportedNumberLiteral, 0, 7);
-        assert_token("1.23.4", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token(".123", TokenKind::ErrorUnsupportedNumberLiteral, 0, 4);
+        assert_token("00", TokenKind::ErrorUnsupportedNumberLiteral, 2);
+        assert_token("01", TokenKind::ErrorUnsupportedNumberLiteral, 2);
+        assert_token("-01", TokenKind::ErrorUnsupportedNumberLiteral, 3);
+        assert_token("+1", TokenKind::ErrorUnsupportedNumberLiteral, 2);
+        assert_token("01.23", TokenKind::ErrorUnsupportedNumberLiteral, 5);
+        assert_token("1.", TokenKind::ErrorUnsupportedNumberLiteral, 2);
+        assert_token("1e", TokenKind::ErrorUnsupportedNumberLiteral, 2);
+        assert_token("1.e1", TokenKind::ErrorUnsupportedNumberLiteral, 4);
+        assert_token("1.A", TokenKind::ErrorUnsupportedNumberLiteral, 3);
+        assert_token("-A", TokenKind::ErrorUnsupportedNumberLiteral, 2);
+        assert_token("1.0e", TokenKind::ErrorUnsupportedNumberLiteral, 4);
+        assert_token("1.0eA", TokenKind::ErrorUnsupportedNumberLiteral, 5);
+        assert_token("1.2e3e", TokenKind::ErrorUnsupportedNumberLiteral, 6);
+        assert_token("1.2e3.4", TokenKind::ErrorUnsupportedNumberLiteral, 7);
+        assert_token("1.23.4", TokenKind::ErrorUnsupportedNumberLiteral, 6);
+        assert_token(".123", TokenKind::ErrorUnsupportedNumberLiteral, 4);
 
         // check that we don't consume trailing valid items
-        assert_token("1.23.4{}", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token("1.23.4 {}", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token("1.23.4 []", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token("1.23.4 foo", TokenKind::ErrorUnsupportedNumberLiteral, 0, 6);
-        assert_token(
-            "1.23.4 $foo",
-            TokenKind::ErrorUnsupportedNumberLiteral,
-            0,
-            6,
-        );
+        assert_token("1.23.4{}", TokenKind::ErrorUnsupportedNumberLiteral, 6);
+        assert_token("1.23.4 {}", TokenKind::ErrorUnsupportedNumberLiteral, 6);
+        assert_token("1.23.4 []", TokenKind::ErrorUnsupportedNumberLiteral, 6);
+        assert_token("1.23.4 foo", TokenKind::ErrorUnsupportedNumberLiteral, 6);
+        assert_token("1.23.4 $foo", TokenKind::ErrorUnsupportedNumberLiteral, 6);
     }
 }

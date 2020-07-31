@@ -1,0 +1,14 @@
+mutation CommentCreateMutation(
+  $connections: [String!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment @appendNode(
+      connections: $connections
+      edgeTypeName: $edgeTypeName
+    ) {
+      id
+    }
+  }
+}

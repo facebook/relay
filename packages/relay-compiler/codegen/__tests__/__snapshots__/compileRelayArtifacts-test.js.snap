@@ -5944,6 +5944,119 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: delete-from-store.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation($input: CommentDeleteInput, $connections: [String!]) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteRecord(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    metadata: null,
+    name: "CommentDeleteMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentDeleteResponsePayload",
+        name: "commentDelete",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "deletedCommentId",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Mutation",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+    ],
+    name: "CommentDeleteMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentDeleteResponsePayload",
+        name: "commentDelete",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "deletedCommentId",
+            storageKey: null,
+          },
+          ScalarHandle {
+            alias: null,
+            args: null,
+            filters: null,
+            handle: "deleteRecord",
+            key: "",
+            name: "deletedCommentId",
+            handleArgs: [
+              Variable {
+                name: "connections",
+                variableName: "connections",
+              },
+            ],
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+) {
+  commentDelete(input: $input) {
+    deletedCommentId
+  }
+}
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: explicit-null-argument.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query Test {

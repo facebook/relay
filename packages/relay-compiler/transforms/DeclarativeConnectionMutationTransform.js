@@ -70,7 +70,7 @@ function visitScalarField(field: ScalarField): ScalarField {
     throw createUserError(
       `Invalid use of @${DELETE_RECORD} on field '${
         field.name
-      }'. Expected field type to be a single or list of ID, got ${schema.getTypeString(
+      }'. Expected field to return an ID or list of ID values, got ${schema.getTypeString(
         field.type,
       )}.`,
       [deleteDirective.loc],

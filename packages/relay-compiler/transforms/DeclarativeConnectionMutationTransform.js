@@ -66,11 +66,7 @@ function visitScalarField(field: ScalarField): ScalarField {
   }
   const schema = this.getContext().getSchema();
 
-  if (
-    ['ID', 'ID!', '[ID]', '[ID!]', '[ID!]!'].includes(
-      schema.getTypeString(field.type),
-    ) === false
-  ) {
+  if (!schema.isId(schema.getRawType(field.type))) {
     throw createUserError(
       `Invalid use of @${DELETE_RECORD} on field '${
         field.name

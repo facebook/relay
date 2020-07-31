@@ -13,6 +13,8 @@
 
 const IRTransformer = require('../core/IRTransformer');
 
+const {RelayFeatureFlags} = require('relay-runtime');
+
 import type CompilerContext from '../core/CompilerContext';
 import type {ScalarField} from '../core/IR';
 
@@ -31,7 +33,10 @@ function reactFlightComponentTransform(
 
 function visitScalarField(field: ScalarField): ScalarField {
   const transformedField = this.traverse(field);
-  if (transformedField.type.name !== FLIGHT_FIELD_SCALAR_NAME) {
+  if (
+    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD === false ||
+    transformedField.type.name !== FLIGHT_FIELD_SCALAR_NAME
+  ) {
     return transformedField;
   }
   return {

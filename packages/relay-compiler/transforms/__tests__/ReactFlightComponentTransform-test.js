@@ -18,12 +18,19 @@ const IRPrinter = require('../../core/IRPrinter');
 const ReactFlightComponentTransform = require('../ReactFlightComponentTransform');
 const RelayParser = require('../../core/RelayParser');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 
 describe('ReactFlightComponentTransform', () => {
+  beforeAll(() => {
+    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+  });
+  afterAll(() => {
+    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+  });
   generateTestsFromFixtures(
     `${__dirname}/fixtures/react-flight-component-transform`,
     text => {

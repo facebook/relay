@@ -106,17 +106,22 @@ function nodeUpdater(
       edgeTypeName != null,
       'MutationHandlers: Expected edge typename to be specified.',
     );
-    const serverNodeOrNodes =
-      record.getLinkedRecord(payload.fieldKey, payload.args) ??
-      record.getLinkedRecords(payload.fieldKey, payload.args);
+    let singleServerNode;
+    let serverNodes;
+    try {
+      singleServerNode = record.getLinkedRecord(payload.fieldKey, payload.args);
+    } catch {}
+    if (!singleServerNode) {
+      try {
+        serverNodes = record.getLinkedRecords(payload.fieldKey, payload.args);
+      } catch {}
+    }
     invariant(
-      serverNodeOrNodes != null,
+      singleServerNode != null || serverNodes != null,
       'MutationHandlers: Expected target node to exist.',
     );
-    const serverNodes = Array.isArray(serverNodeOrNodes)
-      ? serverNodeOrNodes
-      : [serverNodeOrNodes];
-    for (const serverNode of serverNodes) {
+    const serverNodeList = serverNodes ?? [singleServerNode];
+    for (const serverNode of serverNodeList) {
       if (serverNode == null) {
         continue;
       }

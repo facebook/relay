@@ -33,12 +33,6 @@ query TestQuery {
   }
 }
 ==================================== OUTPUT ===================================
-fragment SkippedFragment on User @argumentDefinitions(
-  cond: {type: "Boolean!", defaultValue: true}
-) {
-  id @skip(if: $cond)
-}
-
 query EmptyQuery(
   $id: ID!
 ) {
@@ -54,4 +48,10 @@ query TestQuery {
       ...SkippedFragment
     }
   }
+}
+
+fragment SkippedFragment on User @argumentDefinitions(
+  cond: {type: "Boolean!", defaultValue: true}
+) {
+  id @skip(if: $cond)
 }

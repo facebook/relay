@@ -110,7 +110,7 @@ mutation CommentDeleteMutation($input: CommentDeleteInput) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid use of @deleteRecord on field '__typename'. Expected field type to be a single or list of ID, got String!.
+Invalid use of @deleteRecord on field '__typename'. Expected field to return an ID or list of ID values, got String!.
 
 Source: GraphQL request (4:16)
 3:   commentDelete(input: $input) {

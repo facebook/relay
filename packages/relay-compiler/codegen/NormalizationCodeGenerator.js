@@ -386,13 +386,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
   const handles =
     (node.handles &&
       node.handles.map(handle => {
-        if (handle.dynamicKey != null) {
-          throw createUserError(
-            'Dynamic key values are not supported on scalar fields.',
-            [handle.dynamicKey.loc],
-          );
-        }
-        return {
+        let handleNode = {
           alias: node.alias === node.name ? null : node.alias,
           args: generateArgs(node.args),
           filters: handle.filters,
@@ -401,6 +395,23 @@ function generateScalarField(node): Array<NormalizationSelection> {
           kind: 'ScalarHandle',
           name: node.name,
         };
+
+        if (handle.dynamicKey != null) {
+          throw createUserError(
+            'Dynamic key values are not supported on scalar fields.',
+            [handle.dynamicKey.loc],
+          );
+        }
+        if (handle.handleArgs != null) {
+          const handleArgs = generateArgs(handle.handleArgs);
+          if (handleArgs != null) {
+            handleNode = {
+              ...handleNode,
+              handleArgs,
+            };
+          }
+        }
+        return handleNode;
       })) ||
     [];
   let field: NormalizationScalarField = {

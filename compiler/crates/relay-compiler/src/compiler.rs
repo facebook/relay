@@ -37,7 +37,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
-    pub async fn compile(&self) -> Result<CompilerState> {
+    pub async fn compile(self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
@@ -48,6 +48,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .await?;
 
         self.perf_logger.complete_event(setup_event);
+
+        self.config.artifact_writer.finalize()?;
 
         Ok(compiler_state)
     }

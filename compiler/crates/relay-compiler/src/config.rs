@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::{
-    ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter,
-};
+use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
@@ -41,7 +39,7 @@ pub struct Config {
     /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
-    pub codegen_filepath: Option<PathBuf>,
+    pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
     pub full_build: bool,
 
     pub connection_interface: ConnectionInterface,
@@ -151,6 +149,7 @@ impl Config {
         };
 
         let config = Self {
+            artifact_writer: Box::new(ArtifactFileWriter),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -160,7 +159,6 @@ impl Config {
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
-            codegen_filepath: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             connection_interface: config_file.connection_interface,
@@ -272,19 +270,12 @@ impl Config {
             }
         }
     }
-
-    pub fn create_artifact_writer(&self) -> Box<dyn ArtifactWriter> {
-        if let Some(ref codegen_filepath) = self.codegen_filepath {
-            Box::new(ArtifactDifferenceWriter::new(codegen_filepath.clone()))
-        } else {
-            Box::new(ArtifactFileWriter {})
-        }
-    }
 }
 
 impl fmt::Debug for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Config {
+            artifact_writer: _,
             root_dir,
             sources,
             excludes,
@@ -294,7 +285,6 @@ impl fmt::Debug for Config {
             codegen_command,
             load_saved_state_file,
             generate_extra_operation_artifacts,
-            codegen_filepath,
             saved_state_config,
             saved_state_loader,
             connection_interface,
@@ -317,7 +307,6 @@ impl fmt::Debug for Config {
                     &"None"
                 },
             )
-            .field("codegen_filepath", codegen_filepath)
             .field(
                 "saved_state_loader",
                 if saved_state_loader.is_some() {

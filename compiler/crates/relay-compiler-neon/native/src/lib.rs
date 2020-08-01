@@ -17,7 +17,7 @@ use relay_codegen::Printer;
 use relay_compiler::{
     apply_transforms,
     config::{Config, ProjectConfig, SchemaLocation},
-    generate_artifacts, SourceHashes,
+    generate_artifacts, ArtifactFileWriter, SourceHashes,
 };
 use schema::build_schema;
 use std::str;
@@ -87,8 +87,8 @@ fn create_configs() -> (Config, ProjectConfig) {
     };
 
     let config = Config {
+        artifact_writer: Box::new(ArtifactFileWriter),
         codegen_command: None,
-        codegen_filepath: None,
         excludes: vec![],
         full_build: false,
         generate_extra_operation_artifacts: None,

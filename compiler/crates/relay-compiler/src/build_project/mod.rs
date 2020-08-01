@@ -203,7 +203,6 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut artifact_writer = config.create_artifact_writer();
             let mut printer = Printer::default();
 
             log_event.time("write_artifacts_time", || {
@@ -220,7 +219,7 @@ pub async fn commit_project(
                         artifact
                             .content
                             .as_bytes(config, project_config, &mut printer, schema);
-                    artifact_writer.write_if_changed(path, content)?;
+                    config.artifact_writer.write_if_changed(path, content)?;
                 }
                 Ok(())
             })?;
@@ -228,17 +227,14 @@ pub async fn commit_project(
             log_event.time("delete_artifacts_time", || {
                 for remaining_artifact in &existing_artifacts {
                     let path = config.root_dir.join(remaining_artifact);
-                    artifact_writer.remove(path)?;
+                    config.artifact_writer.remove(path)?;
                 }
                 Ok(())
             })?;
 
-            log_event.time("finalize_artifacts_time", || artifact_writer.finalize())?;
-
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut artifact_writer = config.create_artifact_writer();
             let mut printer = Printer::default();
             let mut artifact_map = artifact_map.clone();
 
@@ -248,7 +244,7 @@ pub async fn commit_project(
                     if let Some(artifact) = artifact_map.0.remove(&name) {
                         for (path, _) in artifact {
                             let path = config.root_dir.join(path);
-                            artifact_writer.remove(path)?;
+                            config.artifact_writer.remove(path)?;
                         }
                     }
                 }
@@ -264,7 +260,7 @@ pub async fn commit_project(
                         artifact
                             .content
                             .as_bytes(config, project_config, &mut printer, schema);
-                    artifact_writer.write_if_changed(path, content)?;
+                    config.artifact_writer.write_if_changed(path, content)?;
                     current_paths_map.insert(artifact);
                 }
                 for (definition_name, artifact_tuples) in current_paths_map.0 {
@@ -273,7 +269,9 @@ pub async fn commit_project(
                             let prev_tuples = entry.get_mut();
                             for (prev_path, _) in prev_tuples.drain(..) {
                                 if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
-                                    artifact_writer.remove(config.root_dir.join(prev_path))?;
+                                    config
+                                        .artifact_writer
+                                        .remove(config.root_dir.join(prev_path))?;
                                 }
                             }
                             prev_tuples.extend(artifact_tuples.into_iter());

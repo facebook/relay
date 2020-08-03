@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+{
+    friends(
+        arg: "unterminated string
+    ) {
+        count
+    }
+}
+==================================== ERROR ====================================
+Error: Expected a constant value (boolean, integer, float, string, null, list, or object at unterminated_string.invalid.graphql:4:14:
+        arg: "unterminated string
+    ) {
+        count
+    }
+}

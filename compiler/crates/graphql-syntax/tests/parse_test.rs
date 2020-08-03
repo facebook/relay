@@ -1,4 +1,4 @@
-// @generated SignedSource<<09e50c55635d10f9893ddfd7ec8b5f54>>
+// @generated SignedSource<<cb3942b920ee1fa95ff6ea208b139ff6>>
 
 mod parse;
 
@@ -31,4 +31,11 @@ fn list_of_enum() {
     let input = include_str!("parse/fixtures/list_of_enum.graphql");
     let expected = include_str!("parse/fixtures/list_of_enum.expected");
     test_fixture(transform_fixture, "list_of_enum.graphql", "parse/fixtures/list_of_enum.expected", input, expected);
+}
+
+#[test]
+fn unterminated_string_invalid() {
+    let input = include_str!("parse/fixtures/unterminated_string.invalid.graphql");
+    let expected = include_str!("parse/fixtures/unterminated_string.invalid.expected");
+    test_fixture(transform_fixture, "unterminated_string.invalid.graphql", "parse/fixtures/unterminated_string.invalid.expected", input, expected);
 }

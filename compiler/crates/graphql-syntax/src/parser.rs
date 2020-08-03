@@ -881,20 +881,6 @@ impl<'a> Parser<'a> {
                     );
                     self.record_error(error);
                 }
-                TokenKind::ErrorUnterminatedStringLiteral => {
-                    let error = SyntaxError::new(
-                        SyntaxErrorKind::UnterminatedString,
-                        Location::new(self.source_location, next.span),
-                    );
-                    self.record_error(error);
-                    return std::mem::replace(
-                        &mut self.current,
-                        Token {
-                            kind: TokenKind::EndOfFile,
-                            ..next
-                        },
-                    );
-                }
                 _ => {
                     return std::mem::replace(&mut self.current, next);
                 }

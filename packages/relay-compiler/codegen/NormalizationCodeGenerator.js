@@ -289,7 +289,6 @@ function generateLinkedField(
           kind: 'LinkedHandle',
           name: node.name,
         };
-        // T45504512: new connection model
         // NOTE: this intentionally adds a dynamic key in order to avoid
         // triggering updates to existing queries that do not use dynamic
         // keys.

@@ -308,7 +308,6 @@ function buildConnectionArguments(
     };
   }
 
-  // T45504512: new connection model
   const dynamicKeyArg = connectionDirective.args.find(
     arg => arg.name === 'dynamicKey_UNSTABLE',
   );

@@ -21,7 +21,6 @@ type FeatureFlags = {|
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
-  // T45504512: new connection model
   ENABLE_VARIABLE_CONNECTION_KEY: false,
   ENABLE_PARTIAL_RENDERING_DEFAULT: false,
   ENABLE_RELAY_CONTAINERS_SUSPENSE: false,

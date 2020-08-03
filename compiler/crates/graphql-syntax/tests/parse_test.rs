@@ -1,4 +1,4 @@
-// @generated SignedSource<<cb3942b920ee1fa95ff6ea208b139ff6>>
+// @generated SignedSource<<dc28006987a64eabbcb35e523aa4f723>>
 
 mod parse;
 
@@ -31,6 +31,13 @@ fn list_of_enum() {
     let input = include_str!("parse/fixtures/list_of_enum.graphql");
     let expected = include_str!("parse/fixtures/list_of_enum.expected");
     test_fixture(transform_fixture, "list_of_enum.graphql", "parse/fixtures/list_of_enum.expected", input, expected);
+}
+
+#[test]
+fn multiple_parse_errors_invalid() {
+    let input = include_str!("parse/fixtures/multiple_parse_errors.invalid.graphql");
+    let expected = include_str!("parse/fixtures/multiple_parse_errors.invalid.expected");
+    test_fixture(transform_fixture, "multiple_parse_errors.invalid.graphql", "parse/fixtures/multiple_parse_errors.invalid.expected", input, expected);
 }
 
 #[test]

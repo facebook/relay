@@ -5,17 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![allow(unused_imports)]
-
-use super::{
-    extract_values_from_handle_field_directive, handle_field_util::HandleFieldDirectiveValues,
-};
+use super::extract_values_from_handle_field_directive;
 use crate::extract_handle_field_directives;
 use common::{Location, WithLocation};
 use graphql_ir::{
     Argument, Directive, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
 };
-use interner::{Intern, StringKey};
+use interner::Intern;
 use std::sync::Arc;
 
 /// This transform applies field argument updates for client handle fields:

@@ -10,15 +10,15 @@
 #![deny(clippy::all)]
 #![allow(clippy::large_enum_variant)]
 
+mod executable_node;
 mod lexer;
 mod parser;
 mod source;
 mod syntax_error;
-mod syntax_node;
 
+pub use executable_node::*;
 pub use source::GraphQLSource;
 pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource, SyntaxResult};
-pub use syntax_node::*;
 
 use crate::parser::Parser;
 use common::SourceLocationKey;

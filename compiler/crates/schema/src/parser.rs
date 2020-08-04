@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::*;
 use crate::errors::{Result, SchemaError};
 use crate::lexer::Lexer;
 use crate::token::TokenKind;
+use graphql_syntax::type_system_node::*;
 use interner::{Intern, StringKey};
 
 pub struct Parser<'a> {

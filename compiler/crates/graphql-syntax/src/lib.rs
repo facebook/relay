@@ -15,6 +15,7 @@ mod lexer;
 mod parser;
 mod source;
 mod syntax_error;
+pub mod type_system_node;
 
 pub use executable_node::*;
 pub use source::GraphQLSource;

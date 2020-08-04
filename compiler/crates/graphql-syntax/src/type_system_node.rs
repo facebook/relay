@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![deny(clippy::all)]
-
 use interner::StringKey;
 use std::fmt;
 

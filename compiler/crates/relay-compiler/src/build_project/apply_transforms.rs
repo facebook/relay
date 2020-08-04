@@ -17,7 +17,7 @@ use graphql_transforms::{
     skip_split_operation, skip_unreachable_node, skip_unused_variables, split_module_import,
     transform_connections, transform_declarative_connection, transform_defer_stream,
     transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
-    ConnectionInterface,
+    ConnectionInterface, FeatureFlags,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -36,6 +36,7 @@ pub fn apply_transforms<TPerfLogger>(
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: &ConnectionInterface,
+    feature_flags: &FeatureFlags,
     perf_logger: Arc<TPerfLogger>,
 ) -> ValidationResult<Programs>
 where
@@ -59,6 +60,7 @@ where
                 project_name,
                 Arc::clone(&program),
                 connection_interface,
+                feature_flags,
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -124,6 +126,7 @@ fn apply_common_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
+    _feature_flags: &FeatureFlags, // used in follow-up
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> ValidationResult<Arc<Program>> {

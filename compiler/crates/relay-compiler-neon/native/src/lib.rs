@@ -10,7 +10,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::{
     parse, Document, ExecutableDefinition, SyntaxError, SyntaxErrorKind, SyntaxResult,
 };
-use graphql_transforms::ConnectionInterface;
+use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
 use relay_codegen::Printer;
@@ -100,6 +100,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         saved_state_config: None,
         saved_state_loader: None,
         connection_interface: Default::default(),
+        feature_flags: FeatureFlags::default(),
     };
 
     (config, project_config)
@@ -125,6 +126,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
         Arc::new(program),
         Arc::new(Default::default()),
         &ConnectionInterface::default(),
+        &FeatureFlags::default(),
         Arc::new(ConsoleLogger),
     )
     .expect("Unable to apply transforms");

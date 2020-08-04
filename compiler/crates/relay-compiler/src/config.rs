@@ -10,7 +10,7 @@ use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
-use graphql_transforms::ConnectionInterface;
+use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
@@ -43,6 +43,7 @@ pub struct Config {
     pub full_build: bool,
 
     pub connection_interface: ConnectionInterface,
+    pub feature_flags: FeatureFlags,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
@@ -162,6 +163,7 @@ impl Config {
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             connection_interface: config_file.connection_interface,
+            feature_flags: config_file.feature_flags,
         };
 
         let mut validation_errors = Vec::new();
@@ -288,6 +290,7 @@ impl fmt::Debug for Config {
             saved_state_config,
             saved_state_loader,
             connection_interface,
+            feature_flags,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
@@ -316,6 +319,7 @@ impl fmt::Debug for Config {
                 },
             )
             .field("connection_interface", connection_interface)
+            .field("feature_flags", feature_flags)
             .finish()
     }
 }
@@ -370,6 +374,9 @@ struct ConfigFile {
 
     #[serde(default)]
     connection_interface: ConnectionInterface,
+
+    #[serde(default)]
+    feature_flags: FeatureFlags,
 
     /// Watchman saved state config.
     saved_state_config: Option<ScmAwareClockData>,

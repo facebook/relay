@@ -18,6 +18,7 @@ mod connections;
 mod declarative_connection;
 mod dedupe_type_discriminator;
 mod defer_stream;
+mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
@@ -70,6 +71,7 @@ pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
+pub use feature_flags::FeatureFlags;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,

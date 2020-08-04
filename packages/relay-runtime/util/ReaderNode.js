@@ -197,6 +197,14 @@ export type ReaderStream = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
+
+export type ReaderRequiredField = {|
+  +kind: 'RequiredField',
+  +field: ReaderField,
+  +action: RequiredFieldAction,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
   | ReaderClientExtension
@@ -207,7 +215,8 @@ export type ReaderSelection =
   | ReaderInlineDataFragmentSpread
   | ReaderInlineFragment
   | ReaderModuleImport
-  | ReaderStream;
+  | ReaderStream
+  | ReaderRequiredField;
 
 export type ReaderVariableArgument = {|
   +kind: 'Variable',

@@ -19160,6 +19160,33 @@ query RelayClientIDFieldQuery(
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: required-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RequiredFragment on User {
+  name @required(action: LOG)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "RequiredFragment",
+  selections: [
+    RequiredField {
+      field: ScalarField {
+        alias: null,
+        args: null,
+        name: "name",
+        storageKey: null,
+      },
+      action: "LOG",
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: scalar-handle-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ScalarHandleField($id: ID!) {

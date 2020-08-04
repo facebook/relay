@@ -174,8 +174,10 @@ export type {
   ReaderPaginationMetadata,
   ReaderRefetchableFragment,
   ReaderRefetchMetadata,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,

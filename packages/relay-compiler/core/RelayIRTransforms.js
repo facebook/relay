@@ -32,6 +32,7 @@ const ReactFlightComponentTransform = require('../transforms/ReactFlightComponen
 const RefetchableFragmentTransform = require('../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../transforms/RelayDirectiveTransform');
 const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
+const RequiredFieldTransform = require('../transforms/RequiredFieldTransform');
 const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
 const SkipHandleFieldTransform = require('../transforms/SkipHandleFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
@@ -52,6 +53,7 @@ const relaySchemaExtensions: $ReadOnlyArray<string> = [
   DeclarativeConnectionMutationTransform.SCHEMA_EXTENSION,
   InlineDataFragmentTransform.SCHEMA_EXTENSION,
   MatchTransform.SCHEMA_EXTENSION,
+  RequiredFieldTransform.SCHEMA_EXTENSION,
   RefetchableFragmentTransform.SCHEMA_EXTENSION,
   RelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayFlowGenerator.SCHEMA_EXTENSION,
@@ -78,6 +80,7 @@ const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
   FieldHandleTransform.transform,
   InlineDataFragmentTransform.transform,
   FlattenTransform.transformWithOptions({isForCodegen: true}),
+  RequiredFieldTransform.transform,
   SkipRedundantNodesTransform.transform,
 ];
 

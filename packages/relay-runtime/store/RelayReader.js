@@ -27,6 +27,7 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
+  REQUIRED_FIELD,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
@@ -190,6 +191,8 @@ class RelayReader {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
       switch (selection.kind) {
+        case REQUIRED_FIELD:
+          throw new Error('@Required Fields are not yet supported.');
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;

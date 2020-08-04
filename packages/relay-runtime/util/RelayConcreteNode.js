@@ -79,6 +79,7 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
   REQUEST: 'Request',

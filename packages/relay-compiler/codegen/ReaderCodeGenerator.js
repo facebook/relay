@@ -39,6 +39,7 @@ import type {
   InlineDataFragmentSpread,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
+import type {RequiredDirectiveMetadata} from '../transforms/RequiredFieldTransform';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -48,8 +49,10 @@ import type {
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from 'relay-runtime';
 
 /**
@@ -268,7 +271,7 @@ function generateInlineDataFragmentSpread(
 function generateLinkedField(
   schema: Schema,
   node: LinkedField,
-): ReaderLinkedField {
+): ReaderLinkedField | ReaderRequiredField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -299,7 +302,19 @@ function generateLinkedField(
   if (storageKey) {
     field = {...field, storageKey};
   }
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  if (requiredMetadata != null) {
+    return createRequiredField(field, requiredMetadata.action);
+  }
   return field;
+}
+
+function createRequiredField(
+  field: ReaderField,
+  requiredAction: RequiredFieldAction,
+): ReaderRequiredField {
+  return {kind: 'RequiredField', field, action: requiredAction};
 }
 
 function generateModuleImport(
@@ -336,7 +351,7 @@ function generateModuleImport(
 function generateScalarField(
   schema: Schema,
   node: ScalarField,
-): ReaderScalarField | ReaderFlightField {
+): ReaderScalarField | ReaderRequiredField | ReaderFlightField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -364,6 +379,17 @@ function generateScalarField(
   }
   if (node.metadata?.flight === true) {
     field = {...field, kind: 'FlightField'};
+  }
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  if (requiredMetadata != null) {
+    if (field.kind === 'FlightField') {
+      throw new createUserError(
+        '@required cannot be used on a ReactFlightComponent.',
+        [node.loc],
+      );
+    }
+    return createRequiredField(field, requiredMetadata.action);
   }
   return field;
 }

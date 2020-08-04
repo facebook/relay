@@ -11,6 +11,8 @@ use common::Location;
 use std::fmt;
 use thiserror::Error;
 
+pub type SyntaxResult<T> = Result<T, Vec<SyntaxError>>;
+
 #[derive(Clone, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[error("Syntax error: {kind} at {location:?}")]
 pub struct SyntaxError {

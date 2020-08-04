@@ -17,7 +17,7 @@ mod syntax_error;
 mod syntax_node;
 
 pub use source::GraphQLSource;
-pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource};
+pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource, SyntaxResult};
 pub use syntax_node::*;
 
 use crate::parser::Parser;

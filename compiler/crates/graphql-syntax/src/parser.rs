@@ -6,11 +6,13 @@
  */
 
 use crate::lexer::TokenKind;
-use crate::syntax_error::{SyntaxError, SyntaxErrorKind};
+use crate::syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxResult};
 use crate::syntax_node::*;
 use common::{Location, SourceLocationKey, Span};
 use interner::Intern;
 use logos::Logos;
+
+type ParseResult<T> = Result<T, ()>;
 
 pub struct Parser<'a> {
     current: Token,

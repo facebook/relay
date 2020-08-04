@@ -6,13 +6,9 @@
  */
 
 use crate::lexer::TokenKind;
-use crate::syntax_error::SyntaxError;
 use common::{Location, Named, SourceLocationKey, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;
-
-pub type SyntaxResult<T> = Result<T, Vec<SyntaxError>>;
-pub type ParseResult<T> = Result<T, ()>;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Document {

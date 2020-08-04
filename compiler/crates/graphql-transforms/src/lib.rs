@@ -33,6 +33,7 @@ mod inline_fragments;
 mod mask;
 mod match_;
 mod node_identifier;
+mod react_flight;
 mod refetchable_fragment;
 mod relay_directive;
 mod relay_early_flush;
@@ -91,6 +92,7 @@ pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{split_module_import, transform_match, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
+pub use react_flight::{react_flight, REACT_FLIGHT_DIRECTIVE_NAME};
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,

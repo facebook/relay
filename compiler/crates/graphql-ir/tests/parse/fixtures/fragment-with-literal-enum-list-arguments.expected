@@ -35,7 +35,7 @@ fragment ChildFragment on User
                     definition: WithLocation {
                         location: fragment-with-literal-enum-list-arguments.graphql:53:61,
                         item: FieldID(
-                            441,
+                            442,
                         ),
                     },
                     arguments: [
@@ -145,7 +145,7 @@ fragment ChildFragment on User
                     definition: WithLocation {
                         location: fragment-with-literal-enum-list-arguments.graphql:255:263,
                         item: FieldID(
-                            441,
+                            442,
                         ),
                     },
                     arguments: [

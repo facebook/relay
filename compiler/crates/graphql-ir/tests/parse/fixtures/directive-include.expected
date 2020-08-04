@@ -44,7 +44,7 @@ fragment Foo on User {
                             definition: WithLocation {
                                 location: directive-include.graphql:34:36,
                                 item: FieldID(
-                                    450,
+                                    451,
                                 ),
                             },
                             arguments: [],
@@ -79,7 +79,7 @@ fragment Foo on User {
                                     definition: WithLocation {
                                         location: directive-include.graphql:97:106,
                                         item: FieldID(
-                                            447,
+                                            448,
                                         ),
                                     },
                                     arguments: [],
@@ -148,7 +148,7 @@ fragment Foo on User {
                     definition: WithLocation {
                         location: directive-include.graphql:168:170,
                         item: FieldID(
-                            450,
+                            451,
                         ),
                     },
                     arguments: [],

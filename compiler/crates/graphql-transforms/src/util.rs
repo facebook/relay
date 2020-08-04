@@ -10,6 +10,7 @@ use crate::connections::ConnectionConstants;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
+use crate::react_flight::REACT_FLIGHT_DIRECTIVE_NAME;
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 
@@ -91,6 +92,7 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
+            || name == *REACT_FLIGHT_DIRECTIVE_NAME
     }
 
     pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {
@@ -101,6 +103,7 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
+            || name == *REACT_FLIGHT_DIRECTIVE_NAME
     }
 
     pub fn is_handle_field_directive(&self, name: StringKey) -> bool {

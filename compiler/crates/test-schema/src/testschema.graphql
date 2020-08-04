@@ -58,6 +58,10 @@ interface MaybeNodeInterface {
 
 scalar JSON
 
+scalar ReactFlightComponent
+
+scalar ReactFlightProps
+
 union MaybeNode = Story | FakeNode | NonNode
 
 type FakeNode {
@@ -757,6 +761,7 @@ type PhotoStory implements FeedUnit & Node {
 
 type Story implements FeedUnit & Node & MaybeNodeInterface {
   attachments: [StoryAttachment]
+  flight(component: String!, props: ReactFlightProps): ReactFlightComponent
 
   # FeedUnit
   canViewerDelete: Boolean

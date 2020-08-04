@@ -330,7 +330,7 @@ class RelayReader {
           this._createInlineDataFragmentPointer(selection, record, data);
           break;
         case DEFER:
-        case CLIENT_EXTENSION:
+        case CLIENT_EXTENSION: {
           const isMissingData = this._isMissingData;
           const hasExpectedData = this._traverseSelections(
             selection.selections,
@@ -342,9 +342,18 @@ class RelayReader {
             return false;
           }
           break;
-        case STREAM:
-          this._traverseSelections(selection.selections, record, data);
+        }
+        case STREAM: {
+          const hasExpectedData = this._traverseSelections(
+            selection.selections,
+            record,
+            data,
+          );
+          if (!hasExpectedData) {
+            return false;
+          }
           break;
+        }
         case FLIGHT_FIELD:
           throw new Error('Flight fields are not yet supported.');
         default:

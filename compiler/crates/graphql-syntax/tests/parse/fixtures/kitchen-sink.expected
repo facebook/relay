@@ -101,8 +101,8 @@ Document {
                             name: VariableIdentifier {
                                 span: 16:20,
                                 token: Token {
-                                    span: 16:20,
-                                    kind: VariableIdentifier,
+                                    span: 17:20,
+                                    kind: Identifier,
                                 },
                                 name: "foo",
                             },
@@ -128,8 +128,8 @@ Document {
                             name: VariableIdentifier {
                                 span: 35:40,
                                 token: Token {
-                                    span: 35:40,
-                                    kind: VariableIdentifier,
+                                    span: 36:40,
+                                    kind: Identifier,
                                 },
                                 name: "site",
                             },
@@ -474,8 +474,8 @@ Document {
                                                                                 VariableIdentifier {
                                                                                     span: 216:220,
                                                                                     token: Token {
-                                                                                        span: 216:220,
-                                                                                        kind: VariableIdentifier,
+                                                                                        span: 217:220,
+                                                                                        kind: Identifier,
                                                                                     },
                                                                                     name: "foo",
                                                                                 },
@@ -529,8 +529,8 @@ Document {
                                                                                         VariableIdentifier {
                                                                                             span: 235:239,
                                                                                             token: Token {
-                                                                                                span: 235:239,
-                                                                                                kind: VariableIdentifier,
+                                                                                                span: 236:239,
+                                                                                                kind: Identifier,
                                                                                             },
                                                                                             name: "foo",
                                                                                         },
@@ -668,8 +668,8 @@ Document {
                                                                 VariableIdentifier {
                                                                     span: 338:342,
                                                                     token: Token {
-                                                                        span: 338:342,
-                                                                        kind: VariableIdentifier,
+                                                                        span: 339:342,
+                                                                        kind: Identifier,
                                                                     },
                                                                     name: "foo",
                                                                 },
@@ -992,8 +992,8 @@ Document {
                             name: VariableIdentifier {
                                 span: 534:540,
                                 token: Token {
-                                    span: 534:540,
-                                    kind: VariableIdentifier,
+                                    span: 535:540,
+                                    kind: Identifier,
                                 },
                                 name: "input",
                             },
@@ -1083,8 +1083,8 @@ Document {
                                             VariableIdentifier {
                                                 span: 615:621,
                                                 token: Token {
-                                                    span: 615:621,
-                                                    kind: VariableIdentifier,
+                                                    span: 616:621,
+                                                    kind: Identifier,
                                                 },
                                                 name: "input",
                                             },
@@ -1319,8 +1319,8 @@ Document {
                                             VariableIdentifier {
                                                 span: 947:952,
                                                 token: Token {
-                                                    span: 947:952,
-                                                    kind: VariableIdentifier,
+                                                    span: 948:952,
+                                                    kind: Identifier,
                                                 },
                                                 name: "size",
                                             },
@@ -1344,8 +1344,8 @@ Document {
                                             VariableIdentifier {
                                                 span: 959:961,
                                                 token: Token {
-                                                    span: 959:961,
-                                                    kind: VariableIdentifier,
+                                                    span: 960:961,
+                                                    kind: Identifier,
                                                 },
                                                 name: "b",
                                             },

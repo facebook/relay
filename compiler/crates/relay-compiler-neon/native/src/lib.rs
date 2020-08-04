@@ -54,9 +54,7 @@ fn build_definitions_from_js_input(
                 }
             }
             Err(syntax_errors) => {
-                for error in syntax_errors {
-                    errors.push(error);
-                }
+                errors.extend(syntax_errors);
             }
         }
     }

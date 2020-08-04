@@ -13,5 +13,17 @@ Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:5:
     %%%% # unexpected % signs
 
 
-Error: Expected a variable name ('$...', e.g. '$id') at multiple_parse_errors.invalid.graphql:5:5:
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:6:
+    %%%% # unexpected % signs
+
+
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:7:
+    %%%% # unexpected % signs
+
+
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:8:
+    %%%% # unexpected % signs
+
+
+Error: Expected a variable ('$example') at multiple_parse_errors.invalid.graphql:5:5:
     width: Int # missing $

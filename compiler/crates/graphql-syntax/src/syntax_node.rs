@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::lexer::TokenKind;
 use crate::syntax_error::SyntaxError;
-use crate::token_kind::TokenKind;
 use common::{Location, Named, SourceLocationKey, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;

@@ -5,17 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lexer::Lexer;
+use crate::lexer::TokenKind;
 use crate::syntax_error::{SyntaxError, SyntaxErrorKind};
 use crate::syntax_node::*;
-use crate::token_kind::TokenKind;
 use common::{Location, SourceLocationKey, Span};
 use interner::Intern;
+use logos::Logos;
 
-#[derive(Clone, Debug)]
 pub struct Parser<'a> {
     current: Token,
-    lexer: Lexer<'a>,
+    lexer: logos::Lexer<'a, TokenKind>,
     errors: Vec<SyntaxError>,
     source_location: SourceLocationKey,
     source: &'a str,
@@ -31,7 +30,7 @@ impl<'a> Parser<'a> {
         // of dealing with an Option or UnsafeCell, the constructor uses a dummy token
         // value to construct the Parser, then immediately advance()s to move to the
         // first real token.
-        let lexer = Lexer::new(source);
+        let lexer = TokenKind::lexer(source);
         let dummy = Token {
             kind: TokenKind::EndOfFile,
             span: Span::empty(),
@@ -543,15 +542,7 @@ impl<'a> Parser<'a> {
                     Ok(Value::Object(list))
                 }
             }
-            TokenKind::VariableIdentifier => Ok(Value::Variable(self.parse_variable_identifier()?)),
-            TokenKind::ErrorInvalidVariableIdentifier => {
-                let error = SyntaxError::new(
-                    SyntaxErrorKind::ExpectedVariable,
-                    Location::new(self.source_location, token.span),
-                );
-                self.record_error(error);
-                Err(())
-            }
+            TokenKind::Dollar => Ok(Value::Variable(self.parse_variable_identifier()?)),
             _ => Ok(Value::Constant(self.parse_literal_value()?)),
         }
     }
@@ -631,12 +622,11 @@ impl<'a> Parser<'a> {
             }
             TokenKind::FloatLiteral => {
                 let value = source.parse::<f64>();
-                let source_value = source.intern();
                 match value {
                     Ok(value) => Ok(ConstantValue::Float(FloatNode {
                         token,
                         value: FloatValue::new(value),
-                        source_value,
+                        source_value: source.intern(),
                     })),
                     Err(_) => {
                         let error = SyntaxError::new(
@@ -660,9 +650,42 @@ impl<'a> Parser<'a> {
                     value: source.intern(),
                 }),
             }),
-            TokenKind::ErrorUnsupportedNumberLiteral => {
+            TokenKind::ErrorFloatLiteralMissingZero => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::InvalidFloatLiteralMissingZero,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorNumberLiteralLeadingZero
+            | TokenKind::ErrorNumberLiteralTrailingInvalid => {
                 let error = SyntaxError::new(
                     SyntaxErrorKind::InvalidNumberLiteral,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorUnsupportedStringCharacter => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::UnsupportedStringCharacter,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorUnterminatedString => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::UnterminatedString,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorUnterminatedBlockString => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::UnterminatedBlockString,
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -681,20 +704,28 @@ impl<'a> Parser<'a> {
 
     /// Variable : $ Name
     fn parse_variable_identifier(&mut self) -> ParseResult<VariableIdentifier> {
+        let start = self.index();
+        let dollar_token = self.parse_token();
+        if dollar_token.kind != TokenKind::Dollar {
+            self.record_error(SyntaxError::new(
+                SyntaxErrorKind::ExpectedVariable,
+                Location::new(self.source_location, dollar_token.span),
+            ));
+            return Err(());
+        }
+
         let token = self.parse_token();
-        let (start, end) = token.span.as_usize();
-        let source = &self.source[start + 1..end];
-        let span = token.span;
-        if token.kind == TokenKind::VariableIdentifier {
+        if token.kind == TokenKind::Identifier {
+            let name = self.source(&token).intern();
             Ok(VariableIdentifier {
-                span,
+                span: Span::new(start, token.span.end),
                 token,
-                name: source.intern(),
+                name,
             })
         } else {
             let error = SyntaxError::new(
-                SyntaxErrorKind::Expected(TokenKind::VariableIdentifier),
-                Location::new(self.source_location, span),
+                SyntaxErrorKind::ExpectedVariableIdentifier,
+                Location::new(self.source_location, token.span),
             );
             self.record_error(error);
             Err(())
@@ -872,17 +903,38 @@ impl<'a> Parser<'a> {
     fn parse_token(&mut self) -> Token {
         // Skip over (and record) any invalid tokens until either a valid token or an EOF is encountered
         loop {
-            let next = self.lexer.next();
-            match next.kind {
-                TokenKind::ErrorUnsupportedCharacterSequence => {
-                    let error = SyntaxError::new(
-                        SyntaxErrorKind::UnsupportedCharacter,
-                        Location::new(self.source_location, next.span),
-                    );
-                    self.record_error(error);
+            let kind = self.lexer.next().unwrap_or(TokenKind::EndOfFile);
+            match kind {
+                TokenKind::Error => {
+                    if let Some(error_token_kind) = self.lexer.extras.error_token {
+                        // Reset the error token
+                        self.lexer.extras.error_token = None;
+                        // If error_token is set, return that error token
+                        // instead of a generic error.
+                        return std::mem::replace(
+                            &mut self.current,
+                            Token {
+                                kind: error_token_kind,
+                                span: self.lexer.span().into(),
+                            },
+                        );
+                    } else {
+                        // Record and skip over unknown character errors
+                        let error = SyntaxError::new(
+                            SyntaxErrorKind::UnsupportedCharacter,
+                            Location::new(self.source_location, self.lexer.span().into()),
+                        );
+                        self.record_error(error);
+                    }
                 }
                 _ => {
-                    return std::mem::replace(&mut self.current, next);
+                    return std::mem::replace(
+                        &mut self.current,
+                        Token {
+                            kind,
+                            span: self.lexer.span().into(),
+                        },
+                    );
                 }
             }
         }

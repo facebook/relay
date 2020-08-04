@@ -2,12 +2,12 @@
 # expected-to-throw
 {
     friends(
-        arg: "unterminated string
+        arg: .5
     ) {
         count
     }
 }
 ==================================== ERROR ====================================
-Error: Unterminated string literal (strings cannot contain unescaped line breaks) at unterminated_string.invalid.graphql:4:14:
-        arg: "unterminated string
+Error: Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5 at missing_zero_on_float.invalid.graphql:4:14:
+        arg: .5
     ) {

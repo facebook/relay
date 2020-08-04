@@ -8,7 +8,8 @@
 use common::{ConsoleLogger, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
 use graphql_syntax::{
-    parse, Document, ExecutableDefinition, SyntaxError, SyntaxErrorKind, SyntaxResult,
+    parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError, SyntaxErrorKind,
+    SyntaxResult,
 };
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
@@ -27,11 +28,14 @@ use std::sync::Arc;
 fn build_definitions_from_js_input(
     input: Vec<Handle<JsValue>>,
 ) -> Result<Vec<ExecutableDefinition>, Vec<SyntaxError>> {
-    let mut documents: Vec<SyntaxResult<Document>> = Vec::with_capacity(input.len());
+    let mut documents: Vec<SyntaxResult<ExecutableDocument>> = Vec::with_capacity(input.len());
     let mut errors: Vec<SyntaxError> = vec![];
     for js_value in input {
         if let Ok(value) = js_value.downcast::<JsString>() {
-            documents.push(parse(&value.value(), SourceLocationKey::Generated));
+            documents.push(parse_executable(
+                &value.value(),
+                SourceLocationKey::Generated,
+            ));
         } else {
             // This is not technically correct - it should be JS syntax/parse error, not graphql
             // TODO: Replace with correct error

@@ -3,7 +3,7 @@ fragment TestFrag on MyType {
   issues(orderby: [LAST_UPDATED])
 }
 ==================================== OUTPUT ===================================
-Document {
+ExecutableDocument {
     span: 0:66,
     definitions: [
         FragmentDefinition {

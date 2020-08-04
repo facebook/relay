@@ -65,7 +65,7 @@ impl GraphQLAsts {
             for (index, graphql_source) in graphql_sources.iter().enumerate() {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
-                match graphql_syntax::parse(&graphql_source.text, source_location) {
+                match graphql_syntax::parse_executable(&graphql_source.text, source_location) {
                     Ok(document) => {
                         definitions_for_file.extend(document.definitions);
                     }
@@ -93,7 +93,7 @@ impl GraphQLAsts {
                     let source_location =
                         SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
                     if let Ok(document) =
-                        graphql_syntax::parse(&graphql_source.text, source_location)
+                        graphql_syntax::parse_executable(&graphql_source.text, source_location)
                     {
                         for def in document.definitions {
                             let name = def.name().expect("Expected operation name to exist.");
@@ -122,7 +122,7 @@ impl GraphQLAsts {
                 for (index, graphql_source) in graphql_sources.iter().enumerate() {
                     let source_location =
                         SourceLocationKey::embedded(&file_name.to_string_lossy(), index);
-                    match graphql_syntax::parse(&graphql_source.text, source_location) {
+                    match graphql_syntax::parse_executable(&graphql_source.text, source_location) {
                         Ok(document) => {
                             // Those definitions appear again in other paths. Generate artifacts for
                             // those definitions again so we can write to the new paths

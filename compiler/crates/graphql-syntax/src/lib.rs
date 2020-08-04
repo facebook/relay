@@ -23,9 +23,12 @@ pub use syntax_node::*;
 use crate::parser::Parser;
 use common::SourceLocationKey;
 
-pub fn parse(source: &str, source_location: SourceLocationKey) -> SyntaxResult<Document> {
+pub fn parse_executable(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> SyntaxResult<ExecutableDocument> {
     let parser = Parser::new(source, source_location);
-    parser.parse_document()
+    parser.parse_executable_document()
 }
 
 pub fn parse_type(

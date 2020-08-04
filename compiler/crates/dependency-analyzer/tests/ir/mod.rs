@@ -10,7 +10,7 @@ use dependency_analyzer::*;
 use fixture_tests::Fixture;
 use fnv::FnvHashSet;
 use graphql_ir::*;
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use interner::Intern;
 use test_schema::TEST_SCHEMA;
 
@@ -35,10 +35,12 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .collect();
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let mut asts = parse(parts[0], source_location).unwrap().definitions;
+    let mut asts = parse_executable(parts[0], source_location)
+        .unwrap()
+        .definitions;
     let mut base_names = FnvHashSet::default();
     for part in parts.iter().skip(1) {
-        let defs = parse(part, source_location).unwrap().definitions;
+        let defs = parse_executable(part, source_location).unwrap().definitions;
         for def in defs {
             base_names.insert(match &def {
                 graphql_syntax::ExecutableDefinition::Operation(node) => {

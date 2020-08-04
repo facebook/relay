@@ -10,8 +10,10 @@ use common::{Location, Named, SourceLocationKey, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;
 
+/// A document only consisting of executable definitions (fragments and operations).
+/// This excludes schema definitions and schema extensions.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Document {
+pub struct ExecutableDocument {
     pub span: Span,
     pub definitions: Vec<ExecutableDefinition>,
 }

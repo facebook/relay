@@ -6,7 +6,7 @@ fragment Test on User {
   )
 }
 ==================================== OUTPUT ===================================
-Document {
+ExecutableDocument {
     span: 0:108,
     definitions: [
         FragmentDefinition {

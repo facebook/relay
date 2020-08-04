@@ -8,7 +8,7 @@
 //! Utilities for providing the completion language feature
 use crate::lsp::Position;
 use common::{SourceLocationKey, Span};
-use graphql_syntax::{parse, Document, GraphQLSource};
+use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
 
@@ -82,7 +82,7 @@ pub enum TypePathItem {
 }
 
 pub fn create_completion_request(
-    document: Document,
+    document: ExecutableDocument,
     position_span: Span,
 ) -> Option<CompletionRequest> {
     info!("Building completion path for {:#?}", document);
@@ -524,7 +524,7 @@ pub fn get_completion_request(
         None => return None,
     };
 
-    match parse(
+    match parse_executable(
         &graphql_source.text,
         SourceLocationKey::standalone(&url.to_string()),
     ) {

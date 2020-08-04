@@ -64,7 +64,7 @@ query {
   __typename
 }
 ==================================== OUTPUT ===================================
-Document {
+ExecutableDocument {
     span: 0:1124,
     definitions: [
         OperationDefinition {

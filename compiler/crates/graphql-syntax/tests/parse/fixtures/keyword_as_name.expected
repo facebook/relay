@@ -3,7 +3,7 @@ query KeywordAsName {
   search_results(query: "test")
 }
 ==================================== OUTPUT ===================================
-Document {
+ExecutableDocument {
     span: 0:56,
     definitions: [
         OperationDefinition {

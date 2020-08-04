@@ -49,8 +49,8 @@ impl<'a> Parser<'a> {
         parser
     }
 
-    pub fn parse_document(mut self) -> SyntaxResult<Document> {
-        let document = self.parse_document_impl();
+    pub fn parse_executable_document(mut self) -> SyntaxResult<ExecutableDocument> {
+        let document = self.parse_executable_document_impl();
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(document.unwrap())
@@ -78,12 +78,12 @@ impl<'a> Parser<'a> {
     // Document / Definitions
 
     /// Document : Definition+
-    fn parse_document_impl(&mut self) -> ParseResult<Document> {
+    fn parse_executable_document_impl(&mut self) -> ParseResult<ExecutableDocument> {
         let start = self.index();
         let definitions = self.parse_list(|s| s.peek_definition(), |s| s.parse_definition())?;
         let end = self.index();
         let span = Span::new(start, end);
-        Ok(Document { span, definitions })
+        Ok(ExecutableDocument { span, definitions })
     }
 
     /// Definition :

@@ -9,7 +9,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program, ValidationResult};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
 use std::sync::Arc;
 use test_schema::get_test_schema;
@@ -24,7 +24,7 @@ where
     sources.insert(source_location, fixture.content);
 
     let schema = get_test_schema();
-    let ast = parse(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir_result = build(&schema, &ast.definitions);
     let ir = match ir_result {
         Ok(res) => res,

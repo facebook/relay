@@ -28,80 +28,21 @@ afterEach(() => {
 });
 
 describe('RelayReader @required', () => {
-  let source;
-
-  beforeEach(() => {
-    const data = {
+  it('throws if a @required is encounted without the ENABLE_REQUIRED_DIRECTIVES feature flag enabled', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
       '1': {
         __id: '1',
         id: '1',
         __typename: 'User',
         firstName: 'Alice',
         lastName: null,
-        emailAddresses: null,
-        backgroundImage: {__ref: 'client:2'},
-        screennames: {
-          __refs: ['client:5:screennames:0', 'client:5:screennames:1'],
-        },
       },
-      '2': {
-        __id: '2',
-        id: '2',
-        __typename: 'Viewer',
-        actor: {__ref: 'client:3'},
-        allTimezones: null,
-      },
-      '3': {
-        __id: '3',
-        id: '3',
-        __typename: 'NonNodeNoID',
-        name: 'I am not a node',
-      },
-      'client:2': {
-        __id: 'client:2',
-        __typename: 'Image',
-        uri: null,
-      },
-      'client:3': {
-        __id: 'client:3',
-        __typename: 'Actor',
-        address: {__ref: 'client:4'},
-      },
-      'client:4': {
-        __id: 'client:4',
-        __typename: 'Address',
-        country: null,
-      },
-      'client:5:screennames:0': {
-        __id: 'client:5:screennames:0',
-        __typename: 'Screenname',
-        name: 'neo',
-        service: 'IRC',
-      },
-      'client:5:screennames:1': {
-        __id: 'client:5:screennames:1',
-        __typename: 'Screenname',
-        name: 'beast',
-        service: null,
-      },
-      'client:6:timezones:0': {
-        __id: 'client:6:timezones:0',
-        __typename: 'TimezoneInfo',
-        timezone: 'PARTY TIME',
-      },
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-        maybeNodeInterface: {__ref: '3'},
-        viewer: {__ref: '2'},
-      },
-    };
-
-    source = RelayRecordSource.create(data);
-  });
-
-  it('throws if a @required is encounted without the ENABLE_REQUIRED_DIRECTIVES feature flag enabled', () => {
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -122,6 +63,20 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        firstName: 'Alice',
+        lastName: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -136,6 +91,20 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) scalars up to LinkedField even if subsequent fields are not unexpectedly null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        firstName: 'Alice',
+        lastName: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -150,6 +119,24 @@ describe('RelayReader @required', () => {
   });
 
   it('only bubbles @required(action: LOG) scalars up to the parent LinkedField', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -172,6 +159,24 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) through @required(action: LOG) LinkedField', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -187,6 +192,19 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) scalars up to the query root', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me @required(action: LOG) {
@@ -200,6 +218,33 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) up to plural linked field', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        screennames: {
+          __refs: ['client:5:screennames:0', 'client:5:screennames:1'],
+        },
+      },
+      'client:5:screennames:0': {
+        __id: 'client:5:screennames:0',
+        __typename: 'Screenname',
+        name: 'neo',
+        service: 'IRC',
+      },
+      'client:5:screennames:1': {
+        __id: 'client:5:screennames:1',
+        __typename: 'Screenname',
+        name: 'beast',
+        service: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -221,6 +266,19 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) on plural scalar field up to the parent', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        emailAddress: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -235,6 +293,33 @@ describe('RelayReader @required', () => {
   });
 
   it('does _not_ bubbles @required(action: LOG) on plural linked field up to the parent', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        screennames: {
+          __refs: ['client:5:screennames:0', 'client:5:screennames:1'],
+        },
+      },
+      'client:5:screennames:0': {
+        __id: 'client:5:screennames:0',
+        __typename: 'Screenname',
+        name: 'neo',
+        service: 'IRC',
+      },
+      'client:5:screennames:1': {
+        __id: 'client:5:screennames:1',
+        __typename: 'Screenname',
+        name: 'beast',
+        service: null,
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
@@ -255,6 +340,19 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles when encountering a missing plural linked field', () => {
+    const source = RelayRecordSource.create({
+      '2': {
+        __id: '2',
+        id: '2',
+        __typename: 'Viewer',
+        allTimezones: null,
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        viewer: {__ref: '2'},
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         viewer {
@@ -270,6 +368,19 @@ describe('RelayReader @required', () => {
   });
 
   it('@required(action: LOG) within an inline fragment does not bubble if type does not match', () => {
+    const source = RelayRecordSource.create({
+      '3': {
+        __id: '3',
+        id: '3',
+        __typename: 'NonNodeNoID',
+        name: 'I am not a node',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        maybeNodeInterface: {__ref: '3'},
+      },
+    });
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         maybeNodeInterface {
@@ -288,6 +399,19 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) on Scalar up to parent fragment', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+      },
+    });
     const {BarFragment, UserQuery} = generateAndCompile(`
       query UserQuery {
         me {
@@ -307,6 +431,24 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) on LinkedField up to parent fragment', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
     const {BarFragment, UserQuery} = generateAndCompile(`
       query UserQuery {
         me {
@@ -328,6 +470,19 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles @required(action: LOG) on LinkedField up to parent fragment on Query', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+      },
+    });
     const {BarFragment, UserQuery} = generateAndCompile(`
       query UserQuery {
           ...BarFragment
@@ -347,6 +502,20 @@ describe('RelayReader @required', () => {
   });
 
   it('does not allow unexpected nulls to escape fragment boundaries', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        firstName: 'Alice',
+        lastName: null,
+      },
+    });
     const {BarFragment, UserQuery} = generateAndCompile(`
       query UserQuery {
         me @required(action: LOG) {
@@ -373,6 +542,20 @@ describe('RelayReader @required', () => {
   });
 
   it('bubbles nulls if the value is "missing" (still in the process of being loaded)', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        firstName: 'Alice',
+        username: undefined,
+      },
+    });
     const {BarFragment, UserQuery} = generateAndCompile(`
       query UserQuery {
         me {

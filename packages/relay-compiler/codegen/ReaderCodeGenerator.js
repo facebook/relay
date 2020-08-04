@@ -305,16 +305,21 @@ function generateLinkedField(
   const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
     ?.required: $FlowFixMe);
   if (requiredMetadata != null) {
-    return createRequiredField(field, requiredMetadata.action);
+    return createRequiredField(field, requiredMetadata);
   }
   return field;
 }
 
 function createRequiredField(
   field: ReaderField,
-  requiredAction: RequiredFieldAction,
+  requiredMetadata: RequiredDirectiveMetadata,
 ): ReaderRequiredField {
-  return {kind: 'RequiredField', field, action: requiredAction};
+  return {
+    kind: 'RequiredField',
+    field,
+    action: requiredMetadata.action,
+    path: requiredMetadata.path,
+  };
 }
 
 function generateModuleImport(
@@ -389,7 +394,7 @@ function generateScalarField(
         [node.loc],
       );
     }
-    return createRequiredField(field, requiredMetadata.action);
+    return createRequiredField(field, requiredMetadata);
   }
   return field;
 }

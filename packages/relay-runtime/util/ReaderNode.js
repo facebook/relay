@@ -203,6 +203,7 @@ export type ReaderRequiredField = {|
   +kind: 'RequiredField',
   +field: ReaderField,
   +action: RequiredFieldAction,
+  +path: string,
 |};
 
 export type ReaderSelection =

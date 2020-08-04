@@ -51,6 +51,7 @@ import type {
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
 } from '../util/ReaderNode';
@@ -170,8 +171,12 @@ class RelayReader {
       return record;
     }
     const data = prevData || {};
-    this._traverseSelections(node.selections, record, data);
-    return data;
+    const hadRequiredData = this._traverseSelections(
+      node.selections,
+      record,
+      data,
+    );
+    return hadRequiredData ? data : null;
   }
 
   _getVariableValue(name: string): mixed {
@@ -183,16 +188,47 @@ class RelayReader {
     return this._variables[name];
   }
 
+  _maybeReportUnexpectedNull(
+    fieldPath: string,
+    action: 'LOG' | 'THROW',
+    record: Record,
+  ) {
+    const owner = this._selector.node.name;
+
+    switch (action) {
+      case 'THROW':
+        throw new Error(
+          `Unexpected null value in '${owner}' at path '${fieldPath}'`,
+        );
+      case 'LOG':
+        // TODO Log
+        return;
+      default:
+        (action: empty);
+    }
+  }
+
   _traverseSelections(
     selections: $ReadOnlyArray<ReaderSelection>,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): boolean /* had all expected data */ {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
       switch (selection.kind) {
         case REQUIRED_FIELD:
-          throw new Error('@Required Fields are not yet supported.');
+          const fieldValue = this._readRequiredField(selection, record, data);
+          if (fieldValue == null) {
+            const {action} = selection;
+            if (action !== 'NONE') {
+              this._maybeReportUnexpectedNull(selection.path, action, record);
+            }
+            // We are going to throw, or our parent is going to get nulled out.
+            // Either way, sibling values are going to be ignored, so we can
+            // bail early here as an optimization.
+            return false;
+          }
+          break;
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -283,13 +319,38 @@ class RelayReader {
           );
       }
     }
+    return true;
+  }
+
+  _readRequiredField(
+    selection: ReaderRequiredField,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    switch (selection.field.kind) {
+      case SCALAR_FIELD:
+        return this._readScalar(selection.field, record, data);
+      case LINKED_FIELD:
+        if (selection.field.plural) {
+          return this._readPluralLink(selection.field, record, data);
+        } else {
+          return this._readLink(selection.field, record, data);
+        }
+      default:
+        (selection.field.kind: empty);
+        invariant(
+          false,
+          'RelayReader(): Unexpected ast kind `%s`.',
+          selection.kind,
+        );
+    }
   }
 
   _readScalar(
     field: ReaderScalarField,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
@@ -297,13 +358,14 @@ class RelayReader {
       this._isMissingData = true;
     }
     data[applicationName] = value;
+    return value;
   }
 
   _readLink(
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -312,7 +374,7 @@ class RelayReader {
       if (linkedID === undefined) {
         this._isMissingData = true;
       }
-      return;
+      return linkedID;
     }
 
     const prevData = data[applicationName];
@@ -325,14 +387,16 @@ class RelayReader {
       prevData,
     );
     // $FlowFixMe[incompatible-variance]
-    data[applicationName] = this._traverse(field, linkedID, prevData);
+    const value = this._traverse(field, linkedID, prevData);
+    data[applicationName] = value;
+    return value;
   }
 
   _readPluralLink(
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
@@ -342,7 +406,7 @@ class RelayReader {
       if (linkedIDs === undefined) {
         this._isMissingData = true;
       }
-      return;
+      return linkedIDs;
     }
 
     const prevData = data[applicationName];
@@ -378,6 +442,7 @@ class RelayReader {
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
     data[applicationName] = linkedArray;
+    return linkedArray;
   }
 
   /**

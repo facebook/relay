@@ -19180,6 +19180,7 @@ Fragment {
         storageKey: null,
       },
       action: "LOG",
+      path: "name",
     },
   ],
   type: "User",

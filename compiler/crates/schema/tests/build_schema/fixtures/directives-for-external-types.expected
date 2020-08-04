@@ -212,6 +212,9 @@ Schema {
             Object(1),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "fetch__XIGStory",
@@ -229,6 +232,9 @@ Schema {
             Object(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "name",
@@ -238,6 +244,9 @@ Schema {
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
     },
     Field {
         name: "id",
@@ -247,6 +256,9 @@ Schema {
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "story",
@@ -274,6 +286,9 @@ Schema {
                 ],
             },
         ],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "default_mailing_address",
@@ -291,6 +306,9 @@ Schema {
             Object(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "id",
@@ -300,6 +318,9 @@ Schema {
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "is_default",
@@ -309,6 +330,9 @@ Schema {
             Scalar(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "label",
@@ -318,6 +342,9 @@ Schema {
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "id",
@@ -327,6 +354,9 @@ Schema {
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "name",
@@ -336,6 +366,9 @@ Schema {
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "__typename",
@@ -347,6 +380,7 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: None,
     },
     Field {
         name: "__id",
@@ -358,6 +392,7 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: None,
     },
 ]
  input_objects: [

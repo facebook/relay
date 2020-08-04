@@ -725,6 +725,7 @@ impl Schema {
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
+            parent_type: None,
         });
 
         let clientid_field_id = schema.fields.len();
@@ -735,6 +736,7 @@ impl Schema {
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
+            parent_type: None,
         });
 
         Ok(schema)
@@ -815,10 +817,15 @@ impl Schema {
                 fields,
                 directives,
             } => {
+                let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
-                    self.build_extend_fields(&fields, &mut HashSet::with_capacity(fields.len()))?
+                    self.build_extend_fields(
+                        &fields,
+                        &mut HashSet::with_capacity(fields.len()),
+                        Some(parent_id),
+                    )?
                 } else {
-                    self.build_fields(&fields)?
+                    self.build_fields(&fields, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
@@ -838,10 +845,15 @@ impl Schema {
                 directives,
                 fields,
             } => {
+                let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
-                    self.build_extend_fields(&fields, &mut HashSet::with_capacity(fields.len()))?
+                    self.build_extend_fields(
+                        &fields,
+                        &mut HashSet::with_capacity(fields.len()),
+                        Some(parent_id),
+                    )?
                 } else {
-                    self.build_fields(&fields)?
+                    self.build_fields(&fields, Some(parent_id))?
                 };
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
@@ -915,7 +927,7 @@ impl Schema {
                 interfaces: _interfaces,
                 fields,
                 directives: _directives,
-            } => match self.type_map.get(&name) {
+            } => match self.type_map.get(&name).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
                     let field_ids = &self.objects[index].fields;
@@ -924,7 +936,11 @@ impl Schema {
                     for field_id in field_ids {
                         existing_fields.insert(self.fields[field_id.as_usize()].name);
                     }
-                    let client_fields = self.build_extend_fields(fields, &mut existing_fields)?;
+                    let client_fields = self.build_extend_fields(
+                        fields,
+                        &mut existing_fields,
+                        Some(Type::Object(id)),
+                    )?;
                     self.objects[index].fields.extend(client_fields);
                 }
                 _ => {
@@ -932,7 +948,7 @@ impl Schema {
                 }
             },
             ast::Definition::InterfaceTypeExtension { name, fields, .. } => {
-                match self.type_map.get(&name) {
+                match self.type_map.get(&name).cloned() {
                     Some(Type::Interface(id)) => {
                         let index = id.as_usize();
                         let field_ids = &self.interfaces[index].fields;
@@ -941,8 +957,11 @@ impl Schema {
                         for field_id in field_ids {
                             existing_fields.insert(self.fields[field_id.as_usize()].name);
                         }
-                        let client_fields =
-                            self.build_extend_fields(fields, &mut existing_fields)?;
+                        let client_fields = self.build_extend_fields(
+                            fields,
+                            &mut existing_fields,
+                            Some(Type::Interface(id)),
+                        )?;
                         self.interfaces[index].fields.extend(client_fields);
                     }
                     _ => {
@@ -981,7 +1000,11 @@ impl Schema {
         FieldID(field_index)
     }
 
-    fn build_fields(&mut self, field_defs: &[ast::FieldDefinition]) -> Result<Vec<FieldID>> {
+    fn build_fields(
+        &mut self,
+        field_defs: &[ast::FieldDefinition],
+        parent_type: Option<Type>,
+    ) -> Result<Vec<FieldID>> {
         field_defs
             .iter()
             .map(|field_def| {
@@ -994,6 +1017,7 @@ impl Schema {
                     arguments,
                     type_,
                     directives,
+                    parent_type,
                 }))
             })
             .collect()
@@ -1003,6 +1027,7 @@ impl Schema {
         &mut self,
         field_defs: &[ast::FieldDefinition],
         existing_fields: &mut HashSet<StringKey>,
+        parent_type: Option<Type>,
     ) -> Result<Vec<FieldID>> {
         let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.len());
         for field_def in field_defs {
@@ -1018,6 +1043,7 @@ impl Schema {
                 arguments,
                 type_,
                 directives,
+                parent_type,
             }));
         }
         Ok(field_ids)
@@ -1397,6 +1423,11 @@ pub struct Field {
     pub arguments: ArgumentDefinitions,
     pub type_: TypeReference,
     pub directives: Vec<DirectiveValue>,
+    /// The type on which this field was defined. This field is (should)
+    /// always be set, except for special fields such as __typename and
+    /// __id, which are queryable on all types and therefore don't have
+    /// a single parent type.
+    pub parent_type: Option<Type>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -583,8 +583,8 @@ impl Schema {
     }
 
     pub fn build(
-        schema_definitions: &[ast::Definition],
-        client_definitions: &[ast::Definition],
+        schema_definitions: &[ast::TypeSystemDefinition],
+        client_definitions: &[ast::TypeSystemDefinition],
     ) -> Result<Self> {
         // Step 1: build the type_map from type names to type keys
         let mut type_map =
@@ -599,41 +599,41 @@ impl Schema {
         let mut directive_count = 0;
         for definition in schema_definitions.iter().chain(client_definitions) {
             match definition {
-                ast::Definition::SchemaDefinition { .. } => {}
-                ast::Definition::DirectiveDefinition { .. } => {
+                ast::TypeSystemDefinition::SchemaDefinition { .. } => {}
+                ast::TypeSystemDefinition::DirectiveDefinition { .. } => {
                     directive_count += 1;
                 }
-                ast::Definition::ObjectTypeDefinition { name, fields, .. } => {
+                ast::TypeSystemDefinition::ObjectTypeDefinition { name, fields, .. } => {
                     type_map.insert(*name, Type::Object(ObjectID(next_object_id)));
                     field_count += fields.len();
                     next_object_id += 1;
                 }
-                ast::Definition::InterfaceTypeDefinition { name, fields, .. } => {
+                ast::TypeSystemDefinition::InterfaceTypeDefinition { name, fields, .. } => {
                     type_map.insert(*name, Type::Interface(InterfaceID(next_interface_id)));
                     field_count += fields.len();
                     next_interface_id += 1;
                 }
-                ast::Definition::UnionTypeDefinition { name, .. } => {
+                ast::TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
                     type_map.insert(*name, Type::Union(UnionID(next_union_id)));
                     next_union_id += 1;
                 }
-                ast::Definition::InputObjectTypeDefinition { name, .. } => {
+                ast::TypeSystemDefinition::InputObjectTypeDefinition { name, .. } => {
                     type_map.insert(
                         *name,
                         Type::InputObject(InputObjectID(next_input_object_id)),
                     );
                     next_input_object_id += 1;
                 }
-                ast::Definition::EnumTypeDefinition { name, .. } => {
+                ast::TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
                     type_map.insert(*name, Type::Enum(EnumID(next_enum_id)));
                     next_enum_id += 1;
                 }
-                ast::Definition::ScalarTypeDefinition { name, .. } => {
+                ast::TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
                     type_map.insert(*name, Type::Scalar(ScalarID(next_scalar_id)));
                     next_scalar_id += 1;
                 }
-                ast::Definition::ObjectTypeExtension { .. } => {}
-                ast::Definition::InterfaceTypeExtension { .. } => {}
+                ast::TypeSystemDefinition::ObjectTypeExtension { .. } => {}
+                ast::TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
             }
         }
 
@@ -675,7 +675,7 @@ impl Schema {
         }
 
         for definition in schema_definitions.iter().chain(client_definitions) {
-            if let ast::Definition::ObjectTypeDefinition {
+            if let ast::TypeSystemDefinition::ObjectTypeDefinition {
                 name, interfaces, ..
             } = definition
             {
@@ -742,9 +742,13 @@ impl Schema {
         Ok(schema)
     }
 
-    fn add_definition(&mut self, definition: &ast::Definition, is_extension: bool) -> Result<()> {
+    fn add_definition(
+        &mut self,
+        definition: &ast::TypeSystemDefinition,
+        is_extension: bool,
+    ) -> Result<()> {
         match definition {
-            ast::Definition::SchemaDefinition {
+            ast::TypeSystemDefinition::SchemaDefinition {
                 operation_types,
                 directives: _directives,
             } => {
@@ -787,7 +791,7 @@ impl Schema {
                     }
                 }
             }
-            ast::Definition::DirectiveDefinition {
+            ast::TypeSystemDefinition::DirectiveDefinition {
                 name,
                 arguments,
                 repeatable: _repeatable,
@@ -811,7 +815,7 @@ impl Schema {
                     },
                 );
             }
-            ast::Definition::ObjectTypeDefinition {
+            ast::TypeSystemDefinition::ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
@@ -840,7 +844,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::InterfaceTypeDefinition {
+            ast::TypeSystemDefinition::InterfaceTypeDefinition {
                 name,
                 directives,
                 fields,
@@ -864,7 +868,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::UnionTypeDefinition {
+            ast::TypeSystemDefinition::UnionTypeDefinition {
                 name,
                 directives,
                 members,
@@ -881,7 +885,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::InputObjectTypeDefinition {
+            ast::TypeSystemDefinition::InputObjectTypeDefinition {
                 name,
                 fields,
                 directives,
@@ -894,7 +898,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::EnumTypeDefinition {
+            ast::TypeSystemDefinition::EnumTypeDefinition {
                 name,
                 directives,
                 values,
@@ -914,7 +918,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::ScalarTypeDefinition { name, directives } => {
+            ast::TypeSystemDefinition::ScalarTypeDefinition { name, directives } => {
                 let directives = self.build_directive_values(&directives);
                 self.scalars.push(Scalar {
                     name: *name,
@@ -922,7 +926,7 @@ impl Schema {
                     directives,
                 })
             }
-            ast::Definition::ObjectTypeExtension {
+            ast::TypeSystemDefinition::ObjectTypeExtension {
                 name,
                 interfaces: _interfaces,
                 fields,
@@ -947,7 +951,7 @@ impl Schema {
                     return Err(SchemaError::ExtendUndefinedType(*name));
                 }
             },
-            ast::Definition::InterfaceTypeExtension { name, fields, .. } => {
+            ast::TypeSystemDefinition::InterfaceTypeExtension { name, fields, .. } => {
                 match self.type_map.get(&name).cloned() {
                     Some(Type::Interface(id)) => {
                         let index = id.as_usize();

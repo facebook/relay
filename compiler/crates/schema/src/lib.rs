@@ -20,8 +20,8 @@ mod parser;
 mod token;
 
 pub use ast::{
-    Definition, DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
-    Value as AstValue,
+    DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
+    TypeSystemDefinition, Value as AstValue,
 };
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
@@ -58,7 +58,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     Schema::build(&server_definitions, &extension_definitions)
 }
 
-pub fn parse_definitions(input: &str) -> Result<Vec<ast::Definition>> {
+pub fn parse_definitions(input: &str) -> Result<Vec<ast::TypeSystemDefinition>> {
     let lexer = Lexer::new(input);
     let parser = Parser::new(lexer);
     parser.parse_schema_document()

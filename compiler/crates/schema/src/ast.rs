@@ -18,7 +18,7 @@ pub enum Type {
 }
 
 #[derive(PartialEq, Debug)]
-pub enum Definition {
+pub enum TypeSystemDefinition {
     SchemaDefinition {
         directives: Vec<Directive>,
         operation_types: Vec<OperationTypeDefinition>,

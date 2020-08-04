@@ -258,7 +258,14 @@ class RelayReader {
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
           if (conditionValue === selection.passingValue) {
-            this._traverseSelections(selection.selections, record, data);
+            const hasExpectedData = this._traverseSelections(
+              selection.selections,
+              record,
+              data,
+            );
+            if (!hasExpectedData) {
+              return false;
+            }
           }
           break;
         case INLINE_FRAGMENT: {
@@ -267,7 +274,14 @@ class RelayReader {
             // concrete type refinement: only read data if the type exactly matches
             const typeName = RelayModernRecord.getType(record);
             if (typeName != null && typeName === selection.type) {
-              this._traverseSelections(selection.selections, record, data);
+              const hasExpectedData = this._traverseSelections(
+                selection.selections,
+                record,
+                data,
+              );
+              if (!hasExpectedData) {
+                return false;
+              }
             }
           } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             // Similar to the logic in read(): data is only expected to be present
@@ -318,8 +332,15 @@ class RelayReader {
         case DEFER:
         case CLIENT_EXTENSION:
           const isMissingData = this._isMissingData;
-          this._traverseSelections(selection.selections, record, data);
+          const hasExpectedData = this._traverseSelections(
+            selection.selections,
+            record,
+            data,
+          );
           this._isMissingData = isMissingData;
+          if (!hasExpectedData) {
+            return false;
+          }
           break;
         case STREAM:
           this._traverseSelections(selection.selections, record, data);

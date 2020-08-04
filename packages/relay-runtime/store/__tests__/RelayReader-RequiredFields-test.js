@@ -367,6 +367,35 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({viewer: null});
   });
 
+  it('@required(action: LOG) within an inline fragment on a concrete type bubbles if the type matches', () => {
+    const source = RelayRecordSource.create({
+      '3': {
+        __id: '3',
+        id: '3',
+        __typename: 'NonNodeNoID',
+        name: null,
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        maybeNodeInterface: {__ref: '3'},
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery {
+        maybeNodeInterface {
+          ... on NonNodeNoID {
+            name @required(action: LOG)
+          }
+        }
+      }
+    `);
+
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({maybeNodeInterface: null});
+  });
+
   it('@required(action: LOG) within an inline fragment does not bubble if type does not match', () => {
     const source = RelayRecordSource.create({
       '3': {
@@ -396,6 +425,163 @@ describe('RelayReader @required', () => {
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({maybeNodeInterface: {name: 'I am not a node'}});
+  });
+
+  it('@required(action: LOG) bubbles across @skip', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        emailAddress: null,
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery($skip: Boolean!) {
+        me {
+          emailAddresses @skip(if: $skip) @required(action: LOG)
+        }
+      }
+    `);
+
+    const operation = createOperationDescriptor(FooQuery, {
+      id: '1',
+      skip: false,
+    });
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: null});
+  });
+
+  it('@required(action: LOG) bubbles across @include', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        emailAddress: null,
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery($include: Boolean!) {
+        me {
+          emailAddresses @include(if: $include) @required(action: LOG)
+        }
+      }
+    `);
+
+    const operation = createOperationDescriptor(FooQuery, {
+      id: '1',
+      include: true,
+    });
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: null});
+  });
+
+  it('@required(action: LOG) does not bubble if @required field is not @included', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        emailAddress: null,
+        name: 'Zucc',
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery($include: Boolean!) {
+        me {
+          emailAddresses @include(if: $include) @required(action: LOG)
+          name
+        }
+      }
+    `);
+
+    const operation = createOperationDescriptor(FooQuery, {
+      id: '1',
+      include: false,
+    });
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: {name: 'Zucc'}});
+  });
+
+  it('@required(action: LOG) does not bubble if @required field is @skipped', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        emailAddress: null,
+        name: 'Zucc',
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery($skip: Boolean!) {
+        me {
+          emailAddresses @skip(if: $skip) @required(action: LOG)
+          name
+        }
+      }
+    `);
+
+    const operation = createOperationDescriptor(FooQuery, {
+      id: '1',
+      skip: true,
+    });
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: {name: 'Zucc'}});
+  });
+
+  it('@required(action: LOG) bubbles client extension fields', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        client_nickname: null,
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery{
+        me {
+          client_nickname @required(action: LOG)
+        }
+      }
+
+      extend type User {
+        client_nickname: String
+      }
+    `);
+
+    const operation = createOperationDescriptor(FooQuery, {
+      id: '1',
+    });
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: null});
   });
 
   it('bubbles @required(action: LOG) on Scalar up to parent fragment', () => {

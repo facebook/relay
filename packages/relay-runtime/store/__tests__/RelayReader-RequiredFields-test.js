@@ -16,8 +16,16 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
-const {createReaderSelector} = require('relay-runtime');
+const {createReaderSelector, RelayFeatureFlags} = require('relay-runtime');
 const {generateAndCompile} = require('relay-test-utils-internal');
+
+beforeEach(() => {
+  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+});
+
+afterEach(() => {
+  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+});
 
 describe('RelayReader @required', () => {
   let source;
@@ -93,20 +101,23 @@ describe('RelayReader @required', () => {
     source = RelayRecordSource.create(data);
   });
 
-  it('can request to throw on unexpected null', () => {
+  it('throws if a @required is encounted without the ENABLE_REQUIRED_DIRECTIVES feature flag enabled', () => {
     const {FooQuery} = generateAndCompile(`
       query FooQuery {
         me {
           firstName
-          lastName @required(action: THROW)
+          lastName @required(action: LOG)
         }
       }
     `);
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
+
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+
     expect(() => {
       read(source, operation.fragment);
     }).toThrowErrorMatchingInlineSnapshot(
-      "\"Unexpected null value in 'FooQuery' at path 'me.lastName'\"",
+      '"RelayReader(): Encountered a `@required` directive at path \\"me.lastName\\" in `FooQuery` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled."',
     );
   });
 
@@ -361,7 +372,7 @@ describe('RelayReader @required', () => {
     expect(fragmentData).toBeNull();
   });
 
-  it('bubble nulls if the value is "missing" (still in the process of being loaded)', () => {
+  it('bubbles nulls if the value is "missing" (still in the process of being loaded)', () => {
     const {BarFragment, UserQuery} = generateAndCompile(`
       query UserQuery {
         me {

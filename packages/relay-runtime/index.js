@@ -118,6 +118,7 @@ export type {
   LogEvent,
   LogFunction,
   MissingFieldHandler,
+  MissingRequiredFields,
   ModuleImportPointer,
   NormalizationSelector,
   OperationAvailability,

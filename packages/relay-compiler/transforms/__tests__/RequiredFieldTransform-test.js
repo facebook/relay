@@ -17,6 +17,7 @@ const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RequiredFieldTransform = require('../RequiredFieldTransform');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -25,6 +26,13 @@ const {
 } = require('relay-test-utils-internal');
 
 describe('RequiredFieldTransform', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  });
   const extendedSchema = TestSchema.extend([
     RequiredFieldTransform.SCHEMA_EXTENSION,
   ]);
@@ -40,4 +48,75 @@ describe('RequiredFieldTransform', () => {
         .join('\n');
     },
   );
+});
+
+describe('RequiredFieldTransform Feature Flag', () => {
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  });
+  const extendedSchema = TestSchema.extend([
+    RequiredFieldTransform.SCHEMA_EXTENSION,
+  ]);
+  describe('LIMITED', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = 'LIMITED';
+    });
+
+    test('allows documents prefixed with RelayRequiredTest', () => {
+      const text = `fragment RelayRequiredTestFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      context.applyTransforms([RequiredFieldTransform.transform]);
+    });
+
+    test('throws on documents _not_ prefixed with RelayRequiredTest', () => {
+      const text = `fragment RandomTestFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      expect(() => {
+        context.applyTransforms([RequiredFieldTransform.transform]);
+      }).toThrowError(
+        /^The @required directive is experimental and not yet supported for use in product code/,
+      );
+    });
+  });
+  describe('false', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+    });
+
+    test('throws on documents prefixed with RelayRequiredTest', () => {
+      const text = `fragment RelayRequiredTestFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      expect(() => {
+        context.applyTransforms([RequiredFieldTransform.transform]);
+      }).toThrowError(
+        /^The @required directive is experimental and not yet supported for use in product code/,
+      );
+    });
+
+    test('throws on documents _not_ prefixed with RelayRequiredTest', () => {
+      const text = `fragment RandomTestFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      expect(() => {
+        context.applyTransforms([RequiredFieldTransform.transform]);
+      }).toThrowError(
+        /^The @required directive is experimental and not yet supported for use in product code/,
+      );
+    });
+  });
 });

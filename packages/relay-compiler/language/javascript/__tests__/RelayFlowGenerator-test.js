@@ -17,6 +17,7 @@ const CompilerContext = require('../../../core/CompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -65,6 +66,13 @@ function generate(text, options: TypeGeneratorOptions, context?) {
 }
 
 describe('Snapshot tests', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  });
   function generateContext(text) {
     const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
     const {definitions, schema: extendedSchema} = parseGraphQLText(

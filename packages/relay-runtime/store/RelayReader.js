@@ -63,6 +63,7 @@ import type {
   SelectorData,
   SingularReaderSelector,
   Snapshot,
+  MissingRequiredFields,
 } from './RelayStoreTypes';
 
 function read(
@@ -79,6 +80,7 @@ function read(
 class RelayReader {
   _isMissingData: boolean;
   _isWithinUnmatchedTypeRefinement: boolean;
+  _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
   _seenRecords: {[dataID: DataID]: ?Record, ...};
@@ -88,6 +90,7 @@ class RelayReader {
   constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
+    this._missingRequiredFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
     this._seenRecords = {};
@@ -154,6 +157,7 @@ class RelayReader {
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
       seenRecords: this._seenRecords,
       selector: this._selector,
+      missingRequiredFields: this._missingRequiredFields,
     };
   }
 
@@ -197,11 +201,16 @@ class RelayReader {
 
     switch (action) {
       case 'THROW':
-        throw new Error(
-          `Unexpected null value in '${owner}' at path '${fieldPath}'`,
-        );
+        this._missingRequiredFields = {action, field: {path: fieldPath, owner}};
+        return;
       case 'LOG':
-        // TODO Log
+        if (this._missingRequiredFields?.action === 'THROW') {
+          return;
+        }
+        if (this._missingRequiredFields == null) {
+          this._missingRequiredFields = {action, fields: []};
+        }
+        this._missingRequiredFields.fields.push({path: fieldPath, owner});
         return;
       default:
         (action: empty);
@@ -217,6 +226,13 @@ class RelayReader {
       const selection = selections[i];
       switch (selection.kind) {
         case REQUIRED_FIELD:
+          invariant(
+            RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES,
+            'RelayReader(): Encountered a `@required` directive at path "%s" in `%s` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled.',
+            selection.path,
+            this._selector.node.name,
+          );
+
           const fieldValue = this._readRequiredField(selection, record, data);
           if (fieldValue == null) {
             const {action} = selection;

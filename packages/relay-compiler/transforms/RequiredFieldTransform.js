@@ -17,6 +17,7 @@ const IRTransformer = require('../core/IRTransformer');
 const partitionArray = require('../util/partitionArray');
 
 const {createUserError, createCompilerError} = require('../core/CompilerError');
+const {RelayFeatureFlags} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
@@ -43,6 +44,7 @@ export type RequiredDirectiveMetadata = {|
 
 type State = {|
   schema: Schema,
+  documentName: string,
   path: Array<string>,
   pathRequiredMap: PathRequiredMap,
   currentNodeRequiredChildren: Map<Alias, Field>,
@@ -77,6 +79,7 @@ function requiredFieldTransform(context: CompilerContext): CompilerContext {
     },
     node => ({
       schema,
+      documentName: node.name,
       path: [],
       pathRequiredMap: new Map(),
       currentNodeRequiredChildren: new Map(),
@@ -121,7 +124,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
 
   const pathName = path.join('.');
   assertCompatibleRequiredChildren(field, pathName, newState);
-  newField = applyDirectives(newField, pathName);
+  newField = applyDirectives(newField, pathName, state.documentName);
   assertCompatibleNullability(newField, pathName, newState.pathRequiredMap);
 
   const directiveMetadata = getRequiredDirectiveMetadata(newField);
@@ -139,7 +142,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
 
 function vistitScalarField(field: ScalarField, state: State): ScalarField {
   const pathName = [...state.path, field.alias].join('.');
-  const newField = applyDirectives(field, pathName);
+  const newField = applyDirectives(field, pathName, state.documentName);
   const directiveMetadata = getRequiredDirectiveMetadata(newField);
   if (directiveMetadata != null) {
     assertParentIsNotInvalidInlineFragmet(
@@ -272,6 +275,7 @@ function createMissingRequiredFieldError(
 function applyDirectives<T: ScalarField | LinkedField>(
   field: T,
   pathName: string,
+  documentName: string,
 ): T {
   const [requiredDirectives, otherDirectives] = partitionArray(
     field.directives,
@@ -280,6 +284,22 @@ function applyDirectives<T: ScalarField | LinkedField>(
 
   if (requiredDirectives.length === 0) {
     return field;
+  }
+
+  if (RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES === 'LIMITED') {
+    if (!documentName.startsWith('RelayRequiredTest')) {
+      throw new createUserError(
+        // Purposefully don't include details in this error message, since we
+        // don't want folks adopting this feature until it's been tested more.
+        'The @required directive is experimental and not yet supported for use in product code',
+        requiredDirectives.map(x => x.loc),
+      );
+    }
+  } else if (!RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES) {
+    throw new createUserError(
+      'The @required directive is experimental and not yet supported for use in product code',
+      requiredDirectives.map(x => x.loc),
+    );
   }
 
   if (requiredDirectives.length > 1) {

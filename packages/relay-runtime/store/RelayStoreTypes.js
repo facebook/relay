@@ -95,6 +95,15 @@ export type NormalizationSelector = {|
   +variables: Variables,
 |};
 
+type MissingRequiredField = {|
+  path: string,
+  owner: string,
+|};
+
+export type MissingRequiredFields =
+  | {|action: 'THROW', field: MissingRequiredField|}
+  | {|action: 'LOG', fields: Array<MissingRequiredField>|};
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */
@@ -103,6 +112,7 @@ export type TypedSnapshot<TData> = {|
   +isMissingData: boolean,
   +seenRecords: RecordMap,
   +selector: SingularReaderSelector,
+  +missingRequiredFields: ?MissingRequiredFields,
 |};
 export type Snapshot = TypedSnapshot<?SelectorData>;
 
@@ -472,7 +482,13 @@ export type LogEvent =
       +name: 'store.notify.complete',
       +updatedRecordIDs: UpdatedRecords,
       +invalidatedRecordIDs: Set<DataID>,
+    |}
+  | {|
+      +name: 'read.missing_required_field',
+      +owner: string,
+      +fieldPath: string,
     |};
+
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;
 

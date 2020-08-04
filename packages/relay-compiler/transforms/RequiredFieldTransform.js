@@ -111,6 +111,21 @@ function getAbstractInlineFragment(
   return null;
 }
 
+// Convert action to a number so that we can numerically compare their severity.
+function getActionSeverity(action: RequiredFieldAction): number {
+  switch (action) {
+    case 'NONE':
+      return 0;
+    case 'LOG':
+      return 1;
+    case 'THROW':
+      return 2;
+    default:
+      (action: empty);
+      throw createCompilerError(`Unhandled action type ${action}`);
+  }
+}
+
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
   const path = [...state.path, field.alias];
   const newState = {
@@ -134,6 +149,22 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
       directiveMetadata,
       state.parentAbstractInlineFragment,
     );
+
+    const severity = getActionSeverity(directiveMetadata.action);
+
+    // Assert that all @required children have at least this severity.
+    newState.currentNodeRequiredChildren.forEach(childField => {
+      const childMetadata = getRequiredDirectiveMetadata(childField);
+      if (childMetadata == null) {
+        return;
+      }
+      if (getActionSeverity(childMetadata.action) < severity) {
+        throw createUserError(
+          `The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: ${directiveMetadata.action}\`.`,
+          [childMetadata.actionLoc, directiveMetadata.actionLoc],
+        );
+      }
+    });
   }
 
   state.requiredChildrenMap.set(pathName, newState.currentNodeRequiredChildren);
@@ -150,7 +181,7 @@ function vistitScalarField(field: ScalarField, state: State): ScalarField {
       directiveMetadata,
       state.parentAbstractInlineFragment,
     );
-    state.currentNodeRequiredChildren.set(field.alias, field);
+    state.currentNodeRequiredChildren.set(field.alias, newField);
   }
   assertCompatibleNullability(newField, pathName, state.pathRequiredMap);
   return newField;

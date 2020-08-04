@@ -1070,6 +1070,34 @@ Fragment {
 }
 `;
 
+exports[`RequiredFieldTransform matches expected output: log-action-bubble-to-throw.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: THROW) {
+    city @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:20)
+3:   address @required(action: THROW) {
+4:     city @required(action: LOG)
+                      ^
+5:   }
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: THROW) {
+                       ^
+4:     city @required(action: LOG)
+
+`;
+
 exports[`RequiredFieldTransform matches expected output: multiple-required-fields.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
@@ -1095,6 +1123,92 @@ Source: GraphQL request (3:30)
 3:   me @required(action: NONE) @required(action: NONE) {
                                 ^
 4:     id
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: none-action-bubble-to-log.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: LOG) {
+    city @required(action: NONE)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: LOG\`.
+
+Source: GraphQL request (4:20)
+3:   address @required(action: LOG) {
+4:     city @required(action: NONE)
+                      ^
+5:   }
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: LOG) {
+                       ^
+4:     city @required(action: NONE)
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: none-action-bubble-to-log-across-inline-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Comment {
+  actor @required(action: LOG) {
+    ... on User {
+      name @required(action: NONE)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: LOG\`.
+
+Source: GraphQL request (5:22)
+4:     ... on User {
+5:       name @required(action: NONE)
+                        ^
+6:     }
+
+Source: GraphQL request (3:19)
+2: fragment Foo on Comment {
+3:   actor @required(action: LOG) {
+                     ^
+4:     ... on User {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: none-action-bubble-to-throw.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: THROW) {
+    city @required(action: NONE)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:20)
+3:   address @required(action: THROW) {
+4:     city @required(action: NONE)
+                      ^
+5:   }
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: THROW) {
+                       ^
+4:     city @required(action: NONE)
 
 `;
 

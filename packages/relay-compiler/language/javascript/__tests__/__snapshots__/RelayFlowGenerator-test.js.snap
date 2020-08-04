@@ -2548,7 +2548,7 @@ exports[`Snapshot tests for useHaste matches expected output: required-throw-doe
 query FooQuery {
   me @required(action: THROW) {
     firstName
-    lastName @required(action: LOG)
+    lastName
   }
 }
 
@@ -2558,7 +2558,7 @@ export type FooQueryVariables = {||};
 export type FooQueryResponse = {|
   +me: {|
     +firstName: ?string,
-    +lastName: string,
+    +lastName: ?string,
   |}
 |};
 export type FooQuery = {|

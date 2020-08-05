@@ -10,24 +10,15 @@ use dependency_analyzer::{get_reachable_ast, ReachableAst};
 use fixture_tests::Fixture;
 use graphql_syntax::*;
 
-fn format_definition(def: ExecutableDefinition) -> String {
-    match def {
-        ExecutableDefinition::Operation(operation) => {
-            format!("Operation: {}", operation.name.unwrap().value)
-        }
-        ExecutableDefinition::Fragment(fragment) => format!("Fragment: {}", fragment.name.value),
-    }
-}
-
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts: Vec<&str> = fixture.content.split("%definitions%").collect();
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let definitions = parse(parts[0], source_location).unwrap();
+    let definitions = parse_executable(parts[0], source_location).unwrap();
     let base_definitions = parts
         .iter()
         .skip(1)
-        .flat_map(|part| parse(part, source_location).unwrap().definitions)
+        .flat_map(|part| parse_executable(part, source_location).unwrap().definitions)
         .collect();
     let ReachableAst {
         definitions: result,
@@ -36,7 +27,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut texts = result
         .into_iter()
-        .map(format_definition)
+        .map(|def| def.name().unwrap().to_string())
         .collect::<Vec<_>>();
     texts.sort_unstable();
     texts.push("========== Base definitions ==========".to_string());
@@ -46,5 +37,5 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .collect::<Vec<_>>();
     defs.sort_unstable();
     texts.push(defs.join(", "));
-    Ok(texts.join("\n\n"))
+    Ok(texts.join("\n"))
 }

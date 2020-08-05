@@ -1,0 +1,231 @@
+==================================== INPUT ====================================
+query FlightPropsTransform($cond: Boolean!, $count: Int!, $id: ID!) {
+  node(id: $id) {
+    ... on Story {
+      id
+      extension_field(condition: $cond, count: $count, id: $id)
+    }
+  }
+}
+
+%extensions%
+directive @react_flight_component(name: String!) on FIELD_DEFINITION
+
+extend type Story {
+  extension_field(condition: Boolean!, count: Int!, id: ID!): ReactFlightComponent
+    @react_flight_component(name: "ExtensionField.server")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "count"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "FlightPropsTransform",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": "extension_field",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "ExtensionField.server"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "kind": "Variable",
+                        "name": "condition",
+                        "variableName": "cond"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "count",
+                        "variableName": "count"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "id",
+                        "variableName": "id"
+                      }
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "ScalarField",
+                "name": "flight",
+                "storageKey": null
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "count"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "FlightPropsTransform",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "extension_field",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "ExtensionField.server"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "kind": "Variable",
+                        "name": "condition",
+                        "variableName": "cond"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "count",
+                        "variableName": "count"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "id",
+                        "variableName": "id"
+                      }
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "ScalarField",
+                "name": "flight",
+                "storageKey": null
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "FlightPropsTransform",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query FlightPropsTransform(
+  $cond: Boolean!
+  $count: Int!
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ... on Story {
+      id
+      extension_field: flight(component: "ExtensionField.server", props: {condition: $cond, count: $count, id: $id})
+    }
+    id
+  }
+}

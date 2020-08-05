@@ -12,23 +12,22 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod ast;
 mod definitions;
 mod errors;
 mod lexer;
 mod parser;
 mod token;
 
-pub use ast::{
-    Definition, DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
-    Value as AstValue,
-};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
     EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
     ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, UnionID,
 };
 pub use errors::{Result, SchemaError};
+pub use graphql_syntax::type_system_node::{
+    DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
+    TypeSystemDefinition, Value as AstValue,
+};
 use lexer::Lexer;
 use parser::Parser;
 
@@ -58,7 +57,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     Schema::build(&server_definitions, &extension_definitions)
 }
 
-pub fn parse_definitions(input: &str) -> Result<Vec<ast::Definition>> {
+pub fn parse_definitions(input: &str) -> Result<Vec<TypeSystemDefinition>> {
     let lexer = Lexer::new(input);
     let parser = Parser::new(lexer);
     parser.parse_schema_document()

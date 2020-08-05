@@ -394,13 +394,15 @@ describe('useRefetchableFragmentNode', () => {
         },
       ]);
 
-      environment.commitPayload(query, {
-        node: {
-          __typename: 'User',
-          id: '1',
-          // Update name
-          name: 'Alice in Wonderland',
-        },
+      TestRenderer.act(() => {
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: '1',
+            // Update name
+            name: 'Alice in Wonderland',
+          },
+        });
       });
       expectFragmentResults([
         {
@@ -431,11 +433,13 @@ describe('useRefetchableFragmentNode', () => {
         missingDataVariables,
       );
       // Commit a payload with name and profile_picture are missing
-      environment.commitPayload(missingDataQuery, {
-        node: {
-          __typename: 'User',
-          id: '4',
-        },
+      TestRenderer.act(() => {
+        environment.commitPayload(missingDataQuery, {
+          node: {
+            __typename: 'User',
+            id: '4',
+          },
+        });
       });
 
       const renderer = renderFragment({owner: missingDataQuery});
@@ -515,8 +519,9 @@ describe('useRefetchableFragmentNode', () => {
       };
       expectFragmentResults([{data: initialUser}]);
 
-      renderer.unmount();
-
+      TestRenderer.act(() => {
+        renderer.unmount();
+      });
       TestRenderer.act(() => {
         refetch({id: '4'});
       });
@@ -613,7 +618,9 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network error
-      environment.mock.reject(gqlRefetchQuery, new Error('Oops'));
+      TestRenderer.act(() => {
+        environment.mock.reject(gqlRefetchQuery, new Error('Oops'));
+      });
       TestRenderer.act(() => {
         jest.runAllImmediates();
       });
@@ -661,18 +668,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale16',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale16',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -722,18 +731,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            profile_picture: {
-              uri: 'scale32',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              profile_picture: {
+                uri: 'scale32',
+              },
+              username: 'useralice',
             },
-            username: 'useralice',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -755,18 +766,20 @@ describe('useRefetchableFragmentNode', () => {
 
     it('with correct id from refetchable fragment when using nested fragment', () => {
       // Populate store with data for query using nested fragment
-      environment.commitPayload(queryNestedFragment, {
-        node: {
-          __typename: 'Feedback',
-          id: '<feedbackid>',
-          actor: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            username: 'useralice',
-            profile_picture: null,
+      TestRenderer.act(() => {
+        environment.commitPayload(queryNestedFragment, {
+          node: {
+            __typename: 'Feedback',
+            id: '<feedbackid>',
+            actor: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              username: 'useralice',
+              profile_picture: null,
+            },
           },
-        },
+        });
       });
 
       // Get fragment ref for user using nested fragment
@@ -804,18 +817,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            profile_picture: {
-              uri: 'scale32',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              profile_picture: {
+                uri: 'scale32',
+              },
+              username: 'useralice',
             },
-            username: 'useralice',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -870,18 +885,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQueryWithArgs, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            profile_picture: {
-              uri: 'scale32',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQueryWithArgs, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              profile_picture: {
+                uri: 'scale32',
+              },
+              username: 'useralice',
             },
-            username: 'useralice',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -937,18 +954,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQueryWithArgs, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale16',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQueryWithArgs, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale16',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -976,18 +995,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale16',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale16',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -1047,18 +1068,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale16',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale16',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -1118,12 +1141,14 @@ describe('useRefetchableFragmentNode', () => {
       expect(environment.retain).toBeCalledTimes(1);
 
       // Update data in new environment
-      newEnvironment.commitPayload(query, {
-        node: {
-          __typename: 'User',
-          id: '1',
-          name: 'Alice Updated',
-        },
+      TestRenderer.act(() => {
+        newEnvironment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: '1',
+            name: 'Alice Updated',
+          },
+        });
       });
 
       // Assert that data in new environment is updated
@@ -1147,18 +1172,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale16',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale16',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       // Assert fragment is rendered with new data
@@ -1223,12 +1250,14 @@ describe('useRefetchableFragmentNode', () => {
       expect(environment.retain).toBeCalledTimes(1);
 
       // Update new parent data
-      environment.commitPayload(newQuery, {
-        node: {
-          __typename: 'User',
-          id: '1',
-          name: 'Alice Updated',
-        },
+      TestRenderer.act(() => {
+        environment.commitPayload(newQuery, {
+          node: {
+            __typename: 'User',
+            id: '1',
+            name: 'Alice Updated',
+          },
+        });
       });
 
       // Assert that new data from parent is updated
@@ -1281,18 +1310,20 @@ describe('useRefetchableFragmentNode', () => {
       });
 
       // Mock network response
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'MessagingParticipant',
-            id: '1',
-            name: 'Alice',
-            profile_picture: {
-              uri: 'scale32',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'MessagingParticipant',
+              id: '1',
+              name: 'Alice',
+              profile_picture: {
+                uri: 'scale32',
+              },
+              username: 'useralice',
             },
-            username: 'useralice',
           },
-        },
+        });
       });
 
       TestRenderer.act(() => {
@@ -1345,18 +1376,20 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery,
       });
 
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '2',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale32',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '2',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale32',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       TestRenderer.act(() => {
@@ -1408,18 +1441,20 @@ describe('useRefetchableFragmentNode', () => {
         refetch({id: '3', scale: 32}, {fetchPolicy: 'network-only'});
       });
 
-      environment.mock.resolve(gqlRefetchQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '3',
-            name: 'Mark',
-            profile_picture: {
-              uri: 'scale32',
+      TestRenderer.act(() => {
+        environment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '3',
+              name: 'Mark',
+              profile_picture: {
+                uri: 'scale32',
+              },
+              username: 'usermark',
             },
-            username: 'usermark',
           },
-        },
+        });
       });
 
       TestRenderer.act(() => {
@@ -2001,18 +2036,20 @@ describe('useRefetchableFragmentNode', () => {
             });
 
             // Mock network response
-            environment.mock.resolve(gqlRefetchQuery, {
-              data: {
-                node: {
-                  __typename: 'User',
-                  id: '4',
-                  name: 'Mark',
-                  profile_picture: {
-                    uri: 'scale16',
+            TestRenderer.act(() => {
+              environment.mock.resolve(gqlRefetchQuery, {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '4',
+                    name: 'Mark',
+                    profile_picture: {
+                      uri: 'scale16',
+                    },
+                    username: 'usermark',
                   },
-                  username: 'usermark',
                 },
-              },
+              });
             });
 
             // Assert fragment is rendered with new data
@@ -2150,18 +2187,20 @@ describe('useRefetchableFragmentNode', () => {
             });
 
             // Mock network response
-            environment.mock.resolve(gqlRefetchQuery, {
-              data: {
-                node: {
-                  __typename: 'User',
-                  id: '4',
-                  name: 'Mark',
-                  profile_picture: {
-                    uri: 'scale16',
+            TestRenderer.act(() => {
+              environment.mock.resolve(gqlRefetchQuery, {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '4',
+                    name: 'Mark',
+                    profile_picture: {
+                      uri: 'scale16',
+                    },
+                    username: 'usermark',
                   },
-                  username: 'usermark',
                 },
-              },
+              });
             });
 
             // Assert fragment is rendered with new data
@@ -2217,18 +2256,20 @@ describe('useRefetchableFragmentNode', () => {
             });
 
             // Mock network response
-            environment.mock.resolve(gqlRefetchQuery, {
-              data: {
-                node: {
-                  __typename: 'User',
-                  id: '4',
-                  name: 'Mark',
-                  profile_picture: {
-                    uri: 'scale16',
+            TestRenderer.act(() => {
+              environment.mock.resolve(gqlRefetchQuery, {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '4',
+                    name: 'Mark',
+                    profile_picture: {
+                      uri: 'scale16',
+                    },
+                    username: 'usermark',
                   },
-                  username: 'usermark',
                 },
-              },
+              });
             });
 
             // Assert fragment is rendered with new data
@@ -2327,18 +2368,20 @@ describe('useRefetchableFragmentNode', () => {
             });
 
             // Mock network response
-            environment.mock.resolve(gqlRefetchQuery, {
-              data: {
-                node: {
-                  __typename: 'User',
-                  id: '4',
-                  name: 'Mark',
-                  profile_picture: {
-                    uri: 'scale16',
+            TestRenderer.act(() => {
+              environment.mock.resolve(gqlRefetchQuery, {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '4',
+                    name: 'Mark',
+                    profile_picture: {
+                      uri: 'scale16',
+                    },
+                    username: 'usermark',
                   },
-                  username: 'usermark',
                 },
-              },
+              });
             });
 
             // Assert fragment is rendered with new data
@@ -2477,18 +2520,20 @@ describe('useRefetchableFragmentNode', () => {
             });
 
             // Mock network response
-            environment.mock.resolve(gqlRefetchQuery, {
-              data: {
-                node: {
-                  __typename: 'User',
-                  id: '4',
-                  name: 'Mark',
-                  profile_picture: {
-                    uri: 'scale16',
+            TestRenderer.act(() => {
+              environment.mock.resolve(gqlRefetchQuery, {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '4',
+                    name: 'Mark',
+                    profile_picture: {
+                      uri: 'scale16',
+                    },
+                    username: 'usermark',
                   },
-                  username: 'usermark',
                 },
-              },
+              });
             });
 
             // Assert fragment is rendered with new data
@@ -2538,18 +2583,20 @@ describe('useRefetchableFragmentNode', () => {
             });
 
             // Mock network response
-            environment.mock.resolve(gqlRefetchQuery, {
-              data: {
-                node: {
-                  __typename: 'User',
-                  id: '4',
-                  name: 'Mark',
-                  profile_picture: {
-                    uri: 'scale16',
+            TestRenderer.act(() => {
+              environment.mock.resolve(gqlRefetchQuery, {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '4',
+                    name: 'Mark',
+                    profile_picture: {
+                      uri: 'scale16',
+                    },
+                    username: 'usermark',
                   },
-                  username: 'usermark',
                 },
-              },
+              });
             });
 
             // Assert fragment is rendered with new data
@@ -2606,16 +2653,18 @@ describe('useRefetchableFragmentNode', () => {
           });
 
           // Mock network response
-          environment.mock.resolve(gqlRefetchQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '1',
-                name: 'Alice',
-                profile_picture: null,
-                username: 'useralice',
+          TestRenderer.act(() => {
+            environment.mock.resolve(gqlRefetchQuery, {
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '1',
+                  name: 'Alice',
+                  profile_picture: null,
+                  username: 'useralice',
+                },
               },
-            },
+            });
           });
 
           // Assert fragment is rendered with new data
@@ -2659,18 +2708,20 @@ describe('useRefetchableFragmentNode', () => {
           });
 
           // Mock network response
-          environment.mock.resolve(gqlRefetchQuery, {
-            data: {
-              node: {
-                __typename: 'User',
-                id: '4',
-                name: 'Mark',
-                profile_picture: {
-                  uri: 'scale16',
+          TestRenderer.act(() => {
+            environment.mock.resolve(gqlRefetchQuery, {
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '4',
+                  name: 'Mark',
+                  profile_picture: {
+                    uri: 'scale16',
+                  },
+                  username: 'usermark',
                 },
-                username: 'usermark',
               },
-            },
+            });
           });
 
           // Assert fragment is rendered with new data
@@ -2967,7 +3018,9 @@ describe('useRefetchableFragmentNode', () => {
           refetchQuery,
         });
 
-        renderer.unmount();
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
 
         // Assert request was canceled
         expect(unsubscribe).toBeCalledTimes(1);
@@ -3012,7 +3065,9 @@ describe('useRefetchableFragmentNode', () => {
         };
         expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
 
-        renderer.unmount();
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
 
         // Assert request was canceled
         expect(unsubscribe).toBeCalledTimes(2);
@@ -3143,15 +3198,17 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Mock network response
-        environment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            fetch__NonNodeStory: {
-              __typename: 'NonNodeStory',
-              id: 'b',
-              actor: {name: 'Mark', __typename: 'User', id: '4'},
-              fetch_id: 'fetch:b',
+        TestRenderer.act(() => {
+          environment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              fetch__NonNodeStory: {
+                __typename: 'NonNodeStory',
+                id: 'b',
+                actor: {name: 'Mark', __typename: 'User', id: '4'},
+                fetch_id: 'fetch:b',
+              },
             },
-          },
+          });
         });
 
         // Assert fragment is rendered with new data
@@ -3205,15 +3262,17 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Mock network response
-        environment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            fetch__NonNodeStory: {
-              __typename: 'NonNodeStory',
-              id: 'a',
-              actor: {name: 'Alice (updated)', __typename: 'User', id: '1'},
-              fetch_id: 'fetch:a',
+        TestRenderer.act(() => {
+          environment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              fetch__NonNodeStory: {
+                __typename: 'NonNodeStory',
+                id: 'a',
+                actor: {name: 'Alice (updated)', __typename: 'User', id: '1'},
+                fetch_id: 'fetch:a',
+              },
             },
-          },
+          });
         });
 
         // Assert fragment is rendered with new data
@@ -3296,15 +3355,17 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Mock network response
-        environment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            fetch__NonNodeStory: {
-              __typename: 'NonNodeStory',
-              id: 'b',
-              actor: {name: 'Zuck (updated)', __typename: 'User', id: '4'},
-              fetch_id: 'fetch:b',
+        TestRenderer.act(() => {
+          environment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              fetch__NonNodeStory: {
+                __typename: 'NonNodeStory',
+                id: 'b',
+                actor: {name: 'Zuck (updated)', __typename: 'User', id: '4'},
+                fetch_id: 'fetch:b',
+              },
             },
-          },
+          });
         });
 
         // Assert fragment is rendered with new data
@@ -3413,18 +3474,20 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Mock network response
-        environment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            node: {
-              __typename: 'User',
-              id: '4',
-              name: 'Mark',
-              profile_picture: {
-                uri: 'scale16',
+        TestRenderer.act(() => {
+          environment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '4',
+                name: 'Mark',
+                profile_picture: {
+                  uri: 'scale16',
+                },
+                username: 'usermark',
               },
-              username: 'usermark',
             },
-          },
+          });
         });
 
         // Assert fragment is rendered with new data
@@ -3485,18 +3548,20 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Mock network response
-        environment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            node: {
-              __typename: 'User',
-              id: '1',
-              name: 'Alice',
-              profile_picture: {
-                uri: 'scale32',
+        TestRenderer.act(() => {
+          environment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice',
+                profile_picture: {
+                  uri: 'scale32',
+                },
+                username: 'useralice',
               },
-              username: 'useralice',
             },
-          },
+          });
         });
 
         // Assert fragment is rendered with new data
@@ -3577,18 +3642,20 @@ describe('useRefetchableFragmentNode', () => {
           newEnvironment,
         );
 
-        newEnvironment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            node: {
-              __typename: 'User',
-              id: '1',
-              name: 'Mark',
-              username: 'usermark',
-              profile_picture: {
-                uri: 'scale16',
+        TestRenderer.act(() => {
+          newEnvironment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Mark',
+                username: 'usermark',
+                profile_picture: {
+                  uri: 'scale16',
+                },
               },
             },
-          },
+          });
         });
         TestRenderer.act(() => jest.runAllImmediates());
 
@@ -3661,18 +3728,20 @@ describe('useRefetchableFragmentNode', () => {
           anotherNewEnvironment,
         );
 
-        anotherNewEnvironment.mock.resolve(gqlRefetchQuery, {
-          data: {
-            node: {
-              __typename: 'User',
-              id: '1',
-              name: 'Mark',
-              username: 'usermark',
-              profile_picture: {
-                uri: 'scale16',
+        TestRenderer.act(() => {
+          anotherNewEnvironment.mock.resolve(gqlRefetchQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Mark',
+                username: 'usermark',
+                profile_picture: {
+                  uri: 'scale16',
+                },
               },
             },
-          },
+          });
         });
         expect(
           anotherNewEnvironment

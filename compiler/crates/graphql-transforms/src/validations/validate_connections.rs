@@ -6,7 +6,10 @@
  */
 
 use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
-use crate::handle_fields::{extract_handle_field_directive_args, HandleFieldConstants};
+use crate::handle_fields::{
+    extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
+    DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
+};
 use common::NamedItem;
 use errors::{validate, validate_map};
 use graphql_ir::{
@@ -26,7 +29,6 @@ pub fn validate_connections(
 struct ConnectionValidation<'s> {
     connection_constants: ConnectionConstants,
     connection_interface: &'s ConnectionInterface,
-    handle_field_constants: HandleFieldConstants,
     program: &'s Program,
 }
 
@@ -35,7 +37,6 @@ impl<'s> ConnectionValidation<'s> {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
-            handle_field_constants: HandleFieldConstants::default(),
             program,
         }
     }
@@ -97,7 +98,7 @@ impl<'s> ConnectionValidation<'s> {
             )]);
         }
 
-        let edges_selection_name = self.connection_interface.edges_selection_name;
+        let edges_selection_name = self.connection_interface.edges;
         let edges_selection: Option<&Selection> =
             connection_field.selections.iter().find(|sel| match sel {
                 Selection::LinkedField(field) => {
@@ -170,7 +171,7 @@ impl<'s> ConnectionValidation<'s> {
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
-        let edges_selection_name = self.connection_interface.edges_selection_name;
+        let edges_selection_name = self.connection_interface.edges;
 
         // Validate edges selection
         let (_, edges_type) = self.validate_selection(
@@ -198,8 +199,8 @@ impl<'s> ConnectionValidation<'s> {
         )?;
 
         let edge_type = edges_type.inner();
-        let node_selection_name = self.connection_interface.node_selection_name;
-        let cursor_selection_name = self.connection_interface.cursor_selection_name;
+        let node_selection_name = self.connection_interface.node;
+        let cursor_selection_name = self.connection_interface.cursor;
         validate!(
             // Validate edges.node selection
             self.validate_selection(
@@ -262,7 +263,7 @@ impl<'s> ConnectionValidation<'s> {
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
         let connection_field_name = connection_schema_field.name;
-        let page_info_selection_name = self.connection_interface.page_info_selection_name;
+        let page_info_selection_name = self.connection_interface.page_info;
 
         // Validate page_info selection
         let (_, page_info_type) = self.validate_selection(
@@ -286,10 +287,10 @@ impl<'s> ConnectionValidation<'s> {
 
         let page_info_type = page_info_type.inner();
         let page_info_sub_fields = vec![
-            self.connection_interface.end_cursor_selection_name,
-            self.connection_interface.has_next_page_selection_name,
-            self.connection_interface.has_prev_page_selection_name,
-            self.connection_interface.start_cursor_selection_name,
+            self.connection_interface.end_cursor,
+            self.connection_interface.has_next_page,
+            self.connection_interface.has_previous_page,
+            self.connection_interface.start_cursor,
         ];
 
         validate_map(page_info_sub_fields.iter(), |page_info_sub_field_name| {
@@ -341,7 +342,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_directive: &Directive,
     ) -> ValidationResult<()> {
         let connection_directive_args =
-            extract_handle_field_directive_args(connection_directive, self.handle_field_constants);
+            extract_handle_field_directive_args_for_connection(connection_directive);
 
         validate!(
             self.validate_handler_arg(
@@ -386,7 +387,7 @@ impl<'s> ConnectionValidation<'s> {
                         ValidationMessage::InvalidConnectionHandlerArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            handler_arg_name: self.handle_field_constants.handler_arg_name,
+                            handler_arg_name: *CONNECTION_HANDLER_ARG_NAME,
                         },
                         vec![arg.value.location, connection_field.definition.location],
                     )]);
@@ -416,7 +417,7 @@ impl<'s> ConnectionValidation<'s> {
                             ValidationMessage::InvalidConnectionKeyArgPostfix {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name,
-                                key_arg_name: self.handle_field_constants.key_arg_name,
+                                key_arg_name: *KEY_ARG_NAME,
                                 key_arg_value: *string_val,
                                 postfix,
                             },
@@ -429,7 +430,7 @@ impl<'s> ConnectionValidation<'s> {
                         ValidationMessage::InvalidConnectionKeyArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            key_arg_name: self.handle_field_constants.key_arg_name,
+                            key_arg_name: *KEY_ARG_NAME,
                         },
                         vec![arg.value.location, connection_field.definition.location],
                     )]);
@@ -440,7 +441,7 @@ impl<'s> ConnectionValidation<'s> {
                     ValidationMessage::InvalidConnectionKeyArg {
                         connection_directive_name: connection_directive.name.item,
                         connection_field_name: connection_schema_field.name,
-                        key_arg_name: self.handle_field_constants.key_arg_name,
+                        key_arg_name: *KEY_ARG_NAME,
                     },
                     vec![connection_field.definition.location],
                 )])
@@ -469,7 +470,7 @@ impl<'s> ConnectionValidation<'s> {
                             ValidationMessage::InvalidConnectionFiltersArg {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name,
-                                filters_arg_name: self.handle_field_constants.filters_arg_name,
+                                filters_arg_name: *FILTERS_ARG_NAME,
                             },
                             vec![arg.value.location, connection_field.definition.location],
                         )]);
@@ -480,7 +481,7 @@ impl<'s> ConnectionValidation<'s> {
                         ValidationMessage::InvalidConnectionFiltersArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            filters_arg_name: self.handle_field_constants.filters_arg_name,
+                            filters_arg_name: *FILTERS_ARG_NAME,
                         },
                         vec![arg.value.location, connection_field.definition.location],
                     )]);
@@ -505,7 +506,7 @@ impl<'s> ConnectionValidation<'s> {
                         ValidationMessage::InvalidConnectionDynamicKeyArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
-                            dynamic_key_arg_name: self.handle_field_constants.dynamic_key_arg_name,
+                            dynamic_key_arg_name: *DYNAMIC_KEY_ARG_NAME,
                         },
                         vec![
                             dynamic_key_arg.value.location,
@@ -526,7 +527,7 @@ impl<'s> ConnectionValidation<'s> {
         if edges_field.alias.is_some() {
             return Err(vec![ValidationError::new(
                 ValidationMessage::UnsupportedAliasingInStreamConnection {
-                    field_name: self.connection_interface.edges_selection_name,
+                    field_name: self.connection_interface.edges,
                 },
                 vec![edges_field.definition.location],
             )]);
@@ -538,7 +539,7 @@ impl<'s> ConnectionValidation<'s> {
             .find_map(|sel| match sel {
                 Selection::LinkedField(field) => {
                     if self.program.schema.field(field.definition.item).name
-                        == self.connection_interface.page_info_selection_name
+                        == self.connection_interface.page_info
                     {
                         Some(field)
                     } else {
@@ -551,7 +552,7 @@ impl<'s> ConnectionValidation<'s> {
             if page_info_selection.alias.is_some() {
                 return Err(vec![ValidationError::new(
                     ValidationMessage::UnsupportedAliasingInStreamConnection {
-                        field_name: self.connection_interface.page_info_selection_name,
+                        field_name: self.connection_interface.page_info,
                     },
                     vec![page_info_selection.definition.location],
                 )]);

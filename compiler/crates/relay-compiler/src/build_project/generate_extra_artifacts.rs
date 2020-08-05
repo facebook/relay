@@ -44,7 +44,7 @@ pub fn generate_extra_artifacts(
             extra_artifacts.extend(generate_extra_operation_artifacts_fn(
                 GenerateExtraArtifactArgs {
                     id: id_and_text_hash.as_ref().map(|(id, _)| id),
-                    name: artifact.name,
+                    name: artifact.source_definition_name,
                     normalization_operation: Arc::clone(normalization_operation),
                     project_config,
                     schema,

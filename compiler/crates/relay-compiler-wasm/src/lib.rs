@@ -7,7 +7,7 @@
 
 extern crate console_error_panic_hook;
 use common::SourceLocationKey;
-use graphql_syntax::{parse, ExecutableDefinition};
+use graphql_syntax::{parse_executable, ExecutableDefinition};
 use schema::build_schema;
 use std::panic;
 use wasm_bindgen::prelude::*;
@@ -19,7 +19,7 @@ pub fn compile(raw_schema: &str, documents: Box<[JsValue]>) -> Result<JsValue, J
     let mut definitions: Vec<ExecutableDefinition> = vec![];
     for document in documents.into_iter() {
         if let Some(document) = document.as_string() {
-            let doc = parse(&document, SourceLocationKey::Generated).unwrap();
+            let doc = parse_executable(&document, SourceLocationKey::Generated).unwrap();
             for definition in doc.definitions {
                 definitions.push(definition);
             }

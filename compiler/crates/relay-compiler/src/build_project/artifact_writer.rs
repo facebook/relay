@@ -11,35 +11,34 @@ use serde::{Serialize, Serializer};
 use std::fs::{create_dir_all, File};
 use std::io;
 use std::io::prelude::*;
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Mutex};
 
 type BuildProjectResult = Result<(), BuildProjectError>;
 
 pub trait ArtifactWriter {
-    fn write_if_changed(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
-    fn remove(&mut self, path: PathBuf) -> BuildProjectResult;
-    fn finalize(self: Box<Self>) -> BuildProjectResult;
+    fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
+    fn remove(&self, path: PathBuf) -> BuildProjectResult;
+    fn finalize(&self) -> crate::errors::Result<()>;
 }
 
-pub struct ArtifactFileWriter {}
+pub struct ArtifactFileWriter;
 
 impl ArtifactWriter for ArtifactFileWriter {
-    fn write_if_changed(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+    fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
         write_file(&path, &content).map_err(|error| BuildProjectError::WriteFileError {
             file: path,
             source: error,
         })
     }
 
-    fn remove(&mut self, path: PathBuf) -> BuildProjectResult {
+    fn remove(&self, path: PathBuf) -> BuildProjectResult {
         std::fs::remove_file(&path).unwrap_or_else(|_| {
             info!("tried to delete already deleted file: {:?}", path);
         });
         Ok(())
     }
 
-    fn finalize(self: Box<Self>) -> BuildProjectResult {
-        // intentionally a no-op
+    fn finalize(&self) -> crate::errors::Result<()> {
         Ok(())
     }
 }
@@ -70,52 +69,66 @@ where
 }
 
 pub struct ArtifactDifferenceWriter {
-    codegen_records: CodegenRecords,
+    codegen_records: Mutex<CodegenRecords>,
     codegen_filepath: PathBuf,
+    verify_changes_against_filesystem: bool,
 }
 
 impl ArtifactDifferenceWriter {
-    pub fn new(codegen_filepath: PathBuf) -> ArtifactDifferenceWriter {
+    pub fn new(
+        codegen_filepath: PathBuf,
+        verify_changes_against_filesystem: bool,
+    ) -> ArtifactDifferenceWriter {
         ArtifactDifferenceWriter {
             codegen_filepath,
-            codegen_records: CodegenRecords {
+            codegen_records: Mutex::new(CodegenRecords {
                 changed: Vec::new(),
                 removed: Vec::new(),
-            },
+            }),
+            verify_changes_against_filesystem,
         }
     }
 }
 
 impl ArtifactWriter for ArtifactDifferenceWriter {
-    fn write_if_changed(&mut self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        let content_is_same = content_is_same(&path, &content).map_err(|error| {
-            BuildProjectError::WriteFileError {
-                file: path.clone(),
-                source: error,
-            }
-        })?;
-        if !content_is_same {
-            self.codegen_records.changed.push(ArtifactUpdateRecord {
-                path,
-                data: content,
-            });
+    fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+        let should_include_artifact_in_codegen = !self.verify_changes_against_filesystem
+            || !content_is_same(&path, &content).map_err(|error| {
+                BuildProjectError::WriteFileError {
+                    file: path.clone(),
+                    source: error,
+                }
+            })?;
+        if should_include_artifact_in_codegen {
+            self.codegen_records
+                .lock()
+                .unwrap()
+                .changed
+                .push(ArtifactUpdateRecord {
+                    path,
+                    data: content,
+                });
         }
         Ok(())
     }
 
-    fn remove(&mut self, path: PathBuf) -> BuildProjectResult {
-        self.codegen_records
-            .removed
-            .push(ArtifactDeletionRecord { path });
+    fn remove(&self, path: PathBuf) -> BuildProjectResult {
+        if path.exists() {
+            self.codegen_records
+                .lock()
+                .unwrap()
+                .removed
+                .push(ArtifactDeletionRecord { path });
+        }
         Ok(())
     }
 
-    fn finalize(self: Box<Self>) -> BuildProjectResult {
+    fn finalize(&self) -> crate::errors::Result<()> {
         (|| {
             let mut file = File::create(&self.codegen_filepath)?;
             file.write_all(&serde_json::to_string(&self.codegen_records)?.as_bytes())
         })()
-        .map_err(|error| BuildProjectError::WriteFileError {
+        .map_err(|error| crate::errors::Error::WriteFileError {
             file: self.codegen_filepath.clone(),
             source: error,
         })

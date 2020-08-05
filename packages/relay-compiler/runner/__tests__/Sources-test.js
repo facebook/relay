@@ -90,6 +90,37 @@ mock syntax error"
 `);
 });
 
+test('duplicate node definitions', () => {
+  const dupeFragment = `
+    fragment Test on User {
+      __typename
+    }
+  `;
+  const sources = new Sources({
+    extractFromFile: () => {
+      return {
+        nodes: [
+          toASTRecord(parseExecutableNode(dupeFragment)),
+          toASTRecord(parseExecutableNode(dupeFragment)),
+        ],
+        sources: [dupeFragment, dupeFragment],
+      };
+    },
+    state: {},
+  });
+  expect(() => {
+    sources.processChanges('/base-dir', [
+      {
+        name: 'source1.js',
+        exists: true,
+        'content.sha1hex': 'abc',
+      },
+    ]);
+  }).toThrowErrorMatchingInlineSnapshot(
+    '"Duplicate definition of `Test` in `source1.js`"',
+  );
+});
+
 test('handle new file', () => {
   const originalText = `
     query Q3 {

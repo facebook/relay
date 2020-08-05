@@ -31,6 +31,7 @@ import type {Cache} from './LRUCache';
 import type {
   Disposable,
   IEnvironment,
+  MissingRequiredFields,
   ReaderFragment,
   RequestDescriptor,
   Snapshot,
@@ -161,6 +162,7 @@ class FragmentResourceImpl {
         throw cachedValue;
       }
       if (cachedValue.snapshot) {
+        this._reportMissingRequiredFieldsInSnapshot(cachedValue.snapshot);
         return cachedValue;
       }
     }
@@ -187,10 +189,14 @@ class FragmentResourceImpl {
       fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
       componentDisplayName,
     );
+
     const snapshot =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors.map(s => environment.lookup(s))
         : environment.lookup(fragmentSelector);
+
+    this._reportMissingRequiredFieldsInSnapshot(snapshot);
+
     const fragmentOwner =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors[0].owner
@@ -242,6 +248,43 @@ class FragmentResourceImpl {
     );
 
     return getFragmentResult(fragmentIdentifier, snapshot);
+  }
+
+  _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
+    if (Array.isArray(snapshot)) {
+      snapshot.forEach(s => {
+        const singleSnapshot = s;
+        this._reportMissingRequiredFields(singleSnapshot.missingRequiredFields);
+      });
+    } else {
+      this._reportMissingRequiredFields(snapshot.missingRequiredFields);
+    }
+  }
+
+  _reportMissingRequiredFields(missingRequiredFields: ?MissingRequiredFields) {
+    if (missingRequiredFields == null) {
+      return;
+    }
+    switch (missingRequiredFields.action) {
+      case 'THROW': {
+        const {path, owner} = missingRequiredFields.field;
+        throw new Error(
+          `Relay: Missing @required value at path '${path}' in '${owner}'.`,
+        );
+      }
+      case 'LOG':
+        missingRequiredFields.fields.forEach(({path, owner}) => {
+          this._environment.__log({
+            name: 'read.missing_required_field',
+            owner,
+            fieldPath: path,
+          });
+        });
+        break;
+      default: {
+        (missingRequiredFields.action: empty);
+      }
+    }
   }
 
   readSpec(
@@ -384,6 +427,7 @@ class FragmentResourceImpl {
       isMissingData: currentSnapshot.isMissingData,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
+      missingRequiredFields: currentSnapshot.missingRequiredFields,
     };
     if (updatedData !== renderData) {
       this._cache.set(cacheKey, getFragmentResult(cacheKey, currentSnapshot));

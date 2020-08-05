@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::OperationType;
 use crate::definitions::Type;
+use graphql_syntax::type_system_node::OperationType;
 use interner::StringKey;
 use thiserror::Error;
 

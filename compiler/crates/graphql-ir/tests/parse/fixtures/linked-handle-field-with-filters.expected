@@ -10,7 +10,7 @@ fragment LinkedHandleField on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: linked-handle-field-with-filters.graphql:9:27,
+                location: linked-handle-field-with-filters.graphql:9:26,
                 item: "LinkedHandleField",
             },
             variable_definitions: [],
@@ -35,9 +35,9 @@ fragment LinkedHandleField on User {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: linked-handle-field-with-filters.graphql:36:46,
+                        location: linked-handle-field-with-filters.graphql:39:46,
                         item: FieldID(
-                            448,
+                            449,
                         ),
                     },
                     arguments: [
@@ -47,7 +47,7 @@ fragment LinkedHandleField on User {
                                 item: "first",
                             },
                             value: WithLocation {
-                                location: linked-handle-field-with-filters.graphql:54:58,
+                                location: linked-handle-field-with-filters.graphql:54:56,
                                 item: Constant(
                                     Int(
                                         10,
@@ -91,7 +91,7 @@ fragment LinkedHandleField on User {
                                         item: "handle",
                                     },
                                     value: WithLocation {
-                                        location: linked-handle-field-with-filters.graphql:104:121,
+                                        location: linked-handle-field-with-filters.graphql:104:119,
                                         item: Constant(
                                             String(
                                                 "clientFriends",
@@ -127,7 +127,7 @@ fragment LinkedHandleField on User {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: linked-handle-field-with-filters.graphql:153:163,
+                                location: linked-handle-field-with-filters.graphql:158:163,
                                 item: FieldID(
                                     169,
                                 ),

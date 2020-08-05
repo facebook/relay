@@ -173,7 +173,7 @@ mod tests {
                 "{:?}",
                 Location::new(
                     SourceLocationKey::embedded("example/file.js", 2),
-                    Span::new(10, 20)
+                    Span::new(10, 30)
                 )
             ),
             "example/file.js:10:30".to_string()

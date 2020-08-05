@@ -474,4 +474,48 @@ pub enum ValidationMessage {
 
     #[error("Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough.")]
     RedundantPreloadableDirective,
+
+    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
+    ConnectionMutationDirectiveOnScalarField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+    #[error(
+        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
+    )]
+    DeleteRecordDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
+    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
+    DeleteRecordDirectiveOnLinkedField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
+    ConnectionsArgumentRequired { directive_name: StringKey },
+    #[error("Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection).")]
+    EdgeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error("Expected 'flight' field schema definition to specify its component name with @react_flight_component")]
+    InvalidFlightFieldMissingModuleDirective,
+
+    #[error("Cannot query field '{field_name}', this type does not define a 'flight' field")]
+    InvalidFlightFieldNotDefinedOnType { field_name: StringKey },
+
+    #[error("Expected @react_flight_component value to be a literal string")]
+    InvalidFlightFieldExpectedModuleNameString,
+
+    #[error("Expected flight field to have a 'props: ReactFlightProps' argument")]
+    InvalidFlightFieldPropsArgument,
+
+    #[error("Expected flight field to have a 'component: String' argument")]
+    InvalidFlightFieldComponentArgument,
+
+    #[error("Expected flight field to return 'ReactFlightComponent'")]
+    InvalidFlightFieldReturnType,
 }

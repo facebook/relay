@@ -13,12 +13,14 @@
 
 'use strict';
 
+jest.mock('warning');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery = require('../usePreloadedQuery');
+const warning = require('warning');
 
 const {loadQuery} = require('../loadQuery');
 const {
@@ -100,6 +102,15 @@ class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
     }
   }
 }
+
+beforeEach(() => {
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+});
+
+afterAll(() => {
+  jest.clearAllMocks();
+});
 
 describe('usePreloadedQuery', () => {
   beforeEach(() => {
@@ -1065,6 +1076,49 @@ describe('usePreloadedQuery', () => {
         }
         TestRenderer.act(() => jest.runAllImmediates());
         expect(renderer.toJSON()).toEqual('Zuck');
+      });
+    });
+
+    describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
+      it('warns that the preloadedQuery has already been disposed', () => {
+        const expectWarningMessage = expect.stringMatching(
+          /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
+        );
+        const prefetched = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {},
+        );
+
+        function Component(props) {
+          return usePreloadedQuery(query, props.prefetched);
+        }
+
+        const render = () => {
+          TestRenderer.create(
+            <RelayEnvironmentProvider environment={environment}>
+              <React.Suspense fallback="Fallback">
+                <Component prefetched={prefetched} />
+              </React.Suspense>
+            </RelayEnvironmentProvider>,
+          );
+          TestRenderer.act(() => jest.runAllImmediates());
+        };
+
+        render();
+        expect(warning).toBeCalledTimes(1);
+        expect(warning).toHaveBeenLastCalledWith(
+          true, // invariant holds
+          expectWarningMessage,
+        );
+
+        prefetched.dispose();
+        render();
+        expect(warning).toBeCalledTimes(2);
+        expect(warning).toHaveBeenLastCalledWith(
+          false, // invariant broken
+          expectWarningMessage,
+        );
       });
     });
   });

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME};
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::{
     is_relay_custom_inline_fragment_directive, PointerAddress, CUSTOM_METADATA_DIRECTIVES,
@@ -427,30 +428,13 @@ fn merge_handle_directives(
             if handles.is_empty() {
                 handles.push(directive.clone());
             } else {
-                let current_handler_arg = directive.arguments.named(
-                    CUSTOM_METADATA_DIRECTIVES
-                        .handle_field_constants
-                        .handler_arg_name,
-                );
-                let current_name_arg = directive.arguments.named(
-                    CUSTOM_METADATA_DIRECTIVES
-                        .handle_field_constants
-                        .key_arg_name,
-                );
+                let current_handler_arg = directive.arguments.named(*HANDLER_ARG_NAME);
+                let current_name_arg = directive.arguments.named(*KEY_ARG_NAME);
                 let is_duplicate_handle = handles.iter().any(|handle| {
-                    current_handler_arg.location_agnostic_eq(
-                        &handle.arguments.named(
-                            CUSTOM_METADATA_DIRECTIVES
-                                .handle_field_constants
-                                .handler_arg_name,
-                        ),
-                    ) && current_name_arg.location_agnostic_eq(
-                        &handle.arguments.named(
-                            CUSTOM_METADATA_DIRECTIVES
-                                .handle_field_constants
-                                .key_arg_name,
-                        ),
-                    )
+                    current_handler_arg
+                        .location_agnostic_eq(&handle.arguments.named(*HANDLER_ARG_NAME))
+                        && current_name_arg
+                            .location_agnostic_eq(&handle.arguments.named(*KEY_ARG_NAME))
                 });
                 if !is_duplicate_handle {
                     handles.push(directive.clone());

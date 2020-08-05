@@ -57,7 +57,7 @@ import type {
   NormalizationSplitOperation,
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
 
@@ -136,6 +136,7 @@ class Executor {
   _store: Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
+  _retainDisposable: ?Disposable;
   +_isClientPayload: boolean;
 
   constructor({
@@ -223,6 +224,10 @@ class Executor {
     }
     this._incrementalResults.clear();
     this._completeOperationTracker();
+    if (this._retainDisposable) {
+      this._retainDisposable.dispose();
+      this._retainDisposable = null;
+    }
   }
 
   _updateActiveState(): void {
@@ -436,6 +441,9 @@ class Executor {
       const updatedOwners = this._publishQueue.run(this._operation);
       this._updateOperationTracker(updatedOwners);
       this._processPayloadFollowups(payloadFollowups);
+      if (this._incrementalPayloadsPending && !this._retainDisposable) {
+        this._retainDisposable = this._store.retain(this._operation);
+      }
     }
 
     if (incrementalResponses.length > 0) {

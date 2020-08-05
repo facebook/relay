@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+{
+    friends(
+        arg: "unterminated string
+    ) {
+        count
+    }
+}
+==================================== ERROR ====================================
+Error: Unterminated string literal (strings cannot contain unescaped line breaks) at unterminated_string.invalid.graphql:4:14:
+        arg: "unterminated string
+    ) {

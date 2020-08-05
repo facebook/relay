@@ -10,7 +10,7 @@ query NullValuesQuery {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: null-values.graphql:6:22,
+                location: null-values.graphql:6:21,
                 item: "NullValuesQuery",
             },
             type_: Object(0),
@@ -20,7 +20,7 @@ query NullValuesQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: null-values.graphql:23:31,
+                        location: null-values.graphql:26:31,
                         item: FieldID(
                             3,
                         ),
@@ -57,9 +57,9 @@ query NullValuesQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: null-values.graphql:55:64,
+                                location: null-values.graphql:60:64,
                                 item: FieldID(
-                                    479,
+                                    480,
                                 ),
                             },
                             arguments: [],

@@ -12,7 +12,7 @@ use crate::connections::{
     ConnectionMetadata,
 };
 use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::handle_fields::{build_handle_field_directive, HandleFieldConstants};
+use crate::handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME};
 use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
@@ -23,9 +23,9 @@ use std::sync::Arc;
 
 pub fn transform_connections(
     program: &Program,
-    connection_interface: Arc<ConnectionInterface>,
+    connection_interface: &ConnectionInterface,
 ) -> Program {
-    let mut transform = ConnectionTransform::new(program, &connection_interface);
+    let mut transform = ConnectionTransform::new(program, connection_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -37,25 +37,17 @@ struct ConnectionTransform<'s> {
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
     current_document_name: StringKey,
-    handle_field_constants: HandleFieldConstants,
-    handle_field_constants_for_connection: HandleFieldConstants,
     program: &'s Program,
 }
 
 impl<'s> ConnectionTransform<'s> {
     fn new(program: &'s Program, connection_interface: &'s ConnectionInterface) -> Self {
-        let handle_field_constants = HandleFieldConstants::default();
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
             current_path: None,
-            current_document_name: connection_interface.cursor_selection_name, // Set an arbitrary value to avoid Option
+            current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
-            handle_field_constants,
-            handle_field_constants_for_connection: HandleFieldConstants {
-                handler_arg_name: "handler".intern(),
-                ..handle_field_constants
-            },
             program,
         }
     }
@@ -82,10 +74,7 @@ impl<'s> ConnectionTransform<'s> {
 
         // Construct edges selection
         let edges_schema_field_id = schema
-            .named_field(
-                connection_field_type,
-                self.connection_interface.edges_selection_name,
-            )
+            .named_field(connection_field_type, self.connection_interface.edges)
             .expect("Expected presence of edges field to have been previously validated.");
         let edges_schema_field = schema.field(edges_schema_field_id);
         let edges_field_name = edges_schema_field.name;
@@ -128,7 +117,7 @@ impl<'s> ConnectionTransform<'s> {
                     || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
                 {
                     arguments.push(arg.clone());
-                } else if arg.name.item == self.handle_field_constants.key_arg_name {
+                } else if arg.name.item == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(
                             arg.name.location,
@@ -149,10 +138,7 @@ impl<'s> ConnectionTransform<'s> {
 
         // Construct page_info selection
         let page_info_schema_field_id = schema
-            .named_field(
-                connection_field_type,
-                self.connection_interface.page_info_selection_name,
-            )
+            .named_field(connection_field_type, self.connection_interface.page_info)
             .expect("Expected presence of page_info field to have been previously validated.");
         let page_info_schema_field = schema.field(page_info_schema_field_id);
         let page_info_field_name = page_info_schema_field.name;
@@ -208,7 +194,7 @@ impl<'s> ConnectionTransform<'s> {
             for arg in &connection_directive.arguments {
                 if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
                     arguments.push(arg.clone());
-                } else if arg.name.item == self.handle_field_constants.key_arg_name {
+                } else if arg.name.item == *KEY_ARG_NAME {
                     let key = arg.value.item.expect_string_literal();
                     arguments.push(Argument {
                         name: WithLocation::new(
@@ -222,7 +208,7 @@ impl<'s> ConnectionTransform<'s> {
                                     "{}$defer${}${}",
                                     self.current_document_name,
                                     key.lookup(),
-                                    self.connection_interface.page_info_selection_name
+                                    self.connection_interface.page_info
                                 )
                                 .intern(),
                             )),
@@ -283,10 +269,8 @@ impl<'s> ConnectionTransform<'s> {
         connection_field: &LinkedField,
         connection_directive: &Directive,
     ) -> Vec<Directive> {
-        let connection_handle_directive = build_handle_field_directive(
+        let connection_handle_directive = build_handle_field_directive_from_connection_directive(
             connection_directive,
-            self.handle_field_constants,
-            self.handle_field_constants_for_connection,
             Some(self.connection_constants.connection_directive_name),
             get_default_filters(connection_field, self.connection_constants),
         );

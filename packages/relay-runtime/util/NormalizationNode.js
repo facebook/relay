@@ -34,7 +34,6 @@ export type NormalizationLinkedHandle = {|
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +handle: string,
   +key: string,
-  // T45504512: new connection model
   // NOTE: this property is optional because it's expected to be rarely used
   +dynamicKey?: ?NormalizationArgument,
   +filters: ?$ReadOnlyArray<string>,
@@ -48,7 +47,6 @@ export type NormalizationScalarHandle = {|
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +handle: string,
   +key: string,
-  // T45504512: new connection model
   // NOTE: this property is optional because it's expected to be rarely used
   +dynamicKey?: ?NormalizationArgument,
   +filters: ?$ReadOnlyArray<string>,
@@ -139,6 +137,14 @@ export type NormalizationScalarField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationFlightField = {|
+  +kind: 'FlightField',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +storageKey: ?string,
+|};
+
 export type NormalizationTypeDiscriminator = {|
   +kind: 'TypeDiscriminator',
   +abstractKey: string,
@@ -149,6 +155,7 @@ export type NormalizationSelection =
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
+  | NormalizationFlightField
   | NormalizationHandle
   | NormalizationInlineFragment
   | NormalizationModuleImport

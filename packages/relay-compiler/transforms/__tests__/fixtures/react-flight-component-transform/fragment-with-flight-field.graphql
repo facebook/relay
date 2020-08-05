@@ -1,0 +1,3 @@
+fragment MyStory_item on Story {
+  flightComponent
+}

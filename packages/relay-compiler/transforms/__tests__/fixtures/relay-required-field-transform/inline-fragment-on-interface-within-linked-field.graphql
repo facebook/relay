@@ -1,0 +1,7 @@
+fragment Foo on Node {
+  ... on Actor {
+    address {
+      city @required(action: LOG)
+    }
+  }
+}

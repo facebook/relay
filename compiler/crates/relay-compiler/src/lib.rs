@@ -16,10 +16,13 @@ pub mod compiler_state;
 pub mod config;
 pub mod errors;
 mod graphql_asts;
+pub mod saved_state;
 mod watchman;
 
 pub use build_project::{
-    apply_transforms, build_schema, check_project, create_path_for_artifact, generate_artifacts,
+    apply_transforms,
+    artifact_writer::{ArtifactDifferenceWriter, ArtifactFileWriter},
+    build_schema, check_project, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
     validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };

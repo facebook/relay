@@ -53,7 +53,7 @@ impl<'s> Transformer for RequiredDirective<'s> {
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let required_directive = field.directives.named(*REQURIED_DRECTIVE_NAME);
-        if let None = required_directive {
+        if required_directive.is_none() {
             return Transformed::Keep;
         }
         let name = field.alias_or_name(&self.program.schema).lookup();
@@ -91,10 +91,7 @@ impl<'s> Transformer for RequiredDirective<'s> {
     }
 }
 
-fn add_path_metadata_directives(
-    directives: &Vec<Directive>,
-    path_name: StringKey,
-) -> Vec<Directive> {
+fn add_path_metadata_directives(directives: &[Directive], path_name: StringKey) -> Vec<Directive> {
     let new_directive: Directive = build_path_metadata_as_directive(path_name);
     let mut next_directives: Vec<Directive> = Vec::with_capacity(directives.len() + 1);
     for directive in directives.iter() {

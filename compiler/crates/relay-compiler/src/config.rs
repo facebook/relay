@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::{
-    ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter,
-};
+use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::saved_state::SavedStateLoader;
+use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
@@ -18,6 +18,7 @@ use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::PathBuf;
+use watchman_client::pdu::ScmAwareClockData;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -38,7 +39,14 @@ pub struct Config {
     /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
-    pub codegen_filepath: Option<PathBuf>,
+    pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
+    pub full_build: bool,
+
+    pub connection_interface: ConnectionInterface,
+    pub feature_flags: FeatureFlags,
+
+    pub saved_state_config: Option<ScmAwareClockData>,
+    pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
 }
 
 impl Config {
@@ -142,15 +150,20 @@ impl Config {
         };
 
         let config = Self {
+            artifact_writer: Box::new(ArtifactFileWriter),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
+            full_build: false,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
-            codegen_filepath: None,
+            saved_state_config: config_file.saved_state_config,
+            saved_state_loader: None,
+            connection_interface: config_file.connection_interface,
+            feature_flags: config_file.feature_flags,
         };
 
         let mut validation_errors = Vec::new();
@@ -259,37 +272,36 @@ impl Config {
             }
         }
     }
-
-    pub fn create_artifact_writer(&self) -> Box<dyn ArtifactWriter> {
-        if let Some(ref codegen_filepath) = self.codegen_filepath {
-            Box::new(ArtifactDifferenceWriter::new(codegen_filepath.clone()))
-        } else {
-            Box::new(ArtifactFileWriter {})
-        }
-    }
 }
 
 impl fmt::Debug for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Config {
+            artifact_writer: _,
             root_dir,
             sources,
             excludes,
+            full_build,
             projects,
             header,
             codegen_command,
             load_saved_state_file,
             generate_extra_operation_artifacts,
-            codegen_filepath,
+            saved_state_config,
+            saved_state_loader,
+            connection_interface,
+            feature_flags,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
+            .field("full_build", full_build)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
             .field("load_saved_state_file", load_saved_state_file)
+            .field("saved_state_config", saved_state_config)
             .field(
                 "generate_extra_operation_artifacts",
                 if generate_extra_operation_artifacts.is_some() {
@@ -298,7 +310,16 @@ impl fmt::Debug for Config {
                     &"None"
                 },
             )
-            .field("codegen_filepath", codegen_filepath)
+            .field(
+                "saved_state_loader",
+                if saved_state_loader.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
+            .field("connection_interface", connection_interface)
+            .field("feature_flags", feature_flags)
             .finish()
     }
 }
@@ -350,6 +371,15 @@ struct ConfigFile {
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,
+
+    #[serde(default)]
+    connection_interface: ConnectionInterface,
+
+    #[serde(default)]
+    feature_flags: FeatureFlags,
+
+    /// Watchman saved state config.
+    saved_state_config: Option<ScmAwareClockData>,
 }
 
 #[derive(Debug, Deserialize)]

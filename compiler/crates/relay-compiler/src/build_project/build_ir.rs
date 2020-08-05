@@ -59,21 +59,16 @@ pub fn build_ir(
                 .unwrap_or_default();
             let base_definition_names = base_project_asts
                 .iter()
-                .filter_map(|definition| match definition {
-                    graphql_syntax::ExecutableDefinition::Operation(operation) => {
-                        // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
-                        let operation_name = operation.name.clone();
-                        operation_name.map(|name| name.value)
-                    }
-                    graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
-                        Some(fragment.name.value)
-                    }
-                })
+                // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
+                .filter_map(|definition| definition.name())
                 .collect::<FnvHashSet<_>>();
             (base_project_asts, base_definition_names)
         }
         None => (Vec::new(), FnvHashSet::default()),
     };
+
+    find_duplicates(&project_asts, &base_project_asts)?;
+
     let ReachableAst {
         definitions: reachable_ast,
         base_fragment_names,
@@ -106,6 +101,31 @@ pub fn build_ir(
             base_fragment_names,
             source_hashes,
         })
+    }
+}
+
+fn find_duplicates(
+    asts: &[ExecutableDefinition],
+    base_asts: &[ExecutableDefinition],
+) -> Result<(), Vec<ValidationError>> {
+    let mut definitions = FnvHashMap::default();
+
+    let mut errors = Vec::new();
+    for def in asts.iter().chain(base_asts) {
+        if let Some(name) = def.name() {
+            if let Some(prev_def) = definitions.insert(name, def) {
+                errors.push(ValidationError {
+                    message: graphql_ir::ValidationMessage::DuplicateDefinition(name),
+                    locations: vec![def.location(), prev_def.location()],
+                })
+            }
+        }
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
     }
 }
 

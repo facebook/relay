@@ -8,7 +8,7 @@
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::skip_client_extensions;
 use std::sync::Arc;
@@ -18,7 +18,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let source_location = SourceLocationKey::standalone(fixture.file_name);
-        let ast = parse(base, source_location).unwrap();
+        let ast = parse_executable(base, source_location).unwrap();
         let schema = get_test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let context = Program::from_definitions(Arc::clone(&schema), ir);

@@ -10,6 +10,5 @@ fragment NameRendererFragment on User {
 }
 ==================================== ERROR ====================================
 Direct use of the 'js' field is not allowed, use '@match/@module instead.:
-direct-js-field.invalid.graphql:4:35:
-    ... on PlainUserNameRenderer {
+direct-js-field.invalid.graphql:5:7:
       js(module: "PlainUserNameRenderer.react")

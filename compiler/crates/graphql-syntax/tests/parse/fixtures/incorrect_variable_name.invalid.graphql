@@ -1,0 +1,4 @@
+# expected-to-throw
+{
+    image(size: $100)
+}

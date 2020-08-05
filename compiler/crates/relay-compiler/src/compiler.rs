@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, check_project, commit_project};
+use crate::build_project::{build_project, build_schema, commit_project};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
@@ -37,7 +37,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
-    pub async fn compile(&self) -> Result<CompilerState> {
+    pub async fn compile(self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
@@ -48,6 +48,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .await?;
 
         self.perf_logger.complete_event(setup_event);
+
+        self.config.artifact_writer.finalize()?;
 
         Ok(compiler_state)
     }
@@ -67,63 +69,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         schemas
     }
 
-    pub async fn watch_with_callback<F>(&self, mut callback: F) -> Result<()>
-    where
-        F: FnMut(Result<()>),
-    {
-        let setup_event = self.perf_logger.create_event("compiler_setup");
-
-        let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let (mut compiler_state, mut subscription) = file_source
-            .subscribe(&setup_event, self.perf_logger.as_ref())
-            .await?;
-        let schemas = self.build_schemas(&compiler_state, &setup_event);
-        callback(
-            self.check_projects(&mut compiler_state, &schemas, &setup_event)
-                .await,
-        );
-
-        self.perf_logger.complete_event(setup_event);
-
-        loop {
-            if let Some(file_source_changes) = subscription.next_change().await? {
-                let incremental_check_event =
-                    self.perf_logger.create_event("incremental_check_event");
-                let incremental_check_time =
-                    incremental_check_event.start("incremental_check_time");
-
-                // TODO Single change to file in VSCode sometimes produces
-                // 2 watchman change events for the same file
-                let had_new_changes = compiler_state.merge_file_source_changes(
-                    &self.config,
-                    &file_source_changes,
-                    &incremental_check_event,
-                    self.perf_logger.as_ref(),
-                )?;
-                if had_new_changes {
-                    // Clear out existing errors
-                    callback(Ok(()));
-                    // Report any new errors
-                    callback(
-                        self.check_projects(
-                            &mut compiler_state,
-                            &schemas,
-                            &incremental_check_event,
-                        )
-                        .await,
-                    );
-                } else {
-                    info!("[watch-mode] No re-compilation required");
-                }
-                incremental_check_event.stop(incremental_check_time);
-                self.perf_logger.complete_event(incremental_check_event);
-                // We probably don't want the messages queue to grow indefinitely
-                // and we need to flush then, as the check/build is completed
-                self.perf_logger.flush();
-            }
-        }
-    }
-
     pub async fn watch(&self) -> Result<()> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
@@ -133,9 +78,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
-        if let Err(errors) = self.build_projects(&mut compiler_state, &setup_event).await {
-            // TODO correctly print errors
-            error!("Errors: {:#?}", errors)
+        if let Err(err) = self.build_projects(&mut compiler_state, &setup_event).await {
+            if let Error::BuildProjectsErrors { .. } = err {
+                error!("Compilation failed, see errors above.");
+            } else {
+                error!("{}", err);
+            }
         }
         self.perf_logger.complete_event(setup_event);
 
@@ -158,12 +106,15 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 )?;
 
                 if had_new_changes {
-                    if let Err(errors) = self
+                    if let Err(err) = self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
                     {
-                        // TODO correctly print errors
-                        error!("Errors: {:#?}", errors)
+                        if let Error::BuildProjectsErrors { .. } = err {
+                            error!("Compilation failed, see errors above.");
+                        } else {
+                            error!("{}", err);
+                        }
                     }
                 } else {
                     info!("[watch-mode] No re-compilation required");
@@ -174,52 +125,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 // and we need to flush then, as the check/build is completed
                 self.perf_logger.flush();
             }
-        }
-    }
-
-    async fn check_projects(
-        &self,
-        compiler_state: &mut CompilerState,
-        schemas: &HashMap<ProjectName, Arc<Schema>>,
-        setup_event: &impl PerfLogEvent,
-    ) -> Result<()> {
-        let graphql_asts = setup_event.time("parse_sources_time", || {
-            compiler_state
-                .graphql_sources
-                .iter()
-                .map(|(&source_set_name, sources)| {
-                    let asts = GraphQLAsts::from_graphql_sources(sources)?;
-                    Ok((source_set_name, asts))
-                })
-                .collect::<Result<_>>()
-        })?;
-
-        let mut build_project_errors = vec![];
-
-        for project_config in self.config.enabled_projects() {
-            if compiler_state.project_has_pending_changes(project_config.name) {
-                let schema = Arc::clone(schemas.get(&project_config.name).unwrap());
-                // TODO: consider running all projects in parallel
-                check_project(
-                    project_config,
-                    compiler_state,
-                    &graphql_asts,
-                    schema,
-                    Arc::clone(&self.perf_logger),
-                )
-                .map_err(|err| {
-                    build_project_errors.push(err);
-                })
-                .ok();
-            }
-        }
-
-        if build_project_errors.is_empty() {
-            Ok(())
-        } else {
-            Err(Error::BuildProjectsErrors {
-                errors: build_project_errors,
-            })
         }
     }
 
@@ -286,7 +191,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     setup_event: &impl PerfLogEvent,
     compiler_state: &mut CompilerState,
 ) -> Result<()> {
-    let graphql_asts = setup_event.time("parse_sources_time", || {
+    let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
     })?;
 
@@ -295,6 +200,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         .filter(|project_config| compiler_state.project_has_pending_changes(project_config.name))
         .map(|project_config| {
             build_project(
+                &config,
                 project_config,
                 compiler_state,
                 &graphql_asts,
@@ -321,6 +227,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 .get(&project_name)
                 .cloned()
                 .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
+            let removed_definition_names = graphql_asts
+                .remove(&project_name)
+                .expect("Expect GraphQLAsts to exist.")
+                .removed_definition_names;
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
                 Ok((
@@ -333,6 +243,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         programs,
                         artifacts,
                         artifact_map,
+                        removed_definition_names,
                     )
                     .await?,
                 ))

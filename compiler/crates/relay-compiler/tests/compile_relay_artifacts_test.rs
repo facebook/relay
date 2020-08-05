@@ -1,4 +1,4 @@
-// @generated SignedSource<<627234228c1e1c98c009805c07569711>>
+// @generated SignedSource<<07978cac646479f097100264cf401ebc>>
 
 mod compile_relay_artifacts;
 
@@ -262,6 +262,13 @@ fn fields_with_null_arugment_values() {
     let input = include_str!("compile_relay_artifacts/fixtures/fields-with-null-arugment-values.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fields-with-null-arugment-values.expected");
     test_fixture(transform_fixture, "fields-with-null-arugment-values.graphql", "compile_relay_artifacts/fixtures/fields-with-null-arugment-values.expected", input, expected);
+}
+
+#[test]
+fn flight_props_transform() {
+    let input = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.expected");
+    test_fixture(transform_fixture, "flight-props-transform.graphql", "compile_relay_artifacts/fixtures/flight-props-transform.expected", input, expected);
 }
 
 #[test]

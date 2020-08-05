@@ -187,6 +187,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         __fragments: {NestedUserFragment: {}},
         __fragmentOwner: ownerUser1.request,
       },
+      missingRequiredFields: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -289,6 +290,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         __fragments: {NestedUserFragment: {}},
         __fragmentOwner: ownerUser2.request,
       },
+      missingRequiredFields: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -344,6 +346,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         __fragments: {NestedUserFragment: {}},
         __fragmentOwner: ownerUser1WithCondVar.request,
       },
+      missingRequiredFields: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

@@ -169,7 +169,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         moduleId,
         preloadedModule => {
-          clearTimeout(loadQueryAstTimeoutId);
+          loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
           cancelOnLoadCallback();
           const operation = createOperationDescriptor(
             preloadedModule,
@@ -178,16 +178,18 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           executeWithSource(operation, source);
         },
       ));
-      loadQueryAstTimeoutId = setTimeout(() => {
-        cancelOnLoadCallback();
-        const onTimeout = options?.onQueryAstLoadTimeout;
-        if (onTimeout) {
-          onTimeout();
-        }
-        // complete() the subject so that the observer knows no (additional) payloads
-        // will be delivered
-        normalizationSubject.complete();
-      }, LOAD_QUERY_AST_MAX_TIMEOUT);
+      if (!environment.isServer()) {
+        loadQueryAstTimeoutId = setTimeout(() => {
+          cancelOnLoadCallback();
+          const onTimeout = options?.onQueryAstLoadTimeout;
+          if (onTimeout) {
+            onTimeout();
+          }
+          // complete() the subject so that the observer knows no (additional) payloads
+          // will be delivered
+          normalizationSubject.complete();
+        }, LOAD_QUERY_AST_MAX_TIMEOUT);
+      }
     }
   } else {
     const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
@@ -197,17 +199,26 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     checkAvailabilityAndExecute(request);
   }
 
+  let isDisposed = false;
   return {
     kind: 'PreloadedQuery',
     environment,
     environmentProviderOptions,
-    dispose: () => {
+    dispose() {
+      if (isDisposed) {
+        return;
+      }
       unsubscribeFromExecute && unsubscribeFromExecute();
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();
       loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
+      isDisposed = true;
     },
     id: moduleId,
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get isDisposed() {
+      return isDisposed;
+    },
     name: params.name,
     networkCacheConfig,
     fetchPolicy,

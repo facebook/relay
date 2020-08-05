@@ -78,6 +78,13 @@ function usePreloadedQuery<TQuery: OperationType>(
       renderPolicy: options?.UNSTABLE_renderPolicy,
     };
   } else {
+    warning(
+      preloadedQuery.isDisposed === false,
+      'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. ' +
+        'This is because disposing the query marks it for future garbage ' +
+        'collection, and as such query results may no longer be present in the Relay ' +
+        'store. In the future, this will become a hard error.',
+    );
     // Here, we are calling fetchQueryDeduped, which usually ensures that only
     // a single network request is active for a given (environment, identifier) pair.
     // If no network request is active, it will call the third argument and initiate

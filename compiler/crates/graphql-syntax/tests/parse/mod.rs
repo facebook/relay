@@ -7,10 +7,10 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_syntax::{parse, GraphQLSource};
+use graphql_syntax::{parse_executable, GraphQLSource};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    parse(
+    parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),
     )

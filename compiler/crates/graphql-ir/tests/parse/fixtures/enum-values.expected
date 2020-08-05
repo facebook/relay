@@ -12,7 +12,7 @@ query EnumValueQuery {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: enum-values.graphql:6:21,
+                location: enum-values.graphql:6:20,
                 item: "EnumValueQuery",
             },
             type_: Object(0),
@@ -22,7 +22,7 @@ query EnumValueQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: enum-values.graphql:22:28,
+                        location: enum-values.graphql:25:27,
                         item: FieldID(
                             8,
                         ),
@@ -33,9 +33,9 @@ query EnumValueQuery {
                         LinkedField {
                             alias: None,
                             definition: WithLocation {
-                                location: enum-values.graphql:29:48,
+                                location: enum-values.graphql:34:48,
                                 item: FieldID(
-                                    464,
+                                    465,
                                 ),
                             },
                             arguments: [
@@ -59,7 +59,7 @@ query EnumValueQuery {
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: enum-values.graphql:65:75,
+                                        location: enum-values.graphql:72:75,
                                         item: FieldID(
                                             175,
                                         ),

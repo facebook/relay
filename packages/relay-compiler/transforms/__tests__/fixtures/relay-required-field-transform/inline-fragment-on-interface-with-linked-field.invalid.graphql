@@ -1,0 +1,8 @@
+# expected-to-throw
+fragment Foo on Node {
+  ... on Actor {
+    address @required(action: LOG) {
+      __typename
+    }
+  }
+}

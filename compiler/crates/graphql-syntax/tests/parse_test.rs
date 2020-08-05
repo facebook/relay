@@ -1,9 +1,16 @@
-// @generated SignedSource<<09e50c55635d10f9893ddfd7ec8b5f54>>
+// @generated SignedSource<<d68d2efe1c607ccb8ea31ffe921e03e7>>
 
 mod parse;
 
 use parse::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn incorrect_variable_name_invalid() {
+    let input = include_str!("parse/fixtures/incorrect_variable_name.invalid.graphql");
+    let expected = include_str!("parse/fixtures/incorrect_variable_name.invalid.expected");
+    test_fixture(transform_fixture, "incorrect_variable_name.invalid.graphql", "parse/fixtures/incorrect_variable_name.invalid.expected", input, expected);
+}
 
 #[test]
 fn invalid_number() {
@@ -31,4 +38,32 @@ fn list_of_enum() {
     let input = include_str!("parse/fixtures/list_of_enum.graphql");
     let expected = include_str!("parse/fixtures/list_of_enum.expected");
     test_fixture(transform_fixture, "list_of_enum.graphql", "parse/fixtures/list_of_enum.expected", input, expected);
+}
+
+#[test]
+fn missing_zero_on_float_invalid() {
+    let input = include_str!("parse/fixtures/missing_zero_on_float.invalid.graphql");
+    let expected = include_str!("parse/fixtures/missing_zero_on_float.invalid.expected");
+    test_fixture(transform_fixture, "missing_zero_on_float.invalid.graphql", "parse/fixtures/missing_zero_on_float.invalid.expected", input, expected);
+}
+
+#[test]
+fn multiple_parse_errors_invalid() {
+    let input = include_str!("parse/fixtures/multiple_parse_errors.invalid.graphql");
+    let expected = include_str!("parse/fixtures/multiple_parse_errors.invalid.expected");
+    test_fixture(transform_fixture, "multiple_parse_errors.invalid.graphql", "parse/fixtures/multiple_parse_errors.invalid.expected", input, expected);
+}
+
+#[test]
+fn space_in_variable() {
+    let input = include_str!("parse/fixtures/space_in_variable.graphql");
+    let expected = include_str!("parse/fixtures/space_in_variable.expected");
+    test_fixture(transform_fixture, "space_in_variable.graphql", "parse/fixtures/space_in_variable.expected", input, expected);
+}
+
+#[test]
+fn unterminated_string_invalid() {
+    let input = include_str!("parse/fixtures/unterminated_string.invalid.graphql");
+    let expected = include_str!("parse/fixtures/unterminated_string.invalid.expected");
+    test_fixture(transform_fixture, "unterminated_string.invalid.graphql", "parse/fixtures/unterminated_string.invalid.expected", input, expected);
 }

@@ -34,15 +34,16 @@ pub use generate_artifacts::{
 };
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
-use graphql_transforms::FB_CONNECTION_INTERFACE;
+use interner::StringKey;
 use log::info;
 use persist_operations::persist_operations;
 use relay_codegen::Printer;
 use schema::Schema;
-use std::sync::Arc;
+use std::{collections::hash_map::Entry, sync::Arc};
 pub use validate::validate;
 
 fn build_programs(
+    config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
@@ -72,7 +73,7 @@ fn build_programs(
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
         // TODO(T63482263): Pass connection interface from configuration
-        validate(&program, &*FB_CONNECTION_INTERFACE)
+        validate(&program, &config.connection_interface)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
@@ -82,7 +83,8 @@ fn build_programs(
             project_name,
             Arc::new(program),
             Arc::new(base_fragment_names),
-            Arc::clone(&FB_CONNECTION_INTERFACE),
+            &config.connection_interface,
+            &config.feature_flags,
             perf_logger,
         )
         .map_err(|errors| BuildProjectError::ValidationErrors { errors })
@@ -92,6 +94,7 @@ fn build_programs(
 }
 
 pub fn check_project(
+    config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
@@ -104,6 +107,7 @@ pub fn check_project(
     log_event.string("project", project_name.to_string());
 
     let (programs, _) = build_programs(
+        config,
         project_config,
         compiler_state,
         graphql_asts,
@@ -119,6 +123,7 @@ pub fn check_project(
 }
 
 pub fn build_project(
+    config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
@@ -136,6 +141,7 @@ pub fn build_project(
 
     // Apply different transform pipelines to produce the `Programs`.
     let (programs, source_hashes) = build_programs(
+        config,
         project_config,
         compiler_state,
         graphql_asts,
@@ -167,6 +173,7 @@ pub async fn commit_project(
     programs: Programs,
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
+    removed_definition_names: Vec<StringKey>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
@@ -191,14 +198,12 @@ pub async fn commit_project(
         });
     }
 
+    // Write the generated artifacts to disk. This step is separate from
+    // generating artifacts or persisting to avoid partial writes in case of
+    // errors as much as possible.
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-
-            // Write the generated artifacts to disk. This step is separate from
-            // generating artifacts or persisting to avoid partial writes in case of
-            // errors as much as possible.
-            let mut artifact_writer = config.create_artifact_writer();
             let mut printer = Printer::default();
 
             log_event.time("write_artifacts_time", || {
@@ -206,7 +211,7 @@ pub async fn commit_project(
                     if !existing_artifacts.remove(&artifact.path) {
                         info!(
                             "[{}] NEW: {} -> {:?}",
-                            project_config.name, &artifact.name, &artifact.path
+                            project_config.name, &artifact.source_definition_name, &artifact.path
                         );
                     }
 
@@ -215,7 +220,7 @@ pub async fn commit_project(
                         artifact
                             .content
                             .as_bytes(config, project_config, &mut printer, schema);
-                    artifact_writer.write_if_changed(path, content)?;
+                    config.artifact_writer.write_if_changed(path, content)?;
                 }
                 Ok(())
             })?;
@@ -223,17 +228,64 @@ pub async fn commit_project(
             log_event.time("delete_artifacts_time", || {
                 for remaining_artifact in &existing_artifacts {
                     let path = config.root_dir.join(remaining_artifact);
-                    artifact_writer.remove(path)?;
+                    config.artifact_writer.remove(path)?;
                 }
                 Ok(())
             })?;
 
-            log_event.time("finalize_artifacts_time", || artifact_writer.finalize())?;
-
             ArtifactMap::from(artifacts)
         }
-        ArtifactMapKind::Mapping(_) => {
-            todo!("need to implement incremental update of artifact map")
+        ArtifactMapKind::Mapping(artifact_map) => {
+            let mut printer = Printer::default();
+            let mut artifact_map = artifact_map.clone();
+
+            // Delete all generated paths for removed definitions
+            log_event.time("delete_artifacts_time", || {
+                for name in &removed_definition_names {
+                    if let Some(artifact) = artifact_map.0.remove(&name) {
+                        for (path, _) in artifact {
+                            let path = config.root_dir.join(path);
+                            config.artifact_writer.remove(path)?;
+                        }
+                    }
+                }
+                Ok(())
+            })?;
+
+            // Update artifacts and remove deleted artifacts
+            log_event.time("write_artifacts_time", || {
+                let mut current_paths_map = ArtifactMap::default();
+                for artifact in artifacts {
+                    let path = config.root_dir.join(&artifact.path);
+                    let content =
+                        artifact
+                            .content
+                            .as_bytes(config, project_config, &mut printer, schema);
+                    config.artifact_writer.write_if_changed(path, content)?;
+                    current_paths_map.insert(artifact);
+                }
+                for (definition_name, artifact_tuples) in current_paths_map.0 {
+                    match artifact_map.0.entry(definition_name) {
+                        Entry::Occupied(mut entry) => {
+                            let prev_tuples = entry.get_mut();
+                            for (prev_path, _) in prev_tuples.drain(..) {
+                                if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
+                                    config
+                                        .artifact_writer
+                                        .remove(config.root_dir.join(prev_path))?;
+                                }
+                            }
+                            prev_tuples.extend(artifact_tuples.into_iter());
+                        }
+                        Entry::Vacant(entry) => {
+                            entry.insert(artifact_tuples);
+                        }
+                    }
+                }
+                Ok(())
+            })?;
+
+            artifact_map
         }
     };
 

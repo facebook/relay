@@ -216,6 +216,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                 let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
                 // TODO: consider running all projects in parallel
                 let programs = check_project(
+                    &self.config,
                     project_config,
                     &self.compiler_state,
                     &graphql_asts,

@@ -15,8 +15,10 @@ mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
+mod declarative_connection;
 mod dedupe_type_discriminator;
 mod defer_stream;
+mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
@@ -31,6 +33,7 @@ mod inline_fragments;
 mod mask;
 mod match_;
 mod node_identifier;
+mod react_flight;
 mod refetchable_fragment;
 mod relay_directive;
 mod relay_early_flush;
@@ -64,11 +67,12 @@ pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
     ConnectionMetadata,
 };
-pub use connections::{FB_CONNECTION_INTERFACE, OSS_CONNECTION_INTERFACE};
+pub use declarative_connection::transform_declarative_connection;
 pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
+pub use feature_flags::FeatureFlags;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -80,7 +84,7 @@ pub use generate_subscription_name_metadata::generate_subscription_name_metadata
 pub use generate_typename::{generate_typename, TYPE_DISCRIMINATOR_DIRECTIVE_NAME};
 pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,
-    handle_field_transform, HandleFieldConstants,
+    handle_field_transform,
 };
 pub use hash_arguments::hash_arguments;
 pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
@@ -88,6 +92,7 @@ pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{split_module_import, transform_match, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
+pub use react_flight::{react_flight, REACT_FLIGHT_DIRECTIVE_NAME};
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,

@@ -29,28 +29,36 @@ const DeleteRecordHandler = {
     const record = store.get(payload.dataID);
 
     if (record != null) {
-      const id = record.getValue(payload.fieldKey);
+      const idOrIds = record.getValue(payload.fieldKey);
+      const listOfIds =
+        typeof idOrIds === 'string'
+          ? [idOrIds]
+          : Array.isArray(idOrIds)
+          ? idOrIds
+          : [];
 
-      if (typeof id === 'string') {
-        const {connections} = payload.handleArgs;
+      listOfIds.forEach(id => {
+        if (typeof id === 'string') {
+          const {connections} = payload.handleArgs;
 
-        if (connections != null) {
-          for (const connectionID of connections) {
-            const connection = store.get(connectionID);
-            if (connection == null) {
-              warning(
-                false,
-                `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
-              );
-              continue;
+          if (connections != null) {
+            for (const connectionID of connections) {
+              const connection = store.get(connectionID);
+              if (connection == null) {
+                warning(
+                  false,
+                  `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
+                );
+                continue;
+              }
+
+              ConnectionHandler.deleteNode(connection, id);
             }
-
-            ConnectionHandler.deleteNode(connection, id);
           }
-        }
 
-        store.delete(id);
-      }
+          store.delete(id);
+        }
+      });
     }
   },
 };

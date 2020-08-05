@@ -448,6 +448,7 @@ class RelayModernStore implements Store {
       isMissingData: nextSnapshot.isMissingData,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
+      missingRequiredFields: nextSnapshot.missingRequiredFields,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);
@@ -599,6 +600,7 @@ class RelayModernStore implements Store {
           isMissingData: backup.isMissingData,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
+          missingRequiredFields: backup.missingRequiredFields,
         };
       } else {
         subscription.stale = true;

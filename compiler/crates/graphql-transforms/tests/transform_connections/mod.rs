@@ -9,9 +9,9 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
-use graphql_transforms::{transform_connections, validate_connections, OSS_CONNECTION_INTERFACE};
+use graphql_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use std::sync::Arc;
 use test_schema::get_test_schema;
 
@@ -23,7 +23,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let schema = get_test_schema();
 
-    let ast = parse(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir_result = build(&schema, &ast.definitions);
     let ir = match ir_result {
         Ok(res) => res,
@@ -39,7 +39,9 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let validation_result = validate_connections(&program, &*OSS_CONNECTION_INTERFACE);
+    let connection_interface = ConnectionInterface::default();
+
+    let validation_result = validate_connections(&program, &connection_interface);
     match validation_result {
         Ok(_) => {}
         Err(errors) => {
@@ -52,7 +54,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         }
     }
 
-    let next_program = transform_connections(&program, Arc::clone(&OSS_CONNECTION_INTERFACE));
+    let next_program = transform_connections(&program, &connection_interface);
 
     let mut printed = next_program
         .operations()

@@ -14,7 +14,7 @@ fragment ChildFragment on User
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-arguments.graphql:9:24,
+                location: fragment-with-literal-arguments.graphql:9:23,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -24,7 +24,7 @@ fragment ChildFragment on User
             selections: [
                 FragmentSpread {
                     fragment: WithLocation {
-                        location: fragment-with-literal-arguments.graphql:39:53,
+                        location: fragment-with-literal-arguments.graphql:39:52,
                         item: "ChildFragment",
                     },
                     arguments: [
@@ -55,7 +55,7 @@ fragment ChildFragment on User
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-arguments.graphql:95:109,
+                location: fragment-with-literal-arguments.graphql:95:108,
                 item: "ChildFragment",
             },
             variable_definitions: [
@@ -88,9 +88,9 @@ fragment ChildFragment on User
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: fragment-with-literal-arguments.graphql:171:188,
+                        location: fragment-with-literal-arguments.graphql:174:188,
                         item: FieldID(
-                            464,
+                            465,
                         ),
                     },
                     arguments: [
@@ -122,7 +122,7 @@ fragment ChildFragment on User
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-arguments.graphql:210:218,
+                                location: fragment-with-literal-arguments.graphql:215:218,
                                 item: FieldID(
                                     175,
                                 ),

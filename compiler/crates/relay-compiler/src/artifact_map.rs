@@ -31,7 +31,7 @@ impl Sha1Hash {
 
 /// A map from DefinitionName to output artifacts and their hashes
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(FnvHashMap<DefinitionName, Vec<ArtifactTuple>>);
+pub struct ArtifactMap(pub FnvHashMap<DefinitionName, Vec<ArtifactTuple>>);
 
 impl ArtifactMap {
     pub fn insert(&mut self, artifact: Artifact) {
@@ -41,7 +41,7 @@ impl ArtifactMap {
                 "TODO", // &artifact.content
             ),
         );
-        match self.0.entry(artifact.name) {
+        match self.0.entry(artifact.source_definition_name) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().push(artifact_tuple);
             }

@@ -156,6 +156,9 @@ Schema {
             Interface(0),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "nodes",
@@ -185,6 +188,9 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "id",
@@ -196,6 +202,9 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
     },
     Field {
         name: "id",
@@ -207,6 +216,9 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "name",
@@ -216,6 +228,9 @@ Schema {
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "id",
@@ -225,6 +240,9 @@ Schema {
             Scalar(4),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "type",
@@ -234,6 +252,9 @@ Schema {
             Enum(0),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "clientName",
@@ -243,6 +264,9 @@ Schema {
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "nickname",
@@ -252,6 +276,9 @@ Schema {
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "client",
@@ -261,6 +288,9 @@ Schema {
             Object(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "__typename",
@@ -272,6 +302,7 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: None,
     },
     Field {
         name: "__id",
@@ -283,6 +314,7 @@ Schema {
             ),
         ),
         directives: [],
+        parent_type: None,
     },
 ]
  input_objects: []

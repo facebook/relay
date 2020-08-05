@@ -335,6 +335,7 @@ it('disposes query references associated with previous suspensions when multiple
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadQuery).toHaveBeenCalledTimes(1);
     expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
@@ -342,6 +343,7 @@ it('disposes query references associated with previous suspensions when multiple
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise2);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadQuery).toHaveBeenCalledTimes(2);
     expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;
@@ -349,6 +351,7 @@ it('disposes query references associated with previous suspensions when multiple
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadQuery).toHaveBeenCalledTimes(3);
     expect(instance.toJSON()).toEqual('fallback');
     const thirdDispose = dispose;
@@ -438,6 +441,8 @@ it('disposes query references associated with subsequent suspensions when multip
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
+
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadQuery).toHaveBeenCalledTimes(1);
     expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
@@ -511,7 +516,7 @@ it('should dispose of queries on unmount if the callback is called, the componen
   expect(renderCount).toEqual(2);
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
-  outerInstance.unmount();
+  ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
@@ -559,7 +564,7 @@ it('disposes all queries if a the callback is called, the component suspends, an
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(firstDispose).toHaveBeenCalledTimes(1);
   expect(secondDispose).not.toHaveBeenCalled();
-  outerInstance.unmount();
+  ReactTestRenderer.act(() => outerInstance.unmount());
   expect(secondDispose).toHaveBeenCalledTimes(1);
 });
 
@@ -599,7 +604,7 @@ it('disposes all queries if the component suspends, another query is loaded and 
   expect(renderCount).toEqual(2);
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
-  outerInstance.unmount();
+  ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
@@ -631,7 +636,7 @@ it('disposes the query on unmount if the callback is called and the component un
 
 it('does not call loadQuery if the callback is called after the component unmounts', () => {
   render();
-  instance.unmount();
+  ReactTestRenderer.act(() => instance.unmount());
   queryLoaderCallback({});
   expect(loadQuery).not.toHaveBeenCalled();
 });

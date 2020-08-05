@@ -5,14 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::Clock;
-use super::{
-    query_builder::{get_all_roots, get_watchman_expr},
-    WatchmanFile,
-};
+use super::query_builder::{get_all_roots, get_watchman_expr};
+use super::{Clock, WatchmanFile};
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config};
 use common::{PerfLogEvent, PerfLogger};
+use log::warn;
+use serde_bser::value::Value;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
 
@@ -27,6 +26,7 @@ pub struct FileSourceResult {
     pub files: Vec<WatchmanFile>,
     pub resolved_root: ResolvedRoot,
     pub clock: Clock,
+    pub saved_state_info: Option<Value>,
 }
 
 impl<'config> FileSource<'config> {
@@ -59,8 +59,11 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
+        // If the saved state flag is passed, load from it or fail.
         if let Some(saved_state_path) = &self.config.load_saved_state_file {
-            let mut compiler_state = CompilerState::deserialize_from_file(&saved_state_path)?;
+            let mut compiler_state = perf_logger_event.time("deserialize_saved_state", || {
+                CompilerState::deserialize_from_file(&saved_state_path)
+            })?;
             let file_source_result = self
                 .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
                 .await?;
@@ -70,17 +73,57 @@ impl<'config> FileSource<'config> {
                 perf_logger_event,
                 perf_logger,
             )?;
-            Ok(compiler_state)
-        } else {
-            let file_source_result = self.query_file_result(None, perf_logger_event).await?;
-            let compiler_state = CompilerState::from_file_source_changes(
-                &self.config,
-                &file_source_result,
-                perf_logger_event,
-                perf_logger,
-            )?;
-            Ok(compiler_state)
+            return Ok(compiler_state);
         }
+
+        // If saved state is configured, try using saved state unless the config
+        // forces a full build.
+        if let Config {
+            full_build: false,
+            saved_state_config: Some(saved_state_config),
+            saved_state_loader: Some(saved_state_loader),
+            ..
+        } = self.config
+        {
+            let scm_since = Clock::ScmAware(FatClockData {
+                clock: ClockSpec::null(),
+                scm: Some(saved_state_config.clone()),
+            });
+            let file_source_result = self
+                .query_file_result(Some(scm_since), perf_logger_event)
+                .await?;
+
+            if let Some(saved_state_info) = &file_source_result.saved_state_info {
+                let saved_state_path = saved_state_loader.load(&saved_state_info);
+                if let Some(saved_state_path) = saved_state_path {
+                    let mut compiler_state = perf_logger_event
+                        .time("deserialize_saved_state", || {
+                            CompilerState::deserialize_from_file(&saved_state_path)
+                        })?;
+                    compiler_state.merge_file_source_changes(
+                        &self.config,
+                        &file_source_result,
+                        perf_logger_event,
+                        perf_logger,
+                    )?;
+                    return Ok(compiler_state);
+                } else {
+                    warn!("got saved state response, but unable to read");
+                }
+            } else {
+                warn!("no saved state in watchman response");
+            }
+        }
+
+        // Finally, do a simple full query.
+        let file_source_result = self.query_file_result(None, perf_logger_event).await?;
+        let compiler_state = CompilerState::from_file_source_changes(
+            &self.config,
+            &file_source_result,
+            perf_logger_event,
+            perf_logger,
+        )?;
+        Ok(compiler_state)
     }
 
     /// Starts a subscription sending updates since the given clock.
@@ -159,6 +202,7 @@ impl<'config> FileSource<'config> {
             files,
             resolved_root: self.resolved_root.clone(),
             clock: query_result.clock,
+            saved_state_info: query_result.saved_state_info,
         })
     }
 }
@@ -179,6 +223,7 @@ impl<'config> FileSourceSubscription<'config> {
                     files,
                     resolved_root: self.file_source.resolved_root.clone(),
                     clock: changes.clock,
+                    saved_state_info: None,
                 }));
             }
         }

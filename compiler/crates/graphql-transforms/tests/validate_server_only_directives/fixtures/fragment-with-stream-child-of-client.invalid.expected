@@ -37,6 +37,5 @@ fragment-with-stream-child-of-client.invalid.graphql:12:14:
       users @stream(initial_count: 1, label: "StreamedActorsLabel") {
 
 
-fragment-with-stream-child-of-client.invalid.graphql:9:5:
-  id
+fragment-with-stream-child-of-client.invalid.graphql:10:3:
   foo {

@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![allow(unused_imports)]
-
 use common::{Location, NamedItem};
 use fnv::FnvHashMap;
-use graphql_ir::{Argument, ConstantValue, FragmentDefinition, FragmentSpread, Value, Variable};
+use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
 use interner::StringKey;
 
 #[derive(Default, Debug)]
@@ -86,7 +84,6 @@ mod tests {
 
     use common::{Location, SourceLocationKey, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
-    use graphql_syntax::OperationKind;
     use interner::Intern;
     use schema::TypeReference;
 

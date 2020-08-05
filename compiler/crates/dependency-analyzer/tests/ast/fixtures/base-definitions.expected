@@ -23,14 +23,9 @@ fragment BUnrelated on User {
   name
 }
 ==================================== OUTPUT ===================================
-Fragment: B1
-
-Fragment: F1
-
-Fragment: F2
-
-Operation: Q1
-
+B1
+F1
+F2
+Q1
 ========== Base definitions ==========
-
 B1

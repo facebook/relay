@@ -7,7 +7,7 @@ fragment TestFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: simple-fragment.graphql:9:22,
+                location: simple-fragment.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
@@ -18,9 +18,9 @@ fragment TestFragment on User {
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: simple-fragment.graphql:31:36,
+                        location: simple-fragment.graphql:34:36,
                         item: FieldID(
-                            450,
+                            451,
                         ),
                     },
                     arguments: [],

@@ -1388,7 +1388,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     }
 
     fn record_error(&mut self, error: ValidationError) -> ValidationError {
-        // panic!()
+        // panic!("{:?}", error);
         error
     }
 }

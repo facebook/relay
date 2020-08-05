@@ -10,24 +10,26 @@
 #![deny(clippy::all)]
 #![allow(clippy::large_enum_variant)]
 
-mod char_constants;
+mod executable_node;
 mod lexer;
-mod lexer_position;
 mod parser;
 mod source;
 mod syntax_error;
-mod syntax_node;
-mod token_kind;
+pub mod type_system_node;
+
+pub use executable_node::*;
 pub use source::GraphQLSource;
-pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource};
-pub use syntax_node::*;
+pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource, SyntaxResult};
 
 use crate::parser::Parser;
 use common::SourceLocationKey;
 
-pub fn parse(source: &str, source_location: SourceLocationKey) -> SyntaxResult<Document> {
+pub fn parse_executable(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> SyntaxResult<ExecutableDocument> {
     let parser = Parser::new(source, source_location);
-    parser.parse_document()
+    parser.parse_executable_document()
 }
 
 pub fn parse_type(

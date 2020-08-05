@@ -107,6 +107,7 @@ type Mutation {
   ): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
+  commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   feedbackLikeStrict(
     input: FeedbackLikeInputStrict!
@@ -165,6 +166,11 @@ input CommentCreateSubscriptionInput {
 input CommentDeleteInput {
   clientMutationId: String
   commentId: ID
+}
+
+input CommentsDeleteInput {
+  clientMutationId: String
+  commentIds: [ID]
 }
 
 input FeedbackLikeInput {
@@ -309,6 +315,12 @@ type CommentCreateResponsePayload {
 type CommentDeleteResponsePayload {
   clientMutationId: String
   deletedCommentId: ID
+  feedback: Feedback
+}
+
+type CommentsDeleteResponsePayload {
+  clientMutationId: String
+  deletedCommentIds: [ID]
   feedback: Feedback
 }
 
@@ -827,6 +839,7 @@ type Story implements FeedUnit & Node & MaybeNodeInterface {
   websites: [String]
   username: String
   viewerSavedState: String
+  flightComponent: ReactFlightComponent
 }
 
 type StoryAttachment {
@@ -1172,3 +1185,5 @@ type IDFieldIsInt {
 type IDFieldIsObject {
   id: Node
 }
+
+scalar ReactFlightComponent

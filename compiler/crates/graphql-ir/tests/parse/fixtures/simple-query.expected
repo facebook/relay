@@ -34,7 +34,7 @@ query TestQuery($id: ID!) {
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: simple-query.graphql:27:33,
+                            location: simple-query.graphql:30:33,
                             item: "foo",
                         },
                     ),
@@ -71,7 +71,7 @@ query TestQuery($id: ID!) {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: simple-query.graphql:50:57,
+                                location: simple-query.graphql:55:57,
                                 item: FieldID(
                                     210,
                                 ),

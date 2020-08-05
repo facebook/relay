@@ -71,29 +71,35 @@ where
 pub struct ArtifactDifferenceWriter {
     codegen_records: Mutex<CodegenRecords>,
     codegen_filepath: PathBuf,
+    verify_changes_against_filesystem: bool,
 }
 
 impl ArtifactDifferenceWriter {
-    pub fn new(codegen_filepath: PathBuf) -> ArtifactDifferenceWriter {
+    pub fn new(
+        codegen_filepath: PathBuf,
+        verify_changes_against_filesystem: bool,
+    ) -> ArtifactDifferenceWriter {
         ArtifactDifferenceWriter {
             codegen_filepath,
             codegen_records: Mutex::new(CodegenRecords {
                 changed: Vec::new(),
                 removed: Vec::new(),
             }),
+            verify_changes_against_filesystem,
         }
     }
 }
 
 impl ArtifactWriter for ArtifactDifferenceWriter {
     fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        let content_is_same = content_is_same(&path, &content).map_err(|error| {
-            BuildProjectError::WriteFileError {
-                file: path.clone(),
-                source: error,
-            }
-        })?;
-        if !content_is_same {
+        let should_include_artifact_in_codegen = !self.verify_changes_against_filesystem
+            || !content_is_same(&path, &content).map_err(|error| {
+                BuildProjectError::WriteFileError {
+                    file: path.clone(),
+                    source: error,
+                }
+            })?;
+        if should_include_artifact_in_codegen {
             self.codegen_records
                 .lock()
                 .unwrap()

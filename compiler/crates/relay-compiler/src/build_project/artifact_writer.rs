@@ -107,11 +107,13 @@ impl ArtifactWriter for ArtifactDifferenceWriter {
     }
 
     fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        self.codegen_records
-            .lock()
-            .unwrap()
-            .removed
-            .push(ArtifactDeletionRecord { path });
+        if path.exists() {
+            self.codegen_records
+                .lock()
+                .unwrap()
+                .removed
+                .push(ArtifactDeletionRecord { path });
+        }
         Ok(())
     }
 

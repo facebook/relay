@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::token_kind::TokenKind;
+use crate::lexer::TokenKind;
 use crate::GraphQLSource;
 use common::Location;
 use std::fmt;
 use thiserror::Error;
+
+pub type SyntaxResult<T> = Result<T, Vec<SyntaxError>>;
 
 #[derive(Clone, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[error("Syntax error: {kind} at {location:?}")]
@@ -65,7 +67,7 @@ impl SyntaxErrorWithSource {
     }
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SyntaxErrorKind {
     #[error("Expected a {0}")]
     Expected(TokenKind),
@@ -75,13 +77,15 @@ pub enum SyntaxErrorKind {
     ExpectedDefinition,
     #[error("Expected a 'mutation', 'query', or 'subscription' keyword")]
     ExpectedOperationKind,
+    #[error("Expected a valid variable name after $ (alphabetic character followed by any number of alphabetic, number and _ characters)")]
+    ExpectedVariableIdentifier,
     #[error("Expected the keyword '{0}'")]
     ExpectedKeyword(&'static str),
     #[error("Expected a constant value (boolean, integer, float, string, null, list, or object")]
     ExpectedConstantValue,
     #[error("Expected a type annotation (e.g. '<Type>', '[Type]', 'Type!', etc)")]
     ExpectedTypeAnnotation,
-    #[error("Expected a variable ('$<name>')")]
+    #[error("Expected a variable ('$example')")]
     ExpectedVariable,
     #[error("Expected a spread ('...')")]
     ExpectedSpread,
@@ -91,8 +95,16 @@ pub enum SyntaxErrorKind {
     InvalidInteger,
     #[error("Invalid number value, expected an int or float")]
     InvalidNumberLiteral,
+    #[error("Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5")]
+    InvalidFloatLiteralMissingZero,
+    #[error("Invalid float value, GraphQL requires a leading zero, eg. 0.56")]
+    InvalidFloatMissingZeroLiteral,
     #[error("Unsupported character")]
     UnsupportedCharacter,
-    #[error("Unterminated string literal")]
+    #[error("String containing an invalid character")]
+    UnsupportedStringCharacter,
+    #[error("Unterminated string literal (strings cannot contain unescaped line breaks)")]
     UnterminatedString,
+    #[error("Unterminated block string literal")]
+    UnterminatedBlockString,
 }

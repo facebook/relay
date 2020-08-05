@@ -27,6 +27,7 @@ const {
   CONDITION,
   CONNECTION,
   DEFER,
+  FLIGHT_FIELD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -477,6 +478,8 @@ class RelayMockPayloadGenerator {
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

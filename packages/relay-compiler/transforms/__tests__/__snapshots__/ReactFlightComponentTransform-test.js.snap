@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReactFlightComponentTransform matches expected output: fragment-with-flight-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment MyStory_item on Story {
+  flightComponent
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment MyStory_item on Story {
+  flightComponent
+}
+
+`;
+
+exports[`ReactFlightComponentTransform matches expected output: query-with-flight-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyStory {
+  story {
+    flightComponent
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query MyStory {
+  story {
+    flightComponent
+  }
+}
+
+`;

@@ -80,11 +80,14 @@ function visitScalarField(field: ScalarField): ScalarField {
     return field;
   }
   const schema = this.getContext().getSchema();
-  if (!schema.isId(field.type)) {
+
+  if (!schema.isId(schema.getRawType(field.type))) {
     throw createUserError(
       `Invalid use of @${DELETE_RECORD} on field '${
         field.name
-      }'. Expected field type ID, got ${schema.getTypeString(field.type)}.`,
+      }'. Expected field to return an ID or list of ID values, got ${schema.getTypeString(
+        field.type,
+      )}.`,
       [deleteDirective.loc],
     );
   }

@@ -55,7 +55,6 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
   const args = filters
     ? nextField.args.filter(arg => filters.indexOf(arg.name) !== -1)
     : [];
-  // T45504512: new connection model
   if (handle.dynamicKey != null) {
     args.push({
       kind: 'Argument',

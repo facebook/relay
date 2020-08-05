@@ -8,7 +8,7 @@
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::flatten;
 use std::sync::Arc;
@@ -16,7 +16,7 @@ use test_schema::get_test_schema_with_extensions;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let ast = parse(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location).unwrap();
     let schema = get_test_schema_with_extensions(
         r#"
 directive @serverInlineDirective on INLINE_FRAGMENT"#,

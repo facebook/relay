@@ -18,6 +18,7 @@ mod connections;
 mod declarative_connection;
 mod dedupe_type_discriminator;
 mod defer_stream;
+mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
@@ -32,6 +33,7 @@ mod inline_fragments;
 mod mask;
 mod match_;
 mod node_identifier;
+mod react_flight;
 mod refetchable_fragment;
 mod relay_directive;
 mod relay_early_flush;
@@ -70,6 +72,7 @@ pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
+pub use feature_flags::FeatureFlags;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -89,6 +92,7 @@ pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{split_module_import, transform_match, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
+pub use react_flight::{react_flight, REACT_FLIGHT_DIRECTIVE_NAME};
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,

@@ -5,17 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::syntax_error::SyntaxError;
-use crate::token_kind::TokenKind;
+use crate::lexer::TokenKind;
 use common::{Location, Named, SourceLocationKey, Span, WithLocation};
 use interner::StringKey;
 use std::fmt;
 
-pub type SyntaxResult<T> = Result<T, Vec<SyntaxError>>;
-pub type ParseResult<T> = Result<T, ()>;
-
+/// A document only consisting of executable definitions (fragments and operations).
+/// This excludes schema definitions and schema extensions.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Document {
+pub struct ExecutableDocument {
     pub span: Span,
     pub definitions: Vec<ExecutableDefinition>,
 }
@@ -163,23 +161,10 @@ impl fmt::Display for TypeCondition {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Token {
     pub span: Span,
     pub kind: TokenKind,
-}
-
-impl fmt::Debug for Token {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut s = f.debug_struct("Token");
-        s.field(
-            "span",
-            // TODO: switch to span's default
-            &format!("{}:{}", self.span.start, self.span.start + self.span.length),
-        );
-        s.field("kind", &self.kind);
-        s.finish()
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

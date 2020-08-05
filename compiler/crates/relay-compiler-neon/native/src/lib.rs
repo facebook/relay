@@ -8,16 +8,17 @@
 use common::{ConsoleLogger, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
 use graphql_syntax::{
-    parse, Document, ExecutableDefinition, SyntaxError, SyntaxErrorKind, SyntaxResult,
+    parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError, SyntaxErrorKind,
+    SyntaxResult,
 };
-use graphql_transforms::ConnectionInterface;
+use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
 use relay_codegen::Printer;
 use relay_compiler::{
     apply_transforms,
     config::{Config, ProjectConfig, SchemaLocation},
-    generate_artifacts, SourceHashes,
+    generate_artifacts, ArtifactFileWriter, SourceHashes,
 };
 use schema::build_schema;
 use std::str;
@@ -27,11 +28,14 @@ use std::sync::Arc;
 fn build_definitions_from_js_input(
     input: Vec<Handle<JsValue>>,
 ) -> Result<Vec<ExecutableDefinition>, Vec<SyntaxError>> {
-    let mut documents: Vec<SyntaxResult<Document>> = Vec::with_capacity(input.len());
+    let mut documents: Vec<SyntaxResult<ExecutableDocument>> = Vec::with_capacity(input.len());
     let mut errors: Vec<SyntaxError> = vec![];
     for js_value in input {
         if let Ok(value) = js_value.downcast::<JsString>() {
-            documents.push(parse(&value.value(), SourceLocationKey::Generated));
+            documents.push(parse_executable(
+                &value.value(),
+                SourceLocationKey::Generated,
+            ));
         } else {
             // This is not technically correct - it should be JS syntax/parse error, not graphql
             // TODO: Replace with correct error
@@ -54,9 +58,7 @@ fn build_definitions_from_js_input(
                 }
             }
             Err(syntax_errors) => {
-                for error in syntax_errors {
-                    errors.push(error);
-                }
+                errors.extend(syntax_errors);
             }
         }
     }
@@ -87,8 +89,8 @@ fn create_configs() -> (Config, ProjectConfig) {
     };
 
     let config = Config {
+        artifact_writer: Box::new(ArtifactFileWriter),
         codegen_command: None,
-        codegen_filepath: None,
         excludes: vec![],
         full_build: false,
         generate_extra_operation_artifacts: None,
@@ -100,6 +102,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         saved_state_config: None,
         saved_state_loader: None,
         connection_interface: Default::default(),
+        feature_flags: FeatureFlags::default(),
     };
 
     (config, project_config)
@@ -125,6 +128,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
         Arc::new(program),
         Arc::new(Default::default()),
         &ConnectionInterface::default(),
+        &FeatureFlags::default(),
         Arc::new(ConsoleLogger),
     )
     .expect("Unable to apply transforms");

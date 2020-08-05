@@ -40,6 +40,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -195,6 +196,8 @@ class RelayReferenceMarker {
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

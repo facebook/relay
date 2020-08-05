@@ -51,16 +51,6 @@ query ConditionalIDQuery($cond: Boolean!) {
   }
 }
 ==================================== OUTPUT ===================================
-fragment ActorFragment on Actor {
-  name
-  ... on User {
-    birthdate {
-      day
-      month
-    }
-  }
-}
-
 query AliasedIDQuery {
   viewer {
     actor {
@@ -108,6 +98,16 @@ query ViewerQuery {
     actor {
       ...ActorFragment
       id
+    }
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ... on User {
+    birthdate {
+      day
+      month
     }
   }
 }

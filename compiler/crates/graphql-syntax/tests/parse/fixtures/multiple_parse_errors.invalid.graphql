@@ -1,0 +1,9 @@
+# expected-to-throw
+query Test(
+    %%%% # unexpected % signs
+    $arg: String,
+    width: Int # missing $
+    height: Int # missing $
+) {
+    __typename
+}

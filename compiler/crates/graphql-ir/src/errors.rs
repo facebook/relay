@@ -500,4 +500,22 @@ pub enum ValidationMessage {
         directive_name: StringKey,
         field_name: StringKey,
     },
+
+    #[error("Expected 'flight' field schema definition to specify its component name with @react_flight_component")]
+    InvalidFlightFieldMissingModuleDirective,
+
+    #[error("Cannot query field '{field_name}', this type does not define a 'flight' field")]
+    InvalidFlightFieldNotDefinedOnType { field_name: StringKey },
+
+    #[error("Expected @react_flight_component value to be a literal string")]
+    InvalidFlightFieldExpectedModuleNameString,
+
+    #[error("Expected flight field to have a 'props: ReactFlightProps' argument")]
+    InvalidFlightFieldPropsArgument,
+
+    #[error("Expected flight field to have a 'component: String' argument")]
+    InvalidFlightFieldComponentArgument,
+
+    #[error("Expected flight field to return 'ReactFlightComponent'")]
+    InvalidFlightFieldReturnType,
 }

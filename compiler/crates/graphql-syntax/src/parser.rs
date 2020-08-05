@@ -5,17 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lexer::Lexer;
-use crate::syntax_error::{SyntaxError, SyntaxErrorKind};
-use crate::syntax_node::*;
-use crate::token_kind::TokenKind;
+use crate::executable_node::*;
+use crate::lexer::TokenKind;
+use crate::syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxResult};
 use common::{Location, SourceLocationKey, Span};
 use interner::Intern;
+use logos::Logos;
 
-#[derive(Clone, Debug)]
+type ParseResult<T> = Result<T, ()>;
+
 pub struct Parser<'a> {
     current: Token,
-    lexer: Lexer<'a>,
+    lexer: logos::Lexer<'a, TokenKind>,
     errors: Vec<SyntaxError>,
     source_location: SourceLocationKey,
     source: &'a str,
@@ -31,7 +32,7 @@ impl<'a> Parser<'a> {
         // of dealing with an Option or UnsafeCell, the constructor uses a dummy token
         // value to construct the Parser, then immediately advance()s to move to the
         // first real token.
-        let lexer = Lexer::new(source);
+        let lexer = TokenKind::lexer(source);
         let dummy = Token {
             kind: TokenKind::EndOfFile,
             span: Span::empty(),
@@ -48,8 +49,8 @@ impl<'a> Parser<'a> {
         parser
     }
 
-    pub fn parse_document(mut self) -> SyntaxResult<Document> {
-        let document = self.parse_document_impl();
+    pub fn parse_executable_document(mut self) -> SyntaxResult<ExecutableDocument> {
+        let document = self.parse_executable_document_impl();
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(document.unwrap())
@@ -77,12 +78,12 @@ impl<'a> Parser<'a> {
     // Document / Definitions
 
     /// Document : Definition+
-    fn parse_document_impl(&mut self) -> ParseResult<Document> {
+    fn parse_executable_document_impl(&mut self) -> ParseResult<ExecutableDocument> {
         let start = self.index();
         let definitions = self.parse_list(|s| s.peek_definition(), |s| s.parse_definition())?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
-        Ok(Document { span, definitions })
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(ExecutableDocument { span, definitions })
     }
 
     /// Definition :
@@ -142,8 +143,8 @@ impl<'a> Parser<'a> {
         let type_condition = self.parse_type_condition()?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(FragmentDefinition {
             location: Location::new(self.source_location, span),
             fragment,
@@ -162,7 +163,7 @@ impl<'a> Parser<'a> {
         // Special case: anonymous query
         if self.peek_token_kind() == TokenKind::OpenBrace {
             let selections = self.parse_selections()?;
-            let span = Span::new(start, self.index() - start);
+            let span = Span::new(start, self.index());
             return Ok(OperationDefinition {
                 location: Location::new(self.source_location, span),
                 operation: None,
@@ -203,7 +204,7 @@ impl<'a> Parser<'a> {
             })?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(OperationDefinition {
             location: Location::new(self.source_location, span),
             operation: Some(operation),
@@ -226,8 +227,7 @@ impl<'a> Parser<'a> {
             None
         };
         let directives = self.parse_directives()?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let span = Span::new(start, self.index());
         Ok(VariableDefinition {
             span,
             name,
@@ -243,7 +243,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let equals = self.parse_kind(TokenKind::Equals)?;
         let value = self.parse_constant_value()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(DefaultValue {
             span,
             equals,
@@ -265,7 +265,7 @@ impl<'a> Parser<'a> {
                 let type_ = self.parse_type_annotation()?;
                 let close = self.parse_kind(TokenKind::CloseBracket)?;
                 TypeAnnotation::List(Box::new(ListTypeAnnotation {
-                    span: Span::new(start, self.index() - start),
+                    span: Span::new(start, self.index()),
                     open,
                     type_,
                     close,
@@ -283,7 +283,7 @@ impl<'a> Parser<'a> {
         if self.peek_token_kind() == TokenKind::Exclamation {
             let exclamation = self.parse_kind(TokenKind::Exclamation)?;
             Ok(TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 type_: type_annotation,
                 exclamation,
             })))
@@ -307,8 +307,7 @@ impl<'a> Parser<'a> {
         let at = self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
         let arguments = self.parse_optional_arguments()?;
-        let length = self.index() - start;
-        let span = Span::new(start, length);
+        let span = Span::new(start, self.index());
         Ok(Directive {
             span,
             at,
@@ -324,7 +323,7 @@ impl<'a> Parser<'a> {
         let on = self.parse_keyword("on")?;
         let type_ = self.parse_identifier()?;
         Ok(TypeCondition {
-            span: Span::new(start, self.index() - start),
+            span: Span::new(start, self.index()),
             on,
             type_,
         })
@@ -377,7 +376,7 @@ impl<'a> Parser<'a> {
             (
                 name,
                 Some(Alias {
-                    span: Span::new(start, self.index() - start),
+                    span: Span::new(start, self.index()),
                     alias,
                     colon,
                 }),
@@ -390,7 +389,7 @@ impl<'a> Parser<'a> {
         if self.peek_token_kind() == TokenKind::OpenBrace {
             let selections = self.parse_selections()?;
             Ok(Selection::LinkedField(LinkedField {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 alias,
                 name,
                 arguments,
@@ -399,7 +398,7 @@ impl<'a> Parser<'a> {
             }))
         } else {
             Ok(Selection::ScalarField(ScalarField {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 alias,
                 name,
                 arguments,
@@ -419,7 +418,7 @@ impl<'a> Parser<'a> {
             let name = self.parse_identifier()?;
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 spread,
                 name,
                 directives,
@@ -434,7 +433,7 @@ impl<'a> Parser<'a> {
             let directives = self.parse_directives()?;
             let selections = self.parse_selections()?;
             Ok(Selection::InlineFragment(InlineFragment {
-                span: Span::new(start, self.index() - start),
+                span: Span::new(start, self.index()),
                 spread,
                 type_condition,
                 directives,
@@ -465,7 +464,7 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let value = self.parse_value()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(Argument {
             span,
             name,
@@ -545,15 +544,7 @@ impl<'a> Parser<'a> {
                     Ok(Value::Object(list))
                 }
             }
-            TokenKind::VariableIdentifier => Ok(Value::Variable(self.parse_variable_identifier()?)),
-            TokenKind::ErrorInvalidVariableIdentifier => {
-                let error = SyntaxError::new(
-                    SyntaxErrorKind::ExpectedVariable,
-                    Location::new(self.source_location, token.span),
-                );
-                self.record_error(error);
-                Err(())
-            }
+            TokenKind::Dollar => Ok(Value::Variable(self.parse_variable_identifier()?)),
             _ => Ok(Value::Constant(self.parse_literal_value()?)),
         }
     }
@@ -591,7 +582,7 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let value = self.parse_constant_value()?;
-        let span = Span::new(start, self.index() - start);
+        let span = Span::new(start, self.index());
         Ok(ConstantArgument {
             span,
             name,
@@ -633,12 +624,11 @@ impl<'a> Parser<'a> {
             }
             TokenKind::FloatLiteral => {
                 let value = source.parse::<f64>();
-                let source_value = source.intern();
                 match value {
                     Ok(value) => Ok(ConstantValue::Float(FloatNode {
                         token,
                         value: FloatValue::new(value),
-                        source_value,
+                        source_value: source.intern(),
                     })),
                     Err(_) => {
                         let error = SyntaxError::new(
@@ -662,9 +652,42 @@ impl<'a> Parser<'a> {
                     value: source.intern(),
                 }),
             }),
-            TokenKind::ErrorUnsupportedNumberLiteral => {
+            TokenKind::ErrorFloatLiteralMissingZero => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::InvalidFloatLiteralMissingZero,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorNumberLiteralLeadingZero
+            | TokenKind::ErrorNumberLiteralTrailingInvalid => {
                 let error = SyntaxError::new(
                     SyntaxErrorKind::InvalidNumberLiteral,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorUnsupportedStringCharacter => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::UnsupportedStringCharacter,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorUnterminatedString => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::UnterminatedString,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+            TokenKind::ErrorUnterminatedBlockString => {
+                let error = SyntaxError::new(
+                    SyntaxErrorKind::UnterminatedBlockString,
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -683,20 +706,28 @@ impl<'a> Parser<'a> {
 
     /// Variable : $ Name
     fn parse_variable_identifier(&mut self) -> ParseResult<VariableIdentifier> {
+        let start = self.index();
+        let dollar_token = self.parse_token();
+        if dollar_token.kind != TokenKind::Dollar {
+            self.record_error(SyntaxError::new(
+                SyntaxErrorKind::ExpectedVariable,
+                Location::new(self.source_location, dollar_token.span),
+            ));
+            return Err(());
+        }
+
         let token = self.parse_token();
-        let (start, length) = token.span.as_usize();
-        let source = &self.source[start + 1..start + length];
-        let span = token.span;
-        if token.kind == TokenKind::VariableIdentifier {
+        if token.kind == TokenKind::Identifier {
+            let name = self.source(&token).intern();
             Ok(VariableIdentifier {
-                span,
+                span: Span::new(start, token.span.end),
                 token,
-                name: source.intern(),
+                name,
             })
         } else {
             let error = SyntaxError::new(
-                SyntaxErrorKind::Expected(TokenKind::VariableIdentifier),
-                Location::new(self.source_location, span),
+                SyntaxErrorKind::ExpectedVariableIdentifier,
+                Location::new(self.source_location, token.span),
             );
             self.record_error(error);
             Err(())
@@ -778,8 +809,7 @@ impl<'a> Parser<'a> {
     {
         let span_start = self.index();
         let (start, items, end) = self.parse_delimited_items(start_kind, end_kind, parse)?;
-        let length = self.index() - span_start;
-        let span = Span::new(span_start, length);
+        let span = Span::new(span_start, self.index());
         Ok(List {
             span,
             start,
@@ -809,8 +839,8 @@ impl<'a> Parser<'a> {
 
     /// A &str for the source of the inner span of the given token.
     fn source(&self, token: &Token) -> &str {
-        let (start, length) = token.span.as_usize();
-        &self.source[start..start + length]
+        let (start, end) = token.span.as_usize();
+        &self.source[start..end]
     }
 
     /// Peek at the next token
@@ -836,10 +866,9 @@ impl<'a> Parser<'a> {
         if token.kind == expected {
             Ok(token)
         } else {
-            let length = self.index() - start;
             let error = SyntaxError::new(
                 SyntaxErrorKind::Expected(expected),
-                Location::new(self.source_location, Span::new(start, length)),
+                Location::new(self.source_location, Span::new(start, self.index())),
             );
             self.record_error(error);
             Err(())
@@ -876,31 +905,38 @@ impl<'a> Parser<'a> {
     fn parse_token(&mut self) -> Token {
         // Skip over (and record) any invalid tokens until either a valid token or an EOF is encountered
         loop {
-            let next = self.lexer.next();
-            match next.kind {
-                TokenKind::ErrorUnsupportedCharacterSequence => {
-                    let error = SyntaxError::new(
-                        SyntaxErrorKind::UnsupportedCharacter,
-                        Location::new(self.source_location, next.span),
-                    );
-                    self.record_error(error);
+            let kind = self.lexer.next().unwrap_or(TokenKind::EndOfFile);
+            match kind {
+                TokenKind::Error => {
+                    if let Some(error_token_kind) = self.lexer.extras.error_token {
+                        // Reset the error token
+                        self.lexer.extras.error_token = None;
+                        // If error_token is set, return that error token
+                        // instead of a generic error.
+                        return std::mem::replace(
+                            &mut self.current,
+                            Token {
+                                kind: error_token_kind,
+                                span: self.lexer.span().into(),
+                            },
+                        );
+                    } else {
+                        // Record and skip over unknown character errors
+                        let error = SyntaxError::new(
+                            SyntaxErrorKind::UnsupportedCharacter,
+                            Location::new(self.source_location, self.lexer.span().into()),
+                        );
+                        self.record_error(error);
+                    }
                 }
-                TokenKind::ErrorUnterminatedStringLiteral => {
-                    let error = SyntaxError::new(
-                        SyntaxErrorKind::UnterminatedString,
-                        Location::new(self.source_location, next.span),
-                    );
-                    self.record_error(error);
+                _ => {
                     return std::mem::replace(
                         &mut self.current,
                         Token {
-                            kind: TokenKind::EndOfFile,
-                            ..next
+                            kind,
+                            span: self.lexer.span().into(),
                         },
                     );
-                }
-                _ => {
-                    return std::mem::replace(&mut self.current, next);
                 }
             }
         }

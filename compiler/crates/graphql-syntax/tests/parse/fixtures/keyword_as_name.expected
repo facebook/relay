@@ -3,7 +3,7 @@ query KeywordAsName {
   search_results(query: "test")
 }
 ==================================== OUTPUT ===================================
-Document {
+ExecutableDocument {
     span: 0:56,
     definitions: [
         OperationDefinition {
@@ -11,7 +11,7 @@ Document {
             operation: Some(
                 (
                     Token {
-                        span: "0:5",
+                        span: 0:5,
                         kind: Identifier,
                     },
                     Query,
@@ -21,7 +21,7 @@ Document {
                 Identifier {
                     span: 6:19,
                     token: Token {
-                        span: "6:19",
+                        span: 6:19,
                         kind: Identifier,
                     },
                     value: "KeywordAsName",
@@ -32,7 +32,7 @@ Document {
             selections: List {
                 span: 20:56,
                 start: Token {
-                    span: "20:21",
+                    span: 20:21,
                     kind: OpenBrace,
                 },
                 items: [
@@ -42,7 +42,7 @@ Document {
                         name: Identifier {
                             span: 24:38,
                             token: Token {
-                                span: "24:38",
+                                span: 24:38,
                                 kind: Identifier,
                             },
                             value: "search_results",
@@ -51,7 +51,7 @@ Document {
                             List {
                                 span: 38:54,
                                 start: Token {
-                                    span: "38:39",
+                                    span: 38:39,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -60,20 +60,20 @@ Document {
                                         name: Identifier {
                                             span: 39:44,
                                             token: Token {
-                                                span: "39:44",
+                                                span: 39:44,
                                                 kind: Identifier,
                                             },
                                             value: "query",
                                         },
                                         colon: Token {
-                                            span: "44:45",
+                                            span: 44:45,
                                             kind: Colon,
                                         },
                                         value: Constant(
                                             String(
                                                 StringNode {
                                                     token: Token {
-                                                        span: "46:52",
+                                                        span: 46:52,
                                                         kind: StringLiteral,
                                                     },
                                                     value: "test",
@@ -83,7 +83,7 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "52:53",
+                                    span: 52:53,
                                     kind: CloseParen,
                                 },
                             },
@@ -92,7 +92,7 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "54:55",
+                    span: 54:55,
                     kind: CloseBrace,
                 },
             },

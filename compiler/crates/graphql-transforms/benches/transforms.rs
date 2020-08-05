@@ -12,7 +12,7 @@
 use common::SourceLocationKey;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_transforms::{
     generate_id_field, generate_typename, inline_fragments, skip_client_extensions, sort_selections,
 };
@@ -39,7 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             [source] => (source, get_test_schema()),
             _ => panic!("Expected at most one %extensions% separator."),
         };
-        let ast = parse(source, source_location)
+        let ast = parse_executable(source, source_location)
             .unwrap_or_else(|error| panic!("failed to parse: {}: {:?}", file_name, error));
         let ir = build(&schema, &ast.definitions)
             .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));

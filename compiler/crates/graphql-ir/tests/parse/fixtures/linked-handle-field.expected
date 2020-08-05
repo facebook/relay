@@ -24,7 +24,7 @@ fragment LinkedHandleField on User {
                     definition: WithLocation {
                         location: linked-handle-field.graphql:39:46,
                         item: FieldID(
-                            448,
+                            449,
                         ),
                     },
                     arguments: [

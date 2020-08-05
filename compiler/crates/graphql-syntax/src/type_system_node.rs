@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![deny(clippy::all)]
-
 use interner::StringKey;
 use std::fmt;
 
@@ -18,7 +16,7 @@ pub enum Type {
 }
 
 #[derive(PartialEq, Debug)]
-pub enum Definition {
+pub enum TypeSystemDefinition {
     SchemaDefinition {
         directives: Vec<Directive>,
         operation_types: Vec<OperationTypeDefinition>,

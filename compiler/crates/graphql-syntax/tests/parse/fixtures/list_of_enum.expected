@@ -3,19 +3,19 @@ fragment TestFrag on MyType {
   issues(orderby: [LAST_UPDATED])
 }
 ==================================== OUTPUT ===================================
-Document {
+ExecutableDocument {
     span: 0:66,
     definitions: [
         FragmentDefinition {
             location: list_of_enum.graphql:0:66,
             fragment: Token {
-                span: "0:8",
+                span: 0:8,
                 kind: Identifier,
             },
             name: Identifier {
                 span: 9:17,
                 token: Token {
-                    span: "9:17",
+                    span: 9:17,
                     kind: Identifier,
                 },
                 value: "TestFrag",
@@ -23,13 +23,13 @@ Document {
             type_condition: TypeCondition {
                 span: 18:28,
                 on: Token {
-                    span: "18:20",
+                    span: 18:20,
                     kind: Identifier,
                 },
                 type_: Identifier {
                     span: 21:27,
                     token: Token {
-                        span: "21:27",
+                        span: 21:27,
                         kind: Identifier,
                     },
                     value: "MyType",
@@ -39,7 +39,7 @@ Document {
             selections: List {
                 span: 28:66,
                 start: Token {
-                    span: "28:29",
+                    span: 28:29,
                     kind: OpenBrace,
                 },
                 items: [
@@ -49,7 +49,7 @@ Document {
                         name: Identifier {
                             span: 32:38,
                             token: Token {
-                                span: "32:38",
+                                span: 32:38,
                                 kind: Identifier,
                             },
                             value: "issues",
@@ -58,7 +58,7 @@ Document {
                             List {
                                 span: 38:64,
                                 start: Token {
-                                    span: "38:39",
+                                    span: 38:39,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -67,13 +67,13 @@ Document {
                                         name: Identifier {
                                             span: 39:46,
                                             token: Token {
-                                                span: "39:46",
+                                                span: 39:46,
                                                 kind: Identifier,
                                             },
                                             value: "orderby",
                                         },
                                         colon: Token {
-                                            span: "46:47",
+                                            span: 46:47,
                                             kind: Colon,
                                         },
                                         value: Constant(
@@ -81,14 +81,14 @@ Document {
                                                 List {
                                                     span: 48:62,
                                                     start: Token {
-                                                        span: "48:49",
+                                                        span: 48:49,
                                                         kind: OpenBracket,
                                                     },
                                                     items: [
                                                         Enum(
                                                             EnumNode {
                                                                 token: Token {
-                                                                    span: "49:61",
+                                                                    span: 49:61,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "LAST_UPDATED",
@@ -96,7 +96,7 @@ Document {
                                                         ),
                                                     ],
                                                     end: Token {
-                                                        span: "61:62",
+                                                        span: 61:62,
                                                         kind: CloseBracket,
                                                     },
                                                 },
@@ -105,7 +105,7 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "62:63",
+                                    span: 62:63,
                                     kind: CloseParen,
                                 },
                             },
@@ -114,7 +114,7 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "64:65",
+                    span: 64:65,
                     kind: CloseBrace,
                 },
             },

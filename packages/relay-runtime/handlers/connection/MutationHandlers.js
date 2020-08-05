@@ -27,10 +27,18 @@ import type {
 const DeleteRecordHandler = {
   update: (store: RecordSourceProxy, payload: HandleFieldPayload) => {
     const record = store.get(payload.dataID);
+
     if (record != null) {
-      const id = record.getValue(payload.fieldKey);
-      if (typeof id === 'string') {
-        store.delete(id);
+      const idOrIds = record.getValue(payload.fieldKey);
+
+      if (typeof idOrIds === 'string') {
+        store.delete(idOrIds);
+      } else if (Array.isArray(idOrIds)) {
+        idOrIds.forEach(id => {
+          if (typeof id === 'string') {
+            store.delete(id);
+          }
+        });
       }
     }
   },

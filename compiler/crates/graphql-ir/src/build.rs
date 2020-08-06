@@ -472,16 +472,18 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "uncheckedArguments_DEPRECATED");
 
         if argument_directives.len() + unchecked_argument_directives.len() > 1 {
-            return Err(self
-                .record_error(ValidationError::new(
-                    ValidationMessage::ExpectedOneArgumentsDirective(),
-                    argument_directives
-                        .iter()
-                        .chain(unchecked_argument_directives.iter())
-                        .map(|x| self.location.with_span(x.span))
-                        .collect(),
-                ))
-                .into());
+            let mut locations = argument_directives
+                .iter()
+                .chain(unchecked_argument_directives.iter())
+                .map(|x| self.location.with_span(x.span));
+            let mut error = Diagnostic::error(
+                ValidationMessage::ExpectedOneArgumentsDirective(),
+                locations.next().unwrap(),
+            );
+            for location in locations {
+                error = error.annotate("duplicate definition", location);
+            }
+            return Err(self.record_error(error).into());
         }
 
         let arguments = if let Some(graphql_syntax::Directive {

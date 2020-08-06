@@ -77,8 +77,8 @@ pub enum ValidationMessage {
         prev_type: String,
         next_type: String,
     },
-    #[error("Expected operation variables to be defined")]
-    ExpectedVariablesToBeDefined(),
+    #[error("Expected variable `${0}` to be defined on the operation")]
+    ExpectedOperationVariableToBeDefined(StringKey),
     #[error("Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'")]
     ExpectedFragmentArgumentToHaveInputType(StringKey),
     #[error("Expected variable definition to have an input type (scalar, enum, or input object), found type '{0}'")]

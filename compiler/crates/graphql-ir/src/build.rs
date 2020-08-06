@@ -207,14 +207,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let (directives, selections) = try2(directives, selections)?;
         if !self.used_variabales.is_empty() {
             Err(self
-                .record_error(ValidationError::new(
-                    ValidationMessage::ExpectedVariablesToBeDefined(),
-                    self.used_variabales
-                        .values()
-                        .map(|x| self.location.with_span(x.span))
-                        .collect(),
-                ))
-                .into())
+                .used_variabales
+                .iter()
+                .map(|(undefined_variable, usage)| {
+                    Diagnostic::error(
+                        ValidationMessage::ExpectedOperationVariableToBeDefined(
+                            *undefined_variable,
+                        ),
+                        self.location.with_span(usage.span),
+                    )
+                })
+                .collect())
         } else {
             Ok(OperationDefinition {
                 kind,

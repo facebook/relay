@@ -518,4 +518,9 @@ pub enum ValidationMessage {
 
     #[error("Expected flight field to return 'ReactFlightComponent'")]
     InvalidFlightFieldReturnType,
+
+    #[error(
+        "Expected all fields on the same parent with the name or alias '{field_name}' to have the same name and arguments."
+    )]
+    InvalidSameFieldWithDifferentArguments { field_name: StringKey },
 }

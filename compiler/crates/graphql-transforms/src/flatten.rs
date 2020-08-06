@@ -302,10 +302,25 @@ impl FlattenTransform {
                                 }));
                         }
                         Selection::LinkedField(flattened_node) => {
-                            let node_selections = match selection {
-                                Selection::LinkedField(node) => &node.selections,
+                            let node = match selection {
+                                Selection::LinkedField(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a LinkedField."),
                             };
+                            if !node
+                                .arguments
+                                .location_agnostic_eq(&flattened_node.arguments)
+                            {
+                                let error = ValidationError::new(
+                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
+                                        field_name: node.alias_or_name(&self.schema),
+                                    },
+                                    vec![
+                                        node.definition.location,
+                                        flattened_node.definition.location,
+                                    ],
+                                );
+                                return Err(vec![error]);
+                            }
                             let type_ = self
                                 .schema
                                 .field(flattened_node.definition.item)
@@ -329,7 +344,7 @@ impl FlattenTransform {
                                 directives: next_directives,
                                 selections: self.merge_selections(
                                     &flattened_node.selections,
-                                    &node_selections,
+                                    &node.selections,
                                     type_,
                                 )?,
                             }));
@@ -351,7 +366,26 @@ impl FlattenTransform {
                             }));
                         }
                         Selection::ScalarField(flattened_node) => {
-                            let should_merge_handles = selection.directives().iter().any(|d| {
+                            let node = match selection {
+                                Selection::ScalarField(node) => node,
+                                _ => unreachable!("FlattenTransform: Expected a ScalarField."),
+                            };
+                            if !node
+                                .arguments
+                                .location_agnostic_eq(&flattened_node.arguments)
+                            {
+                                let error = ValidationError::new(
+                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
+                                        field_name: node.alias_or_name(&self.schema),
+                                    },
+                                    vec![
+                                        node.definition.location,
+                                        flattened_node.definition.location,
+                                    ],
+                                );
+                                return Err(vec![error]);
+                            }
+                            let should_merge_handles = node.directives.iter().any(|d| {
                                 CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
                             });
                             if should_merge_handles {

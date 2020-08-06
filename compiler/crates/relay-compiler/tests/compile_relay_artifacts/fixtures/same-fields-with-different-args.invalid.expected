@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query MeQuery {
+  me {
+    name
+    address {
+      city
+    }
+    ...NestedFragment
+    ...NestedFragment2
+  }
+}
+
+fragment NestedFragment on User {
+  firstName(if: false, unless: true)
+}
+
+fragment NestedFragment2 on User {
+  firstName(if: false, unless: false)
+}
+==================================== ERROR ====================================
+Expected all fields on the same parent with the name or alias 'firstName' to have the same name and arguments.:
+same-fields-with-different-args.invalid.graphql:17:3:
+  firstName(if: false, unless: false)
+
+
+same-fields-with-different-args.invalid.graphql:13:3:
+  firstName(if: false, unless: true)

@@ -1,4 +1,4 @@
-// @generated SignedSource<<836d5d9ced5630fe234f67316e310290>>
+// @generated SignedSource<<74b72946fe353017ad3a736dab36cc2f>>
 
 mod compile_relay_artifacts;
 
@@ -640,6 +640,13 @@ fn relay_client_id_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "compile_relay_artifacts/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn same_fields_with_different_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.expected");
+    test_fixture(transform_fixture, "same-fields-with-different-args.invalid.graphql", "compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.expected", input, expected);
 }
 
 #[test]

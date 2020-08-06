@@ -169,11 +169,11 @@ fn build_fragment_variable_definitions(
                     // Convert variable type, validate that it's an input type
                     let type_ = get_argument_type(schema, fragment.location, &object)?;
                     if !type_.inner().is_input_type() {
-                        return Err(ValidationError::new(
+                        return Err(ValidationError::error(
                             ValidationMessage::ExpectedFragmentArgumentToHaveInputType(
                                 schema.get_type_name(type_.inner()),
                             ),
-                            vec![],
+                            fragment.location.with_span(variable_arg.value.span()),
                         )
                         .into());
                     }

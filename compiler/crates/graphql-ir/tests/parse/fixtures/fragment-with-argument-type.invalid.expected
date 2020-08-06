@@ -5,4 +5,5 @@ fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
 }
 ==================================== ERROR ====================================
 Expected argument definition to have an input type (scalar, enum, or input object), found type 'User':
-<missing source>
+fragment-with-argument-type.invalid.graphql:2:49:2:64
+fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {

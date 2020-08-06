@@ -168,7 +168,7 @@ pub enum BuildProjectError {
         "Validation errors:{}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {}", err.print_without_source()))
             .collect::<Vec<_>>()
             .join("")
     )]

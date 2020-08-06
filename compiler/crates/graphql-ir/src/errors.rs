@@ -5,73 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, SourceLocationKey};
-use fnv::FnvHashMap;
+use common::Diagnostic;
 use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Type, TypeReference};
-use std::fmt;
 use thiserror::Error;
 
-pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
+pub type ValidationResult<T> = Result<T, Vec<Diagnostic>>;
 
-impl From<ValidationError> for Vec<ValidationError> {
-    fn from(error: ValidationError) -> Self {
-        vec![error]
-    }
-}
-
-#[derive(Debug)]
-pub struct ValidationError {
-    /// One of a fixed set of validation errors
-    pub message: ValidationMessage,
-
-    /// A set of locations associated with the error. By convention
-    /// the list should always be non-empty, with the first location
-    /// indicating the primary source of the error and subsequent
-    /// locations indicating related source code that provide
-    /// context as to why the primary location is problematic.
-    pub locations: Vec<Location>,
-}
-
-impl ValidationError {
-    pub fn new(message: ValidationMessage, locations: Vec<Location>) -> Self {
-        Self { message, locations }
-    }
-
-    pub fn print(&self, sources: &FnvHashMap<SourceLocationKey, &str>) -> String {
-        format!(
-            "{}:\n{}",
-            self.message,
-            self.locations
-                .iter()
-                .map(|location| {
-                    let source = match sources.get(&location.source_location()) {
-                        Some(source) => source,
-                        None => "<source not found>",
-                    };
-                    location.print(source, 0, 0)
-                })
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        )
-    }
-}
-
-impl fmt::Display for ValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}:\n{}",
-            self.message,
-            self.locations
-                .iter()
-                .map(|location| format!("{:?}", location))
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        )
-    }
-}
+// TODO remove this alias
+pub type ValidationError = Diagnostic;
 
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

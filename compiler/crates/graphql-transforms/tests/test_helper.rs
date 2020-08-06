@@ -31,7 +31,7 @@ where
         Err(errors) => {
             let mut errs = errors
                 .into_iter()
-                .map(|err| err.print(&sources))
+                .map(|err| err.print_with_sources(&sources))
                 .collect::<Vec<_>>();
             errs.sort();
             return Err(errs.join("\n\n"));
@@ -42,7 +42,7 @@ where
     let next_program = transform(&program).map_err(|errors| {
         let mut errors = errors
             .into_iter()
-            .map(|err| err.print(&sources))
+            .map(|err| err.print_with_sources(&sources))
             .collect::<Vec<_>>();
         errors.sort();
         errors.join("\n\n")

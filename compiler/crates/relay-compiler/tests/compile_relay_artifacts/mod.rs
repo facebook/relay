@@ -41,7 +41,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let validation_errors_to_string = |errors: Vec<ValidationError>| {
         let mut errs = errors
             .into_iter()
-            .map(|err| err.print(&sources))
+            .map(|err| err.print_with_sources(&sources))
             .collect::<Vec<_>>();
         errs.sort();
         errs.join("\n\n")

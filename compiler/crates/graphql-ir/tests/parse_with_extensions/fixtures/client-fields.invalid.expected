@@ -19,6 +19,6 @@ type Foo {
 }
 ==================================== ERROR ====================================
 Invalid fragment spread 'FooFragment', the type of this fragment ('Foo') can never occur for parent type 'Node':
-client-fields.invalid.graphql:4:7:
+client-fields.invalid.graphql:5:7:6:5
       ...FooFragment
     }

@@ -93,52 +93,35 @@ impl Span {
         lsp_types::Range::new(start_position, end_position)
     }
 
-    pub fn print(
-        self,
-        source: &str,
-        start_line_count_offset: usize,
-        start_line_offset: usize,
-    ) -> String {
+    pub fn print(self, source: &str) -> String {
         let start = self.start as usize;
         let end = self.end as usize;
 
         let mut index = 0;
-        let mut line_offset = start_line_offset;
-        let mut start_offset = start_line_offset;
-        let mut start_line_count = start_line_count_offset;
         let mut line_start = 0;
         let mut slice_start = start;
         let mut slice_end = end;
         for chr in source.chars() {
             if index == start {
                 slice_start = line_start;
-                start_offset = line_offset;
             }
 
             if chr == '\n' {
                 line_start = index + 1;
-                line_offset = 1;
-                if index < start {
-                    start_line_count += 1;
-                }
                 if index > end {
                     slice_end = line_start;
                     break;
                 }
-            } else {
-                line_offset += 1;
             }
             index += chr.len_utf8();
         }
         slice_start = cmp::min(start, slice_start);
         slice_end = cmp::max(end, slice_end);
         format!(
-            "{}:{}:\n{}{}{}",
-            start_line_count,
-            start_offset,
+            "{}{}{}",
             &source[slice_start..start],
             source[start..end].color("red"),
-            &source[end..slice_end]
+            &source[end..slice_end].trim_end()
         )
     }
 }

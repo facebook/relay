@@ -13,14 +13,14 @@ query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
 }
 ==================================== ERROR ====================================
 Variable '$unused' is never used in operation 'QueryWithUnusedVariable'.:
-query-with-unused-variable.invalid.graphql:1:31:
+query-with-unused-variable.invalid.graphql:2:31:2:38
 query QueryWithUnusedVariable($unused: ID) {
 
 
 Variables '$unused', '$antother_unused' are never used in operation 'QueryWithUnusedVariables'.:
-query-with-unused-variable.invalid.graphql:7:32:
+query-with-unused-variable.invalid.graphql:8:32:8:39
 query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
-
-
-query-with-unused-variable.invalid.graphql:7:45:
+Notes:
+[related 1] other related location:
+query-with-unused-variable.invalid.graphql:8:45:8:61
 query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {

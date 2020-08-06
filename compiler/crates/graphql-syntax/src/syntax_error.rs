@@ -29,8 +29,7 @@ impl SyntaxError {
         format!(
             "Error: {} at {}",
             self.kind,
-            self.location
-                .print(&source.text, source.line_index + 1, source.column_index + 1)
+            self.location.print(&source.text)
         )
     }
 

@@ -11,5 +11,5 @@ fragment UserFragment on User {
 }
 ==================================== ERROR ====================================
 Operation 'QueryWithUnusedVariable' references undefined variable: '$shouldIncludeName'.:
-fragment-with-undefined-variable.invalid.graphql:8:21:
+fragment-with-undefined-variable.invalid.graphql:9:21:9:39
   name @include(if: $shouldIncludeName)

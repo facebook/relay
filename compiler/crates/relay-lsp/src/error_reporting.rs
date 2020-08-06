@@ -12,7 +12,7 @@ use crate::lsp::{
 use crate::lsp::{Connection, Url};
 use crate::state::ServerState;
 use relay_compiler::{
-    errors::{BuildProjectError, SyntaxErrorWithSource, ValidationError},
+    errors::{BuildProjectError, SyntaxErrorWithSource},
     source_for_location,
 };
 use std::fs;
@@ -26,18 +26,10 @@ pub fn report_build_project_errors(
     for error in errors {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
-                for ValidationError { message, locations } in errors {
-                    let message = format!("{}", message);
+                for diagnostic in errors {
+                    let message = diagnostic.message().to_string();
 
-                    let location = match locations.first() {
-                        Some(&location) => location,
-                        _ => {
-                            // If we can't get the source and location we can't report the error, so
-                            // exit early.
-                            // TODO(brandondail) we should always have at least one source and location, so log here when we don't
-                            return;
-                        }
-                    };
+                    let location = diagnostic.location();
 
                     let url = match url_from_location(location, &server_state.root_dir) {
                         Some(url) => url,

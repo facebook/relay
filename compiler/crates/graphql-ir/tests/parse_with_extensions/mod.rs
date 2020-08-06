@@ -29,7 +29,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
             .map_err(|errors| {
                 errors
                     .into_iter()
-                    .map(|error| error.print(&sources))
+                    .map(|error| error.print_with_sources(&sources))
                     .collect::<Vec<_>>()
                     .join("\n\n")
             })

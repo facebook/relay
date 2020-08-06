@@ -31,19 +31,17 @@ fragment Profile on User
 }
 ==================================== ERROR ====================================
 Found a circular reference from fragment 'Profile'.:
-fragment-on-query-with-cycle.invalid.graphql:1:10:
+fragment-on-query-with-cycle.invalid.graphql:2:10:2:29
 fragment RefetchableFragment on Query
-
-
-fragment-on-query-with-cycle.invalid.graphql:8:10:
+Notes:
+[related 1] other related location:
+fragment-on-query-with-cycle.invalid.graphql:9:10:9:17
       ...Profile @arguments(includeProfile: true)
-
-
-fragment-on-query-with-cycle.invalid.graphql:25:12:
+[related 2] other related location:
+fragment-on-query-with-cycle.invalid.graphql:26:12:27:1
         ...Profile
       }
-
-
-fragment-on-query-with-cycle.invalid.graphql:25:12:
+[related 3] other related location:
+fragment-on-query-with-cycle.invalid.graphql:26:12:27:1
         ...Profile
       }

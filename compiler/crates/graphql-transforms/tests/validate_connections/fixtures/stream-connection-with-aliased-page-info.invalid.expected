@@ -22,5 +22,5 @@ query NodeQuery($id: ID!) {
 }
 ==================================== ERROR ====================================
 @stream_connection does not support aliasing the 'pageInfo' field.:
-stream-connection-with-aliased-page-info.invalid.graphql:14:26:
+stream-connection-with-aliased-page-info.invalid.graphql:15:26:15:34
         commentPageInfo: pageInfo {

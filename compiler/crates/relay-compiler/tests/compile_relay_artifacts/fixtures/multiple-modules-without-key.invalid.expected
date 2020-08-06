@@ -32,5 +32,5 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== ERROR ====================================
 Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use 'nameRenderable @match(key: "MatchQuery_<localName>")'.:
-multiple-modules-without-key.invalid.graphql:10:7:
+multiple-modules-without-key.invalid.graphql:11:7:11:21
       nameRenderable {

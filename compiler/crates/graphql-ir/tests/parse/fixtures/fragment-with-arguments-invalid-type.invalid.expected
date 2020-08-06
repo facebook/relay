@@ -12,5 +12,5 @@ fragment TestFragment on User
 }
 ==================================== ERROR ====================================
 Unknown type 'UnknownType':
-fragment-with-arguments-invalid-type.invalid.graphql:0:0:
+fragment-with-arguments-invalid-type.invalid.graphql:1:1:1:12
 # expected-to-throw

@@ -27,7 +27,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Err(errors) => {
             let mut errs = errors
                 .into_iter()
-                .map(|err| err.print(&sources))
+                .map(|err| err.print_with_sources(&sources))
                 .collect::<Vec<_>>();
             errs.sort();
             return Err(errs.join("\n\n"));
@@ -42,7 +42,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Err(errors) => {
             let mut errs = errors
                 .into_iter()
-                .map(|err| err.print(&sources))
+                .map(|err| err.print_with_sources(&sources))
                 .collect::<Vec<_>>();
             errs.sort();
             Err(errs.join("\n\n"))

@@ -10,14 +10,12 @@ use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
-use crate::watchman::{source_for_location, FileSource};
+use crate::{source_for_location, watchman::FileSource};
 use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use graphql_ir::ValidationError;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
-use std::fmt::Write;
 use std::{collections::HashMap, sync::Arc};
 use tokio::task;
 
@@ -158,28 +156,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
     fn print_project_error(&self, error: &BuildProjectError) {
         if let BuildProjectError::ValidationErrors { errors } = error {
-            for ValidationError { message, locations } in errors {
-                let locations_and_source: Vec<_> = locations
-                    .iter()
-                    .map(|&location| {
-                        let source = source_for_location(&self.config.root_dir, location);
-                        (location, source)
-                    })
-                    .collect();
-                let mut error_message = format!("{}", message);
-                for (location, source) in locations_and_source {
-                    if let Some(source) = source {
-                        write!(
-                            error_message,
-                            "\n{}",
-                            location.print(&source.text, source.line_index, source.column_index)
-                        )
-                        .unwrap();
-                    } else {
-                        write!(error_message, "\n{:?}", location).unwrap();
-                    }
-                }
-                error!("{}", error_message);
+            for diagnostic in errors {
+                let printed = diagnostic.print_with_source_fn(|location| {
+                    source_for_location(&self.config.root_dir, location).map(|source| source.text)
+                });
+                error!("{}", printed);
             }
         };
     }

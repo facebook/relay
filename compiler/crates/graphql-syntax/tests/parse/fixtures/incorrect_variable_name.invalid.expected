@@ -4,5 +4,5 @@
     image(size: $100)
 }
 ==================================== ERROR ====================================
-Error: Expected a valid variable name after $ (alphabetic character followed by any number of alphabetic, number and _ characters) at incorrect_variable_name.invalid.graphql:3:18:
+Error: Expected a valid variable name after $ (alphabetic character followed by any number of alphabetic, number and _ characters) at incorrect_variable_name.invalid.graphql:
     image(size: $100)

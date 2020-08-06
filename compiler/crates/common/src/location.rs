@@ -112,11 +112,11 @@ impl Location {
         self.span.contains(subspan)
     }
 
-    pub fn print(&self, source: &str, line_offset: usize, column_offset: usize) -> String {
+    pub fn print(&self, source: &str) -> String {
         format!(
-            "{}:{}",
+            "{}:\n{}",
             self.source_location.path(),
-            self.span.print(source, line_offset, column_offset)
+            self.span.print(source)
         )
     }
 }

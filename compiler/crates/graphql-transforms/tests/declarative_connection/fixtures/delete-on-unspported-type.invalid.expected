@@ -7,6 +7,6 @@ mutation CommentDeleteMutation($input: CommentDeleteInput) {
 }
 ==================================== ERROR ====================================
 Invalid use of @deleteRecord on field '__typename'. Expected field type 'ID', got 'String!'.:
-delete-on-unspported-type.invalid.graphql:3:17:
+delete-on-unspported-type.invalid.graphql:4:17:5:1
     __typename @deleteRecord
   }

@@ -7,5 +7,5 @@ query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
 }
 ==================================== ERROR ====================================
 Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query 'QueryWithId'.:
-query-with-invalid-error-suppression.graphql:1:29:
+query-with-invalid-error-suppression.graphql:2:29:2:76
 query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {

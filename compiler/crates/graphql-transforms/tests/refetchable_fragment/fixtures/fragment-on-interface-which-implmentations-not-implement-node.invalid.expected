@@ -10,5 +10,5 @@ Invalid use of @refetchable on fragment 'UserName', only supported are fragments
  - the Query type
  - the Node interface or types implementing the Node interface
  - @fetchable type:
-fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql:1:10:
+fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql:2:10:2:18
 fragment UserName on UserNameRenderable

@@ -302,9 +302,9 @@ pub enum ValidationMessage {
     #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
     StreamInitialCountRequired,
 
-    #[error("{variables_string} never used in operation '{operation_name}'.")]
-    UnusedVariables {
-        variables_string: String,
+    #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
+    UnusedVariable {
+        variable_name: StringKey,
         operation_name: StringKey,
     },
 

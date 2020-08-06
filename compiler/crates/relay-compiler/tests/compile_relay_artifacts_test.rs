@@ -1,4 +1,4 @@
-// @generated SignedSource<<07978cac646479f097100264cf401ebc>>
+// @generated SignedSource<<836d5d9ced5630fe234f67316e310290>>
 
 mod compile_relay_artifacts;
 
@@ -101,6 +101,13 @@ fn alias_same_as_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.expected");
     test_fixture(transform_fixture, "alias-same-as-name.graphql", "compile_relay_artifacts/fixtures/alias-same-as-name.expected", input, expected);
+}
+
+#[test]
+fn append_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-edge.expected");
+    test_fixture(transform_fixture, "append-edge.graphql", "compile_relay_artifacts/fixtures/append-edge.expected", input, expected);
 }
 
 #[test]

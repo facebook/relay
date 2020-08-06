@@ -17,6 +17,7 @@ lazy_static! {
     pub static ref FILTERS_ARG_NAME: StringKey = "filters".intern();
     pub static ref KEY_ARG_NAME: StringKey = "key".intern();
     pub static ref DYNAMIC_KEY_ARG_NAME: StringKey = "dynamicKey_UNSTABLE".intern();
+    pub static ref HANLDE_ARGS_NAME: StringKey = "handleArgs".intern();
 }
 
 pub struct HandleFieldDirectiveArgs<'s> {
@@ -24,6 +25,7 @@ pub struct HandleFieldDirectiveArgs<'s> {
     pub key_arg: Option<(&'s Argument, &'s ConstantValue)>,
     pub filters_arg: Option<(&'s Argument, &'s ConstantValue)>,
     pub dynamic_key_arg: Option<(&'s Argument, &'s Value)>,
+    pub handle_args_arg: Option<&'s Argument>,
 }
 
 pub struct HandleFieldDirectiveValues {
@@ -31,6 +33,7 @@ pub struct HandleFieldDirectiveValues {
     pub key: StringKey,
     pub filters: Option<Vec<StringKey>>,
     pub dynamic_key: Option<Value>,
+    pub handle_args: Option<Vec<Argument>>,
 }
 
 /// We have two handler keys, "handler" in connection, and "handle" in everywhere else
@@ -87,8 +90,9 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
         key,
         filters,
         dynamic_key,
+        handle_args,
     } = values;
-    let directive_arguments = vec![
+    let mut directive_arguments = vec![
         Argument {
             name: WithLocation::generated(*KEY_ARG_NAME),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(key))),
@@ -117,6 +121,13 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
         },
     ];
 
+    if let Some(handle_args) = handle_args {
+        directive_arguments.push(Argument {
+            name: WithLocation::generated(*HANLDE_ARGS_NAME),
+            value: WithLocation::generated(Value::Object(handle_args)),
+        });
+    }
+
     Directive {
         name: WithLocation::generated(*HANDLE_FIELD_DIRECTIVE_NAME),
         arguments: directive_arguments,
@@ -141,25 +152,27 @@ fn extract_handle_field_directive_args_helper(
     let mut key_arg = None;
     let mut filters_arg = None;
     let mut dynamic_key_arg = None;
+    let mut handle_args_arg: Option<&Argument> = None;
 
     for arg in handle_field_directive.arguments.iter() {
-        match &arg.value.item {
-            Value::Constant(constant_val) => {
-                if arg.name.item == handler_arg_name {
-                    handler_arg = Some((arg, constant_val));
-                }
-                if arg.name.item == *KEY_ARG_NAME {
-                    key_arg = Some((arg, constant_val));
-                }
-                if arg.name.item == *FILTERS_ARG_NAME {
-                    filters_arg = Some((arg, constant_val));
-                }
+        if arg.name.item == handler_arg_name {
+            if let Value::Constant(constant_val) = &arg.value.item {
+                handler_arg = Some((arg, constant_val));
             }
-            _ => {
-                if arg.name.item == *DYNAMIC_KEY_ARG_NAME {
-                    dynamic_key_arg = Some((arg, &arg.value.item));
-                }
+        } else if arg.name.item == *KEY_ARG_NAME {
+            if let Value::Constant(constant_val) = &arg.value.item {
+                key_arg = Some((arg, constant_val));
             }
+        } else if arg.name.item == *FILTERS_ARG_NAME {
+            if let Value::Constant(constant_val) = &arg.value.item {
+                filters_arg = Some((arg, constant_val));
+            }
+        } else if arg.name.item == *DYNAMIC_KEY_ARG_NAME {
+            if let Value::Variable(_) = arg.value.item {
+                dynamic_key_arg = Some((arg, &arg.value.item));
+            }
+        } else if arg.name.item == *HANLDE_ARGS_NAME {
+            handle_args_arg = Some(arg)
         }
     }
 
@@ -168,6 +181,7 @@ fn extract_handle_field_directive_args_helper(
         key_arg,
         filters_arg,
         dynamic_key_arg,
+        handle_args_arg,
     }
 }
 
@@ -182,6 +196,7 @@ fn extract_values_from_handle_field_directive_helper(
         filters_arg,
         key_arg,
         dynamic_key_arg,
+        handle_args_arg,
     } = extract_handle_field_directive_args_helper(handle_field_directive, hanlder_arg_name);
 
     // We expect these values to be available since they should've been
@@ -194,12 +209,12 @@ fn extract_values_from_handle_field_directive_helper(
         None => "".intern(),
     };
     let handle= match handler_arg {
-        Some((_, value)) => match value {
-            ConstantValue::String(string_val) => *string_val,
-            _ => unreachable!("Expected handler_arg to have been previously validated."),
-        },
-        None => default_handler.expect("Expected handler_arg to have been previously validated or a default to have been provided."),
-    };
+         Some((_, value)) => match value {
+             ConstantValue::String(string_val) => *string_val,
+             _ => unreachable!("Expected handler_arg to have been previously validated."),
+         },
+         None => default_handler.expect("Expected handler_arg to have been previously validated or a default to have been provided."),
+     };
     let filters = match filters_arg {
         Some((_, value)) => match value {
             ConstantValue::List(list_val) => Some(
@@ -225,11 +240,19 @@ fn extract_values_from_handle_field_directive_helper(
         },
         None => None,
     };
+    let handle_args = handle_args_arg.map(|arg| {
+        if let Value::Object(args) = &arg.value.item {
+            args.clone()
+        } else {
+            unreachable!("Expected handle_args to be 'Value::Object'.")
+        }
+    });
 
     HandleFieldDirectiveValues {
         handle,
         key,
         filters,
         dynamic_key,
+        handle_args,
     }
 }

@@ -645,6 +645,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             if let Some(dynamic_key) = dynamic_key {
                 object.push((CODEGEN_CONSTANTS.dynamic_key, Primitive::Key(dynamic_key)));
             };
+            if let Some(handle_args) = values.handle_args {
+                let args = self.build_arguments(&handle_args);
+                if let Some(args) = args {
+                    object.push((CODEGEN_CONSTANTS.handle_args, Primitive::Key(args)));
+                }
+            };
             result.push(Primitive::Key(self.object(object)))
         }
     }

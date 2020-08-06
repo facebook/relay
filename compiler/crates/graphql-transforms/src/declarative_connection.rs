@@ -105,6 +105,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             key: "".intern(),
                             dynamic_key: None,
                             filters: None,
+                            handle_args: None,
                         });
                     let mut next_directives: Vec<_> = field
                         .directives
@@ -151,7 +152,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                         ));
                         transformed_field
                     }
-                    Some(_connections_arg) => {
+                    Some(connections_arg) => {
                         let field_definition = self.program.schema.field(field.definition.item);
                         let mut has_cursor_field = false;
                         let mut has_node_field = false;
@@ -173,6 +174,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                                     key: "".intern(),
                                     dynamic_key: None,
                                     filters: None,
+                                    handle_args: Some(vec![connections_arg.clone()]),
                                 });
                             let mut next_field = match transformed_field {
                                 Transformed::Replace(Selection::LinkedField(linked_field)) => {

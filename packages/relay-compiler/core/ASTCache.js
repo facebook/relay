@@ -14,7 +14,7 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
-// $FlowFixMe: Immutable is not typed
+// $FlowFixMe[untyped-import] : Immutable is not typed
 const {Map: ImmutableMap} = require('immutable');
 
 import type {File} from '../codegen/CodegenTypes';

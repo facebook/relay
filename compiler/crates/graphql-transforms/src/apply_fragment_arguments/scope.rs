@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![allow(unused_imports)]
-
 use common::{Location, NamedItem};
 use fnv::FnvHashMap;
-use graphql_ir::{Argument, ConstantValue, FragmentDefinition, FragmentSpread, Value, Variable};
+use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
 use interner::StringKey;
 
 #[derive(Default, Debug)]
@@ -84,16 +82,15 @@ impl Scope {
 mod tests {
     use super::*;
 
-    use common::{Location, Span, WithLocation};
+    use common::{Location, SourceLocationKey, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
-    use graphql_syntax::OperationKind;
     use interner::Intern;
     use schema::TypeReference;
 
     use test_schema::TEST_SCHEMA;
 
     fn default_location() -> Location {
-        Location::new_from_path("test-file", Span::new(0, 0))
+        Location::new(SourceLocationKey::standalone("test-file"), Span::new(0, 0))
     }
 
     fn with_test_location<T>(item: T) -> WithLocation<T> {

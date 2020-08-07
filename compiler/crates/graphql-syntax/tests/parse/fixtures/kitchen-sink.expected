@@ -64,15 +64,15 @@ query {
   __typename
 }
 ==================================== OUTPUT ===================================
-Document {
-    span: 0:1123,
+ExecutableDocument {
+    span: 0:1124,
     definitions: [
         OperationDefinition {
-            location: "kitchen-sink.graphql":0:391,
+            location: kitchen-sink.graphql:0:393,
             operation: Some(
                 (
                     Token {
-                        span: "0:6",
+                        span: 0:5,
                         kind: Identifier,
                     },
                     Query,
@@ -82,7 +82,7 @@ Document {
                 Identifier {
                     span: 6:15,
                     token: Token {
-                        span: "6:15",
+                        span: 6:15,
                         kind: Identifier,
                     },
                     value: "queryName",
@@ -92,7 +92,7 @@ Document {
                 List {
                     span: 15:57,
                     start: Token {
-                        span: "15:16",
+                        span: 15:16,
                         kind: OpenParen,
                     },
                     items: [
@@ -101,20 +101,20 @@ Document {
                             name: VariableIdentifier {
                                 span: 16:20,
                                 token: Token {
-                                    span: "16:20",
-                                    kind: VariableIdentifier,
+                                    span: 17:20,
+                                    kind: Identifier,
                                 },
                                 name: "foo",
                             },
                             colon: Token {
-                                span: "20:22",
+                                span: 20:21,
                                 kind: Colon,
                             },
                             type_: Named(
                                 Identifier {
-                                    span: 22:35,
+                                    span: 22:33,
                                     token: Token {
-                                        span: "22:35",
+                                        span: 22:33,
                                         kind: Identifier,
                                     },
                                     value: "ComplexType",
@@ -128,20 +128,20 @@ Document {
                             name: VariableIdentifier {
                                 span: 35:40,
                                 token: Token {
-                                    span: "35:40",
-                                    kind: VariableIdentifier,
+                                    span: 36:40,
+                                    kind: Identifier,
                                 },
                                 name: "site",
                             },
                             colon: Token {
-                                span: "40:42",
+                                span: 40:41,
                                 kind: Colon,
                             },
                             type_: Named(
                                 Identifier {
-                                    span: 42:47,
+                                    span: 42:46,
                                     token: Token {
-                                        span: "42:47",
+                                        span: 42:46,
                                         kind: Identifier,
                                     },
                                     value: "Site",
@@ -151,13 +151,13 @@ Document {
                                 DefaultValue {
                                     span: 47:55,
                                     equals: Token {
-                                        span: "47:49",
+                                        span: 47:48,
                                         kind: Equals,
                                     },
                                     value: Enum(
                                         EnumNode {
                                             token: Token {
-                                                span: "49:55",
+                                                span: 49:55,
                                                 kind: Identifier,
                                             },
                                             value: "MOBILE",
@@ -169,7 +169,7 @@ Document {
                         },
                     ],
                     end: Token {
-                        span: "55:57",
+                        span: 55:56,
                         kind: CloseParen,
                     },
                 },
@@ -178,13 +178,13 @@ Document {
                 Directive {
                     span: 57:66,
                     at: Token {
-                        span: "57:58",
+                        span: 57:58,
                         kind: At,
                     },
                     name: Identifier {
-                        span: 58:66,
+                        span: 58:65,
                         token: Token {
-                            span: "58:66",
+                            span: 58:65,
                             kind: Identifier,
                         },
                         value: "onQuery",
@@ -193,27 +193,27 @@ Document {
                 },
             ],
             selections: List {
-                span: 66:391,
+                span: 66:393,
                 start: Token {
-                    span: "66:67",
+                    span: 66:67,
                     kind: OpenBrace,
                 },
                 items: [
                     LinkedField {
-                        span: 67:389,
+                        span: 70:390,
                         alias: Some(
                             Alias {
-                                span: 67:88,
+                                span: 70:88,
                                 alias: Identifier {
-                                    span: 67:82,
+                                    span: 70:82,
                                     token: Token {
-                                        span: "67:82",
+                                        span: 70:82,
                                         kind: Identifier,
                                     },
                                     value: "whoever123is",
                                 },
                                 colon: Token {
-                                    span: "82:84",
+                                    span: 82:83,
                                     kind: Colon,
                                 },
                             },
@@ -221,7 +221,7 @@ Document {
                         name: Identifier {
                             span: 84:88,
                             token: Token {
-                                span: "84:88",
+                                span: 84:88,
                                 kind: Identifier,
                             },
                             value: "node",
@@ -230,7 +230,7 @@ Document {
                             List {
                                 span: 88:105,
                                 start: Token {
-                                    span: "88:89",
+                                    span: 88:89,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -239,13 +239,13 @@ Document {
                                         name: Identifier {
                                             span: 89:91,
                                             token: Token {
-                                                span: "89:91",
+                                                span: 89:91,
                                                 kind: Identifier,
                                             },
                                             value: "id",
                                         },
                                         colon: Token {
-                                            span: "91:93",
+                                            span: 91:92,
                                             kind: Colon,
                                         },
                                         value: Constant(
@@ -253,14 +253,14 @@ Document {
                                                 List {
                                                     span: 93:103,
                                                     start: Token {
-                                                        span: "93:94",
+                                                        span: 93:94,
                                                         kind: OpenBracket,
                                                     },
                                                     items: [
                                                         Int(
                                                             IntNode {
                                                                 token: Token {
-                                                                    span: "94:99",
+                                                                    span: 94:97,
                                                                     kind: IntegerLiteral,
                                                                 },
                                                                 value: -12,
@@ -269,7 +269,7 @@ Document {
                                                         Int(
                                                             IntNode {
                                                                 token: Token {
-                                                                    span: "99:102",
+                                                                    span: 99:102,
                                                                     kind: IntegerLiteral,
                                                                 },
                                                                 value: 345,
@@ -277,7 +277,7 @@ Document {
                                                         ),
                                                     ],
                                                     end: Token {
-                                                        span: "102:103",
+                                                        span: 102:103,
                                                         kind: CloseBracket,
                                                     },
                                                 },
@@ -286,26 +286,26 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "103:105",
+                                    span: 103:104,
                                     kind: CloseParen,
                                 },
                             },
                         ),
                         directives: [],
                         selections: List {
-                            span: 105:389,
+                            span: 105:390,
                             start: Token {
-                                span: "105:106",
+                                span: 105:106,
                                 kind: OpenBrace,
                             },
                             items: [
                                 ScalarField {
-                                    span: 106:113,
+                                    span: 111:118,
                                     alias: None,
                                     name: Identifier {
-                                        span: 106:113,
+                                        span: 111:113,
                                         token: Token {
-                                            span: "106:113",
+                                            span: 111:113,
                                             kind: Identifier,
                                         },
                                         value: "id",
@@ -314,22 +314,22 @@ Document {
                                     directives: [],
                                 },
                                 InlineFragment {
-                                    span: 113:315,
+                                    span: 118:320,
                                     spread: Token {
-                                        span: "113:122",
+                                        span: 118:121,
                                         kind: Spread,
                                     },
                                     type_condition: Some(
                                         TypeCondition {
                                             span: 122:130,
                                             on: Token {
-                                                span: "122:125",
+                                                span: 122:124,
                                                 kind: Identifier,
                                             },
                                             type_: Identifier {
-                                                span: 125:130,
+                                                span: 125:129,
                                                 token: Token {
-                                                    span: "125:130",
+                                                    span: 125:129,
                                                     kind: Identifier,
                                                 },
                                                 value: "User",
@@ -340,13 +340,13 @@ Document {
                                         Directive {
                                             span: 130:148,
                                             at: Token {
-                                                span: "130:131",
+                                                span: 130:131,
                                                 kind: At,
                                             },
                                             name: Identifier {
-                                                span: 131:148,
+                                                span: 131:147,
                                                 token: Token {
-                                                    span: "131:148",
+                                                    span: 131:147,
                                                     kind: Identifier,
                                                 },
                                                 value: "onInlineFragment",
@@ -355,19 +355,19 @@ Document {
                                         },
                                     ],
                                     selections: List {
-                                        span: 148:315,
+                                        span: 148:320,
                                         start: Token {
-                                            span: "148:149",
+                                            span: 148:149,
                                             kind: OpenBrace,
                                         },
                                         items: [
                                             LinkedField {
-                                                span: 149:309,
+                                                span: 156:314,
                                                 alias: None,
                                                 name: Identifier {
-                                                    span: 149:163,
+                                                    span: 156:162,
                                                     token: Token {
-                                                        span: "149:163",
+                                                        span: 156:162,
                                                         kind: Identifier,
                                                     },
                                                     value: "field2",
@@ -375,19 +375,19 @@ Document {
                                                 arguments: None,
                                                 directives: [],
                                                 selections: List {
-                                                    span: 163:309,
+                                                    span: 163:314,
                                                     start: Token {
-                                                        span: "163:164",
+                                                        span: 163:164,
                                                         kind: OpenBrace,
                                                     },
                                                     items: [
                                                         ScalarField {
-                                                            span: 164:175,
+                                                            span: 173:184,
                                                             alias: None,
                                                             name: Identifier {
-                                                                span: 164:175,
+                                                                span: 173:175,
                                                                 token: Token {
-                                                                    span: "164:175",
+                                                                    span: 173:175,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "id",
@@ -396,20 +396,20 @@ Document {
                                                             directives: [],
                                                         },
                                                         LinkedField {
-                                                            span: 175:301,
+                                                            span: 184:308,
                                                             alias: Some(
                                                                 Alias {
-                                                                    span: 175:197,
+                                                                    span: 184:197,
                                                                     alias: Identifier {
-                                                                        span: 175:189,
+                                                                        span: 184:189,
                                                                         token: Token {
-                                                                            span: "175:189",
+                                                                            span: 184:189,
                                                                             kind: Identifier,
                                                                         },
                                                                         value: "alias",
                                                                     },
                                                                     colon: Token {
-                                                                        span: "189:191",
+                                                                        span: 189:190,
                                                                         kind: Colon,
                                                                     },
                                                                 },
@@ -417,7 +417,7 @@ Document {
                                                             name: Identifier {
                                                                 span: 191:197,
                                                                 token: Token {
-                                                                    span: "191:197",
+                                                                    span: 191:197,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "field1",
@@ -426,7 +426,7 @@ Document {
                                                                 List {
                                                                     span: 197:222,
                                                                     start: Token {
-                                                                        span: "197:198",
+                                                                        span: 197:198,
                                                                         kind: OpenParen,
                                                                     },
                                                                     items: [
@@ -435,20 +435,20 @@ Document {
                                                                             name: Identifier {
                                                                                 span: 198:203,
                                                                                 token: Token {
-                                                                                    span: "198:203",
+                                                                                    span: 198:203,
                                                                                     kind: Identifier,
                                                                                 },
                                                                                 value: "first",
                                                                             },
                                                                             colon: Token {
-                                                                                span: "203:205",
+                                                                                span: 203:204,
                                                                                 kind: Colon,
                                                                             },
                                                                             value: Constant(
                                                                                 Int(
                                                                                     IntNode {
                                                                                         token: Token {
-                                                                                            span: "205:209",
+                                                                                            span: 205:207,
                                                                                             kind: IntegerLiteral,
                                                                                         },
                                                                                         value: 10,
@@ -461,21 +461,21 @@ Document {
                                                                             name: Identifier {
                                                                                 span: 209:214,
                                                                                 token: Token {
-                                                                                    span: "209:214",
+                                                                                    span: 209:214,
                                                                                     kind: Identifier,
                                                                                 },
                                                                                 value: "after",
                                                                             },
                                                                             colon: Token {
-                                                                                span: "214:216",
+                                                                                span: 214:215,
                                                                                 kind: Colon,
                                                                             },
                                                                             value: Variable(
                                                                                 VariableIdentifier {
                                                                                     span: 216:220,
                                                                                     token: Token {
-                                                                                        span: "216:220",
-                                                                                        kind: VariableIdentifier,
+                                                                                        span: 217:220,
+                                                                                        kind: Identifier,
                                                                                     },
                                                                                     name: "foo",
                                                                                 },
@@ -483,7 +483,7 @@ Document {
                                                                         },
                                                                     ],
                                                                     end: Token {
-                                                                        span: "220:222",
+                                                                        span: 220:221,
                                                                         kind: CloseParen,
                                                                     },
                                                                 },
@@ -492,13 +492,13 @@ Document {
                                                                 Directive {
                                                                     span: 222:241,
                                                                     at: Token {
-                                                                        span: "222:223",
+                                                                        span: 222:223,
                                                                         kind: At,
                                                                     },
                                                                     name: Identifier {
                                                                         span: 223:230,
                                                                         token: Token {
-                                                                            span: "223:230",
+                                                                            span: 223:230,
                                                                             kind: Identifier,
                                                                         },
                                                                         value: "include",
@@ -507,7 +507,7 @@ Document {
                                                                         List {
                                                                             span: 230:241,
                                                                             start: Token {
-                                                                                span: "230:231",
+                                                                                span: 230:231,
                                                                                 kind: OpenParen,
                                                                             },
                                                                             items: [
@@ -516,21 +516,21 @@ Document {
                                                                                     name: Identifier {
                                                                                         span: 231:233,
                                                                                         token: Token {
-                                                                                            span: "231:233",
+                                                                                            span: 231:233,
                                                                                             kind: Identifier,
                                                                                         },
                                                                                         value: "if",
                                                                                     },
                                                                                     colon: Token {
-                                                                                        span: "233:235",
+                                                                                        span: 233:234,
                                                                                         kind: Colon,
                                                                                     },
                                                                                     value: Variable(
                                                                                         VariableIdentifier {
                                                                                             span: 235:239,
                                                                                             token: Token {
-                                                                                                span: "235:239",
-                                                                                                kind: VariableIdentifier,
+                                                                                                span: 236:239,
+                                                                                                kind: Identifier,
                                                                                             },
                                                                                             name: "foo",
                                                                                         },
@@ -538,7 +538,7 @@ Document {
                                                                                 },
                                                                             ],
                                                                             end: Token {
-                                                                                span: "239:241",
+                                                                                span: 239:240,
                                                                                 kind: CloseParen,
                                                                             },
                                                                         },
@@ -546,19 +546,19 @@ Document {
                                                                 },
                                                             ],
                                                             selections: List {
-                                                                span: 241:301,
+                                                                span: 241:308,
                                                                 start: Token {
-                                                                    span: "241:242",
+                                                                    span: 241:242,
                                                                     kind: OpenBrace,
                                                                 },
                                                                 items: [
                                                                     ScalarField {
-                                                                        span: 242:255,
+                                                                        span: 253:266,
                                                                         alias: None,
                                                                         name: Identifier {
-                                                                            span: 242:255,
+                                                                            span: 253:255,
                                                                             token: Token {
-                                                                                span: "242:255",
+                                                                                span: 253:255,
                                                                                 kind: Identifier,
                                                                             },
                                                                             value: "id",
@@ -567,30 +567,30 @@ Document {
                                                                         directives: [],
                                                                     },
                                                                     FragmentSpread {
-                                                                        span: 255:291,
+                                                                        span: 266:300,
                                                                         spread: Token {
-                                                                            span: "255:269",
+                                                                            span: 266:269,
                                                                             kind: Spread,
                                                                         },
                                                                         name: Identifier {
-                                                                            span: 269:274,
+                                                                            span: 269:273,
                                                                             token: Token {
-                                                                                span: "269:274",
+                                                                                span: 269:273,
                                                                                 kind: Identifier,
                                                                             },
                                                                             value: "frag",
                                                                         },
                                                                         directives: [
                                                                             Directive {
-                                                                                span: 274:291,
+                                                                                span: 274:300,
                                                                                 at: Token {
-                                                                                    span: "274:275",
+                                                                                    span: 274:275,
                                                                                     kind: At,
                                                                                 },
                                                                                 name: Identifier {
                                                                                     span: 275:291,
                                                                                     token: Token {
-                                                                                        span: "275:291",
+                                                                                        span: 275:291,
                                                                                         kind: Identifier,
                                                                                     },
                                                                                     value: "onFragmentSpread",
@@ -601,29 +601,29 @@ Document {
                                                                     },
                                                                 ],
                                                                 end: Token {
-                                                                    span: "291:301",
+                                                                    span: 300:301,
                                                                     kind: CloseBrace,
                                                                 },
                                                             },
                                                         },
                                                     ],
                                                     end: Token {
-                                                        span: "301:309",
+                                                        span: 308:309,
                                                         kind: CloseBrace,
                                                     },
                                                 },
                                             },
                                         ],
                                         end: Token {
-                                            span: "309:315",
+                                            span: 314:315,
                                             kind: CloseBrace,
                                         },
                                     },
                                 },
                                 InlineFragment {
-                                    span: 315:360,
+                                    span: 320:365,
                                     spread: Token {
-                                        span: "315:324",
+                                        span: 320:323,
                                         kind: Spread,
                                     },
                                     type_condition: None,
@@ -631,13 +631,13 @@ Document {
                                         Directive {
                                             span: 324:344,
                                             at: Token {
-                                                span: "324:325",
+                                                span: 324:325,
                                                 kind: At,
                                             },
                                             name: Identifier {
                                                 span: 325:329,
                                                 token: Token {
-                                                    span: "325:329",
+                                                    span: 325:329,
                                                     kind: Identifier,
                                                 },
                                                 value: "skip",
@@ -646,7 +646,7 @@ Document {
                                                 List {
                                                     span: 329:344,
                                                     start: Token {
-                                                        span: "329:330",
+                                                        span: 329:330,
                                                         kind: OpenParen,
                                                     },
                                                     items: [
@@ -655,21 +655,21 @@ Document {
                                                             name: Identifier {
                                                                 span: 330:336,
                                                                 token: Token {
-                                                                    span: "330:336",
+                                                                    span: 330:336,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "unless",
                                                             },
                                                             colon: Token {
-                                                                span: "336:338",
+                                                                span: 336:337,
                                                                 kind: Colon,
                                                             },
                                                             value: Variable(
                                                                 VariableIdentifier {
                                                                     span: 338:342,
                                                                     token: Token {
-                                                                        span: "338:342",
-                                                                        kind: VariableIdentifier,
+                                                                        span: 339:342,
+                                                                        kind: Identifier,
                                                                     },
                                                                     name: "foo",
                                                                 },
@@ -677,7 +677,7 @@ Document {
                                                         },
                                                     ],
                                                     end: Token {
-                                                        span: "342:344",
+                                                        span: 342:343,
                                                         kind: CloseParen,
                                                     },
                                                 },
@@ -685,19 +685,19 @@ Document {
                                         },
                                     ],
                                     selections: List {
-                                        span: 344:360,
+                                        span: 344:365,
                                         start: Token {
-                                            span: "344:345",
+                                            span: 344:345,
                                             kind: OpenBrace,
                                         },
                                         items: [
                                             ScalarField {
-                                                span: 345:354,
+                                                span: 352:359,
                                                 alias: None,
                                                 name: Identifier {
-                                                    span: 345:354,
+                                                    span: 352:354,
                                                     token: Token {
-                                                        span: "345:354",
+                                                        span: 352:354,
                                                         kind: Identifier,
                                                     },
                                                     value: "id",
@@ -707,33 +707,33 @@ Document {
                                             },
                                         ],
                                         end: Token {
-                                            span: "354:360",
+                                            span: 359:360,
                                             kind: CloseBrace,
                                         },
                                     },
                                 },
                                 InlineFragment {
-                                    span: 360:385,
+                                    span: 365:388,
                                     spread: Token {
-                                        span: "360:369",
+                                        span: 365:368,
                                         kind: Spread,
                                     },
                                     type_condition: None,
                                     directives: [],
                                     selections: List {
-                                        span: 369:385,
+                                        span: 369:388,
                                         start: Token {
-                                            span: "369:370",
+                                            span: 369:370,
                                             kind: OpenBrace,
                                         },
                                         items: [
                                             ScalarField {
-                                                span: 370:379,
+                                                span: 377:384,
                                                 alias: None,
                                                 name: Identifier {
-                                                    span: 370:379,
+                                                    span: 377:379,
                                                     token: Token {
-                                                        span: "370:379",
+                                                        span: 377:379,
                                                         kind: Identifier,
                                                     },
                                                     value: "id",
@@ -743,31 +743,31 @@ Document {
                                             },
                                         ],
                                         end: Token {
-                                            span: "379:385",
+                                            span: 384:385,
                                             kind: CloseBrace,
                                         },
                                     },
                                 },
                             ],
                             end: Token {
-                                span: "385:389",
+                                span: 388:389,
                                 kind: CloseBrace,
                             },
                         },
                     },
                 ],
                 end: Token {
-                    span: "389:391",
+                    span: 390:391,
                     kind: CloseBrace,
                 },
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":391:497,
+            location: kitchen-sink.graphql:393:499,
             operation: Some(
                 (
                     Token {
-                        span: "391:402",
+                        span: 393:401,
                         kind: Identifier,
                     },
                     Mutation,
@@ -775,9 +775,9 @@ Document {
             ),
             name: Some(
                 Identifier {
-                    span: 402:412,
+                    span: 402:411,
                     token: Token {
-                        span: "402:412",
+                        span: 402:411,
                         kind: Identifier,
                     },
                     value: "likeStory",
@@ -788,13 +788,13 @@ Document {
                 Directive {
                     span: 412:424,
                     at: Token {
-                        span: "412:413",
+                        span: 412:413,
                         kind: At,
                     },
                     name: Identifier {
-                        span: 413:424,
+                        span: 413:423,
                         token: Token {
-                            span: "413:424",
+                            span: 413:423,
                             kind: Identifier,
                         },
                         value: "onMutation",
@@ -803,19 +803,19 @@ Document {
                 },
             ],
             selections: List {
-                span: 424:497,
+                span: 424:499,
                 start: Token {
-                    span: "424:425",
+                    span: 424:425,
                     kind: OpenBrace,
                 },
                 items: [
                     LinkedField {
-                        span: 425:495,
+                        span: 428:496,
                         alias: None,
                         name: Identifier {
-                            span: 425:432,
+                            span: 428:432,
                             token: Token {
-                                span: "425:432",
+                                span: 428:432,
                                 kind: Identifier,
                             },
                             value: "like",
@@ -824,7 +824,7 @@ Document {
                             List {
                                 span: 432:445,
                                 start: Token {
-                                    span: "432:433",
+                                    span: 432:433,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -833,20 +833,20 @@ Document {
                                         name: Identifier {
                                             span: 433:438,
                                             token: Token {
-                                                span: "433:438",
+                                                span: 433:438,
                                                 kind: Identifier,
                                             },
                                             value: "story",
                                         },
                                         colon: Token {
-                                            span: "438:440",
+                                            span: 438:439,
                                             kind: Colon,
                                         },
                                         value: Constant(
                                             Int(
                                                 IntNode {
                                                     token: Token {
-                                                        span: "440:443",
+                                                        span: 440:443,
                                                         kind: IntegerLiteral,
                                                     },
                                                     value: 123,
@@ -856,7 +856,7 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "443:445",
+                                    span: 443:444,
                                     kind: CloseParen,
                                 },
                             },
@@ -865,13 +865,13 @@ Document {
                             Directive {
                                 span: 445:454,
                                 at: Token {
-                                    span: "445:446",
+                                    span: 445:446,
                                     kind: At,
                                 },
                                 name: Identifier {
-                                    span: 446:454,
+                                    span: 446:453,
                                     token: Token {
-                                        span: "446:454",
+                                        span: 446:453,
                                         kind: Identifier,
                                     },
                                     value: "onField",
@@ -880,19 +880,19 @@ Document {
                             },
                         ],
                         selections: List {
-                            span: 454:495,
+                            span: 454:496,
                             start: Token {
-                                span: "454:455",
+                                span: 454:455,
                                 kind: OpenBrace,
                             },
                             items: [
                                 LinkedField {
-                                    span: 455:491,
+                                    span: 460:494,
                                     alias: None,
                                     name: Identifier {
-                                        span: 455:466,
+                                        span: 460:465,
                                         token: Token {
-                                            span: "455:466",
+                                            span: 460:465,
                                             kind: Identifier,
                                         },
                                         value: "story",
@@ -900,19 +900,19 @@ Document {
                                     arguments: None,
                                     directives: [],
                                     selections: List {
-                                        span: 466:491,
+                                        span: 466:494,
                                         start: Token {
-                                            span: "466:467",
+                                            span: 466:467,
                                             kind: OpenBrace,
                                         },
                                         items: [
                                             ScalarField {
-                                                span: 467:485,
+                                                span: 474:490,
                                                 alias: None,
                                                 name: Identifier {
-                                                    span: 467:477,
+                                                    span: 474:476,
                                                     token: Token {
-                                                        span: "467:477",
+                                                        span: 474:476,
                                                         kind: Identifier,
                                                     },
                                                     value: "id",
@@ -920,15 +920,15 @@ Document {
                                                 arguments: None,
                                                 directives: [
                                                     Directive {
-                                                        span: 477:485,
+                                                        span: 477:490,
                                                         at: Token {
-                                                            span: "477:478",
+                                                            span: 477:478,
                                                             kind: At,
                                                         },
                                                         name: Identifier {
                                                             span: 478:485,
                                                             token: Token {
-                                                                span: "478:485",
+                                                                span: 478:485,
                                                                 kind: Identifier,
                                                             },
                                                             value: "onField",
@@ -939,31 +939,31 @@ Document {
                                             },
                                         ],
                                         end: Token {
-                                            span: "485:491",
+                                            span: 490:491,
                                             kind: CloseBrace,
                                         },
                                     },
                                 },
                             ],
                             end: Token {
-                                span: "491:495",
+                                span: 494:495,
                                 kind: CloseBrace,
                             },
                         },
                     },
                 ],
                 end: Token {
-                    span: "495:497",
+                    span: 496:497,
                     kind: CloseBrace,
                 },
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":497:727,
+            location: kitchen-sink.graphql:499:887,
             operation: Some(
                 (
                     Token {
-                        span: "497:512",
+                        span: 499:511,
                         kind: Identifier,
                     },
                     Subscription,
@@ -973,7 +973,7 @@ Document {
                 Identifier {
                     span: 512:533,
                     token: Token {
-                        span: "512:533",
+                        span: 512:533,
                         kind: Identifier,
                     },
                     value: "StoryLikeSubscription",
@@ -981,9 +981,9 @@ Document {
             ),
             variable_definitions: Some(
                 List {
-                    span: 533:566,
+                    span: 533:569,
                     start: Token {
-                        span: "533:534",
+                        span: 533:534,
                         kind: OpenParen,
                     },
                     items: [
@@ -992,20 +992,20 @@ Document {
                             name: VariableIdentifier {
                                 span: 534:540,
                                 token: Token {
-                                    span: "534:540",
-                                    kind: VariableIdentifier,
+                                    span: 535:540,
+                                    kind: Identifier,
                                 },
                                 name: "input",
                             },
                             colon: Token {
-                                span: "540:542",
+                                span: 540:541,
                                 kind: Colon,
                             },
                             type_: Named(
                                 Identifier {
                                     span: 542:565,
                                     token: Token {
-                                        span: "542:565",
+                                        span: 542:565,
                                         kind: Identifier,
                                     },
                                     value: "StoryLikeSubscribeInput",
@@ -1016,22 +1016,22 @@ Document {
                         },
                     ],
                     end: Token {
-                        span: "565:566",
+                        span: 565:566,
                         kind: CloseParen,
                     },
                 },
             ),
             directives: [
                 Directive {
-                    span: 566:585,
+                    span: 569:585,
                     at: Token {
-                        span: "566:570",
+                        span: 569:570,
                         kind: At,
                     },
                     name: Identifier {
-                        span: 570:585,
+                        span: 570:584,
                         token: Token {
-                            span: "570:585",
+                            span: 570:584,
                             kind: Identifier,
                         },
                         value: "onSubscription",
@@ -1040,19 +1040,19 @@ Document {
                 },
             ],
             selections: List {
-                span: 585:727,
+                span: 585:887,
                 start: Token {
-                    span: "585:586",
+                    span: 585:586,
                     kind: OpenBrace,
                 },
                 items: [
                     LinkedField {
-                        span: 586:725,
+                        span: 589:726,
                         alias: None,
                         name: Identifier {
-                            span: 586:607,
+                            span: 589:607,
                             token: Token {
-                                span: "586:607",
+                                span: 589:607,
                                 kind: Identifier,
                             },
                             value: "storyLikeSubscribe",
@@ -1061,7 +1061,7 @@ Document {
                             List {
                                 span: 607:623,
                                 start: Token {
-                                    span: "607:608",
+                                    span: 607:608,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -1070,21 +1070,21 @@ Document {
                                         name: Identifier {
                                             span: 608:613,
                                             token: Token {
-                                                span: "608:613",
+                                                span: 608:613,
                                                 kind: Identifier,
                                             },
                                             value: "input",
                                         },
                                         colon: Token {
-                                            span: "613:615",
+                                            span: 613:614,
                                             kind: Colon,
                                         },
                                         value: Variable(
                                             VariableIdentifier {
                                                 span: 615:621,
                                                 token: Token {
-                                                    span: "615:621",
-                                                    kind: VariableIdentifier,
+                                                    span: 616:621,
+                                                    kind: Identifier,
                                                 },
                                                 name: "input",
                                             },
@@ -1092,26 +1092,26 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "621:623",
+                                    span: 621:622,
                                     kind: CloseParen,
                                 },
                             },
                         ),
                         directives: [],
                         selections: List {
-                            span: 623:725,
+                            span: 623:726,
                             start: Token {
-                                span: "623:624",
+                                span: 623:624,
                                 kind: OpenBrace,
                             },
                             items: [
                                 LinkedField {
-                                    span: 624:721,
+                                    span: 629:724,
                                     alias: None,
                                     name: Identifier {
-                                        span: 624:635,
+                                        span: 629:634,
                                         token: Token {
-                                            span: "624:635",
+                                            span: 629:634,
                                             kind: Identifier,
                                         },
                                         value: "story",
@@ -1119,19 +1119,19 @@ Document {
                                     arguments: None,
                                     directives: [],
                                     selections: List {
-                                        span: 635:721,
+                                        span: 635:724,
                                         start: Token {
-                                            span: "635:636",
+                                            span: 635:636,
                                             kind: OpenBrace,
                                         },
                                         items: [
                                             LinkedField {
-                                                span: 636:673,
+                                                span: 643:680,
                                                 alias: None,
                                                 name: Identifier {
-                                                    span: 636:650,
+                                                    span: 643:649,
                                                     token: Token {
-                                                        span: "636:650",
+                                                        span: 643:649,
                                                         kind: Identifier,
                                                     },
                                                     value: "likers",
@@ -1139,19 +1139,19 @@ Document {
                                                 arguments: None,
                                                 directives: [],
                                                 selections: List {
-                                                    span: 650:673,
+                                                    span: 650:680,
                                                     start: Token {
-                                                        span: "650:651",
+                                                        span: 650:651,
                                                         kind: OpenBrace,
                                                     },
                                                     items: [
                                                         ScalarField {
-                                                            span: 651:665,
+                                                            span: 660:672,
                                                             alias: None,
                                                             name: Identifier {
-                                                                span: 651:665,
+                                                                span: 660:665,
                                                                 token: Token {
-                                                                    span: "651:665",
+                                                                    span: 660:665,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "count",
@@ -1161,18 +1161,18 @@ Document {
                                                         },
                                                     ],
                                                     end: Token {
-                                                        span: "665:673",
+                                                        span: 672:673,
                                                         kind: CloseBrace,
                                                     },
                                                 },
                                             },
                                             LinkedField {
-                                                span: 673:715,
+                                                span: 680:720,
                                                 alias: None,
                                                 name: Identifier {
-                                                    span: 673:693,
+                                                    span: 680:692,
                                                     token: Token {
-                                                        span: "673:693",
+                                                        span: 680:692,
                                                         kind: Identifier,
                                                     },
                                                     value: "likeSentence",
@@ -1180,19 +1180,19 @@ Document {
                                                 arguments: None,
                                                 directives: [],
                                                 selections: List {
-                                                    span: 693:715,
+                                                    span: 693:720,
                                                     start: Token {
-                                                        span: "693:694",
+                                                        span: 693:694,
                                                         kind: OpenBrace,
                                                     },
                                                     items: [
                                                         ScalarField {
-                                                            span: 694:707,
+                                                            span: 703:714,
                                                             alias: None,
                                                             name: Identifier {
-                                                                span: 694:707,
+                                                                span: 703:707,
                                                                 token: Token {
-                                                                    span: "694:707",
+                                                                    span: 703:707,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "text",
@@ -1202,42 +1202,42 @@ Document {
                                                         },
                                                     ],
                                                     end: Token {
-                                                        span: "707:715",
+                                                        span: 714:715,
                                                         kind: CloseBrace,
                                                     },
                                                 },
                                             },
                                         ],
                                         end: Token {
-                                            span: "715:721",
+                                            span: 720:721,
                                             kind: CloseBrace,
                                         },
                                     },
                                 },
                             ],
                             end: Token {
-                                span: "721:725",
+                                span: 724:725,
                                 kind: CloseBrace,
                             },
                         },
                     },
                 ],
                 end: Token {
-                    span: "725:727",
+                    span: 726:727,
                     kind: CloseBrace,
                 },
             },
         },
         FragmentDefinition {
-            location: "kitchen-sink.graphql":727:1033,
+            location: kitchen-sink.graphql:887:1035,
             fragment: Token {
-                span: "727:896",
+                span: 887:895,
                 kind: Identifier,
             },
             name: Identifier {
-                span: 896:901,
+                span: 896:900,
                 token: Token {
-                    span: "896:901",
+                    span: 896:900,
                     kind: Identifier,
                 },
                 value: "frag",
@@ -1245,13 +1245,13 @@ Document {
             type_condition: TypeCondition {
                 span: 901:911,
                 on: Token {
-                    span: "901:904",
+                    span: 901:903,
                     kind: Identifier,
                 },
                 type_: Identifier {
-                    span: 904:911,
+                    span: 904:910,
                     token: Token {
-                        span: "904:911",
+                        span: 904:910,
                         kind: Identifier,
                     },
                     value: "Friend",
@@ -1261,13 +1261,13 @@ Document {
                 Directive {
                     span: 911:933,
                     at: Token {
-                        span: "911:912",
+                        span: 911:912,
                         kind: At,
                     },
                     name: Identifier {
-                        span: 912:933,
+                        span: 912:932,
                         token: Token {
-                            span: "912:933",
+                            span: 912:932,
                             kind: Identifier,
                         },
                         value: "onFragmentDefinition",
@@ -1276,28 +1276,28 @@ Document {
                 },
             ],
             selections: List {
-                span: 933:1033,
+                span: 933:1035,
                 start: Token {
-                    span: "933:934",
+                    span: 933:934,
                     kind: OpenBrace,
                 },
                 items: [
                     ScalarField {
-                        span: 934:1013,
+                        span: 937:1016,
                         alias: None,
                         name: Identifier {
-                            span: 934:940,
+                            span: 937:940,
                             token: Token {
-                                span: "934:940",
+                                span: 937:940,
                                 kind: Identifier,
                             },
                             value: "foo",
                         },
                         arguments: Some(
                             List {
-                                span: 940:1013,
+                                span: 940:1016,
                                 start: Token {
-                                    span: "940:941",
+                                    span: 940:941,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -1306,21 +1306,21 @@ Document {
                                         name: Identifier {
                                             span: 941:945,
                                             token: Token {
-                                                span: "941:945",
+                                                span: 941:945,
                                                 kind: Identifier,
                                             },
                                             value: "size",
                                         },
                                         colon: Token {
-                                            span: "945:947",
+                                            span: 945:946,
                                             kind: Colon,
                                         },
                                         value: Variable(
                                             VariableIdentifier {
-                                                span: 947:954,
+                                                span: 947:952,
                                                 token: Token {
-                                                    span: "947:954",
-                                                    kind: VariableIdentifier,
+                                                    span: 948:952,
+                                                    kind: Identifier,
                                                 },
                                                 name: "size",
                                             },
@@ -1331,21 +1331,21 @@ Document {
                                         name: Identifier {
                                             span: 954:957,
                                             token: Token {
-                                                span: "954:957",
+                                                span: 954:957,
                                                 kind: Identifier,
                                             },
                                             value: "bar",
                                         },
                                         colon: Token {
-                                            span: "957:959",
+                                            span: 957:958,
                                             kind: Colon,
                                         },
                                         value: Variable(
                                             VariableIdentifier {
-                                                span: 959:963,
+                                                span: 959:961,
                                                 token: Token {
-                                                    span: "959:963",
-                                                    kind: VariableIdentifier,
+                                                    span: 960:961,
+                                                    kind: Identifier,
                                                 },
                                                 name: "b",
                                             },
@@ -1356,13 +1356,13 @@ Document {
                                         name: Identifier {
                                             span: 963:966,
                                             token: Token {
-                                                span: "963:966",
+                                                span: 963:966,
                                                 kind: Identifier,
                                             },
                                             value: "obj",
                                         },
                                         colon: Token {
-                                            span: "966:968",
+                                            span: 966:967,
                                             kind: Colon,
                                         },
                                         value: Constant(
@@ -1370,7 +1370,7 @@ Document {
                                                 List {
                                                     span: 968:1012,
                                                     start: Token {
-                                                        span: "968:969",
+                                                        span: 968:969,
                                                         kind: OpenBrace,
                                                     },
                                                     items: [
@@ -1379,19 +1379,19 @@ Document {
                                                             name: Identifier {
                                                                 span: 969:972,
                                                                 token: Token {
-                                                                    span: "969:972",
+                                                                    span: 969:972,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "key",
                                                             },
                                                             colon: Token {
-                                                                span: "972:974",
+                                                                span: 972:973,
                                                                 kind: Colon,
                                                             },
                                                             value: String(
                                                                 StringNode {
                                                                     token: Token {
-                                                                        span: "974:983",
+                                                                        span: 974:981,
                                                                         kind: StringLiteral,
                                                                     },
                                                                     value: "value",
@@ -1403,19 +1403,19 @@ Document {
                                                             name: Identifier {
                                                                 span: 983:988,
                                                                 token: Token {
-                                                                    span: "983:988",
+                                                                    span: 983:988,
                                                                     kind: Identifier,
                                                                 },
                                                                 value: "block",
                                                             },
                                                             colon: Token {
-                                                                span: "988:990",
+                                                                span: 988:989,
                                                                 kind: Colon,
                                                             },
                                                             value: String(
                                                                 StringNode {
                                                                     token: Token {
-                                                                        span: "990:1011",
+                                                                        span: 990:1011,
                                                                         kind: StringLiteral,
                                                                     },
                                                                     value: "todo: block string!",
@@ -1424,7 +1424,7 @@ Document {
                                                         },
                                                     ],
                                                     end: Token {
-                                                        span: "1011:1012",
+                                                        span: 1011:1012,
                                                         kind: CloseBrace,
                                                     },
                                                 },
@@ -1433,7 +1433,7 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "1012:1013",
+                                    span: 1012:1013,
                                     kind: CloseParen,
                                 },
                             },
@@ -1441,12 +1441,12 @@ Document {
                         directives: [],
                     },
                     ScalarField {
-                        span: 1013:1018,
+                        span: 1016:1021,
                         alias: None,
                         name: Identifier {
-                            span: 1013:1018,
+                            span: 1016:1018,
                             token: Token {
-                                span: "1013:1018",
+                                span: 1016:1018,
                                 kind: Identifier,
                             },
                             value: "id",
@@ -1455,12 +1455,12 @@ Document {
                         directives: [],
                     },
                     ScalarField {
-                        span: 1018:1031,
+                        span: 1021:1032,
                         alias: None,
                         name: Identifier {
-                            span: 1018:1031,
+                            span: 1021:1031,
                             token: Token {
-                                span: "1018:1031",
+                                span: 1021:1031,
                                 kind: Identifier,
                             },
                             value: "__typename",
@@ -1470,40 +1470,40 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "1031:1033",
+                    span: 1032:1033,
                     kind: CloseBrace,
                 },
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":1033:1099,
+            location: kitchen-sink.graphql:1035:1101,
             operation: None,
             name: None,
             variable_definitions: None,
             directives: [],
             selections: List {
-                span: 1033:1099,
+                span: 1035:1101,
                 start: Token {
-                    span: "1033:1036",
+                    span: 1035:1036,
                     kind: OpenBrace,
                 },
                 items: [
                     ScalarField {
-                        span: 1036:1089,
+                        span: 1039:1092,
                         alias: None,
                         name: Identifier {
-                            span: 1036:1046,
+                            span: 1039:1046,
                             token: Token {
-                                span: "1036:1046",
+                                span: 1039:1046,
                                 kind: Identifier,
                             },
                             value: "unnamed",
                         },
                         arguments: Some(
                             List {
-                                span: 1046:1089,
+                                span: 1046:1092,
                                 start: Token {
-                                    span: "1046:1047",
+                                    span: 1046:1047,
                                     kind: OpenParen,
                                 },
                                 items: [
@@ -1512,20 +1512,20 @@ Document {
                                         name: Identifier {
                                             span: 1047:1053,
                                             token: Token {
-                                                span: "1047:1053",
+                                                span: 1047:1053,
                                                 kind: Identifier,
                                             },
                                             value: "truthy",
                                         },
                                         colon: Token {
-                                            span: "1053:1055",
+                                            span: 1053:1054,
                                             kind: Colon,
                                         },
                                         value: Constant(
                                             Boolean(
                                                 BooleanNode {
                                                     token: Token {
-                                                        span: "1055:1061",
+                                                        span: 1055:1059,
                                                         kind: Identifier,
                                                     },
                                                     value: true,
@@ -1538,20 +1538,20 @@ Document {
                                         name: Identifier {
                                             span: 1061:1066,
                                             token: Token {
-                                                span: "1061:1066",
+                                                span: 1061:1066,
                                                 kind: Identifier,
                                             },
                                             value: "falsy",
                                         },
                                         colon: Token {
-                                            span: "1066:1068",
+                                            span: 1066:1067,
                                             kind: Colon,
                                         },
                                         value: Constant(
                                             Boolean(
                                                 BooleanNode {
                                                     token: Token {
-                                                        span: "1068:1075",
+                                                        span: 1068:1073,
                                                         kind: Identifier,
                                                     },
                                                     value: false,
@@ -1564,19 +1564,19 @@ Document {
                                         name: Identifier {
                                             span: 1075:1082,
                                             token: Token {
-                                                span: "1075:1082",
+                                                span: 1075:1082,
                                                 kind: Identifier,
                                             },
                                             value: "nullish",
                                         },
                                         colon: Token {
-                                            span: "1082:1084",
+                                            span: 1082:1083,
                                             kind: Colon,
                                         },
                                         value: Constant(
                                             Null(
                                                 Token {
-                                                    span: "1084:1088",
+                                                    span: 1084:1088,
                                                     kind: Identifier,
                                                 },
                                             ),
@@ -1584,7 +1584,7 @@ Document {
                                     },
                                 ],
                                 end: Token {
-                                    span: "1088:1089",
+                                    span: 1088:1089,
                                     kind: CloseParen,
                                 },
                             },
@@ -1592,12 +1592,12 @@ Document {
                         directives: [],
                     },
                     ScalarField {
-                        span: 1089:1097,
+                        span: 1092:1098,
                         alias: None,
                         name: Identifier {
-                            span: 1089:1097,
+                            span: 1092:1097,
                             token: Token {
-                                span: "1089:1097",
+                                span: 1092:1097,
                                 kind: Identifier,
                             },
                             value: "query",
@@ -1607,17 +1607,17 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "1097:1099",
+                    span: 1098:1099,
                     kind: CloseBrace,
                 },
             },
         },
         OperationDefinition {
-            location: "kitchen-sink.graphql":1099:1123,
+            location: kitchen-sink.graphql:1101:1124,
             operation: Some(
                 (
                     Token {
-                        span: "1099:1107",
+                        span: 1101:1106,
                         kind: Identifier,
                     },
                     Query,
@@ -1627,19 +1627,19 @@ Document {
             variable_definitions: None,
             directives: [],
             selections: List {
-                span: 1107:1123,
+                span: 1107:1124,
                 start: Token {
-                    span: "1107:1108",
+                    span: 1107:1108,
                     kind: OpenBrace,
                 },
                 items: [
                     ScalarField {
-                        span: 1108:1121,
+                        span: 1111:1122,
                         alias: None,
                         name: Identifier {
-                            span: 1108:1121,
+                            span: 1111:1121,
                             token: Token {
-                                span: "1108:1121",
+                                span: 1111:1121,
                                 kind: Identifier,
                             },
                             value: "__typename",
@@ -1649,7 +1649,7 @@ Document {
                     },
                 ],
                 end: Token {
-                    span: "1121:1123",
+                    span: 1122:1123,
                     kind: CloseBrace,
                 },
             },

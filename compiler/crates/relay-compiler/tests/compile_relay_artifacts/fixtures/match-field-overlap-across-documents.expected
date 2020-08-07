@@ -39,9 +39,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== ERROR ====================================
 Found conflicting @module selections: use a unique alias on the parent fields:
-match-field-overlap-across-documents.graphql:21:8:
+match-field-overlap-across-documents.graphql:22:8:22:14
       @module(name: "BarMarkdownUserNameRenderer.react")
-
-
-match-field-overlap-across-documents.graphql:12:8:
+Notes:
+[related 1] other related location:
+match-field-overlap-across-documents.graphql:13:8:13:14
       @module(name: "FooMarkdownUserNameRenderer.react")

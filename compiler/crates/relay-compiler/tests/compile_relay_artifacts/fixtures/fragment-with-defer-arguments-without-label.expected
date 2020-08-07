@@ -131,7 +131,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
           {
             "if": null,
             "kind": "Defer",
-            "label": "UserFragment$defer$DeferredFragment_1HMuo6",
+            "label": "UserFragment$defer$DeferredFragment_42I9Ds",
             "selections": [
               {
                 "alias": null,
@@ -196,7 +196,7 @@ query QueryWithFragmentWithDefer {
   }
 }
 
-fragment DeferredFragment_1HMuo6 on User {
+fragment DeferredFragment_42I9Ds on User {
   id
   name
   profile_picture(scale: 2) {
@@ -216,7 +216,7 @@ fragment UserFragment on User {
   id
   emailAddresses
   ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragment_QMvSr")
-  ...DeferredFragment_1HMuo6 @defer(label: "UserFragment$defer$DeferredFragment_1HMuo6")
+  ...DeferredFragment_42I9Ds @defer(label: "UserFragment$defer$DeferredFragment_42I9Ds")
 }
 
 
@@ -225,8 +225,7 @@ fragment UserFragment on User {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "scale",
-      "type": "Float"
+      "name": "scale"
     }
   ],
   "kind": "Fragment",

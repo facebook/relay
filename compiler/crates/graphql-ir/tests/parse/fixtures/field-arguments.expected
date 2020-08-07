@@ -16,7 +16,7 @@ query TestQuery {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: "field-arguments.graphql":6:16,
+                location: field-arguments.graphql:6:15,
                 item: "TestQuery",
             },
             type_: Object(0),
@@ -26,7 +26,7 @@ query TestQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "field-arguments.graphql":17:24,
+                        location: field-arguments.graphql:20:24,
                         item: FieldID(
                             14,
                         ),
@@ -34,11 +34,11 @@ query TestQuery {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "field-arguments.graphql":25:31,
+                                location: field-arguments.graphql:25:31,
                                 item: "number",
                             },
                             value: WithLocation {
-                                location: "field-arguments.graphql":33:36,
+                                location: field-arguments.graphql:33:36,
                                 item: Constant(
                                     Int(
                                         123,
@@ -52,9 +52,9 @@ query TestQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "field-arguments.graphql":39:49,
+                                location: field-arguments.graphql:44:49,
                                 item: FieldID(
-                                    28,
+                                    29,
                                 ),
                             },
                             arguments: [],
@@ -65,7 +65,7 @@ query TestQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "field-arguments.graphql":53:64,
+                        location: field-arguments.graphql:56:64,
                         item: FieldID(
                             12,
                         ),
@@ -73,11 +73,11 @@ query TestQuery {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "field-arguments.graphql":65:76,
+                                location: field-arguments.graphql:65:76,
                                 item: "environment",
                             },
                             value: WithLocation {
-                                location: "field-arguments.graphql":78:81,
+                                location: field-arguments.graphql:78:81,
                                 item: Constant(
                                     Enum(
                                         "WEB",
@@ -91,9 +91,9 @@ query TestQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "field-arguments.graphql":84:107,
+                                location: field-arguments.graphql:89:107,
                                 item: FieldID(
-                                    498,
+                                    500,
                                 ),
                             },
                             arguments: [],
@@ -104,7 +104,7 @@ query TestQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "field-arguments.graphql":111:132,
+                        location: field-arguments.graphql:114:132,
                         item: FieldID(
                             0,
                         ),
@@ -112,21 +112,21 @@ query TestQuery {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "field-arguments.graphql":133:138,
+                                location: field-arguments.graphql:133:138,
                                 item: "query",
                             },
                             value: WithLocation {
-                                location: "field-arguments.graphql":140:156,
+                                location: field-arguments.graphql:140:156,
                                 item: Constant(
                                     Object(
                                         [
                                             ConstantArgument {
                                                 name: WithLocation {
-                                                    location: "field-arguments.graphql":141:146,
+                                                    location: field-arguments.graphql:141:146,
                                                     item: "query",
                                                 },
                                                 value: WithLocation {
-                                                    location: "field-arguments.graphql":148:155,
+                                                    location: field-arguments.graphql:148:155,
                                                     item: String(
                                                         "Relay",
                                                     ),
@@ -143,9 +143,9 @@ query TestQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "field-arguments.graphql":159:169,
+                                location: field-arguments.graphql:164:169,
                                 item: FieldID(
-                                    55,
+                                    56,
                                 ),
                             },
                             arguments: [],

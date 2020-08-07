@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
+use crate::util::CUSTOM_METADATA_DIRECTIVES;
 use graphql_ir::Selection;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
@@ -15,7 +15,7 @@ use interner::StringKey;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema
-pub fn skip_client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn skip_client_extensions(program: &Program) -> Program {
     let mut transform = SkipClientExtensionsTransform::new(program);
     transform
         .transform_program(program)
@@ -23,16 +23,12 @@ pub fn skip_client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
 }
 
 struct SkipClientExtensionsTransform<'s> {
-    custom_metadata_directives: CustomMetadataDirectives,
-    program: &'s Program<'s>,
+    program: &'s Program,
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
-        Self {
-            custom_metadata_directives: Default::default(),
-            program,
-        }
+    fn new(program: &'s Program) -> Self {
+        Self { program }
     }
 }
 
@@ -43,9 +39,8 @@ impl<'s> SkipClientExtensionsTransform<'s> {
         //   metadata in the IR
         // - or, directive is a client-defined directive, not present
         //   in the server schema
-        self.custom_metadata_directives
-            .is_custom_metadata_directive(name)
-            || self.program.schema().is_extension_directive(name)
+        CUSTOM_METADATA_DIRECTIVES.is_custom_metadata_directive(name)
+            || self.program.schema.is_extension_directive(name)
     }
 }
 
@@ -60,7 +55,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     ) -> Transformed<FragmentDefinition> {
         if self
             .program
-            .schema()
+            .schema
             .is_extension_type(fragment.type_condition)
         {
             Transformed::Delete
@@ -73,7 +68,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if self
             .program
-            .schema()
+            .schema
             .is_extension_type(fragment.type_condition)
         {
             Transformed::Delete
@@ -84,7 +79,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(type_condition) = fragment.type_condition {
-            if self.program.schema().is_extension_type(type_condition) {
+            if self.program.schema.is_extension_type(type_condition) {
                 return Transformed::Delete;
             }
         }
@@ -94,7 +89,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         if self
             .program
-            .schema()
+            .schema
             .field(field.definition.item)
             .is_extension
         {
@@ -107,7 +102,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         if self
             .program
-            .schema()
+            .schema
             .field(field.definition.item)
             .is_extension
         {

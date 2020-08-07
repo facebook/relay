@@ -1,5 +1,6 @@
 [ignore]
 <PROJECT_ROOT>/dist/.*
+<PROJECT_ROOT>/compiler/.*
 
 [options]
 module.system=haste
@@ -9,9 +10,9 @@ module.system.haste.name_reducers='^.*/\([a-zA-Z0-9$_.-]+\.js\(\.flow\)?\)$' -> 
 # strip .js or .js.flow suffix
 module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
 
-module.system.haste.paths.blacklist=.*/__tests__/.*
-module.system.haste.paths.blacklist=.*/__mocks__/.*
-module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
+module.system.haste.paths.excludes=.*/__tests__/.*
+module.system.haste.paths.excludes=.*/__mocks__/.*
+module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
@@ -24,8 +25,8 @@ suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState
 
-experimental.well_formed_exports=true
-experimental.types_first=true
+well_formed_exports=true
+types_first=true
 experimental.abstract_locations=true
 
 [lints]
@@ -43,4 +44,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.125.0
+^0.131.0

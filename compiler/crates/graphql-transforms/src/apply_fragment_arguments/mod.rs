@@ -8,12 +8,12 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::WithLocation;
+use common::{Diagnostic, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, Selection, Transformed, TransformedMulti, TransformedValue,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, ValidationResult, Value,
 };
 use interner::StringKey;
 use scope::Scope;
@@ -39,9 +39,7 @@ use std::sync::Arc;
 /// - Nodes that would become empty as a result of the above are removed.
 ///
 /// Note that unreferenced fragments are not added to the output.
-pub fn apply_fragment_arguments<'schema>(
-    program: &Program<'schema>,
-) -> ValidationResult<Program<'schema>> {
+pub fn apply_fragment_arguments(program: &Program) -> ValidationResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         program,
         fragments: Default::default(),
@@ -76,14 +74,14 @@ enum PendingFragment {
     Resolved(Option<Arc<FragmentDefinition>>),
 }
 
-struct ApplyFragmentArgumentsTransform<'schema> {
-    program: &'schema Program<'schema>,
+struct ApplyFragmentArgumentsTransform<'program> {
+    program: &'program Program,
     fragments: FnvHashMap<StringKey, PendingFragment>,
     scope: Scope,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
 }
 
-impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
+impl Transformer for ApplyFragmentArgumentsTransform<'_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -174,7 +172,7 @@ impl<'schema> Transformer for ApplyFragmentArgumentsTransform<'schema> {
     }
 }
 
-impl<'schema> ApplyFragmentArgumentsTransform<'schema> {
+impl ApplyFragmentArgumentsTransform<'_> {
     fn apply_fragment(&mut self, spread: &FragmentSpread) -> Option<Arc<FragmentDefinition>> {
         let fragment = self
             .program
@@ -196,14 +194,16 @@ impl<'schema> ApplyFragmentArgumentsTransform<'schema> {
             return match applied_fragment {
                 PendingFragment::Resolved(resolved) => resolved.clone(),
                 PendingFragment::Pending => {
-                    let mut locations = self.scope.locations();
-                    locations.push(spread.fragment.location);
-                    self.errors.push(ValidationError::new(
+                    let mut error = Diagnostic::error(
                         ValidationMessage::CircularFragmentReference {
                             fragment_name: spread.fragment.item,
                         },
-                        locations,
-                    ));
+                        spread.fragment.location,
+                    );
+                    for location in self.scope.locations() {
+                        error = error.annotate("other member of the cycle", location);
+                    }
+                    self.errors.push(error);
                     None
                 }
             };

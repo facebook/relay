@@ -13,7 +13,7 @@ use relay_compiler::compiler_state::{CompilerState, ProjectName};
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::FileSourceSubscription;
-use relay_compiler::{build_schema, check_project, parse_sources, Programs};
+use relay_compiler::{build_schema, check_project, GraphQLAsts, Programs};
 use schema::Schema;
 
 use common::{PerfLogEvent, PerfLogger};
@@ -34,12 +34,12 @@ use crate::error::{LSPError, Result};
 
 use common::ConsoleLogger;
 use log::info;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 use tokio::sync::mpsc::Receiver;
 
 use tokio::select;
 
-type SchemaMap = HashMap<ProjectName, Schema>;
+type SchemaMap = HashMap<ProjectName, Arc<Schema>>;
 
 pub struct LSPCompiler<'schema, 'config> {
     lsp_rx: Receiver<LSPBridgeMessage>,
@@ -50,7 +50,7 @@ pub struct LSPCompiler<'schema, 'config> {
     connection: Connection,
     synced_graphql_documents: GraphQLSourceCache,
     server_state: ServerState,
-    project_programs: HashMap<StringKey, Programs<'schema>>,
+    project_programs: HashMap<StringKey, Programs>,
 }
 
 impl<'schema, 'config> LSPCompiler<'schema, 'config> {
@@ -126,7 +126,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         ConsoleLogger.create_event("incremental_check_event");
                     let incremental_check_time =
                         incremental_check_event.start("incremental_check_time");
-                    let had_new_changes = self.compiler_state.add_pending_file_source_changes(
+                    let had_new_changes = self.compiler_state.merge_file_source_changes(
                         &self.config,
                         &file_source_changes,
                         &incremental_check_event,
@@ -194,66 +194,41 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
     ) -> SchemaMap {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
-        config.for_each_project(|project_config| {
-            let schema = build_schema(compiler_state, project_config);
+        for project_config in config.enabled_projects() {
+            let schema = Arc::new(build_schema(compiler_state, project_config));
             schemas.insert(project_config.name, schema);
-        });
+        }
         setup_event.stop(timer);
         schemas
     }
 
     async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> Result<()> {
-        let graphql_asts =
-            setup_event.time("parse_sources_time", || parse_sources(&self.compiler_state))?;
+        let graphql_asts = setup_event.time("parse_sources_time", || {
+            GraphQLAsts::from_graphql_sources_map(&self.compiler_state.graphql_sources)
+        })?;
         let mut check_project_errors = vec![];
         let mut project_programs = HashMap::new();
-        match self.config.only_project {
-            Some(project_key) => {
-                let project_config =
-                    self.config.projects.get(&project_key).unwrap_or_else(|| {
-                        panic!("Expected the project {} to exist", &project_key)
-                    });
-
-                let schema = self.schemas.get(&project_config.name).unwrap();
+        for project_config in self.config.enabled_projects() {
+            if self
+                .compiler_state
+                .project_has_pending_changes(project_config.name)
+            {
+                let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
+                // TODO: consider running all projects in parallel
                 let programs = check_project(
+                    &self.config,
                     project_config,
                     &self.compiler_state,
                     &graphql_asts,
                     schema,
-                    &ConsoleLogger,
+                    Arc::new(ConsoleLogger),
                 )
-                .await
                 .map_err(|err| {
                     check_project_errors.push(err);
-                });
-                if let Ok(programs) = programs {
-                    project_programs.insert(project_key, programs);
-                }
-            }
-            None => {
-                for project_config in self.config.projects.values() {
-                    if self
-                        .compiler_state
-                        .project_has_pending_changes(project_config.name)
-                    {
-                        let schema = self.schemas.get(&project_config.name).unwrap();
-                        // TODO: consider running all projects in parallel
-                        let programs = check_project(
-                            project_config,
-                            &self.compiler_state,
-                            &graphql_asts,
-                            schema,
-                            &ConsoleLogger,
-                        )
-                        .await
-                        .map_err(|err| {
-                            check_project_errors.push(err);
-                        })
-                        .ok();
-                        if let Some(programs) = programs {
-                            project_programs.insert(project_config.name, programs);
-                        }
-                    }
+                })
+                .ok();
+                if let Some(programs) = programs {
+                    project_programs.insert(project_config.name, programs);
                 }
             }
         }

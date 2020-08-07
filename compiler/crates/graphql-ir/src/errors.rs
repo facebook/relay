@@ -5,100 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FileKey, Location};
-use fnv::FnvHashMap;
-use graphql_syntax::{GraphQLSource, OperationKind};
+use common::Diagnostic;
+use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Type, TypeReference};
-use std::fmt;
 use thiserror::Error;
 
-pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
-
-pub type Sources<'a> = FnvHashMap<FileKey, &'a GraphQLSource>;
-
-impl From<ValidationError> for Vec<ValidationError> {
-    fn from(error: ValidationError) -> Self {
-        vec![error]
-    }
-}
-
-#[derive(Debug)]
-pub struct ValidationError {
-    /// One of a fixed set of validation errors
-    pub message: ValidationMessage,
-
-    /// A set of locations associated with the error. By convention
-    /// the list should always be non-empty, with the first location
-    /// indicating the primary source of the error and subsequent
-    /// locations indicating related source code that provide
-    /// context as to why the primary location is problematic.
-    pub locations: Vec<Location>,
-}
-
-impl ValidationError {
-    pub fn new(message: ValidationMessage, locations: Vec<Location>) -> Self {
-        Self { message, locations }
-    }
-
-    /// Attaches sources to the error to allow it to be printed with a code
-    /// listing without requiring additional context.
-    pub fn with_sources(self, sources: &Sources<'_>) -> ValidationErrorWithSources {
-        let sources = self
-            .locations
-            .iter()
-            .map(|location| sources.get(&location.file()))
-            .map(|source| source.map(|source| (**source).clone()))
-            .collect();
-        ValidationErrorWithSources {
-            error: self,
-            sources,
-        }
-    }
-
-    pub fn print(&self, sources: &FnvHashMap<FileKey, &str>) -> String {
-        format!(
-            "{}:\n{}",
-            self.message,
-            self.locations
-                .iter()
-                .map(|location| {
-                    let source = match sources.get(&location.file()) {
-                        Some(source) => source,
-                        None => "<source not found>",
-                    };
-                    location.print(source, 0, 0)
-                })
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        )
-    }
-}
-
-#[derive(Debug)]
-pub struct ValidationErrorWithSources {
-    pub error: ValidationError,
-    pub sources: Vec<Option<GraphQLSource>>,
-}
-impl fmt::Display for ValidationErrorWithSources {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}:\n{}",
-            self.error.message,
-            self.error
-                .locations
-                .iter()
-                .zip(&self.sources)
-                .map(|(location, source)| match source {
-                    Some(source) => location.print(&source.text, source.line_index + 1, source.column_index + 1),
-                    None => "<source not found>".to_string(),
-                })
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        )
-    }
-}
+pub type ValidationResult<T> = Result<T, Vec<Diagnostic>>;
 
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -133,6 +46,8 @@ pub enum ValidationMessage {
     UnsupportedNestListType(),
     #[error("Expected a value of type '{0}'")]
     ExpectedValueMatchingType(StringKey),
+    #[error("Expected value of type '{0}' to be a valid enum value, got string. Consider removing quotes.")]
+    ExpectedEnumValueGotString(StringKey),
     #[error("Duplicate values found for field '{0}'")]
     DuplicateInputField(StringKey),
     #[error("Missing required fields '{0:?}' of type '{1}'")] // TODO: print joined
@@ -159,8 +74,8 @@ pub enum ValidationMessage {
         prev_type: String,
         next_type: String,
     },
-    #[error("Expected operation variables to be defined")]
-    ExpectedVariablesToBeDefined(),
+    #[error("Expected variable `${0}` to be defined on the operation")]
+    ExpectedOperationVariableToBeDefined(StringKey),
     #[error("Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'")]
     ExpectedFragmentArgumentToHaveInputType(StringKey),
     #[error("Expected variable definition to have an input type (scalar, enum, or input object), found type '{0}'")]
@@ -291,6 +206,9 @@ pub enum ValidationMessage {
         filters_arg_name: StringKey,
     },
 
+    #[error("@stream_connection does not support aliasing the '{field_name}' field.")]
+    UnsupportedAliasingInStreamConnection { field_name: StringKey },
+
     #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
     InvalidRelayDirectiveArg(StringKey),
     #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
@@ -381,14 +299,20 @@ pub enum ValidationMessage {
     #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
     StreamInitialCountRequired,
 
-    #[error("{variables_string} never used in operation '{operation_name}'.")]
-    UnusedVariables {
-        variables_string: String,
+    #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
+    UnusedVariable {
+        variable_name: StringKey,
         operation_name: StringKey,
     },
 
     #[error("Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'.")]
     UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
+
+    #[error("Operation '{operation_name}' references undefined variable{variables_string}.")]
+    GlobalVariables {
+        operation_name: StringKey,
+        variables_string: String,
+    },
 
     #[error("Expected the 'queryName' argument of @refetchable to be provided")]
     QueryNameRequired,
@@ -487,4 +411,56 @@ pub enum ValidationMessage {
         "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
     )]
     LiveQueryTransformInvalidConfigId { query_name: StringKey },
+
+    #[error("Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough.")]
+    RedundantPreloadableDirective,
+
+    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
+    ConnectionMutationDirectiveOnScalarField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+    #[error(
+        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
+    )]
+    DeleteRecordDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
+    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
+    DeleteRecordDirectiveOnLinkedField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
+    ConnectionsArgumentRequired { directive_name: StringKey },
+    #[error("Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection).")]
+    EdgeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error("Expected 'flight' field schema definition to specify its component name with @react_flight_component")]
+    InvalidFlightFieldMissingModuleDirective,
+
+    #[error("Cannot query field '{field_name}', this type does not define a 'flight' field")]
+    InvalidFlightFieldNotDefinedOnType { field_name: StringKey },
+
+    #[error("Expected @react_flight_component value to be a literal string")]
+    InvalidFlightFieldExpectedModuleNameString,
+
+    #[error("Expected flight field to have a 'props: ReactFlightProps' argument")]
+    InvalidFlightFieldPropsArgument,
+
+    #[error("Expected flight field to have a 'component: String' argument")]
+    InvalidFlightFieldComponentArgument,
+
+    #[error("Expected flight field to return 'ReactFlightComponent'")]
+    InvalidFlightFieldReturnType,
+
+    #[error(
+        "Expected all fields on the same parent with the name or alias '{field_name}' to have the same name and arguments."
+    )]
+    InvalidSameFieldWithDifferentArguments { field_name: StringKey },
 }

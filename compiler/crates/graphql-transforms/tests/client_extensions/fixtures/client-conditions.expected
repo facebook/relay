@@ -55,7 +55,7 @@ interface ClientNamed {
 fragment Foo_user on User {
   id
   name @include(if: $shouldInclude)
-  ... @__clientExtension @include(if: $shouldInclude) {
+  ... @include(if: $shouldInclude) @__clientExtension {
     client_nickname
   }
   ... on Actor @include(if: $shouldInclude) {

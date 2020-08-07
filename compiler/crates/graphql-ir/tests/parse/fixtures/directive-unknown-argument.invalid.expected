@@ -7,5 +7,5 @@ query TestQuery {
 }
 ==================================== ERROR ====================================
 Unknown argument 'shouldInclude':
-directive-unknown-argument.invalid.graphql:3:20:
+directive-unknown-argument.invalid.graphql:4:20:4:33
     title @include(shouldInclude: true)

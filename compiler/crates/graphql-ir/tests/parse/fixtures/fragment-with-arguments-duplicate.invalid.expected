@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment F1 on User {
+  ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
+}
+
+fragment F2 on User {
+  ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)
+}
+
+fragment Foo on User @argumentDefinitions(
+  width: {type: "Int"},
+  height: {type: "Int"}
+) {
+  __typename
+}
+==================================== ERROR ====================================
+Expected at-most one '@arguments' directive per fragment spread:
+fragment-with-arguments-duplicate.invalid.graphql:3:10:3:36
+  ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
+Notes:
+[related 1] duplicate definition:
+fragment-with-arguments-duplicate.invalid.graphql:3:36:4:1
+  ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
+}
+
+
+Expected at-most one '@arguments' directive per fragment spread:
+fragment-with-arguments-duplicate.invalid.graphql:7:56:8:1
+  ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)
+}
+Notes:
+[related 1] duplicate definition:
+fragment-with-arguments-duplicate.invalid.graphql:7:10:7:56
+  ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)

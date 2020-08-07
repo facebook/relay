@@ -9,6 +9,8 @@ mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
   }
 }
 
+#%extensions%
+
 extend type Story {
   foos: [Foo]
 }
@@ -36,7 +38,7 @@ export type TestResponse = {|
 export type TestRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +id: ?string,
+      +id: string,
       +foos?: ?$ReadOnlyArray<?{|
         +bar: ?string
       |}>,

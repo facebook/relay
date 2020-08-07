@@ -12,6 +12,6 @@ fragment RefetchableFragment on Query
 }
 ==================================== ERROR ====================================
 Expected the 'queryName' argument of @refetchable to be provided:
-fragment-on-query-without-query-name.invalid.graphql:2:4:
+fragment-on-query-without-query-name.invalid.graphql:3:4:4:1
   @refetchable
   @argumentDefinitions(id: {type: "ID!"}) {

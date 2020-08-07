@@ -43,7 +43,11 @@ fn main() {
         let mut test_cases: HashMap<String, TestCase> = HashMap::new();
         for dir_entry in paths {
             let path = dir_entry.unwrap().path();
-            if path.extension().unwrap() == TODO {
+            if path
+                .extension()
+                .unwrap_or_else(|| panic!("unexpected path {:?}", &path))
+                == TODO
+            {
                 continue;
             }
             let name = sanitize_identifier(path.file_stem().unwrap().to_str().unwrap());

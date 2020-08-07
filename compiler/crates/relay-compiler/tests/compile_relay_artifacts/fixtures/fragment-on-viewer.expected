@@ -20,8 +20,7 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       }
     ],
     "kind": "Fragment",
@@ -54,8 +53,7 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       }
     ],
     "kind": "Operation",
@@ -176,8 +174,7 @@ fragment RefetchableFragment on Viewer {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
@@ -214,7 +211,12 @@ fragment RefetchableFragment on Viewer {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {

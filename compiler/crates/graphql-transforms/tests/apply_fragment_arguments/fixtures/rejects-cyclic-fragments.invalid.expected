@@ -23,11 +23,11 @@ fragment Profile on User {
 }
 ==================================== ERROR ====================================
 Found a circular reference from fragment 'Profile'.:
-rejects-cyclic-fragments.invalid.graphql:4:8:
-    ...Profile
-  }
-
-
-rejects-cyclic-fragments.invalid.graphql:17:12:
+rejects-cyclic-fragments.invalid.graphql:18:12:19:1
         ...Profile
       }
+Notes:
+[related 1] other member of the cycle:
+rejects-cyclic-fragments.invalid.graphql:5:8:6:1
+    ...Profile
+  }

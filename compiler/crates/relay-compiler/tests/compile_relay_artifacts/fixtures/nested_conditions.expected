@@ -32,18 +32,15 @@ fragment QueryFragment2 on Query {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "bar",
-      "type": "Boolean!"
+      "name": "bar"
     },
     {
       "kind": "RootArgument",
-      "name": "foo",
-      "type": "Boolean!"
+      "name": "foo"
     },
     {
       "kind": "RootArgument",
-      "name": "sentinel",
-      "type": "Boolean!"
+      "name": "sentinel"
     }
   ],
   "kind": "Fragment",
@@ -148,18 +145,15 @@ fragment QueryFragment2 on Query {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "bar",
-      "type": "Boolean!"
+      "name": "bar"
     },
     {
       "kind": "RootArgument",
-      "name": "sentinel",
-      "type": "Boolean!"
+      "name": "foo"
     },
     {
       "kind": "RootArgument",
-      "name": "foo",
-      "type": "Boolean!"
+      "name": "sentinel"
     }
   ],
   "kind": "Fragment",
@@ -175,14 +169,14 @@ fragment QueryFragment2 on Query {
       "plural": false,
       "selections": [
         {
-          "condition": "foo",
+          "condition": "sentinel",
           "kind": "Condition",
-          "passingValue": false,
+          "passingValue": true,
           "selections": [
             {
-              "condition": "sentinel",
+              "condition": "foo",
               "kind": "Condition",
-              "passingValue": true,
+              "passingValue": false,
               "selections": [
                 {
                   "condition": "bar",

@@ -29,7 +29,7 @@ fragment NonNullIDFragment on Query {
 [
     VariableDefinition {
         name: WithLocation {
-            location: "mask-mixed-null.graphql":403:406,
+            location: mask-mixed-null.graphql:403:406,
             item: "id",
         },
         type_: NonNull(
@@ -57,7 +57,7 @@ fragment NonNullableIDFirstFragment on Query {
 [
     VariableDefinition {
         name: WithLocation {
-            location: "mask-mixed-null.graphql":403:406,
+            location: mask-mixed-null.graphql:403:406,
             item: "id",
         },
         type_: NonNull(
@@ -85,7 +85,7 @@ fragment NullableIDFirstFragment on Query {
 [
     VariableDefinition {
         name: WithLocation {
-            location: "mask-mixed-null.graphql":403:406,
+            location: mask-mixed-null.graphql:403:406,
             item: "id",
         },
         type_: NonNull(
@@ -106,7 +106,7 @@ fragment NullableIDFragment on Query {
 [
     VariableDefinition {
         name: WithLocation {
-            location: "mask-mixed-null.graphql":321:324,
+            location: mask-mixed-null.graphql:321:324,
             item: "id",
         },
         type_: Named(

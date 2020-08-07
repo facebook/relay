@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentSpread, InlineFragment, Program, Selection,
-    Transformed, Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformed, Transformer, ValidationMessage, ValidationResult, Value,
 };
 
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
-pub fn inline_data_fragment<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn inline_data_fragment(program: &Program) -> ValidationResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);
     let next_program = transform
         .transform_program(program)
@@ -46,12 +46,12 @@ lazy_static! {
 }
 
 struct InlineDataFragmentsTransform<'s> {
-    program: &'s Program<'s>,
-    errors: Vec<ValidationError>,
+    program: &'s Program,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'s> InlineDataFragmentsTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             program,
             errors: vec![],
@@ -78,25 +78,25 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             next_fragment_spread
         } else {
             if !fragment.variable_definitions.is_empty() {
-                self.errors.push(ValidationError::new(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::InlineDataFragmentArgumentsNotSupported,
-                    vec![fragment.name.location],
+                    fragment.name.location,
                 ));
             }
             match &next_fragment_spread {
                 Transformed::Keep => {
                     if !spread.directives.is_empty() {
-                        self.errors.push(ValidationError::new(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::InlineDataFragmentDirectivesNotSupported,
-                            vec![spread.fragment.location],
+                            spread.fragment.location,
                         ));
                     }
                 }
                 Transformed::Replace(Selection::FragmentSpread(next_fragment_spread)) => {
                     if !next_fragment_spread.directives.is_empty() {
-                        self.errors.push(ValidationError::new(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::InlineDataFragmentDirectivesNotSupported,
-                            vec![next_fragment_spread.fragment.location],
+                            next_fragment_spread.fragment.location,
                         ));
                     }
                 }

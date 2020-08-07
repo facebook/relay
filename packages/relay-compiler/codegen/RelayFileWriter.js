@@ -156,7 +156,6 @@ function writeAll({
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
       artifacts: artifactsWithBase,
-      definitions,
       transformedTypeContext,
       transformedQueryContext,
     } = compileAll({

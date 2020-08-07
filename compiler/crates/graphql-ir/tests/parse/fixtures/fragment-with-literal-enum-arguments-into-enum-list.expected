@@ -17,7 +17,7 @@ fragment ChildFragment on User
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":9:24,
+                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:9:23,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -28,24 +28,24 @@ fragment ChildFragment on User
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":33:51,
+                            location: fragment-with-literal-enum-arguments-into-enum-list.graphql:36:51,
                             item: "mobile_checkins",
                         },
                     ),
                     definition: WithLocation {
-                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":53:61,
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:53:61,
                         item: FieldID(
-                            440,
+                            442,
                         ),
                     },
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":62:74,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:62:74,
                                 item: "environments",
                             },
                             value: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":76:84,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:76:84,
                                 item: Constant(
                                     List(
                                         [
@@ -63,9 +63,9 @@ fragment ChildFragment on User
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":87:97,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:92:97,
                                 item: FieldID(
-                                    55,
+                                    56,
                                 ),
                             },
                             arguments: [],
@@ -75,17 +75,17 @@ fragment ChildFragment on User
                 },
                 FragmentSpread {
                     fragment: WithLocation {
-                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":107:121,
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:107:120,
                         item: "ChildFragment",
                     },
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":132:144,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:132:144,
                                 item: "environments",
                             },
                             value: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":146:149,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:146:149,
                                 item: Constant(
                                     Enum(
                                         "WEB",
@@ -102,13 +102,13 @@ fragment ChildFragment on User
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":163:177,
+                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:163:176,
                 item: "ChildFragment",
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
-                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":208:220,
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:208:220,
                         item: "environments",
                     },
                     type_: NonNull(
@@ -126,28 +126,36 @@ fragment ChildFragment on User
             ],
             used_global_variables: [],
             type_condition: Object(65),
-            directives: [],
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:188:207,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                },
+            ],
             selections: [
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":250:261,
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:253:261,
                         item: FieldID(
-                            440,
+                            442,
                         ),
                     },
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":262:274,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:262:274,
                                 item: "environments",
                             },
                             value: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":276:289,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:276:289,
                                 item: Variable(
                                     Variable {
                                         name: WithLocation {
-                                            location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":276:289,
+                                            location: fragment-with-literal-enum-arguments-into-enum-list.graphql:276:289,
                                             item: "environments",
                                         },
                                         type_: NonNull(
@@ -169,9 +177,9 @@ fragment ChildFragment on User
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "fragment-with-literal-enum-arguments-into-enum-list.graphql":292:302,
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:297:302,
                                 item: FieldID(
-                                    55,
+                                    56,
                                 ),
                             },
                             arguments: [],

@@ -6,7 +6,7 @@
  */
 
 use crate::util::PointerAddress;
-use common::{FileKey, Location, Span, WithLocation};
+use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
@@ -20,7 +20,7 @@ use std::sync::Arc;
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.
 /// We mark client selection as  `Transformed::Delete`, and consume them in `transform_selections`.
-pub fn client_extensions<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn client_extensions(program: &Program) -> Program {
     let mut transform = ClientExtensionsTransform::new(program);
     transform
         .transform_program(program)
@@ -33,35 +33,29 @@ lazy_static! {
     pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: StringKey = "__clientExtension".intern();
 }
 
-struct ClientExtensionsTransform<'s> {
-    program: &'s Program<'s>,
-    empty_location: Location,
+struct ClientExtensionsTransform<'program> {
+    program: &'program Program,
     seen: Seen,
 }
 
-impl<'s> ClientExtensionsTransform<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+impl<'program> ClientExtensionsTransform<'program> {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             seen: Default::default(),
-            empty_location: Location::new(FileKey::new(""), Span::new(0, 0)),
         }
     }
 
     // TODO(T63388023): Returns a typed directive
     fn build_client_extension_directive(self: &Self) -> Directive {
         Directive {
-            name: WithLocation::new(
-                // The directive is only used at codegen step, location is not necessary
-                self.empty_location,
-                *CLIENT_EXTENSION_DIRECTIVE_NAME,
-            ),
+            name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
             arguments: Default::default(),
         }
     }
 }
 
-impl<'s> Transformer for ClientExtensionsTransform<'s> {
+impl Transformer for ClientExtensionsTransform<'_> {
     const NAME: &'static str = "ClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -138,7 +132,7 @@ impl<'s> Transformer for ClientExtensionsTransform<'s> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(type_condition) = fragment.type_condition {
-            if self.program.schema().is_extension_type(type_condition) {
+            if self.program.schema.is_extension_type(type_condition) {
                 return Transformed::Delete;
             }
         }
@@ -148,7 +142,7 @@ impl<'s> Transformer for ClientExtensionsTransform<'s> {
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         if self
             .program
-            .schema()
+            .schema
             .field(field.definition.item)
             .is_extension
         {
@@ -161,7 +155,7 @@ impl<'s> Transformer for ClientExtensionsTransform<'s> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         if self
             .program
-            .schema()
+            .schema
             .field(field.definition.item)
             .is_extension
         {

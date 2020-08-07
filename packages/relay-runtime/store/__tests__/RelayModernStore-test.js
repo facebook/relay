@@ -240,6 +240,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           seenRecords: {
             ...data,
           },
+          missingRequiredFields: null,
           isMissingData: false,
         });
         for (const id in snapshot.seenRecords) {
@@ -295,6 +296,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           seenRecords: {
             ...data,
           },
+          missingRequiredFields: null,
           isMissingData: false,
         });
         expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
@@ -356,6 +358,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             '4': {...data['4'], ...nextData['4']},
             'client:2': nextData['client:2'],
           },
+          missingRequiredFields: null,
           isMissingData: false,
         });
       });
@@ -658,6 +661,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
+          missingRequiredFields: null,
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -708,6 +712,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             name: 'Joe',
             profilePicture: undefined,
           },
+          missingRequiredFields: null,
           isMissingData: true,
           seenRecords: nextSource.toJSON(),
         });
@@ -746,6 +751,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             name: 'Joe',
             profilePicture: undefined,
           },
+          missingRequiredFields: null,
           isMissingData: true,
           seenRecords: nextSource.toJSON(),
         });
@@ -805,7 +811,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         const zuck = source.get('4');
         expect(zuck).toBeTruthy();
         expect(() => {
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           RelayModernRecord.setValue(zuck, 'pet', 'Beast');
         }).toThrow(TypeError);
       });
@@ -835,7 +841,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(() => {
           const mergedRecord = source.get('4');
           expect(mergedRecord).toBeTruthy();
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           RelayModernRecord.setValue(mergedRecord, 'pet', null);
         }).toThrow(TypeError);
         // Cannot modify the published record, even though it isn't in the store
@@ -1090,7 +1096,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('returns missing if a linked record is missing', () => {
-        // $FlowFixMe found deploying v0.109.0
+        // $FlowFixMe[incompatible-type] found deploying v0.109.0
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);

@@ -465,7 +465,7 @@ describe('FragmentResource', () => {
       );
 
       expect(console.error).toHaveBeenCalledTimes(1);
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       const warningMessage = console.error.mock.calls[0][0];
       expect(
         warningMessage.startsWith(
@@ -474,7 +474,7 @@ describe('FragmentResource', () => {
             'missing data and its parent query `UserQuery` is not being fetched.',
         ),
       ).toEqual(true);
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       console.error.mockClear();
     });
 

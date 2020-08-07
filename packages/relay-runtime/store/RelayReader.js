@@ -21,11 +21,13 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
+  REQUIRED_FIELD,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
@@ -41,6 +43,7 @@ const {
   getStorageKey,
   getModuleComponentKey,
 } = require('./RelayStoreUtils');
+const {generateTypeID} = require('./TypeID');
 
 import type {
   ReaderFragmentSpread,
@@ -48,6 +51,7 @@ import type {
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
 } from '../util/ReaderNode';
@@ -59,6 +63,7 @@ import type {
   SelectorData,
   SingularReaderSelector,
   Snapshot,
+  MissingRequiredFields,
 } from './RelayStoreTypes';
 
 function read(
@@ -75,6 +80,7 @@ function read(
 class RelayReader {
   _isMissingData: boolean;
   _isWithinUnmatchedTypeRefinement: boolean;
+  _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
   _seenRecords: {[dataID: DataID]: ?Record, ...};
@@ -84,6 +90,7 @@ class RelayReader {
   constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
+    this._missingRequiredFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
     this._seenRecords = {};
@@ -127,10 +134,13 @@ class RelayReader {
       record != null &&
       RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT
     ) {
-      const implementsInterface = RelayModernRecord.getValue(
-        record,
-        abstractKey,
-      );
+      const recordType = RelayModernRecord.getType(record);
+      const typeID = generateTypeID(recordType);
+      const typeRecord = this._recordSource.get(typeID);
+      const implementsInterface =
+        typeRecord != null
+          ? RelayModernRecord.getValue(typeRecord, abstractKey)
+          : null;
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
@@ -147,6 +157,7 @@ class RelayReader {
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
       seenRecords: this._seenRecords,
       selector: this._selector,
+      missingRequiredFields: this._missingRequiredFields,
     };
   }
 
@@ -164,8 +175,12 @@ class RelayReader {
       return record;
     }
     const data = prevData || {};
-    this._traverseSelections(node.selections, record, data);
-    return data;
+    const hadRequiredData = this._traverseSelections(
+      node.selections,
+      record,
+      data,
+    );
+    return hadRequiredData ? data : null;
   }
 
   _getVariableValue(name: string): mixed {
@@ -177,14 +192,59 @@ class RelayReader {
     return this._variables[name];
   }
 
+  _maybeReportUnexpectedNull(
+    fieldPath: string,
+    action: 'LOG' | 'THROW',
+    record: Record,
+  ) {
+    const owner = this._selector.node.name;
+
+    switch (action) {
+      case 'THROW':
+        this._missingRequiredFields = {action, field: {path: fieldPath, owner}};
+        return;
+      case 'LOG':
+        if (this._missingRequiredFields?.action === 'THROW') {
+          return;
+        }
+        if (this._missingRequiredFields == null) {
+          this._missingRequiredFields = {action, fields: []};
+        }
+        this._missingRequiredFields.fields.push({path: fieldPath, owner});
+        return;
+      default:
+        (action: empty);
+    }
+  }
+
   _traverseSelections(
     selections: $ReadOnlyArray<ReaderSelection>,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): boolean /* had all expected data */ {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
       switch (selection.kind) {
+        case REQUIRED_FIELD:
+          invariant(
+            RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES,
+            'RelayReader(): Encountered a `@required` directive at path "%s" in `%s` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled.',
+            selection.path,
+            this._selector.node.name,
+          );
+
+          const fieldValue = this._readRequiredField(selection, record, data);
+          if (fieldValue == null) {
+            const {action} = selection;
+            if (action !== 'NONE') {
+              this._maybeReportUnexpectedNull(selection.path, action, record);
+            }
+            // We are going to throw, or our parent is going to get nulled out.
+            // Either way, sibling values are going to be ignored, so we can
+            // bail early here as an optimization.
+            return false;
+          }
+          break;
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -198,7 +258,14 @@ class RelayReader {
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
           if (conditionValue === selection.passingValue) {
-            this._traverseSelections(selection.selections, record, data);
+            const hasExpectedData = this._traverseSelections(
+              selection.selections,
+              record,
+              data,
+            );
+            if (!hasExpectedData) {
+              return false;
+            }
           }
           break;
         case INLINE_FRAGMENT: {
@@ -207,7 +274,14 @@ class RelayReader {
             // concrete type refinement: only read data if the type exactly matches
             const typeName = RelayModernRecord.getType(record);
             if (typeName != null && typeName === selection.type) {
-              this._traverseSelections(selection.selections, record, data);
+              const hasExpectedData = this._traverseSelections(
+                selection.selections,
+                record,
+                data,
+              );
+              if (!hasExpectedData) {
+                return false;
+              }
             }
           } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             // Similar to the logic in read(): data is only expected to be present
@@ -218,10 +292,14 @@ class RelayReader {
             const parentIsMissingData = this._isMissingData;
             const parentIsWithinUnmatchedTypeRefinement = this
               ._isWithinUnmatchedTypeRefinement;
-            const implementsInterface = RelayModernRecord.getValue(
-              record,
-              abstractKey,
-            );
+
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            const typeRecord = this._recordSource.get(typeID);
+            const implementsInterface =
+              typeRecord != null
+                ? RelayModernRecord.getValue(typeRecord, abstractKey)
+                : null;
             this._isWithinUnmatchedTypeRefinement =
               parentIsWithinUnmatchedTypeRefinement ||
               implementsInterface === false;
@@ -252,14 +330,32 @@ class RelayReader {
           this._createInlineDataFragmentPointer(selection, record, data);
           break;
         case DEFER:
-        case CLIENT_EXTENSION:
+        case CLIENT_EXTENSION: {
           const isMissingData = this._isMissingData;
-          this._traverseSelections(selection.selections, record, data);
+          const hasExpectedData = this._traverseSelections(
+            selection.selections,
+            record,
+            data,
+          );
           this._isMissingData = isMissingData;
+          if (!hasExpectedData) {
+            return false;
+          }
           break;
-        case STREAM:
-          this._traverseSelections(selection.selections, record, data);
+        }
+        case STREAM: {
+          const hasExpectedData = this._traverseSelections(
+            selection.selections,
+            record,
+            data,
+          );
+          if (!hasExpectedData) {
+            return false;
+          }
           break;
+        }
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(
@@ -269,13 +365,38 @@ class RelayReader {
           );
       }
     }
+    return true;
+  }
+
+  _readRequiredField(
+    selection: ReaderRequiredField,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    switch (selection.field.kind) {
+      case SCALAR_FIELD:
+        return this._readScalar(selection.field, record, data);
+      case LINKED_FIELD:
+        if (selection.field.plural) {
+          return this._readPluralLink(selection.field, record, data);
+        } else {
+          return this._readLink(selection.field, record, data);
+        }
+      default:
+        (selection.field.kind: empty);
+        invariant(
+          false,
+          'RelayReader(): Unexpected ast kind `%s`.',
+          selection.kind,
+        );
+    }
   }
 
   _readScalar(
     field: ReaderScalarField,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
@@ -283,13 +404,14 @@ class RelayReader {
       this._isMissingData = true;
     }
     data[applicationName] = value;
+    return value;
   }
 
   _readLink(
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -298,7 +420,7 @@ class RelayReader {
       if (linkedID === undefined) {
         this._isMissingData = true;
       }
-      return;
+      return linkedID;
     }
 
     const prevData = data[applicationName];
@@ -310,17 +432,17 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
-    /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-     * suppresses an error found when Flow v0.98 was deployed. To see the error
-     * delete this comment and run Flow. */
-    data[applicationName] = this._traverse(field, linkedID, prevData);
+    // $FlowFixMe[incompatible-variance]
+    const value = this._traverse(field, linkedID, prevData);
+    data[applicationName] = value;
+    return value;
   }
 
   _readPluralLink(
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
@@ -330,7 +452,7 @@ class RelayReader {
       if (linkedIDs === undefined) {
         this._isMissingData = true;
       }
-      return;
+      return linkedIDs;
     }
 
     const prevData = data[applicationName];
@@ -348,9 +470,7 @@ class RelayReader {
         if (linkedID === undefined) {
           this._isMissingData = true;
         }
-        /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-         * suppresses an error found when Flow v0.98 was deployed. To see the
-         * error delete this comment and run Flow. */
+        // $FlowFixMe[cannot-write]
         linkedArray[nextIndex] = linkedID;
         return;
       }
@@ -363,12 +483,12 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
-      /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-       * suppresses an error found when Flow v0.98 was deployed. To see the
-       * error delete this comment and run Flow. */
+      // $FlowFixMe[cannot-write]
+      // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
     data[applicationName] = linkedArray;
+    return linkedArray;
   }
 
   /**
@@ -426,7 +546,7 @@ class RelayReader {
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
-    // $FlowFixMe - writing into read-only field
+    // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
@@ -462,7 +582,7 @@ class RelayReader {
       record,
       inlineData,
     );
-    // $FlowFixMe - writing into read-only field
+    // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[inlineDataFragmentSpread.name] = inlineData;
   }
 }

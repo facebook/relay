@@ -32,15 +32,19 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 fragment NameRendererFragment on User {
   id
   nameRendererForContext(context: HEADER, supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
-    ... on PlainUserNameRenderer @__module(key: "NameRendererFragment", id: "NameRendererFragment.nameRendererForContext", module: "PlainUserNameRenderer.react", sourceDocuement: "NameRendererFragment", name: "PlainUserNameRenderer_name") {
-      ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
+    ... on PlainUserNameRenderer {
+      ... on PlainUserNameRenderer @__module(key: "NameRendererFragment", id: "NameRendererFragment.nameRendererForContext", module: "PlainUserNameRenderer.react", sourceDocument: "NameRendererFragment", name: "PlainUserNameRenderer_name") {
+        ...PlainUserNameRenderer_name
+        __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
+        __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
+      }
     }
-    ... on MarkdownUserNameRenderer @__module(key: "NameRendererFragment", id: "NameRendererFragment.nameRendererForContext", module: "MarkdownUserNameRenderer.react", sourceDocuement: "NameRendererFragment", name: "MarkdownUserNameRenderer_name") {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
+    ... on MarkdownUserNameRenderer {
+      ... on MarkdownUserNameRenderer @__module(key: "NameRendererFragment", id: "NameRendererFragment.nameRendererForContext", module: "MarkdownUserNameRenderer.react", sourceDocument: "NameRendererFragment", name: "MarkdownUserNameRenderer_name") {
+        ...MarkdownUserNameRenderer_name
+        __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
+        __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
+      }
     }
   }
 }

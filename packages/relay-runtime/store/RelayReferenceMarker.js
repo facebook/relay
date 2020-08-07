@@ -13,11 +13,14 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
+
+const {generateTypeID} = require('./TypeID');
 
 import type {
   NormalizationLinkedField,
@@ -37,6 +40,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -134,6 +138,11 @@ class RelayReferenceMarker {
             if (typeName != null && typeName === selection.type) {
               this._traverseSelections(selection.selections, record);
             }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            this._references.add(typeID);
+            this._traverseSelections(selection.selections, record);
           } else {
             this._traverseSelections(selection.selections, record);
           }
@@ -172,14 +181,23 @@ class RelayReferenceMarker {
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
-        case TYPE_DISCRIMINATOR:
           break;
+        case TYPE_DISCRIMINATOR: {
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            this._references.add(typeID);
+          }
+          break;
+        }
         case MODULE_IMPORT:
           this._traverseModuleImport(selection, record);
           break;
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

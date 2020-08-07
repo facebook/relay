@@ -32,48 +32,43 @@ query NodeQuery($id: ID!, $last: Int, $first: Int) {
 }
 ==================================== OUTPUT ===================================
 (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "id",
-    "type": "ID!"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "last",
-    "type": "Int"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "first",
-    "type": "Int"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "first"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "id"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "last"
+},
+v3 = [
   {
     "kind": "Variable",
     "name": "id",
     "variableName": "id"
   }
 ],
-v2 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v3 = [
+v5 = [
   {
     "kind": "Literal",
     "name": "first",
     "value": 1
   }
 ],
-v4 = {
+v6 = {
   "alias": null,
   "args": null,
   "concreteType": "CommentsEdge",
@@ -89,7 +84,7 @@ v4 = {
       "name": "node",
       "plural": false,
       "selections": [
-        (v2/*: any*/)
+        (v4/*: any*/)
       ],
       "storageKey": null
     },
@@ -128,22 +123,22 @@ v4 = {
   ],
   "storageKey": null
 },
-v5 = {
+v7 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "endCursor",
   "storageKey": null
 },
-v6 = {
+v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "hasNextPage",
   "storageKey": null
 },
-v7 = [
-  (v4/*: any*/),
+v9 = [
+  (v6/*: any*/),
   {
     "alias": null,
     "args": null,
@@ -155,8 +150,8 @@ v7 = [
       {
         "kind": "InlineFragment",
         "selections": [
-          (v5/*: any*/),
-          (v6/*: any*/)
+          (v7/*: any*/),
+          (v8/*: any*/)
         ],
         "type": "PageInfo",
         "abstractKey": null
@@ -165,29 +160,29 @@ v7 = [
     "storageKey": null
   }
 ],
-v8 = [
+v10 = [
   {
     "kind": "Literal",
     "name": "last",
     "value": 2
   }
 ],
-v9 = {
+v11 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "hasPreviousPage",
   "storageKey": null
 },
-v10 = {
+v12 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "startCursor",
   "storageKey": null
 },
-v11 = [
-  (v4/*: any*/),
+v13 = [
+  (v6/*: any*/),
   {
     "alias": null,
     "args": null,
@@ -199,8 +194,8 @@ v11 = [
       {
         "kind": "InlineFragment",
         "selections": [
-          (v9/*: any*/),
-          (v10/*: any*/)
+          (v11/*: any*/),
+          (v12/*: any*/)
         ],
         "type": "PageInfo",
         "abstractKey": null
@@ -209,7 +204,7 @@ v11 = [
     "storageKey": null
   }
 ],
-v12 = [
+v14 = [
   {
     "kind": "Variable",
     "name": "first",
@@ -221,8 +216,8 @@ v12 = [
     "variableName": "last"
   }
 ],
-v13 = [
-  (v4/*: any*/),
+v15 = [
+  (v6/*: any*/),
   {
     "alias": null,
     "args": null,
@@ -234,10 +229,10 @@ v13 = [
       {
         "kind": "InlineFragment",
         "selections": [
-          (v5/*: any*/),
-          (v6/*: any*/),
-          (v9/*: any*/),
-          (v10/*: any*/)
+          (v7/*: any*/),
+          (v8/*: any*/),
+          (v11/*: any*/),
+          (v12/*: any*/)
         ],
         "type": "PageInfo",
         "abstractKey": null
@@ -248,8 +243,158 @@ v13 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/)
+    ],
     "kind": "Fragment",
+    "metadata": null,
+    "name": "NodeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": (v3/*: any*/),
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v4/*: any*/),
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "forwardComments",
+                "args": (v5/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_forwardComments_connection",
+                "plural": false,
+                "selections": (v9/*: any*/),
+                "storageKey": "__NodeQuery_forwardComments_connection(first:1)"
+              },
+              {
+                "alias": "backwardComments",
+                "args": (v10/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_backwardComments_connection",
+                "plural": false,
+                "selections": (v13/*: any*/),
+                "storageKey": "__NodeQuery_backwardComments_connection(last:2)"
+              },
+              {
+                "alias": "mixedDirectionComments",
+                "args": (v14/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_mixedDirectionComments_connection",
+                "plural": false,
+                "selections": (v15/*: any*/),
+                "storageKey": null
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      (v1/*: any*/),
+      (v2/*: any*/),
+      (v0/*: any*/)
+    ],
+    "kind": "Operation",
+    "name": "NodeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": (v3/*: any*/),
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v4/*: any*/),
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "forwardComments",
+                "args": (v5/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": (v9/*: any*/),
+                "storageKey": "comments(first:1)"
+              },
+              {
+                "alias": "forwardComments",
+                "args": (v5/*: any*/),
+                "filters": null,
+                "handle": "connection",
+                "key": "NodeQuery_forwardComments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              },
+              {
+                "alias": "backwardComments",
+                "args": (v10/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": (v13/*: any*/),
+                "storageKey": "comments(last:2)"
+              },
+              {
+                "alias": "backwardComments",
+                "args": (v10/*: any*/),
+                "filters": null,
+                "handle": "connection",
+                "key": "NodeQuery_backwardComments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              },
+              {
+                "alias": "mixedDirectionComments",
+                "args": (v14/*: any*/),
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": (v15/*: any*/),
+                "storageKey": null
+              },
+              {
+                "alias": "mixedDirectionComments",
+                "args": (v14/*: any*/),
+                "filters": null,
+                "handle": "connection",
+                "key": "NodeQuery_mixedDirectionComments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
     "metadata": {
       "connection": [
         {
@@ -281,148 +426,6 @@ return {
         }
       ]
     },
-    "name": "NodeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          (v2/*: any*/),
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": "forwardComments",
-                "args": (v3/*: any*/),
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "__NodeQuery_forwardComments_connection",
-                "plural": false,
-                "selections": (v7/*: any*/),
-                "storageKey": "__NodeQuery_forwardComments_connection(first:1)"
-              },
-              {
-                "alias": "backwardComments",
-                "args": (v8/*: any*/),
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "__NodeQuery_backwardComments_connection",
-                "plural": false,
-                "selections": (v11/*: any*/),
-                "storageKey": "__NodeQuery_backwardComments_connection(last:2)"
-              },
-              {
-                "alias": "mixedDirectionComments",
-                "args": (v12/*: any*/),
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "__NodeQuery_mixedDirectionComments_connection",
-                "plural": false,
-                "selections": (v13/*: any*/),
-                "storageKey": null
-              }
-            ],
-            "type": "Story",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": (v0/*: any*/),
-    "kind": "Operation",
-    "name": "NodeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          (v2/*: any*/),
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": "forwardComments",
-                "args": (v3/*: any*/),
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "comments",
-                "plural": false,
-                "selections": (v7/*: any*/),
-                "storageKey": "comments(first:1)"
-              },
-              {
-                "alias": "forwardComments",
-                "args": (v3/*: any*/),
-                "filters": null,
-                "handle": "connection",
-                "key": "NodeQuery_forwardComments",
-                "kind": "LinkedHandle",
-                "name": "comments"
-              },
-              {
-                "alias": "backwardComments",
-                "args": (v8/*: any*/),
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "comments",
-                "plural": false,
-                "selections": (v11/*: any*/),
-                "storageKey": "comments(last:2)"
-              },
-              {
-                "alias": "backwardComments",
-                "args": (v8/*: any*/),
-                "filters": null,
-                "handle": "connection",
-                "key": "NodeQuery_backwardComments",
-                "kind": "LinkedHandle",
-                "name": "comments"
-              },
-              {
-                "alias": "mixedDirectionComments",
-                "args": (v12/*: any*/),
-                "concreteType": "CommentsConnection",
-                "kind": "LinkedField",
-                "name": "comments",
-                "plural": false,
-                "selections": (v13/*: any*/),
-                "storageKey": null
-              },
-              {
-                "alias": "mixedDirectionComments",
-                "args": (v12/*: any*/),
-                "filters": null,
-                "handle": "connection",
-                "key": "NodeQuery_mixedDirectionComments",
-                "kind": "LinkedHandle",
-                "name": "comments"
-              }
-            ],
-            "type": "Story",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
     "name": "NodeQuery",
     "operationKind": "query",
     "text": null

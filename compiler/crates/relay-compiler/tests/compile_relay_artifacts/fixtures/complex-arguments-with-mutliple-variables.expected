@@ -17,14 +17,12 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "latArg",
-        "type": "String"
+        "name": "latArg"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "lonArg",
-        "type": "String"
+        "name": "lonArg"
       }
     ],
     "kind": "Fragment",
@@ -114,14 +112,12 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "latArg",
-        "type": "String"
+        "name": "latArg"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "lonArg",
-        "type": "String"
+        "name": "lonArg"
       }
     ],
     "kind": "Operation",
@@ -217,7 +213,7 @@ query TestQueryWithLiteral(
   $latArg: String
   $lonArg: String
 ) {
-  route(waypoints: [{lat: $latArg, lon: $lonArg}, {lat: null, lon: $latArg}, {lat: $lonArg, lon: "1234"}]) {
+  route(waypoints: [{lat: $latArg, lon: $lonArg}, {lon: $latArg}, {lat: $lonArg, lon: "1234"}]) {
     __typename
   }
 }

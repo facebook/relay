@@ -18,7 +18,7 @@ const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
-const {useCallback, useState} = require('react');
+const {useCallback, useDebugValue, useState} = require('react');
 const {getFragment, getFragmentIdentifier} = require('relay-runtime');
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
@@ -70,7 +70,6 @@ function usePaginationFragment<
 
   const {
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
     paginationRequest,
     paginationMetadata,
     identifierField,
@@ -96,7 +95,6 @@ function usePaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    fragmentRefPathInResponse,
     identifierField,
     paginationMetadata,
     paginationRequest,
@@ -116,7 +114,6 @@ function usePaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    fragmentRefPathInResponse,
     identifierField,
     paginationMetadata,
     paginationRequest,
@@ -131,6 +128,17 @@ function usePaginationFragment<
     [disposeFetchNext, disposeFetchPrevious, refetch],
   );
 
+  if (__DEV__) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useDebugValue({
+      fragment: fragmentNode.name,
+      data: fragmentData,
+      hasNext,
+      isLoadingNext,
+      hasPrevious,
+      isLoadingPrevious,
+    });
+  }
   return {
     data: fragmentData,
     loadNext,

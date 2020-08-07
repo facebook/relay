@@ -122,6 +122,8 @@ if (__DEV__) {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
+      case 'FlightField':
+        throw new Error('Flight fields are not yet supported.');
       default:
         (selection: empty);
         return;

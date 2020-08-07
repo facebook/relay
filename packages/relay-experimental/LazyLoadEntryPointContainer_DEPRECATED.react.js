@@ -21,12 +21,24 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const {useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
 
+type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
+  entryPoints: $PropertyType<
+    React.ElementConfig<TEntryPointComponent>,
+    'entryPoints',
+  >,
+  extraProps: $PropertyType<
+    React.ElementConfig<TEntryPointComponent>,
+    'extraProps',
+  >,
+  getComponent: () => TEntryPointComponent,
+  queries: $PropertyType<React.ElementConfig<TEntryPointComponent>, 'queries'>,
+|}>;
+
 import type {
   EntryPoint,
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
-  PreloadedEntryPoint,
 } from './EntryPointTypes.flow';
 
 type EntryPointContainerProps<
@@ -134,7 +146,7 @@ function prepareEntryPoint<
         loadingPromise = loadingPromise ?? entryPoint.root.load();
         throw loadingPromise;
       }
-      // $FlowFixMe - trust me Flow, its entryPoint component
+      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
       return (component: TEntryPointComponent);
     },
     queries: (preloadedQueries: TPreloadedQueries),

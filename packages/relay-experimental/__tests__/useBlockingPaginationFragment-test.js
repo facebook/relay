@@ -89,12 +89,11 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   function useBlockingPaginationFragment(fragmentNode, fragmentRef) {
-    /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-     * when Flow v0.108.0 was deployed. To see the error delete this comment
-     * and run Flow. */
+    // $FlowFixMe[incompatible-call]
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[prop-missing]
       fragmentRef,
     );
     loadNext = result.loadNext;
@@ -395,9 +394,8 @@ describe('useBlockingPaginationFragment', () => {
       setOwner = _setOwner;
       forceUpdate = _setCount;
 
-      /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-       * when Flow v0.108.0 was deployed. To see the error delete this comment
-       * and run Flow. */
+      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[prop-missing]
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };
@@ -428,14 +426,12 @@ describe('useBlockingPaginationFragment', () => {
         renderer = TestRenderer.create(
           <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
             <React.Suspense fallback="Fallback">
-              {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-               * type of React$Node */}
               <ContextProvider>
                 <Container owner={query} {...props} />
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });
@@ -777,8 +773,9 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
 
-        renderer.unmount();
-
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
         TestRenderer.act(() => {
           loadNext(1);
         });
@@ -1056,7 +1053,7 @@ describe('useBlockingPaginationFragment', () => {
           );
         });
 
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         const calls = warning.mock.calls.filter(
           call =>
             call[0] === false &&
@@ -1729,7 +1726,7 @@ describe('useBlockingPaginationFragment', () => {
       it('updates are ignored while loading more (i.e. while suspended)', () => {
         jest.doMock('../useLoadMoreFunction');
         const useLoadMoreFunction = require('../useLoadMoreFunction');
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         useLoadMoreFunction.mockImplementation((...args) =>
           jest.requireActual('../useLoadMoreFunction')(...args),
         );
@@ -1765,7 +1762,7 @@ describe('useBlockingPaginationFragment', () => {
           gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         useLoadMoreFunction.mockClear();
 
         environment.commitPayload(query, {
@@ -3024,8 +3021,9 @@ describe('useBlockingPaginationFragment', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
-
-          renderer.unmount();
+          TestRenderer.act(() => {
+            renderer.unmount();
+          });
 
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);
@@ -3073,7 +3071,7 @@ describe('useBlockingPaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-use]
           disposable.dispose();
 
           // Assert request was canceled

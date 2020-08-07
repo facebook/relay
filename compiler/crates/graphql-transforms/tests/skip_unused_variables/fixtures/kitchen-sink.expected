@@ -61,20 +61,6 @@ query StreamQuerry($RELAY_INCREMENTAL_DELIVERY: Boolean!) {
   }
 }
 ==================================== OUTPUT ===================================
-fragment NestedOneLevel on User {
-  ...NestedTwoLevels
-}
-
-fragment NestedTwoLevels on User {
-  profile_picture(scale: $usedInNested) {
-    uri
-  }
-}
-
-fragment TestFragment on Actor {
-  id @skip(if: $usedInDirective)
-}
-
 query DeferQuery(
   $RELAY_INCREMENTAL_DELIVERY: Boolean!
 ) {
@@ -118,4 +104,18 @@ query TestQuery2(
       id @skip(if: $usedInTestQuery2)
     }
   }
+}
+
+fragment NestedOneLevel on User {
+  ...NestedTwoLevels
+}
+
+fragment NestedTwoLevels on User {
+  profile_picture(scale: $usedInNested) {
+    uri
+  }
+}
+
+fragment TestFragment on Actor {
+  id @skip(if: $usedInDirective)
 }

@@ -57,7 +57,7 @@ import type {
   NormalizationSplitOperation,
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
 
@@ -136,6 +136,7 @@ class Executor {
   _store: Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
+  _retainDisposable: ?Disposable;
   +_isClientPayload: boolean;
 
   constructor({
@@ -223,6 +224,10 @@ class Executor {
     }
     this._incrementalResults.clear();
     this._completeOperationTracker();
+    if (this._retainDisposable) {
+      this._retainDisposable.dispose();
+      this._retainDisposable = null;
+    }
   }
 
   _updateActiveState(): void {
@@ -340,6 +345,9 @@ class Executor {
           operation: this._operation.request.node,
           variables: this._operation.request.variables,
         };
+        // In V8, Error objects keep the closure scope chain alive until the
+        // err.stack property is accessed.
+        error.stack;
         throw error;
       } else {
         const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
@@ -433,6 +441,9 @@ class Executor {
       const updatedOwners = this._publishQueue.run(this._operation);
       this._updateOperationTracker(updatedOwners);
       this._processPayloadFollowups(payloadFollowups);
+      if (this._incrementalPayloadsPending && !this._retainDisposable) {
+        this._retainDisposable = this._store.retain(this._operation);
+      }
     }
 
     if (incrementalResponses.length > 0) {
@@ -471,7 +482,6 @@ class Executor {
         {
           getDataID: this._getDataID,
           path: [],
-          request: this._operation.request,
           treatMissingFieldsAsNull,
         },
       );
@@ -549,7 +559,6 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
-        request: this._operation.request,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -625,7 +634,6 @@ class Executor {
           getDataID: this._getDataID,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           path: [],
-          request: this._operation.request,
         },
       );
       this._publishQueue.commitPayload(
@@ -997,7 +1005,6 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: placeholder.path,
-        request: this._operation.request,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -1212,7 +1219,6 @@ class Executor {
     const relayPayload = normalizeResponse(response, selector, typeName, {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      request: this._operation.request,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {

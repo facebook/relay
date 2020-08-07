@@ -5,28 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::flatten;
-use test_schema::test_schema_with_extensions;
+use std::sync::Arc;
+use test_schema::get_test_schema_with_extensions;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let file_key = FileKey::new(fixture.file_name);
-    let ast = parse(fixture.content, file_key).unwrap();
-    let schema = test_schema_with_extensions(
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+    let ast = parse_executable(fixture.content, source_location).unwrap();
+    let schema = get_test_schema_with_extensions(
         r#"
-directive @__clientExtension(
-  label: String!
-  if: Boolean = true
-) on INLINE_FRAGMENT
 directive @serverInlineDirective on INLINE_FRAGMENT"#,
     );
     let ir = build(&schema, &ast.definitions).unwrap();
-    let context = Program::from_definitions(&schema, ir);
-    let flatten_context = flatten(&context, !fixture.content.contains("%for_printing%"));
+    let context = Program::from_definitions(Arc::clone(&schema), ir);
+    let flatten_context = flatten(&context, !fixture.content.contains("%for_printing%")).unwrap();
 
     assert_eq!(
         context.fragments().count(),

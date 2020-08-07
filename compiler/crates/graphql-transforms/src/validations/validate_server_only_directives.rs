@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, WithLocation};
+use common::{Diagnostic, Location, WithLocation};
 use errors::{validate, validate_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
-    ValidationError, ValidationMessage, ValidationResult, Validator,
+    ValidationMessage, ValidationResult, Validator,
 };
 use interner::{Intern, StringKey};
 use std::iter::FromIterator;
 
-pub fn validate_server_only_directives<'s>(program: &Program<'s>) -> ValidationResult<()> {
+pub fn validate_server_only_directives(program: &Program) -> ValidationResult<()> {
     let mut validator = ServerOnlyDirectivesValidation::new(program);
     validator.validate_program(program)
 }
@@ -27,7 +27,7 @@ struct FragmentState {
 }
 
 struct ServerOnlyDirectivesValidation<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     current_root_client_selection: Option<Location>,
     current_client_invalid_directives: Vec<WithLocation<StringKey>>,
     // For keeping track of if the current fragment only contains client selections,
@@ -40,7 +40,7 @@ struct ServerOnlyDirectivesValidation<'s> {
 
 // Validate that @defer, @stream, @stream_connection are not used inside client fields
 impl<'s> ServerOnlyDirectivesValidation<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             program,
             current_root_client_selection: None,
@@ -61,7 +61,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
                 .client_invalid_directives
                 .iter()
                 .map(|name| {
-                    ValidationError::new(
+                    Diagnostic::new(
                         ValidationMessage::InvalidServerOnlyDirectiveInClientFields(name.item),
                         vec![name.location, location],
                     )
@@ -76,7 +76,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
     fn validate_fragment_impl(
         &mut self,
         fragment: &FragmentDefinition,
-    ) -> Result<&FragmentState, Vec<ValidationError>> {
+    ) -> Result<&FragmentState, Vec<Diagnostic>> {
         if self.fragment_cache.contains_key(&fragment.name.item) {
             // The fragment is already visited, check if we are in a client selection
             // and the fragment contains server selections.
@@ -95,7 +95,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
             if self.current_root_client_selection.is_none()
                 && self
                     .program
-                    .schema()
+                    .schema
                     .is_extension_type(fragment.type_condition)
             {
                 self.current_root_client_selection = Some(fragment.name.location)
@@ -125,7 +125,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;
 
-    fn validate_program<'ss>(&mut self, program: &Program<'ss>) -> ValidationResult<()> {
+    fn validate_program(&mut self, program: &Program) -> ValidationResult<()> {
         validate!(
             validate_map(program.operations(), |operation| {
                 self.current_client_invalid_directives = vec![];
@@ -173,7 +173,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         if self.current_root_client_selection.is_none()
             && self
                 .program
-                .schema()
+                .schema
                 .field(field.definition.item)
                 .is_extension
         {
@@ -182,7 +182,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         if self.is_current_fragment_client_only
             && !self
                 .program
-                .schema()
+                .schema
                 .field(field.definition.item)
                 .is_extension
         {
@@ -197,7 +197,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         if self.is_current_fragment_client_only
             && !self
                 .program
-                .schema()
+                .schema
                 .field(field.definition.item)
                 .is_extension
         {
@@ -213,7 +213,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         {
             self.current_client_invalid_directives.push(directive.name);
             if let Some(location) = self.current_root_client_selection {
-                Err(vec![ValidationError::new(
+                Err(vec![Diagnostic::new(
                     ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
                         directive.name.item,
                     ),

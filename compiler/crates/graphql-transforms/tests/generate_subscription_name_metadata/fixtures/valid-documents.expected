@@ -25,7 +25,7 @@ query NotASubscription {
 
 subscription TestSubscriptionWithAlias(
   $input: FeedbackLikeInput
-) @__metadata(subscriptionName: "aliased") {
+) @__metadata(subscriptionName: "feedbackLikeSubscribe") {
   aliased: feedbackLikeSubscribe(input: $input) {
     clientSubscriptionId
   }

@@ -65,7 +65,7 @@ fragment UserProfile on User {
 [
     VariableDefinition {
         name: WithLocation {
-            location: "relay-mask-transform.graphql":54:74,
+            location: relay-mask-transform.graphql:54:74,
             item: "ProfilePicture_SIZE",
         },
         type_: List(
@@ -78,7 +78,7 @@ fragment UserProfile on User {
     },
     VariableDefinition {
         name: WithLocation {
-            location: "relay-mask-transform.graphql":184:189,
+            location: relay-mask-transform.graphql:184:189,
             item: "cond",
         },
         type_: NonNull(

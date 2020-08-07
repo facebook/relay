@@ -16,6 +16,7 @@
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
+const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
@@ -55,7 +56,12 @@ function useRefetchableFragment<
     fragmentRef,
     'useRefetchableFragment()',
   );
-  // $FlowExpectedError: Exposed options is a subset of internal options
+  if (__DEV__) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useDebugValue({fragment: fragmentNode.name, data: fragmentData});
+  }
+  /* $FlowExpectedError[prop-missing] : Exposed options is a subset of internal
+   * options */
   return [fragmentData, (refetch: RefetchFnDynamic<TQuery, TKey>)];
 }
 

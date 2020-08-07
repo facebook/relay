@@ -5,20 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FileKey, NamedItem};
+use common::{ConsoleLogger, Diagnostic, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
-use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, ValidationError};
-use graphql_syntax::parse;
+use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
+use graphql_syntax::parse_executable;
 use graphql_text_printer::print_full_operation;
-use graphql_transforms::{MATCH_CONSTANTS, OSS_CONNECTION_INTERFACE};
+use graphql_transforms::{ConnectionInterface, FeatureFlags, MATCH_CONSTANTS};
+use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
-use test_schema::{test_schema, test_schema_with_extensions};
+use std::sync::Arc;
+use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+
     let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
+    sources.insert(source_location, fixture.content);
 
     if fixture.content.find("%TODO%").is_some() {
         if fixture.content.find("expected-to-throw").is_some() {
@@ -29,33 +33,40 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, schema) = match parts.as_slice() {
-        [base, extensions] => (base, test_schema_with_extensions(extensions)),
-        [base] => (base, test_schema()),
+        [base, extensions] => (base, get_test_schema_with_extensions(extensions)),
+        [base] => (base, get_test_schema()),
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
-    let validation_errors_to_string = |errors: Vec<ValidationError>| {
+    let validation_errors_to_string = |errors: Vec<Diagnostic>| {
         let mut errs = errors
             .into_iter()
-            .map(|err| err.print(&sources))
+            .map(|err| err.print_with_sources(&sources))
             .collect::<Vec<_>>();
         errs.sort();
         errs.join("\n\n")
     };
 
-    let ast = parse(base, FileKey::new(fixture.file_name)).unwrap();
+    let ast = parse_executable(base, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
-    let program = Program::from_definitions(&schema, ir);
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    validate(&program, &*OSS_CONNECTION_INTERFACE).map_err(validation_errors_to_string)?;
+    let connection_interface = ConnectionInterface::default();
+
+    validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
+
+    let feature_flags = FeatureFlags {
+        enable_flight_transform: true,
+    };
 
     // TODO pass base fragment names
     let programs = apply_transforms(
-        "test",
-        program,
-        &Default::default(),
-        &*OSS_CONNECTION_INTERFACE,
-        &ConsoleLogger,
+        "test".intern(),
+        Arc::new(program),
+        Default::default(),
+        &connection_interface,
+        &feature_flags,
+        Arc::new(ConsoleLogger),
     )
     .map_err(validation_errors_to_string)?;
 

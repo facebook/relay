@@ -12,14 +12,14 @@ query ListArgumentQuery($waypoint: WayPoint!) {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: "list-argument-complex-object.graphql":6:23,
+                location: list-argument-complex-object.graphql:6:23,
                 item: "ListArgumentQuery",
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
-                        location: "list-argument-complex-object.graphql":24:33,
+                        location: list-argument-complex-object.graphql:24:33,
                         item: "waypoint",
                     },
                     type_: NonNull(
@@ -36,7 +36,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "list-argument-complex-object.graphql":47:55,
+                        location: list-argument-complex-object.graphql:50:55,
                         item: FieldID(
                             2,
                         ),
@@ -44,17 +44,17 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "list-argument-complex-object.graphql":56:65,
+                                location: list-argument-complex-object.graphql:56:65,
                                 item: "waypoints",
                             },
                             value: WithLocation {
-                                location: "list-argument-complex-object.graphql":67:104,
+                                location: list-argument-complex-object.graphql:67:104,
                                 item: List(
                                     [
                                         Variable(
                                             Variable {
                                                 name: WithLocation {
-                                                    location: "list-argument-complex-object.graphql":68:79,
+                                                    location: list-argument-complex-object.graphql:68:77,
                                                     item: "waypoint",
                                                 },
                                                 type_: NonNull(
@@ -69,11 +69,11 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                                                 [
                                                     ConstantArgument {
                                                         name: WithLocation {
-                                                            location: "list-argument-complex-object.graphql":80:83,
+                                                            location: list-argument-complex-object.graphql:80:83,
                                                             item: "lat",
                                                         },
                                                         value: WithLocation {
-                                                            location: "list-argument-complex-object.graphql":85:92,
+                                                            location: list-argument-complex-object.graphql:85:90,
                                                             item: String(
                                                                 "0.0",
                                                             ),
@@ -81,11 +81,11 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                                                     },
                                                     ConstantArgument {
                                                         name: WithLocation {
-                                                            location: "list-argument-complex-object.graphql":92:95,
+                                                            location: list-argument-complex-object.graphql:92:95,
                                                             item: "lon",
                                                         },
                                                         value: WithLocation {
-                                                            location: "list-argument-complex-object.graphql":97:102,
+                                                            location: list-argument-complex-object.graphql:97:102,
                                                             item: String(
                                                                 "0.0",
                                                             ),
@@ -104,9 +104,9 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                         LinkedField {
                             alias: None,
                             definition: WithLocation {
-                                location: "list-argument-complex-object.graphql":107:118,
+                                location: list-argument-complex-object.graphql:112:117,
                                 item: FieldID(
-                                    29,
+                                    30,
                                 ),
                             },
                             arguments: [],
@@ -115,9 +115,9 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: "list-argument-complex-object.graphql":119:130,
+                                        location: list-argument-complex-object.graphql:126:130,
                                         item: FieldID(
-                                            32,
+                                            33,
                                         ),
                                     },
                                     arguments: [],

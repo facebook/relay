@@ -9,16 +9,21 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod config;
 mod flow;
 
 use common::NamedItem;
-use flow::{print_type, Prop, AST};
+pub use config::TypegenConfig;
+use flow::{print_type, Prop, AST, SPREAD_KEY};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::{RelayDirective, MATCH_CONSTANTS};
+use graphql_transforms::{
+    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
+};
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -42,17 +47,16 @@ lazy_static! {
     static ref TYPE_FLOAT: StringKey = "Float".intern();
     static ref TYPE_INT: StringKey = "Int".intern();
     static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
-    static ref TYPE_URL: StringKey = "Url".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
+    static ref JS_FIELD_NAME: StringKey = "js".intern();
 }
 
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &Schema,
-    enum_module_suffix: &Option<String>,
-    optional_input_fields: &[StringKey],
+    typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    let mut generator = TypeGenerator::new(schema, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
     generator.result
 }
@@ -61,10 +65,9 @@ pub fn generate_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &Schema,
-    enum_module_suffix: &Option<String>,
-    optional_input_fields: &[StringKey],
+    typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    let mut generator = TypeGenerator::new(schema, typegen_config);
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -76,6 +79,12 @@ enum GeneratedInputObject {
     Resolved(AST),
 }
 
+#[derive(Default)]
+struct RuntimeImports {
+    local_3d_payload: bool,
+    fragment_reference: bool,
+}
+
 struct TypeGenerator<'schema, 'config> {
     result: String,
     schema: &'schema Schema,
@@ -83,15 +92,12 @@ struct TypeGenerator<'schema, 'config> {
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
-    enum_module_suffix: &'config Option<String>,
-    optional_input_fields: &'config [StringKey],
+    typegen_config: &'config TypegenConfig,
+    runtime_imports: RuntimeImports,
+    match_fields: IndexMap<StringKey, AST>,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
-    fn new(
-        schema: &'schema Schema,
-        enum_module_suffix: &'config Option<String>,
-        optional_input_fields: &'config [StringKey],
-    ) -> Self {
+    fn new(schema: &'schema Schema, typegen_config: &'config TypegenConfig) -> Self {
         Self {
             result: String::new(),
             schema,
@@ -99,8 +105,9 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             generated_input_object_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
-            enum_module_suffix,
-            optional_input_fields,
+            typegen_config,
+            match_fields: Default::default(),
+            runtime_imports: RuntimeImports::default(),
         }
     }
 
@@ -118,16 +125,26 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let selections = self.visit_selections(&typegen_operation.selections);
         let response_type = self.selections_to_babel(selections, false, None);
 
-        let raw_response_type =
-            if cfg!(raw_response) && has_raw_response_type_directive(normalization_operation) {
-                let raw_response_selections =
-                    self.raw_response_visit_selections(&normalization_operation.selections);
-                Some(self.raw_response_selections_to_babel(raw_response_selections, None))
-            } else {
-                None
-            };
+        let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
+            let raw_response_selections =
+                self.raw_response_visit_selections(&normalization_operation.selections);
+            Some(self.raw_response_selections_to_babel(raw_response_selections, None))
+        } else {
+            None
+        };
 
-        self.write_fragment_imports()?;
+        let refetchable_fragment_name =
+            RefetchableDerivedFromMetadata::from_directives(&typegen_operation.directives);
+        if refetchable_fragment_name.is_some() {
+            self.runtime_imports.fragment_reference = true;
+        }
+
+        self.write_runtime_imports()?;
+        if let Some(refetchable_fragment_name) = refetchable_fragment_name {
+            self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
+        } else {
+            self.write_fragment_imports()?;
+        }
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
         writeln!(
@@ -159,6 +176,9 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         ];
 
         if let Some(raw_response_type) = raw_response_type {
+            for (key, ast) in self.match_fields.iter() {
+                writeln!(self.result, "export type {} = {};", key, print_type(ast))?;
+            }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
             writeln!(
@@ -250,23 +270,35 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             base_type
         };
+        self.runtime_imports.fragment_reference = true;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
-        writeln!(
-            self.result,
-            "import type {{ FragmentReference }} from \"relay-runtime\";"
-        )?;
+        self.write_runtime_imports()?;
 
-        writeln!(
-            self.result,
-            "declare export opaque type {}: FragmentReference;",
-            old_fragment_type_name
-        )?;
-        writeln!(
-            self.result,
-            "declare export opaque type {}: {};",
-            new_fragment_type_name, old_fragment_type_name
-        )?;
+        let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
+        if let Some(refetchable_metadata) = refetchable_metadata {
+            writeln!(
+                self.result,
+                r#"import type {{ {}, {} }} from "{}.graphql";"#,
+                old_fragment_type_name, new_fragment_type_name, refetchable_metadata.operation_name
+            )?;
+            writeln!(
+                self.result,
+                r#"export type {{ {}, {} }};"#,
+                old_fragment_type_name, new_fragment_type_name
+            )?;
+        } else {
+            writeln!(
+                self.result,
+                "declare export opaque type {}: FragmentReference;",
+                old_fragment_type_name
+            )?;
+            writeln!(
+                self.result,
+                "declare export opaque type {}: {};",
+                new_fragment_type_name, old_fragment_type_name
+            )?;
+        }
         writeln!(
             self.result,
             "export type {} = {};",
@@ -331,7 +363,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             ref_: Some(name),
             node_selections: None,
             document_name: None,
-            kind: None,
         });
     }
 
@@ -360,7 +391,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             type_selections.push(TypeSelection {
@@ -372,7 +402,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             self.used_fragments.insert(name);
@@ -385,14 +414,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: Some(name),
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             return;
         }
         let mut selections = self.visit_selections(&inline_fragment.selections);
         if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in selections.iter_mut() {
+            for selection in &mut selections {
                 if type_condition.is_abstract_type() {
                     selection.conditional = true;
                 } else {
@@ -409,9 +437,77 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         inline_fragment: &InlineFragment,
     ) {
         let mut selections = self.raw_response_visit_selections(&inline_fragment.selections);
-        if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in selections.iter_mut() {
+        if inline_fragment
+            .directives
+            .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
+            .is_some()
+        {
+            for selection in &mut selections {
+                selection.conditional = true;
+            }
+        }
+
+        if let Some(module_directive) = inline_fragment
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+        {
+            let mut module_selections = selections
+                .iter()
+                .cloned()
+                .filter(|sel| sel.schema_name == Some(*JS_FIELD_NAME))
+                .collect::<Vec<_>>();
+            let directive_arg_name = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.name_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+            let directive_arg_key = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.key_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+
+            if let Some(type_condition) = inline_fragment.type_condition {
                 if !type_condition.is_abstract_type() {
+                    for selection in &mut selections {
+                        selection.concrete_type = Some(type_condition);
+                    }
+                }
+            }
+            if !self.match_fields.contains_key(&directive_arg_name) {
+                let match_field = self.raw_response_selections_to_babel(
+                    selections
+                        .iter()
+                        .cloned()
+                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .collect(),
+                    None,
+                );
+                self.match_fields.insert(directive_arg_name, match_field);
+            }
+
+            type_selections.append(&mut module_selections);
+
+            type_selections.push(TypeSelection {
+                key: directive_arg_name,
+                schema_name: None,
+                value: None,
+                node_type: None,
+                conditional: false,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                document_name: Some(directive_arg_key),
+            });
+            return;
+        }
+        if let Some(type_condition) = inline_fragment.type_condition {
+            if !type_condition.is_abstract_type() {
+                for selection in &mut selections {
                     selection.concrete_type = Some(type_condition);
                 }
             }
@@ -442,7 +538,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             concrete_type: None,
             ref_: None,
             node_selections: Some(selections_to_map(selections, true)),
-            kind: None,
             document_name: None,
         });
     }
@@ -468,7 +563,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             concrete_type: None,
             ref_: None,
             node_selections: None,
-            kind: None,
             document_name: None,
         });
     }
@@ -515,6 +609,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let mut types: Vec<Vec<Prop>> = Vec::new();
 
+        #[allow(clippy::ptr_arg)]
         fn has_typename_selection(selections: &Vec<TypeSelection>) -> bool {
             selections.iter().any(TypeSelection::is_typename)
         }
@@ -650,27 +745,54 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 ));
                 types.push(AST::ExactObject(
                     merged_selections
-                        .into_iter()
+                        .iter()
+                        .cloned()
                         .map(|selection| {
                             self.raw_response_make_prop(selection, Some(concrete_type))
                         })
                         .collect(),
                 ));
-                // appendLocal3DPayload(types, mergedSeletions, schema, state, concreteType);
+                self.append_local_3d_payload(&mut types, &merged_selections, Some(concrete_type));
             }
         }
 
         if !base_fields.is_empty() {
             types.push(AST::ExactObject(
                 base_fields
-                    .into_iter()
+                    .iter()
+                    .cloned()
                     .map(|selection| self.raw_response_make_prop(selection, concrete_type))
                     .collect(),
-            ))
-            // appendLocal3DPayload(types, baseFields, schema, state, nodeTypeName);
+            ));
+            self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
         }
 
         AST::Union(types)
+    }
+
+    fn append_local_3d_payload(
+        &mut self,
+        types: &mut Vec<AST>,
+        type_selections: &[TypeSelection],
+        concrete_type: Option<Type>,
+    ) {
+        if let Some(module_import) = type_selections
+            .iter()
+            .find(|sel| sel.document_name.is_some())
+        {
+            self.runtime_imports.local_3d_payload = true;
+
+            types.push(AST::Local3DPayload(
+                module_import.document_name.unwrap(),
+                Box::new(AST::ExactObject(
+                    type_selections
+                        .iter()
+                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .map(|sel| self.raw_response_make_prop(sel.clone(), concrete_type))
+                        .collect(),
+                )),
+            ));
+        }
     }
 
     fn make_prop(
@@ -724,14 +846,18 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             conditional,
             node_type,
             node_selections,
-            // kind,
+            document_name,
             ..
         } = type_selection;
-        // if (kind === 'ModuleImport') {
-        //   return t.objectTypeSpreadProperty(
-        //     t.genericTypeAnnotation(t.identifier(key)),
-        //   );
-        // }
+
+        if document_name.is_some() {
+            return Prop {
+                key: *SPREAD_KEY,
+                value: AST::Identifier(key),
+                read_only: false,
+                optional: false,
+            };
+        }
 
         let value = if let Some(node_type) = node_type {
             let inner_concrete_type = if node_type.is_list()
@@ -799,25 +925,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
-        // const customType = state.customScalars[typeName];
-        // if (typeof customType === 'function') {
-        //   return customType(t);
-        // }
-        // switch (customType ?? typeName) {
-        //   case 'ID':
-        //   case 'String':
-        //     return t.stringTypeAnnotation();
-        //   case 'Float':
-        //   case 'Int':
-        //     return t.numberTypeAnnotation();
-        //   case 'Boolean':
-        //     return t.booleanTypeAnnotation();
-        //   default:
-        //     return customType == null
-        //       ? t.anyTypeAnnotation()
-        //       : t.genericTypeAnnotation(t.identifier(customType));
-        // }
-
         let scalar_name = self.schema.scalar(scalar).name;
         if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
@@ -825,9 +932,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             AST::Number
         } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if scalar_name == *TYPE_URL {
-            // TODO make custom scalars configurable
-            AST::String
+        } else if let Some(&custom_scalar) =
+            self.typegen_config.custom_scalar_types.get(&scalar_name)
+        {
+            AST::RawType(custom_scalar)
         } else {
             AST::Any
         }
@@ -836,6 +944,36 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     fn transform_graphql_enum_type(&mut self, enum_id: EnumID) -> AST {
         self.used_enums.insert(enum_id);
         AST::Identifier(self.schema.enum_(enum_id).name)
+    }
+
+    fn write_runtime_imports(&mut self) -> Result {
+        match self.runtime_imports {
+            RuntimeImports {
+                local_3d_payload: true,
+                fragment_reference: true,
+            } => writeln!(
+                self.result,
+                r#"import type {{ FragmentReference, Local3DPayload }} from "relay-runtime";"#
+            ),
+            RuntimeImports {
+                local_3d_payload: true,
+                fragment_reference: false,
+            } => writeln!(
+                self.result,
+                r#"import type {{ Local3DPayload }} from "relay-runtime";"#
+            ),
+            RuntimeImports {
+                local_3d_payload: false,
+                fragment_reference: true,
+            } => writeln!(
+                self.result,
+                r#"import type {{ FragmentReference }} from "relay-runtime";"#
+            ),
+            RuntimeImports {
+                local_3d_payload: false,
+                fragment_reference: false,
+            } => Ok(()),
+        }
     }
 
     fn write_fragment_imports(&mut self) -> Result {
@@ -864,12 +1002,31 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         Ok(())
     }
 
+    fn write_fragment_refs_for_refetchable(
+        &mut self,
+        refetchable_fragment_name: StringKey,
+    ) -> Result {
+        let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
+        let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
+        writeln!(
+            self.result,
+            "declare export opaque type {}: FragmentReference;",
+            old_fragment_type_name
+        )?;
+        writeln!(
+            self.result,
+            "declare export opaque type {}: {};",
+            new_fragment_type_name, old_fragment_type_name
+        )?;
+        Ok(())
+    }
+
     fn write_enum_definitions(&mut self) -> Result {
         let mut enum_ids: Vec<_> = self.used_enums.iter().cloned().collect();
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
-            if let Some(enum_module_suffix) = self.enum_module_suffix {
+            if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 writeln!(
                     self.result,
                     "import type {{ {enum_name} }} from \"{enum_name}{enum_suffix}\";",
@@ -956,7 +1113,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                                 key: field.name,
                                 read_only: false,
                                 optional: !field.type_.is_non_null()
-                                    || self.optional_input_fields.contains(&field.name),
+                                    || self
+                                        .typegen_config
+                                        .optional_input_fields
+                                        .contains(&field.name),
                                 value: self.transform_input_type(&field.type_),
                             })
                             .collect();
@@ -983,15 +1143,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     panic!("There should be no fragment spreads in the raw response IR.");
                 }
                 Selection::InlineFragment(inline_fragment) => {
-                    // TODO if has client extension directive, mark as conditional:
-                    //
-                    //   return flattenArray(
-                    //     /* $FlowFixMe: selections have already been transformed */
-                    //     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-                    //   ).map(sel => ({
-                    //     ...sel,
-                    //     conditional: true,
-                    //   }));
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)
                 }
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
@@ -1022,7 +1173,6 @@ struct TypeSelection {
     concrete_type: Option<Type>,
     ref_: Option<StringKey>,
     node_selections: Option<TypeSelectionMap>,
-    kind: Option<StringKey>,
     document_name: Option<StringKey>,
 }
 impl TypeSelection {
@@ -1138,7 +1288,6 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
             concrete_type: None,
             ref_: None,
             node_selections: None,
-            kind: None,
             document_name: None,
         });
     }

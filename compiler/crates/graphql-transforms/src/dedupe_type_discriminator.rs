@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::is_relay_custom_inline_fragment_directive; // PointerAddress
+use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
 use crate::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use common::NamedItem;
-// use fnv::FnvHashMap;
+use fnv::FnvHashMap;
 use graphql_ir::{InlineFragment, Program, Selection, Transformed, TransformedValue, Transformer};
 use std::sync::Arc;
 
@@ -21,35 +21,35 @@ use std::sync::Arc;
 ///   abstractKey: replace the Fragment w the Discriminator
 /// - The inline fragment contains other selections: return all the selections
 ///   minus any Discriminators w the same key
-pub fn dedupe_type_discriminator<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn dedupe_type_discriminator(program: &Program) -> Program {
     let mut transform = DedupeTypeDiscriminator::new(program);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
 
-struct DedupeTypeDiscriminator<'s> {
-    program: &'s Program<'s>,
+type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
+
+struct DedupeTypeDiscriminator<'program> {
+    seen: Seen,
+    program: &'program Program,
 }
 
-impl<'s> DedupeTypeDiscriminator<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
-        Self { program }
+impl<'program> DedupeTypeDiscriminator<'program> {
+    fn new(program: &'program Program) -> Self {
+        Self {
+            program,
+            seen: Default::default(),
+        }
     }
-}
 
-impl<'s> Transformer for DedupeTypeDiscriminator<'s> {
-    const NAME: &'static str = "DedupeTypeDiscriminator";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
-
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+    fn dedupe_on_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let is_abstract_inline_fragment = !fragment
             .directives
             .iter()
             .any(is_relay_custom_inline_fragment_directive)
             && if let Some(type_condition) = fragment.type_condition {
-                self.program.schema().is_abstract_type(type_condition)
+                self.program.schema.is_abstract_type(type_condition)
             } else {
                 false
             };
@@ -100,6 +100,23 @@ impl<'s> Transformer for DedupeTypeDiscriminator<'s> {
             }
         } else {
             self.default_transform_inline_fragment(fragment)
+        }
+    }
+}
+
+impl<'program> Transformer for DedupeTypeDiscriminator<'program> {
+    const NAME: &'static str = "DedupeTypeDiscriminator";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        let key = PointerAddress::new(fragment);
+        if let Some(prev) = self.seen.get(&key) {
+            prev.clone()
+        } else {
+            let result = self.dedupe_on_inline_fragment(fragment);
+            self.seen.insert(key, result.clone());
+            result
         }
     }
 }

@@ -22,7 +22,7 @@ const invariant = require('invariant');
 
 import type {Schema} from '../core/Schema';
 
-import type {Fragment, Node, Root, Selection} from '../core/IR';
+import type {Fragment, Node, Root, SplitOperation, Selection} from '../core/IR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -128,12 +128,13 @@ function skipRedundantNodesTransform(
 ): CompilerContext {
   return IRTransformer.transform(context, {
     Root: visitNode,
+    SplitOperation: visitNode,
     Fragment: visitNode,
   });
 }
 
 let cache = new Map();
-function visitNode<T: Fragment | Root>(node: T): ?T {
+function visitNode<T: Fragment | Root | SplitOperation>(node: T): ?T {
   cache = new Map();
   const context: CompilerContext = this.getContext();
   return transformNode(context.getSchema(), node, new IMap()).node;

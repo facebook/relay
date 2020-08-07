@@ -34,6 +34,7 @@ import type {
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
+  MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
   SelectorData,
@@ -216,6 +217,7 @@ class SelectorResolver {
   _data: ?SelectorData;
   _environment: IEnvironment;
   _isMissingData: boolean;
+  _missingRequiredFields: ?MissingRequiredFields;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
@@ -228,6 +230,7 @@ class SelectorResolver {
     this._callback = callback;
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._environment = environment;
     this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
@@ -241,6 +244,9 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
+    if (this._missingRequiredFields != null) {
+      this._handleMissingRequriedFields(this._missingRequiredFields);
+    }
     if (
       RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
       this._isMissingData === true
@@ -285,6 +291,29 @@ class SelectorResolver {
     return this._data;
   }
 
+  _handleMissingRequriedFields(missingRequiredFields: MissingRequiredFields) {
+    switch (missingRequiredFields.action) {
+      case 'THROW': {
+        const {path, owner} = missingRequiredFields.field;
+        throw new Error(
+          `Relay: Missing @required value at path '${path}' in '${owner}'.`,
+        );
+      }
+      case 'LOG':
+        missingRequiredFields.fields.forEach(({path, owner}) => {
+          this._environment.__log({
+            name: 'read.missing_required_field',
+            owner,
+            fieldPath: path,
+          });
+        });
+        break;
+      default: {
+        (missingRequiredFields.action: empty);
+      }
+    }
+  }
+
   setSelector(selector: SingularReaderSelector): void {
     if (
       this._subscription != null &&
@@ -296,6 +325,7 @@ class SelectorResolver {
     const snapshot = this._environment.lookup(selector);
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -331,6 +361,7 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._callback();
   };
 }

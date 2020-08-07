@@ -15,6 +15,8 @@
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const GraphQLTag = require('./query/GraphQLTag');
+const MutationHandlers = require('./handlers/connection/MutationHandlers');
+const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
@@ -116,6 +118,7 @@ export type {
   LogEvent,
   LogFunction,
   MissingFieldHandler,
+  MissingRequiredFields,
   ModuleImportPointer,
   NormalizationSelector,
   OperationAvailability,
@@ -147,6 +150,7 @@ export type {
   NormalizationArgument,
   NormalizationDefer,
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -162,6 +166,7 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -170,8 +175,10 @@ export type {
   ReaderPaginationMetadata,
   ReaderRefetchableFragment,
   ReaderRefetchMetadata,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
@@ -187,6 +194,7 @@ export type {
   OperationType,
   RenderPolicy,
   Variables,
+  VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
 
@@ -260,6 +268,7 @@ module.exports = {
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler,
+  MutationHandlers,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 
@@ -275,6 +284,7 @@ module.exports = {
   ConnectionInterface,
 
   // Utilities
+  PreloadableQueryRegistry,
   RelayProfiler: RelayProfiler,
   createPayloadFor3DField: createPayloadFor3DField,
 

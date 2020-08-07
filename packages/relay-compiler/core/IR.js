@@ -97,9 +97,6 @@ export type FragmentSpread = {|
 export type Defer = {|
   +kind: 'Defer',
   +loc: Location,
-  +metadata: ?{|
-    +fragmentTypeCondition: CompositeTypeID,
-  |},
   +selections: $ReadOnlyArray<Selection>,
   +label: string,
   +if: ArgumentValue | null,
@@ -181,9 +178,9 @@ export type InlineFragment = {|
 export type Handle = {|
   +name: string,
   +key: string,
-  // T45504512: new connection model
   +dynamicKey: Variable | null,
   +filters: ?$ReadOnlyArray<string>,
+  +handleArgs?: $ReadOnlyArray<Argument>,
 |};
 
 export type ClientExtension = {|

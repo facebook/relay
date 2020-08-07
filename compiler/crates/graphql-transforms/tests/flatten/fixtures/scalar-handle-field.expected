@@ -11,6 +11,5 @@ fragment ScalarHandleField on User {
 }
 ==================================== OUTPUT ===================================
 fragment ScalarHandleField on User {
-  name @__clientField(handle: "clientName")
-  name @__clientField(handle: "otherClientName")
+  name @__clientField(handle: "clientName") @__clientField(handle: "otherClientName")
 }

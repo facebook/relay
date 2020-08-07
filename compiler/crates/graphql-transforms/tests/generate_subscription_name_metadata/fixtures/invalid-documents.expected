@@ -10,5 +10,5 @@ subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {
 }
 ==================================== ERROR ====================================
 Subscription 'TestSubscriptionWithMultipleSelections' must have a single selection:
-invalid-documents.graphql:1:14:
+invalid-documents.graphql:2:14:2:52
 subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {

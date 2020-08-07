@@ -17,8 +17,7 @@ query AbstractTypeRefinement($shouldInclude: Boolean!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "shouldInclude",
-        "type": "Boolean!"
+        "name": "shouldInclude"
       }
     ],
     "kind": "Fragment",
@@ -66,8 +65,7 @@ query AbstractTypeRefinement($shouldInclude: Boolean!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "shouldInclude",
-        "type": "Boolean!"
+        "name": "shouldInclude"
       }
     ],
     "kind": "Operation",

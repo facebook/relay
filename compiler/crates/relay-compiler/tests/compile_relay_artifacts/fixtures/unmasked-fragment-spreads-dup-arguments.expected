@@ -29,8 +29,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
+      "name": "globalIsRelative"
     }
   ],
   "kind": "Fragment",
@@ -59,8 +58,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
+      "name": "globalIsRelative"
     }
   ],
   "kind": "Fragment",
@@ -90,20 +88,17 @@ fragment UserUtil3_user on User @relay(mask: false) {
 {
   "argumentDefinitions": [
     {
+      "kind": "RootArgument",
+      "name": "PictureSize"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "globalIsRelative"
+    },
+    {
       "defaultValue": false,
       "kind": "LocalArgument",
-      "name": "localIsRelative",
-      "type": "Boolean"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "[Int]"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "globalIsRelative",
-      "type": "Boolean"
+      "name": "localIsRelative"
     }
   ],
   "kind": "Fragment",
@@ -155,11 +150,6 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "storageKey": null
     },
     {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "UserUtil3_user"
-    },
-    {
       "alias": "anotherUrl",
       "args": [
         {
@@ -171,6 +161,11 @@ fragment UserUtil3_user on User @relay(mask: false) {
       "kind": "ScalarField",
       "name": "url",
       "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "UserUtil3_user"
     }
   ],
   "type": "User",

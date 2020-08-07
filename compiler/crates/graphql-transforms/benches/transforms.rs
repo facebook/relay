@@ -9,16 +9,16 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-use common::FileKey;
+use common::SourceLocationKey;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_transforms::{
     generate_id_field, generate_typename, inline_fragments, skip_client_extensions, sort_selections,
 };
 use std::env;
 use std::fs;
-use test_schema::{test_schema_with_extensions, TEST_SCHEMA};
+use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut path = env::current_dir().unwrap();
@@ -31,24 +31,19 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             continue;
         }
         let file_name = file_path.file_stem().unwrap().to_str().unwrap();
-        let file_key = FileKey::new(file_name);
+        let source_location = SourceLocationKey::standalone(file_name);
         let file_data = fs::read_to_string(&file_path).unwrap();
         let parts: Vec<_> = file_data.split("%extensions%").collect();
-        let _schema;
-        let program = if let [base, extensions] = parts.as_slice() {
-            let ast = parse(base, file_key)
-                .unwrap_or_else(|error| panic!("failed to parse: {}: {:?}", file_name, error));
-            _schema = test_schema_with_extensions(extensions);
-            let ir = build(&_schema, &ast.definitions)
-                .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));
-            Program::from_definitions(&_schema, ir)
-        } else {
-            let ast = parse(&file_data, file_key)
-                .unwrap_or_else(|error| panic!("failed to parse: {}: {:?}", file_name, error));
-            let ir = build(&TEST_SCHEMA, &ast.definitions)
-                .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));
-            Program::from_definitions(&TEST_SCHEMA, ir)
+        let (source, schema) = match parts.as_slice() {
+            [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
+            [source] => (source, get_test_schema()),
+            _ => panic!("Expected at most one %extensions% separator."),
         };
+        let ast = parse_executable(source, source_location)
+            .unwrap_or_else(|error| panic!("failed to parse: {}: {:?}", file_name, error));
+        let ir = build(&schema, &ast.definitions)
+            .unwrap_or_else(|error| panic!("failed to build ir: {}: {:?}", file_name, error));
+        let program = Program::from_definitions(schema, ir);
 
         c.bench_function(&format!("inline_fragments::{}", file_name), |b| {
             b.iter(|| {

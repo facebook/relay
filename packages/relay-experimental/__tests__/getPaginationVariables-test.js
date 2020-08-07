@@ -45,7 +45,7 @@ describe('getPaginationVariables', () => {
           'cursor-1',
           {order_by: 'LAST_NAME'},
           {},
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           {forward: {count: null, cursor: 'after'}, backward: null, path: []},
         ),
       ).toThrowError(
@@ -136,7 +136,7 @@ describe('getPaginationVariables', () => {
         {},
         {
           forward: {count: 'first', cursor: 'after'},
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           backward: {count: null, cursor: 'before'},
           path: [],
         },
@@ -177,7 +177,7 @@ describe('getPaginationVariables', () => {
           'cursor-1',
           {order_by: 'LAST_NAME'},
           {},
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           {forward: null, backward: {count: null, cursor: 'before'}, path: []},
         ),
       ).toThrowError(
@@ -267,7 +267,7 @@ describe('getPaginationVariables', () => {
         {order_by: 'LAST_NAME'},
         {},
         {
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-call]
           forward: {count: null, cursor: 'after'},
           backward: {count: 'last', cursor: 'before'},
           path: [],

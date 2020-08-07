@@ -89,47 +89,76 @@ function writeRelayGeneratedFile(
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    docText = generatedNode.params.text;
+    docText =
+      generatedNode.params.text != null ? generatedNode.params.text : null;
   }
 
   // Use `Promise.resolve` to work around a Babel 7.8/7.9 issue.
   return Promise.resolve().then(async () => {
     let hash = null;
-    if (generatedNode.kind === RelayConcreteNode.REQUEST && persistQuery) {
-      const {text} = generatedNode.params;
+    if (generatedNode.kind === RelayConcreteNode.REQUEST) {
       invariant(
-        text != null,
-        'writeRelayGeneratedFile: Expected `text` in order to persist query',
+        docText != null,
+        'writeRelayGeneratedFile: Expected `text` for operations to be set.',
       );
 
-      hash = md5(text);
+      const {
+        isRefetchableQuery: _ignored,
+        derivedFrom: _ignored2,
+        ...nextMetadata
+      } = generatedNode.params.metadata;
 
-      let id = null;
-      if (!shouldRepersist) {
-        // Unless we `shouldRepersist` the query, check if the @relayHash matches
-        // the operation text of the current text and re-use the persisted
-        // operation id.
-        const oldContent = codegenDir.read(filename);
-        const oldHash = extractHash(oldContent);
-        const oldRequestID = extractRelayRequestID(oldContent);
+      let nextRequestParams;
+      if (persistQuery != null) {
+        hash = md5(docText);
 
-        if (hash === oldHash && oldRequestID != null) {
-          id = oldRequestID;
+        let id = null;
+        if (!shouldRepersist) {
+          // Unless we `shouldRepersist` the query, check if the @relayHash matches
+          // the operation text of the current text and re-use the persisted
+          // operation id.
+          const oldContent = codegenDir.read(filename);
+          const oldHash = extractHash(oldContent);
+          const oldRequestID = extractRelayRequestID(oldContent);
+          if (hash === oldHash && oldRequestID != null) {
+            id = oldRequestID;
+          }
         }
-      }
-      if (id == null) {
-        id = await persistQuery(text);
-      }
-
-      generatedNode = {
-        ...generatedNode,
-        params: {
+        if (id == null) {
+          id = await persistQuery(docText);
+        }
+        nextRequestParams = {
           id,
-          metadata: generatedNode.params.metadata,
+          metadata: nextMetadata,
           name: generatedNode.params.name,
           operationKind: generatedNode.params.operationKind,
           text: null,
-        },
+        };
+      } else {
+        nextRequestParams = {
+          cacheID: md5(docText),
+          id: null,
+          metadata: nextMetadata,
+          name: generatedNode.params.name,
+          operationKind: generatedNode.params.operationKind,
+          text: docText,
+        };
+      }
+      generatedNode = {
+        ...generatedNode,
+        params: nextRequestParams,
+      };
+    }
+
+    // Strip metadata only used within the compiler
+    if (
+      generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION &&
+      generatedNode.metadata?.derivedFrom != null
+    ) {
+      const {derivedFrom: _ignored, ...metadata} = generatedNode.metadata;
+      generatedNode = {
+        ...generatedNode,
+        metadata,
       };
     }
 

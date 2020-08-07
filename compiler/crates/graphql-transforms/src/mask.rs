@@ -8,8 +8,8 @@
 use crate::relay_directive::RelayDirective;
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
-    Transformed, Transformer, VariableDefinition,
+    FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program, ScalarField,
+    Selection, Transformed, Transformer, VariableDefinition,
 };
 use indexmap::{map::Entry, IndexMap};
 use interner::StringKey;
@@ -17,7 +17,7 @@ use std::ops::RangeFull;
 use std::sync::Arc;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
-pub fn mask<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn mask(program: &Program) -> Program {
     let mut transform = Mask::new(program);
     transform
         .transform_program(program)
@@ -27,12 +27,12 @@ pub fn mask<'s>(program: &Program<'s>) -> Program<'s> {
 type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildHasher>;
 
 struct Mask<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     current_reachable_arguments: Vec<&'s VariableDefinition>,
 }
 
 impl<'s> Mask<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             program,
             current_reachable_arguments: vec![],
@@ -53,7 +53,7 @@ impl<'s> Mask<'s> {
                     let prev_arg = entry.get();
                     if self
                         .program
-                        .schema()
+                        .schema
                         .is_type_subtype_of(&arg.type_, &prev_arg.type_)
                     {
                         entry.insert(arg);
@@ -74,6 +74,15 @@ impl<'s> Transformer for Mask<'s> {
     const NAME: &'static str = "MaskTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let result = self.default_transform_operation(operation);
+        self.current_reachable_arguments.clear();
+        result
+    }
 
     fn transform_fragment(
         &mut self,

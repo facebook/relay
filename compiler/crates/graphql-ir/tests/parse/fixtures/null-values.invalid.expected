@@ -7,5 +7,5 @@ query NullValuesQuery {
 }
 ==================================== ERROR ====================================
 Expected a value of type 'ID':
-null-values.invalid.graphql:2:24:
+null-values.invalid.graphql:3:24:3:28
   node_id_required(id: null) {

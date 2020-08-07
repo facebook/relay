@@ -17,7 +17,7 @@ const Profiler = require('./GraphQLCompilerProfiler');
 const invariant = require('invariant');
 
 const {createUserError} = require('./CompilerError');
-// $FlowFixMe - immutable.js is not flow-typed
+// $FlowFixMe[untyped-import] - immutable.js is not flow-typed
 const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {Reporter} from '../reporters/Reporter';

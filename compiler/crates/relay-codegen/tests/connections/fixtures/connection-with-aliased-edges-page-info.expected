@@ -24,8 +24,7 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "id",
-    "type": "ID!"
+    "name": "id"
   }
 ],
 v1 = [
@@ -49,7 +48,66 @@ v3 = [
     "value": 10
   }
 ],
-v4 = [
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "hasNextPage",
+  "storageKey": null
+},
+v5 = [
+  {
+    "alias": "commentEdges",
+    "args": null,
+    "concreteType": "CommentsEdge",
+    "kind": "LinkedField",
+    "name": "edges",
+    "plural": true,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Comment",
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
+  },
+  {
+    "alias": "commentPageInfo",
+    "args": null,
+    "concreteType": "PageInfo",
+    "kind": "LinkedField",
+    "name": "pageInfo",
+    "plural": false,
+    "selections": [
+      (v4/*: any*/)
+    ],
+    "storageKey": null
+  },
   {
     "alias": null,
     "args": null,
@@ -111,13 +169,7 @@ v4 = [
             "name": "endCursor",
             "storageKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "hasNextPage",
-            "storageKey": null
-          }
+          (v4/*: any*/)
         ],
         "type": "PageInfo",
         "abstractKey": null
@@ -130,19 +182,7 @@ return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
-    "metadata": {
-      "connection": [
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": [
-            "node",
-            "comments"
-          ]
-        }
-      ]
-    },
+    "metadata": null,
     "name": "NodeQuery",
     "selections": [
       {
@@ -164,7 +204,7 @@ return {
                 "kind": "LinkedField",
                 "name": "__NodeQuery_comments_connection",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v5/*: any*/),
                 "storageKey": "__NodeQuery_comments_connection(first:10)"
               }
             ],
@@ -203,7 +243,7 @@ return {
                 "kind": "LinkedField",
                 "name": "comments",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v5/*: any*/),
                 "storageKey": "comments(first:10)"
               },
               {
@@ -226,7 +266,19 @@ return {
   },
   "params": {
     "id": null,
-    "metadata": {},
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ]
+        }
+      ]
+    },
     "name": "NodeQuery",
     "operationKind": "query",
     "text": null

@@ -29,22 +29,19 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "cond"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "id"
       },
       {
         "defaultValue": [
           128
         ],
         "kind": "LocalArgument",
-        "name": "pictureSize",
-        "type": "[Int]"
+        "name": "pictureSize"
       }
     ],
     "kind": "Fragment",
@@ -108,22 +105,19 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "cond"
       },
       {
         "defaultValue": [
           128
         ],
         "kind": "LocalArgument",
-        "name": "pictureSize",
-        "type": "[Int]"
+        "name": "pictureSize"
       }
     ],
     "kind": "Operation",
@@ -324,8 +318,7 @@ fragment Profile_4CNNX6 on User {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "pictureSize",
-      "type": "[Int]"
+      "name": "pictureSize"
     }
   ],
   "kind": "Fragment",
@@ -365,8 +358,7 @@ fragment Profile_4CNNX6 on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "pictureSize",
-      "type": "[Int]"
+      "name": "pictureSize"
     }
   ],
   "kind": "Fragment",

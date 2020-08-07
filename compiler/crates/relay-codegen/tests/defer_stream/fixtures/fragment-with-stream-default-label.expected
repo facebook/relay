@@ -18,8 +18,7 @@ fragment FeedbackFragment on Feedback {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID!"
+      "name": "id"
     }
   ],
   "kind": "Operation",

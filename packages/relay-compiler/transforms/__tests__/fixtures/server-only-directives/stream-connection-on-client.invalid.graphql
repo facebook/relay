@@ -4,11 +4,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       clientComments(first: 10)
-        @stream_connection(
-          key: "NodeQuery_clientComments"
-          initial_count: 0
-          label: "comments"
-        ) {
+        @stream_connection(key: "NodeQuery_clientComments", initial_count: 0) {
         edges {
           node {
             actor {

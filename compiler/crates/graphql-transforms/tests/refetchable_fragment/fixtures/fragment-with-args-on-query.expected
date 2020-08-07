@@ -39,10 +39,10 @@ fragment ProfilePicture on User @argumentDefinitions(
   }
 }
 
-fragment RefetchableFragment on Query @argumentDefinitions(
+fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(
   id: {type: "ID!"}
   size: {type: "[Int]"}
-) @refetchable(queryName: "RefetchableFragmentQuery") @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", [], null]) {
+) @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", [], null]) {
   node(id: $id) {
     ... on User {
       id

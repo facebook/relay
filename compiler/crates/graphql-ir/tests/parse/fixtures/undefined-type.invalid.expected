@@ -7,5 +7,5 @@ query TestQuery($id: UnknownType) {
 }
 ==================================== ERROR ====================================
 Unknown type 'UnknownType':
-undefined-type.invalid.graphql:1:22:
+undefined-type.invalid.graphql:2:22:2:33
 query TestQuery($id: UnknownType) {

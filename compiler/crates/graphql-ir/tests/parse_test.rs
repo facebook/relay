@@ -1,4 +1,4 @@
-// @generated SignedSource<<7477e4591b12a0bc4aebae640f66e375>>
+// @generated SignedSource<<cc89ad4060a64b7d402a6afea5a4cb9f>>
 
 mod parse;
 
@@ -129,6 +129,13 @@ fn fragment_with_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-arguments.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments.expected");
     test_fixture(transform_fixture, "fragment-with-arguments.graphql", "parse/fixtures/fragment-with-arguments.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_arguments_duplicate_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-arguments-duplicate.invalid.graphql", "parse/fixtures/fragment-with-arguments-duplicate.invalid.expected", input, expected);
 }
 
 #[test]

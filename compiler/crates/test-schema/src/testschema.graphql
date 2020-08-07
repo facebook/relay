@@ -47,8 +47,8 @@ type Query {
   viewer: Viewer
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
-  fetch__User(id: ID!): User
-  fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
+  fetch__User(id: ID!, token: ID!): User
+  fetch__NonNodeStory(input_fetch_id: ID!, token: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
 }
 
@@ -57,6 +57,10 @@ interface MaybeNodeInterface {
 }
 
 scalar JSON
+
+scalar ReactFlightComponent
+
+scalar ReactFlightProps
 
 union MaybeNode = Story | FakeNode | NonNode
 
@@ -74,6 +78,10 @@ type NonNodeNoID implements MaybeNodeInterface {
 }
 
 union NeverNode = FakeNode | NonNode
+
+interface AllConcreteTypesImplementNode {
+  count: Int
+}
 
 type Task {
   title: String
@@ -753,6 +761,7 @@ type PhotoStory implements FeedUnit & Node {
 
 type Story implements FeedUnit & Node & MaybeNodeInterface {
   attachments: [StoryAttachment]
+  flight(component: String!, props: ReactFlightProps): ReactFlightComponent
 
   # FeedUnit
   canViewerDelete: Boolean
@@ -920,7 +929,7 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField {
+type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImplementNode {
   actor: Actor
   actors: [Actor]
   actorCount: Int

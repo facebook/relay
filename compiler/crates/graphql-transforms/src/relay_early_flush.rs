@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, NamedItem, WithLocation};
+use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, ValidationResult, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -33,7 +33,7 @@ lazy_static! {
 ///   relay_early_flush(query_name: QueryName)
 ///   a
 /// }
-pub fn relay_early_flush<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn relay_early_flush(program: &Program) -> ValidationResult<Program> {
     let mut transform = RelayEarlyFlush {
         program,
         errors: Default::default(),
@@ -50,8 +50,8 @@ pub fn relay_early_flush<'s>(program: &Program<'s>) -> ValidationResult<Program<
 }
 
 pub struct RelayEarlyFlush<'s> {
-    program: &'s Program<'s>,
-    errors: Vec<ValidationError>,
+    program: &'s Program,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'s> Transformer for RelayEarlyFlush<'s> {
@@ -66,7 +66,7 @@ impl<'s> Transformer for RelayEarlyFlush<'s> {
         let early_flush_directive = operation.directives.named(*EARLY_FLUSH_NAME);
         if let Some(early_flush_directive) = early_flush_directive {
             match get_early_flush_field_id_and_query_name_arg(
-                self.program.schema(),
+                &self.program.schema,
                 early_flush_directive.name.location,
             ) {
                 Err(err) => {
@@ -115,30 +115,30 @@ impl<'s> Transformer for RelayEarlyFlush<'s> {
 fn get_early_flush_field_id_and_query_name_arg(
     schema: &'_ Schema,
     directive_loc: Location,
-) -> Result<(FieldID, &'_ ArgumentDef), ValidationError> {
+) -> Result<(FieldID, &'_ ArgumentDef), Diagnostic> {
     let query_type = schema.query_type().unwrap();
     let early_flush_field_id = schema.named_field(query_type, *EARLY_FLUSH_NAME);
     if let Some(early_flush_field_id) = early_flush_field_id {
         let field = schema.field(early_flush_field_id);
         if field.is_extension {
-            Err(ValidationError::new(
+            Err(Diagnostic::error(
                 ValidationMessage::UnavailableRelayEarlyFlushServerSchema,
-                vec![directive_loc],
+                directive_loc,
             ))
         } else if let Some(query_name_arg) = field.arguments.named(*QUERY_NAME_ARG) {
             Ok((early_flush_field_id, query_name_arg))
         } else {
-            Err(ValidationError::new(
+            Err(Diagnostic::error(
                 ValidationMessage::RelayEarlyFlushSchemaWithoutQueryNameArg {
                     query_name: *QUERY_NAME_ARG,
                 },
-                vec![directive_loc],
+                directive_loc,
             ))
         }
     } else {
-        Err(ValidationError::new(
+        Err(Diagnostic::error(
             ValidationMessage::UnavailableRelayEarlyFlushServerSchema,
-            vec![directive_loc],
+            directive_loc,
         ))
     }
 }

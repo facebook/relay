@@ -41,6 +41,7 @@ import type {
   OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
+  VariablesOf,
 } from 'relay-runtime';
 
 export type Direction = 'forward' | 'backward';
@@ -49,7 +50,7 @@ export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {|
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<$ElementType<TQuery, 'variables'>>,
+    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
   |},
 ) => Disposable;
 
@@ -60,7 +61,6 @@ export type UseLoadMoreFunctionArgs = {|
   fragmentIdentifier: string,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
   identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
@@ -79,7 +79,6 @@ function useLoadMoreFunction<TQuery: OperationType>(
     fragmentIdentifier,
     fragmentData,
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
     paginationRequest,
     paginationMetadata,
     componentDisplayName,

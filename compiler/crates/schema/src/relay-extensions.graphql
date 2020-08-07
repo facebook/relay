@@ -47,3 +47,16 @@ directive @stream_connection(
   use_customized_batch: Boolean = false
   dynamicKey_UNSTABLE: String
 ) on FIELD
+
+# RequiredTransform
+enum RequiredFieldAction {
+  NONE
+  LOG
+  THROW
+}
+directive @required(action: RequiredFieldAction!) on FIELD
+
+# DeclarativeConnection
+directive @deleteRecord on FIELD
+directive @appendEdge(connections: [String!]!) on FIELD
+directive @prependEdge(connections: [String!]!) on FIELD

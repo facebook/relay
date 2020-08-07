@@ -1,0 +1,19 @@
+{
+  "name": "relay-compiler-neon",
+  "version": "0.1.0",
+  "description": "Relay Compiler - native extension for nodejs",
+  "main": "lib/index.js",
+  "author": "Facebook <alunyov@fb.com>",
+  "repository": "https://github.com/facebook/relay",
+  "license": "MIT",
+  "dependencies": {
+    "neon-cli": "^0.4.0"
+  },
+  "scripts": {
+    "install": "neon build",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^26.1.0"
+  }
+}

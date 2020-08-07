@@ -1,4 +1,4 @@
-// @generated SignedSource<<94ec84ab3ecffa45a9cef6a392d5524f>>
+// @generated SignedSource<<8bebbff3945ef91e6e02a4d6212e7aef>>
 
 mod validate_connections;
 
@@ -115,4 +115,18 @@ fn connection_with_variables() {
     let input = include_str!("validate_connections/fixtures/connection-with-variables.graphql");
     let expected = include_str!("validate_connections/fixtures/connection-with-variables.expected");
     test_fixture(transform_fixture, "connection-with-variables.graphql", "validate_connections/fixtures/connection-with-variables.expected", input, expected);
+}
+
+#[test]
+fn stream_connection_with_aliased_edges_invalid() {
+    let input = include_str!("validate_connections/fixtures/stream-connection-with-aliased-edges.invalid.graphql");
+    let expected = include_str!("validate_connections/fixtures/stream-connection-with-aliased-edges.invalid.expected");
+    test_fixture(transform_fixture, "stream-connection-with-aliased-edges.invalid.graphql", "validate_connections/fixtures/stream-connection-with-aliased-edges.invalid.expected", input, expected);
+}
+
+#[test]
+fn stream_connection_with_aliased_page_info_invalid() {
+    let input = include_str!("validate_connections/fixtures/stream-connection-with-aliased-page-info.invalid.graphql");
+    let expected = include_str!("validate_connections/fixtures/stream-connection-with-aliased-page-info.invalid.expected");
+    test_fixture(transform_fixture, "stream-connection-with-aliased-page-info.invalid.graphql", "validate_connections/fixtures/stream-connection-with-aliased-page-info.invalid.expected", input, expected);
 }

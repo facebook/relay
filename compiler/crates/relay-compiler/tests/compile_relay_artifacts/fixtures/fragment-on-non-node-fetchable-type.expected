@@ -18,14 +18,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "size"
       }
     ],
     "kind": "Fragment",
@@ -64,14 +62,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -107,6 +103,13 @@ fragment ProfilePicture on User {
                 "storageKey": null
               },
               {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
                 "kind": "InlineFragment",
                 "selections": [
                   {
@@ -136,13 +139,6 @@ fragment ProfilePicture on User {
                 ],
                 "type": "User",
                 "abstractKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
               }
             ],
             "storageKey": null
@@ -207,8 +203,7 @@ fragment RefetchableFragment on NonNodeStory {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
@@ -245,7 +240,12 @@ fragment RefetchableFragment on NonNodeStory {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {

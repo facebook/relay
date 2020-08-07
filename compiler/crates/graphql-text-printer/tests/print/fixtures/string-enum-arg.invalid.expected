@@ -6,4 +6,4 @@ fragment UserFragment on User {
   }
 }
 ==================================== ERROR ====================================
-ValidationError { message: ExpectedValueMatchingType("Environment"), locations: ["string-enum-arg.invalid.graphql":77:82] }
+Diagnostic(DiagnosticData { message: ExpectedEnumValueGotString("Environment"), location: string-enum-arg.invalid.graphql:77:82, related_information: [] })

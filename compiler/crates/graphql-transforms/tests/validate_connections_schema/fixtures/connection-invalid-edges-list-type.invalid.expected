@@ -39,6 +39,5 @@ type BadConnectionPageInfo {
 }
 ==================================== ERROR ====================================
 Expected 'badConnection' to have a 'edges' selection.:
-connection-invalid-edges-list-type.invalid.graphql:4:18:
-    ... on User {
+connection-invalid-edges-list-type.invalid.graphql:6:7:6:20
       badConnection(first: $first, after: $after) @connection {

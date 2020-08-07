@@ -80,7 +80,7 @@ query Test {
 QUERY:
 
 query Test {
-  node(id: null) {
+  node {
     __typename
     id
   }

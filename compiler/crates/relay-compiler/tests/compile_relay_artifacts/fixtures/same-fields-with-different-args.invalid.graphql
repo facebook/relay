@@ -1,0 +1,19 @@
+# expected-to-throw
+query MeQuery {
+  me {
+    name
+    address {
+      city
+    }
+    ...NestedFragment
+    ...NestedFragment2
+  }
+}
+
+fragment NestedFragment on User {
+  firstName(if: false, unless: true)
+}
+
+fragment NestedFragment2 on User {
+  firstName(if: false, unless: false)
+}

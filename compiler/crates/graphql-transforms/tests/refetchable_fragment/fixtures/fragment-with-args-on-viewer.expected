@@ -38,9 +38,9 @@ fragment ProfilePicture on User @argumentDefinitions(
   }
 }
 
-fragment RefetchableFragment on Viewer @argumentDefinitions(
+fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(
   size: {type: "[Int]"}
-) @refetchable(queryName: "RefetchableFragmentQuery") @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["viewer"], null]) {
+) @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["viewer"], null]) {
   actor {
     id
     name

@@ -135,7 +135,6 @@ mod tests {
         fs.write(&path, CONTENTS.to_owned());
         assert!(fs.has_changes());
         assert!(fs.exists(&path));
-        dbg!(&fs);
 
         let result = fs.read_to_string(path)?;
         assert_eq!(result, CONTENTS);

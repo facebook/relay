@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query MyQuery {
+  node(id: "a-very-real-id-that-is-not-fake") {
+    id @required(action: LOG)
+  }
+  me @required(action: LOG) {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+query MyQuery {
+  node(id: "a-very-real-id-that-is-not-fake") {
+    id @required(action: LOG) @__required(path: "node.id")
+  }
+  me @required(action: LOG) @__required(path: "me") {
+    name
+  }
+}

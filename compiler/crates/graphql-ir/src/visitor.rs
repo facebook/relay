@@ -13,11 +13,11 @@ pub trait Visitor {
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
 
-    fn visit_program<'s>(&mut self, program: &Program<'s>) {
+    fn visit_program(&mut self, program: &Program) {
         self.default_visit_program(program)
     }
 
-    fn default_visit_program<'s>(&mut self, program: &Program<'s>) {
+    fn default_visit_program(&mut self, program: &Program) {
         for operation in program.operations() {
             self.visit_operation(operation);
         }
@@ -80,9 +80,9 @@ pub trait Visitor {
     }
 
     fn default_visit_linked_field(&mut self, field: &LinkedField) {
-        self.visit_selections(&field.selections);
         self.visit_arguments(&field.arguments);
         self.visit_directives(&field.directives);
+        self.visit_selections(&field.selections);
     }
 
     fn visit_inline_fragment(&mut self, fragment: &InlineFragment) {
@@ -90,8 +90,8 @@ pub trait Visitor {
     }
 
     fn default_visit_inline_fragment(&mut self, fragment: &InlineFragment) {
-        self.visit_selections(&fragment.selections);
         self.visit_directives(&fragment.directives);
+        self.visit_selections(&fragment.selections);
     }
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {

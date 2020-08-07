@@ -156,7 +156,7 @@ function useFragmentNode<TFragmentData: mixed>(
   }
 
   return {
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-return]
     data: fragmentResult.data,
     disableStoreUpdates,
     enableStoreUpdates,

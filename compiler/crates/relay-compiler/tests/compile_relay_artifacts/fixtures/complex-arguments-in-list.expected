@@ -21,26 +21,22 @@ query CheckinSearchQuery(
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "queryText",
-        "type": "String!"
+        "name": "queryText"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInputText",
-        "type": "String"
+        "name": "searchInput"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInput",
-        "type": "CheckinSearchInput"
+        "name": "searchInputLast"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInputLast",
-        "type": "CheckinSearchInput!"
+        "name": "searchInputText"
       }
     ],
     "kind": "Fragment",
@@ -115,26 +111,22 @@ query CheckinSearchQuery(
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "queryText",
-        "type": "String!"
+        "name": "queryText"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInputText",
-        "type": "String"
+        "name": "searchInputText"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInput",
-        "type": "CheckinSearchInput"
+        "name": "searchInput"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "searchInputLast",
-        "type": "CheckinSearchInput!"
+        "name": "searchInputLast"
       }
     ],
     "kind": "Operation",
@@ -217,7 +209,7 @@ query CheckinSearchQuery(
   $searchInput: CheckinSearchInput
   $searchInputLast: CheckinSearchInput!
 ) {
-  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]}) {
+  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, $searchInputLast]}) {
     query
   }
 }

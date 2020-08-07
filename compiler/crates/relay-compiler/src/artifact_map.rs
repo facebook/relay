@@ -6,11 +6,11 @@
  */
 
 use crate::build_project::Artifact;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
-use std::collections::{hash_map::Entry, HashMap};
-use std::path::PathBuf;
+use std::{collections::hash_map::Entry, path::PathBuf};
 
 /// Name of a fragment or operation.
 pub type DefinitionName = StringKey;
@@ -31,17 +31,17 @@ impl Sha1Hash {
 
 /// A map from DefinitionName to output artifacts and their hashes
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(HashMap<DefinitionName, Vec<ArtifactTuple>>);
+pub struct ArtifactMap(pub FnvHashMap<DefinitionName, Vec<ArtifactTuple>>);
 
 impl ArtifactMap {
-    pub fn insert(&mut self, artifact: Artifact<'_>) {
+    pub fn insert(&mut self, artifact: Artifact) {
         let artifact_tuple = (
             artifact.path,
             Sha1Hash::hash(
                 "TODO", // &artifact.content
             ),
         );
-        match self.0.entry(artifact.name) {
+        match self.0.entry(artifact.source_definition_name) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().push(artifact_tuple);
             }
@@ -49,5 +49,18 @@ impl ArtifactMap {
                 entry.insert(vec![artifact_tuple]);
             }
         }
+    }
+}
+
+impl From<Vec<Artifact>> for ArtifactMap {
+    fn from(artifacts: Vec<Artifact>) -> Self {
+        let mut map = ArtifactMap(FnvHashMap::with_capacity_and_hasher(
+            artifacts.len(),
+            FnvBuildHasher::default(),
+        ));
+        for artifact in artifacts {
+            map.insert(artifact);
+        }
+        map
     }
 }

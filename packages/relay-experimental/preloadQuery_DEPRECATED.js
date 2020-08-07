@@ -13,8 +13,6 @@
 
 'use strict';
 
-const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
-
 const invariant = require('invariant');
 
 const {
@@ -23,15 +21,17 @@ const {
   getRequest,
   getRequestIdentifier,
   Observable,
+  PreloadableQueryRegistry,
   ReplaySubject,
 } = require('relay-runtime');
 
 import type {
   PreloadableConcreteRequest,
-  PreloadedQuery,
+  PreloadedQueryInner_DEPRECATED,
   PreloadFetchPolicy,
   PreloadOptions,
   PreloadQueryStatus,
+  VariablesOf,
 } from './EntryPointTypes.flow';
 import type {
   ConcreteRequest,
@@ -40,7 +40,6 @@ import type {
   IEnvironment,
   OperationType,
   Subscription,
-  RequestParameters,
 } from 'relay-runtime';
 
 // Expire results by this delay after they resolve.
@@ -78,10 +77,10 @@ type PendingQueryEntry =
 function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
-): PreloadedQuery<TQuery, TEnvironmentProviderOptions> {
+): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
   invariant(
     environment instanceof Environment,
     'preloadQuery(): Expected a RelayModernEnvironment',
@@ -110,6 +109,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         })
       : null;
   return {
+    kind: 'PreloadedQuery_DEPRECATED',
     environment,
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
@@ -127,7 +127,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   environment: Environment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options: ?PreloadOptions,
 ): PendingQueryEntry {
   let params;
@@ -174,7 +174,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
             status: {
               cacheConfig: networkCacheConfig,
               source: 'cache',
-              cacheTime: availability?.fetchTime ?? null,
+              fetchTime: availability?.fetchTime ?? null,
             },
           };
     if (!environment.isServer() && prevQueryEntry == null) {
@@ -210,7 +210,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
       status: {
         cacheConfig: networkCacheConfig,
         source: 'network',
-        cacheTime: null,
+        fetchTime: null,
       },
       subject,
       subscription: source

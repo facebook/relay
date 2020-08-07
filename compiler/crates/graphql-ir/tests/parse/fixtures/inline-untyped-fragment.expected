@@ -9,7 +9,7 @@ fragment InlineUntypedFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "inline-untyped-fragment.graphql":9:31,
+                location: inline-untyped-fragment.graphql:9:30,
                 item: "InlineUntypedFragment",
             },
             variable_definitions: [],
@@ -24,9 +24,9 @@ fragment InlineUntypedFragment on User {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "inline-untyped-fragment.graphql":48:57,
+                                location: inline-untyped-fragment.graphql:53:57,
                                 item: FieldID(
-                                    455,
+                                    457,
                                 ),
                             },
                             arguments: [],

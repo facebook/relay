@@ -11,13 +11,11 @@ use crate::lsp::{
 };
 use crate::lsp::{Connection, Url};
 use crate::state::ServerState;
-
-use relay_compiler::errors::{
-    BuildProjectError, SyntaxErrorWithSource, ValidationError, ValidationErrorWithSources,
+use relay_compiler::{
+    errors::{BuildProjectError, SyntaxErrorWithSource},
+    source_for_location,
 };
-
 use std::fs;
-use std::path::PathBuf;
 
 /// Report errors that occur during the `build_project` step
 pub fn report_build_project_errors(
@@ -28,20 +26,10 @@ pub fn report_build_project_errors(
     for error in errors {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
-                for ValidationErrorWithSources { error, sources } in errors {
-                    let ValidationError { message, locations } = error;
+                for diagnostic in errors {
+                    let message = diagnostic.message().to_string();
 
-                    let message = format!("{}", message);
-
-                    let (source, location) = match (sources.first(), locations.first()) {
-                        (Some(Some(source)), Some(location)) => (source, location),
-                        _ => {
-                            // If we can't get the source and location we can't report the error, so
-                            // exit early.
-                            // TODO(brandondail) we should always have at least one source and location, so log here when we don't
-                            return;
-                        }
-                    };
+                    let location = diagnostic.location();
 
                     let url = match url_from_location(location, &server_state.root_dir) {
                         Some(url) => url,
@@ -54,6 +42,13 @@ pub fn report_build_project_errors(
 
                     server_state.register_url_with_diagnostics(url.clone());
 
+                    let source = if let Some(source) =
+                        source_for_location(&server_state.root_dir, location)
+                    {
+                        source
+                    } else {
+                        return;
+                    };
                     let range = location.span().to_range(
                         &source.text,
                         source.line_index,
@@ -96,9 +91,7 @@ pub fn report_syntax_errors(
     for SyntaxErrorWithSource { error, source } in errors {
         // Remove the index from the end of the path, resolve the absolute path
         let file_path = {
-            let file_path_and_index = error.location.file().lookup();
-            let file_path_and_index: Vec<&str> = file_path_and_index.split(':').collect();
-            let file_path = PathBuf::from(file_path_and_index[0]);
+            let file_path = error.location.source_location().path();
             fs::canonicalize(server_state.root_dir.join(file_path)).unwrap()
         };
 

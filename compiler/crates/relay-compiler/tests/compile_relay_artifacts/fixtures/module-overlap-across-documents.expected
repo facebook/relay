@@ -50,8 +50,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -90,8 +89,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -116,6 +114,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
@@ -155,13 +160,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -215,8 +213,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -255,8 +252,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -403,9 +399,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
@@ -445,9 +439,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "PlainUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "PlainUserNameRenderer_name$normalization",
   "selections": [
     {

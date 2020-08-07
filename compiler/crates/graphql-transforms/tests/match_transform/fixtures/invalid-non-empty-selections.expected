@@ -27,10 +27,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== ERROR ====================================
 Invalid @match selection: all selections should be fragment spreads with @module.:
-invalid-non-empty-selections.graphql:2:5:
-  id
+invalid-non-empty-selections.graphql:4:3:4:15
   nameRenderer @match {
-
-
-invalid-non-empty-selections.graphql:3:17:
+Notes:
+[related 1] other related location:
+invalid-non-empty-selections.graphql:4:17:4:22
   nameRenderer @match {

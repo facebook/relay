@@ -212,7 +212,6 @@ describe('usePaginationFragment', () => {
           ) @stream_connection(
               initial_count: 1
               key: "UserFragment_friends",
-              label: "friends"
               filters: ["orderby", "isViewerFriend"]
             ) {
             edges {
@@ -509,7 +508,7 @@ describe('usePaginationFragment', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });
@@ -839,8 +838,9 @@ describe('usePaginationFragment', () => {
           },
         ]);
 
-        renderer.unmount();
-
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
         TestRenderer.act(() => {
           loadNext(1);
         });
@@ -2505,7 +2505,9 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          renderer.unmount();
+          TestRenderer.act(() => {
+            renderer.unmount();
+          });
 
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);
@@ -2555,7 +2557,7 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-use]
           disposable.dispose();
 
           // Assert request was canceled
@@ -2686,7 +2688,8 @@ describe('usePaginationFragment', () => {
                   hasNextPage: true,
                 },
               },
-              label: 'UserFragmentWithStreaming$defer$friends$pageInfo',
+              label:
+                'UserFragmentWithStreaming$defer$UserFragment_friends$pageInfo',
               path: ['node', 'friends'],
               extensions: {
                 is_final: true,

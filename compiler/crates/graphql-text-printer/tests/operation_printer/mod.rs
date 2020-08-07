@@ -5,18 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, ExecutableDefinition, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::print_full_operation;
+use std::sync::Arc;
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let file_key = FileKey::new(fixture.file_name);
-    let ast = parse(fixture.content, file_key).unwrap();
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
+    let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
 
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|definitions| {

@@ -32,9 +32,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
@@ -198,6 +196,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -280,13 +285,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
@@ -351,9 +349,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "PlainUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "PlainUserNameRenderer_name$normalization",
   "selections": [
     {

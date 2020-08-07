@@ -87,7 +87,7 @@ function requestSubscription<TSubscriptionPayload>(
     })
     .map(() => {
       const data = environment.lookup(operation.fragment).data;
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-cast]
       return (data: TSubscriptionPayload);
     })
     .subscribe({

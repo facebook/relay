@@ -33,8 +33,7 @@ extend type Page {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "arg",
-      "type": "String"
+      "name": "arg"
     }
   ],
   "kind": "Fragment",

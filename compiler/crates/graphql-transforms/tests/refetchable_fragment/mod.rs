@@ -5,53 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
-use graphql_ir::{build, Program};
-use graphql_syntax::parse;
-use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::{
-    transform_connections, transform_refetchable_fragment, OSS_CONNECTION_INTERFACE,
+    transform_connections, transform_refetchable_fragment, ConnectionInterface,
 };
-use test_schema::TEST_SCHEMA;
+
+#[path = "../test_helper.rs"]
+mod test_helper;
+
+use test_helper::apply_transform_for_test;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let file_key = FileKey::new(fixture.file_name);
-
-    let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
-
-    let ast = parse(fixture.content, file_key).unwrap();
-    let ir = match build(&TEST_SCHEMA, &ast.definitions) {
-        Ok(ir) => ir,
-        Err(err) => return Err(format!("{:?}", err)),
-    };
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
-    let program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
-    let base_fragments = Default::default();
-    let next_program =
-        transform_refetchable_fragment(&program, &base_fragments, false).map_err(|errors| {
-            let mut errors = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errors.sort();
-            errors.join("\n\n")
-        })?;
-
-    let mut printed = next_program
-        .operations()
-        .map(|def| print_operation(&TEST_SCHEMA, def))
-        .collect::<Vec<_>>();
-    printed.sort();
-
-    let mut printed_fragments = next_program
-        .fragments()
-        .map(|def| print_fragment(&TEST_SCHEMA, def))
-        .collect::<Vec<_>>();
-    printed_fragments.sort();
-    printed.extend(printed_fragments);
-
-    Ok(printed.join("\n\n"))
+    apply_transform_for_test(fixture, |program| {
+        let program = transform_connections(&program, &ConnectionInterface::default());
+        let base_fragments = Default::default();
+        transform_refetchable_fragment(&program, &base_fragments, false)
+    })
 }

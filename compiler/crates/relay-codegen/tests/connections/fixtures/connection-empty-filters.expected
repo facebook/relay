@@ -22,14 +22,12 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "id",
-    "type": "ID!"
+    "name": "id"
   },
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "orderBy",
-    "type": "String"
+    "name": "orderBy"
   }
 ],
 v1 = [
@@ -168,19 +166,7 @@ return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
-    "metadata": {
-      "connection": [
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": [
-            "node",
-            "comments"
-          ]
-        }
-      ]
-    },
+    "metadata": null,
     "name": "NodeQuery",
     "selections": [
       {
@@ -264,7 +250,19 @@ return {
   },
   "params": {
     "id": null,
-    "metadata": {},
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ]
+        }
+      ]
+    },
     "name": "NodeQuery",
     "operationKind": "query",
     "text": null

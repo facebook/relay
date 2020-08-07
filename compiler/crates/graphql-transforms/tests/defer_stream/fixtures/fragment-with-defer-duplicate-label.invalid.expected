@@ -25,9 +25,9 @@ fragment OtherDeferredFragment on User {
 }
 ==================================== ERROR ====================================
 Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.:
-fragment-with-defer-duplicate-label.invalid.graphql:11:24:
+fragment-with-defer-duplicate-label.invalid.graphql:12:24:12:29
   ...DeferredFragment @defer(label: "deferred")
-
-
-fragment-with-defer-duplicate-label.invalid.graphql:12:29:
+Notes:
+[related 1] other related location:
+fragment-with-defer-duplicate-label.invalid.graphql:13:29:13:34
   ...OtherDeferredFragment @defer(label: "deferred")

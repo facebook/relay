@@ -11,6 +11,12 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
           canViewerLike
         }
       }
+      ... {
+        ... on Page {
+          canViewerLike
+        }
+        lastName
+      }
     }
   }
 }

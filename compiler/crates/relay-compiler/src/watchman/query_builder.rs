@@ -21,11 +21,11 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                 .collect(),
         ),
     ];
-    // not blacklisted by any glob
-    if !config.blacklist.is_empty() {
+    // not excluded by any glob
+    if !config.excludes.is_empty() {
         sources_conditions.push(Expr::Not(Box::new(expr_any(
             config
-                .blacklist
+                .excludes
                 .iter()
                 .map(|item| {
                     Expr::Match(MatchTerm {
@@ -40,6 +40,12 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
     let sources_expr = Expr::All(sources_conditions);
 
     let mut expressions = vec![sources_expr];
+
+    let output_dir_paths = get_output_dir_paths(&config);
+    if !output_dir_paths.is_empty() {
+        let output_dir_expr = expr_files_in_dirs(output_dir_paths);
+        expressions.push(output_dir_expr);
+    }
 
     let schema_file_paths = get_schema_file_paths(&config);
     if !schema_file_paths.is_empty() {
@@ -73,12 +79,14 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
 /// relevant to the compiler should be in these directories.
 pub fn get_all_roots(config: &Config) -> Vec<PathBuf> {
     let source_roots = get_source_roots(config);
+    let output_roots = get_output_dir_paths(config);
     let extension_roots = get_extension_roots(config);
     let schema_file_roots = get_schema_file_roots(config);
     let schema_dir_roots = get_schema_dir_paths(config);
     unify_roots(
         source_roots
             .into_iter()
+            .chain(output_roots)
             .chain(extension_roots)
             .chain(schema_file_roots)
             .chain(schema_dir_roots)
@@ -99,6 +107,21 @@ fn get_extension_roots(config: &Config) -> Vec<PathBuf> {
         .values()
         .flat_map(|project_config| project_config.extensions.iter().cloned())
         .collect()
+}
+
+/// Returns all output and extra artifact output directories for the config.
+fn get_output_dir_paths(config: &Config) -> Vec<PathBuf> {
+    let output_dirs = config
+        .projects
+        .values()
+        .filter_map(|project_config| project_config.output.clone());
+
+    let extra_artifact_output_dirs = config
+        .projects
+        .values()
+        .filter_map(|project_config| project_config.extra_artifacts_output.clone());
+
+    output_dirs.chain(extra_artifact_output_dirs).collect()
 }
 
 /// Returns all paths that contain GraphQL schema files for the config.
@@ -137,17 +160,21 @@ fn get_schema_file_roots(config: &Config) -> impl Iterator<Item = PathBuf> {
         })
 }
 
+fn expr_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
+    expr_any(
+        roots
+            .into_iter()
+            .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
+            .collect(),
+    )
+}
+
 fn expr_graphql_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
     Expr::All(vec![
         // ending in *.graphql
         Expr::Suffix(vec!["graphql".into()]),
         // in one of the extension directories
-        expr_any(
-            roots
-                .into_iter()
-                .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
-                .collect(),
-        ),
+        expr_files_in_dirs(roots),
     ])
 }
 

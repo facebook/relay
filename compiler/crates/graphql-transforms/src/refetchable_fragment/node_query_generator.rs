@@ -7,18 +7,19 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_metadata_as_directive, build_operation_variable_definitions, QueryGenerator,
-    RefetchRoot, RefetchableMetadata, CONSTANTS,
+    build_operation_variable_definitions, build_used_global_variables,
+    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
+    RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    Argument, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, ScalarField,
+    Selection, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Argument as ArgumentDef, FieldID, Schema, Type};
+use schema::{Argument as ArgumentDef, FieldID, InterfaceID, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
@@ -66,18 +67,54 @@ fn build_refetch_operation(
                 return Ok(None);
             }
 
+            // Check if the fragment type have an `id` field
+            let should_generate_inline_fragment_on_node = schema
+                .named_field(fragment.type_condition, CONSTANTS.id_name)
+                .is_none();
+
             let query_type = schema.query_type().unwrap();
             let (node_field_id, id_arg) =
                 get_node_field_id_and_id_arg(schema, query_type, fragment)?;
+            let node_interface = schema.interface(node_interface_id);
+            let id_field_id = *node_interface
+                .fields
+                .iter()
+                .find(|&&id| schema.field(id).name == CONSTANTS.id_name)
+                .expect("Expected `Node` to contain a field named `id`.");
 
-            let mut variable_definitions =
-                build_operation_variable_definitions(variables_map, &fragment.variable_definitions);
+            let fragment = Arc::new(FragmentDefinition {
+                directives: build_fragment_metadata_as_directive(
+                    fragment,
+                    RefetchableMetadata {
+                        operation_name: query_name,
+                        path: vec![CONSTANTS.node_field_name],
+                        identifier_field: Some(CONSTANTS.id_name),
+                    },
+                ),
+                used_global_variables: build_used_global_variables(variables_map),
+                variable_definitions: filter_fragment_variable_definitions(
+                    variables_map,
+                    &fragment.variable_definitions,
+                ),
+                selections: enforce_selections_with_id_field(
+                    fragment,
+                    schema,
+                    id_field_id,
+                    if should_generate_inline_fragment_on_node {
+                        Some(node_interface_id)
+                    } else {
+                        None
+                    },
+                ),
+                ..fragment.as_ref().clone()
+            });
+            let mut variable_definitions = build_operation_variable_definitions(&fragment);
             if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
-                return Err(vec![ValidationError::new(
+                return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                         fragment_name: fragment.name.item,
                     },
-                    vec![id_argument.name.location],
+                    id_argument.name.location,
                 )]);
             }
 
@@ -87,21 +124,15 @@ fn build_refetch_operation(
                 default_value: None,
                 directives: vec![],
             });
-
-            let node_interface = schema.interface(node_interface_id);
-            let id_field_id = *node_interface
-                .fields
-                .iter()
-                .find(|&&id| schema.field(id).name == CONSTANTS.id_name)
-                .expect("Expected `Node` to contain a field named `id`.");
-
             Ok(Some(RefetchRoot {
                 operation: Arc::new(OperationDefinition {
                     kind: OperationKind::Query,
                     name: WithLocation::new(fragment.name.location, query_name),
                     type_: query_type,
                     variable_definitions,
-                    directives: build_operation_metadata_as_directive(fragment.name),
+                    directives: vec![RefetchableDerivedFromMetadata::create_directive(
+                        fragment.name,
+                    )],
                     selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                         alias: None,
                         definition: WithLocation::new(fragment.name.location, node_field_id),
@@ -119,21 +150,10 @@ fn build_refetch_operation(
                             ),
                         }],
                         directives: vec![],
-                        selections: vec![build_fragment_spread(fragment)],
+                        selections: vec![build_fragment_spread(&fragment)],
                     }))],
                 }),
-                fragment: Arc::new(FragmentDefinition {
-                    directives: build_fragment_metadata_as_directive(
-                        fragment,
-                        RefetchableMetadata {
-                            operation_name: query_name,
-                            path: vec![CONSTANTS.node_field_name],
-                            identifier_field: Some(CONSTANTS.id_name),
-                        },
-                    ),
-                    selections: enforce_selections_with_id_field(fragment, schema, id_field_id),
-                    ..fragment.as_ref().clone()
-                }),
+                fragment,
             }))
         }
     }
@@ -154,11 +174,11 @@ fn get_node_field_id_and_id_arg<'s>(
             }
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidNodeSchemaForRefetchableFragmentOnNode {
             fragment_name: fragment.name.item,
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 
@@ -166,6 +186,7 @@ fn enforce_selections_with_id_field(
     fragment: &FragmentDefinition,
     schema: &Schema,
     id_field_id: FieldID,
+    node_interface_id: Option<InterfaceID>,
 ) -> Vec<Selection> {
     let mut next_selections = fragment.selections.clone();
     let has_id_field = next_selections.iter().any(|sel| {
@@ -179,12 +200,27 @@ fn enforce_selections_with_id_field(
     if has_id_field {
         next_selections
     } else {
-        next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
-            alias: None,
-            definition: WithLocation::new(fragment.name.location, id_field_id),
-            arguments: vec![],
-            directives: vec![],
-        })));
+        let id_selection: Selection = if let Some(node_interface_id) = node_interface_id {
+            Selection::InlineFragment(Arc::new(InlineFragment {
+                type_condition: Some(Type::Interface(node_interface_id)),
+                directives: vec![],
+                selections: vec![Selection::ScalarField(Arc::new(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(fragment.name.location, id_field_id),
+                    arguments: vec![],
+                    directives: vec![],
+                }))],
+            }))
+        } else {
+            Selection::ScalarField(Arc::new(ScalarField {
+                alias: None,
+                definition: WithLocation::new(fragment.name.location, id_field_id),
+                arguments: vec![],
+                directives: vec![],
+            }))
+        };
+
+        next_selections.push(id_selection);
         next_selections
     }
 }

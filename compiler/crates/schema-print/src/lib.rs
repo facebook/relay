@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+#![deny(warnings)]
+#![deny(rust_2018_idioms)]
+#![deny(clippy::all)]
+
 use itertools::Itertools;
 use schema::*;
 use std::collections::BTreeMap;
@@ -50,7 +54,7 @@ pub fn print_types(schema: &Schema) -> String {
     result
 }
 
-pub fn print_type(schema: &Schema, type_: &Type) -> String {
+pub fn print_type(schema: &Schema, type_: Type) -> String {
     let mut result = String::new();
     write_type(schema, &mut result, type_).unwrap();
     result
@@ -80,7 +84,7 @@ pub fn write_types(schema: &Schema, mut result: &mut impl Write) -> Result {
     printer.print_types()
 }
 
-pub fn write_type(schema: &Schema, mut result: &mut impl Write, type_: &Type) -> Result {
+pub fn write_type(schema: &Schema, mut result: &mut impl Write, type_: Type) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
     printer.print_type(type_)
 }
@@ -145,19 +149,19 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_types(&mut self) -> Result {
         let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
         for (_key, value) in ordered_type_map.iter() {
-            self.print_type(&value)?;
+            self.print_type(**value)?;
         }
         Ok(())
     }
 
-    fn print_type(&mut self, type_: &Type) -> Result {
+    fn print_type(&mut self, type_: Type) -> Result {
         match type_ {
-            Type::Enum(id) => self.print_enum(*id),
-            Type::InputObject(id) => self.print_input_object(*id),
-            Type::Interface(id) => self.print_interface(*id),
-            Type::Object(id) => self.print_object(*id),
-            Type::Scalar(id) => self.print_scalar(*id),
-            Type::Union(id) => self.print_union(*id),
+            Type::Enum(id) => self.print_enum(id),
+            Type::InputObject(id) => self.print_input_object(id),
+            Type::Interface(id) => self.print_interface(id),
+            Type::Object(id) => self.print_object(id),
+            Type::Scalar(id) => self.print_scalar(id),
+            Type::Union(id) => self.print_union(id),
         }
     }
 

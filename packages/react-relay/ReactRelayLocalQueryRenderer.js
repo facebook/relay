@@ -34,7 +34,7 @@ import type {
 type Props = {
   environment: IEnvironment,
   query: GraphQLTaggedNode,
-  // $FlowFixMe
+  // $FlowFixMe[unclear-type]
   render: ({props: ?Object, ...}) => React.Node,
   variables: Variables,
   cacheConfig?: ?CacheConfig,

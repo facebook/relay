@@ -33,10 +33,9 @@ type Bar {
 }
 ==================================== ERROR ====================================
 Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.:
-fragment-with-stream-child-of-client.invalid.graphql:12:14:
+fragment-with-stream-child-of-client.invalid.graphql:13:14:13:20
       users @stream(initial_count: 1, label: "StreamedActorsLabel") {
-
-
-fragment-with-stream-child-of-client.invalid.graphql:9:5:
-  id
+Notes:
+[related 1] other related location:
+fragment-with-stream-child-of-client.invalid.graphql:11:3:11:6
   foo {

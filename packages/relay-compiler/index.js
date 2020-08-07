@@ -65,7 +65,6 @@ const {main} = require('./bin/RelayCompilerMain');
 const {SourceControlMercurial} = require('./codegen/SourceControl');
 const {
   getReaderSourceDefinitionName,
-  getSourceDefinitionName,
 } = require('./core/GraphQLDerivedFromMetadata');
 const {
   formatGeneratedCommonjsModule: formatGeneratedModule,
@@ -176,7 +175,6 @@ module.exports = {
   transformASTSchema: ASTConvert.transformASTSchema,
 
   getReaderSourceDefinitionName,
-  getSourceDefinitionName,
 
   writeRelayGeneratedFile,
 

@@ -75,10 +75,20 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
 }
 
 pub fn build_operation_variable_definitions(
-    variable_map: &VariableMap,
-    local_variables: &[VariableDefinition],
+    fragment: &FragmentDefinition,
 ) -> Vec<VariableDefinition> {
-    let mut result: Vec<_> = variable_map
+    let mut result: Vec<_> = fragment
+        .used_global_variables
+        .iter()
+        .chain(fragment.variable_definitions.iter())
+        .cloned()
+        .collect();
+    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
+    result
+}
+
+pub fn build_used_global_variables(variable_map: &VariableMap) -> Vec<VariableDefinition> {
+    variable_map
         .values()
         .map(|var| VariableDefinition {
             name: var.name,
@@ -86,14 +96,18 @@ pub fn build_operation_variable_definitions(
             default_value: None,
             directives: vec![],
         })
-        .collect();
-    for var in local_variables {
-        if !variable_map.contains_key(&var.name.item) {
-            result.push(var.clone());
-        }
-    }
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
-    result
+        .collect()
+}
+
+pub fn filter_fragment_variable_definitions(
+    variables_map: &VariableMap,
+    variable_definitions: &[VariableDefinition],
+) -> Vec<VariableDefinition> {
+    variable_definitions
+        .iter()
+        .filter(|var| !variables_map.contains_key(&var.name.item))
+        .cloned()
+        .collect()
 }
 
 /// Attach metadata to the operation and fragment.
@@ -130,26 +144,42 @@ pub fn build_fragment_metadata_as_directive(
     next_directives
 }
 
-pub fn build_operation_metadata_as_directive(
-    fragment_name: WithLocation<StringKey>,
-) -> Vec<Directive> {
-    // Operation: derivedFrom
-    vec![Directive {
-        name: WithLocation::new(
-            fragment_name.location,
-            CONSTANTS.refetchable_operation_metadata_name,
-        ),
-        arguments: vec![Argument {
+/// Metadata attached to generated refetch queries storing the name of the
+/// fragment the operation was derived from.
+pub struct RefetchableDerivedFromMetadata;
+impl RefetchableDerivedFromMetadata {
+    pub fn create_directive(fragment_name: WithLocation<StringKey>) -> Directive {
+        Directive {
             name: WithLocation::new(
                 fragment_name.location,
                 CONSTANTS.refetchable_operation_metadata_name,
             ),
-            value: WithLocation::new(
-                fragment_name.location,
-                Value::Constant(ConstantValue::String(fragment_name.item)),
-            ),
-        }],
-    }]
+            arguments: vec![Argument {
+                name: WithLocation::new(
+                    fragment_name.location,
+                    CONSTANTS.refetchable_operation_metadata_name,
+                ),
+                value: WithLocation::new(
+                    fragment_name.location,
+                    Value::Constant(ConstantValue::String(fragment_name.item)),
+                ),
+            }],
+        }
+    }
+
+    pub fn from_directives(directives: &[Directive]) -> Option<StringKey> {
+        directives
+            .named(CONSTANTS.refetchable_operation_metadata_name)
+            .map(|directive| {
+                directive
+                    .arguments
+                    .named(CONSTANTS.refetchable_operation_metadata_name)
+                    .unwrap()
+                    .value
+                    .item
+                    .expect_string_literal()
+            })
+    }
 }
 
 pub fn extract_refetch_metadata_from_directive(

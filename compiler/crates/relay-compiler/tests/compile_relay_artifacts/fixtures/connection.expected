@@ -29,30 +29,11 @@ query NodeQuery($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
-    "metadata": {
-      "connection": [
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": null
-        },
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": [
-            "node",
-            "comments"
-          ]
-        }
-      ]
-    },
+    "metadata": null,
     "name": "NodeQuery",
     "selections": [
       {
@@ -265,8 +246,7 @@ query NodeQuery($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -553,7 +533,25 @@ query NodeQuery($id: ID!) {
   },
   "params": {
     "id": null,
-    "metadata": {},
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": null
+        },
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ]
+        }
+      ]
+    },
     "name": "NodeQuery",
     "operationKind": "query",
     "text": null

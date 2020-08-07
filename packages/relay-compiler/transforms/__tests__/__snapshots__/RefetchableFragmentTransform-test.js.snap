@@ -68,6 +68,31 @@ Source: GraphQL request (2:1)
 
 `;
 
+exports[`RefetchableFragmentTransform matches expected output: fragment-on-interface-without-id.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RefetchableFragment on AllConcreteTypesImplementNode
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  count
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment RefetchableFragment on AllConcreteTypesImplementNode @refetchable(queryName: "RefetchableFragmentQuery") {
+  count
+  ... on Node {
+    id
+  }
+}
+
+query RefetchableFragmentQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+`;
+
 exports[`RefetchableFragmentTransform matches expected output: fragment-on-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
@@ -383,9 +408,9 @@ fragment Profile on User @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
+  $count: Int
   $id: ID!
   $pictureSize: [Int]
-  $count: Int
 ) {
   ...RefetchableFragment @arguments(id: $id)
 }
@@ -501,8 +526,8 @@ fragment ProfilePicture on User @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
   $id: ID!
 ) {
   node(id: $id) {
@@ -562,8 +587,8 @@ fragment ProfilePicture on User @argumentDefinitions(
 
 query RefetchableFragmentQuery(
   $id: ID!
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
 ) {
   ...RefetchableFragment @arguments(id: $id, size: $size)
 }
@@ -614,8 +639,8 @@ fragment ProfilePicture on User @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
-  $size: [Int]
   $rootSize: [Int]
+  $size: [Int]
 ) {
   viewer {
     ...RefetchableFragment @arguments(size: $size)
@@ -747,9 +772,9 @@ fragment PaginationFragment on Node @argumentDefinitions(
 }
 
 query RefetchableFragmentQuery(
+  $beforeCursor: ID
   $count: Int = 10
   $cursor: ID
-  $beforeCursor: ID
   $lastCount: Int
   $id: ID!
 ) {
@@ -928,7 +953,7 @@ fragment PaginationFragment on Node @argumentDefinitions(
           }
         }
       }
-      ... on FriendsConnection @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+      ... @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           ... on PageInfo {
             endCursor

@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
-use crate::build_ast::{build_fragment, build_operation, build_request};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
+use crate::build_ast::{
+    build_fragment, build_operation, build_request, build_request_params,
+    build_request_params_ast_key,
+};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::utils::escape;
@@ -252,6 +255,8 @@ pub fn print_request(
     request_parameters: RequestParameters,
 ) -> String {
     let mut builder = AstBuilder::default();
+    let request_parameters =
+        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
     let key = build_request(
         schema,
         &mut builder,
@@ -263,6 +268,22 @@ pub fn print_request(
     printer.print()
 }
 
+pub fn print_request_params(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    query_id: Option<String>,
+) -> String {
+    let mut request_parameters = build_request_params(operation);
+    request_parameters.id = query_id;
+
+    let mut builder = AstBuilder::default();
+    let request_parameters_ast_key =
+        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
+    let printer = DedupedJSONPrinter::new_without_dedupe(&builder, request_parameters_ast_key);
+
+    printer.print()
+}
+
 impl Printer {
     pub fn print_request_deduped(
         &mut self,
@@ -271,6 +292,8 @@ impl Printer {
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters,
     ) -> String {
+        let request_parameters =
+            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
         let key = build_request(
             schema,
             &mut self.builder,
@@ -340,11 +363,7 @@ fn write_static_storage_key(
     Ok(())
 }
 
-fn write_argument_value(
-    f: &mut String,
-    builder: &AstBuilder,
-    arg: &[(StringKey, Primitive)],
-) -> FmtResult {
+fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry]) -> FmtResult {
     let (_, key) = arg
         .iter()
         .find(|(key, _)| *key == CODEGEN_CONSTANTS.kind)
@@ -365,42 +384,44 @@ fn write_argument_value(
         let array = builder.lookup(items.assert_key()).assert_array();
 
         f.push('[');
+        let mut after_first = false;
         for key_or_null in array {
             match key_or_null {
-                Primitive::Null => f.push_str("null,"),
+                Primitive::Null => {}
                 Primitive::Key(key) => {
+                    if after_first {
+                        f.push(',');
+                    } else {
+                        after_first = true;
+                    }
                     let object = builder.lookup(*key).assert_object();
                     write_argument_value(f, builder, object)?;
-                    f.push(',');
                 }
                 _ => panic!("Expected an object key or null"),
             }
         }
-        if !array.is_empty() {
-            f.pop();
-        }
         f.push(']');
     } else {
         // We filtered out Variables, here it should only be ObjectValue
-        let (_, value) = arg
+        let (_, fields) = arg
             .iter()
             .find(|(key, _)| *key == CODEGEN_CONSTANTS.fields)
             .expect("Expected `fields` to exist");
-        let array = builder.lookup(value.assert_key()).assert_array();
+        let fields = builder.lookup(fields.assert_key()).assert_array();
 
         f.push('{');
-        for key in array {
-            let (_, name) = arg
+        for field in fields {
+            let field = builder.lookup(field.assert_key()).assert_object();
+            let (_, name) = field
                 .iter()
                 .find(|(key, _)| *key == CODEGEN_CONSTANTS.name)
                 .expect("Expected `name` to exist");
             let name = name.assert_string();
             write!(f, "\\\"{}\\\":", name)?;
-            let object = builder.lookup(key.assert_key()).assert_object();
-            write_argument_value(f, builder, object)?;
+            write_argument_value(f, builder, field)?;
             f.push(',');
         }
-        if !array.is_empty() {
+        if !fields.is_empty() {
             f.pop();
         }
         f.push('}');

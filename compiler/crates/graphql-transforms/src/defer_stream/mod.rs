@@ -9,12 +9,12 @@ mod directives;
 
 use super::get_applied_fragment_name;
 use crate::util::{remove_directive, replace_directive};
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult, Value,
+    ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -46,7 +46,7 @@ lazy_static! {
     pub static ref DEFER_STREAM_CONSTANTS: DeferStreamConstants = Default::default();
 }
 
-pub fn transform_defer_stream<'s>(program: &Program<'s>) -> ValidationResult<Program<'s>> {
+pub fn transform_defer_stream(program: &Program) -> ValidationResult<Program> {
     let mut transformer = DeferStreamTransform {
         program,
         current_document_name: None,
@@ -63,10 +63,10 @@ pub fn transform_defer_stream<'s>(program: &Program<'s>) -> ValidationResult<Pro
 }
 
 struct DeferStreamTransform<'s> {
-    program: &'s Program<'s>,
+    program: &'s Program,
     current_document_name: Option<StringKey>,
     labels: HashMap<StringKey, Directive>,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
 }
 
 impl DeferStreamTransform<'_> {
@@ -78,7 +78,7 @@ impl DeferStreamTransform<'_> {
         let prev_directive = self.labels.get(&label);
         match prev_directive {
             Some(prev) => {
-                self.errors.push(ValidationError::new(
+                self.errors.push(Diagnostic::new(
                     ValidationMessage::LabelNotUniqueForDeferStream {
                         directive_name: DEFER_STREAM_CONSTANTS.defer_name,
                     },
@@ -95,7 +95,7 @@ impl DeferStreamTransform<'_> {
         &mut self,
         spread: &FragmentSpread,
         defer: &Directive,
-    ) -> Result<Transformed<Selection>, ValidationError> {
+    ) -> Result<Transformed<Selection>, Diagnostic> {
         let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
 
         if is_literal_false_arg(if_arg) {
@@ -156,7 +156,7 @@ impl DeferStreamTransform<'_> {
         &mut self,
         linked_field: &LinkedField,
         stream: &Directive,
-    ) -> Result<Transformed<Selection>, ValidationError> {
+    ) -> Result<Transformed<Selection>, Diagnostic> {
         let StreamDirective {
             if_arg,
             label_arg,
@@ -164,26 +164,38 @@ impl DeferStreamTransform<'_> {
             use_customized_batch_arg,
         } = StreamDirective::from(stream);
 
-        if is_literal_false_arg(if_arg) {
-            return Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
-                LinkedField {
-                    directives: remove_directive(&linked_field.directives, stream.name.item),
+        let transformed_linked_field = self.default_transform_linked_field(linked_field);
+        let get_next_selection = |directives| match transformed_linked_field {
+            Transformed::Replace(mut selection) => {
+                selection.set_directives(directives);
+                Transformed::Replace(selection)
+            }
+            Transformed::Keep => {
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    directives,
                     ..linked_field.clone()
-                },
-            ))));
+                })))
+            }
+            Transformed::Delete => Transformed::Delete,
+        };
+        if is_literal_false_arg(if_arg) {
+            return Ok(get_next_selection(remove_directive(
+                &linked_field.directives,
+                stream.name.item,
+            )));
         }
 
         if initial_count_arg.is_none() {
-            return Err(ValidationError::new(
+            return Err(Diagnostic::error(
                 ValidationMessage::StreamInitialCountRequired,
-                vec![stream.name.location],
+                stream.name.location,
             ));
         }
 
         let label_value = get_literal_string_argument(&stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
-                linked_field.alias_or_name(self.program.schema()),
+                linked_field.alias_or_name(&self.program.schema),
                 &linked_field.arguments,
             )
         });
@@ -223,12 +235,10 @@ impl DeferStreamTransform<'_> {
             arguments: next_arguments,
         };
 
-        Ok(Transformed::Replace(Selection::LinkedField(Arc::new(
-            LinkedField {
-                directives: replace_directive(&linked_field.directives, next_stream),
-                ..linked_field.clone()
-            },
-        ))))
+        Ok(get_next_selection(replace_directive(
+            &linked_field.directives,
+            next_stream,
+        )))
     }
 }
 
@@ -262,9 +272,17 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
             .directives
             .named(DEFER_STREAM_CONSTANTS.defer_name);
         if let Some(directive) = defer_directive {
-            self.errors.push(ValidationError::new(
+            // Special case for @defer generated by transform_connection
+            if let Some(label) = directive.arguments.named(DEFER_STREAM_CONSTANTS.label_arg) {
+                if let Some(label) = label.value.item.get_string_literal() {
+                    if label.lookup().contains("$defer$") {
+                        return self.default_transform_inline_fragment(inline_fragment);
+                    }
+                }
+            }
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidDeferOnInlineFragment,
-                vec![directive.name.location],
+                directive.name.location,
             ));
         }
 
@@ -293,11 +311,11 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
             .directives
             .named(DEFER_STREAM_CONSTANTS.stream_name);
         if let Some(directive) = stream_directive {
-            self.errors.push(ValidationError::new(
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidStreamOnScalarField {
-                    field_name: scalar_field.alias_or_name(self.program.schema()),
+                    field_name: scalar_field.alias_or_name(&self.program.schema),
                 },
-                vec![directive.name.location],
+                directive.name.location,
             ));
         }
         self.default_transform_scalar_field(scalar_field)
@@ -344,17 +362,17 @@ fn transform_label(
 fn get_literal_string_argument(
     directive: &Directive,
     argument: Option<&Argument>,
-) -> Result<Option<StringKey>, ValidationError> {
+) -> Result<Option<StringKey>, Diagnostic> {
     if let Some(arg) = argument {
         if let Some(val) = arg.value.item.get_string_literal() {
             Ok(Some(val))
         } else {
-            Err(ValidationError::new(
+            Err(Diagnostic::error(
                 ValidationMessage::LiteralStringArgumentExpectedForDirective {
                     arg_name: arg.name.item,
                     directive_name: directive.name.item,
                 },
-                vec![directive.name.location],
+                directive.name.location,
             ))
         }
     } else {

@@ -25,7 +25,7 @@ For example, we can create a new type called `Note`:
 
 ```graphql
 type Note {
-  ID: ID!
+  id: ID!
   title: String
   body: String
 }

@@ -14,9 +14,8 @@ mod build_ast;
 mod constants;
 mod indentation;
 mod printer;
-mod relay_test_operation;
 mod utils;
 
 pub use ast::{Primitive, RequestParameters};
 pub use build_ast::build_request_params;
-pub use printer::{print_fragment, print_operation, print_request, Printer};
+pub use printer::{print_fragment, print_operation, print_request, print_request_params, Printer};

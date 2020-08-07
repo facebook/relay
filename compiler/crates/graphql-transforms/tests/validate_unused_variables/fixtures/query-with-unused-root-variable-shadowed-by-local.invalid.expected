@@ -16,6 +16,6 @@ fragment User_data_with_args on User
   username @include(if: $foo)
 }
 ==================================== ERROR ====================================
-Variable '$foo' is never used in operation 'QueryWithId'.:
-query-with-unused-root-variable-shadowed-by-local.invalid.graphql:1:28:
+Variable `$foo` is never used in operation `QueryWithId`:
+query-with-unused-root-variable-shadowed-by-local.invalid.graphql:2:28:2:32
 query QueryWithId($id: ID, $foo: Boolean!) {

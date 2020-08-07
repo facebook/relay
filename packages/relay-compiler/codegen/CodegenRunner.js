@@ -21,7 +21,8 @@ const invariant = require('invariant');
 const path = require('path');
 
 const {create: createSchema} = require('../core/Schema');
-// $FlowFixMe - importing immutable, which is untyped (and flow is sad about it)
+/* $FlowFixMe[untyped-import] - importing immutable, which is untyped (and flow
+ * is sad about it) */
 const {Map: ImmutableMap} = require('immutable');
 
 import type ASTCache from '../core/ASTCache';

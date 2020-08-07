@@ -244,6 +244,7 @@ describe('ReactRelayFragmentContainer', () => {
         id: '4',
         name: 'Zuck',
       },
+      missingRequiredFields: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -332,6 +333,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Joe',
       },
       isMissingData: false,
+      missingRequiredFields: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -381,6 +383,7 @@ describe('ReactRelayFragmentContainer', () => {
         // Name is excluded since value of cond is now false
       },
       isMissingData: false,
+      missingRequiredFields: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,

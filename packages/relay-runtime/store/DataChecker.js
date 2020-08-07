@@ -21,10 +21,12 @@ const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
+const {generateTypeID} = require('./TypeID');
 
 import type {
   NormalizationField,
@@ -54,6 +56,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -218,8 +221,8 @@ class DataChecker {
           this._recordSourceProxy,
         );
         if (
-          newValue != null &&
-          this._mutator.getStatus(newValue) === EXISTENT
+          newValue !== undefined &&
+          (newValue === null || this._mutator.getStatus(newValue) === EXISTENT)
         ) {
           return newValue;
         }
@@ -250,6 +253,8 @@ class DataChecker {
           if (allItemsKnown) {
             return newValue;
           }
+        } else if (newValue === null) {
+          return null;
         }
       }
     }
@@ -314,8 +319,15 @@ class DataChecker {
             // - Unknown whether the type implements the interface: don't check the selections
             //   and treat the data as missing; we do this because the Relay Compiler
             //   guarantees that the type discriminator will always be fetched.
-            const implementsInterface = this._mutator.getValue(
+            const recordType = this._mutator.getType(dataID);
+            invariant(
+              recordType != null,
+              'DataChecker: Expected record `%s` to have a known type',
               dataID,
+            );
+            const typeID = generateTypeID(recordType);
+            const implementsInterface = this._mutator.getValue(
+              typeID,
               abstractKey,
             );
             if (implementsInterface === true) {
@@ -332,7 +344,7 @@ class DataChecker {
           }
           break;
         }
-        case LINKED_HANDLE:
+        case LINKED_HANDLE: {
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
           const handleField = cloneRelayHandleSourceField(
@@ -346,6 +358,17 @@ class DataChecker {
             this._checkLink(handleField, dataID);
           }
           break;
+        }
+        case SCALAR_HANDLE: {
+          const handleField = cloneRelayScalarHandleSourceField(
+            selection,
+            selections,
+            this._variables,
+          );
+
+          this._checkScalar(handleField, dataID);
+          break;
+        }
         case MODULE_IMPORT:
           this._checkModuleImport(selection, dataID);
           break;
@@ -353,14 +376,13 @@ class DataChecker {
         case STREAM:
           this._traverseSelections(selection.selections, dataID);
           break;
-        case SCALAR_HANDLE:
         case FRAGMENT_SPREAD:
           invariant(
             false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',
             selection.kind,
           );
-          // $FlowExpectedError - we need the break; for OSS linter
+          // $FlowExpectedError[unreachable-code] - we need the break; for OSS linter
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;
@@ -370,8 +392,15 @@ class DataChecker {
         case TYPE_DISCRIMINATOR:
           if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             const {abstractKey} = selection;
-            const implementsInterface = this._mutator.getValue(
+            const recordType = this._mutator.getType(dataID);
+            invariant(
+              recordType != null,
+              'DataChecker: Expected record `%s` to have a known type',
               dataID,
+            );
+            const typeID = generateTypeID(recordType);
+            const implementsInterface = this._mutator.getValue(
+              typeID,
               abstractKey,
             );
             if (implementsInterface == null) {
@@ -381,6 +410,8 @@ class DataChecker {
             } // else: if it does or doesn't implement, we don't need to check or skip anything else
           }
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(
@@ -438,6 +469,8 @@ class DataChecker {
       linkedID = this._handleMissingLinkField(field, dataID);
       if (linkedID != null) {
         this._mutator.setLinkedRecordID(dataID, storageKey, linkedID);
+      } else if (linkedID === null) {
+        this._mutator.setValue(dataID, storageKey, null);
       }
     }
     if (linkedID != null) {
@@ -453,6 +486,8 @@ class DataChecker {
       linkedIDs = this._handleMissingPluralLinkField(field, dataID);
       if (linkedIDs != null) {
         this._mutator.setLinkedRecordIDs(dataID, storageKey, linkedIDs);
+      } else if (linkedIDs === null) {
+        this._mutator.setValue(dataID, storageKey, null);
       }
     }
     if (linkedIDs) {

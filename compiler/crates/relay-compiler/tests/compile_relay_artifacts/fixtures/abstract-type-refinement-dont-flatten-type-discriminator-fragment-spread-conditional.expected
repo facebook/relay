@@ -20,8 +20,7 @@ fragment NodeFragment on Node {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "shouldInclude",
-        "type": "Boolean!"
+        "name": "shouldInclude"
       }
     ],
     "kind": "Fragment",
@@ -67,8 +66,7 @@ fragment NodeFragment on Node {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "shouldInclude",
-        "type": "Boolean!"
+        "name": "shouldInclude"
       }
     ],
     "kind": "Operation",
@@ -134,6 +132,7 @@ query AbstractTypeRefinement(
 ) {
   node(id: "4") {
     __typename
+    __isNode: __typename @include(if: $shouldInclude)
     ...NodeFragment @include(if: $shouldInclude)
     id
   }

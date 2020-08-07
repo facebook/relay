@@ -5,33 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
 use fixture_tests::Fixture;
-use graphql_ir::{build, Program};
-use graphql_syntax::parse;
-use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::generate_typename;
-use test_schema::TEST_SCHEMA;
+
+#[path = "../test_helper.rs"]
+mod test_helper;
+
+use test_helper::apply_transform_for_test;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let file_key = FileKey::new(fixture.file_name);
-    let ast = parse(fixture.content, file_key).unwrap();
-    let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
-
-    let next_program = generate_typename(&program, false);
-
-    assert_eq!(next_program.document_count(), program.document_count());
-
-    let mut printed = next_program
-        .operations()
-        .map(|def| print_operation(&TEST_SCHEMA, def))
-        .chain(
-            next_program
-                .fragments()
-                .map(|def| print_fragment(&TEST_SCHEMA, def)),
-        )
-        .collect::<Vec<_>>();
-    printed.sort();
-    Ok(printed.join("\n\n"))
+    apply_transform_for_test(fixture, |program| Ok(generate_typename(program, false)))
 }

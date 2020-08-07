@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query Test(
+    %%%% # unexpected % signs
+    $arg: String,
+    width: Int # missing $
+    height: Int # missing $
+) {
+    __typename
+}
+==================================== ERROR ====================================
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:
+    %%%% # unexpected % signs
+
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:
+    %%%% # unexpected % signs
+
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:
+    %%%% # unexpected % signs
+
+Error: Unsupported character at multiple_parse_errors.invalid.graphql:
+    %%%% # unexpected % signs
+
+Error: Expected a variable ('$example') at multiple_parse_errors.invalid.graphql:
+    width: Int # missing $

@@ -5,7 +5,6 @@ fragment Foo on User {
 }
 ==================================== ERROR ====================================
 Undefined fragment 'SomeUndefinedFragment':
-undefined-fragment.invalid.graphql:1:23:
-fragment Foo on User {
+undefined-fragment.invalid.graphql:3:3:4:1
   ...SomeUndefinedFragment
 }

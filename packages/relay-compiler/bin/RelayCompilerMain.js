@@ -154,11 +154,12 @@ function getLanguagePlugin(
       languagePlugin = language;
     }
     if (languagePlugin.default != null) {
-      // $FlowFixMe - Flow no longer considers statics of functions as any
+      /* $FlowFixMe[incompatible-type] - Flow no longer considers statics of
+       * functions as any */
       languagePlugin = languagePlugin.default;
     }
     if (typeof languagePlugin === 'function') {
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-use]
       return languagePlugin();
     } else {
       throw new Error('Expected plugin to be a initializer function.');

@@ -28,13 +28,13 @@ export type TestResponse = {|
 export type Test_userRenderer = {|
   +user: ?{|
     +username: ?string,
-    +id: ?string,
+    +id: string,
   |}
 |};
 export type TestRawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: ?string,
+    +id: string,
     +plainUserRenderer: ?({|
       +__module_operation_Test_user: ?any,
       +__module_component_Test_user: ?any,
@@ -42,8 +42,8 @@ export type TestRawResponse = {|
     |} | Local3DPayload<"Test_user", {| ...Test_userRenderer
     |}>),
   |} | {|
-    +__typename: ?string,
-    +id: ?string,
+    +__typename: string,
+    +id: string,
   |})
 |};
 export type Test = {|

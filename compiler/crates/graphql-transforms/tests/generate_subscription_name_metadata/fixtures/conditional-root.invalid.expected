@@ -10,5 +10,5 @@ subscription TestSubscriptionWithMultipleSelections(
 }
 ==================================== ERROR ====================================
 The root of subscription 'TestSubscriptionWithMultipleSelections' must be a simple selection.:
-conditional-root.invalid.graphql:1:14:
+conditional-root.invalid.graphql:2:14:2:52
 subscription TestSubscriptionWithMultipleSelections(

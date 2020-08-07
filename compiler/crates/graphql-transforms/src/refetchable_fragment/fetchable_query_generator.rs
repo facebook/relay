@@ -7,14 +7,15 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_metadata_as_directive, build_operation_variable_definitions, QueryGenerator,
-    RefetchRoot, RefetchableMetadata, CONSTANTS,
+    build_operation_variable_definitions, build_used_global_variables,
+    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
+    RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -41,14 +42,31 @@ fn build_refetch_operation(
         let (fetch_field_id, id_arg) =
             get_fetch_field_id_and_id_arg(fragment, schema, query_type, fetch_field_name)?;
 
-        let mut variable_definitions =
-            build_operation_variable_definitions(variables_map, &fragment.variable_definitions);
+        let fragment = Arc::new(FragmentDefinition {
+            name: fragment.name,
+            variable_definitions: filter_fragment_variable_definitions(
+                variables_map,
+                &fragment.variable_definitions,
+            ),
+            used_global_variables: build_used_global_variables(variables_map),
+            type_condition: fragment.type_condition,
+            directives: build_fragment_metadata_as_directive(
+                fragment,
+                RefetchableMetadata {
+                    operation_name: query_name,
+                    path: vec![fetch_field_name],
+                    identifier_field: Some(identifier_field_name),
+                },
+            ),
+            selections: enforce_selections_with_id_field(fragment, identifier_field_id),
+        });
+        let mut variable_definitions = build_operation_variable_definitions(&fragment);
         if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                     fragment_name: fragment.name.item,
                 },
-                vec![id_argument.name.location],
+                id_argument.name.location,
             )]);
         }
         variable_definitions.push(VariableDefinition {
@@ -64,7 +82,9 @@ fn build_refetch_operation(
                 name: WithLocation::new(fragment.name.location, query_name),
                 type_: query_type,
                 variable_definitions,
-                directives: build_operation_metadata_as_directive(fragment.name),
+                directives: vec![RefetchableDerivedFromMetadata::create_directive(
+                    fragment.name,
+                )],
                 selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                     alias: None,
                     definition: WithLocation::new(fragment.name.location, fetch_field_id),
@@ -79,24 +99,10 @@ fn build_refetch_operation(
                         ),
                     }],
                     directives: vec![],
-                    selections: vec![build_fragment_spread(fragment)],
+                    selections: vec![build_fragment_spread(&fragment)],
                 }))],
             }),
-            fragment: Arc::new(FragmentDefinition {
-                name: fragment.name,
-                variable_definitions: fragment.variable_definitions.clone(),
-                used_global_variables: fragment.used_global_variables.clone(),
-                type_condition: fragment.type_condition,
-                directives: build_fragment_metadata_as_directive(
-                    fragment,
-                    RefetchableMetadata {
-                        operation_name: query_name,
-                        path: vec![fetch_field_name],
-                        identifier_field: Some(identifier_field_name),
-                    },
-                ),
-                selections: enforce_selections_with_id_field(fragment, identifier_field_id),
-            }),
+            fragment,
         }))
     } else {
         Ok(None)
@@ -116,11 +122,11 @@ fn get_fetchable_field_name<'schema>(
                     return Ok(Some(name));
                 }
             }
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchDirectiveDefinition {
                     fragment_name: fragment.name.item,
                 },
-                vec![fragment.name.location],
+                fragment.name.location,
             )]);
         }
     }
@@ -139,13 +145,13 @@ fn get_identifier_field_id(
             return Ok(identifier_field_id);
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchIdentifyingField {
             fragment_name: fragment.name.item,
             identifier_field_name,
             type_name: schema.get_type_name(fragment.type_condition),
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 
@@ -162,23 +168,20 @@ fn get_fetch_field_id_and_id_arg<'s>(
             if inner_type == fragment.type_condition {
                 let mut arg_iter = fetch_field.arguments.iter();
                 if let Some(id_arg) = arg_iter.next() {
-                    if !id_arg.type_.is_list()
-                        && schema.is_id(id_arg.type_.inner())
-                        && arg_iter.len() == 0
-                    {
+                    if !id_arg.type_.is_list() && schema.is_id(id_arg.type_.inner()) {
                         return Ok((fetch_field_id, id_arg));
                     }
                 }
             }
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchFetchField {
             fetch_field_name,
             fragment_name: fragment.name.item,
             type_name: schema.get_type_name(fragment.type_condition),
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 

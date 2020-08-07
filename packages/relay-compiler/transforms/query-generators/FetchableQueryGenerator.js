@@ -60,7 +60,6 @@ function buildRefetchOperation(
       fetchField != null &&
       schema.isObject(fetchField.type) &&
       schema.areEqualTypes(fetchField.type, fragment.type) &&
-      fetchField.args.length === 1 &&
       schema.areEqualTypes(
         schema.getNullableType(fetchField.args[0].type),
         schema.expectIdType(),
@@ -173,7 +172,7 @@ function enforceIDField(
   if (idSelection) {
     return fragment;
   }
-  const idField = SchemaUtils.generateIDField(schema.expectIdType());
+  const idField = SchemaUtils.generateIDField(schema, fragment.type);
   // idField is uniquely owned here, safe to mutate
   (idField: $FlowFixMe).alias = fetchableIdentifierField;
   // idField is uniquely owned here, safe to mutate

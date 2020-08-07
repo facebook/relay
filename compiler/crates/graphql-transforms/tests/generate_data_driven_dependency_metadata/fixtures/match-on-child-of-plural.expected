@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+fragment ActorsRendererFragment on Node {
+  id
+  actors {
+    nameRenderer @match {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+fragment ActorsRendererFragment on Node @__dataDrivenDependencyMetadata(ActorsRendererFragment.actors.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":true}") {
+  id
+  actors {
+    nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+      ... on PlainUserNameRenderer {
+        ... on PlainUserNameRenderer @__module(key: "ActorsRendererFragment", id: "ActorsRendererFragment.actors.nameRenderer", module: "PlainUserNameRenderer.react", sourceDocument: "ActorsRendererFragment", name: "PlainUserNameRenderer_name") {
+          ...PlainUserNameRenderer_name
+          __module_operation_ActorsRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "ActorsRendererFragment.actors.nameRenderer")
+          __module_component_ActorsRendererFragment: js(module: "PlainUserNameRenderer.react", id: "ActorsRendererFragment.actors.nameRenderer")
+        }
+      }
+      ... on MarkdownUserNameRenderer {
+        ... on MarkdownUserNameRenderer @__module(key: "ActorsRendererFragment", id: "ActorsRendererFragment.actors.nameRenderer", module: "MarkdownUserNameRenderer.react", sourceDocument: "ActorsRendererFragment", name: "MarkdownUserNameRenderer_name") {
+          ...MarkdownUserNameRenderer_name
+          __module_operation_ActorsRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "ActorsRendererFragment.actors.nameRenderer")
+          __module_component_ActorsRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "ActorsRendererFragment.actors.nameRenderer")
+        }
+      }
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}

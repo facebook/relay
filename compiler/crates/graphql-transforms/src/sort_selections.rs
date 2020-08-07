@@ -16,7 +16,7 @@ type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 ///
 /// Sorts selections in the fragments and queries (and their selections)
 ///
-pub fn sort_selections<'s>(program: &Program<'s>) -> Program<'s> {
+pub fn sort_selections(program: &Program) -> Program {
     let mut transform = SortSelectionsTransform::new(program);
     transform
         .transform_program(program)
@@ -25,11 +25,11 @@ pub fn sort_selections<'s>(program: &Program<'s>) -> Program<'s> {
 
 struct SortSelectionsTransform<'s> {
     seen: Seen,
-    program: &'s Program<'s>,
+    program: &'s Program,
 }
 
 impl<'s> SortSelectionsTransform<'s> {
-    pub fn new(program: &'s Program<'s>) -> Self {
+    pub fn new(program: &'s Program) -> Self {
         Self {
             seen: Default::default(),
             program,
@@ -51,13 +51,13 @@ impl<'s> Transformer for SortSelectionsTransform<'s> {
             .replace_or_else(|| selections.to_vec());
         next_selections.sort_unstable_by(|a, b| match (a, b) {
             (Selection::ScalarField(a), Selection::ScalarField(b)) => a
-                .alias_or_name(self.program.schema())
-                .cmp(&b.alias_or_name(self.program.schema()))
+                .alias_or_name(&self.program.schema)
+                .cmp(&b.alias_or_name(&self.program.schema))
                 .then_with(|| a.arguments.cmp(&b.arguments))
                 .then_with(|| a.directives.cmp(&b.directives)),
             (Selection::LinkedField(a), Selection::LinkedField(b)) => a
-                .alias_or_name(self.program.schema())
-                .cmp(&b.alias_or_name(self.program.schema()))
+                .alias_or_name(&self.program.schema)
+                .cmp(&b.alias_or_name(&self.program.schema))
                 .then_with(|| a.arguments.cmp(&b.arguments))
                 .then_with(|| a.directives.cmp(&b.directives)),
             _ => a.cmp(b),

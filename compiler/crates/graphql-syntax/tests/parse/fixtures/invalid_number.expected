@@ -6,5 +6,5 @@ query TestQuery {
     }
 }
 ==================================== ERROR ====================================
-Error: Invalid number value, expected an int or float at invalid_number.graphql:3:20:
+Error: Invalid number value, expected an int or float at invalid_number.graphql:
     friends(first: 1.23.4) {

@@ -15,8 +15,7 @@ query LinkedHandleField($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -45,7 +44,7 @@ query LinkedHandleField($id: ID!) {
                 "args": null,
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
-                "name": "___clientFriends",
+                "name": "__friends_clientFriends",
                 "plural": false,
                 "selections": [
                   {
@@ -75,8 +74,7 @@ query LinkedHandleField($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -101,6 +99,13 @@ query LinkedHandleField($id: ID!) {
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
@@ -148,13 +153,6 @@ query LinkedHandleField($id: ID!) {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null

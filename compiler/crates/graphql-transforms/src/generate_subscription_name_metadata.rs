@@ -6,10 +6,10 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::WithLocation;
+use common::{Diagnostic, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Selection, Transformed,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, ValidationResult, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -19,9 +19,7 @@ lazy_static! {
     pub static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
 }
 
-pub fn generate_subscription_name_metadata<'s>(
-    program: &Program<'s>,
-) -> ValidationResult<Program<'s>> {
+pub fn generate_subscription_name_metadata(program: &Program) -> ValidationResult<Program> {
     let mut transformer = GenerateSubscriptionNameMetadata::new(program);
     let next_program = transformer
         .transform_program(program)
@@ -35,12 +33,12 @@ pub fn generate_subscription_name_metadata<'s>(
 }
 
 struct GenerateSubscriptionNameMetadata<'s> {
-    pub program: &'s Program<'s>,
-    pub errors: Vec<ValidationError>,
+    pub program: &'s Program,
+    pub errors: Vec<Diagnostic>,
 }
 
 impl<'s> GenerateSubscriptionNameMetadata<'s> {
-    fn new(program: &'s Program<'s>) -> Self {
+    fn new(program: &'s Program) -> Self {
         GenerateSubscriptionNameMetadata {
             program,
             errors: vec![],
@@ -60,11 +58,11 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
         match operation.kind {
             OperationKind::Subscription => {
                 if operation.selections.len() != 1 {
-                    self.errors.push(ValidationError::new(
+                    self.errors.push(Diagnostic::error(
                         ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
                             subscription_name: operation.name.item,
                         },
-                        vec![operation.name.location],
+                        operation.name.location,
                     ));
                     Transformed::Keep
                 } else {
@@ -72,7 +70,7 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                         Selection::LinkedField(linked_field) => {
                             let mut directives = operation.directives.clone();
                             let subscription_name =
-                                linked_field.alias_or_name(self.program.schema());
+                                self.program.schema.field(linked_field.definition.item).name;
                             directives.push(Directive {
                                 name: WithLocation::new(
                                     operation.name.location,
@@ -96,11 +94,11 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                             })
                         }
                         _ => {
-                            self.errors.push(ValidationError::new(
+                            self.errors.push(Diagnostic::error(
                                 ValidationMessage::GenerateSubscriptionNameSimpleSelection {
                                     subscription_name: operation.name.item,
                                 },
-                                vec![operation.name.location],
+                                operation.name.location,
                             ));
 
                             Transformed::Keep

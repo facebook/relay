@@ -23,9 +23,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
+  "metadata": {},
   "name": "MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
@@ -69,8 +67,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -109,8 +106,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",

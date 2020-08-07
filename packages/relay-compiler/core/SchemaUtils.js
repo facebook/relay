@@ -12,9 +12,10 @@
 
 'use strict';
 
+const {createCompilerError} = require('./CompilerError');
+
 import type {ScalarField} from '../core/IR';
-import type {ScalarFieldTypeID} from './Schema';
-import type {Schema, InputTypeID} from './Schema';
+import type {CompositeTypeID, Schema, InputTypeID} from './Schema';
 import type {ASTNode} from 'graphql';
 
 const ID = 'id';
@@ -54,7 +55,17 @@ function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   );
 }
 
-function generateIDField(idType: ScalarFieldTypeID): ScalarField {
+/**
+ * Generates an id field on the given type.
+ */
+function generateIDField(schema: Schema, type: CompositeTypeID): ScalarField {
+  const idField = schema.getFieldByName(type, 'id');
+  if (idField == null) {
+    throw new createCompilerError(
+      `Expected an 'id' field on type '${schema.getTypeString(type)}'.`,
+    );
+  }
+  const idType = schema.assertScalarFieldType(schema.getFieldType(idField));
   return {
     kind: 'ScalarField',
     alias: ID,

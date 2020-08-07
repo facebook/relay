@@ -269,7 +269,8 @@ it('does not notify if subscription has been manually disposed of', () => {
 
 it('does not notify after component unmounts', () => {
   render(environment, dataIDs, callback);
-  renderedInstance.unmount();
+
+  ReactTestRenderer.act(() => renderedInstance.unmount());
 
   environment.commitUpdate(storeProxy => {
     storeProxy.invalidateStore();

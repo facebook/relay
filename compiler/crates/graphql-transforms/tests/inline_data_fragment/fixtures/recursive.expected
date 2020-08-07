@@ -47,7 +47,7 @@ fragment UserProfile on User {
         }
       }
     }
-    ... @__inline(name: "AnotherInlineDataFragment") @include(if: $cond) {
+    ... @include(if: $cond) @__inline(name: "AnotherInlineDataFragment") {
       ... on Image {
         uri
         width

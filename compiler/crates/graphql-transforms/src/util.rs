@@ -7,14 +7,15 @@
 
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionConstants;
-use crate::handle_fields::HandleFieldConstants;
+use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
+use crate::react_flight::REACT_FLIGHT_DIRECTIVE_NAME;
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 
 use fnv::FnvHashSet;
-use graphql_ir::{Argument, Directive, Value};
+use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type};
@@ -78,28 +79,35 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 pub struct CustomMetadataDirectives {
-    connection_constants: ConnectionConstants,
-    handle_field_constants: HandleFieldConstants,
-}
-
-impl Default for CustomMetadataDirectives {
-    fn default() -> Self {
-        Self {
-            connection_constants: ConnectionConstants::default(),
-            handle_field_constants: HandleFieldConstants::default(),
-        }
-    }
+    pub connection_constants: ConnectionConstants,
 }
 
 impl CustomMetadataDirectives {
     pub fn is_custom_metadata_directive(&self, name: StringKey) -> bool {
         name == *CLIENT_EXTENSION_DIRECTIVE_NAME
             || name == self.connection_constants.connection_metadata_directive_name
-            || name == self.handle_field_constants.handle_field_directive_name
+            || name == *HANDLE_FIELD_DIRECTIVE_NAME
             || name == MATCH_CONSTANTS.custom_module_directive_name
             || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
+            || name == *ARGUMENT_DEFINITION
+            || name == *REACT_FLIGHT_DIRECTIVE_NAME
+    }
+
+    pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {
+        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
+            || name == self.connection_constants.connection_metadata_directive_name
+            || name == *HANDLE_FIELD_DIRECTIVE_NAME
+            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
+            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
+            || name == *INTERNAL_METADATA_DIRECTIVE
+            || name == *ARGUMENT_DEFINITION
+            || name == *REACT_FLIGHT_DIRECTIVE_NAME
+    }
+
+    pub fn is_handle_field_directive(&self, name: StringKey) -> bool {
+        name == *HANDLE_FIELD_DIRECTIVE_NAME
     }
 }
 
@@ -112,6 +120,10 @@ lazy_static! {
     ]
     .into_iter()
     .collect();
+    pub static ref CUSTOM_METADATA_DIRECTIVES: CustomMetadataDirectives =
+        CustomMetadataDirectives {
+            connection_constants: ConnectionConstants::default(),
+        };
 }
 
 pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {

@@ -26,28 +26,22 @@ pub struct MatchConstants {
     pub derived_from_arg: StringKey,
 }
 
-impl Default for MatchConstants {
-    fn default() -> Self {
-        Self {
-            js_field_type: "JSDependency".intern(),
-            js_field_id_arg: "id".intern(),
-            js_field_module_arg: "module".intern(),
-            js_field_name: "js".intern(),
-            key_arg: "key".intern(),
-            match_directive_name: "match".intern(),
-            module_directive_name: "module".intern(),
-            supported_arg: "supported".intern(),
-            name_arg: "name".intern(),
-            module_component_key_prefix: "__module_component_",
-            module_operation_key_prefix: "__module_operation_",
-            custom_module_directive_name: "__module".intern(),
-            source_document_arg: "sourceDocuement".intern(),
-            parent_sources_arg: "parentSources".intern(),
-            derived_from_arg: "derivedFrom".intern(),
-        }
-    }
-}
-
 lazy_static! {
-    pub static ref MATCH_CONSTANTS: MatchConstants = Default::default();
+    pub static ref MATCH_CONSTANTS: MatchConstants = MatchConstants {
+        js_field_type: "JSDependency".intern(),
+        js_field_id_arg: "id".intern(),
+        js_field_module_arg: "module".intern(),
+        js_field_name: "js".intern(),
+        key_arg: "key".intern(),
+        match_directive_name: "match".intern(),
+        module_directive_name: "module".intern(),
+        supported_arg: "supported".intern(),
+        name_arg: "name".intern(),
+        module_component_key_prefix: "__module_component_",
+        module_operation_key_prefix: "__module_operation_",
+        custom_module_directive_name: "__module".intern(),
+        source_document_arg: "sourceDocument".intern(),
+        parent_sources_arg: "parentSources".intern(),
+        derived_from_arg: "derivedFrom".intern(),
+    };
 }

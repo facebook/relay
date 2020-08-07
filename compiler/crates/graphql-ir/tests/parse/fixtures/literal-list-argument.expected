@@ -12,7 +12,7 @@ query LiteralListArgumentQuery {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: "literal-list-argument.graphql":6:31,
+                location: literal-list-argument.graphql:6:30,
                 item: "LiteralListArgumentQuery",
             },
             type_: Object(0),
@@ -22,7 +22,7 @@ query LiteralListArgumentQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: "literal-list-argument.graphql":32:40,
+                        location: literal-list-argument.graphql:35:40,
                         item: FieldID(
                             2,
                         ),
@@ -30,11 +30,11 @@ query LiteralListArgumentQuery {
                     arguments: [
                         Argument {
                             name: WithLocation {
-                                location: "literal-list-argument.graphql":41:50,
+                                location: literal-list-argument.graphql:41:50,
                                 item: "waypoints",
                             },
                             value: WithLocation {
-                                location: "literal-list-argument.graphql":52:78,
+                                location: literal-list-argument.graphql:52:78,
                                 item: Constant(
                                     List(
                                         [
@@ -42,11 +42,11 @@ query LiteralListArgumentQuery {
                                                 [
                                                     ConstantArgument {
                                                         name: WithLocation {
-                                                            location: "literal-list-argument.graphql":54:57,
+                                                            location: literal-list-argument.graphql:54:57,
                                                             item: "lat",
                                                         },
                                                         value: WithLocation {
-                                                            location: "literal-list-argument.graphql":59:66,
+                                                            location: literal-list-argument.graphql:59:64,
                                                             item: String(
                                                                 "0.0",
                                                             ),
@@ -54,11 +54,11 @@ query LiteralListArgumentQuery {
                                                     },
                                                     ConstantArgument {
                                                         name: WithLocation {
-                                                            location: "literal-list-argument.graphql":66:69,
+                                                            location: literal-list-argument.graphql:66:69,
                                                             item: "lon",
                                                         },
                                                         value: WithLocation {
-                                                            location: "literal-list-argument.graphql":71:76,
+                                                            location: literal-list-argument.graphql:71:76,
                                                             item: String(
                                                                 "0.0",
                                                             ),
@@ -77,9 +77,9 @@ query LiteralListArgumentQuery {
                         LinkedField {
                             alias: None,
                             definition: WithLocation {
-                                location: "literal-list-argument.graphql":81:92,
+                                location: literal-list-argument.graphql:86:91,
                                 item: FieldID(
-                                    29,
+                                    30,
                                 ),
                             },
                             arguments: [],
@@ -88,9 +88,9 @@ query LiteralListArgumentQuery {
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: "literal-list-argument.graphql":93:104,
+                                        location: literal-list-argument.graphql:100:104,
                                         item: FieldID(
-                                            32,
+                                            33,
                                         ),
                                     },
                                     arguments: [],

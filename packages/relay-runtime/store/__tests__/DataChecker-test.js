@@ -23,6 +23,7 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -203,7 +204,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields', () => {
+  it('reads handle fields in fragment', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data = {
       '1': {
@@ -243,6 +244,378 @@ describe('check()', () => {
     );
     expect(status).toEqual({
       status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in fragment and checks missing', () => {
+    const data = {
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        // missing [handleKey] field
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const {Fragment} = generateAndCompile(`
+      fragment Fragment on User {
+        profilePicture(size: 32) @__clientField(handle: "test") {
+          uri
+        }
+      }
+    `);
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(Fragment, '1', {}),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in fragment and checks missing sub field', () => {
+    const handleKey = getRelayHandleKey('test', null, 'profilePicture');
+    const data = {
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        [handleKey]: {__ref: 'client:3'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        // uri field is missing
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const {Fragment} = generateAndCompile(`
+      fragment Fragment on User {
+        profilePicture(size: 32) @__clientField(handle: "test") {
+          uri
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(Fragment, '1', {}),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in operation', () => {
+    const handleKey = getRelayHandleKey('test', null, 'profilePicture');
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        [handleKey]: {__ref: 'client:3'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // LinkedHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) @__clientField(handle: "test") {
+            uri
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in operation and checks missing', () => {
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        // missing [handleKey] field
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // LinkedHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) @__clientField(handle: "test") {
+            uri
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in operation and checks missing sub field', () => {
+    const handleKey = getRelayHandleKey('test', null, 'profilePicture');
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        [handleKey]: {__ref: 'client:3'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        // uri field is missing
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // LinkedHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) @__clientField(handle: "test") {
+            uri
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads scalar handle fields in operation and checks presence', () => {
+    const handleKey = getRelayHandleKey('test', null, 'uri');
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+        [handleKey]: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // ScalarHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) {
+            uri @__clientField(handle: "test")
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads scalar handle fields in operation and checks missing', () => {
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+        // [handleKey] field is missing
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // ScalarHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) {
+            uri @__clientField(handle: "test")
+          }
+        }
+      }
+    `);
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
       mostRecentlyInvalidatedAt: null,
     });
     expect(target.size()).toBe(0);
@@ -1341,8 +1714,11 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
-          updatedHometown: undefined,
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
+          updatedHometown: null,
         },
       ],
       [
@@ -1420,6 +1796,14 @@ describe('check()', () => {
         expect(target.toJSON()).toEqual(
           updatedHometown === undefined
             ? {}
+            : updatedHometown === null
+            ? {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  hometown: null,
+                },
+              }
             : {
                 user1: {
                   __id: 'user1',
@@ -1446,8 +1830,11 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
-          updatedScreennames: undefined,
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
+          updatedScreennames: null,
         },
       ],
       [
@@ -1558,8 +1945,16 @@ describe('check()', () => {
         expect(handle).toBeCalledTimes(1);
         expect(status).toEqual(expectedStatus);
         expect(target.toJSON()).toEqual(
-          updatedScreennames == null
+          updatedScreennames === undefined
             ? {}
+            : updatedScreennames === null
+            ? {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  screennames: null,
+                },
+              }
             : {
                 user1: {
                   __id: 'user1',
@@ -2204,6 +2599,7 @@ describe('check()', () => {
         }
       }
     `);
+      const typeID = generateTypeID('NonNodeNoID');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2213,9 +2609,13 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'NonNodeNoID',
-          __isNode: false,
           // no 'id' bc not a Node
           name: 'Not a Node!',
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          __isNode: false,
         },
       };
       const source = RelayRecordSource.create(data);

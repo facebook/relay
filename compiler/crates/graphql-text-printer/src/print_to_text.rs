@@ -84,13 +84,27 @@ pub fn write_operation(
 /// When the JS compiler consistency is no longer needed, this can just be
 /// replaced by write_operation.
 pub fn write_operation_with_graphqljs_formatting(
+    mut result: &mut impl Write,
     schema: &Schema,
     operation: &OperationDefinition,
-    mut result: &mut impl Write,
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
     printer.graphqljs_formatting = true;
     printer.print_operation(operation)
+}
+
+/// This is a temporary function that replicates the formatting choices of the
+/// graphql-js printer in order to obtain output parity with the JS compiler.
+/// When the JS compiler consistency is no longer needed, this can just be
+/// replaced by write_operation.
+pub fn write_fragment_with_graphqljs_formatting(
+    mut result: &mut impl Write,
+    schema: &Schema,
+    fragment: &FragmentDefinition,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.graphqljs_formatting = true;
+    printer.print_fragment(fragment)
 }
 
 pub fn write_fragment(
@@ -117,7 +131,7 @@ pub fn write_directives(
     mut result: &mut impl Write,
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
-    printer.print_directives(directives, None)
+    printer.print_directives(directives, None, None)
 }
 
 pub fn write_value(schema: &Schema, value: &Value, mut result: &mut impl Write) -> Result {
@@ -156,7 +170,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         let operation_name = operation.name.item;
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
-        self.print_directives(&operation.directives, None)?;
+        self.print_directives(&operation.directives, None, None)?;
         self.print_selections(&operation.selections, 0)
     }
 
@@ -169,8 +183,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             fragment_name, type_condition_name
         )
         .unwrap();
-        self.print_argument_definitions(&fragment.variable_definitions)?;
-        self.print_directives(&fragment.directives, None)?;
+        self.print_directives(
+            &fragment.directives,
+            None,
+            Some(&fragment.variable_definitions),
+        )?;
         self.print_selections(&fragment.selections, 0)
     }
 
@@ -192,6 +209,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             writeln!(self.writer)?;
             self.print_indentation(indent_count)?;
             write!(self.writer, "}}")?;
+        } else {
+            panic!("Cannot print empty selections. Please, check transforms that may produce invalid selections.");
         }
         Ok(())
     }
@@ -199,7 +218,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_selection(
         &mut self,
         selection: &Selection,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         indent_count: usize,
     ) -> Result {
         match selection {
@@ -225,26 +244,24 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_scalar_field(
         &mut self,
         field: &ScalarField,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
     ) -> Result {
-        self.print_alias(&field.alias)?;
         let schema_field = self.schema.field(field.definition.item);
-        write!(self.writer, "{}", schema_field.name)?;
+        self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
-        self.print_directives(&field.directives, conditions)
+        self.print_directives(&field.directives, conditions, None)
     }
 
     fn print_linked_field(
         &mut self,
         field: &LinkedField,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         indent_count: usize,
     ) -> Result {
-        self.print_alias(&field.alias)?;
         let schema_field = self.schema.field(field.definition.item);
-        write!(self.writer, "{}", schema_field.name)?;
+        self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
-        self.print_directives(&field.directives, conditions)?;
+        self.print_directives(&field.directives, conditions, None)?;
         self.print_selections(&field.selections, indent_count)?;
         Ok(())
     }
@@ -252,11 +269,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_fragment_spread(
         &mut self,
         field: &FragmentSpread,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
     ) -> Result {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
-        self.print_directives(&field.directives, conditions)?;
+        self.print_directives(&field.directives, conditions, None)?;
         if !field.arguments.is_empty() {
             write!(self.writer, " @arguments")?;
             self.print_arguments(&field.arguments)
@@ -268,7 +285,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_inline_fragment(
         &mut self,
         field: &InlineFragment,
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
         indent_count: usize,
     ) -> Result {
         write!(self.writer, "...")?;
@@ -279,7 +296,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 self.schema.get_type_name(type_condition).lookup(),
             )?;
         };
-        self.print_directives(&field.directives, conditions)?;
+        self.print_directives(&field.directives, conditions, None)?;
         self.print_selections(&field.selections, indent_count)
     }
 
@@ -300,7 +317,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                         writeln!(self.writer)?;
                         self.print_indentation(indent_count)?;
                     }
-                    self.print_selection(&selection, Some(&accum_conditions), indent_count)?;
+                    self.print_selection(
+                        &selection,
+                        Some(accum_conditions.iter().rev().collect()),
+                        indent_count,
+                    )?;
                     maybe_current_condition = None;
                 }
             }
@@ -311,19 +332,30 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_directives(
         &mut self,
         directives: &[Directive],
-        conditions: Option<&[Condition]>,
+        conditions: Option<Vec<&Condition>>,
+        fragment_argument_definitions: Option<&[VariableDefinition]>,
     ) -> Result {
-        for directive in directives {
-            write!(self.writer, " @{}", directive.name.item)?;
-            self.print_arguments(&directive.arguments)?;
-        }
         if let Some(conditions) = conditions {
             self.print_condition_directives(conditions)?;
+        }
+        for directive in directives {
+            if directive.name.item.lookup() == "argumentDefinitions" {
+                self.print_argument_definitions(fragment_argument_definitions.unwrap())?;
+            } else {
+                self.print_directive(directive)?;
+            }
         }
         Ok(())
     }
 
-    fn print_condition_directives(&mut self, conditions: &[Condition]) -> Result {
+    fn print_directive(&mut self, directive: &Directive) -> Result {
+        write!(self.writer, " @{}", directive.name.item)?;
+        self.print_arguments(&directive.arguments)?;
+
+        Ok(())
+    }
+
+    fn print_condition_directives(&mut self, conditions: Vec<&Condition>) -> Result {
         for condition in conditions {
             write!(
                 self.writer,
@@ -367,8 +399,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
                 if let Some(default_value) = &var_def.default_value {
-                    write!(self.writer, " = ")?;
-                    self.print_constant_value(&default_value)?;
+                    if self.graphqljs_formatting || !matches!(default_value, ConstantValue::Null())
+                    {
+                        write!(self.writer, " = ")?;
+                        self.print_constant_value(&default_value)?;
+                    }
                 }
             }
             if self.graphqljs_formatting {
@@ -384,12 +419,19 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         argument_definitions: &[VariableDefinition],
     ) -> Result {
-        let len = argument_definitions.len();
-        if len > 0 {
-            writeln!(self.writer, " @argumentDefinitions(")?;
+        if !argument_definitions.is_empty() {
+            write!(self.writer, " @argumentDefinitions(")?;
+            let mut first = true;
             for arg_def in argument_definitions.iter() {
+                if !self.graphqljs_formatting {
+                    writeln!(self.writer)?;
+                    self.print_indentation(TAB_SIZE)?;
+                } else if first {
+                    first = false;
+                } else {
+                    write!(self.writer, ", ")?;
+                }
                 let type_name = self.schema.get_type_string(&arg_def.type_);
-                self.print_indentation(TAB_SIZE)?;
                 write!(
                     self.writer,
                     "{}: {{type: \"{}\"",
@@ -400,20 +442,39 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     write!(self.writer, ", defaultValue: ")?;
                     self.print_constant_value(&default_value)?;
                 }
-                writeln!(self.writer, "}}")?;
+                write!(self.writer, "}}")?;
             }
-            write!(self.writer, ")")?;
+            if self.graphqljs_formatting {
+                write!(self.writer, ")")?;
+            } else {
+                write!(self.writer, "\n)")?;
+            }
         }
         Ok(())
     }
 
     fn print_arguments(&mut self, arguments: &[Argument]) -> Result {
-        let len = arguments.len();
+        if arguments.is_empty() {
+            Ok(())
+        } else if self.graphqljs_formatting {
+            self.print_arguments_helper(arguments.len(), arguments.iter())
+        } else {
+            let non_null_arguments = arguments
+                .iter()
+                .filter(|arg| !matches!(arg.value.item, Value::Constant(ConstantValue::Null())))
+                .collect::<Vec<_>>();
+            self.print_arguments_helper(non_null_arguments.len(), non_null_arguments.into_iter())
+        }
+    }
+
+    fn print_arguments_helper<'a, Args>(&mut self, len: usize, arguments: Args) -> Result
+    where
+        Args: Iterator<Item = &'a Argument>,
+    {
         if len > 0 {
             write!(self.writer, "(")?;
-            for (i, argument) in arguments.iter().enumerate() {
+            for (i, argument) in arguments.enumerate() {
                 write!(self.writer, "{}: ", argument.name.item)?;
-
                 self.print_value(&argument.value.item)?;
 
                 if i != len - 1 {
@@ -433,14 +494,26 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
-                for arg in object {
+                let is_graphqljs_formatting = self.graphqljs_formatting;
+                let mut print_arg = |arg: &Argument| {
                     if first {
                         first = false;
                     } else {
                         write!(self.writer, ", ")?;
                     }
                     write!(self.writer, "{}: ", arg.name.item)?;
-                    self.print_value(&arg.value.item)?;
+                    self.print_value(&arg.value.item)
+                };
+                if is_graphqljs_formatting {
+                    for arg in object {
+                        print_arg(arg)?;
+                    }
+                } else {
+                    for arg in object.iter().filter(|arg| {
+                        !matches!(arg.value.item, Value::Constant(ConstantValue::Null()))
+                    }) {
+                        print_arg(arg)?;
+                    }
                 }
                 write!(self.writer, "}}")?;
                 Ok(())
@@ -448,13 +521,26 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::List(list) => {
                 write!(self.writer, "[")?;
                 let mut first = true;
-                for value in list {
+                let is_graphqljs_formatting = self.graphqljs_formatting;
+                let mut print_value = |value| {
                     if first {
                         first = false;
                     } else {
                         write!(self.writer, ", ")?;
                     }
-                    self.print_value(&value)?;
+                    self.print_value(value)
+                };
+                if is_graphqljs_formatting {
+                    for value in list {
+                        print_value(value)?;
+                    }
+                } else {
+                    for value in list
+                        .iter()
+                        .filter(|value| !matches!(value, Value::Constant(ConstantValue::Null())))
+                    {
+                        print_value(value)?;
+                    }
                 }
                 write!(self.writer, "]")?;
                 Ok(())
@@ -502,11 +588,17 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         }
     }
 
-    fn print_alias(&mut self, alias: &Option<WithLocation<StringKey>>) -> Result {
-        match alias {
-            Some(value) => write!(self.writer, "{}: ", value.item),
-            None => Ok(()),
+    fn print_alias_and_name(
+        &mut self,
+        alias: &Option<WithLocation<StringKey>>,
+        name: StringKey,
+    ) -> Result {
+        if let Some(alias) = alias {
+            if self.graphqljs_formatting || alias.item != name {
+                write!(self.writer, "{}: ", alias.item)?;
+            }
         }
+        write!(self.writer, "{}", name)
     }
 
     fn print_indentation(&mut self, indent_count: usize) -> Result {

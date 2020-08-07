@@ -7,8 +7,8 @@
 
 //! Utilities for providing the completion language feature
 use crate::lsp::Position;
-use common::{FileKey, Span};
-use graphql_syntax::{parse, Document, GraphQLSource};
+use common::{SourceLocationKey, Span};
+use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
 
@@ -82,7 +82,7 @@ pub enum TypePathItem {
 }
 
 pub fn create_completion_request(
-    document: Document,
+    document: ExecutableDocument,
     position_span: Span,
 ) -> Option<CompletionRequest> {
     info!("Building completion path for {:#?}", document);
@@ -196,7 +196,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
 }
 
 /// Finds all the valid fragment names for a given type. Used to complete fragment spreads
-fn get_valid_fragments_for_type(type_: Type, programs: &Programs<'_>) -> Vec<StringKey> {
+fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringKey> {
     let mut valid_fragment_names = vec![];
     for fragment in programs.source.fragments() {
         if fragment.type_condition == type_ {
@@ -209,7 +209,7 @@ fn get_valid_fragments_for_type(type_: Type, programs: &Programs<'_>) -> Vec<Str
 
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
-    programs: &Programs<'_>,
+    programs: &Programs,
 ) -> Vec<CompletionItem> {
     get_valid_fragments_for_type(type_, programs)
         .iter()
@@ -222,7 +222,7 @@ fn resolve_completion_items_for_fragment_spread(
 pub fn completion_items_for_request(
     request: CompletionRequest,
     schema: &Schema,
-    programs: Option<&Programs<'_>>,
+    programs: Option<&Programs>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let leaf_type = request.resolve_leaf_type(schema)?;
@@ -452,8 +452,8 @@ pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Sp
         }
 
         if line_index == position.line {
-            let start_offset = index_of_last_line + position.character;
-            return Some(Span::new(start_offset as u32, 0));
+            let start_offset = (index_of_last_line + position.character) as u32;
+            return Some(Span::new(start_offset, start_offset));
         }
     }
     None
@@ -524,7 +524,10 @@ pub fn get_completion_request(
         None => return None,
     };
 
-    match parse(&graphql_source.text, FileKey::new(&url.to_string())) {
+    match parse_executable(
+        &graphql_source.text,
+        SourceLocationKey::standalone(&url.to_string()),
+    ) {
         Ok(document) => {
             // Now we need to take the `Position` and map that to an offset relative
             // to this GraphQL document, as the `Span`s in the document are relative.

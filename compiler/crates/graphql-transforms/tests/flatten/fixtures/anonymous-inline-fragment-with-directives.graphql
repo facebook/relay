@@ -5,22 +5,16 @@ fragment TestFragment on User {
   ... @defer {
     firstName
   }
-  ... @__clientExtension {
+  ... @defer(label: "123", if: false) {
+    lastName
+  }
+  ... @defer(label: "123", if: false) {
     firstName
   }
-  ... @__clientExtension {
+  ... @defer(label: "123", if: true) {
     lastName
   }
-  ... @__clientExtension(label: "123", if: false) {
-    lastName
-  }
-  ... @__clientExtension(label: "123", if: false) {
-    firstName
-  }
-  ... @__clientExtension(label: "123", if: true) {
-    lastName
-  }
-  ... @__clientExtension(label: "123", if: false) {
+  ... @defer(label: "123", if: false) {
     firstName
   }
   ... @serverInlineDirective {

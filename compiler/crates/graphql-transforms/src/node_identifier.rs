@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::util::CUSTOM_METADATA_DIRECTIVES;
+use crate::MATCH_CONSTANTS;
 use common::WithLocation;
 use graphql_ir::*;
 use interner::StringKey;
 use schema::Schema;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
-
 /**
  * An identifier that is unique to a given selection: the alias for
  * fields, the type for inline fragments, and a summary of the condition
@@ -170,6 +171,16 @@ impl<T: LocationAgnosticPartialEq> LocationAgnosticPartialEq for WithLocation<T>
     }
 }
 
+impl<T: LocationAgnosticPartialEq> LocationAgnosticPartialEq for Option<&T> {
+    fn location_agnostic_eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Some(l), Some(r)) => l.location_agnostic_eq(r),
+            (None, None) => true,
+            _ => false,
+        }
+    }
+}
+
 impl LocationAgnosticPartialEq for StringKey {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         self == other
@@ -182,7 +193,13 @@ impl LocationAgnosticHash for StringKey {
     }
 }
 
-impl<T: LocationAgnosticPartialEq> LocationAgnosticPartialEq for Vec<T> {
+// Limit the generic to enable a different implementation for Vec<Directive> and Vec<Argument>
+pub trait DirectlyComparableIR {}
+impl DirectlyComparableIR for Value {}
+impl DirectlyComparableIR for ConstantArgument {}
+impl DirectlyComparableIR for ConstantValue {}
+
+impl<T: LocationAgnosticPartialEq + DirectlyComparableIR> LocationAgnosticPartialEq for Vec<T> {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         self.len() == other.len()
             && self
@@ -200,24 +217,74 @@ impl<T: LocationAgnosticHash> LocationAgnosticHash for Vec<T> {
     }
 }
 
+fn filtered_location_agnostic_eq<
+    T: LocationAgnosticPartialEq,
+    F: Copy + for<'r> FnMut(&'r &T) -> bool,
+>(
+    left: &[T],
+    right: &[T],
+    filter: F,
+) -> bool {
+    let mut left = left.iter().filter(filter);
+    let mut right = right.iter().filter(filter);
+    loop {
+        let x = match left.next() {
+            None => return right.next().is_none(),
+            Some(val) => val,
+        };
+
+        let y = match right.next() {
+            None => return false,
+            Some(val) => val,
+        };
+
+        if !x.location_agnostic_eq(y) {
+            return false;
+        }
+    }
+}
+
+impl LocationAgnosticPartialEq for Vec<Directive> {
+    fn location_agnostic_eq(&self, other: &Self) -> bool {
+        filtered_location_agnostic_eq(self, other, |d| {
+            !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(d.name.item)
+        })
+    }
+}
+
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        self.name.location_agnostic_hash(state);
-        self.arguments.location_agnostic_hash(state);
+        if self.name.item == MATCH_CONSTANTS.custom_module_directive_name {
+            MATCH_CONSTANTS.custom_module_directive_name.hash(state);
+        } else if !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(self.name.item) {
+            self.name.location_agnostic_hash(state);
+            self.arguments.location_agnostic_hash(state);
+        }
     }
 }
 
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         self.name.location_agnostic_eq(&other.name)
-            && self.arguments.location_agnostic_eq(&other.arguments)
+            && (self.name.item == MATCH_CONSTANTS.custom_module_directive_name
+                || self.arguments.location_agnostic_eq(&other.arguments))
+    }
+}
+
+impl LocationAgnosticPartialEq for Vec<Argument> {
+    fn location_agnostic_eq(&self, other: &Self) -> bool {
+        filtered_location_agnostic_eq(self, other, |a| {
+            !matches!(a.value.item, Value::Constant(ConstantValue::Null()))
+        })
     }
 }
 
 impl LocationAgnosticHash for Argument {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        self.name.location_agnostic_hash(state);
-        self.value.location_agnostic_hash(state);
+        if !matches!(self.value.item, Value::Constant(ConstantValue::Null())) {
+            self.name.location_agnostic_hash(state);
+            self.value.location_agnostic_hash(state);
+        }
     }
 }
 
@@ -321,7 +388,7 @@ impl LocationAgnosticHash for ConditionValue {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
         match self {
             ConditionValue::Constant(constant) => constant.hash(state),
-            ConditionValue::Variable(variable) => variable.location_agnostic_hash(state),
+            ConditionValue::Variable(variable) => variable.name.item.hash(state),
         }
     }
 }
@@ -331,7 +398,7 @@ impl LocationAgnosticPartialEq for ConditionValue {
         match (self, other) {
             (ConditionValue::Constant(left), ConditionValue::Constant(right)) => left == right,
             (ConditionValue::Variable(left), ConditionValue::Variable(right)) => {
-                left.location_agnostic_eq(right)
+                left.name.item.eq(&right.name.item)
             }
             (ConditionValue::Constant(_), _) => false,
             (ConditionValue::Variable(_), _) => false,

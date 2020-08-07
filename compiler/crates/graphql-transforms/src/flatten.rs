@@ -306,10 +306,10 @@ impl FlattenTransform {
                                 Selection::LinkedField(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a LinkedField."),
                             };
-                            if !node
-                                .arguments
-                                .location_agnostic_eq(&flattened_node.arguments)
-                            {
+                            if !ignoring_type_and_location::arguments_equals(
+                                &node.arguments,
+                                &flattened_node.arguments,
+                            ) {
                                 let error = Diagnostic::new(
                                     ValidationMessage::InvalidSameFieldWithDifferentArguments {
                                         field_name: node.alias_or_name(&self.schema),
@@ -478,4 +478,35 @@ fn merge_handle_directives(
     }
     directives.extend(handles.into_iter());
     directives
+}
+
+mod ignoring_type_and_location {
+    use crate::node_identifier::LocationAgnosticPartialEq;
+    use graphql_ir::{Argument, Value};
+
+    /// Verify that two sets of arguments are equivalent - same argument names
+    /// and values. Notably, this ignores the types of arguments and values,
+    /// which may not always be inferred identically.
+    pub fn arguments_equals(a: &[Argument], b: &[Argument]) -> bool {
+        slice_equals(a, b, |a, b| {
+            a.name.location_agnostic_eq(&b.name) && value_equals(&a.value.item, &b.value.item)
+        })
+    }
+
+    fn value_equals(a: &Value, b: &Value) -> bool {
+        match (a, b) {
+            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq(b),
+            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq(&b.name),
+            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals),
+            (Value::Object(a), Value::Object(b)) => arguments_equals(a, b),
+            _ => false,
+        }
+    }
+
+    fn slice_equals<T, F>(a: &[T], b: &[T], eq: F) -> bool
+    where
+        F: Fn(&T, &T) -> bool,
+    {
+        a.len() == b.len() && a.iter().zip(b).all(|(a, b)| eq(a, b))
+    }
 }

@@ -1,4 +1,4 @@
-// @generated SignedSource<<74b72946fe353017ad3a736dab36cc2f>>
+// @generated SignedSource<<69bb4dc3c7ae135d99b5881cfd0bc1cb>>
 
 mod compile_relay_artifacts;
 
@@ -227,6 +227,13 @@ fn connection_with_dynamic_key_missing_variable_definition_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/connection-with-dynamic-key-missing-variable-definition.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/connection-with-dynamic-key-missing-variable-definition.invalid.expected");
     test_fixture(transform_fixture, "connection-with-dynamic-key-missing-variable-definition.invalid.graphql", "compile_relay_artifacts/fixtures/connection-with-dynamic-key-missing-variable-definition.invalid.expected", input, expected);
+}
+
+#[test]
+fn constant_variable_matches_constant_value() {
+    let input = include_str!("compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.expected");
+    test_fixture(transform_fixture, "constant_variable_matches_constant_value.graphql", "compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.expected", input, expected);
 }
 
 #[test]

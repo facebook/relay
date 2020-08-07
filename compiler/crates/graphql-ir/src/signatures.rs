@@ -12,8 +12,7 @@ use crate::ir::{ConstantValue, VariableDefinition};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
 use errors::{par_try_map, try2};
 use fnv::{FnvHashMap, FnvHashSet};
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type, TypeReference};
 
@@ -208,31 +207,29 @@ fn get_argument_type(
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> ValidationResult<TypeReference> {
     let type_arg = object.items.named(*TYPE);
-    let type_name = match type_arg {
+    let type_name_and_span = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
+            span,
             ..
-        }) => Some(type_name_node.value.lookup()),
+        }) => Some((type_name_node.value, span)),
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::Enum(type_name_node),
+            span,
             ..
-        }) => Some(type_name_node.value.lookup()),
+        }) => Some((type_name_node.value, span)),
         _ => None,
     };
-    if let Some(type_name) = type_name {
-        let type_ast = graphql_syntax::parse_type(type_name, location.source_location()).map_err(
-            |errors| {
-                errors
-                    .into_iter()
-                    .map(|x| {
-                        Diagnostic::new(
-                            ValidationMessage::SyntaxError(x),
-                            vec![/* TODO: preserve location of error */],
-                        )
-                    })
-                    .collect::<Vec<_>>()
-            },
-        )?;
+    if let Some((type_name, span)) = type_name_and_span {
+        let type_ast = graphql_syntax::parse_type(type_name.lookup(), location.source_location())
+            .map_err(|errors| {
+            errors
+                .into_iter()
+                .map(|x| {
+                    Diagnostic::error(ValidationMessage::SyntaxError(x), location.with_span(*span))
+                })
+                .collect::<Vec<_>>()
+        })?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {

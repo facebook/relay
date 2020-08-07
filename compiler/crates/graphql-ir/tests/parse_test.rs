@@ -1,4 +1,4 @@
-// @generated SignedSource<<cc89ad4060a64b7d402a6afea5a4cb9f>>
+// @generated SignedSource<<c9ff217c50856bf9043f4ecd73cffb0b>>
 
 mod parse;
 
@@ -122,6 +122,13 @@ fn fragment_with_argument_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-argument-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-argument-type.invalid.expected");
     test_fixture(transform_fixture, "fragment-with-argument-type.invalid.graphql", "parse/fixtures/fragment-with-argument-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_argument_type_syntax_error_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-argument-type-syntax-error.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-argument-type-syntax-error.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-argument-type-syntax-error.invalid.graphql", "parse/fixtures/fragment-with-argument-type-syntax-error.invalid.expected", input, expected);
 }
 
 #[test]

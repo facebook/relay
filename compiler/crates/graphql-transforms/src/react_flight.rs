@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, NamedItem, WithLocation};
+use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult, Value,
+    ValidationMessage, ValidationResult, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -53,7 +53,7 @@ pub fn react_flight(program: &Program) -> ValidationResult<Program> {
 
 struct ReactFlightTransform<'s> {
     component_type: Type,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
     program: &'s Program,
     props_type: Type,
 }
@@ -80,9 +80,9 @@ impl<'s> ReactFlightTransform<'s> {
         {
             Some(component_directive) => component_directive,
             None => {
-                self.errors.push(ValidationError::new(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldMissingModuleDirective,
-                    vec![location],
+                    location,
                 ));
                 return Err(());
             }
@@ -98,9 +98,9 @@ impl<'s> ReactFlightTransform<'s> {
         match value {
             AstValue::String(name) => Ok(name.intern()),
             _ => {
-                self.errors.push(ValidationError::new(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldExpectedModuleNameString,
-                    vec![location],
+                    location,
                 ));
                 Err(())
             }
@@ -135,11 +135,11 @@ impl<'s> ReactFlightTransform<'s> {
         {
             Some(flight_field_id) => flight_field_id,
             None => {
-                self.errors.push(ValidationError::new(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldNotDefinedOnType {
                         field_name: field_definition.name,
                     },
-                    vec![location],
+                    location,
                 ));
                 return Err(());
             }
@@ -151,9 +151,9 @@ impl<'s> ReactFlightTransform<'s> {
             arg.name == *REACT_FLIGHT_PROPS_ARGUMENT_NAME && arg.type_.inner() == self.props_type
         });
         if props_argument.is_none() {
-            self.errors.push(ValidationError::new(
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidFlightFieldPropsArgument,
-                vec![location],
+                location,
             ));
             return Err(());
         }
@@ -163,17 +163,17 @@ impl<'s> ReactFlightTransform<'s> {
                 && Some(arg.type_.inner()) == self.program.schema.get_type("String".intern())
         });
         if component_argument.is_none() {
-            self.errors.push(ValidationError::new(
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidFlightFieldComponentArgument,
-                vec![location],
+                location,
             ));
             return Err(());
         }
         // flight field must return `ReactFlightComponent`
         if flight_field_definition.type_.inner() != self.component_type {
-            self.errors.push(ValidationError::new(
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidFlightFieldReturnType,
-                vec![location],
+                location,
             ));
             return Err(());
         }

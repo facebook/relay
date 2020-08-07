@@ -6,7 +6,7 @@
  */
 
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
+use crate::errors::{ValidationMessage, ValidationResult};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
 use common::{Diagnostic, Location, NamedItem, Span, WithLocation};
@@ -1394,7 +1394,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         None
     }
 
-    fn record_error(&mut self, error: ValidationError) -> ValidationError {
+    fn record_error(&mut self, error: Diagnostic) -> Diagnostic {
         // panic!("{:?}", error);
         error
     }

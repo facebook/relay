@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, NamedItem, SourceLocationKey};
+use common::{ConsoleLogger, Diagnostic, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
-use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, ValidationError};
+use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
 use graphql_syntax::parse_executable;
 use graphql_text_printer::print_full_operation;
 use graphql_transforms::{ConnectionInterface, FeatureFlags, MATCH_CONSTANTS};
@@ -38,7 +38,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
-    let validation_errors_to_string = |errors: Vec<ValidationError>| {
+    let validation_errors_to_string = |errors: Vec<Diagnostic>| {
         let mut errs = errors
             .into_iter()
             .map(|err| err.print_with_sources(&sources))

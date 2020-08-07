@@ -8,7 +8,7 @@
 use common::{Diagnostic, NamedItem};
 use graphql_ir::{
     FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult,
+    ValidationMessage, ValidationResult,
 };
 
 use crate::connections::ConnectionInterface;
@@ -43,7 +43,7 @@ lazy_static! {
 
 struct DeclarativeConnectionMutationTransform<'s, 'c> {
     program: &'s Program,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
     connection_interface: &'c ConnectionInterface,
 }
 

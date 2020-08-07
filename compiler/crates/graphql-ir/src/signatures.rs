@@ -7,7 +7,7 @@
 
 use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
+use crate::errors::{ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
 use errors::{par_try_map, try2};
@@ -169,7 +169,7 @@ fn build_fragment_variable_definitions(
                     // Convert variable type, validate that it's an input type
                     let type_ = get_argument_type(schema, fragment.location, &object)?;
                     if !type_.inner().is_input_type() {
-                        return Err(ValidationError::error(
+                        return Err(Diagnostic::error(
                             ValidationMessage::ExpectedFragmentArgumentToHaveInputType(
                                 schema.get_type_name(type_.inner()),
                             ),
@@ -225,7 +225,7 @@ fn get_argument_type(
                 errors
                     .into_iter()
                     .map(|x| {
-                        ValidationError::new(
+                        Diagnostic::new(
                             ValidationMessage::SyntaxError(x),
                             vec![/* TODO: preserve location of error */],
                         )

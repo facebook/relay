@@ -12,11 +12,10 @@ use super::{
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, ScalarField,
-    Selection, ValidationError, ValidationMessage, ValidationResult, Value, Variable,
-    VariableDefinition,
+    Selection, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
@@ -111,11 +110,11 @@ fn build_refetch_operation(
             });
             let mut variable_definitions = build_operation_variable_definitions(&fragment);
             if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
-                return Err(vec![ValidationError::new(
+                return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                         fragment_name: fragment.name.item,
                     },
-                    vec![id_argument.name.location],
+                    id_argument.name.location,
                 )]);
             }
 
@@ -175,11 +174,11 @@ fn get_node_field_id_and_id_arg<'s>(
             }
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidNodeSchemaForRefetchableFragmentOnNode {
             fragment_name: fragment.name.item,
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 

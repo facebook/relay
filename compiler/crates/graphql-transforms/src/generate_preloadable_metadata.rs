@@ -6,10 +6,10 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult, Value,
+    ValidationMessage, ValidationResult, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -35,7 +35,7 @@ pub fn generate_preloadable_metadata(program: &Program) -> ValidationResult<Prog
 
 struct GeneratePreloadableMetadata<'s> {
     pub program: &'s Program,
-    pub errors: Vec<ValidationError>,
+    pub errors: Vec<Diagnostic>,
 }
 
 impl<'s> GeneratePreloadableMetadata<'s> {
@@ -97,7 +97,7 @@ impl<'s> Transformer for GeneratePreloadableMetadata<'s> {
                 } else if preloadable_directives_len == 0 {
                     Transformed::Keep
                 } else {
-                    self.errors.push(ValidationError::new(
+                    self.errors.push(Diagnostic::new(
                         ValidationMessage::RedundantPreloadableDirective,
                         operation
                             .directives

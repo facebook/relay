@@ -12,12 +12,12 @@ use crate::util::{
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, ScalarField, Selection, ValidationError, ValidationMessage, ValidationResult,
+    Program, ScalarField, Selection, ValidationMessage, ValidationResult,
 };
 use schema::Type;
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::NamedItem;
+use common::{Diagnostic, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
@@ -278,7 +278,7 @@ impl FlattenTransform {
                                         !flattened_module_directive.arguments[4].location_agnostic_eq(&module_directive.arguments[4])
                                     // name
                                     {
-                                        let error = ValidationError::new(
+                                        let error = Diagnostic::new(
                                             ValidationMessage::ConflictingModuleSelections,
                                             vec![
                                                 module_directive.name.location,
@@ -310,7 +310,7 @@ impl FlattenTransform {
                                 .arguments
                                 .location_agnostic_eq(&flattened_node.arguments)
                             {
-                                let error = ValidationError::new(
+                                let error = Diagnostic::new(
                                     ValidationMessage::InvalidSameFieldWithDifferentArguments {
                                         field_name: node.alias_or_name(&self.schema),
                                     },
@@ -374,7 +374,7 @@ impl FlattenTransform {
                                 .arguments
                                 .location_agnostic_eq(&flattened_node.arguments)
                             {
-                                let error = ValidationError::new(
+                                let error = Diagnostic::new(
                                     ValidationMessage::InvalidSameFieldWithDifferentArguments {
                                         field_name: node.alias_or_name(&self.schema),
                                     },

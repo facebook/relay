@@ -13,9 +13,6 @@ use thiserror::Error;
 
 pub type ValidationResult<T> = Result<T, Vec<Diagnostic>>;
 
-// TODO remove this alias
-pub type ValidationError = Diagnostic;
-
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {

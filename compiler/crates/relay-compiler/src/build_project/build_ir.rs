@@ -7,9 +7,9 @@
 
 use crate::config::ProjectConfig;
 use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
+use common::Diagnostic;
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::ValidationError;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use interner::StringKey;
@@ -46,7 +46,7 @@ pub fn build_ir(
     schema: &Schema,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     is_incremental_build: bool,
-) -> Result<BuildIRResult, Vec<ValidationError>> {
+) -> Result<BuildIRResult, Vec<Diagnostic>> {
     let project_asts = graphql_asts
         .get(&project_config.name)
         .map(|asts| asts.asts.clone())
@@ -107,14 +107,14 @@ pub fn build_ir(
 fn find_duplicates(
     asts: &[ExecutableDefinition],
     base_asts: &[ExecutableDefinition],
-) -> Result<(), Vec<ValidationError>> {
+) -> Result<(), Vec<Diagnostic>> {
     let mut definitions = FnvHashMap::default();
 
     let mut errors = Vec::new();
     for def in asts.iter().chain(base_asts) {
         if let Some(name) = def.name() {
             if let Some(prev_def) = definitions.insert(name, def) {
-                errors.push(ValidationError::new(
+                errors.push(Diagnostic::new(
                     graphql_ir::ValidationMessage::DuplicateDefinition(name),
                     vec![def.location(), prev_def.location()],
                 ));

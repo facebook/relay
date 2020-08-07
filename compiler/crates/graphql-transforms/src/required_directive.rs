@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationError, ValidationResult, Value,
+    Transformer, ValidationResult, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -42,7 +42,7 @@ pub fn required_directive(program: &Program) -> ValidationResult<Program> {
 
 struct RequiredDirective<'s> {
     program: &'s Program,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
     path: Vec<&'s str>,
 }
 

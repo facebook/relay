@@ -14,13 +14,12 @@ mod viewer_query_generator;
 use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationError, ValidationMessage,
-    ValidationResult,
+    FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
 };
 use graphql_text_printer::print_value;
 use interner::StringKey;
@@ -120,12 +119,12 @@ impl RefetchableFragment<'_> {
                 writeln!(descriptions, " - {}", generator.description).unwrap();
             }
             descriptions.pop();
-            Err(vec![ValidationError::new(
+            Err(vec![Diagnostic::error(
                 ValidationMessage::UnsupportedRefetchableFragment {
                     fragment_name: fragment.name.item,
                     descriptions,
                 },
-                vec![fragment.name.location],
+                fragment.name.location,
             )])
         } else {
             Ok(None)
@@ -143,7 +142,7 @@ impl RefetchableFragment<'_> {
                         .existing_refetch_operations
                         .insert(query_name, fragment.name)
                     {
-                        Err(vec![ValidationError::new(
+                        Err(vec![Diagnostic::new(
                             ValidationMessage::DuplicateRefetchableOperation {
                                 query_name,
                                 fragment_name: fragment.name.item,
@@ -155,20 +154,20 @@ impl RefetchableFragment<'_> {
                         Ok(Some(query_name))
                     }
                 } else {
-                    Err(vec![ValidationError::new(
+                    Err(vec![Diagnostic::error(
                         ValidationMessage::ExpectQueryNameToBeString {
                             query_name_value: print_value(
                                 &self.program.schema,
                                 &query_name_arg.value.item,
                             ),
                         },
-                        vec![query_name_arg.name.location],
+                        query_name_arg.name.location,
                     )])
                 }
             } else {
-                Err(vec![ValidationError::new(
+                Err(vec![Diagnostic::error(
                     ValidationMessage::QueryNameRequired,
-                    vec![directive.name.location],
+                    directive.name.location,
                 )])
             }
         } else {
@@ -190,41 +189,41 @@ impl RefetchableFragment<'_> {
         ) {
             // TODO: path or connection field locations in the error messages
             if metadatas.len() > 1 {
-                return Err(vec![ValidationError::new(
+                return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableWithMultipleConnections {
                         fragment_name: fragment.name.item,
                     },
-                    vec![fragment.name.location],
+                    fragment.name.location,
                 )]);
             } else if metadatas.len() == 1 {
                 let metadata = &metadatas[0];
                 if metadata.path.is_none() {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::error(
                         ValidationMessage::RefetchableWithConnectionInPlural {
                             fragment_name: fragment.name.item,
                         },
-                        vec![fragment.name.location],
+                        fragment.name.location,
                     )]);
                 }
                 if (metadata.after.is_none() || metadata.first.is_none())
                     && metadata.direction != self.connection_constants.direction_backward
                 {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::error(
                         ValidationMessage::RefetchableWithConstConnectionArguments {
                             fragment_name: fragment.name.item,
                             arguments: "after and first",
                         },
-                        vec![fragment.name.location],
+                        fragment.name.location,
                     )]);
                 } else if (metadata.before.is_none() || metadata.last.is_none())
                     && metadata.direction != self.connection_constants.direction_forward
                 {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::error(
                         ValidationMessage::RefetchableWithConstConnectionArguments {
                             fragment_name: fragment.name.item,
                             arguments: "before and last",
                         },
-                        vec![fragment.name.location],
+                        fragment.name.location,
                     )]);
                 }
             }

@@ -10,11 +10,11 @@ use crate::handle_fields::{
     extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
     DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
 };
-use common::NamedItem;
+use common::{Diagnostic, NamedItem};
 use errors::{validate, validate_map};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationError,
-    ValidationMessage, ValidationResult, Validator, Value,
+    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationMessage,
+    ValidationResult, Validator, Value,
 };
 use interner::StringKey;
 use schema::{Field, Type, TypeReference};
@@ -53,13 +53,13 @@ impl<'s> ConnectionValidation<'s> {
         if field_type.is_list()
             || (!schema.is_object(field_type.inner()) && !schema.is_interface(field_type.inner()))
         {
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidConnectionFieldType {
                     connection_directive_name: connection_directive.name.item,
                     connection_field_name: connection_schema_field.name,
                     connection_type_string: schema.get_type_string(field_type),
                 },
-                vec![connection_field.definition.location],
+                connection_field.definition.location,
             )]);
         }
         Ok(field_type.inner())
@@ -88,13 +88,13 @@ impl<'s> ConnectionValidation<'s> {
             .arguments
             .named(self.connection_constants.last_arg_name);
         if first_arg.is_none() && last_arg.is_none() {
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::ExpectedConnectionToHaveCountArgs {
                     connection_field_name: connection_schema_field.name,
                     first_arg: self.connection_constants.first_arg_name,
                     last_arg: self.connection_constants.last_arg_name,
                 },
-                vec![connection_field.definition.location],
+                connection_field.definition.location,
             )]);
         }
 
@@ -114,12 +114,12 @@ impl<'s> ConnectionValidation<'s> {
                 unreachable!("Expected selection for edges to be a linked field.")
             }
         } else {
-            Err(vec![ValidationError::new(
+            Err(vec![Diagnostic::error(
                 ValidationMessage::ExpectedConnectionToHaveEdgesSelection {
                     connection_field_name: connection_schema_field.name,
                     edges_selection_name,
                 },
-                vec![connection_field.definition.location],
+                connection_field.definition.location,
             )])
         }
     }
@@ -183,7 +183,7 @@ impl<'s> ConnectionValidation<'s> {
                         || schema.is_interface(edges_type.inner()))
             },
             || {
-                vec![ValidationError::new(
+                vec![Diagnostic::new(
                     ValidationMessage::ExpectedConnectionToExposeValidEdgesField {
                         connection_directive_name,
                         connection_field_name,
@@ -211,7 +211,7 @@ impl<'s> ConnectionValidation<'s> {
                         && (node_type.inner().is_abstract_type() || node_type.inner().is_object())
                 },
                 || {
-                    vec![ValidationError::new(
+                    vec![Diagnostic::new(
                         ValidationMessage::ExpectedConnectionToExposeValidNodeField {
                             connection_directive_name,
                             connection_field_name,
@@ -232,7 +232,7 @@ impl<'s> ConnectionValidation<'s> {
                 cursor_selection_name,
                 |_, cursor_type| !cursor_type.is_list() && cursor_type.inner().is_scalar(),
                 || {
-                    vec![ValidationError::new(
+                    vec![Diagnostic::new(
                         ValidationMessage::ExpectedConnectionToExposeValidCursorField {
                             connection_directive_name,
                             connection_field_name,
@@ -273,14 +273,14 @@ impl<'s> ConnectionValidation<'s> {
                 !page_info_type.is_list() && schema.is_object(page_info_type.inner())
             },
             || {
-                vec![ValidationError::new(
+                vec![Diagnostic::error(
                     ValidationMessage::ExpectedConnectionToExposeValidPageInfoField {
                         connection_directive_name,
                         connection_field_name,
                         connection_type_name,
                         page_info_selection_name,
                     },
-                    vec![connection_field.definition.location],
+                    connection_field.definition.location,
                 )]
             },
         )?;
@@ -299,7 +299,7 @@ impl<'s> ConnectionValidation<'s> {
                 *page_info_sub_field_name,
                 |_, sub_field_type| !sub_field_type.is_list() && sub_field_type.inner().is_scalar(),
                 || {
-                    vec![ValidationError::new(
+                    vec![Diagnostic::error(
                         ValidationMessage::ExpectedConnectionToExposeValidPageInfoSubField {
                             connection_directive_name,
                             connection_field_name,
@@ -307,7 +307,7 @@ impl<'s> ConnectionValidation<'s> {
                             page_info_selection_name,
                             page_info_sub_field_name: *page_info_sub_field_name,
                         },
-                        vec![connection_field.definition.location],
+                        connection_field.definition.location,
                     )]
                 },
             )
@@ -319,7 +319,7 @@ impl<'s> ConnectionValidation<'s> {
         parent_type: Type,
         selection_name: StringKey,
         is_valid: impl Fn(&Field, &TypeReference) -> bool,
-        error: impl Fn() -> Vec<ValidationError>,
+        error: impl Fn() -> Vec<Diagnostic>,
     ) -> ValidationResult<(&Field, &TypeReference)> {
         let schema = &self.program.schema;
         if let Some(field_id) = schema.named_field(parent_type, selection_name) {
@@ -383,7 +383,7 @@ impl<'s> ConnectionValidation<'s> {
             match handler_val {
                 ConstantValue::String(_) => {}
                 _ => {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::new(
                         ValidationMessage::InvalidConnectionHandlerArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
@@ -413,7 +413,7 @@ impl<'s> ConnectionValidation<'s> {
                     };
                     let postfix = format!("_{}", field_alias_or_name);
                     if !string_val.lookup().ends_with(postfix.as_str()) {
-                        return Err(vec![ValidationError::new(
+                        return Err(vec![Diagnostic::new(
                             ValidationMessage::InvalidConnectionKeyArgPostfix {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name,
@@ -426,7 +426,7 @@ impl<'s> ConnectionValidation<'s> {
                     }
                 }
                 _ => {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::new(
                         ValidationMessage::InvalidConnectionKeyArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
@@ -437,13 +437,13 @@ impl<'s> ConnectionValidation<'s> {
                 }
             },
             None => {
-                return Err(vec![ValidationError::new(
+                return Err(vec![Diagnostic::error(
                     ValidationMessage::InvalidConnectionKeyArg {
                         connection_directive_name: connection_directive.name.item,
                         connection_field_name: connection_schema_field.name,
                         key_arg_name: *KEY_ARG_NAME,
                     },
-                    vec![connection_field.definition.location],
+                    connection_field.definition.location,
                 )])
             }
         }
@@ -466,7 +466,7 @@ impl<'s> ConnectionValidation<'s> {
                     });
 
                     if non_string_value.is_some() {
-                        return Err(vec![ValidationError::new(
+                        return Err(vec![Diagnostic::new(
                             ValidationMessage::InvalidConnectionFiltersArg {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name,
@@ -477,7 +477,7 @@ impl<'s> ConnectionValidation<'s> {
                     }
                 }
                 _ => {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::new(
                         ValidationMessage::InvalidConnectionFiltersArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
@@ -502,7 +502,7 @@ impl<'s> ConnectionValidation<'s> {
             match value {
                 Value::Variable(_) => {}
                 _ => {
-                    return Err(vec![ValidationError::new(
+                    return Err(vec![Diagnostic::new(
                         ValidationMessage::InvalidConnectionDynamicKeyArg {
                             connection_directive_name: connection_directive.name.item,
                             connection_field_name: connection_schema_field.name,
@@ -525,11 +525,11 @@ impl<'s> ConnectionValidation<'s> {
         connection_field: &LinkedField,
     ) -> ValidationResult<()> {
         if edges_field.alias.is_some() {
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::UnsupportedAliasingInStreamConnection {
                     field_name: self.connection_interface.edges,
                 },
-                vec![edges_field.definition.location],
+                edges_field.definition.location,
             )]);
         }
 
@@ -550,11 +550,11 @@ impl<'s> ConnectionValidation<'s> {
             });
         if let Some(page_info_selection) = page_info_selection {
             if page_info_selection.alias.is_some() {
-                return Err(vec![ValidationError::new(
+                return Err(vec![Diagnostic::error(
                     ValidationMessage::UnsupportedAliasingInStreamConnection {
                         field_name: self.connection_interface.page_info,
                     },
-                    vec![page_info_selection.definition.location],
+                    page_info_selection.definition.location,
                 )]);
             }
         }

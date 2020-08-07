@@ -6,9 +6,10 @@
  */
 
 use crate::root_variables::InferVariablesVisitor;
+use common::Diagnostic;
 use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationError, ValidationMessage,
-    ValidationResult, Validator,
+    FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
+    Validator,
 };
 
 pub fn validate_global_variables(program: &Program) -> ValidationResult<()> {
@@ -48,7 +49,7 @@ impl Validator for ValidateGlobalVariables<'_> {
 
         if !undefined_variables.is_empty() {
             let is_plural = undefined_variables.len() > 1;
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::new(
                 ValidationMessage::GlobalVariables {
                     operation_name: operation.name.item,
                     variables_string: format!(

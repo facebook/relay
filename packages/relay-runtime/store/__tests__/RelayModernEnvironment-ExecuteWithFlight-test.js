@@ -42,6 +42,16 @@ describe('execute() with Flight field', () => {
   let source;
   let store;
 
+  const readRoot = () => {
+    return {
+      $$typeof: Symbol.for('react.element'),
+      type: 'div',
+      key: null,
+      ref: null,
+      props: {foo: 1},
+    };
+  };
+
   beforeEach(() => {
     jest.resetModules();
 
@@ -77,15 +87,7 @@ describe('execute() with Flight field', () => {
 
     reactFlightPayloadDeserializer = jest.fn(() => {
       return {
-        readRoot() {
-          return {
-            $$typeof: Symbol.for('react.element'),
-            type: 'div',
-            key: null,
-            ref: null,
-            props: {foo: 1},
-          };
-        },
+        readRoot,
       };
     });
     complete = jest.fn();
@@ -116,7 +118,7 @@ describe('execute() with Flight field', () => {
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
   });
 
-  it('loads the Flight field and normalizes the field payload', () => {
+  it('loads the Flight field and normalizes/publishes the field payload', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -165,6 +167,13 @@ describe('execute() with Flight field', () => {
     expect(environment.lookup(innerOperation.fragment).data).toEqual({
       node: {
         name: 'Lauren',
+      },
+    });
+    expect(environment.lookup(operation.fragment).data).toEqual({
+      node: {
+        flightComponent: {
+          readRoot,
+        },
       },
     });
     expect(source.toJSON()).toMatchInlineSnapshot(`

@@ -12,7 +12,12 @@
 
 'use strict';
 
+const invariant = require('invariant');
+
+const {getType} = require('./RelayModernRecord');
+
 import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
+import type {ReactFlightClientResponse, Record} from './RelayStoreTypes';
 
 const REACT_FLIGHT_QUERIES_STORAGE_KEY = 'queries';
 const REACT_FLIGHT_TREE_STORAGE_KEY = 'tree';
@@ -32,9 +37,28 @@ function refineToReactFlightPayloadData(
   return (payload: $FlowFixMe);
 }
 
+function getReactFlightClientResponse(
+  record: Record,
+): ?ReactFlightClientResponse {
+  invariant(
+    getType(record) === REACT_FLIGHT_TYPE_NAME,
+    'getReactFlightClientResponse(): Expected a ReactFlightComponentRecord, ' +
+      'got %s.',
+    record,
+  );
+  const response: ?ReactFlightClientResponse = (record[
+    REACT_FLIGHT_TREE_STORAGE_KEY
+  ]: $FlowFixMe);
+  if (response != null) {
+    return response;
+  }
+  return null;
+}
+
 module.exports = {
   REACT_FLIGHT_QUERIES_STORAGE_KEY,
   REACT_FLIGHT_TREE_STORAGE_KEY,
   REACT_FLIGHT_TYPE_NAME,
+  getReactFlightClientResponse,
   refineToReactFlightPayloadData,
 };

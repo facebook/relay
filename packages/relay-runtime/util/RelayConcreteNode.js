@@ -31,6 +31,10 @@ export type ConcreteRequest = {|
   +params: RequestParameters,
 |};
 
+export type NormalizationRootNode =
+  | ConcreteRequest
+  | NormalizationSplitOperation;
+
 /**
  * Contains the parameters required for executing a GraphQL request.
  * The operation can either be provided as a persisted `id` or `text`. If given

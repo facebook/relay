@@ -18,6 +18,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {generateTypeID} = require('./TypeID');
@@ -223,9 +224,10 @@ class RelayReferenceMarker {
     if (operationReference == null) {
       return;
     }
-    const operation = operationLoader.get(operationReference);
-    if (operation != null) {
-      this._traverseSelections(operation.selections, record);
+    const normalizationRootNode = operationLoader.get(operationReference);
+    if (normalizationRootNode != null) {
+      const selections = getOperation(normalizationRootNode).selections;
+      this._traverseSelections(selections, record);
     }
     // Otherwise, if the operation is not available, we assume that the data
     // cannot have been processed yet and therefore isn't in the store to

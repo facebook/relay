@@ -22,6 +22,7 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
+const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
@@ -440,8 +441,9 @@ class DataChecker {
       }
       return;
     }
-    const operation = operationLoader.get(operationReference);
-    if (operation != null) {
+    const normalizationRootNode = operationLoader.get(operationReference);
+    if (normalizationRootNode != null) {
+      const operation = getOperation(normalizationRootNode);
       this._traverse(operation, dataID);
     } else {
       // If the fragment is not available, we assume that the data cannot have been

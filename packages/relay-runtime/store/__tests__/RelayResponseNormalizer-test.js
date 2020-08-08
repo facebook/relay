@@ -10,6 +10,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
@@ -3033,6 +3034,179 @@ describe('RelayResponseNormalizer', () => {
           __ref: '1',
         },
       },
+    });
+  });
+
+  describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightQuery;
+    let recordSource;
+    const dummyReactFlightPayloadDeserializer = () => {
+      return {
+        readRoot() {
+          return {
+            $$typeof: Symbol.for('react.element'),
+            type: 'div',
+            key: null,
+            ref: null,
+            props: {foo: 1},
+          };
+        },
+      };
+    };
+
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+
+      ({FlightQuery} = generateAndCompile(
+        `
+        query FlightQuery($id: ID!, $count: Int!) {
+          node(id: $id) {
+            ... on Story {
+              flightComponent(condition: true, count: $count, id: $id)
+            }
+          }
+        }
+
+        extend type Story {
+          flightComponent(
+            condition: Boolean!
+            count: Int!
+            id: ID!
+          ): ReactFlightComponent
+            @react_flight_component(name: "FlightComponent.server")
+        }
+        `,
+      ));
+      recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('normalizes Flight fields', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Story',
+          flightComponent: {
+            tree: [
+              {
+                type: 'div',
+                key: null,
+                ref: null,
+                props: {foo: 1},
+              },
+            ],
+            queries: [
+              {
+                id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                response: {
+                  data: {
+                    story: {
+                      id: '2',
+                      name: 'Lauren',
+                      __typename: 'User',
+                    },
+                  },
+                  extensions: [],
+                },
+                variables: {
+                  id: '2',
+                },
+              },
+            ],
+          },
+        },
+      };
+      normalize(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        payload,
+        {
+          ...defaultOptions,
+          reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+        },
+      );
+      expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+        Object {
+          "1": Object {
+            "__id": "1",
+            "__typename": "Story",
+            "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+              "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+            },
+            "id": "1",
+          },
+          "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+            "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+            "__typename": "ReactFlightComponent",
+            "queries": Array [
+              Object {
+                "module": Object {
+                  "__dr": "RelayFlightExampleQuery.graphql",
+                },
+                "variables": Object {
+                  "id": "2",
+                },
+              },
+            ],
+            "tree": Object {
+              "readRoot": [Function],
+            },
+          },
+          "client:root": Object {
+            "__id": "client:root",
+            "__typename": "__Root",
+            "node(id:\\"1\\")": Object {
+              "__ref": "1",
+            },
+          },
+        }
+      `);
+    });
+
+    it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Story',
+          flightComponent: {
+            tree: [],
+            queries: [],
+          },
+        },
+      };
+
+      expect(() => {
+        normalize(
+          recordSource,
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
+          payload,
+          {
+            ...defaultOptions,
+            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+          },
+        );
+      }).not.toThrow();
+      expect(() => {
+        normalize(
+          recordSource,
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
+          payload,
+          defaultOptions,
+        );
+      }).toThrow();
     });
   });
 });

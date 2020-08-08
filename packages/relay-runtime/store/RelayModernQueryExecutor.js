@@ -19,6 +19,7 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('./RelayRecordSource');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
+const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
@@ -46,6 +47,7 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
   Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
@@ -54,8 +56,10 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {
   NormalizationLinkedField,
-  NormalizationSplitOperation,
+  NormalizationOperation,
+  NormalizationRootNode,
   NormalizationSelectableNode,
+  NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -70,6 +74,7 @@ export type ExecuteConfig = {|
   +operationTracker?: ?OperationTracker,
   +optimisticConfig: ?OptimisticResponseConfig,
   +publishQueue: PublishQueue,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
@@ -126,6 +131,7 @@ class Executor {
   _optimisticUpdates: null | Array<OptimisticUpdate>;
   _pendingModulePayloadsCount: number;
   _publishQueue: PublishQueue;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
@@ -154,6 +160,7 @@ class Executor {
     treatMissingFieldsAsNull,
     getDataID,
     isClientPayload,
+    reactFlightPayloadDeserializer,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
@@ -176,6 +183,7 @@ class Executor {
     this._subscriptions = new Map();
     this._updater = updater;
     this._isClientPayload = isClientPayload === true;
+    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -482,6 +490,7 @@ class Executor {
         {
           getDataID: this._getDataID,
           path: [],
+          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
           treatMissingFieldsAsNull,
         },
       );
@@ -533,11 +542,11 @@ class Executor {
             moduleImportPayload,
           );
         } else {
-          const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+          const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
             operation,
             moduleImportPayload,
           );
-          optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+          optimisticUpdates.push(...moduleImportOptimisticUpdates);
         }
       }
     }
@@ -559,15 +568,17 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
   }
 
   _processOptimisticModuleImport(
-    operation: NormalizationSplitOperation,
+    normalizationRootNode: NormalizationRootNode,
     moduleImportPayload: ModuleImportPayload,
   ): $ReadOnlyArray<OptimisticUpdate> {
+    const operation = getOperation(normalizationRootNode);
     const optimisticUpdates = [];
     const modulePayload = this._normalizeModuleImport(
       moduleImportPayload,
@@ -593,11 +604,11 @@ class Executor {
         if (operation == null || this._state !== 'started') {
           return;
         }
-        const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+        const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
           operation,
           moduleImportPayload,
         );
-        moduleImportOptimisitcUpdates.forEach(update =>
+        moduleImportOptimisticUpdates.forEach(update =>
           this._publishQueue.applyUpdate(update),
         );
         if (this._optimisticUpdates == null) {
@@ -608,7 +619,7 @@ class Executor {
               this._operation.request.node.params.name,
           );
         } else {
-          this._optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+          this._optimisticUpdates.push(...moduleImportOptimisticUpdates);
           this._publishQueue.run();
         }
       });
@@ -632,8 +643,9 @@ class Executor {
         ROOT_TYPE,
         {
           getDataID: this._getDataID,
-          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           path: [],
+          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         },
       );
       this._publishQueue.commitPayload(
@@ -745,13 +757,12 @@ class Executor {
     moduleImportPayload: ModuleImportPayload,
     operationLoader: OperationLoader,
   ): void {
-    const syncOperation = operationLoader.get(
-      moduleImportPayload.operationReference,
-    );
-    if (syncOperation != null) {
+    const node = operationLoader.get(moduleImportPayload.operationReference);
+    if (node != null) {
+      const operation = getOperation(node);
       // If the operation module is available synchronously, normalize the
       // data synchronously.
-      this._handleModuleImportPayload(moduleImportPayload, syncOperation);
+      this._handleModuleImportPayload(moduleImportPayload, operation);
       this._maybeCompleteSubscriptionOperationTracking();
     } else {
       // Otherwise load the operation module and schedule a task to normalize
@@ -774,10 +785,13 @@ class Executor {
             .then(resolve, reject);
         }),
       )
-        .map((operation: ?NormalizationSplitOperation) => {
+        .map((operation: ?NormalizationRootNode) => {
           if (operation != null) {
             this._schedule(() => {
-              this._handleModuleImportPayload(moduleImportPayload, operation);
+              this._handleModuleImportPayload(
+                moduleImportPayload,
+                getOperation(operation),
+              );
             });
           }
         })
@@ -797,7 +811,7 @@ class Executor {
 
   _handleModuleImportPayload(
     moduleImportPayload: ModuleImportPayload,
-    operation: NormalizationSplitOperation,
+    operation: NormalizationSplitOperation | NormalizationOperation,
   ): void {
     const relayPayload = this._normalizeModuleImport(
       moduleImportPayload,
@@ -1005,6 +1019,7 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: placeholder.path,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -1219,6 +1234,7 @@ class Executor {
     const relayPayload = normalizeResponse(response, selector, typeName, {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
+      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {

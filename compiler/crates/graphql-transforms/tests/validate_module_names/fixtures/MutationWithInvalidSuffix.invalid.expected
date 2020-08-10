@@ -1,11 +1,8 @@
 ==================================== INPUT ====================================
-#expected-to-throw
 mutation MutationWithInvalidSuffixQuery {
     commentCreate(input: null) {
         clientMutationId
     }
 }
-==================================== ERROR ====================================
-Mutations in graphql tags must start with the module name ('MutationWithInvalidSuffix') and end with 'Mutation'. Got 'MutationWithInvalidSuffixQuery' instead.:
-MutationWithInvalidSuffix.invalid.graphql:2:10:2:40
-mutation MutationWithInvalidSuffixQuery {
+==================================== OUTPUT ===================================
+OK

@@ -1,11 +1,8 @@
 ==================================== INPUT ====================================
-#expected-to-throw
 query QueryWithInvalidSuffixMutation {
     me {
         name
     }
 }
-==================================== ERROR ====================================
-Queries in graphql tags must start with the module name ('QueryWithInvalidSuffix') and end with 'Query'. Got 'QueryWithInvalidSuffixMutation' instead.:
-QueryWithInvalidSuffix.invalid.graphql:2:7:2:37
-query QueryWithInvalidSuffixMutation {
+==================================== OUTPUT ===================================
+OK

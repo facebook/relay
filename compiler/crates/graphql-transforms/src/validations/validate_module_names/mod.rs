@@ -37,7 +37,8 @@ impl Validator for ValidateModuleNames {
         };
 
         if !operation_name.starts_with(&module_name)
-            || !operation_name.ends_with(operation_type_suffix)
+        // TODO: T71484519 re-enable this line when queries are correctly named in www
+        // || !operation_name.ends_with(operation_type_suffix)
         {
             return Err(vec![Diagnostic::new(
                 ValidationMessage::InvalidOperationName {

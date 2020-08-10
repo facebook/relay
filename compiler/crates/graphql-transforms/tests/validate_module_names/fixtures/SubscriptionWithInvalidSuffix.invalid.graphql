@@ -1,5 +1,4 @@
-#expected-to-throw
-subscription SubscriptionWithValidNameMutation {
+subscription SubscriptionWithInvalidSuffixMutation {
     feedbackLikeSubscribe(input: null) {
         clientMutationId
     }

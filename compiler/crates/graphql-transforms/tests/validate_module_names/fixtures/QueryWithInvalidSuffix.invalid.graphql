@@ -1,0 +1,6 @@
+#expected-to-throw
+query QueryWithInvalidSuffixMutation {
+    me {
+        name
+    }
+}

@@ -1,0 +1,6 @@
+#expected-to-throw
+subscription SubscriptionWithValidNameMutation {
+    feedbackLikeSubscribe(input: null) {
+        clientMutationId
+    }
+}

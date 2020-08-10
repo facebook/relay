@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment fragmentWithInvalidlyCapitalizedName on User {
+    name
+}
+==================================== ERROR ====================================
+Fragments in graphql tags must start with the module name ('FragmentWithInvalidlyCapitalizedName'). Got 'fragmentWithInvalidlyCapitalizedName' instead.:
+FragmentWithInvalidlyCapitalizedName.invalid.graphql:2:10:2:46
+fragment fragmentWithInvalidlyCapitalizedName on User {

@@ -1,0 +1,6 @@
+#expected-to-throw
+mutation MutationWithInvalidSuffixQuery {
+    commentCreate(input: null) {
+        clientMutationId
+    }
+}

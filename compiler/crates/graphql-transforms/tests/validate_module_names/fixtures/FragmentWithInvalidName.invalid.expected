@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment AnyOtherNameIsInvalid on User {
+    name
+}
+==================================== ERROR ====================================
+Fragments in graphql tags must start with the module name ('FragmentWithInvalidName'). Got 'AnyOtherNameIsInvalid' instead.:
+FragmentWithInvalidName.invalid.graphql:2:10:2:31
+fragment AnyOtherNameIsInvalid on User {

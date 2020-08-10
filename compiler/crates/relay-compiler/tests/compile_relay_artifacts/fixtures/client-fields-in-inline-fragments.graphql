@@ -1,4 +1,4 @@
-fragment Foo_user on User {
+fragment clientFieldsInInlineFragments_Foo_user on User {
   id
 
   ... on Actor {

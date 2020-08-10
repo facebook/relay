@@ -1,4 +1,4 @@
-query StableLiteralsTest {
+query stableLiterals_StableLiteralsTestQuery {
   me {
     # Note: these object fields are not defined in alphabetical order.
     # The generated artifacts will be produced in alphabetical order.

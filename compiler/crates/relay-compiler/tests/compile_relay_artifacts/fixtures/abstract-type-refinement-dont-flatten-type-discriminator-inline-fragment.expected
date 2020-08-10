@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
   node(id: "4") {
     ... on Node {
       #  - Printed query should select __isNode
@@ -14,7 +14,7 @@ query AbstractTypeRefinement {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -48,7 +48,7 @@ query AbstractTypeRefinement {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -90,7 +90,7 @@ query AbstractTypeRefinement {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
     "operationKind": "query",
     "text": null
   }
@@ -98,7 +98,7 @@ query AbstractTypeRefinement {
 
 QUERY:
 
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
   node(id: "4") {
     __typename
     __isNode: __typename

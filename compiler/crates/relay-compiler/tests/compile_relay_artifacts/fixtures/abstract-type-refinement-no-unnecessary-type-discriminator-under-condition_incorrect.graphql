@@ -1,4 +1,4 @@
-mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
+mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
   actorNameChange(input: $input) {
     actor {
       ... @include(if: $myVar) {

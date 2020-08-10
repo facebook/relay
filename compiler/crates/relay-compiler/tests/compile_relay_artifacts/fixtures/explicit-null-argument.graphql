@@ -1,4 +1,4 @@
-query Test {
+query explicitNullArgument_TestQuery {
   # The compiler currently strips this null which isn't right.
   node(id: null) {
     __typename

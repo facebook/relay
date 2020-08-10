@@ -1,4 +1,4 @@
-fragment Foo_user on User {
+fragment clientLinkedFields_Foo_user on User {
   id
 
   client_friends {

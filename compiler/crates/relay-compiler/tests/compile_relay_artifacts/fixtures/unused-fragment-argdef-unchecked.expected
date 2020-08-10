@@ -1,22 +1,22 @@
 ==================================== INPUT ====================================
-query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
+query unusedFragmentArgdefUnchecked_QueryWithUnusedFragmentArgumentDefinitionQuery($id: ID!) {
   node(id: $id) {
-    ...Profile
+    ...unusedFragmentArgdefUnchecked_Profile
   }
 }
 
-fragment Profile on User {
+fragment unusedFragmentArgdefUnchecked_Profile on User {
   id
   name
-  ...ProfilePhotoWrapper @arguments(size: $size)
+  ...unusedFragmentArgdefUnchecked_ProfilePhotoWrapper @arguments(size: $size)
 }
 
-fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+fragment unusedFragmentArgdefUnchecked_ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
   __typename
-  ...ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
+  ...unusedFragmentArgdefUnchecked_ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
 }
 
-fragment ProfilePhoto on User {
+fragment unusedFragmentArgdefUnchecked_ProfilePhoto on User {
   profilePicture(size: [100]) {
     uri
   }
@@ -33,7 +33,7 @@ fragment ProfilePhoto on User {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "name": "unusedFragmentArgdefUnchecked_QueryWithUnusedFragmentArgumentDefinitionQuery",
     "selections": [
       {
         "alias": null,
@@ -52,7 +52,7 @@ fragment ProfilePhoto on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "Profile"
+            "name": "unusedFragmentArgdefUnchecked_Profile"
           }
         ],
         "storageKey": null
@@ -71,7 +71,7 @@ fragment ProfilePhoto on User {
       }
     ],
     "kind": "Operation",
-    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "name": "unusedFragmentArgdefUnchecked_QueryWithUnusedFragmentArgumentDefinitionQuery",
     "selections": [
       {
         "alias": null,
@@ -149,7 +149,7 @@ fragment ProfilePhoto on User {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithUnusedFragmentArgumentDefinition",
+    "name": "unusedFragmentArgdefUnchecked_QueryWithUnusedFragmentArgumentDefinitionQuery",
     "operationKind": "query",
     "text": null
   }
@@ -157,28 +157,28 @@ fragment ProfilePhoto on User {
 
 QUERY:
 
-query QueryWithUnusedFragmentArgumentDefinition(
+query unusedFragmentArgdefUnchecked_QueryWithUnusedFragmentArgumentDefinitionQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...Profile
+    ...unusedFragmentArgdefUnchecked_Profile
     id
   }
 }
 
-fragment Profile on User {
+fragment unusedFragmentArgdefUnchecked_Profile on User {
   id
   name
-  ...ProfilePhotoWrapper_18PEfK
+  ...unusedFragmentArgdefUnchecked_ProfilePhotoWrapper_18PEfK
 }
 
-fragment ProfilePhotoWrapper_18PEfK on User {
+fragment unusedFragmentArgdefUnchecked_ProfilePhotoWrapper_18PEfK on User {
   __typename
-  ...ProfilePhoto_18PEfK
+  ...unusedFragmentArgdefUnchecked_ProfilePhoto_18PEfK
 }
 
-fragment ProfilePhoto_18PEfK on User {
+fragment unusedFragmentArgdefUnchecked_ProfilePhoto_18PEfK on User {
   profilePicture(size: [100]) {
     uri
   }
@@ -194,7 +194,7 @@ fragment ProfilePhoto_18PEfK on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Profile",
+  "name": "unusedFragmentArgdefUnchecked_Profile",
   "selections": [
     {
       "alias": null,
@@ -219,7 +219,7 @@ fragment ProfilePhoto_18PEfK on User {
         }
       ],
       "kind": "FragmentSpread",
-      "name": "ProfilePhotoWrapper"
+      "name": "unusedFragmentArgdefUnchecked_ProfilePhotoWrapper"
     }
   ],
   "type": "User",
@@ -230,7 +230,7 @@ fragment ProfilePhoto_18PEfK on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePhoto",
+  "name": "unusedFragmentArgdefUnchecked_ProfilePhoto",
   "selections": [
     {
       "alias": null,
@@ -273,7 +273,7 @@ fragment ProfilePhoto_18PEfK on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePhotoWrapper",
+  "name": "unusedFragmentArgdefUnchecked_ProfilePhotoWrapper",
   "selections": [
     {
       "alias": null,
@@ -291,7 +291,7 @@ fragment ProfilePhoto_18PEfK on User {
         }
       ],
       "kind": "FragmentSpread",
-      "name": "ProfilePhoto"
+      "name": "unusedFragmentArgdefUnchecked_ProfilePhoto"
     }
   ],
   "type": "User",

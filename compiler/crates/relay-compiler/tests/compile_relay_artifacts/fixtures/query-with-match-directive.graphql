@@ -1,26 +1,26 @@
-query NameRendererQuery($id: ID!) {
+query queryWithMatchDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...NameRendererFragment
+    ...queryWithMatchDirective_NameRendererFragment
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithMatchDirective_NameRendererFragment on User {
   id
   nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name
+    ...queryWithMatchDirective_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...queryWithMatchDirective_MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment queryWithMatchDirective_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

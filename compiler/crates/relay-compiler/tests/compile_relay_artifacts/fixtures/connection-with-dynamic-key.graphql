@@ -1,21 +1,21 @@
-query FeedbackQuery($id: ID!, $commentsKey: String) {
+query connectionWithDynamicKey_FeedbackQuery($id: ID!, $commentsKey: String) {
   node(id: $id) {
-    ...FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment
   }
 }
 
-query PaginationQuery(
+query connectionWithDynamicKey_PaginationQuery(
   $id: ID!
   $commentsKey: String
   $count: Int!
   $cursor: ID!
 ) {
   node(id: $id) {
-    ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+    ...connectionWithDynamicKey_FeedbackFragment @arguments(count: $count, cursor: $cursor)
   }
 }
 
-fragment FeedbackFragment on Feedback
+fragment connectionWithDynamicKey_FeedbackFragment on Feedback
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 2}
     cursor: {type: "ID"}

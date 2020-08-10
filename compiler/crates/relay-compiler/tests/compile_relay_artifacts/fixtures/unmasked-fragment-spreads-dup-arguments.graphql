@@ -1,4 +1,4 @@
-fragment UserUtil_user on User
+fragment unmaskedFragmentSpreadsDupArguments_UserUtil_user on User
   # it should not strip exisiting local variable
   @argumentDefinitions(
     localIsRelative: {type: "Boolean", defaultValue: false}
@@ -8,18 +8,18 @@ fragment UserUtil_user on User
     width
     height
   }
-  ...UserUtil2_user @relay(mask: false)
-  ...UserUtil3_user
+  ...unmaskedFragmentSpreadsDupArguments_UserUtil2_user @relay(mask: false)
+  ...unmaskedFragmentSpreadsDupArguments_UserUtil3_user
 
   # it should merge with the same existing global variable
   url(relative: $globalIsRelative)
   anotherUrl: url(relative: $localIsRelative)
 }
 
-fragment UserUtil2_user on User {
+fragment unmaskedFragmentSpreadsDupArguments_UserUtil2_user on User {
   url(relative: $globalIsRelative)
 }
 
-fragment UserUtil3_user on User @relay(mask: false) {
+fragment unmaskedFragmentSpreadsDupArguments_UserUtil3_user on User @relay(mask: false) {
   url(relative: $globalIsRelative)
 }

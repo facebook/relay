@@ -1,22 +1,22 @@
-fragment ActorsRendererFragment on Node {
+fragment matchOnChildOfPlural_ActorsRendererFragmentQuery on Node {
   id
   actors {
     nameRenderer @match {
-      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-      ...MarkdownUserNameRenderer_name
+      ...matchOnChildOfPlural_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...matchOnChildOfPlural_MarkdownUserNameRenderer_name
         @module(name: "MarkdownUserNameRenderer.react")
     }
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment matchOnChildOfPlural_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

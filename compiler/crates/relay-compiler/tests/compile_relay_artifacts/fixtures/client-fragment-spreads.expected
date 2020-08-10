@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientFragmentSpreads_Foo_user on User {
   id
   foo {
-    ...ClientTypeFragment # include fragment on client-only type
+    ...clientFragmentSpreads_ClientTypeFragment # include fragment on client-only type
   }
 }
 
-fragment ClientTypeFragment on ClientType {
+fragment clientFragmentSpreads_ClientTypeFragment on ClientType {
   client_field
 }
 
@@ -24,7 +24,7 @@ type ClientType {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ClientTypeFragment",
+  "name": "clientFragmentSpreads_ClientTypeFragment",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -47,7 +47,7 @@ type ClientType {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientFragmentSpreads_Foo_user",
   "selections": [
     {
       "alias": null,
@@ -70,7 +70,7 @@ type ClientType {
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientTypeFragment"
+              "name": "clientFragmentSpreads_ClientTypeFragment"
             }
           ],
           "storageKey": null

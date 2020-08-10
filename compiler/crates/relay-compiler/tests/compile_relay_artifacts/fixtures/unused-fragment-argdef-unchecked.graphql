@@ -1,21 +1,21 @@
-query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
+query unusedFragmentArgdefUnchecked_QueryWithUnusedFragmentArgumentDefinitionQuery($id: ID!) {
   node(id: $id) {
-    ...Profile
+    ...unusedFragmentArgdefUnchecked_Profile
   }
 }
 
-fragment Profile on User {
+fragment unusedFragmentArgdefUnchecked_Profile on User {
   id
   name
-  ...ProfilePhotoWrapper @arguments(size: $size)
+  ...unusedFragmentArgdefUnchecked_ProfilePhotoWrapper @arguments(size: $size)
 }
 
-fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+fragment unusedFragmentArgdefUnchecked_ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
   __typename
-  ...ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
+  ...unusedFragmentArgdefUnchecked_ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
 }
 
-fragment ProfilePhoto on User {
+fragment unusedFragmentArgdefUnchecked_ProfilePhoto on User {
   profilePicture(size: [100]) {
     uri
   }

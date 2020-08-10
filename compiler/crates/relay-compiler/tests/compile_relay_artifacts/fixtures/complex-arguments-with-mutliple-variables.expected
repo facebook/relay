@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query TestQueryWithLiteral($latArg: String, $lonArg: String) {
+query complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery($latArg: String, $lonArg: String) {
   route(
     waypoints: [
       {lat: $latArg, lon: $lonArg}
@@ -27,7 +27,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQueryWithLiteral",
+    "name": "complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery",
     "selections": [
       {
         "alias": null,
@@ -121,7 +121,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
       }
     ],
     "kind": "Operation",
-    "name": "TestQueryWithLiteral",
+    "name": "complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery",
     "selections": [
       {
         "alias": null,
@@ -201,7 +201,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQueryWithLiteral",
+    "name": "complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery",
     "operationKind": "query",
     "text": null
   }
@@ -209,7 +209,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
 
 QUERY:
 
-query TestQueryWithLiteral(
+query complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery(
   $latArg: String
   $lonArg: String
 ) {

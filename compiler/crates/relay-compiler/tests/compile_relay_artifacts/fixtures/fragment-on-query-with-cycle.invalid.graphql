@@ -1,17 +1,17 @@
 # expected-to-throw
-fragment RefetchableFragment on Query
+fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id
       name
-      ...Profile @arguments(includeProfile: true)
+      ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
     }
   }
 }
 
-fragment Profile on User
+fragment fragmentOnQueryWithCycle_Profile on User
   @argumentDefinitions(
     includeProfile: {type: "Boolean!", defaultValue: false}
   ) {
@@ -23,7 +23,7 @@ fragment Profile on User
   friends(first: $count) {
     edges {
       node {
-        ...Profile
+        ...fragmentOnQueryWithCycle_Profile
       }
     }
   }

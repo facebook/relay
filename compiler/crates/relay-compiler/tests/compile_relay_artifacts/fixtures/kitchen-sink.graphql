@@ -1,14 +1,14 @@
-query NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
+query kitchenSink_NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
   node(id: $id) {
     id
     ... on User @include(if: $cond) {
       name
     }
-    ...UserFragment @include(if: $cond) @arguments(size: $PictureSize)
+    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize)
   }
 }
 
-fragment UserFragment on User
+fragment kitchenSink_UserFragment on User
   @argumentDefinitions(
     after: {type: "ID"}
     cond: {type: "Boolean!", defaultValue: false}

@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query NodeQuery($id: ID!) {
+query connection_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -34,7 +34,7 @@ query NodeQuery($id: ID!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NodeQuery",
+    "name": "connection_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -250,7 +250,7 @@ query NodeQuery($id: ID!) {
       }
     ],
     "kind": "Operation",
-    "name": "NodeQuery",
+    "name": "connection_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -552,7 +552,7 @@ query NodeQuery($id: ID!) {
         }
       ]
     },
-    "name": "NodeQuery",
+    "name": "connection_NodeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -560,7 +560,7 @@ query NodeQuery($id: ID!) {
 
 QUERY:
 
-query NodeQuery(
+query connection_NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {

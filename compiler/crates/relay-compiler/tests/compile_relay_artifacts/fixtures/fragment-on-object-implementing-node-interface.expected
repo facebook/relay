@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on User
+fragment fragmentOnObjectImplementingNodeInterface_RefetchableFragment on User
   @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   name
-  ...ProfilePicture
+  ...fragmentOnObjectImplementingNodeInterface_ProfilePicture
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnObjectImplementingNodeInterface_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -47,7 +47,7 @@ fragment ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableFragment"
+            "name": "fragmentOnObjectImplementingNodeInterface_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -161,21 +161,21 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...RefetchableFragment
+    ...fragmentOnObjectImplementingNodeInterface_RefetchableFragment
     id
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnObjectImplementingNodeInterface_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment on User {
+fragment fragmentOnObjectImplementingNodeInterface_RefetchableFragment on User {
   id
   name
-  ...ProfilePicture
+  ...fragmentOnObjectImplementingNodeInterface_ProfilePicture
 }
 
 
@@ -188,7 +188,7 @@ fragment RefetchableFragment on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "fragmentOnObjectImplementingNodeInterface_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -237,7 +237,7 @@ fragment RefetchableFragment on User {
       "identifierField": "id"
     }
   },
-  "name": "RefetchableFragment",
+  "name": "fragmentOnObjectImplementingNodeInterface_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -256,7 +256,7 @@ fragment RefetchableFragment on User {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "ProfilePicture"
+      "name": "fragmentOnObjectImplementingNodeInterface_ProfilePicture"
     }
   ],
   "type": "User",

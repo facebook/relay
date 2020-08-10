@@ -1,4 +1,4 @@
-query FlightPropsTransform($cond: Boolean!, $count: Int!, $id: ID!) {
+query flightPropsTransform_FlightPropsTransformQuery($cond: Boolean!, $count: Int!, $id: ID!) {
   node(id: $id) {
     ... on Story {
       id

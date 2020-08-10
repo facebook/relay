@@ -1,21 +1,21 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-query MeQuery {
+query sameFieldsWithDifferentArgs_MeQuery {
   me {
     name
     address {
       city
     }
-    ...NestedFragment
-    ...NestedFragment2
+    ...sameFieldsWithDifferentArgs_NestedFragment
+    ...sameFieldsWithDifferentArgs_NestedFragment2
   }
 }
 
-fragment NestedFragment on User {
+fragment sameFieldsWithDifferentArgs_NestedFragment on User {
   firstName(if: false, unless: true)
 }
 
-fragment NestedFragment2 on User {
+fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
   firstName(if: false, unless: false)
 }
 ==================================== ERROR ====================================

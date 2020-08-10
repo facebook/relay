@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
-query Test($id: ID!) {
-  ...F @arguments(userID: $id)
+query constantVariableMatchesConstantValue_TestQuery($id: ID!) {
+  ...constantVariableMatchesConstantValue_F @arguments(userID: $id)
   node(
     # type of this $id is `ID` inferred from schema type of the id argument
     id: $id
@@ -9,7 +9,7 @@ query Test($id: ID!) {
   }
 }
 
-fragment F on Query @argumentDefinitions(
+fragment constantVariableMatchesConstantValue_F on Query @argumentDefinitions(
   userID: {type: "ID!"}
 ) {
   node(id:
@@ -31,7 +31,7 @@ fragment F on Query @argumentDefinitions(
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "Test",
+    "name": "constantVariableMatchesConstantValue_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -66,7 +66,7 @@ fragment F on Query @argumentDefinitions(
           }
         ],
         "kind": "FragmentSpread",
-        "name": "F"
+        "name": "constantVariableMatchesConstantValue_F"
       }
     ],
     "type": "Query",
@@ -82,7 +82,7 @@ fragment F on Query @argumentDefinitions(
       }
     ],
     "kind": "Operation",
-    "name": "Test",
+    "name": "constantVariableMatchesConstantValue_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -120,7 +120,7 @@ fragment F on Query @argumentDefinitions(
   "params": {
     "id": null,
     "metadata": {},
-    "name": "Test",
+    "name": "constantVariableMatchesConstantValue_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -128,17 +128,17 @@ fragment F on Query @argumentDefinitions(
 
 QUERY:
 
-query Test(
+query constantVariableMatchesConstantValue_TestQuery(
   $id: ID!
 ) {
-  ...F_3kBhXp
+  ...constantVariableMatchesConstantValue_F_3kBhXp
   node(id: $id) {
     __typename
     id
   }
 }
 
-fragment F_3kBhXp on Query {
+fragment constantVariableMatchesConstantValue_F_3kBhXp on Query {
   node(id: $id) {
     __typename
     id
@@ -156,7 +156,7 @@ fragment F_3kBhXp on Query {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "F",
+  "name": "constantVariableMatchesConstantValue_F",
   "selections": [
     {
       "alias": null,

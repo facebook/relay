@@ -1,4 +1,4 @@
-mutation CommentCreateMutation(
+mutation appendEdge_CommentCreateMutation(
   $connections: [String!]!
   $input: CommentCreateInput
 ) {

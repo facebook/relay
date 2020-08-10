@@ -1,19 +1,19 @@
 ==================================== INPUT ====================================
-query TestQuery($ProfilePicture_SIZE: [Int], $isRelative: Boolean) {
+query unmaskedFragmentSpreadsGlobalArguments_TestQuery($ProfilePicture_SIZE: [Int], $isRelative: Boolean) {
   me {
-    ...UserProfile_user
+    ...unmaskedFragmentSpreadsGlobalArguments_UserProfile_user
   }
 }
 
-fragment UserProfile_user on User {
+fragment unmaskedFragmentSpreadsGlobalArguments_UserProfile_user on User {
   profilePicture(size: $ProfilePicture_SIZE) {
     width
     height
   }
-  ...UserUtil_user @relay(mask: false)
+  ...unmaskedFragmentSpreadsGlobalArguments_UserUtil_user @relay(mask: false)
 }
 
-fragment UserUtil_user on User {
+fragment unmaskedFragmentSpreadsGlobalArguments_UserUtil_user on User {
   url(relative: $isRelative)
 }
 ==================================== OUTPUT ===================================
@@ -33,7 +33,7 @@ fragment UserUtil_user on User {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsGlobalArguments_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -46,7 +46,7 @@ fragment UserUtil_user on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "UserProfile_user"
+            "name": "unmaskedFragmentSpreadsGlobalArguments_UserProfile_user"
           }
         ],
         "storageKey": null
@@ -70,7 +70,7 @@ fragment UserUtil_user on User {
       }
     ],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsGlobalArguments_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -139,7 +139,7 @@ fragment UserUtil_user on User {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsGlobalArguments_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -147,17 +147,17 @@ fragment UserUtil_user on User {
 
 QUERY:
 
-query TestQuery(
+query unmaskedFragmentSpreadsGlobalArguments_TestQuery(
   $ProfilePicture_SIZE: [Int]
   $isRelative: Boolean
 ) {
   me {
-    ...UserProfile_user
+    ...unmaskedFragmentSpreadsGlobalArguments_UserProfile_user
     id
   }
 }
 
-fragment UserProfile_user on User {
+fragment unmaskedFragmentSpreadsGlobalArguments_UserProfile_user on User {
   profilePicture(size: $ProfilePicture_SIZE) {
     width
     height
@@ -179,7 +179,7 @@ fragment UserProfile_user on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserProfile_user",
+  "name": "unmaskedFragmentSpreadsGlobalArguments_UserProfile_user",
   "selections": [
     {
       "alias": null,
@@ -239,7 +239,7 @@ fragment UserProfile_user on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserUtil_user",
+  "name": "unmaskedFragmentSpreadsGlobalArguments_UserUtil_user",
   "selections": [
     {
       "alias": null,

@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query FlightPropsTransform($cond: Boolean!, $count: Int!, $id: ID!) {
+query flightPropsTransform_FlightPropsTransformQuery($cond: Boolean!, $count: Int!, $id: ID!) {
   node(id: $id) {
     ... on Story {
       id
@@ -37,7 +37,7 @@ extend type Story {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FlightPropsTransform",
+    "name": "flightPropsTransform_FlightPropsTransformQuery",
     "selections": [
       {
         "alias": null,
@@ -128,7 +128,7 @@ extend type Story {
       }
     ],
     "kind": "Operation",
-    "name": "FlightPropsTransform",
+    "name": "flightPropsTransform_FlightPropsTransformQuery",
     "selections": [
       {
         "alias": null,
@@ -207,7 +207,7 @@ extend type Story {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FlightPropsTransform",
+    "name": "flightPropsTransform_FlightPropsTransformQuery",
     "operationKind": "query",
     "text": null
   }
@@ -215,7 +215,7 @@ extend type Story {
 
 QUERY:
 
-query FlightPropsTransform(
+query flightPropsTransform_FlightPropsTransformQuery(
   $cond: Boolean!
   $count: Int!
   $id: ID!

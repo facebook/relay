@@ -142,13 +142,17 @@ impl RefetchableFragment<'_> {
                         .existing_refetch_operations
                         .insert(query_name, fragment.name)
                     {
-                        Err(vec![Diagnostic::new(
+                        Err(vec![Diagnostic::error(
                             ValidationMessage::DuplicateRefetchableOperation {
                                 query_name,
                                 fragment_name: fragment.name.item,
                                 previous_fragment_name: previous_fragment.item,
                             },
-                            vec![fragment.name.location, previous_fragment.location],
+                            fragment.name.location,
+                        )
+                        .annotate(
+                            "previously defined here",
+                            previous_fragment.location,
                         )])
                     } else {
                         Ok(Some(query_name))

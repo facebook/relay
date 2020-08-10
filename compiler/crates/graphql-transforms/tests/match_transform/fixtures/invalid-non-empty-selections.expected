@@ -30,6 +30,6 @@ Invalid @match selection: all selections should be fragment spreads with @module
 invalid-non-empty-selections.graphql:4:3:4:15
   nameRenderer @match {
 Notes:
-[related 1] other related location:
+[related 1] in @match directive:
 invalid-non-empty-selections.graphql:4:17:4:22
   nameRenderer @match {

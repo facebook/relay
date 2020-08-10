@@ -114,10 +114,13 @@ fn find_duplicates(
     for def in asts.iter().chain(base_asts) {
         if let Some(name) = def.name() {
             if let Some(prev_def) = definitions.insert(name, def) {
-                errors.push(Diagnostic::new(
-                    graphql_ir::ValidationMessage::DuplicateDefinition(name),
-                    vec![def.location(), prev_def.location()],
-                ));
+                errors.push(
+                    Diagnostic::error(
+                        graphql_ir::ValidationMessage::DuplicateDefinition(name),
+                        def.location(),
+                    )
+                    .annotate("previously defined here", prev_def.location()),
+                );
             }
         }
     }

@@ -85,10 +85,13 @@ impl<'program> MatchTransform<'program> {
         selection_location: Location,
         match_location: Location,
     ) {
-        self.errors.push(Diagnostic::new(
-            ValidationMessage::InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
-            vec![selection_location, match_location],
-        ))
+        self.errors.push(
+            Diagnostic::error(
+                ValidationMessage::InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
+                selection_location,
+            )
+            .annotate("in @match directive", match_location),
+        )
     }
 
     // Validate that `JSDependency` is a server scalar type in the schema

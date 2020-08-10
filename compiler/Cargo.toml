@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "crates/buffered-fs",
     "crates/common",
     "crates/dependency-analyzer",
     "crates/errors",

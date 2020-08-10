@@ -40,6 +40,18 @@ pub enum ValidationMessage {
     UnnecessaryUncheckedArgumentsDirective,
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
+    #[error("{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead.")]
+    InvalidOperationName {
+        pluralized_string: String,
+        module_name: String,
+        operation_type_suffix: String,
+        operation_name: String,
+    },
+    #[error("Fragments in graphql tags must start with the module name ('{module_name}'). Got '{fragment_name}' instead.")]
+    InvalidFragmentName {
+        module_name: String,
+        fragment_name: String,
+    },
     #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
     #[error("Nested lists ('[[T]]' etc) are not supported")]

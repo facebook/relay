@@ -17,7 +17,8 @@ use graphql_transforms::{
     skip_redundant_nodes, skip_split_operation, skip_unreachable_node, skip_unused_variables,
     split_module_import, transform_connections, transform_declarative_connection,
     transform_defer_stream, transform_match, transform_refetchable_fragment,
-    unwrap_custom_directive_selection, ConnectionInterface, FeatureFlags,
+    unwrap_custom_directive_selection, validate_global_variables, ConnectionInterface,
+    FeatureFlags,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -210,7 +211,7 @@ fn apply_operation_transforms(
     // + SplitModuleImportTransform
     // * ValidateUnusedVariablesTransform (Moved to common_transforms)
     // + ApplyFragmentArgumentTransform
-    // - ValidateGlobalVariablesTransform
+    // + ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // * TestOperationTransform - part of relay_codegen
     let log_event = perf_logger.create_event("apply_operation_transforms");
@@ -221,6 +222,9 @@ fn apply_operation_transforms(
     });
     let program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
+    })?;
+    log_event.time("validate_global_variables", || {
+        validate_global_variables(&program)
     })?;
     let program = log_event.time("generate_id_field", || generate_id_field(&program));
     let program = log_event.time("declarative_connection", || {

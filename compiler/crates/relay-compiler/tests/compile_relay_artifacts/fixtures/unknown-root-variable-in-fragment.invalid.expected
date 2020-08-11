@@ -1,15 +1,13 @@
 ==================================== INPUT ====================================
-# %TODO% After ApplyFragmentArugmentTransform
-
 # expected-to-throw
-query TestQuery($id: ID!) {
+query unknownRootVariableInFragmentQuery($id: ID!) {
   node(id: $id) {
     id
-    ...Profile @relay(mask: false)
+    ...unknownRootVariableInFragmentProfile @relay(mask: false)
   }
 }
 
-fragment Profile on User {
+fragment unknownRootVariableInFragmentProfile on User {
   id
   name
   # includeFriends is not defined on the referencing query, should error
@@ -24,4 +22,6 @@ fragment Profile on User {
   }
 }
 ==================================== ERROR ====================================
-TODO
+Operation 'unknownRootVariableInFragmentQuery' references undefined variable: '$includeFriends'.:
+unknown-root-variable-in-fragment.invalid.graphql:13:20:13:35
+  ... @include(if: $includeFriends) {

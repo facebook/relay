@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::InferVariablesVisitor;
-use common::Diagnostic;
+use crate::{root_variables::InferVariablesVisitor, MATCH_CONSTANTS};
+use common::{Diagnostic, NamedItem};
 use graphql_ir::{
     FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
     Validator,
@@ -35,6 +35,14 @@ impl Validator for ValidateGlobalVariables<'_> {
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> ValidationResult<()> {
+        // Skip 3D normalization fragments
+        if operation
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .is_some()
+        {
+            return Ok(());
+        }
         let variables = self.visitor.infer_operation_variables(operation);
 
         let undefined_variables: Vec<_> = variables

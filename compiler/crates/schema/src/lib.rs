@@ -21,7 +21,7 @@ mod token;
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
     EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
-    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, UnionID,
+    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
 pub use graphql_syntax::type_system_node::{

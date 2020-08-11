@@ -1258,6 +1258,13 @@ impl Type {
         }
     }
 
+    pub fn is_union(self) -> bool {
+        match self {
+            Type::Union(_) => true,
+            _ => false,
+        }
+    }
+
     pub fn get_enum_id(self) -> Option<EnumID> {
         match self {
             Type::Enum(id) => Some(id),

@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+use schema::{build_schema, Schema};
+use schema_validate_lib::validate;
+use std::fs;
+use std::path::Path;
+use structopt::StructOpt;
+
+#[derive(StructOpt)]
+#[structopt(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
+struct Opt {
+    /// Path to Schema SDL. If schema is sharded, this is directory.
+    #[structopt(long)]
+    schema_path: String,
+}
+
+pub fn main() {
+    let opt = Opt::from_args();
+    let schema = build_schema_from_file(&opt.schema_path);
+    let validation_context = validate(&schema);
+    if !validation_context.errors.is_empty() {
+        eprintln!(
+            "Schema failed validation with below errors:\n{}",
+            validation_context.print_errors()
+        );
+    }
+    std::process::exit(1);
+}
+
+fn build_schema_from_file(schema_file: &str) -> Schema {
+    let path = Path::new(schema_file);
+    let data = if path.is_file() {
+        fs::read_to_string(path).unwrap()
+    } else {
+        let mut buffer = String::new();
+        for entry in path.read_dir().unwrap() {
+            buffer.push_str(&fs::read_to_string(entry.unwrap().path()).unwrap());
+        }
+        buffer
+    };
+    build_schema(&data).unwrap()
+}

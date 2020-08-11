@@ -30,9 +30,9 @@ impl fmt::Debug for Node {
 pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
     base_definition_names: FnvHashSet<StringKey>,
-    changed_names: FnvHashSet<StringKey>,
+    reachable_names: FnvHashSet<StringKey>,
 ) -> Vec<ExecutableDefinition> {
-    if changed_names.is_empty() {
+    if reachable_names.is_empty() {
         return vec![];
     }
 
@@ -41,7 +41,7 @@ pub fn get_reachable_ir(
     let mut visited = FnvHashSet::default();
     let mut filtered_definitions = FnvHashMap::default();
 
-    for key in changed_names.into_iter() {
+    for key in reachable_names.into_iter() {
         if trees.contains_key(&key) {
             add_related_nodes(
                 &mut visited,

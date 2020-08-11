@@ -186,7 +186,7 @@ class RelayPublishQueue implements PublishQueue {
       warning(
         this._isRunning !== true,
         'A store update was detected within another store update. Please ' +
-          'make sure new store updates aren’t being executed within an ' +
+          "make sure new store updates aren't being executed within an " +
           'updater function for a different update.',
       );
       this._isRunning = true;

@@ -2562,6 +2562,65 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
+  it('does not warn if a single response contains the same scalar array value', () => {
+    jest.mock('warning');
+    warning.mockClear();
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  emailAddresses
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                emailAddresses: ['a@example.com'],
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                emailAddresses: ['a@example.com'], // not same object but deeply equal: should not warn
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    // There should be no failing warnings (where the first argument is true)
+    expect(warning.mock.calls.filter(call => call[0] === false)).toEqual([]);
+  });
+
   it('warns in __DEV__ if a single response contains conflicting fields with multiple same ids', () => {
     jest.mock('warning');
     const {BarQuery} = generateWithTransforms(

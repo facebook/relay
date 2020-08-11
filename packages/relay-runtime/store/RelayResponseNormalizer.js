@@ -16,6 +16,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
+const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -462,23 +463,27 @@ class RelayResponseNormalizer {
           return;
         }
       }
-      if (selection.kind === SCALAR_FIELD && __DEV__) {
-        this._validateConflictingFieldsWithIdenticalId(
-          record,
-          storageKey,
-          fieldValue,
-        );
+      if (__DEV__) {
+        if (selection.kind === SCALAR_FIELD) {
+          this._validateConflictingFieldsWithIdenticalId(
+            record,
+            storageKey,
+            fieldValue,
+          );
+        }
       }
       RelayModernRecord.setValue(record, storageKey, null);
       return;
     }
 
     if (selection.kind === SCALAR_FIELD) {
-      this._validateConflictingFieldsWithIdenticalId(
-        record,
-        storageKey,
-        fieldValue,
-      );
+      if (__DEV__) {
+        this._validateConflictingFieldsWithIdenticalId(
+          record,
+          storageKey,
+          fieldValue,
+        );
+      }
       RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.kind === LINKED_FIELD) {
       this._path.push(responseKey);
@@ -681,13 +686,17 @@ class RelayResponseNormalizer {
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
-      if (prevIDs && __DEV__) {
-        this._validateConflictingLinkedFieldsWithIdenticalId(
-          record,
-          prevIDs[nextIndex],
-          nextID,
-          storageKey,
-        );
+      // NOTE: the check to strip __DEV__ code only works for simple
+      // `if (__DEV__)`
+      if (__DEV__) {
+        if (prevIDs) {
+          this._validateConflictingLinkedFieldsWithIdenticalId(
+            record,
+            prevIDs[nextIndex],
+            nextID,
+            storageKey,
+          );
+        }
       }
       // $FlowFixMe[incompatible-variance]
       this._traverseSelections(field, nextRecord, item);
@@ -728,13 +737,14 @@ class RelayResponseNormalizer {
     storageKey: string,
     fieldValue: mixed,
   ): void {
+    // NOTE: Only call this function in DEV
     if (__DEV__) {
       const dataID = RelayModernRecord.getDataID(record);
       var previousValue = RelayModernRecord.getValue(record, storageKey);
       warning(
         storageKey === TYPENAME_KEY ||
           previousValue === undefined ||
-          previousValue === fieldValue,
+          areEqual(previousValue, fieldValue),
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
           'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
           'If two fields are different but share ' +
@@ -756,6 +766,7 @@ class RelayResponseNormalizer {
     nextID: DataID,
     storageKey: string,
   ): void {
+    // NOTE: Only call this function in DEV
     if (__DEV__) {
       warning(
         prevID === undefined || prevID === nextID,

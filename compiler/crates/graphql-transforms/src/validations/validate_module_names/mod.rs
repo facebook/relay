@@ -36,7 +36,11 @@ impl Validator for ValidateModuleNames {
             OperationKind::Subscription => ("Subscription", "Subscriptions"),
         };
 
-        if !operation_name.starts_with(&module_name)
+        let operation_name_ending_is_valid = operation_name.ends_with("Query")
+            || operation_name.ends_with("Mutation")
+            || operation_name.ends_with("Subscription");
+
+        if !operation_name.starts_with(&module_name) || !operation_name_ending_is_valid
         // TODO: T71484519 re-enable this line when queries are correctly named in www
         // || !operation_name.ends_with(operation_type_suffix)
         {

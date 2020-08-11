@@ -369,10 +369,10 @@ impl FlattenTransform {
                                 Selection::ScalarField(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a ScalarField."),
                             };
-                            if !node
-                                .arguments
-                                .location_agnostic_eq(&flattened_node.arguments)
-                            {
+                            if !ignoring_type_and_location::arguments_equals(
+                                &node.arguments,
+                                &flattened_node.arguments,
+                            ) {
                                 let error = Diagnostic::error(
                                     ValidationMessage::InvalidSameFieldWithDifferentArguments {
                                         field_name: node.alias_or_name(&self.schema),

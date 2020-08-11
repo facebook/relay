@@ -47,7 +47,7 @@ type BadConnectionPageInfo {
 connection-invalid-edges-field.invalid.graphql:6:7:6:20
       badConnection(first: $first, after: $after) @connection {
 Notes:
-[related 1] other related location:
+[related 1] invalid field type:
 connection-invalid-edges-field.invalid.graphql:7:9:7:14
         edges {
 

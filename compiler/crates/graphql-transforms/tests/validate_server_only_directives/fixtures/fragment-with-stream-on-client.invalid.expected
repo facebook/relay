@@ -28,6 +28,6 @@ Unexpected directive: 'stream'. This directive can only be used on fields/fragme
 fragment-with-stream-on-client.invalid.graphql:11:9:11:15
   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
 Notes:
-[related 1] other related location:
+[related 1] related location:
 fragment-with-stream-on-client.invalid.graphql:11:3:11:7
   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {

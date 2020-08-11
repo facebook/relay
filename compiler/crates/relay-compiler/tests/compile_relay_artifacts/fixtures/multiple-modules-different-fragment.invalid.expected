@@ -36,7 +36,7 @@ multiple-modules-different-fragment.invalid.graphql:12:12:13:1
         ...multipleModulesDifferentFragment_OtherMarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
 Notes:
-[related 1] other related location:
+[related 1] related location:
 multiple-modules-different-fragment.invalid.graphql:6:12:7:1
         ...multipleModulesDifferentFragment_MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")

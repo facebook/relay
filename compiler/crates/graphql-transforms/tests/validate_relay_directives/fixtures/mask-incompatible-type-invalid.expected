@@ -21,6 +21,6 @@ Cannot combine variables with incompatible types Int and ID when applying @relay
 mask-incompatible-type-invalid.graphql:14:16:14:19
   task(number: $id) {
 Notes:
-[related 1] other related location:
+[related 1] related location:
 mask-incompatible-type-invalid.graphql:8:12:8:15
   node(id: $id) {

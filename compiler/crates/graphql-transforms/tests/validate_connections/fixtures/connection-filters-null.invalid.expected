@@ -22,6 +22,6 @@ Expected the filters argument to @connection to be a list of string literals for
 connection-filters-null.invalid.graphql:7:57:7:61
         @connection(key: "NodeQuery_comments", filters: null) {
 Notes:
-[related 1] other related location:
+[related 1] related location:
 connection-filters-null.invalid.graphql:6:7:6:15
       comments(first: 10, orderby: $orderBy)

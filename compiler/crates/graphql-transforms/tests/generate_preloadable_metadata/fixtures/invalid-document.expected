@@ -10,6 +10,6 @@ Redundant usage of @preloadable directive. Please use only one @preloadable per 
 invalid-document.graphql:2:14:2:25
 query Query @preloadable @preloadable {
 Notes:
-[related 1] other related location:
+[related 1] related location:
 invalid-document.graphql:2:27:2:38
 query Query @preloadable @preloadable {

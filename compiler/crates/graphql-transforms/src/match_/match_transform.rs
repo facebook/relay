@@ -176,7 +176,7 @@ impl<'program> MatchTransform<'program> {
                         return Ok((js_field_id, js_field_id_arg.is_some()));
                     }
                 }
-                Err(Diagnostic::new(
+                Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleInvalidSchemaArguments {
                         spread_name: spread.fragment.item,
                         type_string: self.program.schema.get_type_name(fragment.type_condition),
@@ -185,17 +185,19 @@ impl<'program> MatchTransform<'program> {
                         js_field_id_arg: MATCH_CONSTANTS.js_field_id_arg,
                         js_field_type: MATCH_CONSTANTS.js_field_type,
                     },
-                    vec![spread.fragment.location, fragment.name.location],
-                ))
+                    spread.fragment.location,
+                )
+                .annotate("related location", fragment.name.location))
             }
             // @module should only be used on `Object`
-            _ => Err(Diagnostic::new(
+            _ => Err(Diagnostic::error(
                 ValidationMessage::InvalidModuleNotOnObject {
                     spread_name: spread.fragment.item,
                     type_string: self.program.schema.get_type_name(fragment.type_condition),
                 },
-                vec![spread.fragment.location, fragment.name.location],
-            )),
+                spread.fragment.location,
+            )
+            .annotate("related location", fragment.name.location)),
         }
     }
 
@@ -287,7 +289,7 @@ impl<'program> MatchTransform<'program> {
                 if previous_match_for_type.fragment.item != spread.fragment.item
                     || previous_match_for_type.module != module_name
                 {
-                    return Err(Diagnostic::new(
+                    return Err(Diagnostic::error(
                         ValidationMessage::InvalidModuleSelectionMultipleMatches {
                             type_name: self.program.schema.get_type_name(fragment.type_condition),
                             alias_path: self
@@ -297,10 +299,11 @@ impl<'program> MatchTransform<'program> {
                                 .collect::<Vec<&str>>()
                                 .join("."),
                         },
-                        vec![
-                            spread.fragment.location,
-                            previous_match_for_type.fragment.location,
-                        ],
+                        spread.fragment.location,
+                    )
+                    .annotate(
+                        "related location",
+                        previous_match_for_type.fragment.location,
                     ));
                 }
             }

@@ -35,6 +35,6 @@ Unexpected directive: 'stream_connection'. This directive can only be used on fi
 stream-connection-on-client.invalid.graphql:7:10:7:27
         @stream_connection(
 Notes:
-[related 1] other related location:
+[related 1] related location:
 stream-connection-on-client.invalid.graphql:6:7:6:21
       clientComments(first: 10)

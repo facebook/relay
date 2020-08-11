@@ -15,6 +15,6 @@ Cannot use @relay(mask: false) on fragment spreads for fragments with directives
 inline-and-mask-are-incompatible.invalid.graphql:5:8:5:44
     ...inlineAndMaskAreIncompatible_Profile @relay(mask: false)
 Notes:
-[related 1] other related location:
+[related 1] related location:
 inline-and-mask-are-incompatible.invalid.graphql:9:10:9:46
 fragment inlineAndMaskAreIncompatible_Profile on User @inline {

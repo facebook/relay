@@ -28,6 +28,6 @@ Invalid use of @defer, the provided label is not unique. Specify a unique 'label
 fragment-with-defer-duplicate-label.invalid.graphql:12:24:12:29
   ...DeferredFragment @defer(label: "deferred")
 Notes:
-[related 1] other related location:
+[related 1] related location:
 fragment-with-defer-duplicate-label.invalid.graphql:13:29:13:34
   ...OtherDeferredFragment @defer(label: "deferred")

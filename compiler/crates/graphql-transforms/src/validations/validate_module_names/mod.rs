@@ -40,14 +40,14 @@ impl Validator for ValidateModuleNames {
         // TODO: T71484519 re-enable this line when queries are correctly named in www
         // || !operation_name.ends_with(operation_type_suffix)
         {
-            return Err(vec![Diagnostic::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidOperationName {
                     pluralized_string: pluralized_string.to_string(),
                     operation_type_suffix: operation_type_suffix.to_string(),
                     module_name,
                     operation_name,
                 },
-                vec![operation.name.location],
+                operation.name.location,
             )]);
         }
 
@@ -61,12 +61,12 @@ impl Validator for ValidateModuleNames {
             extract_module_name::extract_module_name(path).expect("Unable to extract module name.");
 
         if !fragment_name.starts_with(&module_name) {
-            return Err(vec![Diagnostic::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidFragmentName {
                     module_name,
                     fragment_name,
                 },
-                vec![fragment.name.location],
+                fragment.name.location,
             )]);
         }
         Ok(())

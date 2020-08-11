@@ -19,6 +19,6 @@ Expected the key argument to @connection to be of form '<SomeName>__comments', g
 connection-invalid-key-name.invalid.graphql:6:44:6:53
       comments(first: 10) @connection(key: "invalid") {
 Notes:
-[related 1] other related location:
+[related 1] related location:
 connection-invalid-key-name.invalid.graphql:6:7:6:15
       comments(first: 10) @connection(key: "invalid") {

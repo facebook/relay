@@ -14,6 +14,6 @@ Cannot use @relay(mask: false) on fragment spreads for fragments with directives
 unmasked-spread-with-argument-definition.invalid.graphql:4:8:4:21
     ...PhotoFragment @relay(mask: false)
 Notes:
-[related 1] other related location:
+[related 1] related location:
 unmasked-spread-with-argument-definition.invalid.graphql:8:10:8:23
 fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {

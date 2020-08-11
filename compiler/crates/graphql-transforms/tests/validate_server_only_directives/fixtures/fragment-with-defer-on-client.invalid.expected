@@ -33,6 +33,6 @@ Unexpected directive: 'defer'. This directive can only be used on fields/fragmen
 fragment-with-defer-on-client.invalid.graphql:13:26:13:31
     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
 Notes:
-[related 1] other related location:
+[related 1] related location:
 fragment-with-defer-on-client.invalid.graphql:17:10:17:26
 fragment DeferredFragment on ClientUser {

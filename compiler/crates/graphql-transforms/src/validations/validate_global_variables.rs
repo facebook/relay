@@ -57,7 +57,10 @@ impl Validator for ValidateGlobalVariables<'_> {
 
         if !undefined_variables.is_empty() {
             let is_plural = undefined_variables.len() > 1;
-            return Err(vec![Diagnostic::new(
+            let mut locations = undefined_variables
+                .iter()
+                .map(|arg_def| arg_def.name.location);
+            let mut error = Diagnostic::error(
                 ValidationMessage::GlobalVariables {
                     operation_name: operation.name.item,
                     variables_string: format!(
@@ -70,11 +73,12 @@ impl Validator for ValidateGlobalVariables<'_> {
                             .join("', '$"),
                     ),
                 },
-                undefined_variables
-                    .iter()
-                    .map(|arg_def| arg_def.name.location)
-                    .collect(),
-            )]);
+                locations.next().unwrap(),
+            );
+            for related_location in locations {
+                error = error.annotate("related location", related_location);
+            }
+            return Err(vec![error]);
         }
         Ok(())
     }

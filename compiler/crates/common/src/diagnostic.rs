@@ -21,19 +21,6 @@ use std::fmt::{Debug, Display, Write};
 pub struct Diagnostic(Box<DiagnosticData>);
 
 impl Diagnostic {
-    /// DEPRECATED use Diagnostic::error instead
-    pub fn new<T: 'static + DiagnosticDisplay>(message: T, locations: Vec<Location>) -> Self {
-        let mut locations = locations.into_iter();
-        let mut diagnostic = Self::error(
-            message,
-            locations.next().unwrap_or_else(Location::generated),
-        );
-        for location in locations {
-            diagnostic = diagnostic.annotate("other related location", location);
-        }
-        diagnostic
-    }
-
     /// Creates a new error Diagnostic.
     /// Additional locations can be added with the `.annotate()` function.
     pub fn error<T: 'static + DiagnosticDisplay>(message: T, location: Location) -> Self {

@@ -16,6 +16,6 @@ Cannot use @relay(mask: false) on fragment spreads for fragments with directives
 unmasked-fragment-spreads-local-arguments.invalid.graphql:5:8:5:55
     ...unmaskedFragmentSpreadsLocalArguments_User_user @relay(mask: false)
 Notes:
-[related 1] other related location:
+[related 1] related location:
 unmasked-fragment-spreads-local-arguments.invalid.graphql:9:10:9:57
 fragment unmaskedFragmentSpreadsLocalArguments_User_user on User

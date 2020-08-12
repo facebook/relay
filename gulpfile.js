@@ -279,11 +279,20 @@ const copyRelayExperimental = [
       .src(INCLUDE_GLOBS, {
         cwd: path.join(PACKAGES, 'relay-experimental'),
       })
-      .pipe(once())
       .pipe(babel(babelOptions))
-      .pipe(gulp.dest(path.join(DIST, 'react-relay', 'lib', 'relay-experimental')));
-  }
-]
+      .pipe(
+        gulp.dest(path.join(DIST, 'react-relay', 'lib', 'relay-experimental')),
+      );
+  },
+  function modulesTask() {
+    return gulp
+      .src(INCLUDE_GLOBS, {
+        cwd: path.join(PACKAGES, 'relay-experimental'),
+      })
+      .pipe(rename({extname: '.js.flow'}))
+      .pipe(gulp.dest(path.join(DIST, 'react-relay', 'relay-experimental')));
+  },
+];
 
 const copyFilesTasks = [];
 builds.forEach(build => {

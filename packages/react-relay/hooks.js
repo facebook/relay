@@ -39,7 +39,7 @@ export type {
   LoadMoreFn,
   RefetchFn,
   RefetchFnDynamic,
-} from 'relay-experimental';
+} from './relay-experimental';
 
 export type {
   FetchPolicy,

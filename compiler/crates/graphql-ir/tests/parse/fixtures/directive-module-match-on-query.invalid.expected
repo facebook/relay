@@ -6,11 +6,19 @@ query TestQuery($id: ID!) @module @match {
   }
 }
 ==================================== ERROR ====================================
-Directive 'module' not supported in this location:
-directive-module-match-on-query.invalid.graphql:2:28:2:34
-query TestQuery($id: ID!) @module @match {
+✖︎ Directive 'module' not supported in this location
+
+  directive-module-match-on-query.invalid.graphql:2:28
+    1 │ # expected-to-throw
+    2 │ query TestQuery($id: ID!) @module @match {
+      │                            ^^^^^^
+    3 │   foo: node(id: $id) {
 
 
-Directive 'match' not supported in this location:
-directive-module-match-on-query.invalid.graphql:2:36:2:41
-query TestQuery($id: ID!) @module @match {
+✖︎ Directive 'match' not supported in this location
+
+  directive-module-match-on-query.invalid.graphql:2:36
+    1 │ # expected-to-throw
+    2 │ query TestQuery($id: ID!) @module @match {
+      │                                    ^^^^^
+    3 │   foo: node(id: $id) {

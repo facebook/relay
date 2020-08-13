@@ -8,6 +8,7 @@
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
+use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_transforms::validate_global_variables;
@@ -27,7 +28,10 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Err(errors) => {
             let mut errs = errors
                 .into_iter()
-                .map(|err| err.print_with_sources(&sources))
+                .map(|err| {
+                    let printer = DiagnosticPrinter::new(|_| Some(fixture.content.to_string()));
+                    printer.diagnostic_to_string(&err)
+                })
                 .collect::<Vec<_>>();
             errs.sort();
             return Err(errs.join("\n\n"));

@@ -4,7 +4,10 @@ fragment Foo on User {
   ...SomeUndefinedFragment
 }
 ==================================== ERROR ====================================
-Undefined fragment 'SomeUndefinedFragment':
-undefined-fragment.invalid.graphql:3:3:4:1
-  ...SomeUndefinedFragment
-}
+✖︎ Undefined fragment 'SomeUndefinedFragment'
+
+  undefined-fragment.invalid.graphql:3:3
+    2 │ fragment Foo on User {
+    3 │   ...SomeUndefinedFragment
+      │   ^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ }

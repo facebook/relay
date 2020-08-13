@@ -10,6 +10,10 @@ fragment ChildFragment on User {
   }
 }
 ==================================== ERROR ====================================
-Unknown argument 'pictureSize':
-fragment-with-undefined-variable-arguments.invalid.graphql:3:31:3:54
-  ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
+✖︎ Unknown argument 'pictureSize'
+
+  fragment-with-undefined-variable-arguments.invalid.graphql:3:31
+    2 │ fragment ParentFragment on User {
+    3 │   ...ChildFragment @arguments(pictureSize: $querySize) # error: $pictureSize not defined
+      │                               ^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ }

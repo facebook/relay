@@ -6,6 +6,10 @@ query TestQuery($id: UnknownType) {
   }
 }
 ==================================== ERROR ====================================
-Unknown type 'UnknownType':
-undefined-type.invalid.graphql:2:22:2:33
-query TestQuery($id: UnknownType) {
+✖︎ Unknown type 'UnknownType'
+
+  undefined-type.invalid.graphql:2:22
+    1 │ # expected-to-throw
+    2 │ query TestQuery($id: UnknownType) {
+      │                      ^^^^^^^^^^^
+    3 │   node(id: "someid") {

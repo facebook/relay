@@ -23,6 +23,7 @@ common = { path = "../common" }
 dependency-analyzer = { path = "../dependency-analyzer" }
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
+graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }

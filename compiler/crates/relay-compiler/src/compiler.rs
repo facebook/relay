@@ -13,6 +13,7 @@ use crate::graphql_asts::GraphQLAsts;
 use crate::{source_for_location, watchman::FileSource};
 use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
+use graphql_cli::DiagnosticPrinter;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
@@ -159,12 +160,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     }
 
     fn print_project_error(&self, error: &BuildProjectError) {
+        let printer = DiagnosticPrinter::new(|source_location| {
+            source_for_location(&self.config.root_dir, source_location).map(|source| source.text)
+        });
         if let BuildProjectError::ValidationErrors { errors } = error {
             for diagnostic in errors {
-                let printed = diagnostic.print_with_source_fn(|location| {
-                    source_for_location(&self.config.root_dir, location).map(|source| source.text)
-                });
-                error!("{}", printed);
+                error!("{}", printer.diagnostic_to_string(diagnostic));
             }
         };
     }

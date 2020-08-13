@@ -19,6 +19,12 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         Self { sources }
     }
 
+    pub fn diagnostic_to_string(&self, diagnostic: &Diagnostic) -> String {
+        let mut printed = String::new();
+        self.write_diagnostic(&mut printed, diagnostic).unwrap();
+        printed
+    }
+
     pub fn write_diagnostic<W: Write>(
         &self,
         writer: &mut W,

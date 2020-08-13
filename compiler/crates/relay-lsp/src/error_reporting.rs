@@ -43,7 +43,7 @@ pub fn report_build_project_errors(
                     server_state.register_url_with_diagnostics(url.clone());
 
                     let source = if let Some(source) =
-                        source_for_location(&server_state.root_dir, location)
+                        source_for_location(&server_state.root_dir, location.source_location())
                     {
                         source
                     } else {

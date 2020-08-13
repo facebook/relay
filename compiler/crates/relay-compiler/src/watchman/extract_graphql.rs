@@ -7,7 +7,7 @@
 
 use super::{read_to_string, WatchmanFile};
 use crate::errors::{Error, Result};
-use common::{Location, SourceLocationKey};
+use common::SourceLocationKey;
 use graphql_syntax::GraphQLSource;
 use std::{fs, path::Path};
 use watchman_client::prelude::*;
@@ -21,8 +21,11 @@ pub fn extract_graphql_strings_from_file(
     extract_graphql_strings_from_string(&contents)
 }
 
-pub fn source_for_location(root_dir: &Path, location: Location) -> Option<GraphQLSource> {
-    match location.source_location() {
+pub fn source_for_location(
+    root_dir: &Path,
+    source_location: SourceLocationKey,
+) -> Option<GraphQLSource> {
+    match source_location {
         SourceLocationKey::Embedded { path, index } => {
             let absolute_path = root_dir.join(path.lookup());
             let contents = fs::read_to_string(&absolute_path).ok()?;

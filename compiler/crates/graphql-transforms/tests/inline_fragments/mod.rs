@@ -6,12 +6,8 @@
  */
 
 use fixture_tests::Fixture;
+use graphql_test_helpers::apply_transform_for_test;
 use graphql_transforms::inline_fragments;
-
-#[path = "../test_helper.rs"]
-mod test_helper;
-
-use test_helper::apply_transform_for_test;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {

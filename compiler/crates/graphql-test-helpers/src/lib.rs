@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::SourceLocationKey;
+use common::{Diagnostic, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
+use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program, ValidationResult};
 use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
@@ -19,34 +19,15 @@ where
     T: Fn(&Program) -> ValidationResult<Program>,
 {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-
-    let mut sources = FnvHashMap::default();
-    sources.insert(source_location, fixture.content);
-
     let schema = get_test_schema();
     let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir_result = build(&schema, &ast.definitions);
-    let ir = match ir_result {
-        Ok(res) => res,
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print_with_sources(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    };
+    let ir = ir_result
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let next_program = transform(&program).map_err(|errors| {
-        let mut errors = errors
-            .into_iter()
-            .map(|err| err.print_with_sources(&sources))
-            .collect::<Vec<_>>();
-        errors.sort();
-        errors.join("\n\n")
-    })?;
+    let next_program = transform(&program)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let mut printed = next_program
         .operations()
@@ -62,4 +43,14 @@ where
     printed.extend(printed_fragments);
 
     Ok(printed.join("\n\n"))
+}
+
+pub fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
+    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let mut printed = diagnostics
+        .iter()
+        .map(|diagnostic| printer.diagnostic_to_string(diagnostic))
+        .collect::<Vec<_>>();
+    printed.sort();
+    printed.join("\n\n")
 }

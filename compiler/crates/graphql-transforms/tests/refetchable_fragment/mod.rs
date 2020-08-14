@@ -10,10 +10,7 @@ use graphql_transforms::{
     transform_connections, transform_refetchable_fragment, ConnectionInterface,
 };
 
-#[path = "../test_helper.rs"]
-mod test_helper;
-
-use test_helper::apply_transform_for_test;
+use graphql_test_helpers::apply_transform_for_test;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {

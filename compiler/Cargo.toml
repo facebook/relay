@@ -7,6 +7,7 @@ members = [
     "crates/fixture-tests",
     "crates/graphql-ir",
     "crates/graphql-syntax",
+    "crates/graphql-test-helpers",
     "crates/graphql-text-printer",
     "crates/graphql-transforms",
     "crates/interner",

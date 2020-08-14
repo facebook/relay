@@ -119,3 +119,4 @@ serde = { version = "1.0", features = ["derive", "rc"] }
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
+graphql-test-helpers = { path = "../graphql-test-helpers" }

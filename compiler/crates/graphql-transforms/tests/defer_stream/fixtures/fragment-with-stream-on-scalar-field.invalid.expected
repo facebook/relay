@@ -12,6 +12,10 @@ fragment UserFragment on User {
   name @stream(initial_count: 1, label: $label)
 }
 ==================================== ERROR ====================================
-Invalid use of @stream on scalar field 'name':
-fragment-with-stream-on-scalar-field.invalid.graphql:11:9:11:15
-  name @stream(initial_count: 1, label: $label)
+✖︎ Invalid use of @stream on scalar field 'name'
+
+  fragment-with-stream-on-scalar-field.invalid.graphql:11:9
+   10 │   id
+   11 │   name @stream(initial_count: 1, label: $label)
+      │         ^^^^^^
+   12 │ }

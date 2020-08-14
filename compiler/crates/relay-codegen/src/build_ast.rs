@@ -20,7 +20,8 @@ use graphql_transforms::{
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
     ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
     CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, INLINE_DATA_CONSTANTS,
-    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, REACT_FLIGHT_DIRECTIVE_NAME,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
 use md5::{Digest, Md5};
@@ -485,6 +486,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
+        let kind = match field.directives.named(*REACT_FLIGHT_DIRECTIVE_NAME) {
+            Some(_flight_directive) => Primitive::String(CODEGEN_CONSTANTS.flight_field),
+            None => Primitive::String(CODEGEN_CONSTANTS.scalar_field),
+        };
         Primitive::Key(self.object(vec![
             build_alias(alias, name),
             (
@@ -494,10 +499,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Some(key) => Primitive::Key(key),
                 },
             ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.scalar_field),
-            ),
+            (CODEGEN_CONSTANTS.kind, kind),
             (CODEGEN_CONSTANTS.name, Primitive::String(name)),
             (
                 CODEGEN_CONSTANTS.storage_key,

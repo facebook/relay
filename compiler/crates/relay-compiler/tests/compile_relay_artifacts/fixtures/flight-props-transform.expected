@@ -93,7 +93,7 @@ extend type Story {
                     "name": "props"
                   }
                 ],
-                "kind": "ScalarField",
+                "kind": "FlightField",
                 "name": "flight",
                 "storageKey": null
               }
@@ -191,7 +191,7 @@ extend type Story {
                     "name": "props"
                   }
                 ],
-                "kind": "ScalarField",
+                "kind": "FlightField",
                 "name": "flight",
                 "storageKey": null
               }

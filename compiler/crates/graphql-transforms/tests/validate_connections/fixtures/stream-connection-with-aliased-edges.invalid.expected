@@ -21,6 +21,10 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== ERROR ====================================
-@stream_connection does not support aliasing the 'edges' field.:
-stream-connection-with-aliased-edges.invalid.graphql:8:23:8:28
-        commentEdges: edges {
+✖︎ @stream_connection does not support aliasing the 'edges' field.
+
+  stream-connection-with-aliased-edges.invalid.graphql:8:23
+    7 │         @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+    8 │         commentEdges: edges {
+      │                       ^^^^^
+    9 │           node {

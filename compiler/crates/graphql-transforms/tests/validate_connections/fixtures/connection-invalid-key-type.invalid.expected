@@ -15,6 +15,10 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== ERROR ====================================
-Expected a value of type 'String':
-connection-invalid-key-type.invalid.graphql:6:44:6:46
-      comments(first: 10) @connection(key: 10) {
+✖︎ Expected a value of type 'String'
+
+  connection-invalid-key-type.invalid.graphql:6:44
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: 10) {
+      │                                            ^^
+    7 │         edges {

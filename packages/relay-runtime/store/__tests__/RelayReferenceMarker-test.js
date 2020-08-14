@@ -1172,6 +1172,54 @@ describe('RelayReferenceMarker', () => {
         'client:root',
       ]);
     });
+
+    it('throws if no operation loader is provided', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'PlainUserNameRenderer',
+          __module_component_BarFragment: 'PlainUserNameRenderer.react',
+          __module_operation_BarFragment:
+            'PlainUserNameRenderer_name$normalization.graphql',
+          plaintext: 'plain name',
+          data: {__ref: 'data'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+        data: {
+          __id: 'data',
+          __typename: 'PlainUserNameData',
+          text: 'text',
+        },
+      };
+      source = RelayRecordSource.create(storeData);
+      const references = new Set();
+      expect(() =>
+        mark(
+          source,
+          createNormalizationSelector(BarQuery.operation, 'client:root', {
+            id: '1',
+          }),
+          references,
+          null, // operationLoader
+        ),
+      ).toThrow(
+        'RelayReferenceMarker: Expected an operationLoader to be configured when ' +
+          'using `@module`. Could not load fragment `PlainUserNameRenderer_name` ' +
+          'in operation `BarQuery`.',
+      );
+    });
   });
 
   describe('when @defer directive is present', () => {

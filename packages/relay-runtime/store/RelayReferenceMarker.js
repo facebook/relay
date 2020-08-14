@@ -75,6 +75,7 @@ function mark(
  */
 class RelayReferenceMarker {
   _operationLoader: OperationLoader | null;
+  _operationName: ?string;
   _recordSource: RecordSource;
   _references: Set<DataID>;
   _variables: Variables;
@@ -86,12 +87,16 @@ class RelayReferenceMarker {
     operationLoader: ?OperationLoader,
   ) {
     this._operationLoader = operationLoader ?? null;
+    this._operationName = null;
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
   }
 
   mark(node: NormalizationNode, dataID: DataID): void {
+    if (node.kind === 'Operation' || node.kind === 'SplitOperation') {
+      this._operationName = node.name;
+    }
     this._traverse(node, dataID);
   }
 
@@ -217,7 +222,10 @@ class RelayReferenceMarker {
     const operationLoader = this._operationLoader;
     invariant(
       operationLoader !== null,
-      'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`.',
+      'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`. ' +
+        'Could not load fragment `%s` in operation `%s`.',
+      moduleImport.fragmentName,
+      this._operationName ?? '(unknown)',
     );
     const operationKey = getModuleOperationKey(moduleImport.documentName);
     const operationReference = RelayModernRecord.getValue(record, operationKey);

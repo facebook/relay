@@ -939,6 +939,11 @@ export interface PublishQueue {
  */
 export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
 
+export type ReactFlightReachableQuery = {|
+  +module: mixed,
+  +variables: Variables,
+|};
+
 /**
  * A user-supplied function that takes a ReactFlightServerTree, and deserializes
  * it into a ReactFlightClientResponse object.

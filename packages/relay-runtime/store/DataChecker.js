@@ -26,11 +26,16 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
+const {
+  REACT_FLIGHT_TREE_STORAGE_KEY,
+  REACT_FLIGHT_QUERIES_STORAGE_KEY,
+} = require('./ReactFlight');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const {generateTypeID} = require('./TypeID');
 
 import type {
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -44,6 +49,7 @@ import type {
   MutableRecordSource,
   NormalizationSelector,
   OperationLoader,
+  ReactFlightReachableQuery,
   Record,
   RecordSource,
 } from './RelayStoreTypes';
@@ -69,6 +75,7 @@ const {
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
 const {
+  ROOT_ID,
   getModuleOperationKey,
   getStorageKey,
   getArgumentValues,
@@ -412,7 +419,12 @@ class DataChecker {
           }
           break;
         case FLIGHT_FIELD:
-          throw new Error('Flight fields are not yet supported.');
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._checkFlightField(selection, dataID);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
+          break;
         default:
           (selection: empty);
           invariant(
@@ -499,6 +511,57 @@ class DataChecker {
         }
       });
     }
+  }
+
+  _checkFlightField(field: NormalizationFlightField, dataID: DataID): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
+
+    if (linkedID == null) {
+      if (linkedID === undefined) {
+        this._handleMissing();
+        return;
+      }
+      return;
+    }
+
+    const tree = this._mutator.getValue(
+      linkedID,
+      REACT_FLIGHT_TREE_STORAGE_KEY,
+    );
+    const reachableQueries = this._mutator.getValue(
+      linkedID,
+      REACT_FLIGHT_QUERIES_STORAGE_KEY,
+    );
+
+    if (tree == null || !Array.isArray(reachableQueries)) {
+      this._handleMissing();
+      return;
+    }
+
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using ' +
+        'React Flight.',
+    );
+    // In Flight, the variables that are in scope for reachable queries aren't
+    // the same as what's in scope for the outer query.
+    const prevVariables = this._variables;
+    // $FlowFixMe[incompatible-cast]
+    for (const query of (reachableQueries: Array<ReactFlightReachableQuery>)) {
+      this._variables = query.variables;
+      const normalizationRootNode = operationLoader.get(query.module);
+      if (normalizationRootNode != null) {
+        const operation = getOperation(normalizationRootNode);
+        this._traverseSelections(operation.selections, ROOT_ID);
+      } else {
+        // If the fragment is not available, we assume that the data cannot have
+        // been processed yet and must therefore be missing.
+        this._handleMissing();
+      }
+    }
+    this._variables = prevVariables;
   }
 }
 

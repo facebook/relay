@@ -53,6 +53,8 @@ describe('execute() with Flight field', () => {
   };
 
   beforeEach(() => {
+    jest.mock('warning');
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     jest.resetModules();
 
     // Note: This must come after `jest.resetModules()`.
@@ -104,7 +106,9 @@ describe('execute() with Flight field', () => {
       get: jest.fn(() => InnerQuery),
     };
     source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
+    // DataChecker receives its operationLoader from the store, not the
+    // environment. So we have to pass it here as well.
+    store = new RelayModernStore(source, {operationLoader});
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       operationLoader,
@@ -221,5 +225,184 @@ describe('execute() with Flight field', () => {
         },
       }
     `);
+  });
+
+  describe('when checking availability', () => {
+    it('returns available if all data exists in the environment', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              tree: [
+                {
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                },
+              ],
+              queries: [
+                {
+                  id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                  module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                  response: {
+                    data: {
+                      node: {
+                        id: '2',
+                        name: 'Lauren',
+                        __typename: 'User',
+                      },
+                    },
+                    extensions: [],
+                  },
+                  variables: {
+                    id: '2',
+                  },
+                },
+              ],
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(environment.check(operation)).toEqual({
+        status: 'available',
+        fetchTime: null,
+      });
+      expect(environment.check(innerOperation)).toEqual({
+        status: 'available',
+        fetchTime: null,
+      });
+    });
+
+    it('returns missing if `tree` is null in the payload', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              tree: null,
+              queries: [
+                {
+                  id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                  module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                  response: {
+                    data: {
+                      node: {
+                        id: '2',
+                        name: 'Lauren',
+                        __typename: 'User',
+                      },
+                    },
+                    extensions: [],
+                  },
+                  variables: {
+                    id: '2',
+                  },
+                },
+              ],
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
+      });
+      expect(environment.check(innerOperation)).toEqual({
+        status: 'missing',
+      });
+    });
+
+    it('returns missing if `queries` is null in the payload', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              tree: [
+                {
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                },
+              ],
+              queries: null,
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
+      });
+      expect(environment.check(innerOperation)).toEqual({
+        status: 'missing',
+      });
+    });
+
+    it('returns missing if the inner query is missing data', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              tree: [
+                {
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                },
+              ],
+              queries: [
+                {
+                  id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                  module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                  response: {
+                    data: {
+                      node: {
+                        id: '2',
+                        // name: 'Lauren',
+                        __typename: 'User',
+                      },
+                    },
+                    extensions: [],
+                  },
+                  variables: {
+                    id: '3',
+                  },
+                },
+              ],
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
+      });
+      expect(environment.check(innerOperation)).toEqual({
+        status: 'missing',
+      });
+    });
   });
 });

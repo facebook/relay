@@ -71,6 +71,7 @@ import type {
   ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
+  ReactFlightReachableQuery,
   ReactFlightPayloadDeserializer,
   Record,
   RelayResponsePayload,
@@ -556,7 +557,7 @@ class RelayResponseNormalizer {
       REACT_FLIGHT_TREE_STORAGE_KEY,
       reactFlightClientResponse,
     );
-    const reachableQueries = [];
+    const reachableQueries: Array<ReactFlightReachableQuery> = [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {
         this._moduleImportPayloads.push({

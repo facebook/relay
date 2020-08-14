@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -2493,8 +2494,6 @@ describe('check()', () => {
   });
 
   describe('with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
     });
@@ -2630,6 +2629,291 @@ describe('check()', () => {
       );
       expect(status).toEqual({
         status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('with feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightQuery;
+    let InnerQuery;
+    let operationLoader;
+
+    const readRoot = () => {
+      return {
+        $$typeof: Symbol.for('react.element'),
+        type: 'div',
+        key: null,
+        ref: null,
+        props: {foo: 1},
+      };
+    };
+
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+
+      ({FlightQuery, InnerQuery} = generateAndCompile(
+        `
+        query FlightQuery($id: ID!, $count: Int!) {
+          node(id: $id) {
+            ... on Story {
+              flightComponent(condition: true, count: $count, id: $id)
+            }
+          }
+        }
+
+        query InnerQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              name
+            }
+          }
+        }
+
+        extend type Story {
+          flightComponent(
+            condition: Boolean!
+            count: Int!
+            id: ID!
+          ): ReactFlightComponent
+            @react_flight_component(name: "FlightComponent.server")
+        }
+        `,
+      ));
+      operationLoader = {
+        get: jest.fn(() => InnerQuery),
+        load: jest.fn(() => Promise.resolve(InnerQuery)),
+      };
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('returns available when the Flight field is fetched', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Lauren',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+          __id:
+            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          __typename: 'ReactFlightComponent',
+          queries: [
+            {
+              module: {
+                __dr: 'RelayFlightExampleQuery.graphql',
+              },
+              variables: {
+                id: '2',
+              },
+            },
+          ],
+          tree: {
+            readRoot,
+          },
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+          'node(id:"2")': {
+            __ref: '2',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the Flight field exists but has not been processed', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+          __id:
+            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          __typename: 'ReactFlightComponent',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the Flight field is null in the store', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the Flight field is undefined in the store', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the linked ReactFlightClientResponseRecord is missing', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
         mostRecentlyInvalidatedAt: null,
       });
       expect(target.size()).toBe(0);

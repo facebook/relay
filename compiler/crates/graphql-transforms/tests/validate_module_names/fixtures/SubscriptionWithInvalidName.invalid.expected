@@ -6,6 +6,10 @@ subscription SubscriptionWithAnyOtherNameIsInvalidSubscription {
     }
 }
 ==================================== ERROR ====================================
-Subscriptions in graphql tags must start with the module name ('SubscriptionWithInvalidName') and end with 'Subscription'. Got 'SubscriptionWithAnyOtherNameIsInvalidSubscription' instead.:
-SubscriptionWithInvalidName.invalid.graphql:2:14:2:63
-subscription SubscriptionWithAnyOtherNameIsInvalidSubscription {
+✖︎ Subscriptions in graphql tags must start with the module name ('SubscriptionWithInvalidName') and end with 'Subscription'. Got 'SubscriptionWithAnyOtherNameIsInvalidSubscription' instead.
+
+  SubscriptionWithInvalidName.invalid.graphql:2:14
+    1 │ #expected-to-throw
+    2 │ subscription SubscriptionWithAnyOtherNameIsInvalidSubscription {
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │     feedbackLikeSubscribe(input: null) {

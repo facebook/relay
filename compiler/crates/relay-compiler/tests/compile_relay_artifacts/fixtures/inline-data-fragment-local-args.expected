@@ -20,16 +20,28 @@ fragment inlineDataFragmentLocalArgsProfile on User
   }
 }
 ==================================== ERROR ====================================
-Variables are not yet supported inside @inline fragments.:
-inline-data-fragment-local-args.graphql:14:10:14:44
-fragment inlineDataFragmentLocalArgsProfile on User
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-local-args.graphql:14:10
+   13 │ 
+   14 │ fragment inlineDataFragmentLocalArgsProfile on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │   @inline
 
 
-Variables are not yet supported inside @inline fragments.:
-inline-data-fragment-local-args.graphql:14:10:14:44
-fragment inlineDataFragmentLocalArgsProfile on User
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-local-args.graphql:14:10
+   13 │ 
+   14 │ fragment inlineDataFragmentLocalArgsProfile on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │   @inline
 
 
-Variables are not yet supported inside @inline fragments.:
-inline-data-fragment-local-args.graphql:14:10:14:44
-fragment inlineDataFragmentLocalArgsProfile on User
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-local-args.graphql:14:10
+   13 │ 
+   14 │ fragment inlineDataFragmentLocalArgsProfile on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │   @inline

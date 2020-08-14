@@ -22,6 +22,10 @@ fragment unknownRootVariableInFragmentProfile on User {
   }
 }
 ==================================== ERROR ====================================
-Operation 'unknownRootVariableInFragmentQuery' references undefined variable: '$includeFriends'.:
-unknown-root-variable-in-fragment.invalid.graphql:13:20:13:35
-  ... @include(if: $includeFriends) {
+✖︎ Operation 'unknownRootVariableInFragmentQuery' references undefined variable: '$includeFriends'.
+
+  unknown-root-variable-in-fragment.invalid.graphql:13:20
+   12 │   # includeFriends is not defined on the referencing query, should error
+   13 │   ... @include(if: $includeFriends) {
+      │                    ^^^^^^^^^^^^^^^
+   14 │     friends(first: 10) {

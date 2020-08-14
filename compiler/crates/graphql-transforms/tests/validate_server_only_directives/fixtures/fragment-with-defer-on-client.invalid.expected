@@ -29,10 +29,18 @@ interface ClientUser {
   clientname: String
 }
 ==================================== ERROR ====================================
-Unexpected directive: 'defer'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.:
-fragment-with-defer-on-client.invalid.graphql:13:26:13:31
-    ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-Notes:
-[related 1] related location:
-fragment-with-defer-on-client.invalid.graphql:17:10:17:26
-fragment DeferredFragment on ClientUser {
+✖︎ Unexpected directive: 'defer'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+
+  fragment-with-defer-on-client.invalid.graphql:13:26
+   12 │   foo {
+   13 │     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
+      │                          ^^^^^
+   14 │   }
+
+  ℹ︎ related location
+
+  fragment-with-defer-on-client.invalid.graphql:17:10
+   16 │ 
+   17 │ fragment DeferredFragment on ClientUser {
+      │          ^^^^^^^^^^^^^^^^
+   18 │   clientname

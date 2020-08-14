@@ -31,6 +31,10 @@ fragment multipleModulesWithoutKey_MarkdownUserNameRenderer_name on MarkdownUser
   }
 }
 ==================================== ERROR ====================================
-Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use 'nameRenderable @match(key: "multipleModulesWithoutKey_MatchQuery_<localName>")'.:
-multiple-modules-without-key.invalid.graphql:11:7:11:21
-      nameRenderable {
+✖︎ Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use 'nameRenderable @match(key: "multipleModulesWithoutKey_MatchQuery_<localName>")'.
+
+  multiple-modules-without-key.invalid.graphql:11:7
+   10 │     ... on User {
+   11 │       nameRenderable {
+      │       ^^^^^^^^^^^^^^
+   12 │         ...multipleModulesWithoutKey_MarkdownUserNameRenderer_name

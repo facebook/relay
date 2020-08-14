@@ -37,13 +37,19 @@ fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Fe
   }
 }
 ==================================== ERROR ====================================
-Operation 'connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery' references undefined variable: '$commentsKey'.:
-connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28:29:1
-      dynamicKey_UNSTABLE: $commentsKey
-      filters: ["orderby"]
+✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery' references undefined variable: '$commentsKey'.
+
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
+   27 │       key: "FeedbackFragment_comments"
+   28 │       dynamicKey_UNSTABLE: $commentsKey
+      │                            ^^^^^^^^^^^^
+   29 │       filters: ["orderby"]
 
 
-Operation 'connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery' references undefined variable: '$commentsKey'.:
-connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28:29:1
-      dynamicKey_UNSTABLE: $commentsKey
-      filters: ["orderby"]
+✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery' references undefined variable: '$commentsKey'.
+
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
+   27 │       key: "FeedbackFragment_comments"
+   28 │       dynamicKey_UNSTABLE: $commentsKey
+      │                            ^^^^^^^^^^^^
+   29 │       filters: ["orderby"]

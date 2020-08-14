@@ -41,7 +41,12 @@ fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUs
   }
 }
 ==================================== ERROR ====================================
-Undefined fragment 'moduleOverlapWithinDocument_BarNameRendererFragment':
-module-overlap-within-document.invalid.graphql:5:5:6:3
-    ...moduleOverlapWithinDocument_BarNameRendererFragment
-  }
+✖︎ Undefined fragment 'moduleOverlapWithinDocument_BarNameRendererFragment'
+
+  module-overlap-within-document.invalid.graphql:5:5
+    4 │     ...moduleOverlapWithinDocument_FooNameRendererFragment
+    5 │     ...moduleOverlapWithinDocument_BarNameRendererFragment
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }
+      │ ^^
+    7 │ }

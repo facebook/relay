@@ -6,6 +6,10 @@ mutation MutationWithAnotherNameMutation {
     }
 }
 ==================================== ERROR ====================================
-Mutations in graphql tags must start with the module name ('MutationWithInvalidName') and end with 'Mutation'. Got 'MutationWithAnotherNameMutation' instead.:
-MutationWithInvalidName.invalid.graphql:2:10:2:41
-mutation MutationWithAnotherNameMutation {
+✖︎ Mutations in graphql tags must start with the module name ('MutationWithInvalidName') and end with 'Mutation'. Got 'MutationWithAnotherNameMutation' instead.
+
+  MutationWithInvalidName.invalid.graphql:2:10
+    1 │ #expected-to-throw
+    2 │ mutation MutationWithAnotherNameMutation {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │     commentCreate(input: null) {

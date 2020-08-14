@@ -38,7 +38,12 @@ fragment matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name on Mark
   }
 }
 ==================================== ERROR ====================================
-Undefined fragment 'matchFieldsOverlapAcrossDocuments_FooNameRendererFragment':
-match-field-overlap-across-documents.graphql:4:5:5:5
-    ...matchFieldsOverlapAcrossDocuments_FooNameRendererFragment
-    ...matchFieldsOverlapAcrossDocuments_BarNameRendererFragment
+✖︎ Undefined fragment 'matchFieldsOverlapAcrossDocuments_FooNameRendererFragment'
+
+  match-field-overlap-across-documents.graphql:4:5
+    3 │   node(id: $id) {
+    4 │     ...matchFieldsOverlapAcrossDocuments_FooNameRendererFragment
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │     ...matchFieldsOverlapAcrossDocuments_BarNameRendererFragment
+      │ ^^^^
+    6 │   }

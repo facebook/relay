@@ -6,6 +6,10 @@ query QueryWithAnotherNameQuery {
     }
 }
 ==================================== ERROR ====================================
-Queries in graphql tags must start with the module name ('QueryWithInvalidName') and end with 'Query'. Got 'QueryWithAnotherNameQuery' instead.:
-QueryWithInvalidName.invalid.graphql:2:7:2:32
-query QueryWithAnotherNameQuery {
+✖︎ Queries in graphql tags must start with the module name ('QueryWithInvalidName') and end with 'Query'. Got 'QueryWithAnotherNameQuery' instead.
+
+  QueryWithInvalidName.invalid.graphql:2:7
+    1 │ #expected-to-throw
+    2 │ query QueryWithAnotherNameQuery {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │     me {

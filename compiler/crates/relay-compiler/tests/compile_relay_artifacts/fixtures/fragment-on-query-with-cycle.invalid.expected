@@ -30,18 +30,34 @@ fragment fragmentOnQueryWithCycle_Profile on User
   }
 }
 ==================================== ERROR ====================================
-Found a circular reference from fragment 'fragmentOnQueryWithCycle_Profile'.:
-fragment-on-query-with-cycle.invalid.graphql:26:12:27:1
-        ...fragmentOnQueryWithCycle_Profile
-      }
-Notes:
-[related 1] other member of the cycle:
-fragment-on-query-with-cycle.invalid.graphql:2:10:2:54
-fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
-[related 2] other member of the cycle:
-fragment-on-query-with-cycle.invalid.graphql:9:10:9:42
-      ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
-[related 3] other member of the cycle:
-fragment-on-query-with-cycle.invalid.graphql:26:12:27:1
-        ...fragmentOnQueryWithCycle_Profile
-      }
+✖︎ Found a circular reference from fragment 'fragmentOnQueryWithCycle_Profile'.
+
+  fragment-on-query-with-cycle.invalid.graphql:26:12
+   25 │       node {
+   26 │         ...fragmentOnQueryWithCycle_Profile
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   27 │       }
+
+  ℹ︎ other member of the cycle
+
+  fragment-on-query-with-cycle.invalid.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   @refetchable(queryName: "RefetchableFragmentQuery")
+
+  ℹ︎ other member of the cycle
+
+  fragment-on-query-with-cycle.invalid.graphql:9:10
+    8 │       name
+    9 │       ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │     }
+
+  ℹ︎ other member of the cycle
+
+  fragment-on-query-with-cycle.invalid.graphql:26:12
+   25 │       node {
+   26 │         ...fragmentOnQueryWithCycle_Profile
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   27 │       }

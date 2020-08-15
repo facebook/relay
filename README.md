@@ -22,9 +22,14 @@ yarn start
 
 Then, just point your browser at `http://localhost:3000`.
 
+
 ## Contribute
 
 We actively welcome pull requests, learn how to [contribute](./.github/CONTRIBUTING.md).
+
+## Pull request template
+
+If You wanted yo contribute and wanted to create a Pull request, You can Use this [Pull Request Template](https://github.com/facebook/relay/blob/master/.github/CONTRIBUTING.md#pull-requests)
 
 ## Users
 

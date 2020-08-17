@@ -11,7 +11,7 @@ use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::{source_for_location, watchman::FileSource};
-use common::{PerfLogEvent, PerfLogger};
+use common::{Diagnostic, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
 use graphql_cli::DiagnosticPrinter;
 use log::{error, info};
@@ -149,10 +149,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 Ok(())
             }
             Err(error) => {
-                if let Error::BuildProjectsErrors { errors } = &error {
-                    for error in errors {
-                        self.print_project_error(error);
+                match &error {
+                    Error::DiagnosticsError { errors } => {
+                        for diagnostic in errors {
+                            self.print_diagnostic(diagnostic);
+                        }
                     }
+                    Error::BuildProjectsErrors { errors } => {
+                        for error in errors {
+                            self.print_project_error(error);
+                        }
+                    }
+                    _ => {}
                 }
                 Err(error)
             }
@@ -160,14 +168,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     }
 
     fn print_project_error(&self, error: &BuildProjectError) {
+        if let BuildProjectError::ValidationErrors { errors } = error {
+            for diagnostic in errors {
+                self.print_diagnostic(diagnostic);
+            }
+        };
+    }
+
+    fn print_diagnostic(&self, diagnostic: &Diagnostic) {
         let printer = DiagnosticPrinter::new(|source_location| {
             source_for_location(&self.config.root_dir, source_location).map(|source| source.text)
         });
-        if let BuildProjectError::ValidationErrors { errors } = error {
-            for diagnostic in errors {
-                error!("{}", printer.diagnostic_to_string(diagnostic));
-            }
-        };
+        error!("{}", printer.diagnostic_to_string(diagnostic));
     }
 }
 

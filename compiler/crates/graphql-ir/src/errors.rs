@@ -70,8 +70,6 @@ pub enum ValidationMessage {
     ExpectedOneArgumentsDirective(),
     #[error("Expected at-most one '@argumentDefinitions' directive per fragment spread")]
     ExpectedOneArgumentDefinitionsDirective(),
-    #[error("{0}")]
-    SyntaxError(graphql_syntax::SyntaxError),
     #[error("Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')")]
     ExpectedArgumentDefinitionLiteralType(),
     #[error("Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties")]

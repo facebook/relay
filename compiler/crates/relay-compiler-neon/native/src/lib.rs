@@ -5,12 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, Location, SourceLocationKey};
+use common::{ConsoleLogger, Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
-use graphql_syntax::{
-    parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError, SyntaxErrorKind,
-    SyntaxResult,
-};
+use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxErrorKind};
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
@@ -27,9 +24,9 @@ use std::sync::Arc;
 /// Parse JS input to get list of executable definitions (ASTs)
 fn build_definitions_from_js_input(
     input: Vec<Handle<JsValue>>,
-) -> Result<Vec<ExecutableDefinition>, Vec<SyntaxError>> {
-    let mut documents: Vec<SyntaxResult<ExecutableDocument>> = Vec::with_capacity(input.len());
-    let mut errors: Vec<SyntaxError> = vec![];
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    let mut documents: Vec<DiagnosticsResult<ExecutableDocument>> = Vec::with_capacity(input.len());
+    let mut errors: Vec<Diagnostic> = vec![];
     for js_value in input {
         if let Ok(value) = js_value.downcast::<JsString>() {
             documents.push(parse_executable(
@@ -39,7 +36,7 @@ fn build_definitions_from_js_input(
         } else {
             // This is not technically correct - it should be JS syntax/parse error, not graphql
             // TODO: Replace with correct error
-            errors.push(SyntaxError::new(
+            errors.push(Diagnostic::error(
                 SyntaxErrorKind::UnsupportedCharacter,
                 Location::generated(),
             ));

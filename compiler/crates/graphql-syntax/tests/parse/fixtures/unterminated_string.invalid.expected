@@ -8,6 +8,10 @@
     }
 }
 ==================================== ERROR ====================================
-Error: Unterminated string literal (strings cannot contain unescaped line breaks) at unterminated_string.invalid.graphql:
-        arg: "unterminated string
-    ) {
+✖︎ Unterminated string literal (strings cannot contain unescaped line breaks)
+
+  unterminated_string.invalid.graphql:4:14
+    3 │     friends(
+    4 │         arg: "unterminated string
+      │              ^^^^^^^^^^^^^^^^^^^^
+    5 │     ) {

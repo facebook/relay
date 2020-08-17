@@ -220,13 +220,19 @@ fn get_argument_type(
         }) => Some((type_name_node.value, span)),
         _ => None,
     };
-    if let Some((type_name, span)) = type_name_and_span {
+    if let Some((type_name, &span)) = type_name_and_span {
         let type_ast = graphql_syntax::parse_type(type_name.lookup(), location.source_location())
-            .map_err(|errors| {
-            errors
+            .map_err(|diagnostics| {
+            diagnostics
                 .into_iter()
-                .map(|x| {
-                    Diagnostic::error(ValidationMessage::SyntaxError(x), location.with_span(*span))
+                .map(|diagnostic| {
+                    let message = diagnostic.message().to_string();
+                    Diagnostic::error(
+                        message,
+                        // TODO: ideally, `parse_type()` would take in the offset
+                        // location and report the error at the right location.
+                        location.with_span(span),
+                    )
                 })
                 .collect::<Vec<_>>()
         })?;

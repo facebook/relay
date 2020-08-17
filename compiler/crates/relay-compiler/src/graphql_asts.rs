@@ -60,11 +60,7 @@ impl GraphQLAsts {
                         }
                         definitions_for_file.extend(document.definitions);
                     }
-                    Err(errors) => syntax_errors.extend(
-                        errors
-                            .into_iter()
-                            .map(|error| error.with_source(graphql_source.clone())),
-                    ),
+                    Err(errors) => syntax_errors.extend(errors),
                 }
             }
             // Parse the processed source to get all processed definition names
@@ -108,11 +104,7 @@ impl GraphQLAsts {
                     Ok(document) => {
                         definitions_for_file.extend(document.definitions);
                     }
-                    Err(errors) => syntax_errors.extend(
-                        errors
-                            .into_iter()
-                            .map(|error| error.with_source(graphql_source.clone())),
-                    ),
+                    Err(errors) => syntax_errors.extend(errors),
                 }
             }
             asts.extend(definitions_for_file);
@@ -125,7 +117,7 @@ impl GraphQLAsts {
                 removed_definition_names,
             })
         } else {
-            Err(Error::SyntaxErrors {
+            Err(Error::DiagnosticsError {
                 errors: syntax_errors,
             })
         }

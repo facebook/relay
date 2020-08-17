@@ -8,6 +8,8 @@
 use crate::Location;
 use std::fmt::{Debug, Display, Write};
 
+pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
+
 /// A diagnostic message as a result of validating some code. This struct is
 /// modeled after the LSP Diagnostic type:
 /// https://microsoft.github.io/language-server-protocol/specification#diagnostic

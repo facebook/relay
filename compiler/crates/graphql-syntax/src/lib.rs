@@ -19,15 +19,15 @@ pub mod type_system_node;
 
 pub use executable_node::*;
 pub use source::GraphQLSource;
-pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource, SyntaxResult};
+pub use syntax_error::SyntaxErrorKind;
 
 use crate::parser::Parser;
-use common::SourceLocationKey;
+use common::{DiagnosticsResult, SourceLocationKey};
 
 pub fn parse_executable(
     source: &str,
     source_location: SourceLocationKey,
-) -> SyntaxResult<ExecutableDocument> {
+) -> DiagnosticsResult<ExecutableDocument> {
     let parser = Parser::new(source, source_location);
     parser.parse_executable_document()
 }
@@ -35,7 +35,7 @@ pub fn parse_executable(
 pub fn parse_type(
     source: &str,
     source_location: SourceLocationKey,
-) -> SyntaxResult<TypeAnnotation> {
+) -> DiagnosticsResult<TypeAnnotation> {
     let parser = Parser::new(source, source_location);
     parser.parse_type()
 }

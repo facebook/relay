@@ -86,7 +86,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
             Err(err) => {
                 if let LSPError::CompilerError(err) = err {
                     match err {
-                        CompilerError::SyntaxErrors { errors } => {
+                        CompilerError::DiagnosticsError { errors } => {
                             report_syntax_errors(errors, &self.connection, &mut self.server_state)
                         }
                         CompilerError::BuildProjectsErrors { errors } => {

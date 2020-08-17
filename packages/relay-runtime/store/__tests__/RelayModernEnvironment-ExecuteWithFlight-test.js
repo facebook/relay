@@ -123,6 +123,7 @@ describe('execute() with Flight field', () => {
   });
 
   it('loads the Flight field and normalizes/publishes the field payload', () => {
+    environment.retain(operation);
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -168,6 +169,7 @@ describe('execute() with Flight field', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
     expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
+    store.__gc();
     expect(environment.lookup(innerOperation.fragment).data).toEqual({
       node: {
         name: 'Lauren',

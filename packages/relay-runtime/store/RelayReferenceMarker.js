@@ -21,9 +21,12 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
+const {REACT_FLIGHT_QUERIES_STORAGE_KEY} = require('./ReactFlight');
 const {generateTypeID} = require('./TypeID');
 
+import type {ReactFlightPayloadQuery} from '../network/RelayNetworkTypes';
 import type {
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -52,7 +55,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
+const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -203,7 +206,12 @@ class RelayReferenceMarker {
           this._traverseSelections(selection.selections, record);
           break;
         case FLIGHT_FIELD:
-          throw new Error('Flight fields are not yet supported.');
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._traverseFlightField(selection, record);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
+          break;
         default:
           (selection: empty);
           invariant(
@@ -264,6 +272,51 @@ class RelayReferenceMarker {
         this._traverse(field, linkedID);
       }
     });
+  }
+
+  _traverseFlightField(field: NormalizationFlightField, record: Record): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+    if (linkedID == null) {
+      return;
+    }
+    this._references.add(linkedID);
+
+    const reactFlightClientResponseRecord = this._recordSource.get(linkedID);
+
+    if (reactFlightClientResponseRecord == null) {
+      return;
+    }
+
+    const reachableQueries = RelayModernRecord.getValue(
+      reactFlightClientResponseRecord,
+      REACT_FLIGHT_QUERIES_STORAGE_KEY,
+    );
+
+    if (!Array.isArray(reachableQueries)) {
+      return;
+    }
+
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using ' +
+        'React Flight',
+    );
+    // In Flight, the variables that are in scope for reachable queries aren't
+    // the same as what's in scope for the outer query.
+    const prevVariables = this._variables;
+    // $FlowFixMe[incompatible-cast]
+    for (const query of (reachableQueries: Array<ReactFlightPayloadQuery>)) {
+      this._variables = query.variables;
+      const operationReference = query.module;
+      const normalizationRootNode = operationLoader.get(operationReference);
+      if (normalizationRootNode != null) {
+        const operation = getOperation(normalizationRootNode);
+        this._traverse(operation, ROOT_ID);
+      }
+    }
+    this._variables = prevVariables;
   }
 }
 

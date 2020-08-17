@@ -49,76 +49,6 @@ function find(text: string): $ReadOnlyArray<GraphQLTag> {
   const ast = babylon.parse(text, BABYLON_OPTIONS);
 
   const visitors = {
-    CallExpression: node => {
-      const callee = node.callee;
-      if (
-        !(
-          (callee.type === 'Identifier' &&
-            CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
-          (callee.kind === 'MemberExpression' &&
-            callee.object.type === 'Identifier' &&
-            callee.object.value === 'Relay' &&
-            callee.property.type === 'Identifier' &&
-            CREATE_CONTAINER_FUNCTIONS[callee.property.name])
-        )
-      ) {
-        traverse(node, visitors);
-        return;
-      }
-      const fragments = node.arguments[1];
-      if (fragments.type === 'ObjectExpression') {
-        fragments.properties.forEach(property => {
-          invariant(
-            property.type === 'ObjectProperty' &&
-              property.key.type === 'Identifier' &&
-              property.value.type === 'TaggedTemplateExpression',
-            'FindGraphQLTags: `%s` expects fragment definitions to be ' +
-              '`key: graphql`.',
-            node.callee.name,
-          );
-          invariant(
-            isGraphQLModernOrDeprecatedTag(property.value.tag),
-            'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
-              'with `graphql`, got `%s`.',
-            node.callee.name,
-            getSourceTextForLocation(text, property.value.tag.loc),
-          );
-          if (isGraphQLTag(property.value.tag)) {
-            result.push({
-              keyName: property.key.name,
-              template: getGraphQLText(property.value.quasi),
-              sourceLocationOffset: getSourceLocationOffset(
-                property.value.quasi,
-              ),
-            });
-          }
-        });
-      } else {
-        invariant(
-          fragments && fragments.type === 'TaggedTemplateExpression',
-          'FindGraphQLTags: `%s` expects a second argument of fragment ' +
-            'definitions.',
-          node.callee.name,
-        );
-        invariant(
-          isGraphQLModernOrDeprecatedTag(fragments.tag),
-          'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
-            'with `graphql`, got `%s`.',
-          node.callee.name,
-          getSourceTextForLocation(text, fragments.tag.loc),
-        );
-        result.push({
-          keyName: null,
-          template: getGraphQLText(fragments.quasi),
-          sourceLocationOffset: getSourceLocationOffset(fragments.quasi),
-        });
-      }
-
-      // Visit remaining arguments
-      for (let ii = 2; ii < node.arguments.length; ii++) {
-        visit(node.arguments[ii], visitors);
-      }
-    },
     TaggedTemplateExpression: node => {
       if (isGraphQLTag(node.tag)) {
         result.push({
@@ -132,12 +62,6 @@ function find(text: string): $ReadOnlyArray<GraphQLTag> {
   visit(ast, visitors);
   return result;
 }
-
-const CREATE_CONTAINER_FUNCTIONS = Object.create(null, {
-  createFragmentContainer: {value: true},
-  createPaginationContainer: {value: true},
-  createRefetchContainer: {value: true},
-});
 
 const IGNORED_KEYS = {
   comments: true,
@@ -154,13 +78,6 @@ function isGraphQLTag(tag): boolean {
   return tag.type === 'Identifier' && tag.name === 'graphql';
 }
 
-function isGraphQLModernOrDeprecatedTag(tag): boolean {
-  return (
-    tag.type === 'Identifier' &&
-    (tag.name === 'graphql' || tag.name === 'graphql_DEPRECATED')
-  );
-}
-
 function getTemplateNode(quasi) {
   const quasis = quasi.quasis;
   invariant(
@@ -170,26 +87,12 @@ function getTemplateNode(quasi) {
   return quasis[0];
 }
 
-function getGraphQLText(quasi): string {
-  return getTemplateNode(quasi).value.raw;
-}
-
 function getSourceLocationOffset(quasi) {
   const loc = getTemplateNode(quasi).loc.start;
   return {
     line: loc.line,
     column: loc.column + 1, // babylon is 0-indexed, graphql expects 1-indexed
   };
-}
-
-function getSourceTextForLocation(text, loc) {
-  if (loc == null) {
-    return '(source unavailable)';
-  }
-  const lines = text.split('\n').slice(loc.start.line - 1, loc.end.line);
-  lines[0] = lines[0].slice(loc.start.column);
-  lines[lines.length - 1] = lines[lines.length - 1].slice(0, loc.end.column);
-  return lines.join('\n');
 }
 
 function invariant(condition, msg, ...args) {

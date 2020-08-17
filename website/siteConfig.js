@@ -174,9 +174,9 @@ const users = [
     pinned: false,
   },
   {
-    caption: 'Seasy - Marina Finder',
+    caption: 'Seasy',
     image: '/img/logos/seasy.png',
-    infoLink: 'https://marina-finder.com',
+    infoLink: 'https://www.seasy.at',
     pinned: false,
   }
 ];

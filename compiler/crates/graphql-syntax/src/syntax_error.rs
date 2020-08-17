@@ -9,7 +9,7 @@ use crate::lexer::TokenKind;
 use thiserror::Error;
 
 #[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum SyntaxErrorKind {
+pub enum SyntaxError {
     #[error("Expected a {0}")]
     Expected(TokenKind),
     #[error("Expected a selection: field, inline fragment, or fragment spread")]

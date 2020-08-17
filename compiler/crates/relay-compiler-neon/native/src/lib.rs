@@ -7,7 +7,7 @@
 
 use common::{ConsoleLogger, Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
-use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxErrorKind};
+use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError};
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
@@ -37,7 +37,7 @@ fn build_definitions_from_js_input(
             // This is not technically correct - it should be JS syntax/parse error, not graphql
             // TODO: Replace with correct error
             errors.push(Diagnostic::error(
-                SyntaxErrorKind::UnsupportedCharacter,
+                SyntaxError::UnsupportedCharacter,
                 Location::generated(),
             ));
         }

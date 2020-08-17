@@ -19,7 +19,7 @@ pub mod type_system_node;
 
 pub use executable_node::*;
 pub use source::GraphQLSource;
-pub use syntax_error::SyntaxErrorKind;
+pub use syntax_error::SyntaxError;
 
 use crate::parser::Parser;
 use common::{DiagnosticsResult, SourceLocationKey};

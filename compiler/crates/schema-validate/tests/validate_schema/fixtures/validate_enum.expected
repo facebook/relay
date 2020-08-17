@@ -50,6 +50,6 @@ Type InvlidPetType with definition:
   null
 }
 had errors:
-	* Enum cannot include value: true.
 	* Enum cannot include value: false.
 	* Enum cannot include value: null.
+	* Enum cannot include value: true.

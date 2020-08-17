@@ -76,10 +76,10 @@ Type Human with definition:
   other_friends(location: Location, location: Location): [Human]
 }
 had errors:
-	* The type of 'Human.location' must be Output Type but got: 'Named(InputObject(0))'.
 	* Duplicate argument 'location' found on field/directive 'other_friends'.
-	* Object field 'Human.friends' includes required argument 'radius' that is missing from the Interface field 'Hominid.friends'.
 	* Interface field 'Hominid.pet' expects type 'Canine' but 'Human.pet' is of type 'OtherPet'.
+	* Object field 'Human.friends' includes required argument 'radius' that is missing from the Interface field 'Hominid.friends'.
+	* The type of 'Human.location' must be Output Type but got: 'Named(InputObject(0))'.
 
 Type Pet with definition:
 	type Pet implements Canine @fetchable(field_name: "id") {

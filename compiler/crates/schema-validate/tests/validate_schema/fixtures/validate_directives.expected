@@ -38,8 +38,8 @@ had errors:
 Directive __fetchableOther with definition:
 	directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
 had errors:
-	* Name '__fetchableOther' must not begin with '__', which is reserved by GraphQL introspection.
 	* Duplicate argument 'field_name' found on field/directive '__fetchableOther'.
+	* Name '__fetchableOther' must not begin with '__', which is reserved by GraphQL introspection.
 
 Directive fetchable with definition:
 	directive @fetchable(__field_name: String) on OBJECT

@@ -544,9 +544,15 @@ impl<'schema> ValidationContext<'schema> {
                 )
                 .unwrap(),
             }
-            for error in self.errors.get(context).unwrap() {
-                writeln!(builder, "\t* {}", error).unwrap();
-            }
+            let mut errors = self
+                .errors
+                .get(context)
+                .unwrap()
+                .iter()
+                .map(|error| format!("\t* {}", error))
+                .collect::<Vec<_>>();
+            errors.sort();
+            writeln!(builder, "{}", errors.join("\n")).unwrap();
             writeln!(builder).unwrap();
         }
         builder

@@ -32,13 +32,8 @@ pub fn react_flight(program: &Program) -> ValidationResult<Program> {
     // No-op unless the special props/component types and flight directive are defined
     let props_type = program.schema.get_type(*REACT_FLIGHT_PROPS_TYPE);
     let component_type = program.schema.get_type(*REACT_FLIGHT_COMPONENT_TYPE);
-    let has_flight_directive = program
-        .schema
-        .has_directive(*REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME);
     let (props_type, component_type) = match (props_type, component_type) {
-        (Some(props_type), Some(component_type)) if has_flight_directive => {
-            (props_type, component_type)
-        }
+        (Some(props_type), Some(component_type)) => (props_type, component_type),
         _ => return Ok(program.clone()),
     };
     let mut transform = ReactFlightTransform::new(program, props_type, component_type);

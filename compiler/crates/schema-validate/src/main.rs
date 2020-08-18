@@ -28,8 +28,8 @@ pub fn main() {
             "Schema failed validation with below errors:\n{}",
             validation_context.print_errors()
         );
+        std::process::exit(1);
     }
-    std::process::exit(1);
 }
 
 fn build_schema_from_file(schema_file: &str) -> Schema {

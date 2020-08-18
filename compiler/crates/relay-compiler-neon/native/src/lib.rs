@@ -98,6 +98,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         sources: Default::default(),
         saved_state_config: None,
         saved_state_loader: None,
+        saved_state_version: "0".to_owned(),
         connection_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
     };

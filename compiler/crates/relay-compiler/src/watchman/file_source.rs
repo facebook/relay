@@ -82,6 +82,7 @@ impl<'config> FileSource<'config> {
             full_build: false,
             saved_state_config: Some(saved_state_config),
             saved_state_loader: Some(saved_state_loader),
+            saved_state_version,
             ..
         } = self.config
         {
@@ -91,6 +92,7 @@ impl<'config> FileSource<'config> {
                     perf_logger_event,
                     saved_state_config.clone(),
                     saved_state_loader,
+                    saved_state_version,
                 )
                 .await
             {
@@ -205,6 +207,7 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         saved_state_config: ScmAwareClockData,
         saved_state_loader: &Box<dyn SavedStateLoader + Send + Sync>,
+        saved_state_version: &str,
     ) -> std::result::Result<Result<CompilerState>, &'static str> {
         let scm_since = Clock::ScmAware(FatClockData {
             clock: ClockSpec::null(),
@@ -226,6 +229,9 @@ impl<'config> FileSource<'config> {
                 CompilerState::deserialize_from_file(&saved_state_path)
             })
             .map_err(|_| "failed to deserialize")?;
+        if compiler_state.saved_state_version != saved_state_version {
+            return Err("Saved state version doesn't match.");
+        }
         if let Err(parse_error) = compiler_state.merge_file_source_changes(
             &self.config,
             &file_source_result,

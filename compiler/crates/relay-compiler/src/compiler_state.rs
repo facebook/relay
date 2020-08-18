@@ -162,6 +162,7 @@ pub struct CompilerState {
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
+    pub saved_state_version: String,
 }
 
 impl CompilerState {
@@ -181,6 +182,7 @@ impl CompilerState {
             extensions: Default::default(),
             schemas: Default::default(),
             clock: file_source_changes.clock.clone(),
+            saved_state_version: config.saved_state_version.clone(),
         };
 
         for (category, files) in categorized {

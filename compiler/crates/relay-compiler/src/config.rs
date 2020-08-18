@@ -15,6 +15,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
 use serde::Deserialize;
+use sha1::{Digest, Sha1};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::PathBuf;
@@ -47,6 +48,7 @@ pub struct Config {
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
+    pub saved_state_version: String,
 }
 
 impl Config {
@@ -149,6 +151,9 @@ impl Config {
             config_file_dir.to_owned()
         };
 
+        let mut hash = Sha1::new();
+        hash.input(&config_string);
+
         let config = Self {
             artifact_writer: Box::new(ArtifactFileWriter),
             root_dir,
@@ -162,6 +167,7 @@ impl Config {
             generate_extra_operation_artifacts: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
+            saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
             feature_flags: config_file.feature_flags,
         };
@@ -291,6 +297,7 @@ impl fmt::Debug for Config {
             saved_state_loader,
             connection_interface,
             feature_flags,
+            saved_state_version,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
@@ -320,6 +327,7 @@ impl fmt::Debug for Config {
             )
             .field("connection_interface", connection_interface)
             .field("feature_flags", feature_flags)
+            .field("saved_state_version", saved_state_version)
             .finish()
     }
 }

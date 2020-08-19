@@ -210,8 +210,8 @@ pub async fn commit_project(
                 for artifact in &artifacts {
                     if !existing_artifacts.remove(&artifact.path) {
                         info!(
-                            "[{}] NEW: {} -> {:?}",
-                            project_config.name, &artifact.source_definition_name, &artifact.path
+                            "[{}] NEW: {:?} -> {:?}",
+                            project_config.name, &artifact.source_definition_names, &artifact.path
                         );
                     }
 

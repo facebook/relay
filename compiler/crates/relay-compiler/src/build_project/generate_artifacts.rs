@@ -16,14 +16,14 @@ use graphql_text_printer::{
     print_full_operation, write_fragment_with_graphqljs_formatting,
     write_operation_with_graphqljs_formatting,
 };
-use graphql_transforms::{RefetchableDerivedFromMetadata, MATCH_CONSTANTS};
+use graphql_transforms::{RefetchableDerivedFromMetadata, SplitOperationMetaData, MATCH_CONSTANTS};
 use interner::StringKey;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
-    pub source_definition_name: StringKey,
+    pub source_definition_names: Vec<StringKey>,
     pub path: PathBuf,
     pub content: ArtifactContent,
     /// The source file responsible for generating this file.
@@ -43,14 +43,10 @@ pub fn generate_artifacts(
             .named(MATCH_CONSTANTS.custom_module_directive_name)
         {
             // Generate normalization file for SplitOperation
-            let name_arg = directive
-                .arguments
-                .named(MATCH_CONSTANTS.derived_from_arg)
-                .unwrap();
-            let source_definition_name = name_arg.value.item.expect_string_literal();
+            let metadata = SplitOperationMetaData::from(directive);
             let source_fragment = programs
                 .source
-                .fragment(source_definition_name)
+                .fragment(metadata.derived_from)
                 .expect("Expected the source document for the SplitOperation to exist.");
             let mut source_string = String::new();
             write_fragment_with_graphqljs_formatting(
@@ -59,10 +55,11 @@ pub fn generate_artifacts(
                 &source_fragment,
             )
             .unwrap();
-            let source_hash = source_hashes.get(&source_definition_name).cloned().unwrap();
+            let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
             let source_file = source_fragment.name.location.source_location();
+
             artifacts.push(Artifact {
-                source_definition_name,
+                source_definition_names: metadata.parent_sources.into_iter().collect(),
                 path: path_for_js_artifact(
                     project_config,
                     source_file,
@@ -177,7 +174,7 @@ fn generate_normalization_artifact<'a>(
         .operation(name)
         .expect("a type fragment should be generated for this operation");
     Ok(Artifact {
-        source_definition_name,
+        source_definition_names: vec![source_definition_name],
         path: path_for_js_artifact(project_config, source_file, name),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization_operation),
@@ -203,7 +200,7 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        source_definition_name: name,
+        source_definition_names: vec![name],
         path: path_for_js_artifact(
             project_config,
             reader_fragment.name.location.source_location(),

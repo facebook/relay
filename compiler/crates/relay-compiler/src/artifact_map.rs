@@ -41,12 +41,14 @@ impl ArtifactMap {
                 "TODO", // &artifact.content
             ),
         );
-        match self.0.entry(artifact.source_definition_name) {
-            Entry::Occupied(mut entry) => {
-                entry.get_mut().push(artifact_tuple);
-            }
-            Entry::Vacant(entry) => {
-                entry.insert(vec![artifact_tuple]);
+        for source_definition_name in artifact.source_definition_names {
+            match self.0.entry(source_definition_name) {
+                Entry::Occupied(mut entry) => {
+                    entry.get_mut().push(artifact_tuple.clone());
+                }
+                Entry::Vacant(entry) => {
+                    entry.insert(vec![artifact_tuple.clone()]);
+                }
             }
         }
     }

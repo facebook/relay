@@ -90,7 +90,7 @@ pub use hash_arguments::hash_arguments;
 pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
-pub use match_::{split_module_import, transform_match, MATCH_CONSTANTS};
+pub use match_::{split_module_import, transform_match, SplitOperationMetaData, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
 pub use react_flight::{react_flight, REACT_FLIGHT_DIRECTIVE_NAME};
 pub use refetchable_fragment::{

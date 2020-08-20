@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query FooQuery {
+  viewer @required(action: LOG) {
+    actor @required(action: LOG) {
+      address @required(action: LOG) {
+        country @required(action: LOG)
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query FooQuery {
+  viewer @required(action: LOG) @__required(action: "LOG", path: "viewer") {
+    actor @required(action: LOG) @__required(action: "LOG", path: "viewer.actor") {
+      address @required(action: LOG) @__required(action: "LOG", path: "viewer.actor.address") {
+        country @required(action: LOG) @__required(action: "LOG", path: "viewer.actor.address.country")
+      }
+    }
+  }
+}

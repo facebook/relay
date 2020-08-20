@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture @required(action: LOG) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture @required(action: LOG) @__required(action: "LOG", path: "profile_picture") {
+    uri
+  }
+}

@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on UserNameRenderer {
+  ... on UserNameRenderer {
+    __typename @required(action: LOG)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match
+
+  inline-fragment-on-union.invalid.graphql:4:17
+    3 │   ... on UserNameRenderer {
+    4 │     __typename @required(action: LOG)
+      │                 ^^^^^^^^
+    5 │   }

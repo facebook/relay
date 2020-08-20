@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+fragment Foo on User {
+  name @required(action: THROW)
+  my_name: name @required(action: LOG)
+}
+==================================== OUTPUT ===================================
+fragment Foo on User {
+  name @required(action: THROW) @__required(action: "THROW", path: "name")
+  my_name: name @required(action: LOG) @__required(action: "LOG", path: "my_name")
+}

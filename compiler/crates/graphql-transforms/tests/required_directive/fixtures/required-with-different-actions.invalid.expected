@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query UserQuery {
+  me @required(action: NONE) @required(action: THROW) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unexpected second @required directive. @requried may only be used once per field
+
+  required-with-different-actions.invalid.graphql:3:31
+    2 │ query UserQuery {
+    3 │   me @required(action: NONE) @required(action: THROW) {
+      │                               ^^^^^^^^
+    4 │     id
+
+  ℹ︎ it also appears here
+
+  required-with-different-actions.invalid.graphql:3:7
+    2 │ query UserQuery {
+    3 │   me @required(action: NONE) @required(action: THROW) {
+      │       ^^^^^^^^
+    4 │     id

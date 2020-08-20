@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+fragment ActorsRendererFragment on Node {
+  id
+  name @required(action: NONE)
+}
+==================================== OUTPUT ===================================
+fragment ActorsRendererFragment on Node {
+  id
+  name @required(action: NONE) @__required(action: "NONE", path: "name")
+}

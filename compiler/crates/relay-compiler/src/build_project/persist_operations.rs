@@ -12,7 +12,7 @@ use crate::{
     errors::BuildProjectError,
 };
 use lazy_static::lazy_static;
-use log::info;
+use log::debug;
 use md5::{Digest, Md5};
 use persist_query::persist;
 use regex::Regex;
@@ -65,9 +65,9 @@ pub async fn persist_operations(
             }
         }
     }
-    info!("persisting {} documents", handles.len());
+    debug!("persisting {} documents", handles.len());
     futures::future::join_all(handles).await;
-    info!("done persisting");
+    debug!("done persisting");
     let errors = Arc::try_unwrap(persist_errors)
         .unwrap()
         .into_inner()

@@ -148,6 +148,7 @@ export type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  RecordMap
 } from './store/RelayStoreTypes';
 export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';

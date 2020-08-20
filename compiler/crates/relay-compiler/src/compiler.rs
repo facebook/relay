@@ -77,15 +77,17 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
-        if let Err(err) = self.build_projects(&mut compiler_state, &setup_event).await {
-            if let Error::BuildProjectsErrors { .. } = err {
-                error!("Compilation failed, see errors above.");
-            } else {
-                error!("{}", err);
-            }
+        if self
+            .build_projects(&mut compiler_state, &setup_event)
+            .await
+            .is_err()
+        {
+            // noop, build_projects should have logged already
+        } else {
+            info!("Compilation completed.");
         }
         self.perf_logger.complete_event(setup_event);
-        info!("[watch-mode] Compilation completed.");
+        info!("Waiting for changes...");
 
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
@@ -97,7 +99,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
 
-                info!("[watch-mode] Change detected.");
+                info!("Change detected.");
                 let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
                     &file_source_changes,
@@ -106,27 +108,26 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 )?;
 
                 if had_new_changes {
-                    info!("[watch-mode] Start compiling...");
-                    if let Err(err) = self
+                    info!("Start compiling...");
+                    if self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
+                        .is_err()
                     {
-                        if let Error::BuildProjectsErrors { .. } = err {
-                            error!("Compilation failed, see errors above.");
-                        } else {
-                            error!("{}", err);
-                        }
+                        // noop, build_projects should have logged already
+                    } else {
+                        info!("Compilation completed.");
                     }
                     incremental_build_event.stop(incremental_build_time);
-                    info!("[watch-mode] Compilation completed.");
                 } else {
                     incremental_build_event.stop(incremental_build_time);
-                    info!("[watch-mode] No re-compilation required.");
+                    info!("No compilation required.");
                 }
                 self.perf_logger.complete_event(incremental_build_event);
                 // We probably don't want the messages queue to grow indefinitely
                 // and we need to flush then, as the check/build is completed
                 self.perf_logger.flush();
+                info!("Waiting for changes...");
             }
         }
     }
@@ -160,8 +161,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             self.print_project_error(error);
                         }
                     }
-                    _ => {}
+                    error => {
+                        error!("{}", error);
+                    }
                 }
+                error!("Compilation failed.");
                 Err(error)
             }
         }

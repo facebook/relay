@@ -27,7 +27,7 @@ query LiteralObjectArgument3 {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown field 'CheckinSearchInput.unknownField'
+✖︎ The type `CheckinSearchInput` has no field `unknownField`
 
   literal-object-argument.invalid.graphql:5:7
     4 │     query: {

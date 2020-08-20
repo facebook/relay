@@ -26,7 +26,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("Unknown field '{type_}.{field}'")]
+    #[error("The type `{type_}` has no field `{field}`")]
     UnknownField { type_: StringKey, field: StringKey },
     #[error("Expected no selections on scalar field '{0:?}.{1}'")]
     InvalidSelectionsOnScalarField(Type, StringKey),

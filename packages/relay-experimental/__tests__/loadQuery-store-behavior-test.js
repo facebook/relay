@@ -104,6 +104,7 @@ beforeEach(() => {
   writeDataToStore = () => {
     loadQuery(environment, preloadableConcreteRequest, variables);
     sink.next(response);
+    sink.complete();
     PreloadableQueryRegistry.set(ID, query);
     expect(store.check(operation).status).toBe('available');
     const snapshot: $FlowFixMe = store.lookup(operation.fragment);

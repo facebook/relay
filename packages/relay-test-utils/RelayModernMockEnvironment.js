@@ -480,6 +480,7 @@ function createMockEnvironment(
     mockDisposableMethod(environment, 'subscribe');
     mockDisposableMethod(environment, 'retain');
     mockObservableMethod(environment, 'execute');
+    mockObservableMethod(environment, 'executeWithSource');
     mockObservableMethod(environment, 'executeMutation');
 
     mockInstanceMethod(store, 'getSource');

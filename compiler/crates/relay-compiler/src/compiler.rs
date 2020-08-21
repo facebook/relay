@@ -105,6 +105,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     &file_source_changes,
                     &incremental_build_event,
                     self.perf_logger.as_ref(),
+                    false,
                 )?;
 
                 if had_new_changes {
@@ -194,7 +195,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     compiler_state: &mut CompilerState,
 ) -> Result<()> {
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
-        GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
+        GraphQLAsts::from_graphql_sources_map(
+            &compiler_state.graphql_sources,
+            &compiler_state.dirty_definitions,
+        )
     })?;
 
     let build_results: Vec<_> = config

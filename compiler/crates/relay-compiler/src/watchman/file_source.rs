@@ -72,6 +72,7 @@ impl<'config> FileSource<'config> {
                 &file_source_result,
                 perf_logger_event,
                 perf_logger,
+                true,
             )?;
             return Ok(compiler_state);
         }
@@ -237,6 +238,7 @@ impl<'config> FileSource<'config> {
             &file_source_result,
             perf_logger_event,
             perf_logger,
+            true,
         ) {
             Ok(Err(parse_error))
         } else {

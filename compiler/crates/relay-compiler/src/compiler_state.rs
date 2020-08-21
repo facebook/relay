@@ -19,9 +19,7 @@ use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::fmt;
-use std::path::PathBuf;
-use std::{fs::File, hash::Hash, io, sync::Arc};
+use std::{fmt, fs::File, hash::Hash, io, iter::FromIterator, path::PathBuf, sync::Arc};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -163,6 +161,7 @@ pub struct CompilerState {
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
     pub saved_state_version: String,
+    pub dirty_definitions: FnvHashMap<ProjectName, Vec<StringKey>>,
 }
 
 impl CompilerState {
@@ -183,6 +182,7 @@ impl CompilerState {
             schemas: Default::default(),
             clock: file_source_changes.clock.clone(),
             saved_state_version: config.saved_state_version.clone(),
+            dirty_definitions: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -264,6 +264,7 @@ impl CompilerState {
                 .extensions
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
+            || !self.dirty_definitions.is_empty()
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -298,6 +299,8 @@ impl CompilerState {
         file_source_changes: &FileSourceResult,
         setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
+        // When loading from saved state, recompile related sources if artifacts changed
+        should_process_changed_artifacts: bool,
     ) -> Result<bool> {
         let mut has_changed = false;
 
@@ -365,12 +368,39 @@ impl CompilerState {
                         &mut self.extensions,
                     )?;
                 }
-                FileGroup::Generated { .. } => {
-                    // TODO
+                FileGroup::Generated { project_name } => {
+                    if !should_process_changed_artifacts {
+                        break;
+                    }
+
+                    let artifacts = self
+                        .artifacts
+                        .get(&project_name)
+                        .expect("Expected the artifacts map to exist.");
+                    if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
+                        let mut file_names =
+                            FnvHashSet::from_iter(files.iter().map(|f| (*f.name).clone()));
+                        'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
+                            let mut added = false;
+                            for artifact_tuple in artifact_tuples {
+                                if file_names.remove(&artifact_tuple.0) && !added {
+                                    self.dirty_definitions
+                                        .entry(project_name)
+                                        .or_default()
+                                        .push(*definition_name);
+                                    if file_names.is_empty() {
+                                        break 'outer;
+                                    }
+                                    added = true;
+                                }
+                            }
+                        }
+                    } else {
+                        panic!("Expected the artifacts map to be populated.")
+                    }
                 }
             }
         }
-
         Ok(has_changed)
     }
 
@@ -384,6 +414,7 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        self.dirty_definitions.clear();
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {

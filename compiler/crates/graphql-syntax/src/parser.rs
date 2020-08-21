@@ -49,6 +49,8 @@ impl<'a> Parser<'a> {
         parser
     }
 
+    /// Parses a document consisting only of executable nodes: operations and
+    /// fragments.
     pub fn parse_executable_document(mut self) -> DiagnosticsResult<ExecutableDocument> {
         let document = self.parse_executable_document_impl();
         if self.errors.is_empty() {
@@ -59,6 +61,7 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parses a type annotation such as `ID` or `[User!]!`.
     pub fn parse_type(mut self) -> DiagnosticsResult<TypeAnnotation> {
         let type_annotation = self.parse_type_annotation();
         if self.errors.is_empty() {
@@ -80,7 +83,10 @@ impl<'a> Parser<'a> {
     /// Document : Definition+
     fn parse_executable_document_impl(&mut self) -> ParseResult<ExecutableDocument> {
         let start = self.index();
-        let definitions = self.parse_list(|s| s.peek_definition(), |s| s.parse_definition())?;
+        let definitions = self.parse_list(
+            |s| s.peek_executable_definition(),
+            |s| s.parse_executable_definition(),
+        )?;
         let end = self.index();
         let span = Span::new(start, end);
         Ok(ExecutableDocument { span, definitions })
@@ -90,7 +96,7 @@ impl<'a> Parser<'a> {
     /// [x] ExecutableDefinition
     /// []  TypeSystemDefinition
     /// []  TypeSystemExtension
-    fn peek_definition(&self) -> bool {
+    fn peek_executable_definition(&self) -> bool {
         let token = self.peek();
         match token.kind {
             TokenKind::OpenBrace => true, // unnamed query
@@ -109,7 +115,7 @@ impl<'a> Parser<'a> {
     /// [x] ExecutableDefinition
     /// []  TypeSystemDefinition
     /// []  TypeSystemExtension
-    fn parse_definition(&mut self) -> ParseResult<ExecutableDefinition> {
+    fn parse_executable_definition(&mut self) -> ParseResult<ExecutableDefinition> {
         let token = self.peek();
         let source = self.source(&token);
         match (token.kind, source) {

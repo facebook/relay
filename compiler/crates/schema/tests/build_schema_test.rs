@@ -1,4 +1,4 @@
-// @generated SignedSource<<f486904fb3cb77c37e2f772670ffe174>>
+// @generated SignedSource<<69741f4bdc7b2f59a9828ff4beede528>>
 
 mod build_schema;
 
@@ -10,6 +10,13 @@ fn directives_for_external_types() {
     let input = include_str!("build_schema/fixtures/directives-for-external-types.graphql");
     let expected = include_str!("build_schema/fixtures/directives-for-external-types.expected");
     test_fixture(transform_fixture, "directives-for-external-types.graphql", "build_schema/fixtures/directives-for-external-types.expected", input, expected);
+}
+
+#[test]
+fn interface_implements_interface() {
+    let input = include_str!("build_schema/fixtures/interface-implements-interface.graphql");
+    let expected = include_str!("build_schema/fixtures/interface-implements-interface.expected");
+    test_fixture(transform_fixture, "interface-implements-interface.graphql", "build_schema/fixtures/interface-implements-interface.expected", input, expected);
 }
 
 #[test]

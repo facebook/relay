@@ -1,51 +1,26 @@
 ==================================== INPUT ====================================
-schema {
-  query: Query
-}
-
-type Query {
-  node(id: ID!): Node
-  nodes(ids: [ID!]!): [Node!]!
-}
-
-interface Node {
+interface BaseNode {
   id: ID!
 }
 
-type User implements Node {
+interface Node implements BaseNode {
+  name: String!
+}
+
+interface Resource implements Node {
   id: ID!
-  name: String
+  name: String!
+  url: String
 }
 
-type Page {
-  id: ID
-  type: PageType
-}
-
-enum PageType {
-  DEAULT @deprecated(reason: "No longer supported")
-  PUBLIC
-  PRIVATE
-}
-
-union Actor = User | Page
-
-# %extensions%
-
-type ClientType {
-  clientName: String
-}
-extend type User {
-  nickname: String
-  client: ClientType
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
 }
 ==================================== OUTPUT ===================================
 Schema {
- query_type: Some(
-    ObjectID(
-        0,
-    ),
-)
+ query_type: None
  mutation_type: None
  subscription_type: None
  directives: [
@@ -91,108 +66,19 @@ Schema {
     },
 ]
  type_map: {
-    "Actor": Union(0),
+    "BaseNode": Interface(0),
     "Boolean": Scalar(3),
-    "ClientType": Object(3),
     "Float": Scalar(1),
     "ID": Scalar(4),
+    "Image": Interface(3),
     "Int": Scalar(0),
-    "Node": Interface(0),
-    "Page": Object(2),
-    "PageType": Enum(0),
-    "Query": Object(0),
+    "Node": Interface(1),
+    "Resource": Interface(2),
     "String": Scalar(2),
-    "User": Object(1),
 }
- enums: [
-    Enum {
-        name: "PageType",
-        is_extension: false,
-        values: [
-            EnumValue {
-                value: "DEAULT",
-                directives: [
-                    DirectiveValue {
-                        name: "deprecated",
-                        arguments: [
-                            ArgumentValue {
-                                name: "reason",
-                                value: String(
-                                    "No longer supported",
-                                ),
-                            },
-                        ],
-                    },
-                ],
-            },
-            EnumValue {
-                value: "PUBLIC",
-                directives: [],
-            },
-            EnumValue {
-                value: "PRIVATE",
-                directives: [],
-            },
-        ],
-        directives: [],
-    },
-]
+ enums: []
  fields: [
     Field {
-        name: "node",
-        is_extension: false,
-        arguments: [
-            Argument {
-                name: "id",
-                type_: NonNull(
-                    Named(
-                        Scalar(4),
-                    ),
-                ),
-                default_value: None,
-            },
-        ],
-        type_: Named(
-            Interface(0),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "nodes",
-        is_extension: false,
-        arguments: [
-            Argument {
-                name: "ids",
-                type_: NonNull(
-                    List(
-                        NonNull(
-                            Named(
-                                Scalar(4),
-                            ),
-                        ),
-                    ),
-                ),
-                default_value: None,
-            },
-        ],
-        type_: NonNull(
-            List(
-                NonNull(
-                    Named(
-                        Interface(0),
-                    ),
-                ),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
         name: "id",
         is_extension: false,
         arguments: [],
@@ -204,92 +90,98 @@ Schema {
         directives: [],
         parent_type: Some(
             Interface(0),
-        ),
-    },
-    Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
         ),
     },
     Field {
         name: "name",
         is_extension: false,
         arguments: [],
-        type_: Named(
-            Scalar(2),
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
         ),
         directives: [],
         parent_type: Some(
-            Object(1),
+            Interface(1),
         ),
     },
     Field {
         name: "id",
         is_extension: false,
         arguments: [],
-        type_: Named(
-            Scalar(4),
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
         ),
         directives: [],
         parent_type: Some(
-            Object(2),
+            Interface(2),
         ),
     },
     Field {
-        name: "type",
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "url",
         is_extension: false,
         arguments: [],
         type_: Named(
-            Enum(0),
+            Scalar(2),
         ),
         directives: [],
         parent_type: Some(
-            Object(2),
+            Interface(2),
         ),
     },
     Field {
-        name: "clientName",
-        is_extension: true,
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
         arguments: [],
         type_: Named(
             Scalar(2),
         ),
         directives: [],
         parent_type: Some(
-            Object(3),
+            Interface(3),
         ),
     },
     Field {
-        name: "nickname",
-        is_extension: true,
+        name: "thumbnail",
+        is_extension: false,
         arguments: [],
         type_: Named(
             Scalar(2),
         ),
         directives: [],
         parent_type: Some(
-            Object(1),
-        ),
-    },
-    Field {
-        name: "client",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Object(3),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
+            Interface(3),
         ),
     },
     Field {
@@ -320,64 +212,59 @@ Schema {
  input_objects: []
  interfaces: [
     Interface {
-        name: "Node",
+        name: "BaseNode",
         is_extension: false,
-        implementors: [
-            ObjectID(
-                1,
-            ),
-        ],
-        fields: [
-            FieldID(
-                2,
-            ),
-        ],
-        directives: [],
-        interfaces: [],
-    },
-]
- objects: [
-    Object {
-        name: "Query",
-        is_extension: false,
+        implementors: [],
         fields: [
             FieldID(
                 0,
             ),
+        ],
+        directives: [],
+        interfaces: [],
+    },
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementors: [],
+        fields: [
             FieldID(
                 1,
             ),
         ],
-        interfaces: [],
         directives: [],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+        ],
     },
-    Object {
-        name: "User",
+    Interface {
+        name: "Resource",
         is_extension: false,
+        implementors: [],
         fields: [
+            FieldID(
+                2,
+            ),
             FieldID(
                 3,
             ),
             FieldID(
                 4,
             ),
-            FieldID(
-                8,
-            ),
-            FieldID(
-                9,
-            ),
-        ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
         ],
         directives: [],
+        interfaces: [
+            InterfaceID(
+                1,
+            ),
+        ],
     },
-    Object {
-        name: "Page",
+    Interface {
+        name: "Image",
         is_extension: false,
+        implementors: [],
         fields: [
             FieldID(
                 5,
@@ -385,22 +272,22 @@ Schema {
             FieldID(
                 6,
             ),
-        ],
-        interfaces: [],
-        directives: [],
-    },
-    Object {
-        name: "ClientType",
-        is_extension: true,
-        fields: [
             FieldID(
                 7,
             ),
         ],
-        interfaces: [],
         directives: [],
+        interfaces: [
+            InterfaceID(
+                2,
+            ),
+            InterfaceID(
+                1,
+            ),
+        ],
     },
 ]
+ objects: []
  scalars: [
     Scalar {
         name: "Int",
@@ -428,19 +315,5 @@ Schema {
         directives: [],
     },
 ]
- unions: [
-    Union {
-        name: "Actor",
-        is_extension: false,
-        members: [
-            ObjectID(
-                1,
-            ),
-            ObjectID(
-                2,
-            ),
-        ],
-        directives: [],
-    },
-]
+ unions: []
  }

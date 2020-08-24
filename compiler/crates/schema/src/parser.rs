@@ -359,10 +359,12 @@ impl<'a> Parser<'a> {
         self.parse_description();
         self.expect_keyword("interface")?;
         let name = self.parse_name()?;
+        let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_directives()?;
         let fields = self.parse_fields_definition()?;
         Ok(TypeSystemDefinition::InterfaceTypeDefinition {
             name,
+            interfaces,
             directives,
             fields,
         })

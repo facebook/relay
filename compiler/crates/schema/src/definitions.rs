@@ -862,6 +862,7 @@ impl Schema {
             }
             type_system_node::TypeSystemDefinition::InterfaceTypeDefinition {
                 name,
+                interfaces,
                 directives,
                 fields,
             } => {
@@ -875,6 +876,10 @@ impl Schema {
                 } else {
                     self.build_fields(&fields, Some(parent_id))?
                 };
+                let interfaces = interfaces
+                    .iter()
+                    .map(|name| self.build_interface_id(*name))
+                    .collect::<Result<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
                     name: *name,
@@ -882,6 +887,7 @@ impl Schema {
                     is_extension,
                     fields,
                     directives,
+                    interfaces,
                 });
             }
             type_system_node::TypeSystemDefinition::UnionTypeDefinition {
@@ -1444,6 +1450,7 @@ pub struct Interface {
     pub implementors: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,
+    pub interfaces: Vec<InterfaceID>,
 }
 
 #[derive(Clone, Debug)]

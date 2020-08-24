@@ -322,7 +322,7 @@ Schema {
     Interface {
         name: "Node",
         is_extension: false,
-        implementors: [
+        implementing_objects: [
             ObjectID(
                 1,
             ),

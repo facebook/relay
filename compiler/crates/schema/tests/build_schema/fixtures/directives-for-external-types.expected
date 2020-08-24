@@ -434,7 +434,7 @@ Schema {
     Interface {
         name: "XIGHuman",
         is_extension: false,
-        implementors: [
+        implementing_objects: [
             ObjectID(
                 1,
             ),

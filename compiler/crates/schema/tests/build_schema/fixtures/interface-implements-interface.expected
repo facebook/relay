@@ -214,7 +214,7 @@ Schema {
     Interface {
         name: "BaseNode",
         is_extension: false,
-        implementors: [],
+        implementing_objects: [],
         fields: [
             FieldID(
                 0,
@@ -226,7 +226,7 @@ Schema {
     Interface {
         name: "Node",
         is_extension: false,
-        implementors: [],
+        implementing_objects: [],
         fields: [
             FieldID(
                 1,
@@ -242,7 +242,7 @@ Schema {
     Interface {
         name: "Resource",
         is_extension: false,
-        implementors: [],
+        implementing_objects: [],
         fields: [
             FieldID(
                 2,
@@ -264,7 +264,7 @@ Schema {
     Interface {
         name: "Image",
         is_extension: false,
-        implementors: [],
+        implementing_objects: [],
         fields: [
             FieldID(
                 5,

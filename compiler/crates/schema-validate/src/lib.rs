@@ -549,7 +549,7 @@ impl<'schema> ValidationContext<'schema> {
             return self
                 .schema
                 .interface(interface_id)
-                .implementors
+                .implementing_objects
                 .contains(&maybe_sub_type_id)
                 || self
                     .schema

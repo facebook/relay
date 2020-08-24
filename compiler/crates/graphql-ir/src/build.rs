@@ -1371,7 +1371,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let possible_types = match parent_type {
             Type::Interface(id) => {
                 let interface = self.schema.interface(id);
-                Some(&interface.implementors)
+                Some(&interface.implementing_objects)
             }
             Type::Union(id) => {
                 let union = self.schema.union(id);

@@ -14,8 +14,15 @@ use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;
 
+#[derive(Default)]
+pub struct ParserFeatures {
+    /// Enable the experimental fragment variables definitions syntax
+    pub enable_variable_definitions: bool,
+}
+
 pub struct Parser<'a> {
     current: Token,
+    features: ParserFeatures,
     lexer: logos::Lexer<'a, TokenKind>,
     errors: Vec<Diagnostic>,
     source_location: SourceLocationKey,
@@ -25,7 +32,11 @@ pub struct Parser<'a> {
 /// Parser for the *executable* subset of the GraphQL specification:
 /// https://github.com/graphql/graphql-spec/blob/master/spec/Appendix%20B%20--%20Grammar%20Summary.md
 impl<'a> Parser<'a> {
-    pub fn new(source: &'a str, source_location: SourceLocationKey) -> Self {
+    pub fn new(
+        source: &'a str,
+        source_location: SourceLocationKey,
+        features: ParserFeatures,
+    ) -> Self {
         // To enable fast lookahead the parser needs to store at least the 'kind' (TokenKind)
         // of the next token: the simplest option is to store the full current token, but
         // the Parser requires an initial value. Rather than incur runtime/code overhead
@@ -39,8 +50,9 @@ impl<'a> Parser<'a> {
         };
         let mut parser = Parser {
             current: dummy,
-            lexer,
             errors: Vec::new(),
+            features,
+            lexer,
             source_location,
             source,
         };
@@ -146,6 +158,13 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
+        let variable_definitions = if self.features.enable_variable_definitions {
+            self.parse_optional_delimited_list(TokenKind::OpenParen, TokenKind::CloseParen, |s| {
+                s.parse_variable_definition()
+            })?
+        } else {
+            None
+        };
         let type_condition = self.parse_type_condition()?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
@@ -155,6 +174,7 @@ impl<'a> Parser<'a> {
             location: Location::new(self.source_location, span),
             fragment,
             name,
+            variable_definitions,
             type_condition,
             directives,
             selections,

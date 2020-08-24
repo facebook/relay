@@ -18,6 +18,7 @@ mod syntax_error;
 pub mod type_system_node;
 
 pub use executable_node::*;
+pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;
 
@@ -28,7 +29,17 @@ pub fn parse_executable(
     source: &str,
     source_location: SourceLocationKey,
 ) -> DiagnosticsResult<ExecutableDocument> {
-    let parser = Parser::new(source, source_location);
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document()
+}
+
+pub fn parse_executable_with_features(
+    source: &str,
+    source_location: SourceLocationKey,
+    features: ParserFeatures,
+) -> DiagnosticsResult<ExecutableDocument> {
+    let parser = Parser::new(source, source_location, features);
     parser.parse_executable_document()
 }
 
@@ -36,6 +47,7 @@ pub fn parse_type(
     source: &str,
     source_location: SourceLocationKey,
 ) -> DiagnosticsResult<TypeAnnotation> {
-    let parser = Parser::new(source, source_location);
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
     parser.parse_type()
 }

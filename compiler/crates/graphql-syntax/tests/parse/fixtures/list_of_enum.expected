@@ -20,6 +20,7 @@ ExecutableDocument {
                 },
                 value: "TestFrag",
             },
+            variable_definitions: None,
             type_condition: TypeCondition {
                 span: 18:28,
                 on: Token {

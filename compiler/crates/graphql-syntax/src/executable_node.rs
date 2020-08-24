@@ -87,7 +87,7 @@ pub struct FragmentDefinition {
     pub location: Location,
     pub fragment: Token,
     pub name: Identifier,
-    // pub variable_definitions: Option<List<VariableDefinition>>,
+    pub variable_definitions: Option<List<VariableDefinition>>,
     pub type_condition: TypeCondition,
     pub directives: Vec<Directive>,
     pub selections: List<Selection>,

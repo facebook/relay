@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
+use crate::build::{
+    build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
+};
 use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationMessage, ValidationResult};
 use crate::ir::{ConstantValue, VariableDefinition};
@@ -108,7 +110,25 @@ fn build_fragment_signature(
         .iter()
         .filter(|x| x.name.value == *ARGUMENT_DEFINITION)
         .collect::<Vec<_>>();
-    if argument_definition_directives.len() > 1 {
+    if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
+        return Err(Diagnostic::error(
+            ValidationMessage::VariableDefinitionsAndArgumentDirective(),
+            fragment
+                .location
+                .with_span(argument_definition_directives[0].span),
+        )
+        .annotate(
+            "variables are previously defined here",
+            fragment.location.with_span(
+                fragment
+                    .variable_definitions
+                    .as_ref()
+                    .map(|list| list.span)
+                    .unwrap(),
+            ),
+        )
+        .into());
+    } else if argument_definition_directives.len() > 1 {
         return Err(Diagnostic::error(
             ValidationMessage::ExpectedOneArgumentDefinitionsDirective(),
             fragment
@@ -117,9 +137,17 @@ fn build_fragment_signature(
         )
         .into());
     }
-    let variable_definitions = argument_definition_directives
-        .get(0)
-        .map(|x| build_fragment_variable_definitions(schema, fragment, x))
+    let variable_definitions = fragment
+        .variable_definitions
+        .as_ref()
+        .map(|variable_definitions| {
+            build_variable_definitions(schema, &variable_definitions.items, fragment.location)
+        })
+        .or_else(|| {
+            argument_definition_directives
+                .get(0)
+                .map(|x| build_fragment_variable_definitions(schema, fragment, x))
+        })
         .unwrap_or_else(|| Ok(Default::default()));
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;

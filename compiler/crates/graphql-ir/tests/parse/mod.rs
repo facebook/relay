@@ -10,12 +10,15 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::build;
-use graphql_syntax::parse_executable;
+use graphql_syntax::{parse_executable_with_features, ParserFeatures};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let ast = parse_executable(fixture.content, source_location).unwrap();
+    let features = ParserFeatures {
+        enable_variable_definitions: true,
+    };
+    let ast = parse_executable_with_features(fixture.content, source_location, features).unwrap();
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, fixture.content);
 

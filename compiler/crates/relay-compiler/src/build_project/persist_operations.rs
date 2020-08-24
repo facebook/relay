@@ -7,10 +7,7 @@
 
 use super::artifact_content::ArtifactContent;
 use super::Artifact;
-use crate::{
-    config::{Config, PersistConfig},
-    errors::BuildProjectError,
-};
+use crate::{config::PersistConfig, errors::BuildProjectError};
 use lazy_static::lazy_static;
 use log::debug;
 use md5::{Digest, Md5};
@@ -28,7 +25,7 @@ lazy_static! {
 }
 
 pub async fn persist_operations(
-    config: &Config,
+    root_dir: &PathBuf,
     artifacts: &mut [Artifact],
     persist_config: &PersistConfig,
 ) -> Result<(), BuildProjectError> {
@@ -42,8 +39,7 @@ pub async fn persist_operations(
         } = &mut artifact.content
         {
             let text_hash = md5(text);
-            let extracted_id =
-                extract_persist_id(&config.root_dir.join(&artifact.path), &text_hash);
+            let extracted_id = extract_persist_id(&root_dir.join(&artifact.path), &text_hash);
             if let Some(id) = extracted_id {
                 *id_and_text_hash = Some((id, text_hash));
             } else {

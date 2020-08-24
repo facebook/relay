@@ -36,7 +36,7 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 use log::info;
-use persist_operations::persist_operations;
+pub use persist_operations::persist_operations;
 use relay_codegen::Printer;
 use schema::Schema;
 use std::{collections::hash_map::Entry, sync::Arc};
@@ -178,22 +178,24 @@ pub async fn commit_project(
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
 
-    // If there is a persist config, persist operations now.
-    if let Some(ref persist_config) = project_config.persist {
+    if let Some(ref artifact_persister) = config.artifact_persister {
         let persist_operations_timer = log_event.start("persist_operations_time");
-        persist_operations(config, &mut artifacts, persist_config).await?;
+        artifact_persister
+            .persist_artifacts(&mut artifacts, project_config)
+            .await?;
         log_event.stop(persist_operations_timer);
     }
 
     // In some cases we need to create additional (platform specific) artifacts
     // For that, we will use `generate_extra_operation_artifacts` from the configs
-    if let Some(generate_extra_artifacts_fn) = &config.generate_extra_operation_artifacts {
+    if let Some(generate_extra_operation_artifacts_fn) = &config.generate_extra_operation_artifacts
+    {
         log_event.time("generate_extra_operation_artifacts_time", || {
             generate_extra_artifacts(
                 schema,
                 project_config,
                 &mut artifacts,
-                generate_extra_artifacts_fn,
+                generate_extra_operation_artifacts_fn,
             )
         });
     }

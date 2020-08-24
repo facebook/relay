@@ -7,9 +7,12 @@
 
 use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::Artifact;
 use crate::compiler_state::{ProjectName, SourceSet};
+use crate::errors::BuildProjectError;
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
+use async_trait::async_trait;
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use rayon::prelude::*;
 use regex::Regex;
@@ -49,6 +52,9 @@ pub struct Config {
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
     pub saved_state_version: String,
+
+    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
+    pub artifact_persister: Option<Box<dyn ArtifactPersister + Send + Sync>>,
 }
 
 impl Config {
@@ -170,6 +176,7 @@ impl Config {
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
             feature_flags: config_file.feature_flags,
+            artifact_persister: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -298,6 +305,7 @@ impl fmt::Debug for Config {
             connection_interface,
             feature_flags,
             saved_state_version,
+            artifact_persister,
         } = self;
         f.debug_struct("Config")
             .field("root_dir", root_dir)
@@ -309,6 +317,14 @@ impl fmt::Debug for Config {
             .field("codegen_command", codegen_command)
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
+            .field(
+                "artifact_persister",
+                if artifact_persister.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
             .field(
                 "generate_extra_operation_artifacts",
                 if generate_extra_operation_artifacts.is_some() {
@@ -455,4 +471,13 @@ pub struct PersistConfig {
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
     pub params: HashMap<String, String>,
+}
+
+#[async_trait]
+pub trait ArtifactPersister {
+    async fn persist_artifacts(
+        &self,
+        artifacts: &mut [Artifact],
+        project_config: &ProjectConfig,
+    ) -> std::result::Result<(), BuildProjectError>;
 }

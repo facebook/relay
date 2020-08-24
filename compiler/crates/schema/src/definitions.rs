@@ -121,6 +121,11 @@ impl Schema {
                 let union = self.union(super_id);
                 union.members.contains(&sub_id)
             }
+            (Type::Interface(sub_id), Type::Interface(super_id)) => {
+                // does interface implement the interface
+                let interface = self.interface(sub_id);
+                sub_id == super_id || interface.interfaces.contains(&super_id)
+            }
             _ => maybe_subtype == super_type,
         }
     }

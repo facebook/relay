@@ -346,7 +346,10 @@ impl<'schema> ValidationContext<'schema> {
             let object_field = object_field_map.get(&field_name).unwrap();
             // Assert interface field type is satisfied by object field type, by being
             // a valid subtype. (covariant)
-            if !self.is_type_sub_type_of(&object_field.type_, &interface_field.type_) {
+            if !self
+                .schema
+                .is_type_subtype_of(&object_field.type_, &interface_field.type_)
+            {
                 self.report_error(
                     SchemaValidationError::NotASubType(
                         interface.name,
@@ -493,76 +496,6 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn is_type_sub_type_of(
-        &self,
-        maybe_sub_type: &TypeReference,
-        super_type: &TypeReference,
-    ) -> bool {
-        // Equivalent type is a valid subtype
-        if maybe_sub_type == super_type {
-            return true;
-        }
-
-        // If super_type is non-null, maybe_sub_type must also be non-null.
-        if super_type.is_non_null() {
-            if maybe_sub_type.is_non_null() {
-                return self.is_type_sub_type_of(
-                    &TypeReference::Named(maybe_sub_type.inner()),
-                    &TypeReference::Named(super_type.inner()),
-                );
-            }
-            return false;
-        }
-        if maybe_sub_type.is_non_null() {
-            // If super_type is nullable, maybe_sub_type may be non-null or nullable.
-            return self
-                .is_type_sub_type_of(&TypeReference::Named(maybe_sub_type.inner()), super_type);
-        }
-
-        // If super_type type is a list, maybe_sub_type type must also be a list.
-        if super_type.is_list() {
-            if maybe_sub_type.is_list() {
-                return self.is_type_sub_type_of(
-                    &TypeReference::Named(maybe_sub_type.inner()),
-                    &TypeReference::Named(super_type.inner()),
-                );
-            }
-            return false;
-        }
-        if maybe_sub_type.is_list() {
-            // If super_type is not a list, maybe_sub_type must also be not a list.
-            return false;
-        }
-
-        // If super_type type is an abstract type, maybe_sub_type type may be a currently
-        // possible object type.
-        self.is_possible_type(super_type, maybe_sub_type)
-    }
-
-    fn is_possible_type(&self, super_type: &TypeReference, maybe_sub_type: &TypeReference) -> bool {
-        if !is_abstract_type(&super_type) || !is_object_type(&maybe_sub_type) {
-            return false;
-        }
-        let maybe_sub_type_id = maybe_sub_type.inner().get_object_id().unwrap();
-        if super_type.inner().is_interface() {
-            let interface_id = super_type.inner().get_interface_id().unwrap();
-            return self
-                .schema
-                .interface(interface_id)
-                .implementing_objects
-                .contains(&maybe_sub_type_id)
-                || self
-                    .schema
-                    .object(maybe_sub_type_id)
-                    .interfaces
-                    .contains(&interface_id);
-        }
-        self.schema
-            .union(super_type.inner().get_union_id().unwrap())
-            .members
-            .contains(&maybe_sub_type_id)
-    }
-
     fn field_map(&self, fields: &[FieldID]) -> FnvHashMap<StringKey, Field> {
         fields
             .iter()
@@ -648,14 +581,4 @@ fn is_output_type(type_: &TypeReference) -> bool {
 fn is_input_type(type_: &TypeReference) -> bool {
     let type_ = type_.inner();
     type_.is_enum() || type_.is_input_type() || type_.is_scalar()
-}
-
-fn is_abstract_type(type_: &TypeReference) -> bool {
-    let type_ = type_.inner();
-    type_.is_interface() || type_.is_union()
-}
-
-fn is_object_type(type_: &TypeReference) -> bool {
-    let type_ = type_.inner();
-    type_.is_object()
 }

@@ -13,7 +13,8 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::{
-    EnumID, Field, FieldID, InputObjectID, Interface, Object, Schema, Type, TypeReference, UnionID,
+    EnumID, Field, FieldID, InputObjectID, Interface, Schema, Type, TypeReference, TypeWithFields,
+    UnionID,
 };
 use schema_print::{print_directive, print_type};
 use std::fmt::Write;
@@ -144,6 +145,12 @@ impl<'schema> ValidationContext<'schema> {
                     let interface = self.schema.interface(*id);
                     // Ensure fields are valid
                     self.validate_fields(*type_name, &interface.fields);
+
+                    // Validate cyclic references
+                    if !self.validate_cyclic_implements_reference(interface) {
+                        // Ensure interface implement the interfaces they claim to.
+                        self.validate_type_with_interfaces(interface);
+                    }
                 }
                 Type::Object(id) => {
                     let object = self.schema.object(*id);
@@ -151,7 +158,7 @@ impl<'schema> ValidationContext<'schema> {
                     self.validate_fields(*type_name, &object.fields);
 
                     // Ensure objects implement the interfaces they claim to.
-                    self.validate_object_interfaces(object);
+                    self.validate_type_with_interfaces(object);
                 }
                 Type::Union(id) => {
                     // Ensure Unions include valid member types.
@@ -293,29 +300,33 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_object_interfaces(&mut self, object: &Object) {
+    fn validate_type_with_interfaces<T: TypeWithFields>(&mut self, type_: &T) {
         let mut interface_names = FnvHashSet::default();
-        for interface_id in object.interfaces.iter() {
+        for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        object.name.clone(),
+                        type_.name().clone(),
                         interface.name,
                     ),
-                    ValidationContextType::TypeNode(object.name),
+                    ValidationContextType::TypeNode(type_.name()),
                 );
                 continue;
             }
             interface_names.insert(interface.name);
-            self.validate_object_implements_interface(&object, interface);
+            self.validate_type_implements_interface(type_, interface);
         }
     }
 
-    fn validate_object_implements_interface(&mut self, object: &Object, interface: &Interface) {
-        let object_field_map = self.field_map(&object.fields);
+    fn validate_type_implements_interface<T: TypeWithFields>(
+        &mut self,
+        type_: &T,
+        interface: &Interface,
+    ) {
+        let object_field_map = self.field_map(&type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
-        let context = ValidationContextType::TypeNode(object.name);
+        let context = ValidationContextType::TypeNode(type_.name());
 
         // Assert each interface field is implemented.
         for (field_name, interface_field) in interface_field_map {
@@ -325,7 +336,7 @@ impl<'schema> ValidationContext<'schema> {
                     SchemaValidationError::InterfaceFieldNotProvided(
                         interface.name,
                         field_name,
-                        object.name,
+                        type_.name(),
                     ),
                     context,
                 );
@@ -341,7 +352,7 @@ impl<'schema> ValidationContext<'schema> {
                         interface.name,
                         field_name,
                         self.schema.get_type_name(interface_field.type_.inner()),
-                        object.name,
+                        type_.name(),
                         self.schema.get_type_name(object_field.type_.inner()),
                     ),
                     context,
@@ -362,7 +373,7 @@ impl<'schema> ValidationContext<'schema> {
                             interface.name,
                             field_name,
                             interface_argument.name,
-                            object.name,
+                            type_.name(),
                         ),
                         context,
                     );
@@ -380,7 +391,7 @@ impl<'schema> ValidationContext<'schema> {
                             field_name,
                             interface_argument.name,
                             self.schema.get_type_name(interface_argument.type_.inner()),
-                            object.name,
+                            type_.name(),
                             self.schema.get_type_name(object_argument.type_.inner()),
                         ),
                         context,
@@ -400,7 +411,7 @@ impl<'schema> ValidationContext<'schema> {
                 {
                     self.report_error(
                         SchemaValidationError::MissingRequiredArgument(
-                            object.name,
+                            type_.name(),
                             field_name,
                             object_argument.name,
                             interface.name,
@@ -410,6 +421,59 @@ impl<'schema> ValidationContext<'schema> {
                 }
             }
         }
+    }
+
+    fn validate_cyclic_implements_reference(&mut self, interface: &Interface) -> bool {
+        for id in interface.interfaces() {
+            let mut path = Vec::new();
+            let mut visited = FnvHashSet::default();
+            if self.has_path(
+                self.schema.interface(*id),
+                interface.name,
+                &mut path,
+                &mut visited,
+            ) {
+                self.report_error(
+                    SchemaValidationError::CyclicInterfaceInheritance(format!(
+                        "{}->{}",
+                        path.iter()
+                            .map(|name| name.lookup())
+                            .collect::<Vec<_>>()
+                            .join("->"),
+                        interface.name
+                    )),
+                    ValidationContextType::TypeNode(interface.name),
+                );
+                return true;
+            }
+        }
+        false
+    }
+
+    fn has_path(
+        &self,
+        root: &Interface,
+        target: StringKey,
+        path: &mut Vec<StringKey>,
+        visited: &mut FnvHashSet<StringKey>,
+    ) -> bool {
+        if visited.contains(&root.name) {
+            return false;
+        }
+
+        if root.name == target {
+            return true;
+        }
+
+        path.push(root.name);
+        visited.insert(root.name);
+        for id in root.interfaces() {
+            if self.has_path(self.schema.interface(*id), target, path, visited) {
+                return true;
+            }
+        }
+        path.remove(path.len() - 1);
+        false
     }
 
     fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {

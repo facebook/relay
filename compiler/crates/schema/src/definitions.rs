@@ -1551,17 +1551,35 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
+    fn name(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
+    fn interfaces(&self) -> &Vec<InterfaceID>;
 }
 
 impl TypeWithFields for Interface {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
+    }
+
+    fn interfaces(&self) -> &Vec<InterfaceID> {
+        &self.interfaces
     }
 }
 
 impl TypeWithFields for Object {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
+    }
+
+    fn interfaces(&self) -> &Vec<InterfaceID> {
+        &self.interfaces
     }
 }

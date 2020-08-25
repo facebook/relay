@@ -13,12 +13,12 @@ use graphql_transforms::{
     generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
     generate_subscription_name_metadata, generate_test_operation_metadata, generate_typename,
     handle_field_transform, inline_data_fragment, inline_fragments, mask, react_flight,
-    relay_early_flush, remove_base_fragments, skip_client_directives, skip_client_extensions,
-    skip_redundant_nodes, skip_split_operation, skip_unreachable_node, skip_unused_variables,
-    split_module_import, transform_connections, transform_declarative_connection,
-    transform_defer_stream, transform_match, transform_refetchable_fragment,
-    unwrap_custom_directive_selection, validate_global_variables, ConnectionInterface,
-    FeatureFlags,
+    relay_early_flush, remove_base_fragments, required_directive, skip_client_directives,
+    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
+    skip_unused_variables, split_module_import, transform_connections,
+    transform_declarative_connection, transform_defer_stream, transform_match,
+    transform_refetchable_fragment, unwrap_custom_directive_selection, validate_global_variables,
+    ConnectionInterface, FeatureFlags,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -343,6 +343,7 @@ fn apply_typegen_transforms(
 
     let program = log_event.time("mask", || mask(&program));
     let program = log_event.time("transform_match", || transform_match(&program))?;
+    let program = log_event.time("required_directive", || required_directive(&program))?;
     let program = log_event.time("flatten", || flatten(&program, false))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)

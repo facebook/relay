@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, Location, WithLocation};
+use common::{Diagnostic, Location, NamedItem, WithLocation};
 mod requireable_field;
 
 use fnv::FnvHashMap;
@@ -387,11 +387,30 @@ fn add_metadata_directive(
 }
 
 // Possible @requried `action` enum values ordered by severity.
-#[derive(PartialEq, PartialOrd)]
-enum RequiredAction {
+#[derive(PartialEq, PartialOrd, Debug)]
+pub enum RequiredAction {
     NONE,
     LOG,
     THROW,
+}
+
+impl RequiredAction {
+    pub fn from_directives(directives: Vec<Directive>) -> Option<Self> {
+        directives
+            .named(*REQUIRED_METADATA_KEY)
+            .map(|required_directive| {
+                Self::from(
+                    required_directive
+                        .arguments
+                        .named(*ACTION_ARGUMENT)
+                        .unwrap()
+                        .value
+                        .item
+                        .get_string_literal()
+                        .unwrap(),
+                )
+            })
+    }
 }
 
 impl From<StringKey> for RequiredAction {

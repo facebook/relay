@@ -37,16 +37,10 @@ impl SourcePrinter {
                     start_char_index
                 );
             };
-        let end_byte_index =
-            if let Some((byte_index, _)) = source.char_indices().nth(end_char_index) {
-                byte_index
-            } else {
-                return write!(
-                    writer,
-                    "Internal error: Unable to print source, end index ({}) out of range.",
-                    end_char_index
-                );
-            };
+        let end_byte_index = source
+            .char_indices()
+            .nth(end_char_index)
+            .map_or_else(|| source.len(), |(byte_index, _)| byte_index);
 
         let mut line_end_byte_indices = Vec::new();
         for (byte_index, chr) in source.char_indices() {

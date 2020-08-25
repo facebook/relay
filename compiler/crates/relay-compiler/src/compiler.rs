@@ -173,11 +173,21 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     }
 
     fn print_project_error(&self, error: &BuildProjectError) {
-        if let BuildProjectError::ValidationErrors { errors } = error {
-            for diagnostic in errors {
-                self.print_diagnostic(diagnostic);
+        match error {
+            BuildProjectError::ValidationErrors { errors } => {
+                for diagnostic in errors {
+                    self.print_diagnostic(diagnostic);
+                }
             }
-        };
+            BuildProjectError::PersistErrors { errors } => {
+                for error in errors {
+                    error!("{}", error);
+                }
+            }
+            _ => {
+                error!("{}", error);
+            }
+        }
     }
 
     fn print_diagnostic(&self, diagnostic: &Diagnostic) {

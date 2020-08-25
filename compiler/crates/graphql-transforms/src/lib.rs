@@ -100,7 +100,9 @@ pub use refetchable_fragment::{
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
 pub use remove_base_fragments::remove_base_fragments;
-pub use required_directive::required_directive;
+pub use required_directive::{
+    required_directive, ACTION_ARGUMENT, PATH_METADATA_ARGUMENT, REQUIRED_METADATA_KEY,
+};
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_redundant_nodes::skip_redundant_nodes;

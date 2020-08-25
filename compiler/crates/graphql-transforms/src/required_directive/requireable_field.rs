@@ -5,17 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::{ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
 use common::{Diagnostic, Location, Named, NamedItem, WithLocation};
 use graphql_ir::{ConstantValue, Directive, LinkedField, ScalarField, ValidationMessage, Value};
-use interner::Intern;
 use interner::StringKey;
-use lazy_static::lazy_static;
 use schema::Schema;
-
-lazy_static! {
-    pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
-    pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
-}
 
 #[derive(Clone, Copy)]
 pub struct RequiredMetadata {

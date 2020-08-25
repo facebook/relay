@@ -19,9 +19,9 @@ use graphql_transforms::{
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
     ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, INLINE_DATA_CONSTANTS,
-    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, REACT_FLIGHT_DIRECTIVE_NAME,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, PATH_METADATA_ARGUMENT,
+    REACT_FLIGHT_DIRECTIVE_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
 use md5::{Digest, Md5};
@@ -481,6 +481,38 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
+    fn build_required_field(
+        &mut self,
+        required_directive: &Directive,
+        primitive: Primitive,
+    ) -> Primitive {
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.required_field),
+            ),
+            (CODEGEN_CONSTANTS.field, primitive),
+            (
+                CODEGEN_CONSTANTS.path,
+                Primitive::String(
+                    required_directive
+                        .arguments
+                        .named(*PATH_METADATA_ARGUMENT)
+                        .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            ),
+            (
+                CODEGEN_CONSTANTS.action,
+                Primitive::String(
+                    required_directive
+                    .arguments
+                    .named(*ACTION_ARGUMENT)
+                    .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            ),
+        ]))
+    }
+
     fn build_scalar_field(&mut self, field: &ScalarField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
@@ -490,7 +522,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Some(_flight_directive) => Primitive::String(CODEGEN_CONSTANTS.flight_field),
             None => Primitive::String(CODEGEN_CONSTANTS.scalar_field),
         };
-        Primitive::Key(self.object(vec![
+        let primitive = Primitive::Key(self.object(vec![
             build_alias(alias, name),
             (
                 CODEGEN_CONSTANTS.args,
@@ -514,7 +546,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     }
                 },
             ),
-        ]))
+        ]));
+
+        match field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(required_directive) => self.build_required_field(required_directive, primitive),
+            None => primitive,
+        }
     }
 
     fn build_scalar_handles(&mut self, result: &mut Vec<Primitive>, field: &ScalarField) {
@@ -566,7 +603,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         let selections = self.build_selections(field.selections.iter());
-        Primitive::Key(self.object(vec![
+        let primitive = Primitive::Key(self.object(vec![
             build_alias(alias, name),
             (
                 CODEGEN_CONSTANTS.args,
@@ -606,7 +643,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     }
                 },
             ),
-        ]))
+        ]));
+
+        match field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(required_directive) => self.build_required_field(required_directive, primitive),
+            None => primitive,
+        }
     }
 
     fn build_linked_handles(&mut self, result: &mut Vec<Primitive>, field: &LinkedField) {

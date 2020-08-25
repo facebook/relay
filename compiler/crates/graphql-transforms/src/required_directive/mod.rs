@@ -17,12 +17,13 @@ use graphql_ir::{
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
-pub use requireable_field::REQUIRED_DIRECTIVE_NAME;
-use requireable_field::{RequireableField, RequiredMetadata, ACTION_ARGUMENT};
+use requireable_field::{RequireableField, RequiredMetadata};
 use std::mem;
 use std::sync::Arc;
 
 lazy_static! {
+    pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
+    pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
     pub static ref REQUIRED_METADATA_KEY: StringKey = "__required".intern();
     pub static ref PATH_METADATA_ARGUMENT: StringKey = "path".intern();
     static ref THROW_ACTION: StringKey = "THROW".intern();

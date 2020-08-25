@@ -256,6 +256,8 @@ pub enum ValidationMessage {
     #[error("Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.")]
     InvalidMatchNoModuleSelection,
 
+    #[error("@module does not support @inline fragments.")]
+    InvalidModuleWithInline,
     #[error("@module does not support @arguments.")]
     InvalidModuleWithArguments,
     #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]

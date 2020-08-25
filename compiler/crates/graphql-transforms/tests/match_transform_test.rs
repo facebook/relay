@@ -1,4 +1,4 @@
-// @generated SignedSource<<a558579eaee3a20e5f241f3b87564dbb>>
+// @generated SignedSource<<e6eb94836b8d9765941af3babc59d09c>>
 
 mod match_transform;
 
@@ -52,6 +52,13 @@ fn match_with_extra_args() {
     let input = include_str!("match_transform/fixtures/match-with-extra-args.graphql");
     let expected = include_str!("match_transform/fixtures/match-with-extra-args.expected");
     test_fixture(transform_fixture, "match-with-extra-args.graphql", "match_transform/fixtures/match-with-extra-args.expected", input, expected);
+}
+
+#[test]
+fn module_on_inline_data_invalid() {
+    let input = include_str!("match_transform/fixtures/module-on-inline-data.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/module-on-inline-data.invalid.expected");
+    test_fixture(transform_fixture, "module-on-inline-data.invalid.graphql", "match_transform/fixtures/module-on-inline-data.invalid.expected", input, expected);
 }
 
 #[test]

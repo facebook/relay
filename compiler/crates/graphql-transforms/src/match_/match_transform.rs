@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
@@ -232,6 +233,21 @@ impl<'program> MatchTransform<'program> {
             self.validate_js_module_type(spread.fragment.location)?;
 
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
+
+            if let Some(inline_data_directive) = fragment
+                .directives
+                .named(INLINE_DATA_CONSTANTS.directive_name)
+            {
+                return Err(Diagnostic::error(
+                    ValidationMessage::InvalidModuleWithInline,
+                    module_directive.name.location,
+                )
+                .annotate(
+                    "@inline directive location",
+                    inline_data_directive.name.location,
+                ));
+            }
+
             let module_name = get_module_name(module_directive, spread.fragment.location)?;
             let (js_field_id, has_js_field_id_arg) = self.get_js_field_args(fragment, spread)?;
 

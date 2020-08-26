@@ -56,6 +56,7 @@ const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
+const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
@@ -263,6 +264,7 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
+  reportMissingRequiredFields,
   graphql: GraphQLTag.graphql,
   readInlineData,
 

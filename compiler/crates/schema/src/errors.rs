@@ -42,6 +42,6 @@ pub enum SchemaError {
     UnknownTypeID(usize, String),
 
     // TODO: These should be replaced with error codes or by unifying the parsers.
-    #[error("Parse Error '{0}'.")]
-    Syntax(String),
+    #[error("Parse Error '{0}' at {1}.\nError line:'{2}'")]
+    Syntax(String, String, String),
 }

@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @source(name: String!) on OBJECT
+
+type User {
+  id: ID
+}
+
+type Page implements User @source("") {
+  id: ID
+}
+==================================== ERROR ====================================
+Parse Error 'Expected a name, got Str("").' at Ln 9, Col 37.
+Error line:'type Page implements User @source("") {'

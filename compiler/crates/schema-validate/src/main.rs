@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use schema::{build_schema, Schema};
+use schema::{build_schema, Result, Schema};
 use schema_validate_lib::validate;
 use std::fs;
 use std::path::Path;
@@ -21,18 +21,25 @@ struct Opt {
 
 pub fn main() {
     let opt = Opt::from_args();
-    let schema = build_schema_from_file(&opt.schema_path);
-    let validation_context = validate(&schema);
-    if !validation_context.errors.is_empty() {
-        eprintln!(
-            "Schema failed validation with below errors:\n{}",
-            validation_context.print_errors()
-        );
-        std::process::exit(1);
+    match build_schema_from_file(&opt.schema_path) {
+        Ok(schema) => {
+            let validation_context = validate(&schema);
+            if !validation_context.errors.is_empty() {
+                eprintln!(
+                    "Schema failed validation with below errors:\n{}",
+                    validation_context.print_errors()
+                );
+                std::process::exit(1);
+            }
+        }
+        Err(error) => {
+            eprintln!("Failed to parse schema:\n{}", error);
+            std::process::exit(1);
+        }
     }
 }
 
-fn build_schema_from_file(schema_file: &str) -> Schema {
+fn build_schema_from_file(schema_file: &str) -> Result<Schema> {
     let path = Path::new(schema_file);
     let data = if path.is_file() {
         fs::read_to_string(path).unwrap()
@@ -43,5 +50,5 @@ fn build_schema_from_file(schema_file: &str) -> Schema {
         }
         buffer
     };
-    build_schema(&data).unwrap()
+    build_schema(&data)
 }

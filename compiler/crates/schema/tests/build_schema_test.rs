@@ -1,4 +1,4 @@
-// @generated SignedSource<<69741f4bdc7b2f59a9828ff4beede528>>
+// @generated SignedSource<<2037661f5aa9ecc68fc6e6bb0c8f6ce9>>
 
 mod build_schema;
 
@@ -38,6 +38,13 @@ fn invalid_object_extension_local_duplicated_fields() {
     let input = include_str!("build_schema/fixtures/invalid-object-extension-local-duplicated-fields.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-object-extension-local-duplicated-fields.expected");
     test_fixture(transform_fixture, "invalid-object-extension-local-duplicated-fields.graphql", "build_schema/fixtures/invalid-object-extension-local-duplicated-fields.expected", input, expected);
+}
+
+#[test]
+fn invalid_sdl() {
+    let input = include_str!("build_schema/fixtures/invalid-sdl.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-sdl.expected");
+    test_fixture(transform_fixture, "invalid-sdl.graphql", "build_schema/fixtures/invalid-sdl.expected", input, expected);
 }
 
 #[test]

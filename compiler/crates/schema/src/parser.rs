@@ -55,7 +55,7 @@ impl<'a> Parser<'a> {
             TokenKind::Name("union") => self.parse_union_type_extension(),
             TokenKind::Name("enum") => self.parse_enum_type_extension(),
             TokenKind::Name("input") => self.parse_input_object_type_extension(),
-            token => Err(SchemaError::Syntax(format!("Unexpected token {}", token))),
+            token => Err(self.build_syntax_error(format!("Unexpected token {}", token))),
         }
     }
 
@@ -174,7 +174,7 @@ impl<'a> Parser<'a> {
             TokenKind::Name("input") => self.parse_input_object_type_definition(),
             TokenKind::Name("directive") => self.parse_directive_definition(),
             TokenKind::Name("extend") => self.parse_type_system_extension(),
-            token => Err(SchemaError::Syntax(format!("Unexpected token {:?}", token))),
+            token => Err(self.build_syntax_error(format!("Unexpected token {:?}", token))),
         }
     }
 
@@ -233,10 +233,7 @@ impl<'a> Parser<'a> {
             TokenKind::Name("query") => Ok(OperationType::Query),
             TokenKind::Name("mutation") => Ok(OperationType::Mutation),
             TokenKind::Name("subscription") => Ok(OperationType::Subscription),
-            token => Err(SchemaError::Syntax(format!(
-                "Unexpected token: {:?}",
-                token
-            ))),
+            token => Err(self.build_syntax_error(format!("Unexpected token: {:?}", token))),
         }
     }
 
@@ -503,7 +500,7 @@ impl<'a> Parser<'a> {
         let directives = self.parse_directives()?;
         let fields = self.parse_fields_definition()?;
         if interfaces.is_empty() && directives.is_empty() && fields.is_empty() {
-            return Err(SchemaError::Syntax("Unexpected".to_string()));
+            return Err(self.build_syntax_error("Unexpected".to_string()));
         }
         Ok(TypeSystemDefinition::ObjectTypeExtension {
             name,
@@ -647,10 +644,7 @@ impl<'a> Parser<'a> {
             }
             // experimental
             TokenKind::Name("VARIABLE_DEFINITION") => Ok(DirectiveLocation::VariableDefinition),
-            token => Err(SchemaError::Syntax(format!(
-                "Unexpected token: {:?}",
-                token
-            ))),
+            token => Err(self.build_syntax_error(format!("Unexpected token: {:?}", token))),
         }
     }
 
@@ -706,7 +700,7 @@ impl<'a> Parser<'a> {
                 self.advance();
                 Ok(node)
             }
-            token => Err(SchemaError::Syntax(format!("Unexpected token {:?}", token))),
+            token => Err(self.build_syntax_error(format!("Unexpected token {:?}", token))),
         }
     }
 
@@ -756,10 +750,7 @@ impl<'a> Parser<'a> {
     fn parse_name(&mut self) -> Result<StringKey> {
         match self.advance() {
             TokenKind::Name(name) => Ok(name.intern()),
-            token => Err(SchemaError::Syntax(format!(
-                "Expected a name, got {:?}.",
-                token
-            ))),
+            token => Err(self.build_syntax_error(format!("Expected a name, got {:?}.", token))),
         }
     }
 
@@ -770,10 +761,10 @@ impl<'a> Parser<'a> {
     fn expect_keyword(&mut self, value: &str) -> Result<()> {
         match self.advance() {
             TokenKind::Name(name) if name == value => Ok(()),
-            token => Err(SchemaError::Syntax(format!(
-                "Expected keyword {}, got {:?}.",
-                value, token
-            ))),
+            token => {
+                Err(self
+                    .build_syntax_error(format!("Expected keyword {}, got {:?}.", value, token)))
+            }
         }
     }
 
@@ -800,10 +791,7 @@ impl<'a> Parser<'a> {
         if actual == expected {
             Ok(())
         } else {
-            Err(SchemaError::Syntax(format!(
-                "Expected {:?}, got {:?}.",
-                expected, actual
-            )))
+            Err(self.build_syntax_error(format!("Expected {:?}, got {:?}.", expected, actual)))
         }
     }
 
@@ -883,5 +871,10 @@ impl<'a> Parser<'a> {
         } else {
             Ok(vec![])
         }
+    }
+
+    fn build_syntax_error(&self, message: String) -> SchemaError {
+        let (line, column, text) = self.lexer.current_position_with_line();
+        SchemaError::Syntax(message, format!("Ln {}, Col {}", line, column), text)
     }
 }

@@ -29,6 +29,9 @@ use watchman_client::pdu::ScmAwareClockData;
 /// - command line options
 /// - TODO: injected code to produce additional files
 pub struct Config {
+    /// Optional name for this config. This might be used by compiler extension
+    /// code like logging or extra artifact generation.
+    pub name: Option<String>,
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
@@ -160,6 +163,7 @@ impl Config {
         hash.input(&config_string);
 
         let config = Self {
+            name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter),
             root_dir,
             sources: config_file.sources,
@@ -289,6 +293,7 @@ impl Config {
 impl fmt::Debug for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Config {
+            name,
             artifact_writer: _,
             root_dir,
             sources,
@@ -307,6 +312,7 @@ impl fmt::Debug for Config {
             artifact_persister,
         } = self;
         f.debug_struct("Config")
+            .field("name", name)
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
@@ -372,6 +378,11 @@ pub enum SchemaLocation {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    /// Optional name for this config, might be used for logging or custom extra
+    /// artifact generator code.
+    #[serde(default)]
+    name: Option<String>,
+
     /// Root directory relative to the config file. Defaults to the directory
     /// where the config is located.
     #[serde(default)]

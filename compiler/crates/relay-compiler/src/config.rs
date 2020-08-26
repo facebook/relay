@@ -7,13 +7,12 @@
 
 use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::Artifact;
 use crate::compiler_state::{ProjectName, SourceSet};
-use crate::errors::BuildProjectError;
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
 use async_trait::async_trait;
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
+use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
@@ -473,11 +472,13 @@ pub struct PersistConfig {
     pub params: HashMap<String, String>,
 }
 
+type PersistId = String;
+
 #[async_trait]
 pub trait ArtifactPersister {
-    async fn persist_artifacts(
+    async fn persist_artifact(
         &self,
-        artifacts: &mut [Artifact],
-        project_config: &ProjectConfig,
-    ) -> std::result::Result<(), BuildProjectError>;
+        artifact_text: &str,
+        project_config: &PersistConfig,
+    ) -> std::result::Result<PersistId, PersistError>;
 }

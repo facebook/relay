@@ -36,7 +36,6 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 use log::info;
-pub use persist_operations::persist_operations;
 use relay_codegen::Printer;
 use schema::Schema;
 use std::{collections::hash_map::Entry, sync::Arc};
@@ -179,11 +178,17 @@ pub async fn commit_project(
     let commit_time = log_event.start("commit_project_time");
 
     if let Some(ref artifact_persister) = config.artifact_persister {
-        let persist_operations_timer = log_event.start("persist_operations_time");
-        artifact_persister
-            .persist_artifacts(&mut artifacts, project_config)
+        if let Some(ref persist_config) = project_config.persist {
+            let persist_operations_timer = log_event.start("persist_operations_time");
+            persist_operations::persist_operations(
+                &mut artifacts,
+                &config.root_dir,
+                &persist_config,
+                &artifact_persister,
+            )
             .await?;
-        log_event.stop(persist_operations_timer);
+            log_event.stop(persist_operations_timer);
+        }
     }
 
     // In some cases we need to create additional (platform specific) artifacts

@@ -155,6 +155,7 @@ function getInlineDataFragment(
 
 module.exports = {
   getFragment,
+  getNode,
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,

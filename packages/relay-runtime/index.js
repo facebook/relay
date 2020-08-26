@@ -245,6 +245,7 @@ module.exports = {
     RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
+  getNode: GraphQLTag.getNode,
   getFragment: GraphQLTag.getFragment,
   getInlineDataFragment: GraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
@@ -266,6 +267,9 @@ module.exports = {
     RelayModernSelector.getVariablesFromSingularFragment,
   reportMissingRequiredFields,
   graphql: GraphQLTag.graphql,
+  isFragment: GraphQLTag.isFragment,
+  isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isRequest: GraphQLTag.isRequest,
   readInlineData,
 
   // Declarative mutation API

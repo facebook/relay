@@ -1,4 +1,4 @@
-// @generated SignedSource<<69bb4dc3c7ae135d99b5881cfd0bc1cb>>
+// @generated SignedSource<<87e5db3c3a0fe5b0ec93254ecf0fc9b1>>
 
 mod compile_relay_artifacts;
 
@@ -647,6 +647,13 @@ fn relay_client_id_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "compile_relay_artifacts/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn required_directive() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
+    test_fixture(transform_fixture, "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected);
 }
 
 #[test]

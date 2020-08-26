@@ -1,4 +1,4 @@
-fragment ActorsRendererFragment on User {
+fragment EnabledActorsRendererFragment on User {
   id
   profile_picture @required(action: NONE) {
     uri

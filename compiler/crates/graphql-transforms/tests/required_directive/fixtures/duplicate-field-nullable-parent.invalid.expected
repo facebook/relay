@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-fragment Foo on Node {
+fragment EnabledFoo on Node {
   actor {
     # could get nulled out here if name is missing
     name @required(action: LOG)

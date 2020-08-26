@@ -8,6 +8,7 @@
 use common::{Diagnostic, Location, NamedItem, WithLocation};
 mod requireable_field;
 
+use super::FeatureFlags;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
@@ -31,8 +32,12 @@ lazy_static! {
     static ref NONE_ACTION: StringKey = "NONE".intern();
 }
 
-pub fn required_directive(program: &Program) -> ValidationResult<Program> {
-    let mut transform = RequiredDirective::new(program);
+pub fn required_directive(
+    program: &Program,
+    feature_flags: &FeatureFlags,
+) -> ValidationResult<Program> {
+    let mut transform =
+        RequiredDirective::new(program, feature_flags.enable_required_transform_for_prefix);
 
     let next_program = transform
         .transform_program(program)
@@ -64,10 +69,12 @@ struct RequiredDirective<'s> {
     path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
     current_node_required_children: FnvHashMap<StringKey, RequiredField>,
     required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
+    prefix: Option<StringKey>,
+    operation_name: Option<StringKey>,
 }
 
 impl<'program> RequiredDirective<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, prefix: Option<StringKey>) -> Self {
         Self {
             program,
             errors: Default::default(),
@@ -76,6 +83,8 @@ impl<'program> RequiredDirective<'program> {
             path_required_map: Default::default(),
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
+            prefix,
+            operation_name: None,
         }
     }
 
@@ -83,6 +92,7 @@ impl<'program> RequiredDirective<'program> {
         self.path_required_map = Default::default();
         self.current_node_required_children = Default::default();
         self.required_children_map = Default::default();
+        self.operation_name = Default::default();
     }
 
     fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: &Location) {
@@ -156,6 +166,21 @@ impl<'program> RequiredDirective<'program> {
         let field_name = field.name_with_location(&self.program.schema);
 
         if let Some(metadata) = maybe_required {
+            let supported = match &self.prefix {
+                None => false,
+                Some(prefix) => self
+                    .operation_name
+                    // If we're parsing a @required directive, we are inside a fragment.
+                    .unwrap()
+                    .lookup()
+                    .starts_with(prefix.lookup()),
+            };
+            if !supported {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::RequiredNotSupported,
+                    metadata.directive_location,
+                ))
+            }
             self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
             self.current_node_required_children.insert(
                 path_name,
@@ -267,6 +292,7 @@ impl<'s> Transformer for RequiredDirective<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.reset_state();
+        self.operation_name = Some(fragment.name.item);
         self.default_transform_fragment(fragment)
     }
 
@@ -275,6 +301,7 @@ impl<'s> Transformer for RequiredDirective<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.reset_state();
+        self.operation_name = Some(operation.name.item);
         self.default_transform_operation(operation)
     }
 

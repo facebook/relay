@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-fragment Foo on User {
+fragment EnabledFoo on User {
   name
   ... on User {
     name @required(action: LOG)
@@ -18,7 +18,7 @@ fragment Foo on User {
   ℹ︎ but not @required here
 
   duplicate-field.invalid.graphql:3:3
-    2 │ fragment Foo on User {
+    2 │ fragment EnabledFoo on User {
     3 │   name
       │   ^^^^
     4 │   ... on User {

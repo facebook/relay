@@ -1,4 +1,4 @@
-// @generated SignedSource<<99d9be220f81118bcd2344c132f60928>>
+// @generated SignedSource<<c4d215376af11b9dc936e1f19d71c138>>
 
 mod required_directive;
 
@@ -171,6 +171,20 @@ fn none_action_bubble_to_throw_invalid() {
     let input = include_str!("required_directive/fixtures/none-action-bubble-to-throw.invalid.graphql");
     let expected = include_str!("required_directive/fixtures/none-action-bubble-to-throw.invalid.expected");
     test_fixture(transform_fixture, "none-action-bubble-to-throw.invalid.graphql", "required_directive/fixtures/none-action-bubble-to-throw.invalid.expected", input, expected);
+}
+
+#[test]
+fn prefix_mismatch_fragment_invalid() {
+    let input = include_str!("required_directive/fixtures/prefix-mismatch-fragment.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/prefix-mismatch-fragment.invalid.expected");
+    test_fixture(transform_fixture, "prefix-mismatch-fragment.invalid.graphql", "required_directive/fixtures/prefix-mismatch-fragment.invalid.expected", input, expected);
+}
+
+#[test]
+fn prefix_mismatch_query_invalid() {
+    let input = include_str!("required_directive/fixtures/prefix-mismatch-query.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/prefix-mismatch-query.invalid.expected");
+    test_fixture(transform_fixture, "prefix-mismatch-query.invalid.graphql", "required_directive/fixtures/prefix-mismatch-query.invalid.expected", input, expected);
 }
 
 #[test]

@@ -47,6 +47,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
+        enable_required_transform_for_prefix: Some("".intern()),
     };
 
     // TODO pass base fragment names
@@ -55,7 +56,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &connection_interface,
-        &feature_flags,
+        Arc::new(feature_flags),
         Arc::new(ConsoleLogger),
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;

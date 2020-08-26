@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-fragment Foo on Node {
+fragment EnabledFoo on Node {
   ... on User {
     actor {
       # but then the value will also get created here, which is bad

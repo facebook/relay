@@ -1,10 +1,10 @@
 ==================================== INPUT ====================================
-fragment ActorsRendererFragment on Node {
+fragment EnabledActorsRendererFragment on Node {
   id
   name @required(action: LOG)
 }
 ==================================== OUTPUT ===================================
-fragment ActorsRendererFragment on Node {
+fragment EnabledActorsRendererFragment on Node {
   id
   name @required(action: LOG) @__required(action: "LOG", path: "name")
 }

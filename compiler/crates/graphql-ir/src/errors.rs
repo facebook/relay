@@ -502,6 +502,11 @@ pub enum ValidationMessage {
     #[error("@required fields must be included in all instances of their parent. The field '{field_name}` is marked as @required here")]
     RequiredFieldMissing { field_name: StringKey },
 
-    #[error("`A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: {suggested_action}`")]
+    #[error("A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: {suggested_action}`")]
     RequiredFieldInvalidNesting { suggested_action: StringKey },
+
+    #[error(
+        "The @required directive is experimental and not yet supported for use in product code"
+    )]
+    RequiredNotSupported,
 }

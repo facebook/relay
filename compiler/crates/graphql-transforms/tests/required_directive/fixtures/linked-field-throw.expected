@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-fragment ActorsRendererFragment on User {
+fragment EnabledActorsRendererFragment on User {
   id
   profile_picture @required(action: THROW) {
     uri
   }
 }
 ==================================== OUTPUT ===================================
-fragment ActorsRendererFragment on User {
+fragment EnabledActorsRendererFragment on User {
   id
   profile_picture @required(action: THROW) @__required(action: "THROW", path: "profile_picture") {
     uri

@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-query UserQuery($action: RequiredFieldAction!) {
+query EnabledUserQuery($action: RequiredFieldAction!) {
   me @required(action: $action) {
     id
   }
@@ -9,7 +9,7 @@ query UserQuery($action: RequiredFieldAction!) {
 ✖︎ Expected `action` argument to be a literal
 
   required-dynamic-arg.invalid.graphql:3:24
-    2 │ query UserQuery($action: RequiredFieldAction!) {
+    2 │ query EnabledUserQuery($action: RequiredFieldAction!) {
     3 │   me @required(action: $action) {
       │                        ^^^^^^^
     4 │     id

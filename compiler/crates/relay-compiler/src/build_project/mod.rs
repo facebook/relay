@@ -84,7 +84,7 @@ fn build_programs(
             Arc::new(program),
             Arc::new(base_fragment_names),
             &config.connection_interface,
-            &config.feature_flags,
+            Arc::new(config.feature_flags),
             perf_logger,
         )
         .map_err(|errors| BuildProjectError::ValidationErrors { errors })

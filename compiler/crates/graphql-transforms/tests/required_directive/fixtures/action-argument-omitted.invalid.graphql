@@ -1,4 +1,4 @@
 # expected-to-throw
-fragment Foo on User {
+fragment EnabledFoo on User {
   name @required
 }

@@ -1,5 +1,5 @@
 # expected-to-throw
-fragment Foo on User {
+fragment EnabledFoo on User {
   ... on User {
     hometown {
       name @required(action: LOG)

@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-fragment Foo on User {
+fragment EnabledFoo on User {
   address @required(action: NONE) {
     city
   }
@@ -14,7 +14,7 @@ fragment Foo on User {
 ✖︎ All references to a @required field must have matching `action` arguments. The `action` used for 'address'
 
   duplicate-linked-field-different-actions.invalid.graphql:3:29
-    2 │ fragment Foo on User {
+    2 │ fragment EnabledFoo on User {
     3 │   address @required(action: NONE) {
       │                             ^^^^
     4 │     city

@@ -1,5 +1,5 @@
 # expected-to-throw
-query UserQuery {
+query EnabledUserQuery {
   me @required(action: NONE) @required(action: THROW) {
     id
   }

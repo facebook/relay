@@ -127,7 +127,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
         Arc::new(program),
         Arc::new(Default::default()),
         &ConnectionInterface::default(),
-        &FeatureFlags::default(),
+        Arc::new(FeatureFlags::default()),
         Arc::new(ConsoleLogger),
     )
     .expect("Unable to apply transforms");

@@ -10,7 +10,8 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use graphql_transforms::required_directive;
+use graphql_transforms::{required_directive, FeatureFlags};
+use interner::Intern;
 use relay_codegen::{print_fragment, print_operation};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
@@ -28,18 +29,24 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    required_directive(&program)
-        .map(|next_program| {
-            next_program
-                .fragments()
-                .map(|def| print_fragment(&schema, &def))
-                .chain(
-                    next_program
-                        .operations()
-                        .map(|def| print_operation(&schema, &def)),
-                )
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        })
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
+    required_directive(
+        &program,
+        &FeatureFlags {
+            enable_required_transform_for_prefix: Some("".intern()),
+            enable_flight_transform: false,
+        },
+    )
+    .map(|next_program| {
+        next_program
+            .fragments()
+            .map(|def| print_fragment(&schema, &def))
+            .chain(
+                next_program
+                    .operations()
+                    .map(|def| print_operation(&schema, &def)),
+            )
+            .collect::<Vec<_>>()
+            .join("\n\n")
+    })
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }

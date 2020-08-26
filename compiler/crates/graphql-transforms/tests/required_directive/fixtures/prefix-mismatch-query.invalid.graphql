@@ -1,0 +1,7 @@
+# expected-to-throw
+query InvalidPrefixFragment {
+  me {
+    id
+    name @required(action: THROW)
+  }
+}

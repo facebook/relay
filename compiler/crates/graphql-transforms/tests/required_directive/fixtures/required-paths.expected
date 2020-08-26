@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query FooQuery {
+query EnabledFooQuery {
   viewer @required(action: LOG) {
     actor @required(action: LOG) {
       address @required(action: LOG) {
@@ -9,7 +9,7 @@ query FooQuery {
   }
 }
 ==================================== OUTPUT ===================================
-query FooQuery {
+query EnabledFooQuery {
   viewer @required(action: LOG) @__required(action: "LOG", path: "viewer") {
     actor @required(action: LOG) @__required(action: "LOG", path: "viewer.actor") {
       address @required(action: LOG) @__required(action: "LOG", path: "viewer.actor.address") {

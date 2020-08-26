@@ -3,7 +3,7 @@ fragment FragA on User {
   name
 }
 
-fragment FragB on User {
+fragment EnabledFragB on User {
   id
   # This does not match FragA.name, but that should be fine.
   name @required(action: LOG)

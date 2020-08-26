@@ -10,6 +10,14 @@ use std::fmt::{Debug, Display, Write};
 
 pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
 
+pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> DiagnosticsResult<T> {
+    if diagnostics.is_empty() {
+        Ok(result)
+    } else {
+        Err(diagnostics)
+    }
+}
+
 /// A diagnostic message as a result of validating some code. This struct is
 /// modeled after the LSP Diagnostic type:
 /// https://microsoft.github.io/language-server-protocol/specification#diagnostic

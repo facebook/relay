@@ -493,21 +493,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ),
             (CODEGEN_CONSTANTS.field, primitive),
             (
-                CODEGEN_CONSTANTS.path,
-                Primitive::String(
-                    required_directive
-                        .arguments
-                        .named(*PATH_METADATA_ARGUMENT)
-                        .unwrap().value.item.get_string_literal().unwrap()
-                ),
-            ),
-            (
                 CODEGEN_CONSTANTS.action,
                 Primitive::String(
                     required_directive
                     .arguments
                     .named(*ACTION_ARGUMENT)
                     .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            ),
+            (
+                CODEGEN_CONSTANTS.path,
+                Primitive::String(
+                    required_directive
+                        .arguments
+                        .named(*PATH_METADATA_ARGUMENT)
+                        .unwrap().value.item.get_string_literal().unwrap()
                 ),
             ),
         ]))

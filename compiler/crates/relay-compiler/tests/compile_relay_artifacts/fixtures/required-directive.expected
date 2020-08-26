@@ -26,8 +26,8 @@ fragment requiredDirective_Foo_user on User {
         "name": "name",
         "storageKey": null
       },
-      "path": "name",
-      "action": "THROW"
+      "action": "THROW",
+      "path": "name"
     }
   ],
   "type": "User",

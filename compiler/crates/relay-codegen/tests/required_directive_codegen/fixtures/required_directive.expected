@@ -26,8 +26,8 @@ fragment MyFragment on Node {
         "name": "name",
         "storageKey": null
       },
-      "path": "name",
-      "action": "LOG"
+      "action": "LOG",
+      "path": "name"
     }
   ],
   "type": "Node",

@@ -121,6 +121,11 @@ impl Schema {
                 let union = self.union(super_id);
                 union.members.contains(&sub_id)
             }
+            (Type::Interface(sub_id), Type::Interface(super_id)) => {
+                // does interface implement the interface
+                let interface = self.interface(sub_id);
+                sub_id == super_id || interface.interfaces.contains(&super_id)
+            }
             _ => maybe_subtype == super_type,
         }
     }
@@ -131,22 +136,24 @@ impl Schema {
         };
         match (a, b) {
             (Type::Interface(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementors;
+                let b_implementors = &self.interface(b).implementing_objects;
                 self.interface(a)
-                    .implementors
+                    .implementing_objects
                     .iter()
                     .any(|x| b_implementors.contains(x))
             }
             (Type::Interface(a), Type::Union(b)) => {
                 let b_members = &self.union(b).members;
                 self.interface(a)
-                    .implementors
+                    .implementing_objects
                     .iter()
                     .any(|x| b_members.contains(x))
             }
-            (Type::Interface(a), Type::Object(b)) => self.interface(a).implementors.contains(&b),
+            (Type::Interface(a), Type::Object(b)) => {
+                self.interface(a).implementing_objects.contains(&b)
+            }
             (Type::Union(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementors;
+                let b_implementors = &self.interface(b).implementing_objects;
                 self.union(a)
                     .members
                     .iter()
@@ -157,7 +164,9 @@ impl Schema {
                 self.union(a).members.iter().any(|x| b_members.contains(x))
             }
             (Type::Union(a), Type::Object(b)) => self.union(a).members.contains(&b),
-            (Type::Object(a), Type::Interface(b)) => self.interface(b).implementors.contains(&a),
+            (Type::Object(a), Type::Interface(b)) => {
+                self.interface(b).implementing_objects.contains(&a)
+            }
             (Type::Object(a), Type::Union(b)) => self.union(b).members.contains(&a),
             (Type::Object(a), Type::Object(b)) => a == b,
             _ => false, // todo: change Type representation to allow only Interface/Union/Object as input
@@ -702,7 +711,7 @@ impl Schema {
                     match type_ {
                         Type::Interface(id) => {
                             let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
-                            interface.implementors.push(*object_id)
+                            interface.implementing_objects.push(*object_id)
                         }
                         _ => unreachable!("Must be an interface"),
                     }
@@ -862,6 +871,7 @@ impl Schema {
             }
             type_system_node::TypeSystemDefinition::InterfaceTypeDefinition {
                 name,
+                interfaces,
                 directives,
                 fields,
             } => {
@@ -875,13 +885,18 @@ impl Schema {
                 } else {
                     self.build_fields(&fields, Some(parent_id))?
                 };
+                let interfaces = interfaces
+                    .iter()
+                    .map(|name| self.build_interface_id(*name))
+                    .collect::<Result<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
                     name: *name,
-                    implementors: vec![],
+                    implementing_objects: vec![],
                     is_extension,
                     fields,
                     directives,
+                    interfaces,
                 });
             }
             type_system_node::TypeSystemDefinition::UnionTypeDefinition {
@@ -1258,6 +1273,13 @@ impl Type {
         }
     }
 
+    pub fn is_union(self) -> bool {
+        match self {
+            Type::Union(_) => true,
+            _ => false,
+        }
+    }
+
     pub fn get_enum_id(self) -> Option<EnumID> {
         match self {
             Type::Enum(id) => Some(id),
@@ -1434,9 +1456,10 @@ pub struct Union {
 pub struct Interface {
     pub name: StringKey,
     pub is_extension: bool,
-    pub implementors: Vec<ObjectID>,
+    pub implementing_objects: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,
+    pub interfaces: Vec<InterfaceID>,
 }
 
 #[derive(Clone, Debug)]
@@ -1537,17 +1560,35 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
+    fn name(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
+    fn interfaces(&self) -> &Vec<InterfaceID>;
 }
 
 impl TypeWithFields for Interface {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
+    }
+
+    fn interfaces(&self) -> &Vec<InterfaceID> {
+        &self.interfaces
     }
 }
 
 impl TypeWithFields for Object {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
+    }
+
+    fn interfaces(&self) -> &Vec<InterfaceID> {
+        &self.interfaces
     }
 }

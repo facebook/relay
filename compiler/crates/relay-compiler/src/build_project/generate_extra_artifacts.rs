@@ -44,7 +44,9 @@ pub fn generate_extra_artifacts(
             extra_artifacts.extend(generate_extra_operation_artifacts_fn(
                 GenerateExtraArtifactArgs {
                     id: id_and_text_hash.as_ref().map(|(id, _)| id),
-                    name: artifact.source_definition_name,
+                    /// NOTE: Currently only normalization files contain multiple source definition
+                    /// names, and we don't generate extra artifacts for normalization files.
+                    name: artifact.source_definition_names[0],
                     normalization_operation: Arc::clone(normalization_operation),
                     project_config,
                     schema,

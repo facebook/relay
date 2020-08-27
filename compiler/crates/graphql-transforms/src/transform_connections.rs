@@ -13,7 +13,7 @@ use crate::connections::{
 };
 use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME};
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
@@ -191,30 +191,30 @@ impl<'s> ConnectionTransform<'s> {
 
         let transformed_page_info_field_selection = if is_stream_connection {
             let mut arguments = vec![];
-            for arg in &connection_directive.arguments {
-                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
-                    arguments.push(arg.clone());
-                } else if arg.name.item == *KEY_ARG_NAME {
-                    let key = arg.value.item.expect_string_literal();
-                    arguments.push(Argument {
-                        name: WithLocation::new(
-                            arg.name.location,
-                            DEFER_STREAM_CONSTANTS.label_arg,
-                        ),
-                        value: WithLocation::new(
-                            arg.value.location,
-                            Value::Constant(ConstantValue::String(
-                                format!(
-                                    "{}$defer${}${}",
-                                    self.current_document_name,
-                                    key.lookup(),
-                                    self.connection_interface.page_info
-                                )
-                                .intern(),
-                            )),
-                        ),
-                    });
-                }
+            let connection_args = &connection_directive.arguments;
+            if let Some(key_arg) = connection_args.named(*KEY_ARG_NAME) {
+                let key = key_arg.value.item.expect_string_literal();
+                arguments.push(Argument {
+                    name: WithLocation::new(
+                        key_arg.name.location,
+                        DEFER_STREAM_CONSTANTS.label_arg,
+                    ),
+                    value: WithLocation::new(
+                        key_arg.value.location,
+                        Value::Constant(ConstantValue::String(
+                            format!(
+                                "{}$defer${}${}",
+                                self.current_document_name,
+                                key.lookup(),
+                                self.connection_interface.page_info
+                            )
+                            .intern(),
+                        )),
+                    ),
+                });
+            }
+            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg) {
+                arguments.push(if_arg.clone());
             }
             Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition: None,

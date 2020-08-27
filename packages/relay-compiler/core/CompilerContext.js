@@ -34,6 +34,7 @@ export type CompilerContextDocument = Fragment | Root | SplitOperation;
  */
 class CompilerContext {
   _isMutable: boolean;
+  // $FlowFixMe[value-as-type]
   _documents: ImmutableOrderedMap<string, CompilerContextDocument>;
   _withTransform: WeakMap<IRTransform, CompilerContext>;
   +_schema: Schema;

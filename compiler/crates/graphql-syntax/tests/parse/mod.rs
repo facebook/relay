@@ -7,7 +7,8 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_syntax::{parse_executable, GraphQLSource};
+use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     parse_executable(
@@ -15,11 +16,5 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         SourceLocationKey::standalone(fixture.file_name),
     )
     .map(|x| format!("{:#?}", x))
-    .map_err(|errors| {
-        errors
-            .into_iter()
-            .map(|error| error.print(&GraphQLSource::new(fixture.content, 0, 0)))
-            .collect::<Vec<_>>()
-            .join("\n\n")
-    })
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }

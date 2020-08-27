@@ -1278,7 +1278,7 @@ If you need to retain a specific query outside of the components lifecycle, you 
 
 ```javascript
 // Retain query; this will prevent the data for this query and
-// variables from being gabrage collected by Relay
+// variables from being garbage collected by Relay
 const disposable = environment.retain(queryDescriptor);
 
 // Disposing of the disposable will release the data for this query

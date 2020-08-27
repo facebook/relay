@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  name @required
+}
+==================================== ERROR ====================================
+✖︎ Missing `action` argument. @required expects an `action` argument
+
+  action-argument-omitted.invalid.graphql:3:9
+    2 │ fragment EnabledFoo on User {
+    3 │   name @required
+      │         ^^^^^^^^
+    4 │ }

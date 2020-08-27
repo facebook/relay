@@ -78,12 +78,15 @@ impl DeferStreamTransform<'_> {
         let prev_directive = self.labels.get(&label);
         match prev_directive {
             Some(prev) => {
-                self.errors.push(Diagnostic::new(
-                    ValidationMessage::LabelNotUniqueForDeferStream {
-                        directive_name: DEFER_STREAM_CONSTANTS.defer_name,
-                    },
-                    vec![prev.name.location, directive.name.location],
-                ));
+                self.errors.push(
+                    Diagnostic::error(
+                        ValidationMessage::LabelNotUniqueForDeferStream {
+                            directive_name: DEFER_STREAM_CONSTANTS.defer_name,
+                        },
+                        prev.name.location,
+                    )
+                    .annotate("related location", directive.name.location),
+                );
             }
             None => {
                 self.labels.insert(label, directive.to_owned());

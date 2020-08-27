@@ -5,12 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, Location, SourceLocationKey};
+use common::{ConsoleLogger, Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
-use graphql_syntax::{
-    parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError, SyntaxErrorKind,
-    SyntaxResult,
-};
+use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError};
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
@@ -27,9 +24,9 @@ use std::sync::Arc;
 /// Parse JS input to get list of executable definitions (ASTs)
 fn build_definitions_from_js_input(
     input: Vec<Handle<JsValue>>,
-) -> Result<Vec<ExecutableDefinition>, Vec<SyntaxError>> {
-    let mut documents: Vec<SyntaxResult<ExecutableDocument>> = Vec::with_capacity(input.len());
-    let mut errors: Vec<SyntaxError> = vec![];
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    let mut documents: Vec<DiagnosticsResult<ExecutableDocument>> = Vec::with_capacity(input.len());
+    let mut errors: Vec<Diagnostic> = vec![];
     for js_value in input {
         if let Ok(value) = js_value.downcast::<JsString>() {
             documents.push(parse_executable(
@@ -39,8 +36,8 @@ fn build_definitions_from_js_input(
         } else {
             // This is not technically correct - it should be JS syntax/parse error, not graphql
             // TODO: Replace with correct error
-            errors.push(SyntaxError::new(
-                SyntaxErrorKind::UnsupportedCharacter,
+            errors.push(Diagnostic::error(
+                SyntaxError::UnsupportedCharacter,
                 Location::generated(),
             ));
         }
@@ -89,6 +86,7 @@ fn create_configs() -> (Config, ProjectConfig) {
     };
 
     let config = Config {
+        name: None,
         artifact_writer: Box::new(ArtifactFileWriter),
         codegen_command: None,
         excludes: vec![],
@@ -101,8 +99,10 @@ fn create_configs() -> (Config, ProjectConfig) {
         sources: Default::default(),
         saved_state_config: None,
         saved_state_loader: None,
+        saved_state_version: "0".to_owned(),
         connection_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
+        artifact_persister: None,
     };
 
     (config, project_config)
@@ -128,7 +128,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
         Arc::new(program),
         Arc::new(Default::default()),
         &ConnectionInterface::default(),
-        &FeatureFlags::default(),
+        Arc::new(FeatureFlags::default()),
         Arc::new(ConsoleLogger),
     )
     .expect("Unable to apply transforms");
@@ -146,7 +146,14 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
             &mut printer,
             &programs.normalization.schema,
         );
-        let name = cx.string(artifact.source_definition_name.lookup().to_string());
+        let name = cx.string(
+            artifact
+                .source_definition_names
+                .iter()
+                .map(|name| name.lookup())
+                .collect::<Vec<_>>()
+                .join(","),
+        );
         let path = cx.string(artifact.path.to_string_lossy());
         let content = cx.string(str::from_utf8(&content).unwrap().to_string());
         artifact_object.set(&mut cx, "name", name).unwrap();

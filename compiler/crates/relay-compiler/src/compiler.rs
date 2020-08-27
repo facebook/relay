@@ -11,8 +11,9 @@ use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::{source_for_location, watchman::FileSource};
-use common::{PerfLogEvent, PerfLogger};
+use common::{Diagnostic, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
+use graphql_cli::DiagnosticPrinter;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
@@ -76,14 +77,17 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
-        if let Err(err) = self.build_projects(&mut compiler_state, &setup_event).await {
-            if let Error::BuildProjectsErrors { .. } = err {
-                error!("Compilation failed, see errors above.");
-            } else {
-                error!("{}", err);
-            }
+        if self
+            .build_projects(&mut compiler_state, &setup_event)
+            .await
+            .is_err()
+        {
+            // noop, build_projects should have logged already
+        } else {
+            info!("Compilation completed.");
         }
         self.perf_logger.complete_event(setup_event);
+        info!("Waiting for changes...");
 
         loop {
             if let Some(file_source_changes) = subscription.next_change().await? {
@@ -95,33 +99,36 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
 
-                info!("\n\n[watch-mode] Change detected");
+                info!("Change detected.");
                 let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
                     &file_source_changes,
                     &incremental_build_event,
                     self.perf_logger.as_ref(),
+                    false,
                 )?;
 
                 if had_new_changes {
-                    if let Err(err) = self
+                    info!("Start compiling...");
+                    if self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
+                        .is_err()
                     {
-                        if let Error::BuildProjectsErrors { .. } = err {
-                            error!("Compilation failed, see errors above.");
-                        } else {
-                            error!("{}", err);
-                        }
+                        // noop, build_projects should have logged already
+                    } else {
+                        info!("Compilation completed.");
                     }
+                    incremental_build_event.stop(incremental_build_time);
                 } else {
-                    info!("[watch-mode] No re-compilation required");
+                    incremental_build_event.stop(incremental_build_time);
+                    info!("No compilation required.");
                 }
-                incremental_build_event.stop(incremental_build_time);
                 self.perf_logger.complete_event(incremental_build_event);
                 // We probably don't want the messages queue to grow indefinitely
                 // and we need to flush then, as the check/build is completed
                 self.perf_logger.flush();
+                info!("Waiting for changes...");
             }
         }
     }
@@ -144,25 +151,50 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 Ok(())
             }
             Err(error) => {
-                if let Error::BuildProjectsErrors { errors } = &error {
-                    for error in errors {
-                        self.print_project_error(error);
+                match &error {
+                    Error::DiagnosticsError { errors } => {
+                        for diagnostic in errors {
+                            self.print_diagnostic(diagnostic);
+                        }
+                    }
+                    Error::BuildProjectsErrors { errors } => {
+                        for error in errors {
+                            self.print_project_error(error);
+                        }
+                    }
+                    error => {
+                        error!("{}", error);
                     }
                 }
+                error!("Compilation failed.");
                 Err(error)
             }
         }
     }
 
     fn print_project_error(&self, error: &BuildProjectError) {
-        if let BuildProjectError::ValidationErrors { errors } = error {
-            for diagnostic in errors {
-                let printed = diagnostic.print_with_source_fn(|location| {
-                    source_for_location(&self.config.root_dir, location).map(|source| source.text)
-                });
-                error!("{}", printed);
+        match error {
+            BuildProjectError::ValidationErrors { errors } => {
+                for diagnostic in errors {
+                    self.print_diagnostic(diagnostic);
+                }
             }
-        };
+            BuildProjectError::PersistErrors { errors } => {
+                for error in errors {
+                    error!("{}", error);
+                }
+            }
+            _ => {
+                error!("{}", error);
+            }
+        }
+    }
+
+    fn print_diagnostic(&self, diagnostic: &Diagnostic) {
+        let printer = DiagnosticPrinter::new(|source_location| {
+            source_for_location(&self.config.root_dir, source_location).map(|source| source.text)
+        });
+        error!("{}", printer.diagnostic_to_string(diagnostic));
     }
 }
 
@@ -173,7 +205,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     compiler_state: &mut CompilerState,
 ) -> Result<()> {
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
-        GraphQLAsts::from_graphql_sources_map(&compiler_state.graphql_sources)
+        GraphQLAsts::from_graphql_sources_map(
+            &compiler_state.graphql_sources,
+            &compiler_state.dirty_definitions,
+        )
     })?;
 
     let build_results: Vec<_> = config

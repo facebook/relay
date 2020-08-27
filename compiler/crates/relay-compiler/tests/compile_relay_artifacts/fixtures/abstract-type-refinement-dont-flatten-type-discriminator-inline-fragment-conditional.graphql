@@ -1,4 +1,4 @@
-query AbstractTypeRefinement($shouldInclude: Boolean!) {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery($shouldInclude: Boolean!) {
   node(id: "4") {
     ... @include(if: $shouldInclude) {
       #  - Printed query should select __isNode

@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  address @required(action: NONE) {
+    city
+  }
+  ... on User {
+    address @required(action: LOG) {
+      city
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ All references to a @required field must have matching `action` arguments. The `action` used for 'address'
+
+  duplicate-linked-field-different-actions.invalid.graphql:3:29
+    2 │ fragment EnabledFoo on User {
+    3 │   address @required(action: NONE) {
+      │                             ^^^^
+    4 │     city
+
+  ℹ︎ should be the same as the `action` declared here
+
+  duplicate-linked-field-different-actions.invalid.graphql:7:31
+    6 │   ... on User {
+    7 │     address @required(action: LOG) {
+      │                               ^^^
+    8 │       city

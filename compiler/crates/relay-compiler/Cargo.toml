@@ -23,6 +23,7 @@ common = { path = "../common" }
 dependency-analyzer = { path = "../dependency-analyzer" }
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
+graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
@@ -33,6 +34,7 @@ relay-codegen = { path = "../relay-codegen" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }
+async-trait = "0.1.29"
 env_logger = "0.7"
 fnv = "1.0"
 futures = { version = "0.3.5", features = ["async-await", "compat"] }
@@ -53,4 +55,5 @@ watchman_client = "0.5.1"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+graphql-test-helpers = { path = "../graphql-test-helpers" }
 test-schema = { path = "../test-schema" }

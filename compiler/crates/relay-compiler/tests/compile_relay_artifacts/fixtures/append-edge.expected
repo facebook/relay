@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-mutation CommentCreateMutation(
+mutation appendEdge_CommentCreateMutation(
   $connections: [String!]!
   $input: CommentCreateInput
 ) {
@@ -29,7 +29,7 @@ mutation CommentCreateMutation(
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "CommentCreateMutation",
+    "name": "appendEdge_CommentCreateMutation",
     "selections": [
       {
         "alias": null,
@@ -103,7 +103,7 @@ mutation CommentCreateMutation(
       }
     ],
     "kind": "Operation",
-    "name": "CommentCreateMutation",
+    "name": "appendEdge_CommentCreateMutation",
     "selections": [
       {
         "alias": null,
@@ -179,7 +179,7 @@ mutation CommentCreateMutation(
   "params": {
     "id": null,
     "metadata": {},
-    "name": "CommentCreateMutation",
+    "name": "appendEdge_CommentCreateMutation",
     "operationKind": "mutation",
     "text": null
   }
@@ -187,7 +187,7 @@ mutation CommentCreateMutation(
 
 QUERY:
 
-mutation CommentCreateMutation(
+mutation appendEdge_CommentCreateMutation(
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {

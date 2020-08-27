@@ -8,6 +8,10 @@
     }
 }
 ==================================== ERROR ====================================
-Error: Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5 at missing_zero_on_float.invalid.graphql:
-        arg: .5
-    ) {
+✖︎ Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5
+
+  missing_zero_on_float.invalid.graphql:4:14
+    3 │     friends(
+    4 │         arg: .5
+      │              ^^
+    5 │     ) {

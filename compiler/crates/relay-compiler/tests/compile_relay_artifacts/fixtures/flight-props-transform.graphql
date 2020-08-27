@@ -1,4 +1,8 @@
-query FlightPropsTransform($cond: Boolean!, $count: Int!, $id: ID!) {
+query flightPropsTransform_FlightPropsTransformQuery(
+  $cond: Boolean!
+  $count: Int!
+  $id: ID!
+) {
   node(id: $id) {
     ... on Story {
       id
@@ -7,10 +11,13 @@ query FlightPropsTransform($cond: Boolean!, $count: Int!, $id: ID!) {
   }
 }
 
-%extensions%
+# %extensions% #
 directive @react_flight_component(name: String!) on FIELD_DEFINITION
 
 extend type Story {
-  extension_field(condition: Boolean!, count: Int!, id: ID!): ReactFlightComponent
-    @react_flight_component(name: "ExtensionField.server")
+  extension_field(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent @react_flight_component(name: "ExtensionField.server")
 }

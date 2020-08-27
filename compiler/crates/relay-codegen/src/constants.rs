@@ -10,6 +10,7 @@ use lazy_static::lazy_static;
 
 pub struct CodegenConstants {
     pub abstract_key: StringKey,
+    pub action: StringKey,
     pub alias: StringKey,
     pub args: StringKey,
     pub argument_definitions: StringKey,
@@ -30,8 +31,10 @@ pub struct CodegenConstants {
     pub document_name: StringKey,
     pub dynamic_key_argument: StringKey,
     pub dynamic_key: StringKey,
+    pub field: StringKey,
     pub fields: StringKey,
     pub filters: StringKey,
+    pub flight_field: StringKey,
     pub forward: StringKey,
     pub fragment_name: StringKey,
     pub fragment_path_in_result: StringKey,
@@ -72,6 +75,7 @@ pub struct CodegenConstants {
     pub query: StringKey,
     pub refetch: StringKey,
     pub request: StringKey,
+    pub required_field: StringKey,
     pub root_argument: StringKey,
     pub scalar_field: StringKey,
     pub scalar_handle: StringKey,
@@ -92,6 +96,7 @@ pub struct CodegenConstants {
 lazy_static! {
     pub static ref CODEGEN_CONSTANTS: CodegenConstants = CodegenConstants {
         abstract_key: "abstractKey".intern(),
+        action: "action".intern(),
         alias: "alias".intern(),
         args: "args".intern(),
         argument_definitions: "argumentDefinitions".intern(),
@@ -112,8 +117,10 @@ lazy_static! {
         document_name: "documentName".intern(),
         dynamic_key_argument: "__dynamicKey".intern(),
         dynamic_key: "dynamicKey".intern(),
+        field: "field".intern(),
         fields: "fields".intern(),
         filters: "filters".intern(),
+        flight_field: "FlightField".intern(),
         forward: "forward".intern(),
         fragment_name: "fragmentName".intern(),
         fragment_path_in_result: "fragmentPathInResult".intern(),
@@ -154,6 +161,7 @@ lazy_static! {
         query: "query".intern(),
         refetch: "refetch".intern(),
         request: "Request".intern(),
+        required_field: "RequiredField".intern(),
         root_argument: "RootArgument".intern(),
         scalar_field: "ScalarField".intern(),
         scalar_handle: "ScalarHandle".intern(),

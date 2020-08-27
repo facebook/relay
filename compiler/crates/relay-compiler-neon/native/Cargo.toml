@@ -15,13 +15,13 @@ crate-type = ["cdylib"]
 neon-build = "0.4.0"
 
 [dependencies]
-neon = "0.4.0"
 common = { path = "../../common" }
 graphql-ir = { path = "../../graphql-ir" }
 graphql-syntax = { path = "../../graphql-syntax" }
 graphql-text-printer = { path = "../../graphql-text-printer" }
 graphql-transforms = { path = "../../graphql-transforms" }
 interner = { path = "../../interner" }
+neon = "0.4.0"
 relay-codegen = { path = "../../relay-codegen" }
 relay-compiler = { path = "../../relay-compiler" }
 schema = { path = "../../schema" }

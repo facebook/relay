@@ -1,4 +1,4 @@
-// @generated SignedSource<<69bb4dc3c7ae135d99b5881cfd0bc1cb>>
+// @generated SignedSource<<f35193381d17b8c1691793abf7aab4a7>>
 
 mod compile_relay_artifacts;
 
@@ -601,6 +601,13 @@ fn query_with_raw_response_type_directive() {
 }
 
 #[test]
+fn redundant_selection_in_inline_fragments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected");
+    test_fixture(transform_fixture, "redundant-selection-in-inline-fragments.graphql", "compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected", input, expected);
+}
+
+#[test]
 fn refetchable_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-connection.expected");
@@ -650,6 +657,13 @@ fn relay_client_id_field() {
 }
 
 #[test]
+fn required_directive() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
+    test_fixture(transform_fixture, "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected);
+}
+
+#[test]
 fn same_fields_with_different_args_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.expected");
@@ -682,6 +696,13 @@ fn stream_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/stream-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection.expected");
     test_fixture(transform_fixture, "stream-connection.graphql", "compile_relay_artifacts/fixtures/stream-connection.expected", input, expected);
+}
+
+#[test]
+fn stream_connection_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.expected");
+    test_fixture(transform_fixture, "stream-connection-conditional.graphql", "compile_relay_artifacts/fixtures/stream-connection-conditional.expected", input, expected);
 }
 
 #[test]

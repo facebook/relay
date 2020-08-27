@@ -99,11 +99,10 @@ beforeEach(() => {
       return {dispose: disposeOnloadCallback};
     });
 
-  const originalExecuteWithSource = environment.executeWithSource.bind(
-    environment,
-  );
+  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
+
   jest
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {

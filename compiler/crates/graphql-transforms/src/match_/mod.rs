@@ -12,5 +12,5 @@ mod utils;
 
 pub use constants::MATCH_CONSTANTS;
 pub use match_transform::transform_match;
-pub use split_module_import::split_module_import;
+pub use split_module_import::{split_module_import, SplitOperationMetaData};
 pub use utils::get_normalization_operation_name;

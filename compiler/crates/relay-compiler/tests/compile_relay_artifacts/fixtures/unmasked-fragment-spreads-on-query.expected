@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-query TestQuery($isRelative: Boolean) {
+query unmaskedFragmentSpreadsOnQuery_TestQuery($isRelative: Boolean) {
   me {
-    ...UserUtil_user @relay(mask: false)
+    ...unmaskedFragmentSpreadsOnQuery_UserUtil_user @relay(mask: false)
   }
 }
 
-fragment UserUtil_user on User {
+fragment unmaskedFragmentSpreadsOnQuery_UserUtil_user on User {
   url(relative: $isRelative)
 }
 ==================================== OUTPUT ===================================
@@ -20,7 +20,7 @@ fragment UserUtil_user on User {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsOnQuery_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -60,7 +60,7 @@ fragment UserUtil_user on User {
       }
     ],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsOnQuery_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -98,7 +98,7 @@ fragment UserUtil_user on User {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsOnQuery_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -106,7 +106,7 @@ fragment UserUtil_user on User {
 
 QUERY:
 
-query TestQuery(
+query unmaskedFragmentSpreadsOnQuery_TestQuery(
   $isRelative: Boolean
 ) {
   me {
@@ -125,7 +125,7 @@ query TestQuery(
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserUtil_user",
+  "name": "unmaskedFragmentSpreadsOnQuery_UserUtil_user",
   "selections": [
     {
       "alias": null,

@@ -6,13 +6,21 @@
  */
 
 use fixture_tests::Fixture;
-use graphql_transforms::required_directive;
+use graphql_ir::{Program, ValidationResult};
+use graphql_test_helpers::apply_transform_for_test;
+use graphql_transforms::{required_directive, FeatureFlags};
+use interner::Intern;
 
-#[path = "../test_helper.rs"]
-mod test_helper;
-
-use test_helper::apply_transform_for_test;
+fn transform(program: &Program) -> ValidationResult<Program> {
+    required_directive(
+        program,
+        &FeatureFlags {
+            enable_required_transform_for_prefix: Some("Enabled".intern()),
+            enable_flight_transform: false,
+        },
+    )
+}
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    apply_transform_for_test(fixture, required_directive)
+    apply_transform_for_test(fixture, transform)
 }

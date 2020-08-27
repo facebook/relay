@@ -1,11 +1,11 @@
 # expected-to-throw
 
-fragment ParentFragment on Query {
+fragment inlineAndMaskAreIncompatible_ParentFragment on Query {
   me {
-    ...Profile @relay(mask: false)
+    ...inlineAndMaskAreIncompatible_Profile @relay(mask: false)
   }
 }
 
-fragment Profile on User @inline {
+fragment inlineAndMaskAreIncompatible_Profile on User @inline {
   id
 }

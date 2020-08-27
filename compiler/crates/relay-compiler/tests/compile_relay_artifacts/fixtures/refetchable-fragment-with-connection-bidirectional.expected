@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment PaginationFragment on Node
+fragment refetchableFragmentWithConnectionBidirectional_PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 10}
@@ -84,7 +84,7 @@ fragment PaginationFragment on Node
               }
             ],
             "kind": "FragmentSpread",
-            "name": "PaginationFragment"
+            "name": "refetchableFragmentWithConnectionBidirectional_PaginationFragment"
           }
         ],
         "storageKey": null
@@ -340,12 +340,12 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...PaginationFragment_1G22uz
+    ...refetchableFragmentWithConnectionBidirectional_PaginationFragment_1G22uz
     id
   }
 }
 
-fragment PaginationFragment_1G22uz on Node {
+fragment refetchableFragmentWithConnectionBidirectional_PaginationFragment_1G22uz on Node {
   __isNode: __typename
   id
   ... on User {
@@ -423,7 +423,7 @@ fragment PaginationFragment_1G22uz on Node {
       "identifierField": "id"
     }
   },
-  "name": "PaginationFragment",
+  "name": "refetchableFragmentWithConnectionBidirectional_PaginationFragment",
   "selections": [
     {
       "alias": null,

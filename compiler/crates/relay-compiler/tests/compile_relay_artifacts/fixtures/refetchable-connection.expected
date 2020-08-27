@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment RefetchableConnection_feedback on Feedback
+fragment refetchableConnection_RefetchableConnection_feedback on Feedback
   @refetchable(queryName: "RefetchableConnectionQuery") {
   id
   comments(first: $count, after: $cursor)
@@ -57,7 +57,7 @@ fragment RefetchableConnection_feedback on Feedback
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableConnection_feedback"
+            "name": "refetchableConnection_RefetchableConnection_feedback"
           }
         ],
         "storageKey": null
@@ -256,12 +256,12 @@ query RefetchableConnectionQuery(
 ) {
   node(id: $id) {
     __typename
-    ...RefetchableConnection_feedback
+    ...refetchableConnection_RefetchableConnection_feedback
     id
   }
 }
 
-fragment RefetchableConnection_feedback on Feedback {
+fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
   id
   comments(first: $count, after: $cursor) {
     edges {
@@ -320,7 +320,7 @@ fragment RefetchableConnection_feedback on Feedback {
       "identifierField": "id"
     }
   },
-  "name": "RefetchableConnection_feedback",
+  "name": "refetchableConnection_RefetchableConnection_feedback",
   "selections": [
     {
       "alias": null,

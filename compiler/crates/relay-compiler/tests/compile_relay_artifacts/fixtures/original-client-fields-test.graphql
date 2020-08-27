@@ -1,20 +1,20 @@
-query BestFriendsQuery($id: ID!) {
+query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
   node(id: $id) {
-    ...BestFriends
-    ...OnlyClientFields
+    ...originalClientFieldsTest_BestFriends
+    ...originalClientFieldsTest_OnlyClientFields
   }
 }
 
 # This fragment disappears because all selections are removed
-fragment OnlyClientFields on User {
+fragment originalClientFieldsTest_OnlyClientFields on User {
   best_friends {
     __typename
   }
 }
 
-fragment BestFriends on User {
+fragment originalClientFieldsTest_BestFriends on User {
   # this is the only field that is part of the base schema
-  ...NodeFragment
+  ...originalClientFieldsTest_NodeFragment
   # fields defined in type extensions are skipped
   best_friends {
     edges {
@@ -29,18 +29,18 @@ fragment BestFriends on User {
   }
   ... on Named {
     # fragments on extension types are skipped
-    ...FooFragment
+    ...originalClientFieldsTest_FooFragment
     ... on Foo {
       name
     }
   }
 }
 
-fragment NodeFragment on Node {
+fragment originalClientFieldsTest_NodeFragment on Node {
   id
 }
 
-fragment FooFragment on Foo {
+fragment originalClientFieldsTest_FooFragment on Foo {
   name
 }
 

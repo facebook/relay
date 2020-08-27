@@ -1,4 +1,4 @@
-query NodeQuery($id: ID!) {
+query connection_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {

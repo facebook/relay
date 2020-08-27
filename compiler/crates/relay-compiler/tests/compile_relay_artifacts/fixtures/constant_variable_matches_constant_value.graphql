@@ -1,5 +1,5 @@
-query Test($id: ID!) {
-  ...F @arguments(userID: $id)
+query constantVariableMatchesConstantValue_TestQuery($id: ID!) {
+  ...constantVariableMatchesConstantValue_F @arguments(userID: $id)
   node(
     # type of this $id is `ID` inferred from schema type of the id argument
     id: $id
@@ -8,7 +8,7 @@ query Test($id: ID!) {
   }
 }
 
-fragment F on Query @argumentDefinitions(
+fragment constantVariableMatchesConstantValue_F on Query @argumentDefinitions(
   userID: {type: "ID!"}
 ) {
   node(id:

@@ -27,10 +27,47 @@ pub fn split_module_import(
         .replace_or_else(|| program.clone())
 }
 
-struct SplitOperationMetaData {
-    derived_from: StringKey,
-    parent_sources: FnvHashSet<StringKey>,
+pub struct SplitOperationMetaData {
+    pub derived_from: StringKey,
+    pub parent_sources: FnvHashSet<StringKey>,
 }
+
+impl From<&Directive> for SplitOperationMetaData {
+    fn from(directive: &Directive) -> Self {
+        debug_assert!(directive.name.item == MATCH_CONSTANTS.custom_module_directive_name);
+        let derived_from_arg = directive
+            .arguments
+            .named(MATCH_CONSTANTS.derived_from_arg)
+            .expect("Expected derived_from arg to exist");
+        let derived_from = derived_from_arg.value.item.expect_string_literal();
+        let parent_sources_arg = directive
+            .arguments
+            .named(MATCH_CONSTANTS.parent_sources_arg)
+            .expect("Expected parent_sources arg to exist");
+        if let Value::Constant(ConstantValue::List(source_definition_names)) =
+            &parent_sources_arg.value.item
+        {
+            let parent_sources = source_definition_names
+                .iter()
+                .map(|val| {
+                    if let ConstantValue::String(name) = val {
+                        name
+                    } else {
+                        panic!("Expected item in the parent sources to be a StringKey.")
+                    }
+                })
+                .cloned()
+                .collect();
+            Self {
+                derived_from,
+                parent_sources,
+            }
+        } else {
+            panic!("Expected parent sources to be a constant of list.");
+        }
+    }
+}
+
 type SplitOperations = FnvHashMap<StringKey, (SplitOperationMetaData, OperationDefinition)>;
 
 pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {

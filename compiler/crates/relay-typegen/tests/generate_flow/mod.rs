@@ -37,7 +37,10 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
-        &FeatureFlags::default(),
+        Arc::new(FeatureFlags {
+            enable_flight_transform: false,
+            enable_required_transform_for_prefix: Some("".intern()),
+        }),
         Arc::new(ConsoleLogger),
     )
     .unwrap();

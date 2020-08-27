@@ -1,0 +1,8 @@
+# expected-to-throw
+
+fragment Foo on User @argumentDefinitions(
+  # syntax error, should be [ID]
+  ids: {type: "Array<ID>"}
+) {
+  id
+}

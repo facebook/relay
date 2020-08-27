@@ -1,4 +1,4 @@
-query TestQuery($foo: Boolean!, $bar: Boolean!) {
+query directiveWithConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
   viewer {
     account_user {
       alternate_name

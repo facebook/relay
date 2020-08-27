@@ -1,0 +1,4 @@
+#expected-to-throw
+fragment AnyOtherNameIsInvalid on User {
+    name
+}

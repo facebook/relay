@@ -8,7 +8,7 @@
 use errors::try_all;
 use graphql_ir::{Program, ValidationResult};
 use graphql_transforms::{
-    disallow_id_as_alias, validate_connections, validate_relay_directives,
+    disallow_id_as_alias, validate_connections, validate_module_names, validate_relay_directives,
     validate_unused_variables, ConnectionInterface,
 };
 
@@ -21,6 +21,7 @@ pub fn validate(
         validate_unused_variables(&program),
         validate_connections(program, connection_interface),
         validate_relay_directives(program),
+        validate_module_names(program),
     ])?;
 
     Ok(())

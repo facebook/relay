@@ -6,57 +6,89 @@
  */
 
 use super::token::TokenKind;
+use std::convert::TryInto;
 
 pub struct Lexer<'a> {
     pub token: TokenKind<'a>,
     input: &'a str,
+    cur_index: usize,
+    next_index: usize,
 }
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
             token: TokenKind::SOF,
             input,
+            cur_index: 0,
+            next_index: 0,
         }
     }
     pub fn advance(&mut self) {
-        let (next_input, token) = read_token(self.input);
-        self.input = next_input;
-        self.token = token;
+        let mut token = None;
+        self.cur_index = self.next_index;
+        while token == None {
+            let result = read_token(&self.input[self.next_index..]);
+            let next_index = result.0;
+            token = result.1;
+            self.next_index += next_index.unwrap_or(0);
+        }
+        self.token = token.unwrap();
+    }
+
+    pub fn current_position_with_line(&self) -> (u32, u32, String) {
+        // Calculate line and column.
+        let mut line = 0;
+        let mut line_start = 0;
+        let mut line_end = self.input.find('\n');
+        while line_end.is_some() && line_end.unwrap() + line_start < self.cur_index {
+            line += 1;
+            line_start += line_end.unwrap() + 1;
+            line_end = self.input[line_start..].find('\n');
+        }
+        if line_end.is_none() {
+            line_end = Some(self.input.len());
+        }
+        // + 1 because both are indexed from 1, not 0,
+        (
+            line + 1,
+            (self.cur_index - line_start + 1).try_into().unwrap(),
+            self.input[line_start..line_start + line_end.unwrap()].to_string(),
+        )
     }
 }
 
-type ReaderResult<'a> = (&'a str, TokenKind<'a>);
+type ReaderResult<'a> = (Option<usize>, Option<TokenKind<'a>>);
 
 fn read_token(input: &str) -> ReaderResult<'_> {
     if let Some(c) = input.chars().next() {
         match c {
-            '\t' | ' ' | ',' | '\u{feff}' | '\n' | '\r' => read_token(&input[1..]),
-            '#' => read_token(read_comment(&input)),
-            '&' => read_char(input, TokenKind::Amp),
-            '!' => read_char(input, TokenKind::Bang),
-            '$' => read_char(input, TokenKind::Dollar),
-            '(' => read_char(input, TokenKind::ParenL),
-            ')' => read_char(input, TokenKind::ParenR),
-            ':' => read_char(input, TokenKind::Colon),
-            '=' => read_char(input, TokenKind::Equals),
-            '@' => read_char(input, TokenKind::At),
-            '[' => read_char(input, TokenKind::BracketL),
-            ']' => read_char(input, TokenKind::BracketR),
-            '{' => read_char(input, TokenKind::BraceL),
-            '|' => read_char(input, TokenKind::Pipe),
-            '}' => read_char(input, TokenKind::BraceR),
+            '\t' | ' ' | ',' | '\u{feff}' | '\n' | '\r' => (Some(1), None),
+            '#' => (Some(read_comment(&input)), None),
+            '&' => read_char(TokenKind::Amp),
+            '!' => read_char(TokenKind::Bang),
+            '$' => read_char(TokenKind::Dollar),
+            '(' => read_char(TokenKind::ParenL),
+            ')' => read_char(TokenKind::ParenR),
+            ':' => read_char(TokenKind::Colon),
+            '=' => read_char(TokenKind::Equals),
+            '@' => read_char(TokenKind::At),
+            '[' => read_char(TokenKind::BracketL),
+            ']' => read_char(TokenKind::BracketR),
+            '{' => read_char(TokenKind::BraceL),
+            '|' => read_char(TokenKind::Pipe),
+            '}' => read_char(TokenKind::BraceR),
             'a'..='z' | 'A'..='Z' | '_' => read_name(&input),
             '-' | '0'..='9' => read_number(&input),
             '"' => read_string(&input),
-            _ => (input, TokenKind::Error),
+            _ => (None, Some(TokenKind::Error)),
         }
     } else {
-        (input, TokenKind::EOF)
+        (None, Some(TokenKind::EOF))
     }
 }
 
-fn read_char<'a>(input: &'a str, token: TokenKind<'a>) -> ReaderResult<'a> {
-    (&input[1..], token)
+fn read_char<'a>(token: TokenKind<'a>) -> ReaderResult<'a> {
+    (Some(1), Some(token))
 }
 
 fn read_name(input: &str) -> ReaderResult<'_> {
@@ -69,7 +101,7 @@ fn read_name(input: &str) -> ReaderResult<'_> {
         })
         .map(|len| len + 1)
         .unwrap_or_else(|| input.len());
-    (&input[end..], TokenKind::Name(&input[0..end]))
+    (Some(end), Some(TokenKind::Name(&input[0..end])))
 }
 
 fn read_number(input: &str) -> ReaderResult<'_> {
@@ -95,16 +127,16 @@ fn read_number(input: &str) -> ReaderResult<'_> {
     } else {
         TokenKind::Int(value)
     };
-    (&input[end + 1..], token)
+    (Some(end + 1), Some(token))
 }
 
-fn read_comment(input: &str) -> &str {
+fn read_comment(input: &str) -> usize {
     let end = input
         .chars()
         .position(|c| c == '\n')
         .map(|pos| pos + 1)
         .unwrap_or_else(|| input.len());
-    &input[end..]
+    end
 }
 
 fn read_string(input: &str) -> ReaderResult<'_> {
@@ -126,8 +158,8 @@ fn read_string(input: &str) -> ReaderResult<'_> {
                 (FirstClose, '"') => SecondClose,
                 (SecondClose, '"') => {
                     return (
-                        &input[pos + 1..],
-                        TokenKind::BlockString(&input[3..pos - 2]),
+                        Some(pos + 1),
+                        Some(TokenKind::BlockString(&input[3..pos - 2])),
                     )
                 }
                 (_, '\\') => Escape,
@@ -140,7 +172,7 @@ fn read_string(input: &str) -> ReaderResult<'_> {
         let mut iter = input.char_indices().skip(1);
         while let Some((pos, c)) = iter.next() {
             match c {
-                '"' => return (&input[pos + 1..], TokenKind::Str(&input[1..pos])),
+                '"' => return (Some(pos + 1), Some(TokenKind::Str(&input[1..pos]))),
                 '\\' => {
                     iter.next();
                 }
@@ -148,7 +180,7 @@ fn read_string(input: &str) -> ReaderResult<'_> {
             }
         }
     }
-    (input, TokenKind::Error)
+    (None, Some(TokenKind::Error))
 }
 
 #[cfg(test)]
@@ -157,13 +189,16 @@ mod tests {
 
     #[test]
     fn numbers() {
-        assert_eq!(read_number("0.3"), ("", TokenKind::Float("0.3")));
-        assert_eq!(read_number("24 "), (" ", TokenKind::Int("24")));
-        assert_eq!(read_number("56"), ("", TokenKind::Int("56")));
-        assert_eq!(read_number("100\n"), ("\n", TokenKind::Int("100")));
-        assert_eq!(read_number("100x"), ("x", TokenKind::Int("100")));
-        assert_eq!(read_number("100("), ("(", TokenKind::Int("100")));
-        assert_eq!(read_number("3.--.4- "), (" ", TokenKind::Float("3.--.4-")));
+        assert_eq!(read_number("0.3"), (Some(3), Some(TokenKind::Float("0.3"))));
+        assert_eq!(read_number("24 "), (Some(2), Some(TokenKind::Int("24"))));
+        assert_eq!(read_number("56"), (Some(2), Some(TokenKind::Int("56"))));
+        assert_eq!(read_number("100\n"), (Some(3), Some(TokenKind::Int("100"))));
+        assert_eq!(read_number("100x"), (Some(3), Some(TokenKind::Int("100"))));
+        assert_eq!(read_number("100("), (Some(3), Some(TokenKind::Int("100"))));
+        assert_eq!(
+            read_number("3.--.4- "),
+            (Some(7), Some(TokenKind::Float("3.--.4-")))
+        );
     }
 
     #[test]
@@ -176,17 +211,23 @@ mod tests {
     #[test]
     fn comments() {
         let input = "#foo";
-        assert_eq!(read_comment(input), "");
+        assert_eq!(input[read_comment(input)..].to_string(), "");
 
         let input = "#foo\nx";
-        assert_eq!(read_comment(input), "x");
+        assert_eq!(input[read_comment(input)..].to_string(), "x");
     }
 
     #[test]
     fn strings() {
-        assert_eq!(read_string(r#""foo""#), ("", TokenKind::Str(r#"foo"#)));
-        assert_eq!(read_string(r#""f\"oo""#), ("", TokenKind::Str(r#"f\"oo"#)));
-        assert_eq!(read_string(r#""""#), ("", TokenKind::Str(r#""#)));
+        assert_eq!(
+            read_string(r#""foo""#),
+            (Some(5), Some(TokenKind::Str(r#"foo"#)))
+        );
+        assert_eq!(
+            read_string(r#""f\"oo""#),
+            (Some(7), Some(TokenKind::Str(r#"f\"oo"#)))
+        );
+        assert_eq!(read_string(r#""""#), (Some(2), Some(TokenKind::Str(r#""#))));
         assert_eq!(
             read_string(
                 r#"
@@ -194,7 +235,7 @@ mod tests {
                 "#
                 .trim()
             ),
-            ("x", TokenKind::BlockString(r#"hi"#))
+            (Some(8), Some(TokenKind::BlockString(r#"hi"#)))
         );
         assert_eq!(
             read_string(
@@ -203,7 +244,7 @@ mod tests {
                 "#
                 .trim()
             ),
-            ("x", TokenKind::BlockString(r#" \""" "#))
+            (Some(12), Some(TokenKind::BlockString(r#" \""" "#)))
         );
     }
 }

@@ -57,6 +57,16 @@ pub fn build_constant_value(
     builder.build_constant_value(value, type_, validation)
 }
 
+pub fn build_variable_definitions(
+    schema: &Schema,
+    definitions: &[graphql_syntax::VariableDefinition],
+    location: Location,
+) -> ValidationResult<Vec<VariableDefinition>> {
+    let signatures = Default::default();
+    let mut builder = Builder::new(schema, &signatures, location);
+    builder.build_variable_definitions(definitions)
+}
+
 // Helper Types
 
 type VariableDefinitions = FnvHashMap<StringKey, VariableDefinition>;
@@ -1361,7 +1371,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let possible_types = match parent_type {
             Type::Interface(id) => {
                 let interface = self.schema.interface(id);
-                Some(&interface.implementors)
+                Some(&interface.implementing_objects)
             }
             Type::Union(id) => {
                 let union = self.schema.union(id);

@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  ... on User @include(if: true) {
+    name
+  }
+  ... on User {
+    name @required(action: THROW)
+  }
+}
+==================================== ERROR ====================================
+✖︎ All references to a field must have matching @required declarations. The field 'name` is @required here
+
+  duplicate-field-include-directive.invalid.graphql:7:5
+    6 │   ... on User {
+    7 │     name @required(action: THROW)
+      │     ^^^^
+    8 │   }
+
+  ℹ︎ but not @required here
+
+  duplicate-field-include-directive.invalid.graphql:4:5
+    3 │   ... on User @include(if: true) {
+    4 │     name
+      │     ^^^^
+    5 │   }

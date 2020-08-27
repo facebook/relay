@@ -23,6 +23,7 @@ ExecutableDocument {
                 },
                 value: "Test",
             },
+            variable_definitions: None,
             type_condition: TypeCondition {
                 span: 14:22,
                 on: Token {

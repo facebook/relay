@@ -61,10 +61,11 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
                 .client_invalid_directives
                 .iter()
                 .map(|name| {
-                    Diagnostic::new(
+                    Diagnostic::error(
                         ValidationMessage::InvalidServerOnlyDirectiveInClientFields(name.item),
-                        vec![name.location, location],
+                        name.location,
                     )
+                    .annotate("related location", location)
                 })
                 .collect());
         }
@@ -213,12 +214,13 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         {
             self.current_client_invalid_directives.push(directive.name);
             if let Some(location) = self.current_root_client_selection {
-                Err(vec![Diagnostic::new(
+                Err(vec![Diagnostic::error(
                     ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
                         directive.name.item,
                     ),
-                    vec![directive.name.location, location],
-                )])
+                    directive.name.location,
+                )
+                .annotate("related location", location)])
             } else {
                 Ok(())
             }

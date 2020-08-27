@@ -12,6 +12,8 @@
 
 'use strict';
 
+import type {ConcreteRequest} from './RelayConcreteNode';
+
 /**
  * Represents a single operation used to processing and normalize runtime
  * request results.
@@ -71,6 +73,7 @@ export type NormalizationClientExtension = {|
 |};
 
 export type NormalizationField =
+  | NormalizationFlightField
   | NormalizationScalarField
   | NormalizationLinkedField;
 
@@ -203,3 +206,7 @@ export type NormalizationSelectableNode =
   | NormalizationOperation
   | NormalizationSplitOperation
   | NormalizationStream;
+
+export type NormalizationRootNode =
+  | ConcreteRequest
+  | NormalizationSplitOperation;

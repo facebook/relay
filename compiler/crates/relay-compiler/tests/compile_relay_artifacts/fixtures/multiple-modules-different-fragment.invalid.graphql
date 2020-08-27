@@ -1,29 +1,29 @@
 # expected-to-throw
-query MatchQuery {
+query multipleModulesDifferentFragment_MatchQuery {
   node(id: "<user-id>") {
     ... on Actor {
       nameRenderer {
-        ...MarkdownUserNameRenderer_name
+        ...multipleModulesDifferentFragment_MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
       }
     }
     ... on User {
       nameRenderer {
-        ...OtherMarkdownUserNameRenderer_name
+        ...multipleModulesDifferentFragment_OtherMarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
       }
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesDifferentFragment_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
   }
 }
 
-fragment OtherMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesDifferentFragment_OtherMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

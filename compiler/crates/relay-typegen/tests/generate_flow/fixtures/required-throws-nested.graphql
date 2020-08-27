@@ -1,0 +1,6 @@
+query FooQuery {
+  me {
+    firstName
+    lastName @required(action: THROW)
+  }
+}

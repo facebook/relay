@@ -32,7 +32,7 @@ impl<'program> ValidateUnusedVariables<'program> {
 }
 
 /// Validates that there are no unused variables in the operation.
-/// former `graphql-js`` NoUnusedVariablesRule
+/// former `graphql-js` NoUnusedVariablesRule
 impl Validator for ValidateUnusedVariables<'_> {
     const NAME: &'static str = "ValidateUnusedVariables";
     const VALIDATE_ARGUMENTS: bool = false;

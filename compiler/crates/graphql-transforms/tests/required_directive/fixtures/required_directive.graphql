@@ -1,8 +1,0 @@
-query MyQuery {
-  node(id: "a-very-real-id-that-is-not-fake") {
-    id @required(action: LOG)
-  }
-  me @required(action: LOG) {
-    name
-  }
-}

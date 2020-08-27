@@ -26,7 +26,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("Unknown field '{type_}.{field}'")]
+    #[error("The type `{type_}` has no field `{field}`")]
     UnknownField { type_: StringKey, field: StringKey },
     #[error("Expected no selections on scalar field '{0:?}.{1}'")]
     InvalidSelectionsOnScalarField(Type, StringKey),
@@ -40,6 +40,18 @@ pub enum ValidationMessage {
     UnnecessaryUncheckedArgumentsDirective,
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
+    #[error("{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead.")]
+    InvalidOperationName {
+        pluralized_string: String,
+        module_name: String,
+        operation_type_suffix: String,
+        operation_name: String,
+    },
+    #[error("Fragments in graphql tags must start with the module name ('{module_name}'). Got '{fragment_name}' instead.")]
+    InvalidFragmentName {
+        module_name: String,
+        fragment_name: String,
+    },
     #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
     #[error("Nested lists ('[[T]]' etc) are not supported")]
@@ -58,8 +70,8 @@ pub enum ValidationMessage {
     ExpectedOneArgumentsDirective(),
     #[error("Expected at-most one '@argumentDefinitions' directive per fragment spread")]
     ExpectedOneArgumentDefinitionsDirective(),
-    #[error("{0}")]
-    SyntaxError(graphql_syntax::SyntaxError),
+    #[error("Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive")]
+    VariableDefinitionsAndArgumentDirective(),
     #[error("Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')")]
     ExpectedArgumentDefinitionLiteralType(),
     #[error("Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties")]
@@ -244,6 +256,8 @@ pub enum ValidationMessage {
     #[error("Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.")]
     InvalidMatchNoModuleSelection,
 
+    #[error("@module does not support @inline fragments.")]
+    InvalidModuleWithInline,
     #[error("@module does not support @arguments.")]
     InvalidModuleWithArguments,
     #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]
@@ -463,4 +477,36 @@ pub enum ValidationMessage {
         "Expected all fields on the same parent with the name or alias '{field_name}' to have the same name and arguments."
     )]
     InvalidSameFieldWithDifferentArguments { field_name: StringKey },
+
+    #[error("Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match")]
+    RequiredWithinAbstractInlineFragment,
+
+    #[error("Unexpected second @required directive. @requried may only be used once per field")]
+    RequiredOncePerField,
+
+    #[error("Missing `action` argument. @required expects an `action` argument")]
+    RequiredActionArgumentRequired,
+
+    #[error("Expected `action` argument to be a literal")]
+    RequiredActionArgumentConstant,
+
+    #[error("Expected `action` argument to be one of `NONE`, `LOG` or `THROW`")]
+    RequiredActionArgumentEnum,
+
+    #[error("All references to a @required field must have matching `action` arguments. The `action` used for '{field_name}'")]
+    RequiredActionMismatch { field_name: StringKey },
+
+    #[error("All references to a field must have matching @required declarations. The field '{field_name}` is @required here")]
+    RequiredFieldMismatch { field_name: StringKey },
+
+    #[error("@required fields must be included in all instances of their parent. The field '{field_name}` is marked as @required here")]
+    RequiredFieldMissing { field_name: StringKey },
+
+    #[error("A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: {suggested_action}`")]
+    RequiredFieldInvalidNesting { suggested_action: StringKey },
+
+    #[error(
+        "The @required directive is experimental and not yet supported for use in product code"
+    )]
+    RequiredNotSupported,
 }

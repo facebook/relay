@@ -7,9 +7,9 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::{print_fragment, print_operation};
 use graphql_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use std::sync::Arc;
@@ -18,41 +18,18 @@ use test_schema::get_test_schema;
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    let mut sources = FnvHashMap::default();
-    sources.insert(source_location, fixture.content);
-
     let schema = get_test_schema();
 
     let ast = parse_executable(fixture.content, source_location).unwrap();
-    let ir_result = build(&schema, &ast.definitions);
-    let ir = match ir_result {
-        Ok(res) => res,
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print_with_sources(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    };
+    let ir = build(&schema, &ast.definitions)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let connection_interface = ConnectionInterface::default();
 
-    let validation_result = validate_connections(&program, &connection_interface);
-    match validation_result {
-        Ok(_) => {}
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print_with_sources(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    }
+    validate_connections(&program, &connection_interface)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let next_program = transform_connections(&program, &connection_interface);
 

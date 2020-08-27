@@ -278,12 +278,13 @@ impl FlattenTransform {
                                         !flattened_module_directive.arguments[4].location_agnostic_eq(&module_directive.arguments[4])
                                     // name
                                     {
-                                        let error = Diagnostic::new(
+                                        let error = Diagnostic::error(
                                             ValidationMessage::ConflictingModuleSelections,
-                                            vec![
-                                                module_directive.name.location,
-                                                flattened_module_directive.name.location,
-                                            ],
+                                            module_directive.name.location,
+                                        )
+                                        .annotate(
+                                            "conflicts with",
+                                            flattened_module_directive.name.location,
                                         );
                                         return Err(vec![error]);
                                     }
@@ -310,15 +311,13 @@ impl FlattenTransform {
                                 &node.arguments,
                                 &flattened_node.arguments,
                             ) {
-                                let error = Diagnostic::new(
+                                let error = Diagnostic::error(
                                     ValidationMessage::InvalidSameFieldWithDifferentArguments {
                                         field_name: node.alias_or_name(&self.schema),
                                     },
-                                    vec![
-                                        node.definition.location,
-                                        flattened_node.definition.location,
-                                    ],
-                                );
+                                    node.definition.location,
+                                )
+                                .annotate("conflicting field", flattened_node.definition.location);
                                 return Err(vec![error]);
                             }
                             let type_ = self
@@ -370,19 +369,17 @@ impl FlattenTransform {
                                 Selection::ScalarField(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a ScalarField."),
                             };
-                            if !node
-                                .arguments
-                                .location_agnostic_eq(&flattened_node.arguments)
-                            {
-                                let error = Diagnostic::new(
+                            if !ignoring_type_and_location::arguments_equals(
+                                &node.arguments,
+                                &flattened_node.arguments,
+                            ) {
+                                let error = Diagnostic::error(
                                     ValidationMessage::InvalidSameFieldWithDifferentArguments {
                                         field_name: node.alias_or_name(&self.schema),
                                     },
-                                    vec![
-                                        node.definition.location,
-                                        flattened_node.definition.location,
-                                    ],
-                                );
+                                    flattened_node.definition.location,
+                                )
+                                .annotate("conflicts with", node.definition.location);
                                 return Err(vec![error]);
                             }
                             let should_merge_handles = node.directives.iter().any(|d| {

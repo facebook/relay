@@ -77,7 +77,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
                         self.get_selections_with_inline_id_fragments(
                             field,
                             selections,
-                            &interface.implementors,
+                            &interface.implementing_objects,
                         )
                     }
                 }

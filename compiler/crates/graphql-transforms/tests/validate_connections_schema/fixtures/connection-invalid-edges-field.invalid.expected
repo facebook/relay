@@ -43,15 +43,27 @@ type BadConnectionPageInfo {
   startCursor: String
 }
 ==================================== ERROR ====================================
-@connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges' field that returns a list of objects.:
-connection-invalid-edges-field.invalid.graphql:6:7:6:20
-      badConnection(first: $first, after: $after) @connection {
-Notes:
-[related 1] other related location:
-connection-invalid-edges-field.invalid.graphql:7:9:7:14
-        edges {
+✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges' field that returns a list of objects.
+
+  connection-invalid-edges-field.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {
+
+  ℹ︎ invalid field type
+
+  connection-invalid-edges-field.invalid.graphql:7:9
+    6 │       badConnection(first: $first, after: $after) @connection {
+    7 │         edges {
+      │         ^^^^^
+    8 │           cursor
 
 
-Expected the key argument to @connection to be a string literal for field 'badConnection'.:
-connection-invalid-edges-field.invalid.graphql:6:7:6:20
-      badConnection(first: $first, after: $after) @connection {
+✖︎ Expected the key argument to @connection to be a string literal for field 'badConnection'.
+
+  connection-invalid-edges-field.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {

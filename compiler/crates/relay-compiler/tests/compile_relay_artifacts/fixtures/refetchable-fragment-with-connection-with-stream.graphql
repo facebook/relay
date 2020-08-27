@@ -1,4 +1,4 @@
-fragment PaginationFragment on Node
+fragment refetchableFragmentWithConnectionWithStream_PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 10}

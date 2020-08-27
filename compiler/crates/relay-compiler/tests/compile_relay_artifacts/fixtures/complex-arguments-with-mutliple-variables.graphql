@@ -1,4 +1,4 @@
-query TestQueryWithLiteral($latArg: String, $lonArg: String) {
+query complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery($latArg: String, $lonArg: String) {
   route(
     waypoints: [
       {lat: $latArg, lon: $lonArg}

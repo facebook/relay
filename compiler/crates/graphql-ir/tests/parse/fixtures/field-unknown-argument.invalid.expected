@@ -6,6 +6,10 @@ query TestQuery {
   }
 }
 ==================================== ERROR ====================================
-Unknown argument 'task_id':
-field-unknown-argument.invalid.graphql:3:8:3:15
-  task(task_id: 123) {
+✖︎ Unknown argument 'task_id'
+
+  field-unknown-argument.invalid.graphql:3:8
+    2 │ query TestQuery {
+    3 │   task(task_id: 123) {
+      │        ^^^^^^^
+    4 │     title

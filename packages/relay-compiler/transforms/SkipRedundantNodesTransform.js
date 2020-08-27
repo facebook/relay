@@ -30,6 +30,7 @@ import type {Fragment, Node, Root, SplitOperation, Selection} from '../core/IR';
  * or nested maps for items with subselections (linked fields, inline fragments,
  * etc).
  */
+// $FlowFixMe[value-as-type]
 type SelectionMap = IMap<string, ?SelectionMap>;
 
 /**

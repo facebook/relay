@@ -17,11 +17,13 @@ import type {
   INetwork,
   PayloadData,
   PayloadError,
+  ReactFlightServerTree,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {
   NormalizationLinkedField,
+  NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
   NormalizationSplitOperation,
@@ -714,7 +716,9 @@ export type HandleFieldPayload = {|
 
 /**
  * A payload that represents data necessary to process the results of an object
- * with a `@module` fragment spread:
+ * with a `@module` fragment spread, or a Flight field's:
+ *
+ * ## @module Fragment Spread
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
  * - operationReference: A reference to a generated module containing the
@@ -725,6 +729,21 @@ export type HandleFieldPayload = {|
  * The dataID, variables, and fragmentName can be used to create a Selector
  * which can in turn be used to normalize and publish the data. The dataID and
  * typeName can also be used to construct a root record for normalization.
+ *
+ * ## Flight fields
+ * In Flight, data for additional components rendered by the requested server
+ * component are included in the response returned by a Flight compliant server.
+ *
+ * - data: Data used by additional components rendered by the server component
+ *     being requested.
+ * - dataID: For Flight fields, this should always be ROOT_ID. This is because
+ *     the query data isn't relative to the parent record–it's root data.
+ * - operationReference: The query's module that will be later used by an
+ *     operation loader.
+ * - variables: The query's variables.
+ * - typeName: For Flight fields, this should always be ROOT_TYPE. This is
+ *     because the query data isn't relative to the parent record–it's
+ *     root data.
  */
 export type ModuleImportPayload = {|
   +data: PayloadData,
@@ -759,22 +778,22 @@ export type StreamPlaceholder = {|
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 
 /**
- * A user-supplied object to load a generated operation (SplitOperation) AST
- * by a module reference. The exact format of a module reference is left to
- * the application, but it must be a plain JavaScript value (string, number,
- * or object/array of same).
+ * A user-supplied object to load a generated operation (SplitOperation or
+ * ConcreteRequest) AST by a module reference. The exact format of a module
+ * reference is left to the application, but it must be a plain JavaScript value
+ * (string, number, or object/array of same).
  */
 export type OperationLoader = {|
   /**
    * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
    */
-  get(reference: mixed): ?NormalizationSplitOperation,
+  get(reference: mixed): ?NormalizationRootNode,
 
   /**
    * Asynchronously load an operation.
    */
-  load(reference: mixed): Promise<?NormalizationSplitOperation>,
+  load(reference: mixed): Promise<?NormalizationRootNode>,
 |};
 
 /**
@@ -912,3 +931,22 @@ export interface PublishQueue {
    */
   run(sourceOperation?: OperationDescriptor): $ReadOnlyArray<RequestDescriptor>;
 }
+
+/**
+ * ReactFlightDOMRelayClient processes a ReactFlightServerTree into a
+ * ReactFlightClientResponse object. readRoot() can suspend.
+ */
+export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
+
+export type ReactFlightReachableQuery = {|
+  +module: mixed,
+  +variables: Variables,
+|};
+
+/**
+ * A user-supplied function that takes a ReactFlightServerTree, and deserializes
+ * it into a ReactFlightClientResponse object.
+ */
+export type ReactFlightPayloadDeserializer = (
+  tree: ReactFlightServerTree,
+) => ReactFlightClientResponse;

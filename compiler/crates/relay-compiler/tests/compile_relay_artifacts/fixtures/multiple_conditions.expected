@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query TestQuery($foo: Boolean!, $bar: Boolean!) {
+query multipleConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
   viewer {
     account_user {
       name
@@ -25,7 +25,7 @@ query TestQuery($foo: Boolean!, $bar: Boolean!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "multipleConditions_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -103,7 +103,7 @@ query TestQuery($foo: Boolean!, $bar: Boolean!) {
       }
     ],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "multipleConditions_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -174,7 +174,7 @@ query TestQuery($foo: Boolean!, $bar: Boolean!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "multipleConditions_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -182,7 +182,7 @@ query TestQuery($foo: Boolean!, $bar: Boolean!) {
 
 QUERY:
 
-query TestQuery(
+query multipleConditions_TestQuery(
   $foo: Boolean!
   $bar: Boolean!
 ) {

@@ -947,9 +947,11 @@ describe('connection node mutations', () => {
   let store;
   let AppendCommentMutation;
   let PrependCommentMutation;
+  let AppendCommentWithLiteralEdgeMutation;
   let AppendCommentsMutation;
   let PrependCommentsMutation;
   let appendOperation;
+  let appendWithLiteralEdgeOperation;
   let prependOperation;
   let appendMultipleOperation;
   let prependMultipleOperation;
@@ -966,6 +968,7 @@ describe('connection node mutations', () => {
       FeedbackQuery: query,
       AppendCommentMutation,
       PrependCommentMutation,
+      AppendCommentWithLiteralEdgeMutation,
       AppendCommentsMutation,
       PrependCommentsMutation,
     } = generateAndCompile(`
@@ -977,6 +980,7 @@ describe('connection node mutations', () => {
           ) {
             __id
             edges {
+              __typename
               node {
                 id
               }
@@ -994,6 +998,20 @@ describe('connection node mutations', () => {
           comment @appendNode(
             connections: $connections
             edgeTypeName: $edgeTypeName
+          ) {
+            id
+          }
+        }
+      }
+
+      mutation AppendCommentWithLiteralEdgeMutation(
+        $connections: [String!]!
+        $input: CommentCreateInput
+      ) {
+        commentCreate(input: $input) {
+          comment @appendNode(
+            connections: $connections
+            edgeTypeName: "CommentsEdge"
           ) {
             id
           }
@@ -1055,6 +1073,13 @@ describe('connection node mutations', () => {
       edgeTypeName,
       input: {},
     });
+    appendWithLiteralEdgeOperation = createOperationDescriptor(
+      AppendCommentWithLiteralEdgeMutation,
+      {
+        connections: [clientID],
+        input: {},
+      },
+    );
     prependOperation = createOperationDescriptor(PrependCommentMutation, {
       connections: [clientID],
       edgeTypeName,
@@ -1131,6 +1156,7 @@ describe('connection node mutations', () => {
           __id: clientID,
           edges: [
             {
+              __typename: 'CommentsEdge',
               cursor: 'cursor-1',
               node: {
                 __typename: 'Comment',
@@ -1138,6 +1164,7 @@ describe('connection node mutations', () => {
               },
             },
             {
+              __typename: 'CommentsEdge',
               cursor: 'cursor-2',
               node: {
                 __typename: 'Comment',
@@ -1187,6 +1214,7 @@ describe('connection node mutations', () => {
     // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-1',
         node: {
           __typename: 'Comment',
@@ -1194,6 +1222,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-2',
         node: {
           __typename: 'Comment',
@@ -1201,6 +1230,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1231,6 +1261,7 @@ describe('connection node mutations', () => {
     // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1238,6 +1269,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-1',
         node: {
           __typename: 'Comment',
@@ -1245,6 +1277,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-2',
         node: {
           __typename: 'Comment',
@@ -1252,6 +1285,118 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+  });
+
+  it('works when the edge name is a literal', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendWithLiteralEdgeOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-append',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+
+    environment
+      .executeMutation({
+        operation: prependOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-prepend',
+          },
+        },
+      },
+    });
+    subject.complete();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-prepend',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1297,6 +1442,7 @@ describe('connection node mutations', () => {
     // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-1',
         node: {
           __typename: 'Comment',
@@ -1304,6 +1450,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-2',
         node: {
           __typename: 'Comment',
@@ -1311,6 +1458,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1318,6 +1466,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1354,6 +1503,7 @@ describe('connection node mutations', () => {
     // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1361,6 +1511,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1368,6 +1519,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-1',
         node: {
           __typename: 'Comment',
@@ -1375,6 +1527,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-2',
         node: {
           __typename: 'Comment',
@@ -1382,6 +1535,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1389,6 +1543,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1421,6 +1576,7 @@ describe('connection node mutations', () => {
     // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-1',
         node: {
           __typename: 'Comment',
@@ -1428,6 +1584,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-2',
         node: {
           __typename: 'Comment',
@@ -1435,6 +1592,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',
@@ -1462,6 +1620,7 @@ describe('connection node mutations', () => {
     // $FlowExpectedError[incompatible-use]
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-1',
         node: {
           __typename: 'Comment',
@@ -1469,6 +1628,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: 'cursor-2',
         node: {
           __typename: 'Comment',
@@ -1476,6 +1636,7 @@ describe('connection node mutations', () => {
         },
       },
       {
+        __typename: 'CommentsEdge',
         cursor: undefined,
         node: {
           __typename: 'Comment',

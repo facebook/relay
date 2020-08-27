@@ -182,6 +182,12 @@ function createCacheEntry(
         releaseQueryTimeout = null;
         releaseTemporaryRetain = null;
         disposable.dispose();
+        // Normally if this entry never commits, the request would've ended by the
+        // time this timeout expires and the temporary retain is released. However,
+        // we need to do this for live queries which remain open indefinitely.
+        if (retainCount <= 0 && currentNetworkSubscription != null) {
+          currentNetworkSubscription.unsubscribe();
+        }
       };
       releaseQueryTimeout = setTimeout(
         localReleaseTemporaryRetain,

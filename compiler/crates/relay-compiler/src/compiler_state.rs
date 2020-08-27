@@ -17,6 +17,7 @@ use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
+use log::debug;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{fmt, fs::File, hash::Hash, io, iter::FromIterator, path::PathBuf, sync::Arc};
@@ -393,6 +394,13 @@ impl CompilerState {
                                     }
                                     added = true;
                                 }
+                            }
+                        }
+                        // Remove artifacts that are no longer related
+                        for file_name in file_names {
+                            let path = config.root_dir.join(file_name);
+                            if config.artifact_writer.remove(path).is_err() {
+                                debug!("Failed to remove unrelated artifact",);
                             }
                         }
                     } else {

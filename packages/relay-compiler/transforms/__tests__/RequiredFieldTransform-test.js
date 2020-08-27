@@ -86,6 +86,45 @@ describe('RequiredFieldTransform Feature Flag', () => {
       );
     });
   });
+  describe('Prefix|OtherPrefix', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = 'Prefix|OtherPrefix';
+    });
+
+    test('allows documents prefixed with Prefix', () => {
+      const text = `fragment PrefixFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      context.applyTransforms([RequiredFieldTransform.transform]);
+    });
+
+    test('allows documents prefixed with OtherPrefix', () => {
+      const text = `fragment PrefixFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      context.applyTransforms([RequiredFieldTransform.transform]);
+    });
+
+    test('throws on documents _not_ prefixed with EitherPrefix', () => {
+      const text = `fragment RandomTestFragment on User {
+      name @required(action: NONE)
+    }`;
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      const context = new CompilerContext(extendedSchema).addAll(definitions);
+
+      expect(() => {
+        context.applyTransforms([RequiredFieldTransform.transform]);
+      }).toThrowError(
+        /^The @required directive is experimental and not yet supported for use in product code/,
+      );
+    });
+  });
   describe('false', () => {
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;

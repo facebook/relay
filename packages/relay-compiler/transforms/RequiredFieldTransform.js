@@ -302,6 +302,21 @@ function createMissingRequiredFieldError(
   );
 }
 
+// TODO T74397896: Remove prefix gating once @required is rolled out more broadly.
+function featureIsEnabled(documentName: string): boolean {
+  const featureFlag = RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES;
+  if (typeof featureFlag === 'boolean') {
+    return featureFlag;
+  } else if (featureFlag === 'LIMITED') {
+    return documentName.startsWith('RelayRequiredTest');
+  } else if (typeof featureFlag === 'string') {
+    return featureFlag
+      .split('|')
+      .some(prefix => documentName.startsWith(prefix));
+  }
+  return false;
+}
+
 // Strip and validate @required directives, and convert them to metadata.
 function applyDirectives<T: ScalarField | LinkedField>(
   field: T,
@@ -317,17 +332,10 @@ function applyDirectives<T: ScalarField | LinkedField>(
     return field;
   }
 
-  if (RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES === 'LIMITED') {
-    if (!documentName.startsWith('RelayRequiredTest')) {
-      throw new createUserError(
-        // Purposefully don't include details in this error message, since we
-        // don't want folks adopting this feature until it's been tested more.
-        'The @required directive is experimental and not yet supported for use in product code',
-        requiredDirectives.map(x => x.loc),
-      );
-    }
-  } else if (!RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES) {
+  if (!featureIsEnabled(documentName)) {
     throw new createUserError(
+      // Purposefully don't include details in this error message, since we
+      // don't want folks adopting this feature until it's been tested more.
       'The @required directive is experimental and not yet supported for use in product code',
       requiredDirectives.map(x => x.loc),
     );

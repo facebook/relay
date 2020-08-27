@@ -192,11 +192,7 @@ function visitLinkedField(field: LinkedField): LinkedField {
       );
     }
     const rawType = schema.getRawType(transformedField.type);
-    if (
-      schema.isObject(rawType) ||
-      schema.isUnion(rawType) ||
-      schema.isInterface(rawType)
-    ) {
+    if (schema.canHaveSelections(rawType)) {
       const handle: Handle = {
         name: nodeDirective.name,
         key: '',

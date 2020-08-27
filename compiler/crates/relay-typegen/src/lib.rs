@@ -17,12 +17,12 @@ pub use config::TypegenConfig;
 use flow::{print_type, Prop, AST, SPREAD_KEY};
 use fnv::FnvHashSet;
 use graphql_ir::{
-    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
 use graphql_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
+    RequiredAction, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS, REQUIRED_METADATA_KEY,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
@@ -270,6 +270,18 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             base_type
         };
+
+        let children_can_bubble_null = node
+            .selections
+            .iter()
+            .any(|child_selection| selection_can_bubble_null(child_selection));
+
+        let type_ = if children_can_bubble_null {
+            AST::Nullable(type_.into())
+        } else {
+            type_
+        };
+
         self.runtime_imports.fragment_reference = true;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
@@ -529,10 +541,16 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             schema_name
         };
         let selections = visit_selections_fn(self, &linked_field.selections);
+
+        let non_null_type = field.type_.non_null();
+        let field_type = match linked_field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(_) => &non_null_type,
+            None => &field.type_,
+        };
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
-            node_type: Some(field.type_.clone()),
+            node_type: Some(field_type.clone()),
             value: None,
             conditional: false,
             concrete_type: None,
@@ -554,11 +572,16 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             schema_name
         };
+        let non_null_type = field.type_.non_null();
+        let field_type = match scalar_field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(_) => &non_null_type,
+            None => &field.type_,
+        };
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
             node_type: None,
-            value: Some(self.transform_scalar_type(&field.type_, None)),
+            value: Some(self.transform_scalar_type(field_type, None)),
             conditional: false,
             concrete_type: None,
             ref_: None,
@@ -1160,6 +1183,22 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             }
         }
         type_selections
+    }
+}
+
+fn field_can_buble_null(directives: &[Directive]) -> bool {
+    RequiredAction::from_directives(directives.to_vec()).map_or(false, |action| match action {
+        RequiredAction::THROW => false,
+        _ => true,
+    })
+}
+
+fn selection_can_bubble_null(selection: &Selection) -> bool {
+    match selection {
+        Selection::ScalarField(node) => field_can_buble_null(&node.directives),
+        Selection::LinkedField(node) => field_can_buble_null(&node.directives),
+        Selection::InlineFragment(node) => node.selections.iter().any(selection_can_bubble_null),
+        _ => false,
     }
 }
 

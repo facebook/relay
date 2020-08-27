@@ -35,6 +35,7 @@ pub enum TypeSystemDefinition {
     },
     InterfaceTypeDefinition {
         name: StringKey,
+        interfaces: Vec<StringKey>,
         directives: Vec<Directive>,
         fields: Vec<FieldDefinition>,
     },

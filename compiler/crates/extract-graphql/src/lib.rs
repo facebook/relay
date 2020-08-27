@@ -88,6 +88,7 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
                 let start = i;
                 let line_index = it.line_index;
                 let column_index = it.column_index;
+                let mut has_visited_first_char = false;
                 while let Some((i, c)) = it.next() {
                     match c {
                         '`' => {
@@ -102,8 +103,17 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
                                     .to_string());
                             }
                         }
-
-                        _ => {}
+                        ' ' | '\n' | '\r' => {}
+                        'a'..='z' | 'A'..='Z' | '#' => {
+                            if !has_visited_first_char {
+                                has_visited_first_char = true;
+                            }
+                        }
+                        _ => {
+                            if !has_visited_first_char {
+                                continue 'code;
+                            }
+                        }
                     }
                 }
             }

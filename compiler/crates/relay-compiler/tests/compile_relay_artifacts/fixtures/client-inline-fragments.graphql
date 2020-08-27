@@ -1,4 +1,4 @@
-fragment Foo_user on User {
+fragment clientInlineFragments_Foo_user on User {
   id
   foo {
     ... on ClientNamed {

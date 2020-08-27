@@ -1,4 +1,4 @@
-query CheckinSearchQuery(
+query complexArgumentsInList_CheckinSearchQuery(
   $queryText: String!
   $searchInputText: String
   $searchInput: CheckinSearchInput

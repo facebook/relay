@@ -7,45 +7,23 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_transforms::validate_relay_directives;
 use test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    let mut sources = FnvHashMap::default();
-    sources.insert(source_location, fixture.content);
-
     let schema = get_test_schema();
     let ast = parse_executable(fixture.content, source_location).unwrap();
-    let ir_result = build(&schema, &ast.definitions);
-    let ir = match ir_result {
-        Ok(res) => res,
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    };
+    let ir = build(&schema, &ast.definitions)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let program = Program::from_definitions(schema, ir);
-    let validation_result = validate_relay_directives(&program);
+    validate_relay_directives(&program)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    match validation_result {
-        Ok(_) => Ok("OK".to_owned()),
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            Err(errs.join("\n\n"))
-        }
-    }
+    Ok("OK".to_owned())
 }

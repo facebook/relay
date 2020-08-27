@@ -3023,7 +3023,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Assert request was canceled
-        expect(unsubscribe).toBeCalledTimes(1);
+        expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
           requestCount: 1,

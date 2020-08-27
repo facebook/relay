@@ -55,6 +55,7 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -68,6 +69,7 @@ export type EnvironmentConfig = {|
   +treatMissingFieldsAsNull?: boolean,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +network: INetwork,
   +scheduler?: ?TaskScheduler,
   +store: Store,
@@ -88,6 +90,7 @@ class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
   +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
@@ -108,6 +111,8 @@ class RelayModernEnvironment implements IEnvironment {
       : RelayDefaultHandlerProvider;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
     const operationLoader = config.operationLoader;
+    const reactFlightPayloadDeserializer =
+      config.reactFlightPayloadDeserializer;
     if (__DEV__) {
       if (operationLoader != null) {
         invariant(
@@ -117,6 +122,14 @@ class RelayModernEnvironment implements IEnvironment {
           'RelayModernEnvironment: Expected `operationLoader` to be an object ' +
             'with get() and load() functions, got `%s`.',
           operationLoader,
+        );
+      }
+      if (reactFlightPayloadDeserializer != null) {
+        invariant(
+          typeof reactFlightPayloadDeserializer === 'function',
+          'RelayModernEnvironment: Expected `reactFlightPayloadDeserializer` ' +
+            ' to be a function, got `%s`.',
+          reactFlightPayloadDeserializer,
         );
       }
     }
@@ -162,6 +175,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._missingFieldHandlers = config.missingFieldHandlers;
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
+    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
   }
 
   getStore(): Store {
@@ -226,6 +240,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         optimisticConfig,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
@@ -263,6 +278,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source: RelayObservable.from({
@@ -367,6 +383,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
@@ -436,6 +453,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         optimisticConfig,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
@@ -473,6 +491,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,

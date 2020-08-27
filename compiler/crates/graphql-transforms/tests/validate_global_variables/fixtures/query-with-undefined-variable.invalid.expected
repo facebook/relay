@@ -4,8 +4,24 @@ query QueryWithUnusedVariable {
   node(id: $id) {
     id
   }
+  node2: node(id: $id2) {
+    id
+  }
 }
 ==================================== ERROR ====================================
-Expected operation variables to be defined:
-query-with-undefined-variable.invalid.graphql:2:12:
-  node(id: $id) {
+✖︎ Expected variable `$id2` to be defined on the operation
+
+  query-with-undefined-variable.invalid.graphql:6:19
+    5 │   }
+    6 │   node2: node(id: $id2) {
+      │                   ^^^^
+    7 │     id
+
+
+✖︎ Expected variable `$id` to be defined on the operation
+
+  query-with-undefined-variable.invalid.graphql:3:12
+    2 │ query QueryWithUnusedVariable {
+    3 │   node(id: $id) {
+      │            ^^^
+    4 │     id

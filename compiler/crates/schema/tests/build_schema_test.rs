@@ -1,4 +1,4 @@
-// @generated SignedSource<<f486904fb3cb77c37e2f772670ffe174>>
+// @generated SignedSource<<2037661f5aa9ecc68fc6e6bb0c8f6ce9>>
 
 mod build_schema;
 
@@ -10,6 +10,13 @@ fn directives_for_external_types() {
     let input = include_str!("build_schema/fixtures/directives-for-external-types.graphql");
     let expected = include_str!("build_schema/fixtures/directives-for-external-types.expected");
     test_fixture(transform_fixture, "directives-for-external-types.graphql", "build_schema/fixtures/directives-for-external-types.expected", input, expected);
+}
+
+#[test]
+fn interface_implements_interface() {
+    let input = include_str!("build_schema/fixtures/interface-implements-interface.graphql");
+    let expected = include_str!("build_schema/fixtures/interface-implements-interface.expected");
+    test_fixture(transform_fixture, "interface-implements-interface.graphql", "build_schema/fixtures/interface-implements-interface.expected", input, expected);
 }
 
 #[test]
@@ -31,6 +38,13 @@ fn invalid_object_extension_local_duplicated_fields() {
     let input = include_str!("build_schema/fixtures/invalid-object-extension-local-duplicated-fields.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-object-extension-local-duplicated-fields.expected");
     test_fixture(transform_fixture, "invalid-object-extension-local-duplicated-fields.graphql", "build_schema/fixtures/invalid-object-extension-local-duplicated-fields.expected", input, expected);
+}
+
+#[test]
+fn invalid_sdl() {
+    let input = include_str!("build_schema/fixtures/invalid-sdl.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-sdl.expected");
+    test_fixture(transform_fixture, "invalid-sdl.graphql", "build_schema/fixtures/invalid-sdl.expected", input, expected);
 }
 
 #[test]

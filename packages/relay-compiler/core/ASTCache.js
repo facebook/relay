@@ -35,6 +35,7 @@ class ASTCache {
   }
 
   // Short-term: we don't do subscriptions/delta updates, instead always use all definitions
+  // $FlowFixMe[value-as-type]
   documents(): ImmutableMap<string, DocumentNode> {
     return ImmutableMap(this._documents);
   }

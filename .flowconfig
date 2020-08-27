@@ -31,8 +31,6 @@ experimental.abstract_locations=true
 
 [lints]
 untyped-type-import=error
-deprecated-utility=error
-unsafe-addition=error
 
 [strict]
 deprecated-type
@@ -44,4 +42,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.130.0
+^0.132.0

@@ -43,24 +43,44 @@ type BadConnectionPageInfo {
   startCursor: String
 }
 ==================================== ERROR ====================================
-@connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { cursor }' field that returns a scalar.:
-connection-invalid-edge-type.invalid.graphql:5:7:
-      badConnection(first: $first, after: $after) @connection {
+✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { cursor }' field that returns a scalar.
+
+  connection-invalid-edge-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {
+
+  ℹ︎ field with invalid type
+
+  connection-invalid-edge-type.invalid.graphql:7:9
+    6 │       badConnection(first: $first, after: $after) @connection {
+    7 │         edges {
+      │         ^^^^^
+    8 │           cursor {
 
 
-connection-invalid-edge-type.invalid.graphql:6:9:
-        edges {
+✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { node }' field that returns an object, interface or union.
+
+  connection-invalid-edge-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {
+
+  ℹ︎ field with invalid type
+
+  connection-invalid-edge-type.invalid.graphql:7:9
+    6 │       badConnection(first: $first, after: $after) @connection {
+    7 │         edges {
+      │         ^^^^^
+    8 │           cursor {
 
 
-@connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { node }' field that returns an object, interface or union.:
-connection-invalid-edge-type.invalid.graphql:5:7:
-      badConnection(first: $first, after: $after) @connection {
+✖︎ Expected the key argument to @connection to be a string literal for field 'badConnection'.
 
-
-connection-invalid-edge-type.invalid.graphql:6:9:
-        edges {
-
-
-Expected the key argument to @connection to be a string literal for field 'badConnection'.:
-connection-invalid-edge-type.invalid.graphql:5:7:
-      badConnection(first: $first, after: $after) @connection {
+  connection-invalid-edge-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {

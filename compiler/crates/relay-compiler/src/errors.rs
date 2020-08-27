@@ -6,8 +6,7 @@
  */
 
 use crate::compiler_state::ProjectName;
-pub use graphql_ir::ValidationError;
-pub use graphql_syntax::SyntaxErrorWithSource;
+use common::Diagnostic;
 use persist_query::PersistError;
 use serde_json::error::Error as SerdeError;
 use std::io;
@@ -44,14 +43,14 @@ pub enum Error {
     },
 
     #[error(
-        "Failed parsing GraphQL:{}",
+        "Diagnostics Error:{}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err.print()))
+            .map(|err| format!("\n - {}", err.print_without_source()))
             .collect::<Vec<_>>()
             .join("")
     )]
-    SyntaxErrors { errors: Vec<SyntaxErrorWithSource> },
+    DiagnosticsError { errors: Vec<Diagnostic> },
 
     #[error(
         "Failed to build:{}",
@@ -168,11 +167,11 @@ pub enum BuildProjectError {
         "Validation errors:{}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {}", err.print_without_source()))
             .collect::<Vec<_>>()
             .join("")
     )]
-    ValidationErrors { errors: Vec<ValidationError> },
+    ValidationErrors { errors: Vec<Diagnostic> },
 
     #[error("Persisting operation(s) failed:{0}",
         errors

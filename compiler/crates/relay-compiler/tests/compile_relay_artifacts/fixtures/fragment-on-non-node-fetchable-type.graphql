@@ -1,11 +1,11 @@
-fragment RefetchableFragment on NonNodeStory
+fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
-    ...ProfilePicture
+    ...fragmentOnNonNodeFetchableType_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }

@@ -15,7 +15,11 @@
 
 const fetchQuery = require('../fetchQuery');
 
-const {createOperationDescriptor, getRequest} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  getRequest,
+  RelayFeatureFlags,
+} = require('relay-runtime');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -216,5 +220,101 @@ describe('fetchQuery', () => {
         },
       });
     });
+  });
+});
+
+describe('fetchQuery with missing @required value', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+  });
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  });
+  it('provides data snapshot on next', () => {
+    const logs = [];
+    const environment = createMockEnvironment({
+      log: event => {
+        if (event.name === 'read.missing_required_field') {
+          logs.push(event);
+        }
+      },
+    });
+    const query = generateAndCompile(
+      `query TestQuery {
+          me {
+            name @required(action: LOG)
+          }
+        }
+      `,
+    ).TestQuery;
+
+    const observer = {next: jest.fn()};
+    const subscription = fetchQuery(environment, query, {}).subscribe(observer);
+    expect(observer.next).not.toHaveBeenCalled();
+
+    expect(logs.length).toBe(0);
+    environment.mock.nextValue(query, {
+      data: {
+        me: {
+          name: null,
+        },
+      },
+    });
+    subscription.unsubscribe();
+    expect(observer.next).toHaveBeenCalledWith({me: null});
+    expect(logs).toEqual([
+      {
+        fieldPath: 'me.name',
+        name: 'read.missing_required_field',
+        owner: 'TestQuery',
+      },
+    ]);
+  });
+
+  it('throws on resolution', () => {
+    const environment = createMockEnvironment({});
+    const query = generateAndCompile(
+      `query TestQuery {
+          me {
+            name @required(action: THROW)
+          }
+        }
+      `,
+    ).TestQuery;
+
+    const observer = {next: jest.fn(), error: jest.fn()};
+    const subscription = fetchQuery(environment, query, {}).subscribe(observer);
+    expect(observer.next).not.toHaveBeenCalled();
+    expect(observer.error).not.toHaveBeenCalled();
+
+    environment.mock.nextValue(query, {data: {me: {name: null}}});
+    subscription.unsubscribe();
+    expect(observer.error).toHaveBeenCalledWith(
+      Error("Relay: Missing @required value at path 'me.name' in 'TestQuery'."),
+    );
+    expect(observer.next).not.toHaveBeenCalled();
+  });
+
+  it('does not report missing required values in fragments', () => {
+    const environment = createMockEnvironment({});
+    const query = generateAndCompile(
+      `query TestQuery {
+          me {
+            ...TestFragment
+          }
+        }
+        fragment TestFragment on User {
+          name @required(action: THROW)
+        }
+      `,
+    ).TestQuery;
+
+    const observer = {next: jest.fn(), error: jest.fn()};
+    const subscription = fetchQuery(environment, query, {}).subscribe(observer);
+    environment.mock.nextValue(query, {data: {me: {name: null}}});
+
+    subscription.unsubscribe();
+
+    expect(observer.error).not.toHaveBeenCalled();
   });
 });

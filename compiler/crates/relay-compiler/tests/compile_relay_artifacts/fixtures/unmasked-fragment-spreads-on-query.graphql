@@ -1,9 +1,9 @@
-query TestQuery($isRelative: Boolean) {
+query unmaskedFragmentSpreadsOnQuery_TestQuery($isRelative: Boolean) {
   me {
-    ...UserUtil_user @relay(mask: false)
+    ...unmaskedFragmentSpreadsOnQuery_UserUtil_user @relay(mask: false)
   }
 }
 
-fragment UserUtil_user on User {
+fragment unmaskedFragmentSpreadsOnQuery_UserUtil_user on User {
   url(relative: $isRelative)
 }

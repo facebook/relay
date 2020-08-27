@@ -13,4 +13,4 @@ fragment UserFragment on User
   }
 }
 ==================================== ERROR ====================================
-ValidationError { message: ExpectedEnumValueGotString("Environment"), locations: [string-enum-fragment-arg-with-complex-input.graphql:187:195] }
+Diagnostic(DiagnosticData { message: ExpectedEnumValueGotString("Environment"), location: string-enum-fragment-arg-with-complex-input.graphql:187:195, related_information: [] })

@@ -69,6 +69,8 @@ const ID = '12345';
 const variables = {id: '4'};
 
 let callLoadQuery;
+let environment;
+let fetch;
 let writeDataToStore;
 let sink;
 let next;
@@ -77,19 +79,20 @@ let error;
 beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
-  const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+  fetch = jest.fn((_query, _variables, _cacheConfig) => {
     return Observable.create(_sink => {
       sink = _sink;
     });
   });
 
-  const environment = createMockEnvironment({network: Network.create(fetch)});
+  environment = createMockEnvironment({network: Network.create(fetch)});
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);
 
   writeDataToStore = () => {
     loadQuery(environment, preloadableConcreteRequest, variables);
     sink.next(response);
+    sink.complete();
     PreloadableQueryRegistry.set(ID, query);
     expect(store.check(operation).status).toBe('available');
     // N.B. we are not testing the case where data is written to the store
@@ -134,6 +137,14 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(next).toHaveBeenCalledWith(response);
     });
 
+    it('should dedupe network request if called multiple times', () => {
+      PreloadableQueryRegistry.set(ID, query);
+      callLoadQuery(preloadableConcreteRequest);
+      callLoadQuery(preloadableConcreteRequest);
+
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
     it('should pass network errors onto source', () => {
       PreloadableQueryRegistry.set(ID, query);
       callLoadQuery(preloadableConcreteRequest);
@@ -164,6 +175,22 @@ describe('when passed a PreloadableConcreteRequest', () => {
   });
 
   describe('when the query is unavailable synchronously', () => {
+    it('should dedupe operation execution if called multiple times', () => {
+      callLoadQuery(preloadableConcreteRequest);
+      callLoadQuery(preloadableConcreteRequest);
+
+      // Note: before we have the operation module is available
+      // we can't reliably dedupe network requests, since the
+      // request identifier is based on the variables the
+      // operation expects, and not just the variables passed as
+      // input.
+      expect(fetch).toHaveBeenCalledTimes(2);
+
+      PreloadableQueryRegistry.set(ID, query);
+      // We only process the network request once.
+      expect(environment.executeWithSource).toBeCalledTimes(1);
+    });
+
     describe('when the query AST is available before the network response', () => {
       it('should pass network responses onto source', () => {
         callLoadQuery(preloadableConcreteRequest);

@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-query FooQuery($id: ID!) {
+query clientInlineFragmentsInQuery_FooQuery($id: ID!) {
   node(id: $id) {
-    ...Foo_user
+    ...clientInlineFragmentsInQuery_Foo_user
   }
 }
 
-fragment Foo_user on User {
+fragment clientInlineFragmentsInQuery_Foo_user on User {
   id
   foo {
     ... on ClientNamed {
@@ -35,7 +35,7 @@ interface ClientNamed {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FooQuery",
+    "name": "clientInlineFragmentsInQuery_FooQuery",
     "selections": [
       {
         "alias": null,
@@ -54,7 +54,7 @@ interface ClientNamed {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "Foo_user"
+            "name": "clientInlineFragmentsInQuery_Foo_user"
           }
         ],
         "storageKey": null
@@ -73,7 +73,7 @@ interface ClientNamed {
       }
     ],
     "kind": "Operation",
-    "name": "FooQuery",
+    "name": "clientInlineFragmentsInQuery_FooQuery",
     "selections": [
       {
         "alias": null,
@@ -148,7 +148,7 @@ interface ClientNamed {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FooQuery",
+    "name": "clientInlineFragmentsInQuery_FooQuery",
     "operationKind": "query",
     "text": null
   }
@@ -156,17 +156,17 @@ interface ClientNamed {
 
 QUERY:
 
-query FooQuery(
+query clientInlineFragmentsInQuery_FooQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...Foo_user
+    ...clientInlineFragmentsInQuery_Foo_user
     id
   }
 }
 
-fragment Foo_user on User {
+fragment clientInlineFragmentsInQuery_Foo_user on User {
   id
 }
 
@@ -175,7 +175,7 @@ fragment Foo_user on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientInlineFragmentsInQuery_Foo_user",
   "selections": [
     {
       "alias": null,

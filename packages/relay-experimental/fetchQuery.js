@@ -20,6 +20,7 @@ const {
   createOperationDescriptor,
   getRequest,
   Observable,
+  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 import type {
@@ -129,15 +130,33 @@ function fetchQuery<TQuery: OperationType>(
     ...options?.networkCacheConfig,
   };
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
+
+  function readData(snapshot) {
+    if (snapshot.missingRequiredFields != null) {
+      reportMissingRequiredFields(environment, snapshot.missingRequiredFields);
+    }
+    return snapshot.data;
+  }
+
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation, networkCacheConfig);
+      return getNetworkObservable(
+        environment,
+        operation,
+        networkCacheConfig,
+      ).map(readData);
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
-        return Observable.from(environment.lookup(operation.fragment).data);
+        return Observable.from(environment.lookup(operation.fragment)).map(
+          readData,
+        );
       }
-      return getNetworkObservable(environment, operation, networkCacheConfig);
+      return getNetworkObservable(
+        environment,
+        operation,
+        networkCacheConfig,
+      ).map(readData);
     }
     default:
       (fetchPolicy: void);
@@ -152,7 +171,7 @@ function getNetworkObservable<TQuery: OperationType>(
 ): Observable<$ElementType<TQuery, 'response'>> {
   return RelayRuntimeInternal.fetchQuery(environment, operation, {
     networkCacheConfig,
-  }).map(() => environment.lookup(operation.fragment).data);
+  }).map(() => environment.lookup(operation.fragment));
 }
 
 module.exports = fetchQuery;

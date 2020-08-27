@@ -1242,6 +1242,7 @@ ExecutableDocument {
                 },
                 value: "frag",
             },
+            variable_definitions: None,
             type_condition: TypeCondition {
                 span: 901:911,
                 on: Token {

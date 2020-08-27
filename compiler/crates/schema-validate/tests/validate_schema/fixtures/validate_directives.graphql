@@ -1,0 +1,30 @@
+directive @__fetchable(field_name: String) on OBJECT
+
+directive @fetchable(__field_name: String) on OBJECT
+
+directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
+
+directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
+
+interface Hominid {
+  pet: Pet
+}
+
+interface Canine {
+  owner: Human
+}
+
+type Pet implements Canine @fetchable(field_name: "id") {
+  id: ID
+  owner: Human
+}
+
+type Human implements Hominid @fetchable(field_name: "id") {
+  id: ID
+  pet: Pet
+}
+
+type Query {
+  fetch__Human(id: ID!): Human
+  user: Human
+}

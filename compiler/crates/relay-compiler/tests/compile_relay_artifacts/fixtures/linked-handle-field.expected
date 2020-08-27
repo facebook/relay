@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query LinkedHandleField($id: ID!) {
+query linkedHandleField_LinkedHandleFieldQuery($id: ID!) {
   node(id: $id) {
     ... on User {
       friends(first: 10) @__clientField(handle: "clientFriends") {
@@ -20,7 +20,7 @@ query LinkedHandleField($id: ID!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "LinkedHandleField",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -78,7 +78,7 @@ query LinkedHandleField($id: ID!) {
       }
     ],
     "kind": "Operation",
-    "name": "LinkedHandleField",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -162,7 +162,7 @@ query LinkedHandleField($id: ID!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "LinkedHandleField",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
     "operationKind": "query",
     "text": null
   }
@@ -170,7 +170,7 @@ query LinkedHandleField($id: ID!) {
 
 QUERY:
 
-query LinkedHandleField(
+query linkedHandleField_LinkedHandleFieldQuery(
   $id: ID!
 ) {
   node(id: $id) {

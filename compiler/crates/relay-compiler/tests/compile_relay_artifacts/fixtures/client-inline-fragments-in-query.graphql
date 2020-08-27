@@ -1,10 +1,10 @@
-query FooQuery($id: ID!) {
+query clientInlineFragmentsInQuery_FooQuery($id: ID!) {
   node(id: $id) {
-    ...Foo_user
+    ...clientInlineFragmentsInQuery_Foo_user
   }
 }
 
-fragment Foo_user on User {
+fragment clientInlineFragmentsInQuery_Foo_user on User {
   id
   foo {
     ... on ClientNamed {

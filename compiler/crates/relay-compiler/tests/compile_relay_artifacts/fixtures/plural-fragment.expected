@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment PluralFragment on User @relay(plural: true) {
+fragment pluralFragment_PluralFragment on User @relay(plural: true) {
   name
 }
 ==================================== OUTPUT ===================================
@@ -9,7 +9,7 @@ fragment PluralFragment on User @relay(plural: true) {
   "metadata": {
     "plural": true
   },
-  "name": "PluralFragment",
+  "name": "pluralFragment_PluralFragment",
   "selections": [
     {
       "alias": null,

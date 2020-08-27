@@ -1,9 +1,9 @@
 # expected-to-throw
-fragment User_fragment on User {
+fragment idAsAlias_User_fragment on User {
   id: name
 }
 
-fragment ProfilePicture on User {
+fragment idAsAlias_ProfilePicture on User {
   profilePicture(size: $size) {
     id: uri
   }

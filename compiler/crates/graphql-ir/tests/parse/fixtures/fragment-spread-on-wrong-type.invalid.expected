@@ -10,7 +10,12 @@ query myQuery {
   }
 }
 ==================================== ERROR ====================================
-Invalid fragment spread 'Foo', the type of this fragment ('Image') can never occur for parent type 'Node':
-fragment-spread-on-wrong-type.invalid.graphql:7:5:
-    ...Foo
-  }
+✖︎ Invalid fragment spread 'Foo', the type of this fragment ('Image') can never occur for parent type 'Node'
+
+  fragment-spread-on-wrong-type.invalid.graphql:8:5
+    7 │   node(id: "<my-id>") {
+    8 │     ...Foo
+      │     ^^^^^^
+    9 │   }
+      │ ^^
+   10 │ }

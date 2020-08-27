@@ -9,6 +9,10 @@ subscription TestSubscriptionWithMultipleSelections(
   }
 }
 ==================================== ERROR ====================================
-The root of subscription 'TestSubscriptionWithMultipleSelections' must be a simple selection.:
-conditional-root.invalid.graphql:1:14:
-subscription TestSubscriptionWithMultipleSelections(
+✖︎ The root of subscription 'TestSubscriptionWithMultipleSelections' must be a simple selection.
+
+  conditional-root.invalid.graphql:2:14
+    1 │ # expected-to-throw
+    2 │ subscription TestSubscriptionWithMultipleSelections(
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   $input: FeedbackLikeInput

@@ -1,4 +1,4 @@
-// @generated SignedSource<<07978cac646479f097100264cf401ebc>>
+// @generated SignedSource<<f35193381d17b8c1691793abf7aab4a7>>
 
 mod compile_relay_artifacts;
 
@@ -101,6 +101,13 @@ fn alias_same_as_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.expected");
     test_fixture(transform_fixture, "alias-same-as-name.graphql", "compile_relay_artifacts/fixtures/alias-same-as-name.expected", input, expected);
+}
+
+#[test]
+fn append_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-edge.expected");
+    test_fixture(transform_fixture, "append-edge.graphql", "compile_relay_artifacts/fixtures/append-edge.expected", input, expected);
 }
 
 #[test]
@@ -220,6 +227,13 @@ fn connection_with_dynamic_key_missing_variable_definition_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/connection-with-dynamic-key-missing-variable-definition.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/connection-with-dynamic-key-missing-variable-definition.invalid.expected");
     test_fixture(transform_fixture, "connection-with-dynamic-key-missing-variable-definition.invalid.graphql", "compile_relay_artifacts/fixtures/connection-with-dynamic-key-missing-variable-definition.invalid.expected", input, expected);
+}
+
+#[test]
+fn constant_variable_matches_constant_value() {
+    let input = include_str!("compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.expected");
+    test_fixture(transform_fixture, "constant_variable_matches_constant_value.graphql", "compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.expected", input, expected);
 }
 
 #[test]
@@ -587,6 +601,13 @@ fn query_with_raw_response_type_directive() {
 }
 
 #[test]
+fn redundant_selection_in_inline_fragments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected");
+    test_fixture(transform_fixture, "redundant-selection-in-inline-fragments.graphql", "compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected", input, expected);
+}
+
+#[test]
 fn refetchable_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-connection.expected");
@@ -636,6 +657,20 @@ fn relay_client_id_field() {
 }
 
 #[test]
+fn required_directive() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
+    test_fixture(transform_fixture, "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected);
+}
+
+#[test]
+fn same_fields_with_different_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.expected");
+    test_fixture(transform_fixture, "same-fields-with-different-args.invalid.graphql", "compile_relay_artifacts/fixtures/same-fields-with-different-args.invalid.expected", input, expected);
+}
+
+#[test]
 fn scalar_handle_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/scalar-handle-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/scalar-handle-field.expected");
@@ -661,6 +696,13 @@ fn stream_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/stream-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection.expected");
     test_fixture(transform_fixture, "stream-connection.graphql", "compile_relay_artifacts/fixtures/stream-connection.expected", input, expected);
+}
+
+#[test]
+fn stream_connection_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.expected");
+    test_fixture(transform_fixture, "stream-connection-conditional.graphql", "compile_relay_artifacts/fixtures/stream-connection-conditional.expected", input, expected);
 }
 
 #[test]

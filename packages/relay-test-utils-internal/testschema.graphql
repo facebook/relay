@@ -854,7 +854,7 @@ type Story implements FeedUnit & Node & MaybeNodeInterface {
   websites: [String]
   username: String
   viewerSavedState: String
-  flightComponent: ReactFlightComponent
+  flight(component: String, props: ReactFlightProps): ReactFlightComponent
 }
 
 type StoryAttachment {
@@ -1202,3 +1202,4 @@ type IDFieldIsObject {
 }
 
 scalar ReactFlightComponent
+scalar ReactFlightProps

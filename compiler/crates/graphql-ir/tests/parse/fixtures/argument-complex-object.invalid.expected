@@ -6,10 +6,18 @@ query ObjectArgument($text: String!) {
   }
 }
 ==================================== ERROR ====================================
-Duplicate values found for field 'query':
-argument-complex-object.invalid.graphql:2:44:
-  checkinSearchQuery(query: {query: $text, query: "YES"}) {
+✖︎ Duplicate values found for field 'query'
 
+  argument-complex-object.invalid.graphql:3:30
+    2 │ query ObjectArgument($text: String!) {
+    3 │   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+      │                              ^^^^^
+    4 │     query
 
-argument-complex-object.invalid.graphql:2:30:
-  checkinSearchQuery(query: {query: $text, query: "YES"}) {
+  ℹ︎ also defined here
+
+  argument-complex-object.invalid.graphql:3:44
+    2 │ query ObjectArgument($text: String!) {
+    3 │   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+      │                                            ^^^^^
+    4 │     query

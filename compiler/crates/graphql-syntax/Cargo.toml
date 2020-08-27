@@ -24,3 +24,4 @@ thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+graphql-test-helpers = { path = "../graphql-test-helpers" }

@@ -7,9 +7,9 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_transforms::validate_unused_variables;
 use std::sync::Arc;
 use test_schema::TEST_SCHEMA;
@@ -17,35 +17,13 @@ use test_schema::TEST_SCHEMA;
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    let mut sources = FnvHashMap::default();
-    sources.insert(source_location, fixture.content);
-
     let ast = parse_executable(fixture.content, source_location).unwrap();
-    let ir_result = build(&TEST_SCHEMA, &ast.definitions);
-    let ir = match ir_result {
-        Ok(res) => res,
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    };
+    let ir = build(&TEST_SCHEMA, &ast.definitions)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    let validation_result = validate_unused_variables(&program);
+    validate_unused_variables(&program)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    match validation_result {
-        Ok(_) => Ok("OK".to_owned()),
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            Err(errs.join("\n\n"))
-        }
-    }
+    Ok("OK".to_owned())
 }

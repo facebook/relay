@@ -1,4 +1,4 @@
-query FooQuery($id: ID!) {
+query clientFieldsOnRoots_FooQuery($id: ID!) {
   client_root_field
 
   node(id: $id) {
@@ -6,7 +6,7 @@ query FooQuery($id: ID!) {
   }
 }
 
-mutation FooMutation($input: UnfriendInput) {
+mutation clientFieldsOnRoots_FooMutation($input: UnfriendInput) {
   client_root_field
   unfriend(input: $input) {
     clientMutationId

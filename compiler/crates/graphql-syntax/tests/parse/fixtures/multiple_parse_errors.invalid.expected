@@ -9,21 +9,46 @@ query Test(
     __typename
 }
 ==================================== ERROR ====================================
-Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:5:
-    %%%% # unexpected % signs
+✖︎ Expected a variable ('$example')
+
+  multiple_parse_errors.invalid.graphql:5:5
+    4 │     $arg: String,
+    5 │     width: Int # missing $
+      │     ^^^^^
+    6 │     height: Int # missing $
 
 
-Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:6:
-    %%%% # unexpected % signs
+✖︎ Unsupported character
+
+  multiple_parse_errors.invalid.graphql:3:5
+    2 │ query Test(
+    3 │     %%%% # unexpected % signs
+      │     ^
+    4 │     $arg: String,
 
 
-Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:7:
-    %%%% # unexpected % signs
+✖︎ Unsupported character
+
+  multiple_parse_errors.invalid.graphql:3:6
+    2 │ query Test(
+    3 │     %%%% # unexpected % signs
+      │      ^
+    4 │     $arg: String,
 
 
-Error: Unsupported character at multiple_parse_errors.invalid.graphql:3:8:
-    %%%% # unexpected % signs
+✖︎ Unsupported character
+
+  multiple_parse_errors.invalid.graphql:3:7
+    2 │ query Test(
+    3 │     %%%% # unexpected % signs
+      │       ^
+    4 │     $arg: String,
 
 
-Error: Expected a variable ('$example') at multiple_parse_errors.invalid.graphql:5:5:
-    width: Int # missing $
+✖︎ Unsupported character
+
+  multiple_parse_errors.invalid.graphql:3:8
+    2 │ query Test(
+    3 │     %%%% # unexpected % signs
+      │        ^
+    4 │     $arg: String,

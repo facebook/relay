@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query TestQuery {
+query aliasSameAsName_TestQuery {
   viewer: viewer {
     actor: actor {
       name: name
@@ -12,7 +12,7 @@ query TestQuery {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "aliasSameAsName_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -51,7 +51,7 @@ query TestQuery {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "aliasSameAsName_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -101,7 +101,7 @@ query TestQuery {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "aliasSameAsName_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -109,7 +109,7 @@ query TestQuery {
 
 QUERY:
 
-query TestQuery {
+query aliasSameAsName_TestQuery {
   viewer {
     actor {
       __typename

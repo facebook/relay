@@ -7,9 +7,9 @@
 
 use crate::config::ProjectConfig;
 use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
+use common::Diagnostic;
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::ValidationError;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use interner::StringKey;
@@ -46,7 +46,7 @@ pub fn build_ir(
     schema: &Schema,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     is_incremental_build: bool,
-) -> Result<BuildIRResult, Vec<ValidationError>> {
+) -> Result<BuildIRResult, Vec<Diagnostic>> {
     let project_asts = graphql_asts
         .get(&project_config.name)
         .map(|asts| asts.asts.clone())
@@ -77,19 +77,19 @@ pub fn build_ir(
     let source_hashes = SourceHashes::from_definitions(&reachable_ast);
     let ir = graphql_ir::build(&schema, &reachable_ast)?;
     if is_incremental_build {
-        let mut changed_names = graphql_asts
+        let mut reachable_names = graphql_asts
             .get(&project_config.name)
-            .map(|asts| asts.changed_definition_names.clone())
+            .map(|asts| asts.pending_definition_names.clone())
             .unwrap_or_default();
         if let Some(base_project_name) = project_config.base {
-            changed_names.extend(
+            reachable_names.extend(
                 graphql_asts
                     .get(&base_project_name)
-                    .map(|asts| asts.changed_definition_names.clone())
+                    .map(|asts| asts.pending_definition_names.clone())
                     .unwrap_or_default(),
             );
         }
-        let affected_ir = get_reachable_ir(ir, base_definition_names, changed_names);
+        let affected_ir = get_reachable_ir(ir, base_definition_names, reachable_names);
         Ok(BuildIRResult {
             ir: affected_ir,
             base_fragment_names,
@@ -107,17 +107,20 @@ pub fn build_ir(
 fn find_duplicates(
     asts: &[ExecutableDefinition],
     base_asts: &[ExecutableDefinition],
-) -> Result<(), Vec<ValidationError>> {
+) -> Result<(), Vec<Diagnostic>> {
     let mut definitions = FnvHashMap::default();
 
     let mut errors = Vec::new();
     for def in asts.iter().chain(base_asts) {
         if let Some(name) = def.name() {
             if let Some(prev_def) = definitions.insert(name, def) {
-                errors.push(ValidationError {
-                    message: graphql_ir::ValidationMessage::DuplicateDefinition(name),
-                    locations: vec![def.location(), prev_def.location()],
-                })
+                errors.push(
+                    Diagnostic::error(
+                        graphql_ir::ValidationMessage::DuplicateDefinition(name),
+                        def.location(),
+                    )
+                    .annotate("previously defined here", prev_def.location()),
+                );
             }
         }
     }

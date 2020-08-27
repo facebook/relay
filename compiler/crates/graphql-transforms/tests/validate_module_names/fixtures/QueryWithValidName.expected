@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+query QueryWithValidNameQuery {
+    me {
+        name
+    }
+}
+
+query QueryWithValidNameSecondQuery {
+    me {
+        name
+    }
+}
+==================================== OUTPUT ===================================
+OK

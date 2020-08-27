@@ -1,4 +1,4 @@
-// @generated SignedSource<<da25be88957afe235cd6edd2c4b1e633>>
+// @generated SignedSource<<ddff3fc49a44e3b28eb4d25afde0a320>>
 
 mod skip_redundant_nodes;
 
@@ -24,6 +24,13 @@ fn dont_skip_with_inline_on_diffent_types() {
     let input = include_str!("skip_redundant_nodes/fixtures/dont-skip-with-inline-on-diffent-types.graphql");
     let expected = include_str!("skip_redundant_nodes/fixtures/dont-skip-with-inline-on-diffent-types.expected");
     test_fixture(transform_fixture, "dont-skip-with-inline-on-diffent-types.graphql", "skip_redundant_nodes/fixtures/dont-skip-with-inline-on-diffent-types.expected", input, expected);
+}
+
+#[test]
+fn redundant_selection_in_inline_fragments() {
+    let input = include_str!("skip_redundant_nodes/fixtures/redundant-selection-in-inline-fragments.graphql");
+    let expected = include_str!("skip_redundant_nodes/fixtures/redundant-selection-in-inline-fragments.expected");
+    test_fixture(transform_fixture, "redundant-selection-in-inline-fragments.graphql", "skip_redundant_nodes/fixtures/redundant-selection-in-inline-fragments.expected", input, expected);
 }
 
 #[test]

@@ -18,7 +18,7 @@ mutation CommentCreateMutation(
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
-    feedbackCommentEdge @__clientField(key: "", handle: "appendEdge") {
+    feedbackCommentEdge @__clientField(key: "", handle: "appendEdge", handleArgs: {connections: $connections}) {
       cursor
       node {
         id

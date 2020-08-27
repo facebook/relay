@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::NamedItem;
+use common::{Diagnostic, NamedItem};
 use graphql_ir::{
     FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationError, ValidationMessage, ValidationResult,
+    ValidationMessage, ValidationResult,
 };
 
 use crate::connections::ConnectionInterface;
@@ -43,7 +43,7 @@ lazy_static! {
 
 struct DeclarativeConnectionMutationTransform<'s, 'c> {
     program: &'s Program,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
     connection_interface: &'c ConnectionInterface,
 }
 
@@ -71,12 +71,12 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
         });
         if let Some(linked_field_directive) = linked_field_directive {
-            self.errors.push(ValidationError::new(
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::ConnectionMutationDirectiveOnScalarField {
                     directive_name: linked_field_directive.name.item,
                     field_name: field.alias_or_name(&self.program.schema),
                 },
-                vec![field.definition.location],
+                field.definition.location,
             ));
         }
         let delete_directive = field.directives.named(*DELETE_RECORD);
@@ -86,7 +86,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             Some(delete_directive) => {
                 let is_id = self.program.schema.is_id(field_definition.type_.inner());
                 if !is_id {
-                    self.errors.push(ValidationError::new(
+                    self.errors.push(Diagnostic::error(
                         ValidationMessage::DeleteRecordDirectiveOnUnsupportedType {
                             directive_name: delete_directive.name.item,
                             field_name: field.alias_or_name(&self.program.schema),
@@ -95,7 +95,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                                 .schema
                                 .get_type_string(&field_definition.type_),
                         },
-                        vec![delete_directive.name.location],
+                        delete_directive.name.location,
                     ));
                     Transformed::Keep
                 } else {
@@ -105,6 +105,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             key: "".intern(),
                             dynamic_key: None,
                             filters: None,
+                            handle_args: None,
                         });
                     let mut next_directives: Vec<_> = field
                         .directives
@@ -126,12 +127,12 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
         let transformed_field = self.default_transform_linked_field(field);
         let delete_directive = field.directives.named(*DELETE_RECORD);
         if let Some(delete_directive) = delete_directive {
-            self.errors.push(ValidationError::new(
+            self.errors.push(Diagnostic::error(
                 ValidationMessage::DeleteRecordDirectiveOnLinkedField {
                     directive_name: delete_directive.name.item,
                     field_name: field.alias_or_name(&self.program.schema),
                 },
-                vec![field.definition.location],
+                field.definition.location,
             ));
         }
         let edge_directive = field.directives.iter().find(|directive| {
@@ -143,15 +144,15 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                 let connetions_arg = edge_directive.arguments.named(*CONNECTIONS_ARG_NAME);
                 match connetions_arg {
                     None => {
-                        self.errors.push(ValidationError::new(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::ConnectionsArgumentRequired {
                                 directive_name: edge_directive.name.item,
                             },
-                            vec![edge_directive.name.location],
+                            edge_directive.name.location,
                         ));
                         transformed_field
                     }
-                    Some(_connections_arg) => {
+                    Some(connections_arg) => {
                         let field_definition = self.program.schema.field(field.definition.item);
                         let mut has_cursor_field = false;
                         let mut has_node_field = false;
@@ -173,6 +174,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                                     key: "".intern(),
                                     dynamic_key: None,
                                     filters: None,
+                                    handle_args: Some(vec![connections_arg.clone()]),
                                 });
                             let mut next_field = match transformed_field {
                                 Transformed::Replace(Selection::LinkedField(linked_field)) => {
@@ -194,12 +196,12 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             next_field.directives[index] = handle_directive;
                             Transformed::Replace(Selection::LinkedField(Arc::new(next_field)))
                         } else {
-                            self.errors.push(ValidationError::new(
+                            self.errors.push(Diagnostic::error(
                                 ValidationMessage::EdgeDirectiveOnUnsupportedType {
                                     directive_name: edge_directive.name.item,
                                     field_name: field.alias_or_name(&self.program.schema),
                                 },
-                                vec![edge_directive.name.location],
+                                edge_directive.name.location,
                             ));
                             Transformed::Keep
                         }

@@ -17,6 +17,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const warning = require('warning');
 
 const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
@@ -245,7 +246,10 @@ class SelectorResolver {
 
   resolve(): ?Object {
     if (this._missingRequiredFields != null) {
-      this._handleMissingRequriedFields(this._missingRequiredFields);
+      reportMissingRequiredFields(
+        this._environment,
+        this._missingRequiredFields,
+      );
     }
     if (
       RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
@@ -289,29 +293,6 @@ class SelectorResolver {
       }
     }
     return this._data;
-  }
-
-  _handleMissingRequriedFields(missingRequiredFields: MissingRequiredFields) {
-    switch (missingRequiredFields.action) {
-      case 'THROW': {
-        const {path, owner} = missingRequiredFields.field;
-        throw new Error(
-          `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-        );
-      }
-      case 'LOG':
-        missingRequiredFields.fields.forEach(({path, owner}) => {
-          this._environment.__log({
-            name: 'read.missing_required_field',
-            owner,
-            fieldPath: path,
-          });
-        });
-        break;
-      default: {
-        (missingRequiredFields.action: empty);
-      }
-    }
   }
 
   setSelector(selector: SingularReaderSelector): void {

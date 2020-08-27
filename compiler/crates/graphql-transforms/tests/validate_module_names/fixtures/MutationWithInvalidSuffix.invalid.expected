@@ -1,0 +1,8 @@
+==================================== INPUT ====================================
+mutation MutationWithInvalidSuffixQuery {
+    commentCreate(input: null) {
+        clientMutationId
+    }
+}
+==================================== OUTPUT ===================================
+OK

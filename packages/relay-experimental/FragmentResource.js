@@ -25,13 +25,13 @@ const {
   getSelector,
   isPromise,
   recycleNodesInto,
+  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 import type {Cache} from './LRUCache';
 import type {
   Disposable,
   IEnvironment,
-  MissingRequiredFields,
   ReaderFragment,
   RequestDescriptor,
   Snapshot,
@@ -253,36 +253,19 @@ class FragmentResourceImpl {
   _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        const singleSnapshot = s;
-        this._reportMissingRequiredFields(singleSnapshot.missingRequiredFields);
+        if (s.missingRequiredFields != null) {
+          reportMissingRequiredFields(
+            this._environment,
+            s.missingRequiredFields,
+          );
+        }
       });
     } else {
-      this._reportMissingRequiredFields(snapshot.missingRequiredFields);
-    }
-  }
-
-  _reportMissingRequiredFields(missingRequiredFields: ?MissingRequiredFields) {
-    if (missingRequiredFields == null) {
-      return;
-    }
-    switch (missingRequiredFields.action) {
-      case 'THROW': {
-        const {path, owner} = missingRequiredFields.field;
-        throw new Error(
-          `Relay: Missing @required value at path '${path}' in '${owner}'.`,
+      if (snapshot.missingRequiredFields != null) {
+        reportMissingRequiredFields(
+          this._environment,
+          snapshot.missingRequiredFields,
         );
-      }
-      case 'LOG':
-        missingRequiredFields.fields.forEach(({path, owner}) => {
-          this._environment.__log({
-            name: 'read.missing_required_field',
-            owner,
-            fieldPath: path,
-          });
-        });
-        break;
-      default: {
-        (missingRequiredFields.action: empty);
       }
     }
   }

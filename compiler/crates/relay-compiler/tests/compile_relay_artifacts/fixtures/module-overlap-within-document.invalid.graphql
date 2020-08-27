@@ -1,17 +1,17 @@
 # expected-to-throw
-query MultipleNameRendererQuery($id: ID!) {
+query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...FooNameRendererFragment
-    ...BarNameRendererFragment
+    ...moduleOverlapWithinDocument_FooNameRendererFragment
+    ...moduleOverlapWithinDocument_BarNameRendererFragment
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
   id
   nameRenderer {
-    ...MarkdownUserNameRenderer_name
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
       @module(name: "FooMarkdownUserNameRenderer.react")
-    ...PlainUserNameRenderer_name
+    ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
       @module(name: "FooPlainUserNameRenderer.react")
   }
 }
@@ -21,19 +21,19 @@ fragment BarNameRendererFragment on User {
   # flatten with the above selections even though the supported types are
   # different
   nameRenderer {
-    ...MarkdownUserNameRenderer_name
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
       @module(name: "BarMarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment moduleOverlapWithinDocument_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

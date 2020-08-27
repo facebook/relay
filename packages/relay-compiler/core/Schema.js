@@ -133,8 +133,19 @@ type InternalArgumentStruct = $ReadOnly<{|
 
 type FieldDefinition = {|
   +arguments: $ReadOnlyArray<InternalArgumentStruct>,
+  +directives: ?$ReadOnlyArray<DirectiveInvocation>,
   +type: TypeNode,
   +isClient: boolean,
+|};
+
+type DirectiveInvocation = {|
+  +name: string,
+  +args: $ReadOnlyArray<ArgumentValue>,
+|};
+
+type ArgumentValue = {|
+  +name: string,
+  +value: ValueNode,
 |};
 
 type InternalDirectiveMap = Map<string, InternalDirectiveStruct>;
@@ -251,6 +262,7 @@ class NonNull<+T> {
  */
 class Field {
   +args: $ReadOnlyMap<string, Argument>;
+  +directives: ?$ReadOnlyArray<DirectiveInvocation>;
   +belongsTo: CompositeType | InputObjectType;
   +name: string;
   +type: TypeID;
@@ -262,6 +274,7 @@ class Field {
     type: TypeID,
     belongsTo: CompositeType | InputObjectType,
     args: $ReadOnlyArray<InternalArgumentStruct>,
+    directives: ?$ReadOnlyArray<DirectiveInvocation>,
     isClient: boolean,
   ) {
     this.name = name;
@@ -269,6 +282,7 @@ class Field {
     this.belongsTo = belongsTo;
     this.isClient = isClient;
     this.args = parseInputArgumentDefinitionsMap(schema, args);
+    this.directives = directives;
   }
 }
 
@@ -758,6 +772,13 @@ class Schema {
     return type;
   }
 
+  asInputObjectType(type: TypeID): ?InputObjectTypeID {
+    if (!isInputObject(type)) {
+      return null;
+    }
+    return type;
+  }
+
   assertInterfaceType(type: TypeID): InterfaceTypeID {
     if (!isInterface(type)) {
       throw createCompilerError(
@@ -1066,6 +1087,7 @@ class Schema {
               fieldType,
               this.assertCompositeType(type),
               fieldDefinition.arguments,
+              fieldDefinition.directives,
               fieldDefinition.isClient,
             ),
           );
@@ -1078,7 +1100,7 @@ class Schema {
           const fieldType = this.expectTypeFromAST(typeNode);
           fieldsMap.set(
             fieldName,
-            new Field(this, fieldName, fieldType, type, [], false),
+            new Field(this, fieldName, fieldType, type, [], null, false),
           );
         }
       }
@@ -1111,6 +1133,7 @@ class Schema {
           this.getNonNullType(this.expectStringType()),
           type,
           [],
+          null,
           false, // isClient === false
         );
         this._typeNameMap.set(type, typename);
@@ -1127,6 +1150,7 @@ class Schema {
           this.getNonNullType(this.expectIdType()),
           type,
           [],
+          null,
           true, // isClient === true
         );
         this._clientIdMap.set(type, clientId);
@@ -1685,6 +1709,21 @@ class TypeMap {
               };
             })
           : [],
+        directives: fieldNode.directives
+          ? fieldNode.directives.map(directive => {
+              return {
+                name: directive.name.value,
+                args: directive.arguments
+                  ? directive.arguments.map(arg => {
+                      return {
+                        name: arg.name.value,
+                        value: arg.value,
+                      };
+                    })
+                  : [],
+              };
+            })
+          : null,
         type: fieldNode.type,
         isClient: isClient,
       });

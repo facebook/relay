@@ -6,10 +6,18 @@ query Query @preloadable @preloadable {
   }
 }
 ==================================== ERROR ====================================
-Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough.:
-invalid-document.graphql:1:14:
-query Query @preloadable @preloadable {
+✖︎ Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough.
 
+  invalid-document.graphql:2:14
+    1 │ # expected-to-throw
+    2 │ query Query @preloadable @preloadable {
+      │              ^^^^^^^^^^^
+    3 │   node(id: "foo") {
 
-invalid-document.graphql:1:27:
-query Query @preloadable @preloadable {
+  ℹ︎ related location
+
+  invalid-document.graphql:2:27
+    1 │ # expected-to-throw
+    2 │ query Query @preloadable @preloadable {
+      │                           ^^^^^^^^^^^
+    3 │   node(id: "foo") {

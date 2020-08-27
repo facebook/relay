@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query NodeQuery($id: ID!) {
+query streamConnection_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -32,7 +32,7 @@ query NodeQuery($id: ID!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NodeQuery",
+    "name": "streamConnection_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -179,7 +179,7 @@ query NodeQuery($id: ID!) {
       }
     ],
     "kind": "Operation",
-    "name": "NodeQuery",
+    "name": "streamConnection_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -229,7 +229,7 @@ query NodeQuery($id: ID!) {
                   {
                     "if": null,
                     "kind": "Stream",
-                    "label": "NodeQuery$stream$NodeQuery_comments",
+                    "label": "streamConnection_NodeQuery$stream$NodeQuery_comments",
                     "metadata": null,
                     "selections": [
                       {
@@ -313,7 +313,7 @@ query NodeQuery($id: ID!) {
                   {
                     "if": null,
                     "kind": "Defer",
-                    "label": "NodeQuery$defer$NodeQuery_comments$pageInfo",
+                    "label": "streamConnection_NodeQuery$defer$NodeQuery_comments$pageInfo",
                     "selections": [
                       {
                         "alias": null,
@@ -385,7 +385,7 @@ query NodeQuery($id: ID!) {
         }
       ]
     },
-    "name": "NodeQuery",
+    "name": "streamConnection_NodeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -393,7 +393,7 @@ query NodeQuery($id: ID!) {
 
 QUERY:
 
-query NodeQuery(
+query streamConnection_NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
@@ -401,7 +401,7 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) {
-        edges @stream(label: "NodeQuery$stream$NodeQuery_comments", initial_count: 0) {
+        edges @stream(label: "streamConnection_NodeQuery$stream$NodeQuery_comments", initial_count: 0) {
           node {
             actor {
               __typename
@@ -413,7 +413,7 @@ query NodeQuery(
           }
           cursor
         }
-        ... @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
+        ... @defer(label: "streamConnection_NodeQuery$defer$NodeQuery_comments$pageInfo") {
           pageInfo {
             endCursor
             hasNextPage

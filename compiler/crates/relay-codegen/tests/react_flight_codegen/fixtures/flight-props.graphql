@@ -1,0 +1,19 @@
+query FlightQuery($cond: Boolean!, $count: Int!, $id: ID!) {
+  node(id: $id) {
+    ... on Story {
+      id
+      extension_field(condition: $cond, count: $count, id: $id)
+    }
+  }
+}
+
+# %extensions%
+directive @react_flight_component(name: String!) on FIELD_DEFINITION
+
+extend type Story {
+  extension_field(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent @react_flight_component(name: "ExtensionField.server")
+}

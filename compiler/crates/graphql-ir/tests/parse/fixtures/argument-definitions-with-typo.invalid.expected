@@ -8,7 +8,12 @@ fragment TestFragment on User
   ...Foo @arguments(size: $size)
 }
 ==================================== ERROR ====================================
-Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got 'defaultValu':
-argument-definitions-with-typo.invalid.graphql:4:11:
-    size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-  ) {
+✖︎ Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got 'defaultValu'
+
+  argument-definitions-with-typo.invalid.graphql:5:11
+    4 │     id: {type: "ID"}
+    5 │     size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+      │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   ) {
+      │ ^^
+    7 │   ...Foo @arguments(size: $size)

@@ -377,21 +377,16 @@ function printValue(
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
   } else if (value.kind === 'ObjectValue') {
-    invariant(
-      type && schema.isInputObject(type),
-      'GraphQLIRPrinter: Need an InputObject type to print objects.',
-    );
-    const inputType = schema.assertInputObjectType(type);
+    const inputType = type != null ? schema.asInputObjectType(type) : null;
     const pairs = value.fields
       .map(field => {
         const fieldConfig =
-          type != null
+          inputType != null
             ? schema.hasField(inputType, field.name)
               ? schema.getFieldConfig(schema.expectField(inputType, field.name))
               : null
             : null;
-        const innerValue =
-          fieldConfig && printValue(schema, field.value, fieldConfig.type);
+        const innerValue = printValue(schema, field.value, fieldConfig?.type);
         return innerValue == null ? null : field.name + ': ' + innerValue;
       })
       .filter(Boolean);

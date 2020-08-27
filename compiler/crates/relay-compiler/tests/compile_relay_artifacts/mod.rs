@@ -7,9 +7,9 @@
 
 use common::{ConsoleLogger, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
-use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program, ValidationError};
+use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 use graphql_transforms::{ConnectionInterface, FeatureFlags, MATCH_CONSTANTS};
 use interner::Intern;
@@ -20,9 +20,6 @@ use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-
-    let mut sources = FnvHashMap::default();
-    sources.insert(source_location, fixture.content);
 
     if fixture.content.find("%TODO%").is_some() {
         if fixture.content.find("expected-to-throw").is_some() {
@@ -38,25 +35,19 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
-    let validation_errors_to_string = |errors: Vec<ValidationError>| {
-        let mut errs = errors
-            .into_iter()
-            .map(|err| err.print(&sources))
-            .collect::<Vec<_>>();
-        errs.sort();
-        errs.join("\n\n")
-    };
-
     let ast = parse_executable(base, source_location).unwrap();
-    let ir = build(&schema, &ast.definitions).map_err(validation_errors_to_string)?;
+    let ir = build(&schema, &ast.definitions)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let connection_interface = ConnectionInterface::default();
 
-    validate(&program, &connection_interface).map_err(validation_errors_to_string)?;
+    validate(&program, &connection_interface)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
+        enable_required_transform_for_prefix: Some("".intern()),
     };
 
     // TODO pass base fragment names
@@ -65,10 +56,10 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &connection_interface,
-        &feature_flags,
+        Arc::new(feature_flags),
         Arc::new(ConsoleLogger),
     )
-    .map_err(validation_errors_to_string)?;
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let mut operations: Vec<&std::sync::Arc<OperationDefinition>> =
         programs.normalization.operations().collect();

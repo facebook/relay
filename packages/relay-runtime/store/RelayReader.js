@@ -31,6 +31,7 @@ const {
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
+const {getReactFlightClientResponse} = require('./ReactFlight');
 const {
   FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
@@ -46,6 +47,7 @@ const {
 const {generateTypeID} = require('./TypeID');
 
 import type {
+  ReaderFlightField,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
@@ -355,7 +357,12 @@ class RelayReader {
           break;
         }
         case FLIGHT_FIELD:
-          throw new Error('Flight fields are not yet supported.');
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._readFlightField(selection, record, data);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
+          break;
         default:
           (selection: empty);
           invariant(
@@ -390,6 +397,41 @@ class RelayReader {
           selection.kind,
         );
     }
+  }
+
+  _readFlightField(
+    field: ReaderFlightField,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
+    const storageKey = getStorageKey(field, this._variables);
+    const reactFlightClientResponseRecordID = RelayModernRecord.getLinkedRecordID(
+      record,
+      storageKey,
+    );
+    if (reactFlightClientResponseRecordID == null) {
+      data[applicationName] = reactFlightClientResponseRecordID;
+      if (reactFlightClientResponseRecordID === undefined) {
+        this._isMissingData = true;
+      }
+      return reactFlightClientResponseRecordID;
+    }
+    const reactFlightClientResponseRecord = this._recordSource.get(
+      reactFlightClientResponseRecordID,
+    );
+    if (reactFlightClientResponseRecord == null) {
+      data[applicationName] = reactFlightClientResponseRecord;
+      if (reactFlightClientResponseRecord === undefined) {
+        this._isMissingData = true;
+      }
+      return reactFlightClientResponseRecord;
+    }
+    const clientResponse = getReactFlightClientResponse(
+      reactFlightClientResponseRecord,
+    );
+    data[applicationName] = clientResponse;
+    return clientResponse;
   }
 
   _readScalar(

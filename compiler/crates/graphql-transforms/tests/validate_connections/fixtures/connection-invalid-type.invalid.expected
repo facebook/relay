@@ -11,6 +11,10 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== ERROR ====================================
-@connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.:
-connection-invalid-type.invalid.graphql:5:7:
-      actors @connection {
+✖︎ @connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
+
+  connection-invalid-type.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       actors @connection {
+      │       ^^^^^^
+    7 │         name

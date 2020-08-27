@@ -6,69 +6,10 @@
  */
 
 use crate::lexer::TokenKind;
-use crate::GraphQLSource;
-use common::Location;
-use std::fmt;
 use thiserror::Error;
 
-pub type SyntaxResult<T> = Result<T, Vec<SyntaxError>>;
-
-#[derive(Clone, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[error("Syntax error: {kind} at {location:?}")]
-pub struct SyntaxError {
-    pub kind: SyntaxErrorKind,
-    pub location: Location,
-}
-
-impl SyntaxError {
-    pub fn new(kind: SyntaxErrorKind, location: Location) -> Self {
-        Self { kind, location }
-    }
-
-    pub fn print(&self, source: &GraphQLSource) -> String {
-        format!(
-            "Error: {} at {}",
-            self.kind,
-            self.location
-                .print(&source.text, source.line_index + 1, source.column_index + 1)
-        )
-    }
-
-    /// Attaches a source string to the error to allow it to be printed with a
-    /// code listing without requring additional context.
-    pub fn with_source(self, source: GraphQLSource) -> SyntaxErrorWithSource {
-        SyntaxErrorWithSource {
-            error: self,
-            source,
-        }
-    }
-}
-
-impl fmt::Debug for SyntaxError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("Error: {} at {:?}", self.kind, self.location))
-    }
-}
-
-impl From<SyntaxError> for Vec<SyntaxError> {
-    fn from(error: SyntaxError) -> Self {
-        vec![error]
-    }
-}
-
-#[derive(Debug)]
-pub struct SyntaxErrorWithSource {
-    pub error: SyntaxError,
-    pub source: GraphQLSource,
-}
-impl SyntaxErrorWithSource {
-    pub fn print(&self) -> String {
-        self.error.print(&self.source)
-    }
-}
-
 #[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum SyntaxErrorKind {
+pub enum SyntaxError {
     #[error("Expected a {0}")]
     Expected(TokenKind),
     #[error("Expected a selection: field, inline fragment, or fragment spread")]

@@ -1,0 +1,19 @@
+query redundantSelectionInInlineFragmentsQuery {
+  node(id: "1") {
+    ... on Story {
+      __typename
+    }
+    ...redundantSelectionInInlineFragments_interface_concrete
+    ...redundantSelectionInInlineFragments_interface
+  }
+}
+
+fragment redundantSelectionInInlineFragments_interface on MaybeNodeInterface {
+  name
+}
+
+fragment redundantSelectionInInlineFragments_interface_concrete on MaybeNodeInterface {
+  ... on Story {
+    name
+  }
+}

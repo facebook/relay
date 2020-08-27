@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-query MultipleNameRendererQuery($id: ID!) {
+query moduleInInlineFragment_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...FooNameRendererFragment
+    ...moduleInInlineFragment_FooNameRendererFragment
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleInInlineFragment_FooNameRendererFragment on User {
   id
   nameRenderer {
     ... on MarkdownUserNameRenderer {
@@ -14,13 +14,13 @@ fragment FooNameRendererFragment on User {
         username
         lastName
       }
-      ...MarkdownUserNameRenderer_name
+      ...moduleInInlineFragment_MarkdownUserNameRenderer_name
         @module(name: "FooMarkdownUserNameRenderer.react")
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -30,7 +30,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "name": "moduleInInlineFragment_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -78,7 +78,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "MultipleNameRendererQuery",
+    "name": "moduleInInlineFragment_MultipleNameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -97,7 +97,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "FooNameRendererFragment"
+            "name": "moduleInInlineFragment_FooNameRendererFragment"
           }
         ],
         "storageKey": null
@@ -116,7 +116,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       }
     ],
     "kind": "Operation",
-    "name": "MultipleNameRendererQuery",
+    "name": "moduleInInlineFragment_MultipleNameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -207,9 +207,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "storageKey": null
                       },
                       {
-                        "documentName": "FooNameRendererFragment",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "moduleInInlineFragment_FooNameRendererFragment",
+                        "fragmentName": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -231,7 +231,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "MultipleNameRendererQuery",
+    "name": "moduleInInlineFragment_MultipleNameRendererQuery",
     "operationKind": "query",
     "text": null
   }
@@ -239,17 +239,17 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query MultipleNameRendererQuery(
+query moduleInInlineFragment_MultipleNameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...FooNameRendererFragment
+    ...moduleInInlineFragment_FooNameRendererFragment
     id
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleInInlineFragment_FooNameRendererFragment on User {
   id
   nameRenderer {
     __typename
@@ -260,14 +260,14 @@ fragment FooNameRendererFragment on User {
         lastName
         id
       }
-      ...MarkdownUserNameRenderer_name
-      __module_operation_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "FooNameRendererFragment.nameRenderer")
-      __module_component_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "FooNameRendererFragment.nameRenderer")
+      ...moduleInInlineFragment_MarkdownUserNameRenderer_name
+      __module_operation_moduleInInlineFragment_FooNameRendererFragment: js(module: "moduleInInlineFragment_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleInInlineFragment_FooNameRendererFragment.nameRenderer")
+      __module_component_moduleInInlineFragment_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleInInlineFragment_FooNameRendererFragment.nameRenderer")
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -280,7 +280,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "FooNameRendererFragment",
+  "name": "moduleInInlineFragment_FooNameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -333,9 +333,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "storageKey": null
             },
             {
-              "documentName": "FooNameRendererFragment",
-              "fragmentName": "MarkdownUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "moduleInInlineFragment_FooNameRendererFragment",
+              "fragmentName": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -354,7 +354,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

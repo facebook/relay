@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
+query unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
   node(id: $id) {
     id
-    ...ConnectionFragment @arguments(fetchConnection: false)
+    ...unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment @arguments(fetchConnection: false)
   }
 }
 
-fragment ConnectionFragment on User
+fragment unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment on User
   @argumentDefinitions(
     fetchConnection: {type: "Boolean", defaultValue: false}
   ) {
@@ -42,7 +42,7 @@ fragment ConnectionFragment on User
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithUnusedVariables",
+    "name": "unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery",
     "selections": [
       {
         "alias": null,
@@ -74,7 +74,7 @@ fragment ConnectionFragment on User
               }
             ],
             "kind": "FragmentSpread",
-            "name": "ConnectionFragment"
+            "name": "unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment"
           }
         ],
         "storageKey": null
@@ -103,7 +103,7 @@ fragment ConnectionFragment on User
       }
     ],
     "kind": "Operation",
-    "name": "QueryWithUnusedVariables",
+    "name": "unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery",
     "selections": [
       {
         "alias": null,
@@ -141,7 +141,7 @@ fragment ConnectionFragment on User
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithUnusedVariables",
+    "name": "unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery",
     "operationKind": "query",
     "text": null
   }
@@ -149,7 +149,7 @@ fragment ConnectionFragment on User
 
 QUERY:
 
-query QueryWithUnusedVariables(
+query unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery(
   $id: ID!
 ) {
   node(id: $id) {
@@ -177,7 +177,7 @@ query QueryWithUnusedVariables(
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ConnectionFragment",
+  "name": "unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment",
   "selections": [
     {
       "condition": "fetchConnection",

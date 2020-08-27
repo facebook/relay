@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientInlineFragments_Foo_user on User {
   id
   foo {
     ... on ClientNamed {
@@ -22,7 +22,7 @@ interface ClientNamed {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientInlineFragments_Foo_user",
   "selections": [
     {
       "alias": null,

@@ -181,28 +181,22 @@ describe('RelayFindGraphQLTags', () => {
       ).toEqual(['fragment FindGraphQLTags on User { name }']);
     });
 
-    it('throws for invalid container fragment names', () => {
-      expect(() =>
-        find(`
-          createFragmentContainer(Foo, {
-            foo: graphql\`fragment FindGraphQLTags_notFoo on User { name }\`,
-          });
-        `),
-      ).toThrow(
-        'FindGraphQLTags: Container fragment names must be ' +
-          '`<ModuleName>_<propName>`. Got `FindGraphQLTags_notFoo`, expected ' +
-          '`FindGraphQLTags_foo`.',
-      );
-    });
-
     it('parses container fragments with valid names', () => {
       expect(
         find(`
           createFragmentContainer(Foo, {
             foo: graphql\`fragment FindGraphQLTags_foo on User { name }\`,
           });
+
+          // No longer validates that property name and fragment name match
+          createFragmentContainer(Foo, {
+            foo: graphql\`fragment FindGraphQLTags_notFoo on User { name }\`,
+          });
         `),
-      ).toEqual(['fragment FindGraphQLTags_foo on User { name }']);
+      ).toEqual([
+        'fragment FindGraphQLTags_foo on User { name }',
+        'fragment FindGraphQLTags_notFoo on User { name }',
+      ]);
     });
   });
 });

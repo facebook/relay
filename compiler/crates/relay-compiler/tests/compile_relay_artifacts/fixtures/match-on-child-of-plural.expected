@@ -1,23 +1,23 @@
 ==================================== INPUT ====================================
-fragment ActorsRendererFragment on Node {
+fragment matchOnChildOfPlural_ActorsRendererFragmentQuery on Node {
   id
   actors {
     nameRenderer @match {
-      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-      ...MarkdownUserNameRenderer_name
+      ...matchOnChildOfPlural_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...matchOnChildOfPlural_MarkdownUserNameRenderer_name
         @module(name: "MarkdownUserNameRenderer.react")
     }
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment matchOnChildOfPlural_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -27,7 +27,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "name": "matchOnChildOfPlural_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -67,7 +67,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "PlainUserNameRenderer_name$normalization",
+  "name": "matchOnChildOfPlural_PlainUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -108,7 +108,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ActorsRendererFragment",
+  "name": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
   "selections": [
     {
       "alias": null,
@@ -146,9 +146,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "InlineFragment",
               "selections": [
                 {
-                  "documentName": "ActorsRendererFragment",
-                  "fragmentName": "PlainUserNameRenderer_name",
-                  "fragmentPropName": "name",
+                  "documentName": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
+                  "fragmentName": "matchOnChildOfPlural_PlainUserNameRenderer_name",
+                  "fragmentPropName": "PlainUserNameRenderer_name",
                   "kind": "ModuleImport"
                 }
               ],
@@ -159,9 +159,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "kind": "InlineFragment",
               "selections": [
                 {
-                  "documentName": "ActorsRendererFragment",
-                  "fragmentName": "MarkdownUserNameRenderer_name",
-                  "fragmentPropName": "name",
+                  "documentName": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
+                  "fragmentName": "matchOnChildOfPlural_MarkdownUserNameRenderer_name",
+                  "fragmentPropName": "MarkdownUserNameRenderer_name",
                   "kind": "ModuleImport"
                 }
               ],
@@ -183,7 +183,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "matchOnChildOfPlural_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -219,7 +219,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "PlainUserNameRenderer_name",
+  "name": "matchOnChildOfPlural_PlainUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

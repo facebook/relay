@@ -1,21 +1,21 @@
 ==================================== INPUT ====================================
-fragment NameRendererFragment on User {
+fragment fragmentWithMatchDirective_NameRendererFragment on User {
   id
   nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name
+    ...fragmentWithMatchDirective_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...fragmentWithMatchDirective_MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment fragmentWithMatchDirective_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -25,7 +25,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "name": "fragmentWithMatchDirective_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -65,7 +65,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "PlainUserNameRenderer_name$normalization",
+  "name": "fragmentWithMatchDirective_PlainUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -106,7 +106,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "fragmentWithMatchDirective_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -142,7 +142,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NameRendererFragment",
+  "name": "fragmentWithMatchDirective_NameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -172,9 +172,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "NameRendererFragment",
-              "fragmentName": "PlainUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "fragmentWithMatchDirective_NameRendererFragment",
+              "fragmentName": "fragmentWithMatchDirective_PlainUserNameRenderer_name",
+              "fragmentPropName": "PlainUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -185,9 +185,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "NameRendererFragment",
-              "fragmentName": "MarkdownUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "fragmentWithMatchDirective_NameRendererFragment",
+              "fragmentName": "fragmentWithMatchDirective_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -206,7 +206,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "PlainUserNameRenderer_name",
+  "name": "fragmentWithMatchDirective_PlainUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

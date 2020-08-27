@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientScalarFields_Foo_user on User {
   id
 
   client_nickname # client field
@@ -23,7 +23,7 @@ extend type FriendsConnection {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientScalarFields_Foo_user",
   "selections": [
     {
       "alias": null,

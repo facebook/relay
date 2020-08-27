@@ -1,4 +1,4 @@
-fragment Foo_user on User {
+fragment siblingClientSelections_Foo_user on User {
   id
   name
 
@@ -22,11 +22,11 @@ fragment Foo_user on User {
     }
   }
   client_foo2 {
-    ...ClientTypeFragment # include fragment on client-only type
+    ...siblingClientSelections_ClientTypeFragment # include fragment on client-only type
   }
 }
 
-fragment ClientTypeFragment on ClientType {
+fragment siblingClientSelections_ClientTypeFragment on ClientType {
   client_field
 }
 

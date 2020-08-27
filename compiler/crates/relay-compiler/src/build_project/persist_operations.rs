@@ -5,22 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::artifact_content::ArtifactContent;
-use super::Artifact;
 use crate::{
-    config::{Config, PersistConfig},
+    config::{ArtifactPersister, PersistConfig},
     errors::BuildProjectError,
+    Artifact, ArtifactContent,
 };
 use lazy_static::lazy_static;
-use log::info;
+use log::debug;
 use md5::{Digest, Md5};
-use persist_query::persist;
 use regex::Regex;
-use std::{
-    fs,
-    path::PathBuf,
-    sync::{Arc, Mutex},
-};
+use std::{fs, path::PathBuf};
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
@@ -28,55 +22,43 @@ lazy_static! {
 }
 
 pub async fn persist_operations(
-    config: &Config,
     artifacts: &mut [Artifact],
+    root_dir: &PathBuf,
     persist_config: &PersistConfig,
+    artifact_persister: &Box<dyn ArtifactPersister + Send + Sync>,
 ) -> Result<(), BuildProjectError> {
-    let mut handles = Vec::new();
-    let persist_errors: Arc<Mutex<Vec<_>>> = Default::default();
-    for artifact in artifacts {
+    let handles = artifacts.iter_mut().map(|artifact| async move {
         if let ArtifactContent::Operation {
-            text,
-            id_and_text_hash,
+            ref text,
+            ref mut id_and_text_hash,
             ..
-        } = &mut artifact.content
+        } = artifact.content
         {
             let text_hash = md5(text);
-            let extracted_id =
-                extract_persist_id(&config.root_dir.join(&artifact.path), &text_hash);
-            if let Some(id) = extracted_id {
-                *id_and_text_hash = Some((id, text_hash));
+            let path = root_dir.join(&artifact.path);
+            let persist_id = if let Some(extracted_id) = extract_persist_id(&path, &text_hash) {
+                extracted_id
             } else {
-                let text = text.clone();
-                let url = persist_config.url.clone();
-                let params = persist_config.params.clone();
-                let errors = Arc::clone(&persist_errors);
-                handles.push(async move {
-                    let request = persist(&text, &url, &params);
-                    match request.await {
-                        Ok(id) => {
-                            *id_and_text_hash = Some((id, text_hash));
-                        }
-                        Err(err) => {
-                            errors.lock().unwrap().push(err);
-                        }
-                    };
-                });
-            }
+                artifact_persister
+                    .persist_artifact(text, persist_config)
+                    .await?
+            };
+            *id_and_text_hash = Some((persist_id, text_hash));
         }
-    }
-    info!("persisting {} documents", handles.len());
-    futures::future::join_all(handles).await;
-    info!("done persisting");
-    let errors = Arc::try_unwrap(persist_errors)
-        .unwrap()
-        .into_inner()
-        .unwrap();
-    if errors.is_empty() {
         Ok(())
-    } else {
-        Err(BuildProjectError::PersistErrors { errors })
+    });
+
+    debug!("persisting {} documents", handles.len());
+    let results = futures::future::join_all(handles).await;
+    debug!("done persisting");
+    let errors = results
+        .into_iter()
+        .filter_map(Result::err)
+        .collect::<Vec<_>>();
+    if !errors.is_empty() {
+        return Err(BuildProjectError::PersistErrors { errors });
     }
+    Ok(())
 }
 
 fn extract_persist_id(path: &PathBuf, text_hash: &str) -> Option<String> {

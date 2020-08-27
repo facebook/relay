@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query StableLiteralsTest {
+query stableLiterals_StableLiteralsTestQuery {
   me {
     # Note: these object fields are not defined in alphabetical order.
     # The generated artifacts will be produced in alphabetical order.
@@ -14,7 +14,7 @@ query StableLiteralsTest {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "StableLiteralsTest",
+    "name": "stableLiterals_StableLiteralsTestQuery",
     "selections": [
       {
         "alias": null,
@@ -63,7 +63,7 @@ query StableLiteralsTest {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "StableLiteralsTest",
+    "name": "stableLiterals_StableLiteralsTestQuery",
     "selections": [
       {
         "alias": null,
@@ -116,7 +116,7 @@ query StableLiteralsTest {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "StableLiteralsTest",
+    "name": "stableLiterals_StableLiteralsTestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -124,7 +124,7 @@ query StableLiteralsTest {
 
 QUERY:
 
-query StableLiteralsTest {
+query stableLiterals_StableLiteralsTestQuery {
   me {
     storyCommentSearch(query: {text: "foo", limit: 2, offset: 10}) {
       id

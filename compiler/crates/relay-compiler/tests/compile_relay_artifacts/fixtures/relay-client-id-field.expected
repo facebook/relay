@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query RelayClientIDFieldQuery($id: ID!) {
+query relayClientIdField_RelayClientIDFieldQuery($id: ID!) {
   __id # ok on query type
   me {
     __id # ok on object type with 'id'
@@ -38,7 +38,7 @@ query RelayClientIDFieldQuery($id: ID!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayClientIDFieldQuery",
+    "name": "relayClientIdField_RelayClientIDFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -247,7 +247,7 @@ query RelayClientIDFieldQuery($id: ID!) {
       }
     ],
     "kind": "Operation",
-    "name": "RelayClientIDFieldQuery",
+    "name": "relayClientIdField_RelayClientIDFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -447,7 +447,7 @@ query RelayClientIDFieldQuery($id: ID!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "RelayClientIDFieldQuery",
+    "name": "relayClientIdField_RelayClientIDFieldQuery",
     "operationKind": "query",
     "text": null
   }
@@ -455,7 +455,7 @@ query RelayClientIDFieldQuery($id: ID!) {
 
 QUERY:
 
-query RelayClientIDFieldQuery(
+query relayClientIdField_RelayClientIDFieldQuery(
   $id: ID!
 ) {
   me {

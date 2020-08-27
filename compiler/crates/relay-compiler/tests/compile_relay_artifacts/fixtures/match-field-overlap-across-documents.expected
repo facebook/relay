@@ -1,47 +1,49 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-query MultipleNameRendererQuery($id: ID!) {
+query matchFieldsOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...FooNameRendererFragment
-    ...BarNameRendererFragment
+    ...matchFieldsOverlapAcrossDocuments_FooNameRendererFragment
+    ...matchFieldsOverlapAcrossDocuments_BarNameRendererFragment
   }
 }
 
 fragment FooNameRendererFragment on User {
   id
   nameRenderer @match {
-    ...MarkdownUserNameRenderer_name
+    ...matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name
       @module(name: "FooMarkdownUserNameRenderer.react")
   }
 }
 
-fragment BarNameRendererFragment on User {
+fragment matchFieldsOverlapAcrossDocuments_BarNameRendererFragment on User {
   # same field and supported types as above but different selections:
   # should flatten together
   nameRenderer @match {
-    ...MarkdownUserNameRenderer_name
+    ...matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name
       @module(name: "BarMarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment matchFieldsOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
   }
 }
 ==================================== ERROR ====================================
-Found conflicting @module selections: use a unique alias on the parent fields:
-match-field-overlap-across-documents.graphql:21:8:
-      @module(name: "BarMarkdownUserNameRenderer.react")
+✖︎ Undefined fragment 'matchFieldsOverlapAcrossDocuments_FooNameRendererFragment'
 
-
-match-field-overlap-across-documents.graphql:12:8:
-      @module(name: "FooMarkdownUserNameRenderer.react")
+  match-field-overlap-across-documents.graphql:4:5
+    3 │   node(id: $id) {
+    4 │     ...matchFieldsOverlapAcrossDocuments_FooNameRendererFragment
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │     ...matchFieldsOverlapAcrossDocuments_BarNameRendererFragment
+      │ ^^^^
+    6 │   }

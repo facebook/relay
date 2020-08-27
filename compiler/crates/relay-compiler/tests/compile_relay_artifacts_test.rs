@@ -1,4 +1,4 @@
-// @generated SignedSource<<abd1ad14c97a6d66243e72532bca5282>>
+// @generated SignedSource<<f35193381d17b8c1691793abf7aab4a7>>
 
 mod compile_relay_artifacts;
 
@@ -696,6 +696,13 @@ fn stream_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/stream-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection.expected");
     test_fixture(transform_fixture, "stream-connection.graphql", "compile_relay_artifacts/fixtures/stream-connection.expected", input, expected);
+}
+
+#[test]
+fn stream_connection_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.expected");
+    test_fixture(transform_fixture, "stream-connection-conditional.graphql", "compile_relay_artifacts/fixtures/stream-connection-conditional.expected", input, expected);
 }
 
 #[test]

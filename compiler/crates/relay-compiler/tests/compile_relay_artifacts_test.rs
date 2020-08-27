@@ -1,4 +1,4 @@
-// @generated SignedSource<<87e5db3c3a0fe5b0ec93254ecf0fc9b1>>
+// @generated SignedSource<<abd1ad14c97a6d66243e72532bca5282>>
 
 mod compile_relay_artifacts;
 
@@ -598,6 +598,13 @@ fn query_with_raw_response_type_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected");
     test_fixture(transform_fixture, "query-with-raw-response-type-directive.graphql", "compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected", input, expected);
+}
+
+#[test]
+fn redundant_selection_in_inline_fragments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected");
+    test_fixture(transform_fixture, "redundant-selection-in-inline-fragments.graphql", "compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected", input, expected);
 }
 
 #[test]

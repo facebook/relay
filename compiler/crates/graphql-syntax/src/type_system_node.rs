@@ -15,6 +15,16 @@ pub enum Type {
     NonNull(Box<Type>),
 }
 
+impl Type {
+    pub fn inner(&self) -> Type {
+        match self {
+            Type::Named(t) => Type::Named(*t),
+            Type::List(of) => of.inner(),
+            Type::NonNull(of) => of.inner(),
+        }
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub enum TypeSystemDefinition {
     SchemaDefinition {

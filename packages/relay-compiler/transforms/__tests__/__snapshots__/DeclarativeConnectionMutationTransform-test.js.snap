@@ -122,37 +122,6 @@ mutation CommentCreateMutation(
 
 `;
 
-exports[`matches expected output: append-node-unspported.invalid.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-# expected-to-throw
-mutation CommentCreateMutation(
-  $connections: [String!]!
-  $edgeTypeName: String!
-  $input: CommentCreateInput
-) {
-  commentCreate(input: $input) {
-    viewer {
-      __typename @appendNode(
-        connections: $connections
-        edgeTypeName: $edgeTypeName
-      )
-    }
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Invalid use of @appendNode on scalar field '__typename'
-
-Source: GraphQL request (9:18)
- 8:     viewer {
- 9:       __typename @appendNode(
-                     ^
-10:         connections: $connections
-
-`;
-
 exports[`matches expected output: append-node-unsupported.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw

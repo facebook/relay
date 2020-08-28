@@ -1,4 +1,4 @@
-// @generated SignedSource<<007dc8f3e99f11bdfc34d85c14aeb575>>
+// @generated SignedSource<<f680354a6008d3be62bcb11e5bd7abc6>>
 
 mod ir;
 
@@ -45,4 +45,18 @@ fn definitions_only_no_change() {
     let input = include_str!("ir/fixtures/definitions-only-no-change.graphql");
     let expected = include_str!("ir/fixtures/definitions-only-no-change.expected");
     test_fixture(transform_fixture, "definitions-only-no-change.graphql", "ir/fixtures/definitions-only-no-change.expected", input, expected);
+}
+
+#[test]
+fn query_then_fragment() {
+    let input = include_str!("ir/fixtures/query-then-fragment.graphql");
+    let expected = include_str!("ir/fixtures/query-then-fragment.expected");
+    test_fixture(transform_fixture, "query-then-fragment.graphql", "ir/fixtures/query-then-fragment.expected", input, expected);
+}
+
+#[test]
+fn recursive_fragments() {
+    let input = include_str!("ir/fixtures/recursive-fragments.graphql");
+    let expected = include_str!("ir/fixtures/recursive-fragments.expected");
+    test_fixture(transform_fixture, "recursive-fragments.graphql", "ir/fixtures/recursive-fragments.expected", input, expected);
 }

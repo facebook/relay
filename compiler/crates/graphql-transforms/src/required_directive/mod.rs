@@ -168,12 +168,18 @@ impl<'program> RequiredDirective<'program> {
         if let Some(metadata) = maybe_required {
             let supported = match &self.prefix {
                 None => false,
-                Some(prefix) => self
-                    .operation_name
-                    // If we're parsing a @required directive, we are inside a fragment.
-                    .unwrap()
-                    .lookup()
-                    .starts_with(prefix.lookup()),
+                Some(prefix) => {
+                    let operation_name = self
+                        .operation_name
+                        // If we're parsing a @required directive, we are inside a fragment.
+                        .unwrap()
+                        .lookup();
+                    // TODO(T74397896): Clean up once @required is rolled out
+                    prefix
+                        .lookup()
+                        .split('|')
+                        .any(|prefix| operation_name.starts_with(prefix))
+                }
             };
             if !supported {
                 self.errors.push(Diagnostic::error(
@@ -413,7 +419,7 @@ fn add_metadata_directive(
     next_directives
 }
 
-// Possible @requried `action` enum values ordered by severity.
+// Possible @required `action` enum values ordered by severity.
 #[derive(PartialEq, PartialOrd, Debug)]
 pub enum RequiredAction {
     NONE,

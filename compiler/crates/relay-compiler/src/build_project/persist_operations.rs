@@ -40,7 +40,7 @@ pub async fn persist_operations(
                 extracted_id
             } else {
                 artifact_persister
-                    .persist_artifact(text, persist_config)
+                    .persist_artifact(text.to_string(), persist_config)
                     .await?
             };
             *id_and_text_hash = Some((persist_id, text_hash));

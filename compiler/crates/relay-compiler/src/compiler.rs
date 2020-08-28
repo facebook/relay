@@ -266,7 +266,11 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             }));
         }
         for commit_result in join_all(handles).await {
-            match commit_result.unwrap() {
+            let commit_result: std::result::Result<std::result::Result<_, _>, _> = commit_result;
+            let inner_result = commit_result.map_err(|e| Error::JoinError {
+                error: e.to_string(),
+            })?;
+            match inner_result {
                 Ok((project_name, next_artifact_map)) => {
                     let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                     compiler_state

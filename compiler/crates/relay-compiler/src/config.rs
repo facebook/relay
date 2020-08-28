@@ -489,7 +489,7 @@ type PersistId = String;
 pub trait ArtifactPersister {
     async fn persist_artifact(
         &self,
-        artifact_text: &str,
+        artifact_text: String,
         project_config: &PersistConfig,
     ) -> std::result::Result<PersistId, PersistError>;
 }

@@ -109,6 +109,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         CompilerError::EmptyQueryResult => {}
                         CompilerError::FileRead { .. } => {}
                         CompilerError::Syntax { .. } => {}
+                        CompilerError::JoinError { .. } => {}
                     }
                 } else {
                     // TODO(brandondail) log here

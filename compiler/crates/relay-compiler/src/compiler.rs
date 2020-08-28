@@ -207,7 +207,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
-            &compiler_state.dirty_definitions,
+            &compiler_state.get_dirty_defintions(&config),
         )
     })?;
 
@@ -247,6 +247,11 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 .remove(&project_name)
                 .expect("Expect GraphQLAsts to exist.")
                 .removed_definition_names;
+            let dirty_artifact_paths = compiler_state
+                .dirty_artifact_paths
+                .get(&project_name)
+                .cloned()
+                .unwrap_or_default();
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
                 Ok((
@@ -260,6 +265,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         artifacts,
                         artifact_map,
                         removed_definition_names,
+                        dirty_artifact_paths,
                     )
                     .await?,
                 ))

@@ -28,7 +28,7 @@ use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
 use common::{PerfLogEvent, PerfLogger};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
@@ -38,7 +38,7 @@ use interner::StringKey;
 use log::info;
 use relay_codegen::Printer;
 use schema::Schema;
-use std::{collections::hash_map::Entry, sync::Arc};
+use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::validate;
 
 fn build_programs(
@@ -173,6 +173,7 @@ pub async fn commit_project(
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
     removed_definition_names: Vec<StringKey>,
+    mut dirty_artifact_paths: FnvHashSet<PathBuf>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
@@ -251,6 +252,7 @@ pub async fn commit_project(
                 for name in &removed_definition_names {
                     if let Some(artifact) = artifact_map.0.remove(&name) {
                         for (path, _) in artifact {
+                            dirty_artifact_paths.remove(&path);
                             let path = config.root_dir.join(path);
                             config.artifact_writer.remove(path)?;
                         }
@@ -259,10 +261,11 @@ pub async fn commit_project(
                 Ok(())
             })?;
 
-            // Update artifacts and remove deleted artifacts
             log_event.time("write_artifacts_time", || {
                 let mut current_paths_map = ArtifactMap::default();
+                // Write or update artifacts
                 for artifact in artifacts {
+                    dirty_artifact_paths.remove(&artifact.path);
                     let path = config.root_dir.join(&artifact.path);
                     let content =
                         artifact
@@ -271,12 +274,14 @@ pub async fn commit_project(
                     config.artifact_writer.write_if_changed(path, content)?;
                     current_paths_map.insert(artifact);
                 }
+                // Check previous artifact map and delete any removed artifacts
                 for (definition_name, artifact_tuples) in current_paths_map.0 {
                     match artifact_map.0.entry(definition_name) {
                         Entry::Occupied(mut entry) => {
                             let prev_tuples = entry.get_mut();
                             for (prev_path, _) in prev_tuples.drain(..) {
                                 if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
+                                    dirty_artifact_paths.remove(&prev_path);
                                     config
                                         .artifact_writer
                                         .remove(config.root_dir.join(prev_path))?;
@@ -291,6 +296,11 @@ pub async fn commit_project(
                 }
                 Ok(())
             })?;
+
+            // All artifacts are committed, the remaining dirty artifacts are no longer required
+            for path in dirty_artifact_paths {
+                config.artifact_writer.remove(config.root_dir.join(path))?;
+            }
 
             artifact_map
         }

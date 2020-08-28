@@ -208,7 +208,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
         let graphql_asts = setup_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &self.compiler_state.graphql_sources,
-                &self.compiler_state.dirty_definitions,
+                &self.compiler_state.get_dirty_defintions(&self.config),
             )
         })?;
         let mut check_project_errors = vec![];

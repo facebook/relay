@@ -167,11 +167,14 @@ fn add_related_nodes(
         }
         Some(node) => node.parents.clone(),
     };
-    for parent in parents.into_iter() {
-        add_related_nodes(visited, result, trees, base_definition_names, parent);
-    }
-    if !base_definition_names.contains(&key) {
-        add_descendants(result, trees, key);
+    if parents.is_empty() {
+        if !base_definition_names.contains(&key) {
+            add_descendants(result, trees, key);
+        }
+    } else {
+        for parent in parents.into_iter() {
+            add_related_nodes(visited, result, trees, base_definition_names, parent);
+        }
     }
 }
 

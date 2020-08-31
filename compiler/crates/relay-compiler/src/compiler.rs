@@ -47,9 +47,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .await?;
 
         self.perf_logger.complete_event(setup_event);
-
-        self.config.artifact_writer.finalize()?;
-
         Ok(compiler_state)
     }
 
@@ -148,6 +145,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         match result {
             Ok(()) => {
                 compiler_state.complete_compilation();
+                self.config.artifact_writer.finalize()?;
                 Ok(())
             }
             Err(error) => {

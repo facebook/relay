@@ -164,7 +164,7 @@ impl Config {
 
         let config = Self {
             name: config_file.name,
-            artifact_writer: Box::new(ArtifactFileWriter),
+            artifact_writer: Box::new(ArtifactFileWriter::default()),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,

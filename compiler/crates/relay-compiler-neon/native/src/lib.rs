@@ -87,7 +87,7 @@ fn create_configs() -> (Config, ProjectConfig) {
 
     let config = Config {
         name: None,
-        artifact_writer: Box::new(ArtifactFileWriter),
+        artifact_writer: Box::new(ArtifactFileWriter::default()),
         codegen_command: None,
         excludes: vec![],
         full_build: false,

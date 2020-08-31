@@ -16,6 +16,7 @@ mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod persist_operations;
+mod source_control;
 mod validate;
 
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
@@ -38,6 +39,7 @@ use interner::StringKey;
 use log::info;
 use relay_codegen::Printer;
 use schema::Schema;
+pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::validate;
 

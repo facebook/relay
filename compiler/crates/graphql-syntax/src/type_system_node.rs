@@ -46,13 +46,13 @@ pub enum TypeSystemDefinition {
     InterfaceTypeDefinition {
         name: StringKey,
         interfaces: Vec<StringKey>,
-        directives: Vec<Directive>,
         fields: Vec<FieldDefinition>,
+        directives: Vec<Directive>,
     },
     InterfaceTypeExtension {
         name: StringKey,
-        directives: Vec<Directive>,
         fields: Vec<FieldDefinition>,
+        directives: Vec<Directive>,
     },
     UnionTypeDefinition {
         name: StringKey,
@@ -149,7 +149,7 @@ pub enum OperationType {
     Subscription,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct InputValueDefinition {
     pub name: StringKey,
     pub type_: Type,
@@ -157,7 +157,7 @@ pub struct InputValueDefinition {
     pub directives: Vec<Directive>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct FieldDefinition {
     pub name: StringKey,
     pub type_: Type,
@@ -236,13 +236,13 @@ pub struct ObjectField {
     pub value: Value,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Argument {
     pub name: StringKey,
     pub value: Value,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Directive {
     pub name: StringKey,
     pub arguments: Vec<Argument>,

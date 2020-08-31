@@ -25,8 +25,8 @@ pub use definitions::{
 };
 pub use errors::{Result, SchemaError};
 pub use graphql_syntax::type_system_node::{
-    DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
-    TypeSystemDefinition, Value as AstValue,
+    Directive as DirectiveDefinition, DirectiveLocation, FieldDefinition, InputValueDefinition,
+    Type as AstType, TypeSystemDefinition, Value as AstValue,
 };
 use lexer::Lexer;
 use parser::Parser;

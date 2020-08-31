@@ -96,7 +96,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
 
-                info!("Change detected.");
                 let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
                     &file_source_changes,
@@ -106,7 +105,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 )?;
 
                 if had_new_changes {
-                    info!("Start compiling...");
+                    info!("Change detected, start compiling...");
                     if self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
@@ -117,15 +116,14 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         info!("Compilation completed.");
                     }
                     incremental_build_event.stop(incremental_build_time);
+                    info!("Waiting for changes...");
                 } else {
                     incremental_build_event.stop(incremental_build_time);
-                    info!("No compilation required.");
                 }
                 self.perf_logger.complete_event(incremental_build_event);
                 // We probably don't want the messages queue to grow indefinitely
                 // and we need to flush then, as the check/build is completed
                 self.perf_logger.flush();
-                info!("Waiting for changes...");
             }
         }
     }

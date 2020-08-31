@@ -245,12 +245,6 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
-    if (this._missingRequiredFields != null) {
-      reportMissingRequiredFields(
-        this._environment,
-        this._missingRequiredFields,
-      );
-    }
     if (
       RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
       this._isMissingData === true
@@ -291,6 +285,12 @@ class SelectorResolver {
         );
         throw promise;
       }
+    }
+    if (this._missingRequiredFields != null) {
+      reportMissingRequiredFields(
+        this._environment,
+        this._missingRequiredFields,
+      );
     }
     return this._data;
   }

@@ -195,8 +195,6 @@ class FragmentResourceImpl {
         ? fragmentSelector.selectors.map(s => environment.lookup(s))
         : environment.lookup(fragmentSelector);
 
-    this._reportMissingRequiredFieldsInSnapshot(snapshot);
-
     const fragmentOwner =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors[0].owner
@@ -205,6 +203,7 @@ class FragmentResourceImpl {
       fragmentOwner.node.params.name ?? 'Unknown Parent Query';
 
     if (!isMissingData(snapshot)) {
+      this._reportMissingRequiredFieldsInSnapshot(snapshot);
       const fragmentResult = getFragmentResult(fragmentIdentifier, snapshot);
       this._cache.set(fragmentIdentifier, fragmentResult);
       return fragmentResult;
@@ -247,6 +246,7 @@ class FragmentResourceImpl {
       parentQueryName,
     );
 
+    this._reportMissingRequiredFieldsInSnapshot(snapshot);
     return getFragmentResult(fragmentIdentifier, snapshot);
   }
 

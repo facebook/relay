@@ -11,8 +11,21 @@
 
 'use strict';
 
+jest.mock('relay-runtime', () => {
+  const originalRuntime = jest.requireActual('relay-runtime');
+  const originalInternal = originalRuntime.__internal;
+  return {
+    ...originalRuntime,
+    __internal: {
+      ...originalInternal,
+      getPromiseForActiveRequest: jest.fn(),
+    },
+  };
+});
+
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
+  __internal: {getPromiseForActiveRequest},
   createOperationDescriptor,
   getFragment,
   RelayFeatureFlags,
@@ -24,6 +37,7 @@ beforeEach(() => {
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  (getPromiseForActiveRequest: any).mockReset();
 });
 
 let environment;
@@ -174,4 +188,49 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
   );
 
   disposable.dispose();
+});
+
+it('should throw promise if reading missing data and network request for parent query is in flight', async () => {
+  const requestPromise = Promise.resolve();
+  (getPromiseForActiveRequest: any).mockReturnValue(requestPromise);
+  const fragmentNode = getFragment(UserFragment);
+  const fragmentRef = {
+    __id: '4',
+    __fragments: {
+      UserFragment: {},
+    },
+    __fragmentOwner: query.request,
+  };
+
+  // Try reading a fragment while parent query is in flight
+  let thrown = null;
+  try {
+    FragmentResource.read(fragmentNode, fragmentRef, componentDisplayName);
+  } catch (p) {
+    thrown = p;
+  }
+
+  expect(thrown).toBeInstanceOf(Promise);
+
+  environment.commitPayload(query, {
+    node: {
+      __typename: 'User',
+      id: '4',
+      name: null,
+      alternate_name: 'Zuckster',
+    },
+  });
+
+  await requestPromise;
+
+  // Now that the request is complete, check that we detect the missing field.
+  expect(() =>
+    FragmentResource.read(
+      getFragment(UserFragment),
+      fragmentRef,
+      componentDisplayName,
+    ),
+  ).toThrowError(
+    "Relay: Missing @required value at path 'name' in 'UserFragment'.",
+  );
 });

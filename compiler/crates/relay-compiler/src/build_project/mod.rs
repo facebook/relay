@@ -174,8 +174,10 @@ pub async fn commit_project(
     programs: Programs,
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
+    // Definitions that are removed from the previous artifact map
     removed_definition_names: Vec<StringKey>,
-    mut dirty_artifact_paths: FnvHashSet<PathBuf>,
+    // Dirty artrifacts that should be removed
+    mut artifacts_to_remove: FnvHashSet<PathBuf>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
@@ -249,14 +251,12 @@ pub async fn commit_project(
             let mut printer = Printer::default();
             let mut artifact_map = artifact_map.clone();
 
-            // Delete all generated paths for removed definitions
+            // All generated paths for removed definitions should be removed
             log_event.time("delete_artifacts_time", || {
                 for name in &removed_definition_names {
                     if let Some(artifact) = artifact_map.0.remove(&name) {
                         for (path, _) in artifact {
-                            dirty_artifact_paths.remove(&path);
-                            let path = config.root_dir.join(path);
-                            config.artifact_writer.remove(path)?;
+                            artifacts_to_remove.insert(path);
                         }
                     }
                 }
@@ -267,7 +267,8 @@ pub async fn commit_project(
                 let mut current_paths_map = ArtifactMap::default();
                 // Write or update artifacts
                 for artifact in artifacts {
-                    dirty_artifact_paths.remove(&artifact.path);
+                    // If the path is written, stop removing it
+                    artifacts_to_remove.remove(&artifact.path);
                     let path = config.root_dir.join(&artifact.path);
                     let content =
                         artifact
@@ -283,10 +284,7 @@ pub async fn commit_project(
                             let prev_tuples = entry.get_mut();
                             for (prev_path, _) in prev_tuples.drain(..) {
                                 if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
-                                    dirty_artifact_paths.remove(&prev_path);
-                                    config
-                                        .artifact_writer
-                                        .remove(config.root_dir.join(prev_path))?;
+                                    artifacts_to_remove.insert(prev_path);
                                 }
                             }
                             prev_tuples.extend(artifact_tuples.into_iter());
@@ -300,7 +298,7 @@ pub async fn commit_project(
             })?;
 
             // All artifacts are committed, the remaining dirty artifacts are no longer required
-            for path in dirty_artifact_paths {
+            for path in artifacts_to_remove {
                 config.artifact_writer.remove(config.root_dir.join(path))?;
             }
 

@@ -227,7 +227,6 @@ Now that Relay is installed and configured we can change `App.js` to use it inst
 ```javascript
 import React from 'react';
 import './App.css';
-import fetchGraphQL from './fetchGraphQL';
 import graphql from 'babel-plugin-relay/macro';
 import {
   RelayEnvironmentProvider,

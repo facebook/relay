@@ -197,15 +197,7 @@ pub struct ListValue {
 impl fmt::Display for ListValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[")?;
-        let mut first = true;
-        for item in &self.values {
-            if first {
-                first = false;
-            } else {
-                write!(f, ", ")?;
-            }
-            write!(f, "{}", item)?;
-        }
+        write_list(f, &self.values, ", ")?;
         write!(f, "]")
     }
 }
@@ -217,15 +209,7 @@ pub struct ObjectValue {
 impl fmt::Display for ObjectValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{{")?;
-        let mut first = true;
-        for field in &self.fields {
-            if first {
-                first = false;
-            } else {
-                write!(f, ", ")?;
-            }
-            write!(f, "{}: {}", field.name, field.value)?;
-        }
+        write_list(f, &self.fields, ", ")?;
         write!(f, "}}")
     }
 }
@@ -234,6 +218,12 @@ impl fmt::Display for ObjectValue {
 pub struct ObjectField {
     pub name: StringKey,
     pub value: Value,
+}
+
+impl fmt::Display for ObjectField {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.name, self.value)
+    }
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -246,4 +236,17 @@ pub struct Argument {
 pub struct Directive {
     pub name: StringKey,
     pub arguments: Vec<Argument>,
+}
+
+fn write_list(
+    f: &mut fmt::Formatter<'_>,
+    list: &[impl fmt::Display],
+    separator: &str,
+) -> fmt::Result {
+    let v = list
+        .iter()
+        .map(|elem| elem.to_string())
+        .collect::<Vec<String>>()
+        .join(separator);
+    write!(f, "{}", v)
 }

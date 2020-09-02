@@ -176,7 +176,7 @@ pub async fn commit_project(
     artifact_map: Arc<ArtifactMapKind>,
     // Definitions that are removed from the previous artifact map
     removed_definition_names: Vec<StringKey>,
-    // Dirty artrifacts that should be removed
+    // Dirty artrifacts that should be removed if no longer in the artiracts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
@@ -250,25 +250,11 @@ pub async fn commit_project(
         ArtifactMapKind::Mapping(artifact_map) => {
             let mut printer = Printer::default();
             let mut artifact_map = artifact_map.clone();
+            let mut current_paths_map = ArtifactMap::default();
 
-            // All generated paths for removed definitions should be removed
-            log_event.time("delete_artifacts_time", || {
-                for name in &removed_definition_names {
-                    if let Some(artifact) = artifact_map.0.remove(&name) {
-                        for (path, _) in artifact {
-                            artifacts_to_remove.insert(path);
-                        }
-                    }
-                }
-                Ok(())
-            })?;
-
-            log_event.time("write_artifacts_time", || {
-                let mut current_paths_map = ArtifactMap::default();
+            log_event.time("write_artifacts_incremental_time", || {
                 // Write or update artifacts
                 for artifact in artifacts {
-                    // If the path is written, stop removing it
-                    artifacts_to_remove.remove(&artifact.path);
                     let path = config.root_dir.join(&artifact.path);
                     let content =
                         artifact
@@ -277,7 +263,19 @@ pub async fn commit_project(
                     config.artifact_writer.write_if_changed(path, content)?;
                     current_paths_map.insert(artifact);
                 }
-                // Check previous artifact map and delete any removed artifacts
+                Ok(())
+            })?;
+
+            log_event.time("update_artifact_map_time", || {
+                // All generated paths for removed definitions should be removed
+                for name in &removed_definition_names {
+                    if let Some(artifact) = artifact_map.0.remove(&name) {
+                        for (path, _) in artifact {
+                            artifacts_to_remove.insert(path);
+                        }
+                    }
+                }
+                // Update the artifact map, and delete any removed artifacts
                 for (definition_name, artifact_tuples) in current_paths_map.0 {
                     match artifact_map.0.entry(definition_name) {
                         Entry::Occupied(mut entry) => {
@@ -294,13 +292,21 @@ pub async fn commit_project(
                         }
                     }
                 }
+                // Filter out any artifact that is in the artifact map
+                for paths in artifact_map.0.values() {
+                    for (path, _) in paths {
+                        artifacts_to_remove.remove(path);
+                    }
+                }
+            });
+
+            log_event.time("delete_artifacts_incremental_time", || {
+                // The remaining dirty artifacts are no longer required
+                for path in artifacts_to_remove {
+                    config.artifact_writer.remove(config.root_dir.join(path))?;
+                }
                 Ok(())
             })?;
-
-            // All artifacts are committed, the remaining dirty artifacts are no longer required
-            for path in artifacts_to_remove {
-                config.artifact_writer.remove(config.root_dir.join(path))?;
-            }
 
             artifact_map
         }

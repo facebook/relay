@@ -165,15 +165,15 @@ fn add_related_nodes(
         None => {
             panic!("Fragment {:?} not found in IR.", key);
         }
-        Some(node) => node.parents.clone(),
+        Some(node) => &node.parents,
     };
     if parents.is_empty() {
         if !base_definition_names.contains(&key) {
             add_descendants(result, trees, key);
         }
     } else {
-        for parent in parents.into_iter() {
-            add_related_nodes(visited, result, trees, base_definition_names, parent);
+        for parent in parents {
+            add_related_nodes(visited, result, trees, base_definition_names, *parent);
         }
     }
 }

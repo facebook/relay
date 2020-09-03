@@ -10,14 +10,14 @@
 #![deny(clippy::all)]
 #![allow(clippy::large_enum_variant)]
 
-mod executable_node;
 mod lexer;
+mod node;
 mod parser;
 mod source;
 mod syntax_error;
 pub mod type_system_node;
 
-pub use executable_node::*;
+pub use node::*;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;

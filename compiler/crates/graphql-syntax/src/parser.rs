@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::executable_node::*;
 use crate::lexer::TokenKind;
+use crate::node::*;
 use crate::syntax_error::SyntaxError;
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span};
 use interner::Intern;

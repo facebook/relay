@@ -81,7 +81,7 @@ fn visit_selections(
 ) -> Result<(), String> {
     for selection in &selections.items {
         match selection {
-            graphql_syntax::Selection::FragmentSpread(selection) => {
+            Selection::FragmentSpread(selection) => {
                 if is_base || base_definitions_map.contains_key(&selection.name.value) {
                     traverse_base_ast_definition(
                         base_definitions_map,
@@ -90,19 +90,19 @@ fn visit_selections(
                     )?
                 }
             }
-            graphql_syntax::Selection::LinkedField(selection) => visit_selections(
+            Selection::LinkedField(selection) => visit_selections(
                 base_definitions_map,
                 reachable_base_asts,
                 &selection.selections,
                 is_base,
             )?,
-            graphql_syntax::Selection::InlineFragment(selection) => visit_selections(
+            Selection::InlineFragment(selection) => visit_selections(
                 base_definitions_map,
                 reachable_base_asts,
                 &selection.selections,
                 is_base,
             )?,
-            _ => {}
+            Selection::ScalarField(_) => {}
         }
     }
     Ok(())

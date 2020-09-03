@@ -21,12 +21,12 @@ pub struct ReachableAst {
 pub fn get_reachable_ast(
     project_definitions: Vec<ExecutableDefinition>,
     base_definitions: Vec<ExecutableDefinition>,
-) -> Result<ReachableAst, String> {
+) -> ReachableAst {
     if base_definitions.is_empty() {
-        return Ok(ReachableAst {
+        return ReachableAst {
             definitions: project_definitions,
             base_fragment_names: FnvHashSet::default(),
-        });
+        };
     }
 
     let mut reachable_base_asts = FnvHashSet::default();
@@ -38,9 +38,11 @@ pub fn get_reachable_ast(
         match &base_definition {
             ExecutableDefinition::Fragment(fragment) => {
                 let name = fragment.name.value;
-                if base_definitions_map.insert(name, base_definition).is_some() {
-                    return Err(format!("duplicate definition of {:?}", name));
-                }
+                assert!(
+                    base_definitions_map.insert(name, base_definition).is_none(),
+                    "get_reachable_ast called on graph with duplicate definition of `{}`",
+                    name
+                )
             }
             ExecutableDefinition::Operation(_) => {}
         }
@@ -59,7 +61,7 @@ pub fn get_reachable_ast(
             &mut reachable_base_asts,
             &selections,
             false,
-        )?
+        )
     }
 
     for key in &reachable_base_asts {
@@ -67,10 +69,10 @@ pub fn get_reachable_ast(
         result.push(value);
     }
 
-    Ok(ReachableAst {
+    ReachableAst {
         definitions: result,
         base_fragment_names: reachable_base_asts,
-    })
+    }
 }
 
 fn visit_selections(
@@ -78,7 +80,7 @@ fn visit_selections(
     reachable_base_asts: &mut FnvHashSet<StringKey>,
     selections: &List<Selection>,
     is_base: bool,
-) -> Result<(), String> {
+) {
     for selection in &selections.items {
         match selection {
             Selection::FragmentSpread(selection) => {
@@ -87,7 +89,7 @@ fn visit_selections(
                         base_definitions_map,
                         reachable_base_asts,
                         selection.name.value,
-                    )?
+                    )
                 }
             }
             Selection::LinkedField(selection) => visit_selections(
@@ -95,26 +97,25 @@ fn visit_selections(
                 reachable_base_asts,
                 &selection.selections,
                 is_base,
-            )?,
+            ),
             Selection::InlineFragment(selection) => visit_selections(
                 base_definitions_map,
                 reachable_base_asts,
                 &selection.selections,
                 is_base,
-            )?,
+            ),
             Selection::ScalarField(_) => {}
         }
     }
-    Ok(())
 }
 
 fn traverse_base_ast_definition(
     base_definitions_map: &FnvHashMap<StringKey, ExecutableDefinition>,
     reachable_base_asts: &mut FnvHashSet<StringKey>,
     key: StringKey,
-) -> Result<(), String> {
+) {
     if reachable_base_asts.contains(&key) {
-        return Ok(());
+        return;
     }
     if let Some(base_definition) = base_definitions_map.get(&key) {
         reachable_base_asts.insert(key);
@@ -122,7 +123,6 @@ fn traverse_base_ast_definition(
             ExecutableDefinition::Operation(definition) => &definition.selections,
             ExecutableDefinition::Fragment(definition) => &definition.selections,
         };
-        visit_selections(base_definitions_map, reachable_base_asts, selections, true)?
+        visit_selections(base_definitions_map, reachable_base_asts, selections, true)
     }
-    Ok(())
 }

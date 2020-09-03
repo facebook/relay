@@ -23,7 +23,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let ReachableAst {
         definitions: result,
         base_fragment_names,
-    } = get_reachable_ast(definitions.definitions, base_definitions)?;
+    } = get_reachable_ast(definitions.definitions, base_definitions);
 
     let mut texts = result
         .into_iter()

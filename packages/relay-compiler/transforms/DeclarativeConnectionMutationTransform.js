@@ -20,7 +20,14 @@ const {ConnectionInterface} = require('relay-runtime');
 const DELETE_RECORD = 'deleteRecord';
 const APPEND_EDGE = 'appendEdge';
 const PREPEND_EDGE = 'prependEdge';
-const LINKED_FIELD_DIRECTIVES = [APPEND_EDGE, PREPEND_EDGE];
+const APPEND_NODE = 'appendNode';
+const PREPEND_NODE = 'prependNode';
+const EDGE_LINKED_FIELD_DIRECTIVES = [APPEND_EDGE, PREPEND_EDGE];
+const NODE_LINKED_FIELD_DIRECTIVES = [APPEND_NODE, PREPEND_NODE];
+const LINKED_FIELD_DIRECTIVES = [
+  ...EDGE_LINKED_FIELD_DIRECTIVES,
+  ...NODE_LINKED_FIELD_DIRECTIVES,
+];
 
 const SCHEMA_EXTENSION = `
   directive @${DELETE_RECORD} on FIELD
@@ -29,6 +36,14 @@ const SCHEMA_EXTENSION = `
   ) on FIELD
   directive @${PREPEND_EDGE}(
     connections: [String!]!
+  ) on FIELD
+  directive @${APPEND_NODE}(
+    connections: [String!]!
+    edgeTypeName: String!
+  ) on FIELD
+  directive @${PREPEND_NODE}(
+    connections: [String!]!
+    edgeTypeName: String!
   ) on FIELD
 `;
 
@@ -103,55 +118,107 @@ function visitLinkedField(field: LinkedField): LinkedField {
     );
   }
   const edgeDirective = transformedField.directives.find(
-    directive => LINKED_FIELD_DIRECTIVES.indexOf(directive.name) > -1,
+    directive => EDGE_LINKED_FIELD_DIRECTIVES.indexOf(directive.name) > -1,
   );
-  if (edgeDirective == null) {
+  const nodeDirective = transformedField.directives.find(
+    directive => NODE_LINKED_FIELD_DIRECTIVES.indexOf(directive.name) > -1,
+  );
+
+  if (edgeDirective == null && nodeDirective == null) {
     return transformedField;
   }
-  const connectionsArg = edgeDirective.args.find(
+  if (edgeDirective != null && nodeDirective != null) {
+    throw createUserError(
+      `Invalid use of @${edgeDirective.name} and @${nodeDirective.name} on field '${transformedField.name}' - these directives cannot be used together.`,
+      [edgeDirective.loc],
+    );
+  }
+  const targetDirective = edgeDirective ?? nodeDirective;
+  const connectionsArg = targetDirective.args.find(
     arg => arg.name === 'connections',
   );
   if (connectionsArg == null) {
     throw createUserError(
-      `Expected the 'connections' argument to be defined on @${edgeDirective.name}.`,
-      [edgeDirective.loc],
+      `Expected the 'connections' argument to be defined on @${targetDirective.name}.`,
+      [targetDirective.loc],
     );
   }
   const schema = this.getContext().getSchema();
-  const fields = schema.getFields(transformedField.type);
-  let cursorFieldID;
-  let nodeFieldID;
-  for (const fieldID of fields) {
-    const fieldName = schema.getFieldName(fieldID);
-    if (fieldName === ConnectionInterface.get().CURSOR) {
-      cursorFieldID = fieldID;
-    } else if (fieldName === ConnectionInterface.get().NODE) {
-      nodeFieldID = fieldID;
+  if (edgeDirective) {
+    const fields = schema.getFields(transformedField.type);
+    let cursorFieldID;
+    let nodeFieldID;
+    for (const fieldID of fields) {
+      const fieldName = schema.getFieldName(fieldID);
+      if (fieldName === ConnectionInterface.get().CURSOR) {
+        cursorFieldID = fieldID;
+      } else if (fieldName === ConnectionInterface.get().NODE) {
+        nodeFieldID = fieldID;
+      }
     }
+
+    // Edge
+    if (cursorFieldID != null && nodeFieldID != null) {
+      const handle: Handle = {
+        name: edgeDirective.name,
+        key: '',
+        dynamicKey: null,
+        filters: null,
+        handleArgs: [connectionsArg],
+      };
+      return {
+        ...transformedField,
+        directives: transformedField.directives.filter(
+          directive => directive !== edgeDirective,
+        ),
+        handles: transformedField.handles
+          ? [...transformedField.handles, handle]
+          : [handle],
+      };
+    }
+    throw createUserError(
+      `Unsupported use of @${edgeDirective.name} on field '${transformedField.name}', expected an edge field (a field with 'cursor' and 'node' selection).`,
+      [targetDirective.loc],
+    );
+  } else {
+    // Node
+    const edgeTypeNameArg = nodeDirective.args.find(
+      arg => arg.name === 'edgeTypeName',
+    );
+    if (!edgeTypeNameArg) {
+      throw createUserError(
+        `Unsupported use of @${nodeDirective.name} on field '${transformedField.name}', 'edgeTypeName' argument must be provided.`,
+        [targetDirective.loc],
+      );
+    }
+    const rawType = schema.getRawType(transformedField.type);
+    if (schema.canHaveSelections(rawType)) {
+      const handle: Handle = {
+        name: nodeDirective.name,
+        key: '',
+        dynamicKey: null,
+        filters: null,
+        handleArgs: [connectionsArg, edgeTypeNameArg],
+      };
+      return {
+        ...transformedField,
+        directives: transformedField.directives.filter(
+          directive => directive !== nodeDirective,
+        ),
+        handles: transformedField.handles
+          ? [...transformedField.handles, handle]
+          : [handle],
+      };
+    }
+    throw createUserError(
+      `Unsupported use of @${nodeDirective.name} on field '${
+        transformedField.name
+      }'. Expected an object, union or interface, but got '${schema.getTypeString(
+        transformedField.type,
+      )}'.`,
+      [nodeDirective.loc],
+    );
   }
-  // Edge
-  if (cursorFieldID != null && nodeFieldID != null) {
-    const handle: Handle = {
-      name: edgeDirective.name,
-      key: '',
-      dynamicKey: null,
-      filters: null,
-      handleArgs: [connectionsArg],
-    };
-    return {
-      ...transformedField,
-      directives: transformedField.directives.filter(
-        directive => directive !== edgeDirective,
-      ),
-      handles: transformedField.handles
-        ? [...transformedField.handles, handle]
-        : [handle],
-    };
-  }
-  throw createUserError(
-    `Unsupported use of @${edgeDirective.name} on field '${transformedField.name}', expected an edge field (a field with 'cursor' and 'node' selection).`,
-    [edgeDirective.loc],
-  );
 }
 
 module.exports = {

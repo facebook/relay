@@ -2085,6 +2085,160 @@ mutation CommentCreateMutation(
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: append-node.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [String!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "edgeTypeName",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    metadata: null,
+    name: "CommentCreateMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentCreateResponsePayload",
+        name: "commentCreate",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: "Comment",
+            name: "comment",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Mutation",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "edgeTypeName",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    name: "CommentCreateMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentCreateResponsePayload",
+        name: "commentCreate",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: "Comment",
+            name: "comment",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+          LinkedHandle {
+            alias: null,
+            args: null,
+            filters: null,
+            handle: "appendNode",
+            key: "",
+            name: "comment",
+            handleArgs: [
+              Variable {
+                name: "connections",
+                variableName: "connections",
+              },
+              Variable {
+                name: "edgeTypeName",
+                variableName: "edgeTypeName",
+              },
+            ],
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+mutation CommentCreateMutation(
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment {
+      id
+    }
+  }
+}
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: client-conditions.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Foo_user on User {

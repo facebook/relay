@@ -563,7 +563,7 @@ describe('deleteFromStore', () => {
   });
 });
 
-describe('connection mutations', () => {
+describe('connection edge mutations', () => {
   let callbacks;
   let complete;
   let subject;
@@ -924,6 +924,720 @@ describe('connection mutations', () => {
       },
       {
         cursor: 'cursor-append',
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+  });
+});
+
+describe('connection node mutations', () => {
+  let callbacks;
+  let complete;
+  let subject;
+  let environment;
+  let error;
+  let fetch;
+  let next;
+  let operation;
+  let query;
+  let source;
+  let store;
+  let AppendCommentMutation;
+  let PrependCommentMutation;
+  let AppendCommentWithLiteralEdgeMutation;
+  let AppendCommentsMutation;
+  let PrependCommentsMutation;
+  let appendOperation;
+  let appendWithLiteralEdgeOperation;
+  let prependOperation;
+  let appendMultipleOperation;
+  let prependMultipleOperation;
+  let edgeTypeName;
+  const clientID =
+    'client:<feedbackid>:__FeedbackFragment_comments_connection(orderby:"date")';
+
+  beforeEach(() => {
+    jest.resetModules();
+    jest.mock('warning');
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    ({
+      FeedbackQuery: query,
+      AppendCommentMutation,
+      PrependCommentMutation,
+      AppendCommentWithLiteralEdgeMutation,
+      AppendCommentsMutation,
+      PrependCommentsMutation,
+    } = generateAndCompile(`
+      query FeedbackQuery($id: ID!) {
+        node(id: $id) {
+          comments(first: 2, orderby: "date") @connection(
+            key: "FeedbackFragment_comments"
+            filters: ["orderby"]
+          ) {
+            __id
+            edges {
+              __typename
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+
+      mutation AppendCommentMutation(
+        $connections: [String!]!
+        $edgeTypeName: String!
+        $input: CommentCreateInput
+      ) {
+        commentCreate(input: $input) {
+          comment @appendNode(
+            connections: $connections
+            edgeTypeName: $edgeTypeName
+          ) {
+            id
+          }
+        }
+      }
+
+      mutation AppendCommentWithLiteralEdgeMutation(
+        $connections: [String!]!
+        $input: CommentCreateInput
+      ) {
+        commentCreate(input: $input) {
+          comment @appendNode(
+            connections: $connections
+            edgeTypeName: "CommentsEdge"
+          ) {
+            id
+          }
+        }
+      }
+
+      mutation AppendCommentsMutation(
+        $connections: [String!]!
+        $edgeTypeName: String!
+        $input: CommentsCreateInput
+      ) {
+        commentsCreate(input: $input) {
+          comments @appendNode(
+            connections: $connections
+            edgeTypeName: $edgeTypeName
+          ) {
+            id
+          }
+        }
+      }
+
+      mutation PrependCommentMutation(
+        $connections: [String!]!
+        $edgeTypeName: String!
+        $input: CommentCreateInput
+      ) {
+        commentCreate(input: $input) {
+          comment @prependNode(
+            connections: $connections
+            edgeTypeName: $edgeTypeName
+          ) {
+            id
+          }
+        }
+      }
+
+      mutation PrependCommentsMutation(
+        $connections: [String!]!
+        $edgeTypeName: String!
+        $input: CommentsCreateInput
+      ) {
+        commentsCreate(input: $input) {
+          comments @prependNode(
+            connections: $connections
+            edgeTypeName: $edgeTypeName
+          ) {
+            id
+          }
+        }
+      }
+    `));
+    const variables = {
+      id: '<feedbackid>',
+    };
+    edgeTypeName = 'CommentsEdge';
+    operation = createOperationDescriptor(query, variables);
+    appendOperation = createOperationDescriptor(AppendCommentMutation, {
+      connections: [clientID],
+      edgeTypeName,
+      input: {},
+    });
+    appendWithLiteralEdgeOperation = createOperationDescriptor(
+      AppendCommentWithLiteralEdgeMutation,
+      {
+        connections: [clientID],
+        input: {},
+      },
+    );
+    prependOperation = createOperationDescriptor(PrependCommentMutation, {
+      connections: [clientID],
+      edgeTypeName,
+      input: {},
+    });
+    appendMultipleOperation = createOperationDescriptor(
+      AppendCommentsMutation,
+      {
+        connections: [clientID],
+        edgeTypeName,
+        input: {},
+      },
+    );
+    prependMultipleOperation = createOperationDescriptor(
+      PrependCommentsMutation,
+      {
+        connections: [clientID],
+        edgeTypeName,
+        input: {},
+      },
+    );
+
+    complete = jest.fn();
+    error = jest.fn();
+    next = jest.fn();
+    callbacks = {complete, error, next};
+    fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      return RelayObservable.create(sink => {
+        subject = sink;
+      });
+    });
+    source = RelayRecordSource.create();
+    store = new RelayModernStore(source);
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+    });
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        node: {
+          __typename: 'Feedback',
+          id: '<feedbackid>',
+          comments: {
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-1',
+                },
+              },
+              {
+                cursor: 'cursor-2',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-2',
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: true,
+              endCursor: 'cursor-2',
+            },
+          },
+        },
+      },
+    };
+    subject.next(payload);
+    jest.runAllTimers();
+    expect(environment.lookup(operation.fragment).data).toEqual({
+      node: {
+        comments: {
+          __id: clientID,
+          edges: [
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'cursor-1',
+              node: {
+                __typename: 'Comment',
+                id: 'node-1',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'cursor-2',
+              node: {
+                __typename: 'Comment',
+                id: 'node-2',
+              },
+            },
+          ],
+          pageInfo: {
+            hasNextPage: true,
+            endCursor: 'cursor-2',
+          },
+        },
+      },
+    });
+    complete.mockClear();
+    next.mockClear();
+    error.mockClear();
+  });
+
+  it('commits the mutation, creates edges for the comment and inserts the edges into the connection', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-append',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+
+    environment
+      .executeMutation({
+        operation: prependOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-prepend',
+          },
+        },
+      },
+    });
+    subject.complete();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-prepend',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+  });
+
+  it('works when the edge name is a literal', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendWithLiteralEdgeOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-append',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+
+    environment
+      .executeMutation({
+        operation: prependOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-prepend',
+          },
+        },
+      },
+    });
+    subject.complete();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-prepend',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append',
+        },
+      },
+    ]);
+  });
+
+  it('handles lists of nodes', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendMultipleOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentsCreate: {
+          comments: [
+            {
+              __typename: 'Comment',
+              id: 'node-append-1',
+            },
+            {
+              __typename: 'Comment',
+              id: 'node-append-2',
+            },
+          ],
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append-2',
+        },
+      },
+    ]);
+
+    environment
+      .executeMutation({
+        operation: prependMultipleOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentsCreate: {
+          comments: [
+            {
+              __typename: 'Comment',
+              id: 'node-prepend-1',
+            },
+            {
+              __typename: 'Comment',
+              id: 'node-prepend-2',
+            },
+          ],
+        },
+      },
+    });
+    subject.complete();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-prepend-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-prepend-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-append-2',
+        },
+      },
+    ]);
+  });
+
+  it('creates and inserts a comment edge during optmistic update', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendOperation,
+        optimisticResponse: {
+          commentCreate: {
+            comment: {
+              __typename: 'Comment',
+              id: 'node-optimistic-append',
+            },
+          },
+        },
+      })
+      .subscribe(callbacks);
+
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
+        node: {
+          __typename: 'Comment',
+          id: 'node-optimistic-append',
+        },
+      },
+    ]);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-append',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: undefined,
         node: {
           __typename: 'Comment',
           id: 'node-append',

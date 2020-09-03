@@ -106,6 +106,7 @@ type Mutation {
     input: ApplicationRequestDeleteAllInput
   ): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
+  commentsCreate(input: CommentsCreateInput): CommentsCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
@@ -147,6 +148,12 @@ input CommentCreateInput {
   clientMutationId: String
   feedbackId: ID
   feedback: CommentfeedbackFeedback
+}
+
+input CommentsCreateInput {
+  clientMutationId: String
+  feedbackId: ID
+  feedback: [CommentfeedbackFeedback]
 }
 
 input CommentfeedbackFeedback {
@@ -309,6 +316,14 @@ type CommentCreateResponsePayload {
   comment: Comment
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge
+  viewer: Viewer
+}
+
+type CommentsCreateResponsePayload {
+  clientMutationId: String
+  comments: [Comment]
+  feedback: [Feedback]
+  feedbackCommentEdges: [CommentsEdge]
   viewer: Viewer
 }
 

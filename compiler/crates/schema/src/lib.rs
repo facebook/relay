@@ -45,9 +45,12 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 ) -> Result<Schema> {
     let mut server_definitions = parse_definitions(BUILTINS)?;
 
+    let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
-        server_definitions.extend(parse_definitions(server_sdl.as_ref())?);
+        combined_sdl.push_str("\n");
+        combined_sdl.push_str(server_sdl.as_ref());
     }
+    server_definitions.extend(parse_definitions(&combined_sdl)?);
 
     let mut extension_definitions = Vec::new();
     for extension_sdl in extension_sdls {

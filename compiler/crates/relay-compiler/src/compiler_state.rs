@@ -130,17 +130,19 @@ impl Source for String {
 
 impl SchemaSources {
     pub fn get_sources(&self) -> Vec<&String> {
+        let mut sources: Vec<_>;
         if self.pending.is_empty() {
-            self.processed.values().collect()
+            sources = self.processed.iter().collect();
         } else {
-            let mut result: Vec<&String> = self.pending.values().collect();
+            sources = self.pending.iter().collect();
             for (key, value) in self.processed.iter() {
                 if !self.pending.contains_key(key) {
-                    result.push(value);
+                    sources.push((key, value));
                 }
             }
-            result
         }
+        sources.sort_by_key(|file_content| file_content.0);
+        sources.iter().map(|file_content| file_content.1).collect()
     }
 }
 #[derive(Serialize, Deserialize, Debug)]

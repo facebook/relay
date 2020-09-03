@@ -463,7 +463,12 @@ impl<'program> MatchTransform<'program> {
             .named(MATCH_CONSTANTS.supported_arg);
         match supported_arg_definition {
             None => {
-                // Return early if no `supported` arg definition on the field
+                if key_arg.is_none() {
+                    return Err(Diagnostic::error(
+                        ValidationMessage::InvalidMatchWithNoSupportedArgument,
+                        match_directive.name.location,
+                    ));
+                }
                 return Ok(if let TransformedValue::Keep = next_selections {
                     Transformed::Keep
                 } else {

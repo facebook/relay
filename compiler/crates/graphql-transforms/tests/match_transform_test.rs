@@ -1,4 +1,4 @@
-// @generated SignedSource<<e6eb94836b8d9765941af3babc59d09c>>
+// @generated SignedSource<<962270ff9a737fa26a49064783db4091>>
 
 mod match_transform;
 
@@ -66,6 +66,13 @@ fn module_without_match() {
     let input = include_str!("match_transform/fixtures/module-without-match.graphql");
     let expected = include_str!("match_transform/fixtures/module-without-match.expected");
     test_fixture(transform_fixture, "module-without-match.graphql", "match_transform/fixtures/module-without-match.expected", input, expected);
+}
+
+#[test]
+fn no_server_supported_arg_invalid() {
+    let input = include_str!("match_transform/fixtures/no-server-supported-arg.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/no-server-supported-arg.invalid.expected");
+    test_fixture(transform_fixture, "no-server-supported-arg.invalid.graphql", "match_transform/fixtures/no-server-supported-arg.invalid.expected", input, expected);
 }
 
 #[test]

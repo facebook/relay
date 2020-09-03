@@ -255,6 +255,8 @@ pub enum ValidationMessage {
     InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
     #[error("Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.")]
     InvalidMatchNoModuleSelection,
+    #[error("@match on a field without the `supported` argument is a no-op, please remove the `@match`.")]
+    InvalidMatchWithNoSupportedArgument,
 
     #[error("@module does not support @inline fragments.")]
     InvalidModuleWithInline,

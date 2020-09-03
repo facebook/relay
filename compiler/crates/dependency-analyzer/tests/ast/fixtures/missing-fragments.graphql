@@ -1,0 +1,19 @@
+query Q1 {
+  ...F1
+}
+
+fragment F1 on Query {
+  ...Missing1
+  ...F2
+}
+
+# %definitions%
+
+fragment F2 on Query {
+  ...Missing2
+  ...F3
+}
+
+fragment F3 on Query {
+  __typename
+}

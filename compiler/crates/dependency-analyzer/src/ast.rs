@@ -116,19 +116,13 @@ fn traverse_base_ast_definition(
     if reachable_base_asts.contains(&key) {
         return Ok(());
     }
-    let definition = base_definitions_map.get(&key);
-    match definition {
-        None => {
-            return Err(format!("Missing fragment definition: {}", key));
-        }
-        Some(definition) => {
-            reachable_base_asts.insert(key);
-            let selections = match definition {
-                ExecutableDefinition::Operation(definition) => &definition.selections,
-                ExecutableDefinition::Fragment(definition) => &definition.selections,
-            };
-            visit_selections(base_definitions_map, reachable_base_asts, selections, true)?
-        }
+    if let Some(base_definition) = base_definitions_map.get(&key) {
+        reachable_base_asts.insert(key);
+        let selections = match base_definition {
+            ExecutableDefinition::Operation(definition) => &definition.selections,
+            ExecutableDefinition::Fragment(definition) => &definition.selections,
+        };
+        visit_selections(base_definitions_map, reachable_base_asts, selections, true)?
     }
     Ok(())
 }

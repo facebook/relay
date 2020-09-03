@@ -384,6 +384,7 @@ class DataChecker {
         case STREAM:
           this._traverseSelections(selection.selections, dataID);
           break;
+        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
           invariant(
             false,

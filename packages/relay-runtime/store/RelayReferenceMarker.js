@@ -156,6 +156,7 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
+        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
           invariant(
             false,

@@ -159,9 +159,11 @@ impl<'a> Parser<'a> {
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
         let variable_definitions = if self.features.enable_variable_definitions {
-            self.parse_optional_delimited_list(TokenKind::OpenParen, TokenKind::CloseParen, |s| {
-                s.parse_variable_definition()
-            })?
+            self.parse_optional_delimited_nonempty_list(
+                TokenKind::OpenParen,
+                TokenKind::CloseParen,
+                Self::parse_variable_definition,
+            )?
         } else {
             None
         };
@@ -224,10 +226,11 @@ impl<'a> Parser<'a> {
         } else {
             None
         };
-        let variable_definitions =
-            self.parse_optional_delimited_list(TokenKind::OpenParen, TokenKind::CloseParen, |s| {
-                s.parse_variable_definition()
-            })?;
+        let variable_definitions = self.parse_optional_delimited_nonempty_list(
+            TokenKind::OpenParen,
+            TokenKind::CloseParen,
+            Self::parse_variable_definition,
+        )?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
         let span = Span::new(start, self.index());
@@ -357,9 +360,11 @@ impl<'a> Parser<'a> {
 
     /// SelectionSet : { Selection+ }
     fn parse_selections(&mut self) -> ParseResult<List<Selection>> {
-        self.parse_delimited_list(TokenKind::OpenBrace, TokenKind::CloseBrace, |s| {
-            s.parse_selection()
-        })
+        self.parse_delimited_nonempty_list(
+            TokenKind::OpenBrace,
+            TokenKind::CloseBrace,
+            Self::parse_selection,
+        )
     }
 
     /// Selection :
@@ -468,20 +473,14 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// Arguments[Const] : ( Argument[?Const]+ )
-    fn parse_arguments(&mut self) -> ParseResult<List<Argument>> {
-        self.parse_delimited_list(TokenKind::OpenParen, TokenKind::CloseParen, |s| {
-            s.parse_argument()
-        })
-    }
-
     /// Arguments?
+    /// Arguments[Const] : ( Argument[?Const]+ )
     fn parse_optional_arguments(&mut self) -> ParseResult<Option<List<Argument>>> {
-        if self.peek_token_kind() == TokenKind::OpenParen {
-            Ok(Some(self.parse_arguments()?))
-        } else {
-            Ok(None)
-        }
+        self.parse_optional_delimited_nonempty_list(
+            TokenKind::OpenParen,
+            TokenKind::CloseParen,
+            Self::parse_argument,
+        )
     }
 
     /// Argument[Const] : Name : Value[?Const]
@@ -797,26 +796,6 @@ impl<'a> Parser<'a> {
         Ok(items)
     }
 
-    /// Parse delimited items into a `Vec`
-    /// <start> <item>* <end>
-    fn parse_delimited_items<T, F>(
-        &mut self,
-        start_kind: TokenKind,
-        end_kind: TokenKind,
-        parse: F,
-    ) -> ParseResult<(Token, Vec<T>, Token)>
-    where
-        F: Fn(&mut Self) -> ParseResult<T>,
-    {
-        let start = self.parse_kind(start_kind)?;
-        let mut items = vec![];
-        while !self.peek_kind(end_kind) {
-            items.push(parse(self)?);
-        }
-        let end = self.parse_kind(end_kind)?;
-        Ok((start, items, end))
-    }
-
     /// Parse delimited items into a `List`
     /// <start> <item>* <end>
     fn parse_delimited_list<T, F>(
@@ -829,7 +808,14 @@ impl<'a> Parser<'a> {
         F: Fn(&mut Self) -> ParseResult<T>,
     {
         let span_start = self.index();
-        let (start, items, end) = self.parse_delimited_items(start_kind, end_kind, parse)?;
+
+        let start = self.parse_kind(start_kind)?;
+        let mut items = vec![];
+        while !self.peek_kind(end_kind) {
+            items.push(parse(self)?);
+        }
+        let end = self.parse_kind(end_kind)?;
+
         let span = Span::new(span_start, self.index());
         Ok(List {
             span,
@@ -839,8 +825,37 @@ impl<'a> Parser<'a> {
         })
     }
 
-    /// (<start> <item>* <end>)?
-    fn parse_optional_delimited_list<T, F>(
+    /// Parse delimited items into a `List`
+    /// <start> <item>+ <end>
+    fn parse_delimited_nonempty_list<T, F>(
+        &mut self,
+        start_kind: TokenKind,
+        end_kind: TokenKind,
+        parse: F,
+    ) -> ParseResult<List<T>>
+    where
+        F: Fn(&mut Self) -> ParseResult<T>,
+    {
+        let span_start = self.index();
+
+        let start = self.parse_kind(start_kind)?;
+        let mut items = vec![parse(self)?];
+        while !self.peek_kind(end_kind) {
+            items.push(parse(self)?);
+        }
+        let end = self.parse_kind(end_kind)?;
+
+        let span = Span::new(span_start, self.index());
+        Ok(List {
+            span,
+            start,
+            items,
+            end,
+        })
+    }
+
+    /// (<start> <item>+ <end>)?
+    fn parse_optional_delimited_nonempty_list<T, F>(
         &mut self,
         start_kind: TokenKind,
         end_kind: TokenKind,
@@ -850,9 +865,9 @@ impl<'a> Parser<'a> {
         F: Fn(&mut Self) -> ParseResult<T>,
     {
         if self.peek_token_kind() == start_kind {
-            Ok(Some(
-                self.parse_delimited_list(start_kind, end_kind, parse)?,
-            ))
+            Ok(Some(self.parse_delimited_nonempty_list(
+                start_kind, end_kind, parse,
+            )?))
         } else {
             Ok(None)
         }

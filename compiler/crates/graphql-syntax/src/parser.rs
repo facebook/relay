@@ -791,13 +791,8 @@ impl<'a> Parser<'a> {
         F2: Fn(&mut Self) -> ParseResult<T>,
     {
         let mut items = vec![];
-        loop {
-            if peek(self) {
-                let item = parse(self)?;
-                items.push(item);
-            } else {
-                break;
-            }
+        while peek(self) {
+            items.push(parse(self)?);
         }
         Ok(items)
     }

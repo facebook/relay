@@ -18,12 +18,14 @@ const {createUserError} = require('../core/CompilerError');
 const {ConnectionInterface} = require('relay-runtime');
 
 const DELETE_RECORD = 'deleteRecord';
+const DELETE_EDGE = 'deleteEdge';
 const APPEND_EDGE = 'appendEdge';
 const PREPEND_EDGE = 'prependEdge';
 const APPEND_NODE = 'appendNode';
 const PREPEND_NODE = 'prependNode';
 const EDGE_LINKED_FIELD_DIRECTIVES = [APPEND_EDGE, PREPEND_EDGE];
 const NODE_LINKED_FIELD_DIRECTIVES = [APPEND_NODE, PREPEND_NODE];
+const SCALAR_FIELD_DIRECTIVES = [DELETE_RECORD, DELETE_EDGE];
 const LINKED_FIELD_DIRECTIVES = [
   ...EDGE_LINKED_FIELD_DIRECTIVES,
   ...NODE_LINKED_FIELD_DIRECTIVES,
@@ -31,6 +33,9 @@ const LINKED_FIELD_DIRECTIVES = [
 
 const SCHEMA_EXTENSION = `
   directive @${DELETE_RECORD} on FIELD
+  directive @${DELETE_EDGE}(
+    connections: [String!]!
+  ) on FIELD
   directive @${APPEND_EDGE}(
     connections: [String!]!
   ) on FIELD
@@ -73,34 +78,43 @@ function visitScalarField(field: ScalarField): ScalarField {
       [linkedFieldDirective.loc],
     );
   }
-  const deleteDirective = field.directives.find(
+  const deleteNodeDirective = field.directives.find(
     directive => directive.name === DELETE_RECORD,
   );
-  if (deleteDirective == null) {
+  const deleteEdgeDirective = field.directives.find(
+    directive => directive.name === DELETE_EDGE,
+  );
+  const targetDirective = deleteNodeDirective ?? deleteEdgeDirective;
+  if (targetDirective == null) {
     return field;
   }
+
   const schema = this.getContext().getSchema();
 
   if (!schema.isId(schema.getRawType(field.type))) {
     throw createUserError(
-      `Invalid use of @${DELETE_RECORD} on field '${
+      `Invalid use of @${targetDirective.name} on field '${
         field.name
       }'. Expected field to return an ID or list of ID values, got ${schema.getTypeString(
         field.type,
       )}.`,
-      [deleteDirective.loc],
+      [targetDirective.loc],
     );
   }
+  const connectionsArg = targetDirective.args.find(
+    arg => arg.name === 'connections',
+  );
   const handle: Handle = {
-    name: DELETE_RECORD,
+    name: targetDirective.name,
     key: '',
     dynamicKey: null,
     filters: null,
+    handleArgs: connectionsArg ? [connectionsArg] : undefined,
   };
   return {
     ...field,
     directives: field.directives.filter(
-      directive => directive !== deleteDirective,
+      directive => directive !== targetDirective,
     ),
     handles: field.handles ? [...field.handles, handle] : [handle],
   };

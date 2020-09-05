@@ -26,6 +26,8 @@ function RelayDefaultHandlerProvider(handle: string): Handler {
       return ConnectionHandler;
     case 'deleteRecord':
       return MutationHandlers.DeleteRecordHandler;
+    case 'deleteEdge':
+      return MutationHandlers.DeleteEdgeHandler;
     case 'appendEdge':
       return MutationHandlers.AppendEdgeHandler;
     case 'prependEdge':

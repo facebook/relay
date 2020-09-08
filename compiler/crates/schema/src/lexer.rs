@@ -160,7 +160,7 @@ fn read_string(input: &str) -> ReaderResult<'_> {
                     return (
                         Some(pos + 1),
                         Some(TokenKind::BlockString(&input[3..pos - 2])),
-                    )
+                    );
                 }
                 (_, '\\') => Escape,
                 (Escape, '"') => EscapeFirst,
@@ -176,7 +176,7 @@ fn read_string(input: &str) -> ReaderResult<'_> {
                 '\\' => {
                     iter.next();
                 }
-                _ => (),
+                _ => {}
             }
         }
     }

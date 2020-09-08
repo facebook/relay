@@ -63,7 +63,7 @@ impl<'a> fmt::Display for TokenKind<'a> {
                         .take(value.len() - 2)
                         .filter(|c| *c != '\\')
                         .collect::<String>()
-                )
+                );
             }
             BlockString(value) => return write!(f, "BlockString({})", value),
         };

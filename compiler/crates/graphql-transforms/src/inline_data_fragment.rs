@@ -101,7 +101,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                     }
                 }
                 _ => {
-                    panic!("InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation.");
+                    panic!(
+                        "InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation."
+                    );
                 }
             };
 
@@ -113,7 +115,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                     (next_fragment.name.item, next_fragment.selections)
                 }
                 Transformed::Delete => {
-                    panic!("InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation.");
+                    panic!(
+                        "InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation."
+                    );
                 }
             };
 

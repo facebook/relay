@@ -78,7 +78,9 @@ pub fn build_connection_metadata(
         (Some(_), Some(_)) => connection_constants.direction_bidirectional,
         (Some(_), None) => connection_constants.direction_forward,
         (None, Some(_)) => connection_constants.direction_backward,
-        (None,  None) => unreachable!("Expected presence of first or last args on connection to have been previously validated."),
+        (None, None) => unreachable!(
+            "Expected presence of first or last args on connection to have been previously validated."
+        ),
     };
 
     ConnectionMetadata {
@@ -203,12 +205,16 @@ pub fn extract_connection_metadata_from_directive(
                             list.iter()
                                 .map(|item| match item {
                                     ConstantValue::String(string_val) => *string_val,
-                                    _ => unreachable!("Expected connection metadata path to be a list of strings."),
+                                    _ => unreachable!(
+                                        "Expected connection metadata path to be a list of strings."
+                                    ),
                                 })
                                 .collect::<Vec<StringKey>>(),
                         ),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata path to be a nullable list of strings."),
+                        _ => unreachable!(
+                            "Expected connection metadata path to be a nullable list of strings."
+                        ),
                     };
                     let direction = match &metadata_value[1] {
                         ConstantValue::String(string_val) => *string_val,
@@ -217,26 +223,36 @@ pub fn extract_connection_metadata_from_directive(
                     let first = match &metadata_value[2] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata first to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata first to be a nullable string."
+                        ),
                     };
                     let last = match &metadata_value[3] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata last to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata last to be a nullable string."
+                        ),
                     };
                     let after = match &metadata_value[4] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata after to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata after to be a nullable string."
+                        ),
                     };
                     let before = match &metadata_value[5] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata before to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata before to be a nullable string."
+                        ),
                     };
                     let is_stream_connection = match &metadata_value[6] {
                         ConstantValue::Boolean(bool_val) => *bool_val,
-                        _ => unreachable!("Expected connection metadata is_stream_connection to be a boolean."),
+                        _ => unreachable!(
+                            "Expected connection metadata is_stream_connection to be a boolean."
+                        ),
                     };
 
                     ConnectionMetadata {
@@ -253,7 +269,9 @@ pub fn extract_connection_metadata_from_directive(
 
             Some(built_metadata_values)
         } else {
-            unreachable!("Expected the connection metadata directive to have a single argument containing the connection metadata.")
+            unreachable!(
+                "Expected the connection metadata directive to have a single argument containing the connection metadata."
+            )
         }
     } else {
         None

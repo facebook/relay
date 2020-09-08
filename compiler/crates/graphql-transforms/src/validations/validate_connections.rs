@@ -441,7 +441,7 @@ impl<'s> ConnectionValidation<'s> {
                         key_arg_name: *KEY_ARG_NAME,
                     },
                     connection_field.definition.location,
-                )])
+                )]);
             }
         }
         Ok(())

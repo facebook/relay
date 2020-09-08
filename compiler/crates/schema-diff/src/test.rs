@@ -994,7 +994,7 @@ impl fmt::Debug for DefinitionChange {
                 removed,
                 changed,
                 interfaces_added,
-                interfaces_removed
+                interfaces_removed,
             } => write!(
                 f,
                 "ObjectChanged {:?}: added:{:?} removed:{:?} changed: {:?}; interface: added:{:?} removed:{:?}",

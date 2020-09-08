@@ -127,7 +127,10 @@ pub fn test_fixture<T, U, V>(
                 Some(err) => format!("{}", err),
                 None => "Unknown error".to_string(),
             };
-            format!("Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected", error_message)
+            format!(
+                "Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected",
+                error_message
+            )
         } else {
             "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected".to_string()
         });

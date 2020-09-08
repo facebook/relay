@@ -167,7 +167,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::ExpectedOperationName(),
                         operation.location,
                     ))
-                    .into())
+                    .into());
             }
         };
         let kind = operation
@@ -188,7 +188,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::UnsupportedOperation(kind),
                         operation.location,
                     ))
-                    .into())
+                    .into());
             }
         };
 
@@ -544,7 +544,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                                     ValidationMessage::ExpectedCompositeType(type_condition),
                                     self.location.with_span(type_condition_node.type_.span),
                                 ))
-                                .into())
+                                .into());
                         }
                     },
                     None => {
@@ -553,7 +553,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                                 ValidationMessage::UnknownType(type_name),
                                 self.location.with_span(type_condition_node.type_.span),
                             ))
-                            .into())
+                            .into());
                     }
                 }
             }
@@ -623,7 +623,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         },
                         self.location.with_span(span),
                     ))
-                    .into())
+                    .into());
             }
         };
         let field_definition = self.schema.field(field_id);
@@ -680,7 +680,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         },
                         self.location.with_span(span),
                     ))
-                    .into())
+                    .into());
             }
         };
         let field_definition = self.schema.field(field_id);
@@ -832,7 +832,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::UnknownDirective(directive.name.value),
                         self.location.with_span(directive.name.span),
                     ))
-                    .into())
+                    .into());
             }
         };
         if !directive_definition.locations.contains(&location) {
@@ -1032,7 +1032,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                         self.location.with_span(value.span()),
                     ))
-                    .into())
+                    .into());
             }
         };
         let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
@@ -1172,7 +1172,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                         self.location.with_span(value.span()),
                     ))
-                    .into())
+                    .into());
             }
         };
         let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
@@ -1255,7 +1255,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::ExpectedEnumValueGotString(type_definition.name),
                         self.location.with_span(node.span()),
                     ))
-                    .into())
+                    .into());
             }
             _ => {
                 return Err(self
@@ -1263,7 +1263,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                         self.location.with_span(node.span()),
                     ))
-                    .into())
+                    .into());
             }
         };
         match type_definition.values.iter().find(|enum_value| {

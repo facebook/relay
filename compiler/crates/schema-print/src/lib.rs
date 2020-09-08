@@ -371,15 +371,15 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
 fn is_schema_of_common_name(schema: &Schema) -> bool {
     match schema.query_type() {
-        Some(_) => (),
+        Some(_) => {}
         None => return false,
     };
     match schema.mutation_type() {
-        Some(_) => (),
+        Some(_) => {}
         None => return false,
     };
     match schema.subscription_type() {
-        Some(_) => (),
+        Some(_) => {}
         None => return false,
     };
     true

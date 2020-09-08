@@ -297,7 +297,10 @@ impl<'program> MatchTransform<'program> {
             if module_key != matches.key {
                 // The user can't override the key locally (per @module),
                 // so this is just an internal sanity check
-                panic!(format!("Invalid @module selection: expected all selections at path '{:?} to have the same 'key', got '{}' and '{}'.", &self.path, module_key, matches.key));
+                panic!(format!(
+                    "Invalid @module selection: expected all selections at path '{:?} to have the same 'key', got '{}' and '{}'.",
+                    &self.path, module_key, matches.key
+                ));
             }
 
             let previous_match_for_type = matches.types.get(&fragment.type_condition);

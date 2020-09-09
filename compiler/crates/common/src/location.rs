@@ -111,14 +111,6 @@ impl Location {
     pub fn contains(&self, subspan: Span) -> bool {
         self.span.contains(subspan)
     }
-
-    pub fn print(&self, source: &str) -> String {
-        format!(
-            "{}:\n{}",
-            self.source_location.path(),
-            self.span.print(source)
-        )
-    }
 }
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]

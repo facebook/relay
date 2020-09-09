@@ -189,6 +189,7 @@ pub async fn commit_project(
                 &mut artifacts,
                 &config.root_dir,
                 &persist_config,
+                config.full_build,
                 &artifact_persister,
             )
             .await?;

@@ -25,6 +25,7 @@ pub async fn persist_operations(
     artifacts: &mut [Artifact],
     root_dir: &PathBuf,
     persist_config: &PersistConfig,
+    is_full_build: bool,
     artifact_persister: &Box<dyn ArtifactPersister + Send + Sync>,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
@@ -38,7 +39,12 @@ pub async fn persist_operations(
             {
                 let text_hash = md5(text);
                 let artifact_path = root_dir.join(&artifact.path);
-                if let Some(id) = extract_persist_id(&artifact_path, &text_hash) {
+                let extracted_persist_id = if is_full_build {
+                    None
+                } else {
+                    extract_persist_id(&artifact_path, &text_hash)
+                };
+                if let Some(id) = extracted_persist_id {
                     *id_and_text_hash = Some((id, text_hash));
                     None
                 } else {

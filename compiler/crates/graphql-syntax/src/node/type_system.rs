@@ -190,33 +190,25 @@ pub enum DirectiveLocation {
 impl fmt::Display for DirectiveLocation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            DirectiveLocation::Query => f.write_fmt(format_args!("QUERY")),
-            DirectiveLocation::Mutation => f.write_fmt(format_args!("MUTATION")),
-            DirectiveLocation::Subscription => f.write_fmt(format_args!("SUBSCRIPTION")),
-            DirectiveLocation::Field => f.write_fmt(format_args!("FIELD")),
-            DirectiveLocation::FragmentDefinition => {
-                f.write_fmt(format_args!("FRAGMENT_DEFINITION"))
-            }
-            DirectiveLocation::FragmentSpread => f.write_fmt(format_args!("FRAGMENT_SPREAD")),
-            DirectiveLocation::InlineFragment => f.write_fmt(format_args!("INLINE_FRAGMENT")),
-            DirectiveLocation::Schema => f.write_fmt(format_args!("SCHEMA")),
-            DirectiveLocation::Scalar => f.write_fmt(format_args!("SCALAR")),
-            DirectiveLocation::Object => f.write_fmt(format_args!("OBJECT")),
-            DirectiveLocation::FieldDefinition => f.write_fmt(format_args!("FIELD_DEFINITION")),
-            DirectiveLocation::ArgumentDefinition => {
-                f.write_fmt(format_args!("ARGUMENT_DEFINITION"))
-            }
-            DirectiveLocation::Interface => f.write_fmt(format_args!("INTERFACE")),
-            DirectiveLocation::Union => f.write_fmt(format_args!("UNION")),
-            DirectiveLocation::Enum => f.write_fmt(format_args!("ENUM")),
-            DirectiveLocation::EnumValue => f.write_fmt(format_args!("ENUM_VALUE")),
-            DirectiveLocation::InputObject => f.write_fmt(format_args!("INPUT_OBJECT")),
-            DirectiveLocation::InputFieldDefinition => {
-                f.write_fmt(format_args!("INPUT_FIELD_DEFINITION"))
-            }
-            DirectiveLocation::VariableDefinition => {
-                f.write_fmt(format_args!("VARIABLE_DEFINITION"))
-            }
+            DirectiveLocation::Query => write!(f, "QUERY"),
+            DirectiveLocation::Mutation => write!(f, "MUTATION"),
+            DirectiveLocation::Subscription => write!(f, "SUBSCRIPTION"),
+            DirectiveLocation::Field => write!(f, "FIELD"),
+            DirectiveLocation::FragmentDefinition => write!(f, "FRAGMENT_DEFINITION"),
+            DirectiveLocation::FragmentSpread => write!(f, "FRAGMENT_SPREAD"),
+            DirectiveLocation::InlineFragment => write!(f, "INLINE_FRAGMENT"),
+            DirectiveLocation::Schema => write!(f, "SCHEMA"),
+            DirectiveLocation::Scalar => write!(f, "SCALAR"),
+            DirectiveLocation::Object => write!(f, "OBJECT"),
+            DirectiveLocation::FieldDefinition => write!(f, "FIELD_DEFINITION"),
+            DirectiveLocation::ArgumentDefinition => write!(f, "ARGUMENT_DEFINITION"),
+            DirectiveLocation::Interface => write!(f, "INTERFACE"),
+            DirectiveLocation::Union => write!(f, "UNION"),
+            DirectiveLocation::Enum => write!(f, "ENUM"),
+            DirectiveLocation::EnumValue => write!(f, "ENUM_VALUE"),
+            DirectiveLocation::InputObject => write!(f, "INPUT_OBJECT"),
+            DirectiveLocation::InputFieldDefinition => write!(f, "INPUT_FIELD_DEFINITION"),
+            DirectiveLocation::VariableDefinition => write!(f, "VARIABLE_DEFINITION"),
         }
     }
 }

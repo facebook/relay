@@ -701,7 +701,7 @@ impl<'a> Parser<'a> {
             "VARIABLE_DEFINITION" => Ok(DirectiveLocation::VariableDefinition),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token: `{}`", token_str),
+                    format!("Unexpected `{}`, expected a directive location.", token_str),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);

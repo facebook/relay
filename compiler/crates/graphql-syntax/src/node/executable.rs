@@ -6,6 +6,7 @@
  */
 
 use super::constant_value::*;
+use super::directive::Directive;
 use super::primitive::*;
 use super::type_annotation::*;
 use super::value::*;
@@ -104,14 +105,6 @@ pub struct VariableDefinition {
     pub type_: TypeAnnotation,
     pub default_value: Option<DefaultValue>,
     pub directives: Vec<Directive>,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Directive {
-    pub span: Span,
-    pub at: Token,
-    pub name: Identifier,
-    pub arguments: Option<List<Argument>>,
 }
 
 // Primitive Types

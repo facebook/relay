@@ -42,6 +42,15 @@ pub fn parse_executable_with_features(
     parser.parse_executable_document()
 }
 
+pub fn parse_schema_document(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<SchemaDocument> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_schema_document()
+}
+
 pub fn parse_type(
     source: &str,
     source_location: SourceLocationKey,

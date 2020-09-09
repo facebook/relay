@@ -1,4 +1,4 @@
-// @generated SignedSource<<f35193381d17b8c1691793abf7aab4a7>>
+// @generated SignedSource<<10dfe54827fff7f74c7ebc1fa131258b>>
 
 mod compile_relay_artifacts;
 
@@ -108,6 +108,20 @@ fn append_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/append-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/append-edge.expected");
     test_fixture(transform_fixture, "append-edge.graphql", "compile_relay_artifacts/fixtures/append-edge.expected", input, expected);
+}
+
+#[test]
+fn append_node() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node.expected");
+    test_fixture(transform_fixture, "append-node.graphql", "compile_relay_artifacts/fixtures/append-node.expected", input, expected);
+}
+
+#[test]
+fn append_node_literal_edge_type_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected");
+    test_fixture(transform_fixture, "append-node-literal-edge-type-name.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected", input, expected);
 }
 
 #[test]

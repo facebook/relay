@@ -1,4 +1,4 @@
-// @generated SignedSource<<1a75eaed08a6f9322f03787154a24326>>
+// @generated SignedSource<<acf07b018c2f85777f17d2dbc0f2c36c>>
 
 mod declarative_connection;
 
@@ -20,10 +20,38 @@ fn append_edge_unspported_invalid() {
 }
 
 #[test]
+fn append_node() {
+    let input = include_str!("declarative_connection/fixtures/append-node.graphql");
+    let expected = include_str!("declarative_connection/fixtures/append-node.expected");
+    test_fixture(transform_fixture, "append-node.graphql", "declarative_connection/fixtures/append-node.expected", input, expected);
+}
+
+#[test]
+fn append_node_edge_literal() {
+    let input = include_str!("declarative_connection/fixtures/append-node-edge-literal.graphql");
+    let expected = include_str!("declarative_connection/fixtures/append-node-edge-literal.expected");
+    test_fixture(transform_fixture, "append-node-edge-literal.graphql", "declarative_connection/fixtures/append-node-edge-literal.expected", input, expected);
+}
+
+#[test]
+fn append_node_unsupported_invalid() {
+    let input = include_str!("declarative_connection/fixtures/append-node-unsupported.invalid.graphql");
+    let expected = include_str!("declarative_connection/fixtures/append-node-unsupported.invalid.expected");
+    test_fixture(transform_fixture, "append-node-unsupported.invalid.graphql", "declarative_connection/fixtures/append-node-unsupported.invalid.expected", input, expected);
+}
+
+#[test]
 fn delete_from_store() {
     let input = include_str!("declarative_connection/fixtures/delete-from-store.graphql");
     let expected = include_str!("declarative_connection/fixtures/delete-from-store.expected");
     test_fixture(transform_fixture, "delete-from-store.graphql", "declarative_connection/fixtures/delete-from-store.expected", input, expected);
+}
+
+#[test]
+fn delete_from_store_plural() {
+    let input = include_str!("declarative_connection/fixtures/delete-from-store-plural.graphql");
+    let expected = include_str!("declarative_connection/fixtures/delete-from-store-plural.expected");
+    test_fixture(transform_fixture, "delete-from-store-plural.graphql", "declarative_connection/fixtures/delete-from-store-plural.expected", input, expected);
 }
 
 #[test]

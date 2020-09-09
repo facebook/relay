@@ -60,3 +60,5 @@ directive @required(action: RequiredFieldAction!) on FIELD
 directive @deleteRecord on FIELD
 directive @appendEdge(connections: [String!]!) on FIELD
 directive @prependEdge(connections: [String!]!) on FIELD
+directive @appendNode(connections: [String!]!, edgeTypeName: String!) on FIELD
+directive @prependNode(connections: [String!]!, edgeTypeName: String!) on FIELD

@@ -562,6 +562,23 @@ pub enum ValidationMessage {
         directive_name: StringKey,
         field_name: StringKey,
     },
+    #[error("Invalid use of @{edge_directive_name} and @{node_directive_name} on field '{field_name}' - these directives cannot be used together.")]
+    ConflictingEdgeAndNodeDirectives {
+        edge_directive_name: StringKey,
+        node_directive_name: StringKey,
+        field_name: StringKey,
+    },
+    #[error("Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided.")]
+    NodeDirectiveMissesRequiredEdgeTypeName {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+    #[error("Unsupported use of @{directive_name} on field '{field_name}'. Expected an object, union or interface, but got '{current_type}'.")]
+    NodeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
 
     #[error(
         "Expected 'flight' field schema definition to specify its component name with @react_flight_component"

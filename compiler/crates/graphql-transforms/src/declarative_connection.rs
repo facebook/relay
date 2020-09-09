@@ -35,10 +35,13 @@ pub fn transform_declarative_connection(
 }
 
 lazy_static! {
-    pub static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
     pub static ref APPEND_EDGE: StringKey = "appendEdge".intern();
-    pub static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
+    pub static ref APPEND_NODE: StringKey = "appendNode".intern();
     pub static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
+    pub static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
+    pub static ref PREPEND_EDGE: StringKey = "prependNode".intern();
+    pub static ref PREPEND_NODE: StringKey = "prependEdge".intern();
+    pub static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
 }
 
 struct DeclarativeConnectionMutationTransform<'s, 'c> {
@@ -68,7 +71,10 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let linked_field_directive = field.directives.iter().find(|directive| {
-            directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
+            directive.name.item == *APPEND_EDGE
+                || directive.name.item == *PREPEND_EDGE
+                || directive.name.item == *APPEND_NODE
+                || directive.name.item == *PREPEND_NODE
         });
         if let Some(linked_field_directive) = linked_field_directive {
             self.errors.push(Diagnostic::error(
@@ -138,9 +144,23 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
         let edge_directive = field.directives.iter().find(|directive| {
             directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
         });
-        match edge_directive {
-            None => transformed_field,
-            Some(edge_directive) => {
+        let node_directive = field.directives.iter().find(|directive| {
+            directive.name.item == *APPEND_NODE || directive.name.item == *PREPEND_NODE
+        });
+        match (edge_directive, node_directive) {
+            (Some(edge_directive), Some(node_directive)) => {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ConflictingEdgeAndNodeDirectives {
+                        edge_directive_name: edge_directive.name.item,
+                        node_directive_name: node_directive.name.item,
+                        field_name: field.alias_or_name(&self.program.schema),
+                    },
+                    edge_directive.name.location,
+                ));
+                transformed_field
+            }
+            (None, None) => transformed_field,
+            (Some(edge_directive), None) => {
                 let connetions_arg = edge_directive.arguments.named(*CONNECTIONS_ARG_NAME);
                 match connetions_arg {
                     None => {
@@ -202,6 +222,85 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                                     field_name: field.alias_or_name(&self.program.schema),
                                 },
                                 edge_directive.name.location,
+                            ));
+                            Transformed::Keep
+                        }
+                    }
+                }
+            }
+            (None, Some(node_directive)) => {
+                let connetions_arg = node_directive.arguments.named(*CONNECTIONS_ARG_NAME);
+                match connetions_arg {
+                    None => {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::ConnectionsArgumentRequired {
+                                directive_name: node_directive.name.item,
+                            },
+                            node_directive.name.location,
+                        ));
+                        transformed_field
+                    }
+                    Some(connections_arg) => {
+                        let edge_typename_arg = node_directive.arguments.named(*EDGE_TYPENAME_ARG);
+                        if let Some(edge_typename_arg) = edge_typename_arg {
+                            let field_definition = self.program.schema.field(field.definition.item);
+                            match field_definition.type_.inner() {
+                                Type::Object(_) | Type::Interface(_) => {
+                                    let handle_directive =
+                                        build_handle_field_directive(HandleFieldDirectiveValues {
+                                            handle: node_directive.name.item,
+                                            key: "".intern(),
+                                            dynamic_key: None,
+                                            filters: None,
+                                            handle_args: Some(vec![
+                                                connections_arg.clone(),
+                                                edge_typename_arg.clone(),
+                                            ]),
+                                        });
+                                    let mut next_field = match transformed_field {
+                                Transformed::Replace(Selection::LinkedField(linked_field)) => {
+                                    (*linked_field).clone()
+                                }
+                                Transformed::Keep => field.clone(),
+                                _ => panic!(
+                                    "DeclarativeConnection got unexpected transform result: `{:?}`.",
+                                    transformed_field
+                                ),
+                            };
+                                    let index = next_field
+                                        .directives
+                                        .iter()
+                                        .position(|directive| {
+                                            directive.name.item == node_directive.name.item
+                                        })
+                                        .expect("Expected the edge directive to exist.");
+                                    next_field.directives[index] = handle_directive;
+                                    Transformed::Replace(Selection::LinkedField(Arc::new(
+                                        next_field,
+                                    )))
+                                }
+                                _ => {
+                                    self.errors.push(Diagnostic::error(
+                                        ValidationMessage::NodeDirectiveOnUnsupportedType {
+                                            directive_name: node_directive.name.item,
+                                            field_name: field.alias_or_name(&self.program.schema),
+                                            current_type: self
+                                                .program
+                                                .schema
+                                                .get_type_string(&field_definition.type_),
+                                        },
+                                        node_directive.name.location,
+                                    ));
+                                    Transformed::Keep
+                                }
+                            }
+                        } else {
+                            self.errors.push(Diagnostic::error(
+                                ValidationMessage::NodeDirectiveMissesRequiredEdgeTypeName {
+                                    directive_name: node_directive.name.item,
+                                    field_name: field.alias_or_name(&self.program.schema),
+                                },
+                                node_directive.name.location,
                             ));
                             Transformed::Keep
                         }

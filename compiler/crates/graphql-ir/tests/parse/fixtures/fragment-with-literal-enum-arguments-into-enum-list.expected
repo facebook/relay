@@ -22,7 +22,7 @@ fragment ChildFragment on User
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 LinkedField {
@@ -35,7 +35,7 @@ fragment ChildFragment on User
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:53:61,
                         item: FieldID(
-                            442,
+                            451,
                         ),
                     },
                     arguments: [
@@ -65,7 +65,7 @@ fragment ChildFragment on User
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:92:97,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],
@@ -125,7 +125,7 @@ fragment ChildFragment on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -141,7 +141,7 @@ fragment ChildFragment on User
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:253:261,
                         item: FieldID(
-                            442,
+                            451,
                         ),
                     },
                     arguments: [
@@ -179,7 +179,7 @@ fragment ChildFragment on User
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:297:302,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],

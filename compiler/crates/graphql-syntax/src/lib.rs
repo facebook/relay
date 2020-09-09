@@ -15,7 +15,6 @@ mod node;
 mod parser;
 mod source;
 mod syntax_error;
-pub mod type_system_node;
 
 pub use node::*;
 pub use parser::ParserFeatures;

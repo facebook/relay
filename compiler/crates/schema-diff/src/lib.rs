@@ -73,7 +73,7 @@ pub struct ArgumentChange {
 #[derive(Eq, PartialEq, PartialOrd, Ord)]
 pub struct TypeChange {
     name: StringKey,
-    type_: AstType,
+    type_: type_system_node_v1::Type,
 }
 
 #[derive(PartialEq, PartialOrd)]
@@ -84,53 +84,61 @@ pub enum SchemaChange {
 }
 
 fn build_curent_map(
-    current: &[TypeSystemDefinition],
-) -> FnvHashMap<&StringKey, &TypeSystemDefinition> {
+    current: &[type_system_node_v1::TypeSystemDefinition],
+) -> FnvHashMap<&StringKey, &type_system_node_v1::TypeSystemDefinition> {
     let mut current_map = FnvHashMap::default();
     for def in current {
         match def {
-            TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
                 current_map.insert(name, def);
             }
-            TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
                 current_map.insert(name, def);
             }
-            TypeSystemDefinition::InputObjectTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
+                name, ..
+            } => {
                 current_map.insert(name, def);
             }
-            TypeSystemDefinition::InterfaceTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition { name, .. } => {
                 current_map.insert(name, def);
             }
-            TypeSystemDefinition::ObjectTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition { name, .. } => {
                 current_map.insert(name, def);
             }
-            TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
                 current_map.insert(name, def);
             }
             // We skip diffing the following definitions
-            TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
-            TypeSystemDefinition::ObjectTypeExtension { .. } => {}
-            TypeSystemDefinition::SchemaDefinition { .. } => {}
-            TypeSystemDefinition::DirectiveDefinition { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::SchemaDefinition { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::DirectiveDefinition { .. } => {}
         }
     }
     current_map
 }
 
-fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -> SchemaChange {
+fn diff(
+    current: &[type_system_node_v1::TypeSystemDefinition],
+    previous: Vec<type_system_node_v1::TypeSystemDefinition>,
+) -> SchemaChange {
     let mut changes = vec![];
     let mut current_map = build_curent_map(current);
 
     for definition in previous {
         match definition {
-            TypeSystemDefinition::EnumTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition {
                 name,
                 values: previous_values,
                 ..
             } => {
                 let def = current_map.remove(&name);
                 match def {
-                    Some(TypeSystemDefinition::EnumTypeDefinition { values, .. }) => {
+                    Some(type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition {
+                        values,
+                        ..
+                    }) => {
                         let mut previous_values = FnvHashSet::from_iter(
                             previous_values.into_iter().map(|value| value.name),
                         );
@@ -162,14 +170,17 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
                 }
             }
 
-            TypeSystemDefinition::UnionTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition {
                 name,
                 members: previous_members,
                 ..
             } => {
                 let def = current_map.remove(&name);
                 match def {
-                    Some(TypeSystemDefinition::UnionTypeDefinition { members, .. }) => {
+                    Some(type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition {
+                        members,
+                        ..
+                    }) => {
                         let (added, removed) = compare_string_keys(members, previous_members);
                         if !added.is_empty() || !removed.is_empty() {
                             changes.push(DefinitionChange::UnionChanged {
@@ -191,14 +202,19 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
                 }
             }
 
-            TypeSystemDefinition::InputObjectTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
                 name,
                 fields: previous_fields,
                 ..
             } => {
                 let def = current_map.remove(&name);
                 match def {
-                    Some(TypeSystemDefinition::InputObjectTypeDefinition { fields, .. }) => {
+                    Some(
+                        type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
+                            fields,
+                            ..
+                        },
+                    ) => {
                         let (added, removed) =
                             compare_input_value_definition(fields, previous_fields);
                         if !added.is_empty() || !removed.is_empty() {
@@ -221,14 +237,17 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
                 }
             }
 
-            TypeSystemDefinition::InterfaceTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition {
                 name,
                 fields: previous_fields,
                 ..
             } => {
                 let def = current_map.remove(&name);
                 match def {
-                    Some(TypeSystemDefinition::InterfaceTypeDefinition { fields, .. }) => {
+                    Some(type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition {
+                        fields,
+                        ..
+                    }) => {
                         let (added, removed, changed) = compare_fields(fields, previous_fields);
                         if !added.is_empty() || !removed.is_empty() || !changed.is_empty() {
                             changes.push(DefinitionChange::InterfaceChanged {
@@ -251,7 +270,7 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
                 }
             }
 
-            TypeSystemDefinition::ObjectTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
                 name,
                 interfaces: previous_interfaces,
                 fields: previous_fields,
@@ -259,8 +278,10 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
             } => {
                 let def = current_map.remove(&name);
                 match def {
-                    Some(TypeSystemDefinition::ObjectTypeDefinition {
-                        interfaces, fields, ..
+                    Some(type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
+                        interfaces,
+                        fields,
+                        ..
                     }) => {
                         let (added, removed, changed) = compare_fields(fields, previous_fields);
                         let (interfaces_added, interfaces_removed) =
@@ -293,13 +314,15 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
                 }
             }
 
-            TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
+            type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
                 let def = current_map.remove(&name);
                 match def {
                     None => {
                         changes.push(DefinitionChange::ScalarRemoved(name));
                     }
-                    Some(TypeSystemDefinition::ScalarTypeDefinition { .. }) => {}
+                    Some(type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition {
+                        ..
+                    }) => {}
                     Some(def) => {
                         if !add_definition(&mut changes, def) {
                             return SchemaChange::GenericChange;
@@ -310,10 +333,10 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
             }
 
             // We skip diffing the following definitions
-            TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
-            TypeSystemDefinition::ObjectTypeExtension { .. } => {}
-            TypeSystemDefinition::SchemaDefinition { .. } => {}
-            TypeSystemDefinition::DirectiveDefinition { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::SchemaDefinition { .. } => {}
+            type_system_node_v1::TypeSystemDefinition::DirectiveDefinition { .. } => {}
         }
     }
 
@@ -332,8 +355,8 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
 }
 
 fn compare_fields(
-    current_fields: &[FieldDefinition],
-    previous_fields: Vec<FieldDefinition>,
+    current_fields: &[type_system_node_v1::FieldDefinition],
+    previous_fields: Vec<type_system_node_v1::FieldDefinition>,
 ) -> (Vec<TypeChange>, Vec<TypeChange>, Vec<ArgumentChange>) {
     let mut previous_values =
         FnvHashMap::from_iter(previous_fields.into_iter().map(|input| (input.name, input)));
@@ -396,8 +419,8 @@ fn compare_string_keys(
 }
 
 fn compare_input_value_definition(
-    current: &[InputValueDefinition],
-    previous: Vec<InputValueDefinition>,
+    current: &[type_system_node_v1::InputValueDefinition],
+    previous: Vec<type_system_node_v1::InputValueDefinition>,
 ) -> (Vec<TypeChange>, Vec<TypeChange>) {
     let mut previous_values = FnvHashMap::from_iter(
         previous
@@ -439,38 +462,41 @@ fn compare_input_value_definition(
     (added, removed)
 }
 
-fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {
+fn add_definition(
+    changes: &mut Vec<DefinitionChange>,
+    def: &type_system_node_v1::TypeSystemDefinition,
+) -> bool {
     match def {
-        TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
+        type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition { name, .. } => {
             changes.push(DefinitionChange::ScalarAdded(*name))
         }
-        TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
+        type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
             changes.push(DefinitionChange::UnionAdded(*name))
         }
-        TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
+        type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
             changes.push(DefinitionChange::EnumAdded(*name))
         }
-        TypeSystemDefinition::InputObjectTypeDefinition { name, .. } => {
+        type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition { name, .. } => {
             changes.push(DefinitionChange::InputObjectAdded(*name))
         }
-        TypeSystemDefinition::InterfaceTypeDefinition { name, .. } => {
+        type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition { name, .. } => {
             changes.push(DefinitionChange::InterfaceAdded(*name))
         }
-        TypeSystemDefinition::ObjectTypeDefinition { name, .. } => {
+        type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition { name, .. } => {
             changes.push(DefinitionChange::ObjectAdded(*name))
         }
         // We currently don't handle changes of unsupported types,
         // If those type changes occur, we should return early for a full rebuild.
-        TypeSystemDefinition::InterfaceTypeExtension { .. } => {
+        type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension { .. } => {
             return false;
         }
-        TypeSystemDefinition::ObjectTypeExtension { .. } => {
+        type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension { .. } => {
             return false;
         }
-        TypeSystemDefinition::SchemaDefinition { .. } => {
+        type_system_node_v1::TypeSystemDefinition::SchemaDefinition { .. } => {
             return false;
         }
-        TypeSystemDefinition::DirectiveDefinition { .. } => {
+        type_system_node_v1::TypeSystemDefinition::DirectiveDefinition { .. } => {
             return false;
         }
     };
@@ -478,7 +504,7 @@ fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinitio
 }
 
 pub fn detect_changes(
-    current_definitions: &[TypeSystemDefinition],
+    current_definitions: &[type_system_node_v1::TypeSystemDefinition],
     current_text: &str,
     previous_text: &str,
 ) -> SchemaChange {

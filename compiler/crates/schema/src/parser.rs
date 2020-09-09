@@ -8,7 +8,7 @@
 use crate::errors::{Result, SchemaError};
 use crate::lexer::Lexer;
 use crate::token::TokenKind;
-use graphql_syntax::type_system_node::*;
+use crate::type_system_node_v1::*;
 use interner::{Intern, StringKey};
 
 pub struct Parser<'a> {

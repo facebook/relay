@@ -17,6 +17,7 @@ mod errors;
 mod lexer;
 mod parser;
 mod token;
+pub mod type_system_node_v1;
 
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
@@ -24,10 +25,6 @@ pub use definitions::{
     ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
-pub use graphql_syntax::type_system_node::{
-    Directive as DirectiveDefinition, DirectiveLocation, FieldDefinition, InputValueDefinition,
-    Type as AstType, TypeSystemDefinition, Value as AstValue,
-};
 use lexer::Lexer;
 use parser::Parser;
 
@@ -60,7 +57,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     Schema::build(&server_definitions, &extension_definitions)
 }
 
-pub fn parse_definitions(input: &str) -> Result<Vec<TypeSystemDefinition>> {
+pub fn parse_definitions(input: &str) -> Result<Vec<type_system_node_v1::TypeSystemDefinition>> {
     let lexer = Lexer::new(input);
     let parser = Parser::new(lexer);
     parser.parse_schema_document()

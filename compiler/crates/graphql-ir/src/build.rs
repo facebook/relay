@@ -18,7 +18,7 @@ use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
 use schema::{
-    ArgumentDefinitions, DirectiveLocation, Enum, FieldID, InputObject, Scalar, Schema, Type,
+    type_system_node_v1, ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type,
     TypeReference,
 };
 
@@ -131,8 +131,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .map(|x| (x.name.item, x.clone()))
             .collect();
 
-        let directives =
-            self.build_directives(&fragment.directives, DirectiveLocation::FragmentDefinition);
+        let directives = self.build_directives(
+            &fragment.directives,
+            type_system_node_v1::DirectiveLocation::FragmentDefinition,
+        );
         let selections = self.build_selections(&fragment.selections.items, &fragment_type);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
@@ -206,9 +208,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let directives = self.build_directives(
             &operation.directives,
             match kind {
-                OperationKind::Query => DirectiveLocation::Query,
-                OperationKind::Mutation => DirectiveLocation::Mutation,
-                OperationKind::Subscription => DirectiveLocation::Subscription,
+                OperationKind::Query => type_system_node_v1::DirectiveLocation::Query,
+                OperationKind::Mutation => type_system_node_v1::DirectiveLocation::Mutation,
+                OperationKind::Subscription => type_system_node_v1::DirectiveLocation::Subscription,
             },
         );
         let operation_type_reference = TypeReference::Named(operation_type);
@@ -274,7 +276,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         };
         let directives = self.build_directives(
             &definition.directives,
-            DirectiveLocation::VariableDefinition,
+            type_system_node_v1::DirectiveLocation::VariableDefinition,
         )?;
         Ok(VariableDefinition {
             name: definition
@@ -512,7 +514,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             Ok(Default::default())
         };
 
-        let directives = self.build_directives(other_directives, DirectiveLocation::FragmentSpread);
+        let directives = self.build_directives(
+            other_directives,
+            type_system_node_v1::DirectiveLocation::FragmentSpread,
+        );
         let (arguments, directives) = try2(arguments, directives)?;
         Ok(FragmentSpread {
             fragment: spread
@@ -591,8 +596,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .unwrap_or_else(|| parent_type.clone());
         let selections =
             self.build_selections(&fragment.selections.items, &type_condition_reference);
-        let directives =
-            self.build_directives(&fragment.directives, DirectiveLocation::InlineFragment);
+        let directives = self.build_directives(
+            &fragment.directives,
+            type_system_node_v1::DirectiveLocation::InlineFragment,
+        );
         let (directives, selections) = try2(directives, selections)?;
         Ok(InlineFragment {
             type_condition,
@@ -641,7 +648,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let alias = self.build_alias(&field.alias);
         let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
         let selections = self.build_selections(&field.selections.items, &field_definition.type_);
-        let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
+        let directives = self.build_directives(
+            &field.directives,
+            type_system_node_v1::DirectiveLocation::Field,
+        );
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
             alias,
@@ -698,7 +708,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
         let alias = self.build_alias(&field.alias);
         let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
-        let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
+        let directives = self.build_directives(
+            &field.directives,
+            type_system_node_v1::DirectiveLocation::Field,
+        );
         let (arguments, directives) = try2(arguments, directives)?;
 
         Ok(ScalarField {
@@ -722,7 +735,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )
             .into());
         }
-        let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
+        let directives = self.build_directives(
+            &field.directives,
+            type_system_node_v1::DirectiveLocation::Field,
+        )?;
         Ok(ScalarField {
             alias,
             definition: WithLocation::from_span(
@@ -748,7 +764,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )
             .into());
         }
-        let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
+        let directives = self.build_directives(
+            &field.directives,
+            type_system_node_v1::DirectiveLocation::Field,
+        )?;
         Ok(ScalarField {
             alias,
             definition: WithLocation::from_span(
@@ -804,7 +823,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_directives<'a>(
         &mut self,
         directives: impl IntoIterator<Item = &'a graphql_syntax::Directive>,
-        location: DirectiveLocation,
+        location: type_system_node_v1::DirectiveLocation,
     ) -> ValidationResult<Vec<Directive>> {
         try_map(directives, |directive| {
             self.build_directive(directive, location)
@@ -814,7 +833,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_directive(
         &mut self,
         directive: &graphql_syntax::Directive,
-        location: DirectiveLocation,
+        location: type_system_node_v1::DirectiveLocation,
     ) -> ValidationResult<Directive> {
         if directive.name.value == *ARGUMENT_DEFINITION {
             return Ok(Directive {

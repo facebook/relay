@@ -19,7 +19,7 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
-use schema::{Argument as ArgumentDef, AstValue, FieldID, Schema, Type};
+use schema::{type_system_node_v1, Argument as ArgumentDef, FieldID, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
@@ -118,7 +118,7 @@ fn get_fetchable_field_name<'schema>(
         if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
             let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
             if let Some(field_name_arg) = field_name_arg {
-                if let AstValue::String(ref name) = field_name_arg.value {
+                if let type_system_node_v1::Value::String(ref name) = field_name_arg.value {
                     return Ok(Some(name));
                 }
             }

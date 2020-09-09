@@ -423,8 +423,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![self
-                        .build_inline_data_fragment_spread(&inline_frag, &inline_data_directive)]
+                    vec![
+                        self.build_inline_data_fragment_spread(
+                            &inline_frag,
+                            &inline_data_directive,
+                        ),
+                    ]
                 } else if let Some(match_directive) = inline_frag
                     .directives
                     .named(MATCH_CONSTANTS.custom_module_directive_name)

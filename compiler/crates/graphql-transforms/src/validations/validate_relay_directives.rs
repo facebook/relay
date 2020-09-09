@@ -63,11 +63,7 @@ impl<'program> RelayDirectiveValidation<'program> {
 
         self.current_reachable_arguments
             .extend(&fragment.used_global_variables);
-        if errs.is_empty() {
-            Ok(())
-        } else {
-            Err(errs)
-        }
+        if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 
     /// For all reachable arguments in the unmaksed fragments, validate that for the variables with the same name:
@@ -112,11 +108,7 @@ impl<'program> RelayDirectiveValidation<'program> {
                 map.insert(arg.name.item, ArgumentDefinition::Global(arg));
             }
         }
-        if errs.is_empty() {
-            Ok(())
-        } else {
-            Err(errs)
-        }
+        if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 
     fn validate_relay_directives(&self, directives: &[Directive]) -> ValidationResult<()> {
@@ -135,11 +127,7 @@ impl<'program> RelayDirectiveValidation<'program> {
                 }
             }
         }
-        if errs.is_empty() {
-            Ok(())
-        } else {
-            Err(errs)
-        }
+        if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 }
 
@@ -200,11 +188,13 @@ impl Validator for RelayDirectiveValidation<'_> {
                             }
                         }
                         Value::Constant(ConstantValue::Null()) => Ok(()),
-                        _ => Err(vec![Diagnostic::error(
-                            ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
-                            spread.fragment.location,
-                        )
-                        .annotate("related location", arg.value.location)]),
+                        _ => Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
+                                spread.fragment.location,
+                            )
+                            .annotate("related location", arg.value.location),
+                        ]),
                     }
                 } else {
                     Ok(())

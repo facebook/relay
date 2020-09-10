@@ -1,0 +1,108 @@
+==================================== INPUT ====================================
+mutation TestMutation($input: CommentCreateInput!) @raw_response_type {
+  commentCreate(input: $input) {
+    viewer {
+      actor {
+        ...InlineFragmentWithOverlappingFields
+      }
+    }
+  }
+}
+
+fragment InlineFragmentWithOverlappingFields on Actor {
+  ... on User {
+    hometown {
+      id
+      name
+    }
+  }
+  ... on Page {
+    name
+    hometown {
+      id
+      message {
+        text
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import type { InlineFragmentWithOverlappingFields$ref } from "InlineFragmentWithOverlappingFields.graphql";
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type TestMutationVariables = {|
+  input: CommentCreateInput
+|};
+export type TestMutationResponse = {|
+  +commentCreate: ?{|
+    +viewer: ?{|
+      +actor: ?{|
+        +$fragmentRefs: InlineFragmentWithOverlappingFields$ref
+      |}
+    |}
+  |}
+|};
+export type TestMutationRawResponse = {|
+  +commentCreate: ?{|
+    +viewer: ?{|
+      +actor: ?({|
+        +__typename: "User",
+        +__isActor: "User",
+        +id: string,
+        +hometown: ?{|
+          +id: string,
+          +name: ?string,
+        |},
+      |} | {|
+        +__typename: "Page",
+        +__isActor: "Page",
+        +id: string,
+        +name: ?string,
+        +hometown: ?{|
+          +id: string,
+          +message: ?{|
+            +text: ?string
+          |},
+        |},
+      |} | {|
+        +__typename: string,
+        +__isActor: string,
+        +id: string,
+      |})
+    |}
+  |}
+|};
+export type TestMutation = {|
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+  rawResponse: TestMutationRawResponse,
+|};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type InlineFragmentWithOverlappingFields$ref = FragmentReference & { _: "InlineFragmentWithOverlappingFields$ref" };
+export type InlineFragmentWithOverlappingFields$fragmentType = InlineFragmentWithOverlappingFields$ref & { _: "InlineFragmentWithOverlappingFields$fragmentType" };
+export type InlineFragmentWithOverlappingFields = {
+  readonly hometown?: {
+    readonly id: string,
+    readonly name?: string,
+    readonly message?: {
+      readonly text?: string
+    },
+  },
+  readonly name?: string,
+  readonly $refType: InlineFragmentWithOverlappingFields$ref,
+};
+export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
+export type InlineFragmentWithOverlappingFields$key = {
+  readonly $data?: InlineFragmentWithOverlappingFields$data,
+  readonly $fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+};

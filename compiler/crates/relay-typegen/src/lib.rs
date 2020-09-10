@@ -13,10 +13,10 @@ mod config;
 mod flow;
 mod writer;
 
+use crate::flow::FlowPrinter;
+use crate::writer::Writer;
 use common::NamedItem;
 pub use config::TypegenConfig;
-use flow::print_type;
-use writer::{AST, Prop, SPREAD_KEY};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -32,6 +32,7 @@ use lazy_static::lazy_static;
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
 use std::fmt::{Result, Write};
 use std::hash::Hash;
+use writer::{Prop, AST, SPREAD_KEY};
 
 lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
@@ -97,6 +98,7 @@ struct TypeGenerator<'schema, 'config> {
     typegen_config: &'config TypegenConfig,
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
+    writer: Box<dyn Writer>,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     fn new(schema: &'schema Schema, typegen_config: &'config TypegenConfig) -> Self {
@@ -110,7 +112,16 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
+            writer: Self::create_writer(typegen_config),
         }
+    }
+
+    fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
+        Box::new(match typegen_config {
+            // Some("typescript") ->
+            // Default to flow.
+            _ => FlowPrinter::new(),
+        })
     }
 
     fn generate_operation_type(
@@ -153,13 +164,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             self.result,
             "export type {} = {};",
             input_variables_identifier,
-            print_type(&input_variables_type)
+            self.writer.write_type(&input_variables_type)
         )?;
         writeln!(
             self.result,
             "export type {} = {};",
             response_identifier,
-            print_type(&response_type)
+            self.writer.write_type(&response_type)
         )?;
 
         let mut operation_types = vec![
@@ -179,7 +190,12 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         if let Some(raw_response_type) = raw_response_type {
             for (key, ast) in self.match_fields.iter() {
-                writeln!(self.result, "export type {} = {};", key, print_type(ast))?;
+                writeln!(
+                    self.result,
+                    "export type {} = {};",
+                    key,
+                    self.writer.write_type(ast)
+                )?;
             }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
@@ -187,7 +203,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 self.result,
                 "export type {} = {};",
                 raw_response_identifier,
-                print_type(&raw_response_type)
+                self.writer.write_type(&raw_response_type)
             )?;
             operation_types.push(Prop {
                 key: *KEY_RAW_RESPONSE,
@@ -201,7 +217,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             self.result,
             "export type {} = {};",
             typegen_operation.name.item,
-            print_type(&AST::ExactObject(operation_types))
+            self.writer.write_type(&AST::ExactObject(operation_types))
         )?;
         Ok(())
     }
@@ -317,7 +333,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             self.result,
             "export type {} = {};",
             node.name.item,
-            print_type(&type_)
+            self.writer.write_type(&type_)
         )?;
         writeln!(
             self.result,
@@ -328,7 +344,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             self.result,
             "export type {} = {};",
             ref_type_name,
-            print_type(&ref_type)
+            self.writer.write_type(&ref_type)
         )?;
 
         Ok(())
@@ -1069,7 +1085,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     self.result,
                     "export type {} = {};",
                     enum_type.name,
-                    print_type(&AST::Union(members))
+                    self.writer.write_type(&AST::Union(members))
                 )?;
             }
         }
@@ -1098,7 +1114,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         self.result,
                         "export type {} = {};",
                         type_identifier,
-                        print_type(&input_object_type)
+                        self.writer.write_type(&input_object_type)
                     )?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),

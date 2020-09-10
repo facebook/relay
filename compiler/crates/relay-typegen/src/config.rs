@@ -12,6 +12,9 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
+    /// The desired output language, "flow" or "typescript".
+    pub language: Option<String>,
+
     /// # For Flow type generation
     /// When set, enum values are imported from a module with this suffix.
     /// For example, an enum Foo and this property set to ".test" would be

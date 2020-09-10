@@ -41,3 +41,7 @@ lazy_static! {
     /// Special key for `Prop` that turns into an object spread: ...value
     pub static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
+
+pub trait Writer {
+    fn write_type(&mut self, ast: &AST) -> String;
+}

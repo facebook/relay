@@ -6,7 +6,7 @@
  */
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use std::fmt::{Result, Write};
 
 pub struct TypescriptPrinter {
@@ -110,15 +110,21 @@ impl TypescriptPrinter {
     }
 
     fn write_read_only_array(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
-        write!(writer, "ReadOnlyArray<")?;
+        write!(writer, "ReadonlyArray<")?;
         self.write(writer, of_type)?;
         write!(writer, ">")
     }
 
     fn write_nullable(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
-        write!(writer, "?")?;
-
-        self.write_and_wrap_union(writer, of_type)?;
+        let null_type = AST::RawType("null".intern());
+        if let AST::Union(members) = of_type {
+            let mut new_members = Vec::with_capacity(members.len() + 1);
+            new_members.extend_from_slice(members);
+            new_members.push(null_type);
+            self.write_union(writer, &*new_members)?;
+        } else {
+            self.write_union(writer, &*vec![of_type.clone(), null_type])?;
+        }
         Ok(())
     }
 
@@ -164,11 +170,21 @@ impl TypescriptPrinter {
                 write!(writer, "readonly ")?;
             }
             write!(writer, "{}", prop.key)?;
-            if prop.optional {
+            if match &prop.value {
+                AST::Nullable(_) => true,
+                _ => prop.optional,
+            } {
                 write!(writer, "?")?;
             }
             write!(writer, ": ")?;
-            self.write(writer, &prop.value)?;
+            self.write(
+                writer,
+                if let AST::Nullable(value) = &prop.value {
+                    value
+                } else {
+                    &prop.value
+                },
+            )?;
             if first && props.len() == 1 && exact {
                 writeln!(writer)?;
             } else {
@@ -227,7 +243,7 @@ mod tests {
     fn read_only_array_type() {
         assert_eq!(
             print_type(&AST::ReadOnlyArray(Box::new(AST::String))),
-            "ReadOnlyArray<string>".to_string()
+            "ReadonlyArray<string>".to_string()
         );
     }
 
@@ -235,7 +251,7 @@ mod tests {
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "?string".to_string()
+            "string | null".to_string()
         );
 
         assert_eq!(
@@ -243,7 +259,7 @@ mod tests {
                 AST::String,
                 AST::Number,
             ])))),
-            "?(string | number)"
+            "string | number | null"
         )
     }
 

@@ -129,7 +129,7 @@ impl TypescriptPrinter {
     }
 
     fn write_object(&mut self, writer: &mut dyn Write, props: &[Prop], exact: bool) -> Result {
-        if props.is_empty() && exact {
+        if props.is_empty() {
             write!(writer, "{{}}")?;
             return Ok(());
         }
@@ -137,11 +137,7 @@ impl TypescriptPrinter {
         // Replication of babel printer oddity: objects only containing a spread
         // are missing a newline.
         if props.len() == 1 && props[0].key == *SPREAD_KEY {
-            write!(writer, "{{| ...")?;
-            self.write(writer, &props[0].value)?;
-            writeln!(writer)?;
-            self.write_indentation(writer)?;
-            write!(writer, "|}}")?;
+            write!(writer, "{{}}")?;
             return Ok(());
         }
 
@@ -150,13 +146,11 @@ impl TypescriptPrinter {
 
         let mut first = true;
         for prop in props {
-            self.write_indentation(writer)?;
             if prop.key == *SPREAD_KEY {
-                write!(writer, "...")?;
-                self.write(writer, &prop.value)?;
-                writeln!(writer, ",")?;
                 continue;
             }
+
+            self.write_indentation(writer)?;
             if let AST::OtherEnumValue = prop.value {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
@@ -191,10 +185,6 @@ impl TypescriptPrinter {
                 writeln!(writer, ",")?;
             }
             first = false;
-        }
-        if !exact {
-            self.write_indentation(writer)?;
-            writeln!(writer, "...")?;
         }
         self.indentation -= 1;
         self.write_indentation(writer)?;
@@ -404,10 +394,7 @@ mod tests {
     fn inexact_object() {
         assert_eq!(
             print_type(&AST::InexactObject(Vec::new())),
-            r"{
-  ...
-}"
-            .to_string()
+            "{}".to_string()
         );
 
         assert_eq!(
@@ -419,7 +406,6 @@ mod tests {
             },])),
             r"{
   single: string,
-  ...
 }"
             .to_string()
         );
@@ -442,7 +428,6 @@ mod tests {
             r"{
   foo: string,
   readonly bar?: number,
-  ...
 }"
             .to_string()
         );

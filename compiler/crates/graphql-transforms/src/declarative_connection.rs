@@ -258,15 +258,15 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                                             ]),
                                         });
                                     let mut next_field = match transformed_field {
-                                Transformed::Replace(Selection::LinkedField(linked_field)) => {
-                                    (*linked_field).clone()
-                                }
-                                Transformed::Keep => field.clone(),
-                                _ => panic!(
-                                    "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                    transformed_field
-                                ),
-                            };
+                                        Transformed::Replace(Selection::LinkedField(
+                                            linked_field,
+                                        )) => (*linked_field).clone(),
+                                        Transformed::Keep => field.clone(),
+                                        _ => panic!(
+                                            "DeclarativeConnection got unexpected transform result: `{:?}`.",
+                                            transformed_field
+                                        ),
+                                    };
                                     let index = next_field
                                         .directives
                                         .iter()

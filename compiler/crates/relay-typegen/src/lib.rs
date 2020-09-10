@@ -11,10 +11,12 @@
 
 mod config;
 mod flow;
+mod writer;
 
 use common::NamedItem;
 pub use config::TypegenConfig;
-use flow::{print_type, Prop, AST, SPREAD_KEY};
+use flow::print_type;
+use writer::{AST, Prop, SPREAD_KEY};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,

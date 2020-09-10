@@ -11,9 +11,11 @@
 
 mod config;
 mod flow;
+mod typescript;
 mod writer;
 
 use crate::flow::FlowPrinter;
+use crate::typescript::TypescriptPrinter;
 use crate::writer::Writer;
 use common::NamedItem;
 pub use config::TypegenConfig;
@@ -117,11 +119,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
-        Box::new(match typegen_config {
-            // Some("typescript") ->
-            // Default to flow.
-            _ => FlowPrinter::new(),
-        })
+        if let Some(language) = typegen_config.language.as_ref() {
+            if language == "typescript" {
+                return Box::new(TypescriptPrinter::new());
+            }
+        }
+
+        Box::new(FlowPrinter::new())
     }
 
     fn generate_operation_type(

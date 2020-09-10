@@ -5,7 +5,7 @@ query QueryWithUnusedVariable($unused: ID) {
   }
 }
 
-query QueryWithUnusedVariables($unused: ID, $antother_unused: String) {
+query QueryWithUnusedVariables($also_unused: ID, $another_unused: String) {
   node {
     __typename
   }

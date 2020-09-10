@@ -16,7 +16,7 @@ query TestQuery {
         OperationDefinition {
             kind: Query,
             name: WithLocation {
-                location: field-arguments.graphql:6:16,
+                location: field-arguments.graphql:6:15,
                 item: "TestQuery",
             },
             type_: Object(0),
@@ -26,7 +26,7 @@ query TestQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: field-arguments.graphql:17:24,
+                        location: field-arguments.graphql:20:24,
                         item: FieldID(
                             14,
                         ),
@@ -52,7 +52,7 @@ query TestQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: field-arguments.graphql:39:49,
+                                location: field-arguments.graphql:44:49,
                                 item: FieldID(
                                     29,
                                 ),
@@ -65,7 +65,7 @@ query TestQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: field-arguments.graphql:53:64,
+                        location: field-arguments.graphql:56:64,
                         item: FieldID(
                             12,
                         ),
@@ -91,9 +91,9 @@ query TestQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: field-arguments.graphql:84:107,
+                                location: field-arguments.graphql:89:107,
                                 item: FieldID(
-                                    499,
+                                    509,
                                 ),
                             },
                             arguments: [],
@@ -104,7 +104,7 @@ query TestQuery {
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: field-arguments.graphql:111:132,
+                        location: field-arguments.graphql:114:132,
                         item: FieldID(
                             0,
                         ),
@@ -143,9 +143,9 @@ query TestQuery {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: field-arguments.graphql:159:169,
+                                location: field-arguments.graphql:164:169,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],

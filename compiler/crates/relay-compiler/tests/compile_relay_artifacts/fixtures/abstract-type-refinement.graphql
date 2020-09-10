@@ -1,13 +1,13 @@
-query AbstractTypeRefinement {
+query abstractTypeRefinement_AbstractTypeRefinementQuery {
   node(id: "4") {
     ... on Named {
       name_from_query: name
     }
-    ...ActorFragment
+    ...abstractTypeRefinement_ActorFragment
   }
 }
 
-fragment ActorFragment on Actor {
+fragment abstractTypeRefinement_ActorFragment on Actor {
   username
   ... on Named {
     name_from_fragment: name

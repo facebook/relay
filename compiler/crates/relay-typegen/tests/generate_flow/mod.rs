@@ -9,8 +9,8 @@ use common::{ConsoleLogger, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
-use graphql_transforms::OSS_CONNECTION_INTERFACE;
+use graphql_syntax::parse_executable;
+use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use relay_compiler::apply_transforms;
 use relay_typegen::{self, TypegenConfig};
@@ -29,14 +29,18 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
-    let ast = parse(source, source_location).unwrap();
+    let ast = parse_executable(source, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(Arc::clone(&schema), ir);
     let programs = apply_transforms(
         "test".intern(),
         Arc::new(program),
         Default::default(),
-        Arc::clone(&OSS_CONNECTION_INTERFACE),
+        &ConnectionInterface::default(),
+        Arc::new(FeatureFlags {
+            enable_flight_transform: false,
+            enable_required_transform_for_prefix: Some("".intern()),
+        }),
         Arc::new(ConsoleLogger),
     )
     .unwrap();

@@ -15,6 +15,10 @@ fragment FeedbackFragment on Feedback {
   }
 }
 ==================================== ERROR ====================================
-Invalid use of @stream, the 'initial_count' argument is required.:
-fragment-with-stream-missing-initial-count-arg.invalid.graphql:10:11:
-  actors @stream(label: "StreamedActorsLabel") {
+✖︎ Invalid use of @stream, the 'initial_count' argument is required.
+
+  fragment-with-stream-missing-initial-count-arg.invalid.graphql:11:11
+   10 │   id
+   11 │   actors @stream(label: "StreamedActorsLabel") {
+      │           ^^^^^^
+   12 │     # invalid: missing initial_count

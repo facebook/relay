@@ -1,10 +1,10 @@
-query QueryWithFragmentWithDefer {
+query fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery {
   node(id: "my-id") {
-    ...NodeFragment @defer(label: "node")
+    ...fragmentWithDeferOnAbstractType_NodeFragment @defer(label: "node")
   }
 }
 
-fragment NodeFragment on Node {
+fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
   id
   ... on User {
     name

@@ -27,10 +27,18 @@ import type {
 const DeleteRecordHandler = {
   update: (store: RecordSourceProxy, payload: HandleFieldPayload) => {
     const record = store.get(payload.dataID);
+
     if (record != null) {
-      const id = record.getValue(payload.fieldKey);
-      if (typeof id === 'string') {
-        store.delete(id);
+      const idOrIds = record.getValue(payload.fieldKey);
+
+      if (typeof idOrIds === 'string') {
+        store.delete(idOrIds);
+      } else if (Array.isArray(idOrIds)) {
+        idOrIds.forEach(id => {
+          if (typeof id === 'string') {
+            store.delete(id);
+          }
+        });
       }
     }
   },
@@ -42,6 +50,14 @@ const AppendEdgeHandler: Handler = {
 
 const PrependEdgeHandler: Handler = {
   update: edgeUpdater(ConnectionHandler.insertEdgeBefore),
+};
+
+const AppendNodeHandler: Handler = {
+  update: nodeUpdater(ConnectionHandler.insertEdgeAfter),
+};
+
+const PrependNodeHandler: Handler = {
+  update: nodeUpdater(ConnectionHandler.insertEdgeBefore),
 };
 
 function edgeUpdater(
@@ -81,8 +97,71 @@ function edgeUpdater(
   };
 }
 
+function nodeUpdater(
+  insertFn: (RecordProxy, RecordProxy, ?string) => void,
+): (RecordSourceProxy, HandleFieldPayload) => void {
+  return (store: RecordSourceProxy, payload: HandleFieldPayload) => {
+    const record = store.get(payload.dataID);
+    if (record == null) {
+      return;
+    }
+    const {connections, edgeTypeName} = payload.handleArgs;
+    invariant(
+      connections != null,
+      'MutationHandlers: Expected connection IDs to be specified.',
+    );
+    invariant(
+      edgeTypeName != null,
+      'MutationHandlers: Expected edge typename to be specified.',
+    );
+    let singleServerNode;
+    let serverNodes;
+    try {
+      singleServerNode = record.getLinkedRecord(payload.fieldKey, payload.args);
+    } catch {}
+    if (!singleServerNode) {
+      try {
+        serverNodes = record.getLinkedRecords(payload.fieldKey, payload.args);
+      } catch {}
+    }
+    invariant(
+      singleServerNode != null || serverNodes != null,
+      'MutationHandlers: Expected target node to exist.',
+    );
+    const serverNodeList = serverNodes ?? [singleServerNode];
+    for (const serverNode of serverNodeList) {
+      if (serverNode == null) {
+        continue;
+      }
+      for (const connectionID of connections) {
+        const connection = store.get(connectionID);
+        if (connection == null) {
+          warning(
+            false,
+            `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
+          );
+          continue;
+        }
+        const clientEdge = ConnectionHandler.createEdge(
+          store,
+          connection,
+          serverNode,
+          edgeTypeName,
+        );
+        invariant(
+          clientEdge != null,
+          'MutationHandlers: Failed to build the edge.',
+        );
+        insertFn(connection, clientEdge);
+      }
+    }
+  };
+}
+
 module.exports = {
   AppendEdgeHandler,
   DeleteRecordHandler,
   PrependEdgeHandler,
+  AppendNodeHandler,
+  PrependNodeHandler,
 };

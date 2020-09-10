@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::WithLocation;
+use common::{Diagnostic, WithLocation};
 use errors::validate;
 use graphql_ir::{
-    LinkedField, Program, ScalarField, ValidationError, ValidationMessage, ValidationResult,
-    Validator,
+    LinkedField, Program, ScalarField, ValidationMessage, ValidationResult, Validator,
 };
 use interner::{Intern, StringKey};
 use schema::{FieldID, Schema};
@@ -75,9 +74,9 @@ fn validate_field_alias(
     field: FieldID,
 ) -> ValidationResult<()> {
     if alias.item == id_key && schema.field(field).name != id_key {
-        Err(vec![ValidationError::new(
+        Err(vec![Diagnostic::error(
             ValidationMessage::DisallowIdAsAliasError(),
-            vec![alias.location],
+            alias.location,
         )])
     } else {
         Ok(())

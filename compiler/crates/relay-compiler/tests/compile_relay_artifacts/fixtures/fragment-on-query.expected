@@ -1,17 +1,17 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on Query
+fragment fragmentOnQuery_RefetchableFragment on Query
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id
       name
-      ...ProfilePicture
+      ...fragmentOnQuery_ProfilePicture
     }
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnQuery_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -44,7 +44,7 @@ fragment ProfilePicture on User {
           }
         ],
         "kind": "FragmentSpread",
-        "name": "RefetchableFragment"
+        "name": "fragmentOnQuery_RefetchableFragment"
       }
     ],
     "type": "Query",
@@ -153,22 +153,22 @@ query RefetchableFragmentQuery(
   $id: ID!
   $size: [Int]
 ) {
-  ...RefetchableFragment_1Bmzm5
+  ...fragmentOnQuery_RefetchableFragment_1Bmzm5
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnQuery_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment_1Bmzm5 on Query {
+fragment fragmentOnQuery_RefetchableFragment_1Bmzm5 on Query {
   node(id: $id) {
     __typename
     ... on User {
       id
       name
-      ...ProfilePicture
+      ...fragmentOnQuery_ProfilePicture
     }
     id
   }
@@ -184,7 +184,7 @@ fragment RefetchableFragment_1Bmzm5 on Query {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "fragmentOnQuery_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -235,7 +235,7 @@ fragment RefetchableFragment_1Bmzm5 on Query {
       "operation": require('RefetchableFragmentQuery.graphql')
     }
   },
-  "name": "RefetchableFragment",
+  "name": "fragmentOnQuery_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -271,7 +271,7 @@ fragment RefetchableFragment_1Bmzm5 on Query {
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "ProfilePicture"
+              "name": "fragmentOnQuery_ProfilePicture"
             }
           ],
           "type": "User",

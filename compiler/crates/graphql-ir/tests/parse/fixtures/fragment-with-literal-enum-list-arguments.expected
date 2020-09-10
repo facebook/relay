@@ -17,25 +17,25 @@ fragment ChildFragment on User
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-enum-list-arguments.graphql:9:24,
+                location: fragment-with-literal-enum-list-arguments.graphql:9:23,
                 item: "ParentFragment",
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: fragment-with-literal-enum-list-arguments.graphql:33:51,
+                            location: fragment-with-literal-enum-list-arguments.graphql:36:51,
                             item: "mobile_checkins",
                         },
                     ),
                     definition: WithLocation {
                         location: fragment-with-literal-enum-list-arguments.graphql:53:61,
                         item: FieldID(
-                            441,
+                            451,
                         ),
                     },
                     arguments: [
@@ -63,9 +63,9 @@ fragment ChildFragment on User
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-enum-list-arguments.graphql:87:97,
+                                location: fragment-with-literal-enum-list-arguments.graphql:92:97,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],
@@ -75,7 +75,7 @@ fragment ChildFragment on User
                 },
                 FragmentSpread {
                     fragment: WithLocation {
-                        location: fragment-with-literal-enum-list-arguments.graphql:107:121,
+                        location: fragment-with-literal-enum-list-arguments.graphql:107:120,
                         item: "ChildFragment",
                     },
                     arguments: [
@@ -106,7 +106,7 @@ fragment ChildFragment on User
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-enum-list-arguments.graphql:165:179,
+                location: fragment-with-literal-enum-list-arguments.graphql:165:178,
                 item: "ChildFragment",
             },
             variable_definitions: [
@@ -129,7 +129,7 @@ fragment ChildFragment on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -143,9 +143,9 @@ fragment ChildFragment on User
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: fragment-with-literal-enum-list-arguments.graphql:252:263,
+                        location: fragment-with-literal-enum-list-arguments.graphql:255:263,
                         item: FieldID(
-                            441,
+                            451,
                         ),
                     },
                     arguments: [
@@ -181,9 +181,9 @@ fragment ChildFragment on User
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-enum-list-arguments.graphql:294:304,
+                                location: fragment-with-literal-enum-list-arguments.graphql:299:304,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],

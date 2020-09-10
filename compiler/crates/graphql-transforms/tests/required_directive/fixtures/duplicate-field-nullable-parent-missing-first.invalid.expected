@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on Node {
+  ... on User {
+    actor {
+      # but then the value will also get created here, which is bad
+      id
+    }
+  }
+  actor {
+    # could get nulled out here if name is missing
+    name @required(action: LOG)
+  }
+}
+==================================== ERROR ====================================
+✖︎ @required fields must be included in all instances of their parent. The field 'name` is marked as @required here
+
+  duplicate-field-nullable-parent-missing-first.invalid.graphql:11:5
+   10 │     # could get nulled out here if name is missing
+   11 │     name @required(action: LOG)
+      │     ^^^^
+   12 │   }
+
+  ℹ︎ but is missing from
+
+  duplicate-field-nullable-parent-missing-first.invalid.graphql:4:5
+    3 │   ... on User {
+    4 │     actor {
+      │     ^^^^^
+    5 │       # but then the value will also get created here, which is bad

@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentSpread, InlineFragment, Program, Selection,
-    Transformed, Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformed, Transformer, ValidationMessage, ValidationResult, Value,
 };
 
 use interner::{Intern, StringKey};
@@ -47,7 +47,7 @@ lazy_static! {
 
 struct InlineDataFragmentsTransform<'s> {
     program: &'s Program,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'s> InlineDataFragmentsTransform<'s> {
@@ -78,30 +78,32 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             next_fragment_spread
         } else {
             if !fragment.variable_definitions.is_empty() {
-                self.errors.push(ValidationError::new(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::InlineDataFragmentArgumentsNotSupported,
-                    vec![fragment.name.location],
+                    fragment.name.location,
                 ));
             }
             match &next_fragment_spread {
                 Transformed::Keep => {
                     if !spread.directives.is_empty() {
-                        self.errors.push(ValidationError::new(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::InlineDataFragmentDirectivesNotSupported,
-                            vec![spread.fragment.location],
+                            spread.fragment.location,
                         ));
                     }
                 }
                 Transformed::Replace(Selection::FragmentSpread(next_fragment_spread)) => {
                     if !next_fragment_spread.directives.is_empty() {
-                        self.errors.push(ValidationError::new(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::InlineDataFragmentDirectivesNotSupported,
-                            vec![next_fragment_spread.fragment.location],
+                            next_fragment_spread.fragment.location,
                         ));
                     }
                 }
                 _ => {
-                    panic!("InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation.");
+                    panic!(
+                        "InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation."
+                    );
                 }
             };
 
@@ -113,7 +115,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                     (next_fragment.name.item, next_fragment.selections)
                 }
                 Transformed::Delete => {
-                    panic!("InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation.");
+                    panic!(
+                        "InlineDataFragmentsTransform: Unexpected deletion during fragment spread transformation."
+                    );
                 }
             };
 

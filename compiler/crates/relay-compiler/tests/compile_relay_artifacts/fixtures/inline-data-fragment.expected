@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-query Test {
-  ...ParentFragment
+query inlineDataFragment_TestQuery {
+  ...inlineDataFragment_ParentFragment
 }
 
-fragment ParentFragment on Query {
+fragment inlineDataFragment_ParentFragment on Query {
   me {
     # No refinement needed, field and fragment are both User.
-    ...Profile
+    ...inlineDataFragment_Profile
     profilePicture(size: 100) {
       uri
       height
@@ -15,11 +15,11 @@ fragment ParentFragment on Query {
 
   username(name: "test") {
     # Should refine from type Actor to User.
-    ...Profile
+    ...inlineDataFragment_Profile
   }
 }
 
-fragment Profile on User @inline {
+fragment inlineDataFragment_Profile on User @inline {
   profilePicture(size: 100) {
     uri
     width
@@ -31,12 +31,12 @@ fragment Profile on User @inline {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "Test",
+    "name": "inlineDataFragment_TestQuery",
     "selections": [
       {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "ParentFragment"
+        "name": "inlineDataFragment_ParentFragment"
       }
     ],
     "type": "Query",
@@ -46,7 +46,7 @@ fragment Profile on User @inline {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "Test",
+    "name": "inlineDataFragment_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -178,7 +178,7 @@ fragment Profile on User @inline {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "Test",
+    "name": "inlineDataFragment_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -186,13 +186,13 @@ fragment Profile on User @inline {
 
 QUERY:
 
-query Test {
-  ...ParentFragment
+query inlineDataFragment_TestQuery {
+  ...inlineDataFragment_ParentFragment
 }
 
-fragment ParentFragment on Query {
+fragment inlineDataFragment_ParentFragment on Query {
   me {
-    ...Profile
+    ...inlineDataFragment_Profile
     profilePicture(size: 100) {
       uri
       height
@@ -201,12 +201,12 @@ fragment ParentFragment on Query {
   }
   username(name: "test") {
     __typename
-    ...Profile
+    ...inlineDataFragment_Profile
     id
   }
 }
 
-fragment Profile on User {
+fragment inlineDataFragment_Profile on User {
   profilePicture(size: 100) {
     uri
     width
@@ -218,7 +218,7 @@ fragment Profile on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ParentFragment",
+  "name": "inlineDataFragment_ParentFragment",
   "selections": [
     {
       "alias": null,
@@ -261,7 +261,7 @@ fragment Profile on User {
         },
         {
           "kind": "InlineDataFragmentSpread",
-          "name": "Profile",
+          "name": "inlineDataFragment_Profile",
           "selections": [
             {
               "alias": null,
@@ -315,7 +315,7 @@ fragment Profile on User {
       "selections": [
         {
           "kind": "InlineDataFragmentSpread",
-          "name": "Profile",
+          "name": "inlineDataFragment_Profile",
           "selections": [
             {
               "kind": "InlineFragment",
@@ -367,5 +367,5 @@ fragment Profile on User {
 
 {
   "kind": "InlineDataFragment",
-  "name": "Profile"
+  "name": "inlineDataFragment_Profile"
 }

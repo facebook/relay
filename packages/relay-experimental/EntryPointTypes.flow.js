@@ -88,6 +88,7 @@ export type PreloadedQueryInner<
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
+  +isDisposed: boolean,
   +name: string,
   +networkCacheConfig: ?CacheConfig,
   +source: ?Observable<GraphQLResponse>,
@@ -204,6 +205,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   >,
   extraProps: $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
   getComponent: () => TEntryPointComponent,
+  isDisposed: boolean,
   queries: $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
 |}>;
 

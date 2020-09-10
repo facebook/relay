@@ -46,14 +46,14 @@ union Address @source(schema: "facebook", name: "Address") =
   | MailingAddress
 ==================================== OUTPUT ===================================
 Schema {
-query_type: Some(
+ query_type: Some(
     ObjectID(
         0,
     ),
 )
-mutation_type: None
-subscription_type: None
-directives: [
+ mutation_type: None
+ subscription_type: None
+ directives: [
     Directive {
         name: "extern_type",
         arguments: [
@@ -180,7 +180,7 @@ directives: [
         is_extension: false,
     },
 ]
-type_map: {
+ type_map: {
     "Address": Union(0),
     "Boolean": Scalar(3),
     "Country": InputObject(0),
@@ -194,8 +194,8 @@ type_map: {
     "XIGHuman": Interface(0),
     "XIGStory": Object(3),
 }
-enums: []
-fields: [
+ enums: []
+ fields: [
     Field {
         name: "fetch__User",
         is_extension: false,
@@ -212,6 +212,9 @@ fields: [
             Object(1),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "fetch__XIGStory",
@@ -229,6 +232,9 @@ fields: [
             Object(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "name",
@@ -238,6 +244,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
     },
     Field {
         name: "id",
@@ -247,6 +256,9 @@ fields: [
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "story",
@@ -274,6 +286,9 @@ fields: [
                 ],
             },
         ],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "default_mailing_address",
@@ -291,6 +306,9 @@ fields: [
             Object(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "id",
@@ -300,6 +318,9 @@ fields: [
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "is_default",
@@ -309,6 +330,9 @@ fields: [
             Scalar(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "label",
@@ -318,6 +342,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "id",
@@ -327,6 +354,9 @@ fields: [
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "name",
@@ -336,6 +366,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "__typename",
@@ -347,6 +380,7 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: None,
     },
     Field {
         name: "__id",
@@ -358,9 +392,10 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: None,
     },
 ]
-input_objects: [
+ input_objects: [
     InputObject {
         name: "Country",
         fields: [
@@ -395,11 +430,11 @@ input_objects: [
         ],
     },
 ]
-interfaces: [
+ interfaces: [
     Interface {
         name: "XIGHuman",
         is_extension: false,
-        implementors: [
+        implementing_objects: [
             ObjectID(
                 1,
             ),
@@ -428,9 +463,10 @@ interfaces: [
                 ],
             },
         ],
+        interfaces: [],
     },
 ]
-objects: [
+ objects: [
     Object {
         name: "Query",
         is_extension: false,
@@ -539,7 +575,7 @@ objects: [
         ],
     },
 ]
-scalars: [
+ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -589,7 +625,7 @@ scalars: [
         ],
     },
 ]
-unions: [
+ unions: [
     Union {
         name: "Address",
         is_extension: false,
@@ -622,4 +658,4 @@ unions: [
         ],
     },
 ]
-}
+ }

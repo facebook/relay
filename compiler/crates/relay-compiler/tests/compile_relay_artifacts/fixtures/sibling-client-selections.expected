@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment siblingClientSelections_Foo_user on User {
   id
   name
 
@@ -23,11 +23,11 @@ fragment Foo_user on User {
     }
   }
   client_foo2 {
-    ...ClientTypeFragment # include fragment on client-only type
+    ...siblingClientSelections_ClientTypeFragment # include fragment on client-only type
   }
 }
 
-fragment ClientTypeFragment on ClientType {
+fragment siblingClientSelections_ClientTypeFragment on ClientType {
   client_field
 }
 
@@ -60,7 +60,7 @@ interface ClientNamed {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ClientTypeFragment",
+  "name": "siblingClientSelections_ClientTypeFragment",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -83,7 +83,7 @@ interface ClientNamed {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "siblingClientSelections_Foo_user",
   "selections": [
     {
       "alias": null,
@@ -185,7 +185,7 @@ interface ClientNamed {
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientTypeFragment"
+              "name": "siblingClientSelections_ClientTypeFragment"
             }
           ],
           "storageKey": null

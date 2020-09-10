@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment PaginationFragment on Node
+fragment refetchableFragmentWithConnectionWithStream_PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 10}
@@ -70,7 +70,7 @@ fragment PaginationFragment on Node
               }
             ],
             "kind": "FragmentSpread",
-            "name": "PaginationFragment"
+            "name": "refetchableFragmentWithConnectionWithStream_PaginationFragment"
           }
         ],
         "storageKey": null
@@ -165,7 +165,7 @@ fragment PaginationFragment on Node
                   {
                     "if": null,
                     "kind": "Stream",
-                    "label": "PaginationFragment$stream$PaginationFragment_friends",
+                    "label": "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends",
                     "metadata": null,
                     "selections": [
                       {
@@ -217,7 +217,7 @@ fragment PaginationFragment on Node
                   {
                     "if": null,
                     "kind": "Defer",
-                    "label": "PaginationFragment$defer$PaginationFragment_friends$pageInfo",
+                    "label": "refetchableFragmentWithConnectionWithStream_PaginationFragment$defer$PaginationFragment_friends$pageInfo",
                     "selections": [
                       {
                         "alias": null,
@@ -296,25 +296,25 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...PaginationFragment_1G22uz
+    ...refetchableFragmentWithConnectionWithStream_PaginationFragment_1G22uz
     id
   }
 }
 
-fragment PaginationFragment_1G22uz on Node {
+fragment refetchableFragmentWithConnectionWithStream_PaginationFragment_1G22uz on Node {
   __isNode: __typename
   id
   ... on User {
     name
     friends(after: $cursor, first: $count) {
-      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
+      edges @stream(label: "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
         node {
           id
           __typename
         }
         cursor
       }
-      ... @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+      ... @defer(label: "refetchableFragmentWithConnectionWithStream_PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
         pageInfo {
           endCursor
           hasNextPage
@@ -369,7 +369,7 @@ fragment PaginationFragment_1G22uz on Node {
       "identifierField": "id"
     }
   },
-  "name": "PaginationFragment",
+  "name": "refetchableFragmentWithConnectionWithStream_PaginationFragment",
   "selections": [
     {
       "alias": null,

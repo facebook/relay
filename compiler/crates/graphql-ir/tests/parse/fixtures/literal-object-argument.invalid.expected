@@ -27,18 +27,28 @@ query LiteralObjectArgument3 {
   }
 }
 ==================================== ERROR ====================================
-Unknown field 'CheckinSearchInput.unknownField':
-literal-object-argument.invalid.graphql:3:13:
-    query: {
-      unknownField: "Facebook" # error: unknown field
+✖︎ The type `CheckinSearchInput` has no field `unknownField`
+
+  literal-object-argument.invalid.graphql:5:7
+    4 │     query: {
+    5 │       unknownField: "Facebook" # error: unknown field
+      │       ^^^^^^^^^^^^
+    6 │     }
 
 
-Expected a value of type 'String':
-literal-object-argument.invalid.graphql:14:14:
-      query: FACEBOOK # error: enum not string
-    }
+✖︎ Expected a value of type 'String'
+
+  literal-object-argument.invalid.graphql:15:14
+   14 │     query: {
+   15 │       query: FACEBOOK # error: enum not string
+      │              ^^^^^^^^
+   16 │     }
 
 
-Expected a value of type 'CheckinSearchInput':
-literal-object-argument.invalid.graphql:22:29:
-  checkinSearchQuery(query: FACEBOOK) {
+✖︎ Expected a value of type 'CheckinSearchInput'
+
+  literal-object-argument.invalid.graphql:23:29
+   22 │ query LiteralObjectArgument3 {
+   23 │   checkinSearchQuery(query: FACEBOOK) {
+      │                             ^^^^^^^^
+   24 │     # error: enum not object

@@ -16,6 +16,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
+const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -23,6 +24,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -33,6 +35,12 @@ const {
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
+const {
+  REACT_FLIGHT_QUERIES_STORAGE_KEY,
+  REACT_FLIGHT_TREE_STORAGE_KEY,
+  REACT_FLIGHT_TYPE_NAME,
+  refineToReactFlightPayloadData,
+} = require('./ReactFlight');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   getArgumentValues,
@@ -42,12 +50,14 @@ const {
   getStorageKey,
   TYPENAME_KEY,
   ROOT_ID,
+  ROOT_TYPE,
 } = require('./RelayStoreUtils');
 const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
   NormalizationDefer,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -61,6 +71,8 @@ import type {
   ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
+  ReactFlightReachableQuery,
+  ReactFlightPayloadDeserializer,
   Record,
   RelayResponsePayload,
 } from './RelayStoreTypes';
@@ -74,6 +86,7 @@ export type NormalizationOptions = {|
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
 |};
 
 /**
@@ -111,6 +124,7 @@ class RelayResponseNormalizer {
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -127,6 +141,8 @@ class RelayResponseNormalizer {
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
+    this._reactFlightPayloadDeserializer =
+      options.reactFlightPayloadDeserializer;
   }
 
   normalizeResponse(
@@ -276,6 +292,13 @@ class RelayResponseNormalizer {
           this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
+          break;
+        case FLIGHT_FIELD:
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._normalizeFlightField(node, selection, record, data);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
           break;
         default:
           (selection: empty);
@@ -441,23 +464,27 @@ class RelayResponseNormalizer {
           return;
         }
       }
-      if (selection.kind === SCALAR_FIELD && __DEV__) {
-        this._validateConflictingFieldsWithIdenticalId(
-          record,
-          storageKey,
-          fieldValue,
-        );
+      if (__DEV__) {
+        if (selection.kind === SCALAR_FIELD) {
+          this._validateConflictingFieldsWithIdenticalId(
+            record,
+            storageKey,
+            fieldValue,
+          );
+        }
       }
       RelayModernRecord.setValue(record, storageKey, null);
       return;
     }
 
     if (selection.kind === SCALAR_FIELD) {
-      this._validateConflictingFieldsWithIdenticalId(
-        record,
-        storageKey,
-        fieldValue,
-      );
+      if (__DEV__) {
+        this._validateConflictingFieldsWithIdenticalId(
+          record,
+          storageKey,
+          fieldValue,
+        );
+      }
       RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.kind === LINKED_FIELD) {
       this._path.push(responseKey);
@@ -475,6 +502,84 @@ class RelayResponseNormalizer {
         selection.kind,
       );
     }
+  }
+
+  _normalizeFlightField(
+    parent: NormalizationNode,
+    selection: NormalizationFlightField,
+    record: Record,
+    data: PayloadData,
+  ) {
+    const responseKey = selection.alias || selection.name;
+    const storageKey = getStorageKey(selection, this._variables);
+    const fieldValue = data[responseKey];
+
+    if (fieldValue == null) {
+      RelayModernRecord.setValue(record, storageKey, null);
+      return;
+    }
+
+    const reactFlightPayload = refineToReactFlightPayloadData(fieldValue);
+
+    invariant(
+      reactFlightPayload != null,
+      'RelayResponseNormalizer(): Expected React Flight payload data ' +
+        'to be an object with `tree` and `queries` properties, got `%s`.',
+      fieldValue,
+    );
+    invariant(
+      typeof this._reactFlightPayloadDeserializer === 'function',
+      'RelayResponseNormalizer: Expected reactFlightPayloadDeserializer to ' +
+        'be a function, got `%s`.',
+      this._reactFlightPayloadDeserializer,
+    );
+
+    // We store the deserialized reactFlightClientResponse in a separate
+    // record and link it to the parent record. This is so we can GC the Flight
+    // tree later even if the parent record is still reachable.
+    const reactFlightClientResponse = this._reactFlightPayloadDeserializer(
+      reactFlightPayload.tree,
+    );
+    const reactFlightID = generateClientID(
+      RelayModernRecord.getDataID(record),
+      getStorageKey(selection, this._variables),
+    );
+    let reactFlightClientResponseRecord = this._recordSource.get(reactFlightID);
+    if (reactFlightClientResponseRecord == null) {
+      reactFlightClientResponseRecord = RelayModernRecord.create(
+        reactFlightID,
+        REACT_FLIGHT_TYPE_NAME,
+      );
+      this._recordSource.set(reactFlightID, reactFlightClientResponseRecord);
+    }
+    RelayModernRecord.setValue(
+      reactFlightClientResponseRecord,
+      REACT_FLIGHT_TREE_STORAGE_KEY,
+      reactFlightClientResponse,
+    );
+    const reachableQueries: Array<ReactFlightReachableQuery> = [];
+    for (const query of reactFlightPayload.queries) {
+      if (query.response.data != null) {
+        this._moduleImportPayloads.push({
+          data: query.response.data,
+          dataID: ROOT_ID,
+          operationReference: query.module,
+          path: [],
+          typeName: ROOT_TYPE,
+          variables: query.variables,
+        });
+      }
+      reachableQueries.push({
+        module: query.module,
+        variables: query.variables,
+      });
+    }
+    RelayModernRecord.setValue(
+      reactFlightClientResponseRecord,
+      REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      reachableQueries,
+    );
+    RelayModernRecord.setLinkedRecordID(record, storageKey, reactFlightID);
   }
 
   _normalizeLink(
@@ -582,13 +687,17 @@ class RelayResponseNormalizer {
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
-      if (prevIDs && __DEV__) {
-        this._validateConflictingLinkedFieldsWithIdenticalId(
-          record,
-          prevIDs[nextIndex],
-          nextID,
-          storageKey,
-        );
+      // NOTE: the check to strip __DEV__ code only works for simple
+      // `if (__DEV__)`
+      if (__DEV__) {
+        if (prevIDs) {
+          this._validateConflictingLinkedFieldsWithIdenticalId(
+            record,
+            prevIDs[nextIndex],
+            nextID,
+            storageKey,
+          );
+        }
       }
       // $FlowFixMe[incompatible-variance]
       this._traverseSelections(field, nextRecord, item);
@@ -629,13 +738,14 @@ class RelayResponseNormalizer {
     storageKey: string,
     fieldValue: mixed,
   ): void {
+    // NOTE: Only call this function in DEV
     if (__DEV__) {
       const dataID = RelayModernRecord.getDataID(record);
       var previousValue = RelayModernRecord.getValue(record, storageKey);
       warning(
         storageKey === TYPENAME_KEY ||
           previousValue === undefined ||
-          previousValue === fieldValue,
+          areEqual(previousValue, fieldValue),
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
           'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
           'If two fields are different but share ' +
@@ -657,6 +767,7 @@ class RelayResponseNormalizer {
     nextID: DataID,
     storageKey: string,
   ): void {
+    // NOTE: Only call this function in DEV
     if (__DEV__) {
       warning(
         prevID === undefined || prevID === nextID,

@@ -11,6 +11,9 @@ fragment TestFragment on User
   ...Foo @arguments(localId: $myArg)
 }
 ==================================== ERROR ====================================
-Unknown type 'UnknownType':
-fragment-with-arguments-invalid-type.invalid.graphql:0:0:
-# expected-to-throw
+✖︎ Unknown type 'UnknownType'
+
+  fragment-with-arguments-invalid-type.invalid.graphql:1:1
+    1 │ # expected-to-throw
+      │ ^^^^^^^^^^^
+    2 │ fragment TestFragment on User

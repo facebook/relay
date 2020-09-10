@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::*;
-use interner::Intern;
+use crate::{ArgumentChange, DefinitionChange, SchemaChange, TypeChange};
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use schema::{type_system_node_v1, Schema, Type};
 
 /// Return if the changes are safe to skip full rebuild,
 /// doing the same check as our JS implmentation.
@@ -120,7 +121,7 @@ fn is_field_changes_safe(
             return false;
         }
         for add in &change.added {
-            if let AstType::Named(_) = add.type_ {
+            if let type_system_node_v1::Type::Named(_) = add.type_ {
             } else {
                 return false;
             }

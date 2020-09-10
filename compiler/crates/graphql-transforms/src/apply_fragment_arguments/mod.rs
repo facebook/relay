@@ -8,12 +8,12 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::WithLocation;
+use common::{Diagnostic, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, Selection, Transformed, TransformedMulti, TransformedValue,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, ValidationResult, Value,
 };
 use interner::StringKey;
 use scope::Scope;
@@ -78,7 +78,7 @@ struct ApplyFragmentArgumentsTransform<'program> {
     program: &'program Program,
     fragments: FnvHashMap<StringKey, PendingFragment>,
     scope: Scope,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
 }
 
 impl Transformer for ApplyFragmentArgumentsTransform<'_> {
@@ -194,14 +194,16 @@ impl ApplyFragmentArgumentsTransform<'_> {
             return match applied_fragment {
                 PendingFragment::Resolved(resolved) => resolved.clone(),
                 PendingFragment::Pending => {
-                    let mut locations = self.scope.locations();
-                    locations.push(spread.fragment.location);
-                    self.errors.push(ValidationError::new(
+                    let mut error = Diagnostic::error(
                         ValidationMessage::CircularFragmentReference {
                             fragment_name: spread.fragment.item,
                         },
-                        locations,
-                    ));
+                        spread.fragment.location,
+                    );
+                    for location in self.scope.locations() {
+                        error = error.annotate("other member of the cycle", location);
+                    }
+                    self.errors.push(error);
                     None
                 }
             };

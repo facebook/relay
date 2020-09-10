@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, WithLocation};
+use common::{Diagnostic, Location, WithLocation};
 use errors::{validate, validate_map};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
-    ValidationError, ValidationMessage, ValidationResult, Validator,
+    ValidationMessage, ValidationResult, Validator,
 };
 use interner::{Intern, StringKey};
 use std::iter::FromIterator;
@@ -61,10 +61,11 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
                 .client_invalid_directives
                 .iter()
                 .map(|name| {
-                    ValidationError::new(
+                    Diagnostic::error(
                         ValidationMessage::InvalidServerOnlyDirectiveInClientFields(name.item),
-                        vec![name.location, location],
+                        name.location,
                     )
+                    .annotate("related location", location)
                 })
                 .collect());
         }
@@ -76,7 +77,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
     fn validate_fragment_impl(
         &mut self,
         fragment: &FragmentDefinition,
-    ) -> Result<&FragmentState, Vec<ValidationError>> {
+    ) -> Result<&FragmentState, Vec<Diagnostic>> {
         if self.fragment_cache.contains_key(&fragment.name.item) {
             // The fragment is already visited, check if we are in a client selection
             // and the fragment contains server selections.
@@ -213,12 +214,15 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         {
             self.current_client_invalid_directives.push(directive.name);
             if let Some(location) = self.current_root_client_selection {
-                Err(vec![ValidationError::new(
-                    ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
-                        directive.name.item,
-                    ),
-                    vec![directive.name.location, location],
-                )])
+                Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
+                            directive.name.item,
+                        ),
+                        directive.name.location,
+                    )
+                    .annotate("related location", location),
+                ])
             } else {
                 Ok(())
             }

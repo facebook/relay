@@ -94,18 +94,28 @@ function loadEntryPoint<
     });
   }
 
-  const dispose = () => {
-    if (preloadedQueries != null) {
-      Object.values(preloadedQueries).forEach(
-        ({dispose: innerDispose}: $FlowFixMe) => {
-          innerDispose();
-        },
-      );
-    }
-  };
-
+  let isDisposed = false;
   return {
-    dispose,
+    dispose() {
+      if (isDisposed) {
+        return;
+      }
+      if (preloadedQueries != null) {
+        Object.values(preloadedQueries).forEach(
+          ({dispose: innerDispose}: $FlowFixMe) => {
+            innerDispose();
+          },
+        );
+      }
+      if (preloadedEntryPoints != null) {
+        Object.values(preloadedEntryPoints).forEach(
+          ({dispose: innerDispose}: $FlowFixMe) => {
+            innerDispose();
+          },
+        );
+      }
+      isDisposed = true;
+    },
     entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
     extraProps: extraProps ?? null,
     getComponent: () => {
@@ -116,6 +126,10 @@ function loadEntryPoint<
       }
       // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
       return (component: TEntryPointComponent);
+    },
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get isDisposed() {
+      return isDisposed;
     },
     queries: (preloadedQueries: TPreloadedQueries),
   };

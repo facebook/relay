@@ -1,29 +1,29 @@
 # expected-to-throw
-query MatchQuery {
+query multipleModulesWithoutKey_MatchQuery {
   node(id: "<user-id>") {
     ... on Actor {
       nameRenderer {
-        ...PlainUserNameRenderer_name
+        ...multipleModulesWithoutKey_PlainUserNameRenderer_name
           @module(name: "PlainUserNameRenderer.react")
       }
     }
     ... on User {
       nameRenderable {
-        ...MarkdownUserNameRenderer_name
+        ...multipleModulesWithoutKey_MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
       }
     }
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment multipleModulesWithoutKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesWithoutKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

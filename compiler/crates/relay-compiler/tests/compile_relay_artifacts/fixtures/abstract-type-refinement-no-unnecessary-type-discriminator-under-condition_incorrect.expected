@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
+mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
   actorNameChange(input: $input) {
     actor {
       ... @include(if: $myVar) {
@@ -38,7 +38,7 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ChangeNameMutation",
+    "name": "abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation",
     "selections": [
       {
         "alias": null,
@@ -150,7 +150,7 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
       }
     ],
     "kind": "Operation",
-    "name": "ChangeNameMutation",
+    "name": "abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation",
     "selections": [
       {
         "alias": null,
@@ -266,7 +266,7 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "ChangeNameMutation",
+    "name": "abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation",
     "operationKind": "mutation",
     "text": null
   }
@@ -274,7 +274,7 @@ mutation ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
 
 QUERY:
 
-mutation ChangeNameMutation(
+mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation(
   $input: ActorNameChangeInput!
   $myVar: Boolean!
 ) {

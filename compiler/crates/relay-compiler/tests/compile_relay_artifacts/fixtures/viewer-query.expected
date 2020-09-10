@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query ViewerQuery {
+query viewerQueryQuery {
   viewer {
     actor {
       id
@@ -12,7 +12,7 @@ query ViewerQuery {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ViewerQuery",
+    "name": "viewerQueryQuery",
     "selections": [
       {
         "alias": null,
@@ -51,7 +51,7 @@ query ViewerQuery {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "ViewerQuery",
+    "name": "viewerQueryQuery",
     "selections": [
       {
         "alias": null,
@@ -94,7 +94,7 @@ query ViewerQuery {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "ViewerQuery",
+    "name": "viewerQueryQuery",
     "operationKind": "query",
     "text": null
   }
@@ -102,7 +102,7 @@ query ViewerQuery {
 
 QUERY:
 
-query ViewerQuery {
+query viewerQueryQuery {
   viewer {
     actor {
       __typename

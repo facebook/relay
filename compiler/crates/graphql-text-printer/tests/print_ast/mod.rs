@@ -7,12 +7,12 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_text_printer::print_executable_definition_ast;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let ast = parse(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location).unwrap();
 
     Ok(ast
         .definitions

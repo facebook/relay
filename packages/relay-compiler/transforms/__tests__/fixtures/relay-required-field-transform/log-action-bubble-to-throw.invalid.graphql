@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: THROW) {
+    city @required(action: LOG)
+  }
+}

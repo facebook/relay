@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo on User @argumentDefinitions(
+  # syntax error, should be [ID]
+  ids: {type: "Array<ID>"}
+) {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Unsupported character
+
+  fragment-with-argument-type-syntax-error.invalid.graphql:5:9
+    4 │   # syntax error, should be [ID]
+    5 │   ids: {type: "Array<ID>"}
+      │         ^^^^^^^^^^^^^^^^^
+    6 │ ) {

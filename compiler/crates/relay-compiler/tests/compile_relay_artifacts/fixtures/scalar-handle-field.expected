@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query ScalarHandleField($id: ID!) {
+query scalarHandleField_ScalarHandleFieldQuery($id: ID!) {
   node(id: $id) {
     ... on User {
       name @__clientField(handle: "clientName")
@@ -18,7 +18,7 @@ query ScalarHandleField($id: ID!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ScalarHandleField",
+    "name": "scalarHandleField_ScalarHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -65,7 +65,7 @@ query ScalarHandleField($id: ID!) {
       }
     ],
     "kind": "Operation",
-    "name": "ScalarHandleField",
+    "name": "scalarHandleField_ScalarHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -126,7 +126,7 @@ query ScalarHandleField($id: ID!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "ScalarHandleField",
+    "name": "scalarHandleField_ScalarHandleFieldQuery",
     "operationKind": "query",
     "text": null
   }
@@ -134,7 +134,7 @@ query ScalarHandleField($id: ID!) {
 
 QUERY:
 
-query ScalarHandleField(
+query scalarHandleField_ScalarHandleFieldQuery(
   $id: ID!
 ) {
   node(id: $id) {

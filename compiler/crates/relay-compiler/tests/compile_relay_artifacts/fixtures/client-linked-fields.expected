@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientLinkedFields_Foo_user on User {
   id
 
   client_friends {
@@ -29,7 +29,7 @@ extend type FriendsEdge {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientLinkedFields_Foo_user",
   "selections": [
     {
       "alias": null,

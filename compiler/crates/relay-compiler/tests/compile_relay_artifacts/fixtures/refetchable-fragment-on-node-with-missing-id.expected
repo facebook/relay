@@ -1,13 +1,13 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on Node
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
   ... on User {
     name
-    ...ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -48,7 +48,7 @@ fragment ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableFragment"
+            "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -166,22 +166,22 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...RefetchableFragment
+    ...refetchableFragmentOnNodeWithMissingId_RefetchableFragment
     id
   }
 }
 
-fragment ProfilePicture on User {
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment on Node {
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
   __isNode: __typename
   ... on User {
     name
-    ...ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
   }
   id
 }
@@ -196,7 +196,7 @@ fragment RefetchableFragment on Node {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -245,7 +245,7 @@ fragment RefetchableFragment on Node {
       "identifierField": "id"
     }
   },
-  "name": "RefetchableFragment",
+  "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -267,7 +267,7 @@ fragment RefetchableFragment on Node {
         {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "ProfilePicture"
+          "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture"
         }
       ],
       "type": "User",

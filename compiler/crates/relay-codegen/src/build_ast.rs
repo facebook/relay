@@ -18,10 +18,10 @@ use graphql_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
-    ConnectionConstants, ConnectionMetadata, DeferDirective, HandleFieldConstants, RelayDirective,
-    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
-    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
+    ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, PATH_METADATA_ARGUMENT,
+    REACT_FLIGHT_DIRECTIVE_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use interner::{Intern, StringKey};
 use md5::{Digest, Md5};
@@ -92,7 +92,6 @@ pub fn build_fragment(
 
 struct CodegenBuilder<'schema, 'builder> {
     connection_constants: ConnectionConstants,
-    handle_field_constants: HandleFieldConstants,
     schema: &'schema Schema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
@@ -112,7 +111,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     ) -> Self {
         Self {
             connection_constants: Default::default(),
-            handle_field_constants: Default::default(),
             schema,
             variant,
             ast_builder,
@@ -425,8 +423,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![self
-                        .build_inline_data_fragment_spread(&inline_frag, &inline_data_directive)]
+                    vec![
+                        self.build_inline_data_fragment_spread(
+                            &inline_frag,
+                            &inline_data_directive,
+                        ),
+                    ]
                 } else if let Some(match_directive) = inline_frag
                     .directives
                     .named(MATCH_CONSTANTS.custom_module_directive_name)
@@ -483,12 +485,48 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
+    fn build_required_field(
+        &mut self,
+        required_directive: &Directive,
+        primitive: Primitive,
+    ) -> Primitive {
+        Primitive::Key(self.object(vec![
+            (
+                CODEGEN_CONSTANTS.kind,
+                Primitive::String(CODEGEN_CONSTANTS.required_field),
+            ),
+            (CODEGEN_CONSTANTS.field, primitive),
+            (
+                CODEGEN_CONSTANTS.action,
+                Primitive::String(
+                    required_directive
+                    .arguments
+                    .named(*ACTION_ARGUMENT)
+                    .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            ),
+            (
+                CODEGEN_CONSTANTS.path,
+                Primitive::String(
+                    required_directive
+                        .arguments
+                        .named(*PATH_METADATA_ARGUMENT)
+                        .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            ),
+        ]))
+    }
+
     fn build_scalar_field(&mut self, field: &ScalarField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        Primitive::Key(self.object(vec![
+        let kind = match field.directives.named(*REACT_FLIGHT_DIRECTIVE_NAME) {
+            Some(_flight_directive) => Primitive::String(CODEGEN_CONSTANTS.flight_field),
+            None => Primitive::String(CODEGEN_CONSTANTS.scalar_field),
+        };
+        let primitive = Primitive::Key(self.object(vec![
             build_alias(alias, name),
             (
                 CODEGEN_CONSTANTS.args,
@@ -497,10 +535,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Some(key) => Primitive::Key(key),
                 },
             ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.scalar_field),
-            ),
+            (CODEGEN_CONSTANTS.kind, kind),
             (CODEGEN_CONSTANTS.name, Primitive::String(name)),
             (
                 CODEGEN_CONSTANTS.storage_key,
@@ -515,22 +550,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     }
                 },
             ),
-        ]))
+        ]));
+
+        match field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(required_directive) => self.build_required_field(required_directive, primitive),
+            None => primitive,
+        }
     }
 
     fn build_scalar_handles(&mut self, result: &mut Vec<Primitive>, field: &ScalarField) {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
-        let handle_field_directives =
-            extract_handle_field_directives(&field.directives, self.handle_field_constants);
+        let handle_field_directives = extract_handle_field_directives(&field.directives);
 
         for directive in handle_field_directives {
-            let values = extract_values_from_handle_field_directive(
-                &directive,
-                self.handle_field_constants,
-                None,
-                None,
-            );
+            let values = extract_values_from_handle_field_directive(&directive);
             let filters = match values.filters {
                 None => Primitive::Null,
                 Some(strs) => {
@@ -573,7 +607,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         let selections = self.build_selections(field.selections.iter());
-        Primitive::Key(self.object(vec![
+        let primitive = Primitive::Key(self.object(vec![
             build_alias(alias, name),
             (
                 CODEGEN_CONSTANTS.args,
@@ -613,21 +647,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     }
                 },
             ),
-        ]))
+        ]));
+
+        match field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(required_directive) => self.build_required_field(required_directive, primitive),
+            None => primitive,
+        }
     }
 
     fn build_linked_handles(&mut self, result: &mut Vec<Primitive>, field: &LinkedField) {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
-        let handle_field_directives =
-            extract_handle_field_directives(&field.directives, self.handle_field_constants);
+        let handle_field_directives = extract_handle_field_directives(&field.directives);
         for directive in handle_field_directives {
-            let values = extract_values_from_handle_field_directive(
-                &directive,
-                self.handle_field_constants,
-                None,
-                None,
-            );
+            let values = extract_values_from_handle_field_directive(&directive);
 
             let dynamic_key = match &values.dynamic_key {
                 Some(val) => self.build_argument(CODEGEN_CONSTANTS.dynamic_key_argument, val),
@@ -660,6 +693,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             if let Some(dynamic_key) = dynamic_key {
                 object.push((CODEGEN_CONSTANTS.dynamic_key, Primitive::Key(dynamic_key)));
             };
+            if let Some(handle_args) = values.handle_args {
+                let args = self.build_arguments(&handle_args);
+                if let Some(args) = args {
+                    object.push((CODEGEN_CONSTANTS.handle_args, Primitive::Key(args)));
+                }
+            };
             result.push(Primitive::Key(self.object(object)))
         }
     }
@@ -672,8 +711,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     ) -> (StringKey, Option<StringKey>) {
         let mut alias = alias.map(|alias| alias.item);
         if self.variant == CodegenVariant::Reader {
-            let mut handle_field_directives =
-                extract_handle_field_directives(directives, self.handle_field_constants);
+            let mut handle_field_directives = extract_handle_field_directives(directives);
             if let Some(handle_field_directive) = handle_field_directives.next() {
                 if let Some(other_handle_field_directive) = handle_field_directives.next() {
                     panic!(
@@ -681,12 +719,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         handle_field_directive, other_handle_field_directive
                     );
                 }
-                let values = extract_values_from_handle_field_directive(
-                    &handle_field_directive,
-                    self.handle_field_constants,
-                    None,
-                    None,
-                );
+                let values = extract_values_from_handle_field_directive(&handle_field_directive);
                 alias = alias.or_else(|| Some(name));
                 name = if values.key == CODEGEN_CONSTANTS.default_handle_key {
                     format!("__{}_{}", name, values.handle).intern()

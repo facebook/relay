@@ -30,10 +30,14 @@ const {
 describe('compileRelayArtifacts', () => {
   beforeEach(() => {
     RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
+    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
   });
 
   afterEach(() => {
     RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
+    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   });
 
   generateTestsFromFixtures(

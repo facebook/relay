@@ -27,13 +27,13 @@ pub fn assert_connection_selections<'s>(
     for (ix, selection) in selections.iter().enumerate() {
         if let Selection::LinkedField(field) = selection {
             let field_name = schema.field(field.definition.item).name;
-            if field_name == connection_interface.edges_selection_name {
+            if field_name == connection_interface.edges {
                 if edges_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for edges")
                 }
                 edges_selection = Some((ix, field.as_ref()));
             }
-            if field_name == connection_interface.page_info_selection_name {
+            if field_name == connection_interface.page_info {
                 if page_info_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for page_info")
                 }
@@ -78,7 +78,9 @@ pub fn build_connection_metadata(
         (Some(_), Some(_)) => connection_constants.direction_bidirectional,
         (Some(_), None) => connection_constants.direction_forward,
         (None, Some(_)) => connection_constants.direction_backward,
-        (None,  None) => unreachable!("Expected presence of first or last args on connection to have been previously validated."),
+        (None, None) => unreachable!(
+            "Expected presence of first or last args on connection to have been previously validated."
+        ),
     };
 
     ConnectionMetadata {
@@ -203,12 +205,16 @@ pub fn extract_connection_metadata_from_directive(
                             list.iter()
                                 .map(|item| match item {
                                     ConstantValue::String(string_val) => *string_val,
-                                    _ => unreachable!("Expected connection metadata path to be a list of strings."),
+                                    _ => unreachable!(
+                                        "Expected connection metadata path to be a list of strings."
+                                    ),
                                 })
                                 .collect::<Vec<StringKey>>(),
                         ),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata path to be a nullable list of strings."),
+                        _ => unreachable!(
+                            "Expected connection metadata path to be a nullable list of strings."
+                        ),
                     };
                     let direction = match &metadata_value[1] {
                         ConstantValue::String(string_val) => *string_val,
@@ -217,26 +223,36 @@ pub fn extract_connection_metadata_from_directive(
                     let first = match &metadata_value[2] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata first to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata first to be a nullable string."
+                        ),
                     };
                     let last = match &metadata_value[3] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata last to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata last to be a nullable string."
+                        ),
                     };
                     let after = match &metadata_value[4] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata after to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata after to be a nullable string."
+                        ),
                     };
                     let before = match &metadata_value[5] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,
-                        _ => unreachable!("Expected connection metadata before to be a nullable string."),
+                        _ => unreachable!(
+                            "Expected connection metadata before to be a nullable string."
+                        ),
                     };
                     let is_stream_connection = match &metadata_value[6] {
                         ConstantValue::Boolean(bool_val) => *bool_val,
-                        _ => unreachable!("Expected connection metadata is_stream_connection to be a boolean."),
+                        _ => unreachable!(
+                            "Expected connection metadata is_stream_connection to be a boolean."
+                        ),
                     };
 
                     ConnectionMetadata {
@@ -253,7 +269,9 @@ pub fn extract_connection_metadata_from_directive(
 
             Some(built_metadata_values)
         } else {
-            unreachable!("Expected the connection metadata directive to have a single argument containing the connection metadata.")
+            unreachable!(
+                "Expected the connection metadata directive to have a single argument containing the connection metadata."
+            )
         }
     } else {
         None
@@ -268,10 +286,10 @@ pub fn build_edge_selections(
     connection_interface: &ConnectionInterface,
 ) -> Selection {
     let cursor_field_id = schema
-        .named_field(edge_type, connection_interface.cursor_selection_name)
+        .named_field(edge_type, connection_interface.cursor)
         .expect("Expected presence of cursor field to have been previously validated.");
     let node_field_id = schema
-        .named_field(edge_type, connection_interface.node_selection_name)
+        .named_field(edge_type, connection_interface.node)
         .expect("Expected presence of node field to have been previously validated.");
     let typename_field_id = schema.typename_field();
 
@@ -314,28 +332,16 @@ pub fn build_page_info_selections(
     connection_interface: &ConnectionInterface,
 ) -> Selection {
     let end_cursor_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.end_cursor_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.end_cursor)
         .expect("Expected presence of end_cursor field to have been previously validated.");
     let has_next_page_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.has_next_page_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.has_next_page)
         .expect("Expected presence of has_next_page field to have been previously validated.");
     let has_prev_page_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.has_prev_page_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.has_previous_page)
         .expect("Expected presence of has_previous_page field to have been previously validated.");
     let start_cursor_field_id = schema
-        .named_field(
-            page_info_type,
-            connection_interface.start_cursor_selection_name,
-        )
+        .named_field(page_info_type, connection_interface.start_cursor)
         .expect("Expected presence of start_cursor field to have been previously validated.");
 
     if connection_metadata.direction == connection_constants.direction_forward {

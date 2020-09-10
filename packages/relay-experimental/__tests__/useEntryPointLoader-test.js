@@ -116,7 +116,7 @@ it('disposes the preloaded entry point if the component unmounts', () => {
   const params = {};
   ReactTestRenderer.act(() => entryPointLoaderCallback(params));
   expect(dispose).toHaveBeenCalledTimes(0);
-  instance.unmount();
+  ReactTestRenderer.act(() => instance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
@@ -301,6 +301,7 @@ it('disposes entry point references associated with previous suspensions when mu
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadEntryPoint).toHaveBeenCalledTimes(1);
     expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
@@ -308,6 +309,7 @@ it('disposes entry point references associated with previous suspensions when mu
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise2);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadEntryPoint).toHaveBeenCalledTimes(2);
     expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;
@@ -315,6 +317,7 @@ it('disposes entry point references associated with previous suspensions when mu
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
+    jest.runOnlyPendingTimers(); // Trigger fallback.
     expect(loadEntryPoint).toHaveBeenCalledTimes(3);
     expect(instance.toJSON()).toEqual('fallback');
     const thirdDispose = dispose;
@@ -405,6 +408,7 @@ it('disposes entry point references associated with subsequent suspensions when 
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
+    jest.runOnlyPendingTimers();
     expect(loadEntryPoint).toHaveBeenCalledTimes(1);
     expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
@@ -412,6 +416,7 @@ it('disposes entry point references associated with subsequent suspensions when 
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
+    jest.runOnlyPendingTimers();
     expect(loadEntryPoint).toHaveBeenCalledTimes(2);
     expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;
@@ -480,7 +485,7 @@ it('should dispose of entry points on unmount if the callback is called, the com
   expect(renderCount).toEqual(2);
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
-  outerInstance.unmount();
+  ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
@@ -525,8 +530,8 @@ it('disposes all entry points if the callback is called, the component suspends,
   // *even though the component is in a suspended state.* As such, it commits and
   // the entry point is disposed.
   //
-  // If we did not initially call `entryPointLoaderCallback`, there would not be a
-  // re-render. (See the following test.)
+  // If we did not initially call `entryPointLoaderCallback`, there may not be a
+  // re-render, depending on the React version (See the following test.)
   ReactTestRenderer.act(() => {
     entryPointLoaderCallback({});
   });
@@ -535,7 +540,7 @@ it('disposes all entry points if the callback is called, the component suspends,
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(firstDispose).toHaveBeenCalledTimes(1);
   expect(secondDispose).not.toHaveBeenCalled();
-  outerInstance.unmount();
+  ReactTestRenderer.act(() => outerInstance.unmount());
   expect(secondDispose).toHaveBeenCalledTimes(1);
 });
 
@@ -573,12 +578,13 @@ it('disposes all entry points if the component suspends, another entry point is 
     entryPointLoaderCallback({});
   });
 
-  // Compare this to the previous test. Calling entryPointLoaderCallback here
-  // does not trigger a re-render + commit.
-  expect(renderCount).toEqual(1);
+  // Depending on the React version, calling the entryPointLoaderCallback here causes a re-render
+  // *even though the component is in a suspended state.* As such, it commits and
+  // the entry point is disposed.
+  expect(renderCount).toBeLessThanOrEqual(2);
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
-  outerInstance.unmount();
+  ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
@@ -610,7 +616,7 @@ it('disposes the entry point on unmount if the component unmounts and then the c
 
 it('does not call loadEntryPoint if the callback is called after the component unmounts', () => {
   render();
-  instance.unmount();
+  ReactTestRenderer.act(() => instance.unmount());
   entryPointLoaderCallback({});
   expect(loadEntryPoint).not.toHaveBeenCalled();
 });

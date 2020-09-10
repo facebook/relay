@@ -1,20 +1,20 @@
 ==================================== INPUT ====================================
-query QueryWithFragmentWithDefer {
+query fragmentWithDeferArguments_QueryWithFragmentWithDeferQuery {
   me {
     id
-    ...UserFragment
+    ...fragmentWithDeferArguments_UserFragment
   }
 }
 
-fragment UserFragment on User {
+fragment fragmentWithDeferArguments_UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment
+  ...fragmentWithDeferArguments_DeferredFragment
     @defer(label: "DeferredFragmentLabel")
     @arguments(scale: 1.5)
 }
 
-fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
+fragment fragmentWithDeferArguments_DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   id
   name
   profile_picture(scale: $scale) {
@@ -27,7 +27,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithFragmentWithDefer",
+    "name": "fragmentWithDeferArguments_QueryWithFragmentWithDeferQuery",
     "selections": [
       {
         "alias": null,
@@ -47,7 +47,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "UserFragment"
+            "name": "fragmentWithDeferArguments_UserFragment"
           }
         ],
         "storageKey": null
@@ -60,7 +60,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "QueryWithFragmentWithDefer",
+    "name": "fragmentWithDeferArguments_QueryWithFragmentWithDeferQuery",
     "selections": [
       {
         "alias": null,
@@ -87,7 +87,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
           {
             "if": null,
             "kind": "Defer",
-            "label": "UserFragment$defer$DeferredFragmentLabel",
+            "label": "fragmentWithDeferArguments_UserFragment$defer$DeferredFragmentLabel",
             "selections": [
               {
                 "alias": null,
@@ -137,7 +137,7 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithFragmentWithDefer",
+    "name": "fragmentWithDeferArguments_QueryWithFragmentWithDeferQuery",
     "operationKind": "query",
     "text": null
   }
@@ -145,14 +145,14 @@ fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
 
 QUERY:
 
-query QueryWithFragmentWithDefer {
+query fragmentWithDeferArguments_QueryWithFragmentWithDeferQuery {
   me {
     id
-    ...UserFragment
+    ...fragmentWithDeferArguments_UserFragment
   }
 }
 
-fragment DeferredFragment_QMvSr on User {
+fragment fragmentWithDeferArguments_DeferredFragment_QMvSr on User {
   id
   name
   profile_picture(scale: 1.5) {
@@ -160,10 +160,10 @@ fragment DeferredFragment_QMvSr on User {
   }
 }
 
-fragment UserFragment on User {
+fragment fragmentWithDeferArguments_UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment_QMvSr @defer(label: "UserFragment$defer$DeferredFragmentLabel")
+  ...fragmentWithDeferArguments_DeferredFragment_QMvSr @defer(label: "fragmentWithDeferArguments_UserFragment$defer$DeferredFragmentLabel")
 }
 
 
@@ -177,7 +177,7 @@ fragment UserFragment on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "DeferredFragment",
+  "name": "fragmentWithDeferArguments_DeferredFragment",
   "selections": [
     {
       "alias": null,
@@ -226,7 +226,7 @@ fragment UserFragment on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserFragment",
+  "name": "fragmentWithDeferArguments_UserFragment",
   "selections": [
     {
       "alias": null,
@@ -254,7 +254,7 @@ fragment UserFragment on User {
             }
           ],
           "kind": "FragmentSpread",
-          "name": "DeferredFragment"
+          "name": "fragmentWithDeferArguments_DeferredFragment"
         }
       ]
     }

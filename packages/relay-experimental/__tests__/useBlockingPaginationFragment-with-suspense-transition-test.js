@@ -1036,6 +1036,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
         |},
+        flushFallback: boolean = true,
       ) {
         assertYieldsWereCleared();
 
@@ -1044,12 +1045,20 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           jest.runAllImmediates();
         });
 
-        // Assert component suspended
         Scheduler.unstable_flushNumberOfYields(1);
         const actualYields = Scheduler.unstable_clearYields();
-        expect(actualYields.length).toEqual(1);
-        expect(actualYields[0]).toEqual('Fallback');
-        expect(renderer.toJSON()).toEqual('Fallback');
+
+        if (flushFallback) {
+          // Flushing fallbacks by running a timer could cause other side-effects
+          // such as releasing retained queries. Until React has a better way to flush
+          // fallbacks, we can't test fallbacks and other timeout based effects at the same time.
+          jest.runOnlyPendingTimers(); // Tigger fallbacks.
+
+          // Assert component suspendeds
+          expect(actualYields.length).toEqual(1);
+          expect(actualYields[0]).toEqual('Fallback');
+          expect(renderer.toJSON()).toEqual('Fallback');
+        }
 
         // Assert refetch query was fetched
         expectRefetchRequestIsInFlight({
@@ -1093,13 +1102,17 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           gqlPaginationQuery,
           refetchVariables,
         );
-        expectFragmentSuspendedOnRefetch(renderer, {
-          data: initialUser,
-          hasNext: true,
-          hasPrevious: false,
-          refetchVariables,
-          refetchQuery: paginationQuery,
-        });
+        expectFragmentSuspendedOnRefetch(
+          renderer,
+          {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            refetchVariables,
+            refetchQuery: paginationQuery,
+          },
+          false,
+        );
 
         // Mock network response
         environment.mock.resolve(gqlPaginationQuery, {

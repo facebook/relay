@@ -26,7 +26,7 @@ import type {
 } from './EntryPointTypes.flow';
 import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
 
-type UseLoadQueryHookType<TQuery: OperationType> = [
+type useQueryLoaderHookType<TQuery: OperationType> = [
   ?PreloadedQuery<TQuery>,
   (
     variables: $ElementType<TQuery, 'variables'>,
@@ -43,9 +43,9 @@ type NullQueryReference = {|
 |};
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
 
-function useLoadQuery<TQuery: OperationType>(
+function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-): UseLoadQueryHookType<TQuery> {
+): useQueryLoaderHookType<TQuery> {
   /**
    * We want to always call `queryReference.dispose()` for every call to
    * `setQueryReference(loadQuery(...))` so that no leaks of data in Relay stores
@@ -158,4 +158,4 @@ function useLoadQuery<TQuery: OperationType>(
   ];
 }
 
-module.exports = useLoadQuery;
+module.exports = useQueryLoader;

@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, NamedItem, WithLocation};
+use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, ValidationResult, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -51,7 +51,7 @@ pub fn relay_early_flush(program: &Program) -> ValidationResult<Program> {
 
 pub struct RelayEarlyFlush<'s> {
     program: &'s Program,
-    errors: Vec<ValidationError>,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'s> Transformer for RelayEarlyFlush<'s> {
@@ -115,30 +115,30 @@ impl<'s> Transformer for RelayEarlyFlush<'s> {
 fn get_early_flush_field_id_and_query_name_arg(
     schema: &'_ Schema,
     directive_loc: Location,
-) -> Result<(FieldID, &'_ ArgumentDef), ValidationError> {
+) -> Result<(FieldID, &'_ ArgumentDef), Diagnostic> {
     let query_type = schema.query_type().unwrap();
     let early_flush_field_id = schema.named_field(query_type, *EARLY_FLUSH_NAME);
     if let Some(early_flush_field_id) = early_flush_field_id {
         let field = schema.field(early_flush_field_id);
         if field.is_extension {
-            Err(ValidationError::new(
+            Err(Diagnostic::error(
                 ValidationMessage::UnavailableRelayEarlyFlushServerSchema,
-                vec![directive_loc],
+                directive_loc,
             ))
         } else if let Some(query_name_arg) = field.arguments.named(*QUERY_NAME_ARG) {
             Ok((early_flush_field_id, query_name_arg))
         } else {
-            Err(ValidationError::new(
+            Err(Diagnostic::error(
                 ValidationMessage::RelayEarlyFlushSchemaWithoutQueryNameArg {
                     query_name: *QUERY_NAME_ARG,
                 },
-                vec![directive_loc],
+                directive_loc,
             ))
         }
     } else {
-        Err(ValidationError::new(
+        Err(Diagnostic::error(
             ValidationMessage::UnavailableRelayEarlyFlushServerSchema,
-            vec![directive_loc],
+            directive_loc,
         ))
     }
 }

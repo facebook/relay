@@ -1,4 +1,4 @@
-// @generated SignedSource<<9325e240ef2106433f6bf2dd5b7fff5f>>
+// @generated SignedSource<<8f4d77a0002fc15db02bfc6388c5f434>>
 
 mod generate_flow;
 
@@ -178,6 +178,83 @@ fn relay_client_id_field() {
     let input = include_str!("generate_flow/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "generate_flow/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn required() {
+    let input = include_str!("generate_flow/fixtures/required.graphql");
+    let expected = include_str!("generate_flow/fixtures/required.expected");
+    test_fixture(transform_fixture, "required.graphql", "generate_flow/fixtures/required.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_through_inline_fragments_to_fragment() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-through-inline-fragments-to-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-through-inline-fragments-to-fragment.expected");
+    test_fixture(transform_fixture, "required-bubbles-through-inline-fragments-to-fragment.graphql", "generate_flow/fixtures/required-bubbles-through-inline-fragments-to-fragment.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_fragment() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-fragment.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-fragment.graphql", "generate_flow/fixtures/required-bubbles-to-fragment.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_item_in_plural_field() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-item-in-plural-field.graphql", "generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_query() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-query.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-query.graphql", "generate_flow/fixtures/required-bubbles-to-query.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_up_to_mutation_response() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-up-to-mutation-response.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-up-to-mutation-response.expected");
+    test_fixture(transform_fixture, "required-bubbles-up-to-mutation-response.graphql", "generate_flow/fixtures/required-bubbles-up-to-mutation-response.expected", input, expected);
+}
+
+#[test]
+fn required_isolates_concrete_inline_fragments() {
+    let input = include_str!("generate_flow/fixtures/required-isolates-concrete-inline-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-isolates-concrete-inline-fragments.expected");
+    test_fixture(transform_fixture, "required-isolates-concrete-inline-fragments.graphql", "generate_flow/fixtures/required-isolates-concrete-inline-fragments.expected", input, expected);
+}
+
+#[test]
+fn required_raw_response_type() {
+    let input = include_str!("generate_flow/fixtures/required-raw-response-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-raw-response-type.expected");
+    test_fixture(transform_fixture, "required-raw-response-type.graphql", "generate_flow/fixtures/required-raw-response-type.expected", input, expected);
+}
+
+#[test]
+fn required_throw_doesnt_bubbles_to_fragment() {
+    let input = include_str!("generate_flow/fixtures/required-throw-doesnt-bubbles-to-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-throw-doesnt-bubbles-to-fragment.expected");
+    test_fixture(transform_fixture, "required-throw-doesnt-bubbles-to-fragment.graphql", "generate_flow/fixtures/required-throw-doesnt-bubbles-to-fragment.expected", input, expected);
+}
+
+#[test]
+fn required_throw_doesnt_bubbles_to_query() {
+    let input = include_str!("generate_flow/fixtures/required-throw-doesnt-bubbles-to-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-throw-doesnt-bubbles-to-query.expected");
+    test_fixture(transform_fixture, "required-throw-doesnt-bubbles-to-query.graphql", "generate_flow/fixtures/required-throw-doesnt-bubbles-to-query.expected", input, expected);
+}
+
+#[test]
+fn required_throws_nested() {
+    let input = include_str!("generate_flow/fixtures/required-throws-nested.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-throws-nested.expected");
+    test_fixture(transform_fixture, "required-throws-nested.graphql", "generate_flow/fixtures/required-throws-nested.expected", input, expected);
 }
 
 #[test]

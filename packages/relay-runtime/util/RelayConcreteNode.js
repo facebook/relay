@@ -31,6 +31,10 @@ export type ConcreteRequest = {|
   +params: RequestParameters,
 |};
 
+export type NormalizationRootNode =
+  | ConcreteRequest
+  | NormalizationSplitOperation;
+
 /**
  * Contains the parameters required for executing a GraphQL request.
  * The operation can either be provided as a persisted `id` or `text`. If given
@@ -67,6 +71,7 @@ const RelayConcreteNode = {
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
+  FLIGHT_FIELD: 'FlightField',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread',
@@ -78,6 +83,7 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
   REQUEST: 'Request',

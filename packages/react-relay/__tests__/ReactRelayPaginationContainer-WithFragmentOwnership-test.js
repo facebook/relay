@@ -158,7 +158,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     render = jest.fn(props => {
       ({loadMore, refetchConnection} = props.relay);
       const edges = props.user?.friends?.edges ?? [];
-      return edges.map(edge => <TestChildContainer user={edge.node} />);
+      return edges.map(edge => (
+        <TestChildContainer key={edge.node.id} user={edge.node} />
+      ));
     });
     variables = {
       after: null,
@@ -362,31 +364,34 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       loadMore(1, jest.fn());
       expect(render.mock.calls.length).toBe(1);
+
       TestComponent.mockClear();
       TestChildComponent.mockClear();
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
-                    name: 'user:2',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'user:2',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
               },
             },
           },
-        },
+        });
       });
 
       const expectedFragmentVariables = {
@@ -400,9 +405,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         UserQuery,
         expectedFragmentVariables,
       );
-      expect(render.mock.calls.length).toBe(2);
-      expect(render.mock.calls[1][0].user.friends.edges.length).toBe(2);
-      expect(render.mock.calls[1][0].user.friends.edges).toEqual([
+      expect(render.mock.calls.length).toBe(1);
+      expect(render.mock.calls[0][0].user.friends.edges.length).toBe(2);
+      expect(render.mock.calls[0][0].user.friends.edges).toEqual([
         {
           cursor: 'cursor:1',
           node: {
@@ -430,8 +435,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       ]);
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      TestChildComponent.mock.calls.slice(1).forEach((call, idx) => {
+      expect(TestChildComponent.mock.calls.length).toBe(2);
+      TestChildComponent.mock.calls.forEach((call, idx) => {
         const user = call[0].user;
         expect(user).toEqual({id: `node:${idx + 1}`});
       });

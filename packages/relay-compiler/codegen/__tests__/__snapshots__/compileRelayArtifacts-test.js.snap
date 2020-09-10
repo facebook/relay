@@ -2085,6 +2085,160 @@ mutation CommentCreateMutation(
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: append-node.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [String!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "edgeTypeName",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    metadata: null,
+    name: "CommentCreateMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentCreateResponsePayload",
+        name: "commentCreate",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: "Comment",
+            name: "comment",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Mutation",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "edgeTypeName",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    name: "CommentCreateMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentCreateResponsePayload",
+        name: "commentCreate",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: "Comment",
+            name: "comment",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+          LinkedHandle {
+            alias: null,
+            args: null,
+            filters: null,
+            handle: "appendNode",
+            key: "",
+            name: "comment",
+            handleArgs: [
+              Variable {
+                name: "connections",
+                variableName: "connections",
+              },
+              Variable {
+                name: "edgeTypeName",
+                variableName: "edgeTypeName",
+              },
+            ],
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+mutation CommentCreateMutation(
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment {
+      id
+    }
+  }
+}
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: client-conditions.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment Foo_user on User {
@@ -8899,6 +9053,61 @@ Fragment {
 }
 `;
 
+exports[`compileRelayArtifacts matches expected output: fragment-with-react-flight-component.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment MyStory_item on Story {
+  flightComponent(condition: true, count: 10, id: "4")
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "MyStory_item",
+  selections: [
+    FlightField {
+      alias: "flightComponent",
+      args: [
+        Literal {
+          name: "component",
+          value: "FlightComponent.server",
+        },
+        ObjectValue {
+          fields: [
+            Literal {
+              name: "condition",
+              value: true,
+            },
+            Literal {
+              name: "count",
+              value: 10,
+            },
+            Literal {
+              name: "id",
+              value: "4",
+            },
+          ],
+          name: "props",
+        },
+      ],
+      name: "flight",
+      storageKey: "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"4\\"})",
+    },
+  ],
+  type: "Story",
+  abstractKey: null,
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: fragment-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithFragmentWithStream($id: ID!) {
@@ -15601,6 +15810,190 @@ query ViewerQuery {
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: query-with-react-flight-component.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# note that $count is unused except as an argument to the flight field
+query MyStory($id: ID!, $count: Int!) {
+  node(id: $id) {
+    ... on Story {
+      flightComponent(condition: true, count: $count, id: $id)
+    }
+  }
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "count",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+      },
+    ],
+    metadata: null,
+    name: "MyStory",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "id",
+            variableName: "id",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          InlineFragment {
+            selections: [
+              FlightField {
+                alias: "flightComponent",
+                args: [
+                  Literal {
+                    name: "component",
+                    value: "FlightComponent.server",
+                  },
+                  ObjectValue {
+                    fields: [
+                      Literal {
+                        name: "condition",
+                        value: true,
+                      },
+                      Variable {
+                        name: "count",
+                        variableName: "count",
+                      },
+                      Variable {
+                        name: "id",
+                        variableName: "id",
+                      },
+                    ],
+                    name: "props",
+                  },
+                ],
+                name: "flight",
+                storageKey: null,
+              },
+            ],
+            type: "Story",
+            abstractKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "count",
+      },
+    ],
+    name: "MyStory",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "id",
+            variableName: "id",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              FlightField {
+                alias: "flightComponent",
+                args: [
+                  Literal {
+                    name: "component",
+                    value: "FlightComponent.server",
+                  },
+                  ObjectValue {
+                    fields: [
+                      Literal {
+                        name: "condition",
+                        value: true,
+                      },
+                      Variable {
+                        name: "count",
+                        variableName: "count",
+                      },
+                      Variable {
+                        name: "id",
+                        variableName: "id",
+                      },
+                    ],
+                    name: "props",
+                  },
+                ],
+                name: "flight",
+                storageKey: null,
+              },
+            ],
+            type: "Story",
+            abstractKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query MyStory(
+  $id: ID!
+  $count: Int!
+) {
+  node(id: $id) {
+    __typename
+    ... on Story {
+      flightComponent: flight(component: "FlightComponent.server", props: {condition: true, count: $count, id: $id})
+    }
+    id
+  }
+}
+
+`;
+
 exports[`compileRelayArtifacts matches expected output: refetchable-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableConnection_feedback on Feedback
@@ -19058,6 +19451,34 @@ query RelayClientIDFieldQuery(
   }
 }
 
+`;
+
+exports[`compileRelayArtifacts matches expected output: required-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment RequiredFragment on User {
+  name @required(action: LOG)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "RequiredFragment",
+  selections: [
+    RequiredField {
+      field: ScalarField {
+        alias: null,
+        args: null,
+        name: "name",
+        storageKey: null,
+      },
+      action: "LOG",
+      path: "name",
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
 `;
 
 exports[`compileRelayArtifacts matches expected output: scalar-handle-field.graphql 1`] = `

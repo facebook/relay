@@ -1,19 +1,19 @@
 ==================================== INPUT ====================================
-query QueryWithFragmentWithStream($id: ID!) {
+query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery($id: ID!) {
   node(id: $id) {
     id
-    ...FeedbackFragment
+    ...fragmentWithDeferInStream_FeedbackFragment
   }
 }
 
-fragment FeedbackFragment on Feedback {
+fragment fragmentWithDeferInStream_FeedbackFragment on Feedback {
   id
   actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
-    ...ActorFragment @defer
+    ...fragmentWithDeferInStream_ActorFragment @defer
   }
 }
 
-fragment ActorFragment on Actor {
+fragment fragmentWithDeferInStream_ActorFragment on Actor {
   name
 }
 ==================================== OUTPUT ===================================
@@ -28,7 +28,7 @@ fragment ActorFragment on Actor {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithFragmentWithStream",
+    "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",
     "selections": [
       {
         "alias": null,
@@ -54,7 +54,7 @@ fragment ActorFragment on Actor {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "FeedbackFragment"
+            "name": "fragmentWithDeferInStream_FeedbackFragment"
           }
         ],
         "storageKey": null
@@ -73,7 +73,7 @@ fragment ActorFragment on Actor {
       }
     ],
     "kind": "Operation",
-    "name": "QueryWithFragmentWithStream",
+    "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",
     "selections": [
       {
         "alias": null,
@@ -109,7 +109,7 @@ fragment ActorFragment on Actor {
               {
                 "if": null,
                 "kind": "Stream",
-                "label": "FeedbackFragment$stream$StreamedActorsLabel",
+                "label": "fragmentWithDeferInStream_FeedbackFragment$stream$StreamedActorsLabel",
                 "metadata": null,
                 "selections": [
                   {
@@ -137,7 +137,7 @@ fragment ActorFragment on Actor {
                       {
                         "if": null,
                         "kind": "Defer",
-                        "label": "FeedbackFragment$defer$ActorFragment",
+                        "label": "fragmentWithDeferInStream_FeedbackFragment$defer$fragmentWithDeferInStream_ActorFragment",
                         "selections": [
                           {
                             "kind": "TypeDiscriminator",
@@ -170,7 +170,7 @@ fragment ActorFragment on Actor {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithFragmentWithStream",
+    "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",
     "operationKind": "query",
     "text": null
   }
@@ -178,26 +178,26 @@ fragment ActorFragment on Actor {
 
 QUERY:
 
-query QueryWithFragmentWithStream(
+query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
     id
-    ...FeedbackFragment
+    ...fragmentWithDeferInStream_FeedbackFragment
   }
 }
 
-fragment ActorFragment on Actor {
+fragment fragmentWithDeferInStream_ActorFragment on Actor {
   __isActor: __typename
   name
 }
 
-fragment FeedbackFragment on Feedback {
+fragment fragmentWithDeferInStream_FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
+  actors @stream(label: "fragmentWithDeferInStream_FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
     __typename
-    ...ActorFragment @defer(label: "FeedbackFragment$defer$ActorFragment")
+    ...fragmentWithDeferInStream_ActorFragment @defer(label: "fragmentWithDeferInStream_FeedbackFragment$defer$fragmentWithDeferInStream_ActorFragment")
     id
   }
 }
@@ -207,7 +207,7 @@ fragment FeedbackFragment on Feedback {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ActorFragment",
+  "name": "fragmentWithDeferInStream_ActorFragment",
   "selections": [
     {
       "alias": null,
@@ -225,7 +225,7 @@ fragment FeedbackFragment on Feedback {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "FeedbackFragment",
+  "name": "fragmentWithDeferInStream_FeedbackFragment",
   "selections": [
     {
       "alias": null,
@@ -251,7 +251,7 @@ fragment FeedbackFragment on Feedback {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "ActorFragment"
+                  "name": "fragmentWithDeferInStream_ActorFragment"
                 }
               ]
             }

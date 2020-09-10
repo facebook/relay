@@ -5,19 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::{
-    ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter,
-};
+use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::saved_state::SavedStateLoader;
+use async_trait::async_trait;
+use graphql_transforms::{ConnectionInterface, FeatureFlags};
+use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_typegen::TypegenConfig;
 use serde::Deserialize;
+use sha1::{Digest, Sha1};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::PathBuf;
+use watchman_client::pdu::ScmAwareClockData;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -25,6 +29,9 @@ use std::path::PathBuf;
 /// - command line options
 /// - TODO: injected code to produce additional files
 pub struct Config {
+    /// Optional name for this config. This might be used by compiler extension
+    /// code like logging or extra artifact generation.
+    pub name: Option<String>,
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
@@ -38,7 +45,18 @@ pub struct Config {
     /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
-    pub codegen_filepath: Option<PathBuf>,
+    pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
+    pub full_build: bool,
+
+    pub connection_interface: ConnectionInterface,
+    pub feature_flags: FeatureFlags,
+
+    pub saved_state_config: Option<ScmAwareClockData>,
+    pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
+    pub saved_state_version: String,
+
+    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
+    pub artifact_persister: Option<Box<dyn ArtifactPersister + Send + Sync>>,
 }
 
 impl Config {
@@ -141,16 +159,27 @@ impl Config {
             config_file_dir.to_owned()
         };
 
+        let mut hash = Sha1::new();
+        hash.input(&config_string);
+
         let config = Self {
+            name: config_file.name,
+            artifact_writer: Box::new(ArtifactFileWriter::default()),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
+            full_build: false,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
-            codegen_filepath: None,
+            saved_state_config: config_file.saved_state_config,
+            saved_state_loader: None,
+            saved_state_version: hex::encode(hash.result()),
+            connection_interface: config_file.connection_interface,
+            feature_flags: config_file.feature_flags,
+            artifact_persister: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -259,37 +288,48 @@ impl Config {
             }
         }
     }
-
-    pub fn create_artifact_writer(&self) -> Box<dyn ArtifactWriter> {
-        if let Some(ref codegen_filepath) = self.codegen_filepath {
-            Box::new(ArtifactDifferenceWriter::new(codegen_filepath.clone()))
-        } else {
-            Box::new(ArtifactFileWriter {})
-        }
-    }
 }
 
 impl fmt::Debug for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Config {
+            name,
+            artifact_writer: _,
             root_dir,
             sources,
             excludes,
+            full_build,
             projects,
             header,
             codegen_command,
             load_saved_state_file,
             generate_extra_operation_artifacts,
-            codegen_filepath,
+            saved_state_config,
+            saved_state_loader,
+            connection_interface,
+            feature_flags,
+            saved_state_version,
+            artifact_persister,
         } = self;
         f.debug_struct("Config")
+            .field("name", name)
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
+            .field("full_build", full_build)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
             .field("load_saved_state_file", load_saved_state_file)
+            .field("saved_state_config", saved_state_config)
+            .field(
+                "artifact_persister",
+                if artifact_persister.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
             .field(
                 "generate_extra_operation_artifacts",
                 if generate_extra_operation_artifacts.is_some() {
@@ -298,7 +338,17 @@ impl fmt::Debug for Config {
                     &"None"
                 },
             )
-            .field("codegen_filepath", codegen_filepath)
+            .field(
+                "saved_state_loader",
+                if saved_state_loader.is_some() {
+                    &"Some(Fn)"
+                } else {
+                    &"None"
+                },
+            )
+            .field("connection_interface", connection_interface)
+            .field("feature_flags", feature_flags)
+            .field("saved_state_version", saved_state_version)
             .finish()
     }
 }
@@ -328,6 +378,11 @@ pub enum SchemaLocation {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    /// Optional name for this config, might be used for logging or custom extra
+    /// artifact generator code.
+    #[serde(default)]
+    name: Option<String>,
+
     /// Root directory relative to the config file. Defaults to the directory
     /// where the config is located.
     #[serde(default)]
@@ -350,6 +405,15 @@ struct ConfigFile {
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,
+
+    #[serde(default)]
+    connection_interface: ConnectionInterface,
+
+    #[serde(default)]
+    feature_flags: FeatureFlags,
+
+    /// Watchman saved state config.
+    saved_state_config: Option<ScmAwareClockData>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -417,4 +481,15 @@ pub struct PersistConfig {
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
     pub params: HashMap<String, String>,
+}
+
+type PersistId = String;
+
+#[async_trait]
+pub trait ArtifactPersister {
+    async fn persist_artifact(
+        &self,
+        artifact_text: String,
+        project_config: &PersistConfig,
+    ) -> std::result::Result<PersistId, PersistError>;
 }

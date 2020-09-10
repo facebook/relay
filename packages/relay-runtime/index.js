@@ -56,6 +56,7 @@ const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
+const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
@@ -93,6 +94,9 @@ export type {
   LogRequestInfoFunction,
   PayloadData,
   PayloadError,
+  ReactFlightPayloadData,
+  ReactFlightPayloadQuery,
+  ReactFlightServerTree,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -118,6 +122,7 @@ export type {
   LogEvent,
   LogFunction,
   MissingFieldHandler,
+  MissingRequiredFields,
   ModuleImportPointer,
   NormalizationSelector,
   OperationAvailability,
@@ -130,6 +135,8 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
+  ReactFlightClientResponse,
   ReaderSelector,
   ReadOnlyRecordProxy,
   RecordProxy,
@@ -149,6 +156,7 @@ export type {
   NormalizationArgument,
   NormalizationDefer,
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -164,6 +172,7 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -172,8 +181,10 @@ export type {
   ReaderPaginationMetadata,
   ReaderRefetchableFragment,
   ReaderRefetchMetadata,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
@@ -234,6 +245,7 @@ module.exports = {
     RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
+  getNode: GraphQLTag.getNode,
   getFragment: GraphQLTag.getFragment,
   getInlineDataFragment: GraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
@@ -253,7 +265,11 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
+  reportMissingRequiredFields,
   graphql: GraphQLTag.graphql,
+  isFragment: GraphQLTag.isFragment,
+  isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isRequest: GraphQLTag.isRequest,
   readInlineData,
 
   // Declarative mutation API

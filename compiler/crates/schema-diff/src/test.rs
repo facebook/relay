@@ -8,7 +8,7 @@
 use crate::*;
 
 use interner::Intern;
-use schema::{build_schema, parse_definitions, AstType};
+use schema::{build_schema, parse_definitions, type_system_node_v1};
 use std::fmt;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
@@ -328,11 +328,11 @@ fn test_add_remove_input_object_fields() {
             name: "Input".intern(),
             added: vec![TypeChange {
                 name: "add".intern(),
-                type_: AstType::Named("String".intern()),
+                type_: type_system_node_v1::Type::Named("String".intern()),
             }],
             removed: vec![TypeChange {
                 name: "remove".intern(),
-                type_: AstType::Named("Int".intern()),
+                type_: type_system_node_v1::Type::Named("Int".intern()),
             }],
         },])
     );
@@ -359,11 +359,11 @@ fn test_change_input_object_fields() {
             name: "Input".intern(),
             added: vec![TypeChange {
                 name: "key".intern(),
-                type_: AstType::Named("String".intern()),
+                type_: type_system_node_v1::Type::Named("String".intern()),
             }],
             removed: vec![TypeChange {
                 name: "key".intern(),
-                type_: AstType::Named("Int".intern()),
+                type_: type_system_node_v1::Type::Named("Int".intern()),
             }],
         },])
     );
@@ -414,11 +414,11 @@ fn test_add_remove_interface_fields() {
             name: "I".intern(),
             added: vec![TypeChange {
                 name: "key".intern(),
-                type_: AstType::Named("String".intern()),
+                type_: type_system_node_v1::Type::Named("String".intern()),
             }],
             removed: vec![TypeChange {
                 name: "key".intern(),
-                type_: AstType::Named("Int".intern()),
+                type_: type_system_node_v1::Type::Named("Int".intern()),
             }],
             changed: vec![],
         },])
@@ -496,16 +496,18 @@ fn test_change_object_fields() {
             added: vec![
                 TypeChange {
                     name: "id".intern(),
-                    type_: AstType::Named("ID".intern()),
+                    type_: type_system_node_v1::Type::Named("ID".intern()),
                 },
                 TypeChange {
                     name: "value".intern(),
-                    type_: AstType::Named("Float".intern()),
+                    type_: type_system_node_v1::Type::Named("Float".intern()),
                 },
             ],
             removed: vec![TypeChange {
                 name: "id".intern(),
-                type_: AstType::NonNull(Box::new(AstType::Named("ID".intern()))),
+                type_: type_system_node_v1::Type::NonNull(Box::new(
+                    type_system_node_v1::Type::Named("ID".intern())
+                )),
             }],
             changed: vec![],
             interfaces_removed: vec![],
@@ -542,7 +544,7 @@ fn test_change_object_field_arguments() {
                     name: "key".intern(),
                     added: vec![TypeChange {
                         name: "a".intern(),
-                        type_: AstType::Named("ID".intern()),
+                        type_: type_system_node_v1::Type::Named("ID".intern()),
                     }],
                     removed: vec![],
                 },
@@ -551,18 +553,22 @@ fn test_change_object_field_arguments() {
                     added: vec![],
                     removed: vec![TypeChange {
                         name: "a".intern(),
-                        type_: AstType::NonNull(Box::new(AstType::Named("ID".intern()))),
+                        type_: type_system_node_v1::Type::NonNull(Box::new(
+                            type_system_node_v1::Type::Named("ID".intern())
+                        )),
                     }],
                 },
                 ArgumentChange {
                     name: "user".intern(),
                     added: vec![TypeChange {
                         name: "a".intern(),
-                        type_: AstType::Named("ID".intern()),
+                        type_: type_system_node_v1::Type::Named("ID".intern()),
                     }],
                     removed: vec![TypeChange {
                         name: "a".intern(),
-                        type_: AstType::NonNull(Box::new(AstType::Named("ID".intern()))),
+                        type_: type_system_node_v1::Type::NonNull(Box::new(
+                            type_system_node_v1::Type::Named("ID".intern())
+                        )),
                     }],
                 }
             ],
@@ -994,7 +1000,7 @@ impl fmt::Debug for DefinitionChange {
                 removed,
                 changed,
                 interfaces_added,
-                interfaces_removed
+                interfaces_removed,
             } => write!(
                 f,
                 "ObjectChanged {:?}: added:{:?} removed:{:?} changed: {:?}; interface: added:{:?} removed:{:?}",

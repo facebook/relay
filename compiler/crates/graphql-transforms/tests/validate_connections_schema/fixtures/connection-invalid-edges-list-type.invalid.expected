@@ -38,7 +38,10 @@ type BadConnectionPageInfo {
   startCursor: String
 }
 ==================================== ERROR ====================================
-Expected 'badConnection' to have a 'edges' selection.:
-connection-invalid-edges-list-type.invalid.graphql:4:18:
-    ... on User {
-      badConnection(first: $first, after: $after) @connection {
+✖︎ Expected 'badConnection' to have a 'edges' selection.
+
+  connection-invalid-edges-list-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection {
+      │       ^^^^^^^^^^^^^
+    7 │         edges

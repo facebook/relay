@@ -1,18 +1,22 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-query NameRendererQuery($id: ID!) {
+query queryWithMatchDirectiveNoModules_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...NameRendererFragment
+    ...queryWithMatchDirectiveNoModules_NameRendererFragment
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithMatchDirectiveNoModules_NameRendererFragment on User {
   id
   nameRenderer @match {
     __typename
   }
 }
 ==================================== ERROR ====================================
-Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.:
-query-with-match-directive-no-modules.invalid.graphql:9:17:
-  nameRenderer @match {
+✖︎ Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
+
+  query-with-match-directive-no-modules.invalid.graphql:10:17
+    9 │   id
+   10 │   nameRenderer @match {
+      │                 ^^^^^
+   11 │     __typename

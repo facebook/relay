@@ -6,12 +6,12 @@
  */
 
 use crate::relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
-use common::NamedItem;
+use common::{Diagnostic, NamedItem};
 use errors::validate;
 use fnv::FnvHashMap;
 use graphql_ir::{
     ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
-    ValidationError, ValidationMessage, ValidationResult, Validator, Value, VariableDefinition,
+    ValidationMessage, ValidationResult, Validator, Value, VariableDefinition,
 };
 use interner::StringKey;
 
@@ -52,19 +52,18 @@ impl<'program> RelayDirectiveValidation<'program> {
             || fragment.directives.len() == 1
                 && fragment.directives[0].name.item == *RELAY_DIRECTIVE_NAME)
         {
-            errs.push(ValidationError::new(
-                ValidationMessage::InvalidUnmaskOnFragmentWithDirectives(),
-                vec![spread.fragment.location, fragment.name.location],
-            ))
+            errs.push(
+                Diagnostic::error(
+                    ValidationMessage::InvalidUnmaskOnFragmentWithDirectives(),
+                    spread.fragment.location,
+                )
+                .annotate("related location", fragment.name.location),
+            )
         }
 
         self.current_reachable_arguments
             .extend(&fragment.used_global_variables);
-        if errs.is_empty() {
-            Ok(())
-        } else {
-            Err(errs)
-        }
+        if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 
     /// For all reachable arguments in the unmaksed fragments, validate that for the variables with the same name:
@@ -78,10 +77,13 @@ impl<'program> RelayDirectiveValidation<'program> {
         for arg in &self.current_reachable_arguments {
             if let Some(prev_arg) = map.get(&arg.name.item) {
                 match prev_arg {
-                    ArgumentDefinition::Local(prev_arg) => errs.push(ValidationError::new(
-                        ValidationMessage::InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
-                        vec![prev_arg.name.location, arg.name.location],
-                    )),
+                    ArgumentDefinition::Local(prev_arg) => errs.push(
+                        Diagnostic::error(
+                            ValidationMessage::InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+                            prev_arg.name.location,
+                        )
+                        .annotate("related location", arg.name.location),
+                    ),
                     ArgumentDefinition::Global(prev_arg) => {
                         if !self
                             .program
@@ -92,13 +94,13 @@ impl<'program> RelayDirectiveValidation<'program> {
                                 .schema
                                 .is_type_subtype_of(&arg.type_, &prev_arg.type_)
                         {
-                            errs.push(ValidationError::new(
+                            errs.push(Diagnostic::error(
                                 ValidationMessage::InvalidUnmaskOnVariablesOfIncompatibleTypesWithSameName{
                                     prev_arg_type: self.program.schema.get_type_string(&prev_arg.type_),
                                     next_arg_type: self.program.schema.get_type_string(&arg.type_),
                                 },
-                                vec![prev_arg.name.location, arg.name.location],
-                            ))
+                                prev_arg.name.location,
+                            ).annotate("related location", arg.name.location))
                         }
                     }
                 }
@@ -106,11 +108,7 @@ impl<'program> RelayDirectiveValidation<'program> {
                 map.insert(arg.name.item, ArgumentDefinition::Global(arg));
             }
         }
-        if errs.is_empty() {
-            Ok(())
-        } else {
-            Err(errs)
-        }
+        if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 
     fn validate_relay_directives(&self, directives: &[Directive]) -> ValidationResult<()> {
@@ -121,19 +119,15 @@ impl<'program> RelayDirectiveValidation<'program> {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(_))
                         | Value::Constant(ConstantValue::Null()) => {}
-                        _ => errs.push(ValidationError::new(
+                        _ => errs.push(Diagnostic::error(
                             ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
-                            vec![arg.value.location],
+                            arg.value.location,
                         )),
                     }
                 }
             }
         }
-        if errs.is_empty() {
-            Ok(())
-        } else {
-            Err(errs)
-        }
+        if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 }
 
@@ -194,10 +188,13 @@ impl Validator for RelayDirectiveValidation<'_> {
                             }
                         }
                         Value::Constant(ConstantValue::Null()) => Ok(()),
-                        _ => Err(vec![ValidationError::new(
-                            ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
-                            vec![spread.fragment.location, arg.value.location],
-                        )]),
+                        _ => Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
+                                spread.fragment.location,
+                            )
+                            .annotate("related location", arg.value.location),
+                        ]),
                     }
                 } else {
                     Ok(())

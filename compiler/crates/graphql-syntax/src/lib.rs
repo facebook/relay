@@ -10,30 +10,52 @@
 #![deny(clippy::all)]
 #![allow(clippy::large_enum_variant)]
 
-mod char_constants;
 mod lexer;
-mod lexer_position;
+mod node;
 mod parser;
 mod source;
 mod syntax_error;
-mod syntax_node;
-mod token_kind;
+
+pub use node::*;
+pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
-pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource};
-pub use syntax_node::*;
+pub use syntax_error::SyntaxError;
 
 use crate::parser::Parser;
-use common::SourceLocationKey;
+use common::{DiagnosticsResult, SourceLocationKey};
 
-pub fn parse(source: &str, source_location: SourceLocationKey) -> SyntaxResult<Document> {
-    let parser = Parser::new(source, source_location);
-    parser.parse_document()
+pub fn parse_executable(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<ExecutableDocument> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document()
+}
+
+pub fn parse_executable_with_features(
+    source: &str,
+    source_location: SourceLocationKey,
+    features: ParserFeatures,
+) -> DiagnosticsResult<ExecutableDocument> {
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document()
+}
+
+pub fn parse_schema_document(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<SchemaDocument> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_schema_document()
 }
 
 pub fn parse_type(
     source: &str,
     source_location: SourceLocationKey,
-) -> SyntaxResult<TypeAnnotation> {
-    let parser = Parser::new(source, source_location);
+) -> DiagnosticsResult<TypeAnnotation> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
     parser.parse_type()
 }

@@ -17,7 +17,7 @@ fragment ChildFragment on Query
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-object-arguments.graphql:9:24,
+                location: fragment-with-literal-object-arguments.graphql:9:23,
                 item: "ParentFragment",
             },
             variable_definitions: [],
@@ -28,7 +28,7 @@ fragment ChildFragment on Query
                 LinkedField {
                     alias: Some(
                         WithLocation {
-                            location: fragment-with-literal-object-arguments.graphql:34:52,
+                            location: fragment-with-literal-object-arguments.graphql:37:52,
                             item: "mobile_checkins",
                         },
                     ),
@@ -72,9 +72,9 @@ fragment ChildFragment on Query
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-object-arguments.graphql:100:110,
+                                location: fragment-with-literal-object-arguments.graphql:105:110,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],
@@ -84,7 +84,7 @@ fragment ChildFragment on Query
                 },
                 FragmentSpread {
                     fragment: WithLocation {
-                        location: fragment-with-literal-object-arguments.graphql:120:134,
+                        location: fragment-with-literal-object-arguments.graphql:120:133,
                         item: "ChildFragment",
                     },
                     arguments: [
@@ -124,7 +124,7 @@ fragment ChildFragment on Query
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: fragment-with-literal-object-arguments.graphql:180:194,
+                location: fragment-with-literal-object-arguments.graphql:180:193,
                 item: "ChildFragment",
             },
             variable_definitions: [
@@ -135,7 +135,7 @@ fragment ChildFragment on Query
                     },
                     type_: NonNull(
                         Named(
-                            InputObject(14),
+                            InputObject(16),
                         ),
                     ),
                     default_value: None,
@@ -157,7 +157,7 @@ fragment ChildFragment on Query
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
-                        location: fragment-with-literal-object-arguments.graphql:265:286,
+                        location: fragment-with-literal-object-arguments.graphql:268:286,
                         item: FieldID(
                             0,
                         ),
@@ -177,7 +177,7 @@ fragment ChildFragment on Query
                                             item: "query",
                                         },
                                         type_: Named(
-                                            InputObject(14),
+                                            InputObject(16),
                                         ),
                                     },
                                 ),
@@ -189,9 +189,9 @@ fragment ChildFragment on Query
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: fragment-with-literal-object-arguments.graphql:303:313,
+                                location: fragment-with-literal-object-arguments.graphql:308:313,
                                 item: FieldID(
-                                    56,
+                                    57,
                                 ),
                             },
                             arguments: [],

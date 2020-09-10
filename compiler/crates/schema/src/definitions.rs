@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast;
 use crate::errors::{Result, SchemaError};
+use crate::type_system_node_v1;
 use common::{Named, NamedItem};
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -16,9 +16,7 @@ use std::fmt::{Result as FormatResult, Write};
 use std::slice::Iter;
 
 // TODO: consider a common Value representation with the IR
-type ConstValue = ast::Value;
-
-pub use ast::DirectiveLocation;
+type ConstValue = type_system_node_v1::Value;
 
 type TypeMap = HashMap<StringKey, Type>;
 
@@ -122,6 +120,11 @@ impl Schema {
                 let union = self.union(super_id);
                 union.members.contains(&sub_id)
             }
+            (Type::Interface(sub_id), Type::Interface(super_id)) => {
+                // does interface implement the interface
+                let interface = self.interface(sub_id);
+                sub_id == super_id || interface.interfaces.contains(&super_id)
+            }
             _ => maybe_subtype == super_type,
         }
     }
@@ -132,22 +135,24 @@ impl Schema {
         };
         match (a, b) {
             (Type::Interface(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementors;
+                let b_implementors = &self.interface(b).implementing_objects;
                 self.interface(a)
-                    .implementors
+                    .implementing_objects
                     .iter()
                     .any(|x| b_implementors.contains(x))
             }
             (Type::Interface(a), Type::Union(b)) => {
                 let b_members = &self.union(b).members;
                 self.interface(a)
-                    .implementors
+                    .implementing_objects
                     .iter()
                     .any(|x| b_members.contains(x))
             }
-            (Type::Interface(a), Type::Object(b)) => self.interface(a).implementors.contains(&b),
+            (Type::Interface(a), Type::Object(b)) => {
+                self.interface(a).implementing_objects.contains(&b)
+            }
             (Type::Union(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementors;
+                let b_implementors = &self.interface(b).implementing_objects;
                 self.union(a)
                     .members
                     .iter()
@@ -158,7 +163,9 @@ impl Schema {
                 self.union(a).members.iter().any(|x| b_members.contains(x))
             }
             (Type::Union(a), Type::Object(b)) => self.union(a).members.contains(&b),
-            (Type::Object(a), Type::Interface(b)) => self.interface(b).implementors.contains(&a),
+            (Type::Object(a), Type::Interface(b)) => {
+                self.interface(b).implementing_objects.contains(&a)
+            }
             (Type::Object(a), Type::Union(b)) => self.union(b).members.contains(&a),
             (Type::Object(a), Type::Object(b)) => a == b,
             _ => false, // todo: change Type representation to allow only Interface/Union/Object as input
@@ -318,7 +325,11 @@ impl Schema {
         self.directives.values()
     }
 
-    pub fn directives_for_location(&self, location: DirectiveLocation) -> Vec<&Directive> {
+    /// Returns all directives applicable for a given location(Query, Field, etc).
+    pub fn directives_for_location(
+        &self,
+        location: type_system_node_v1::DirectiveLocation,
+    ) -> Vec<&Directive> {
         self.directives
             .values()
             .filter(|directive| directive.locations.contains(&location))
@@ -331,6 +342,10 @@ impl Schema {
 
     pub fn get_interfaces(&self) -> impl Iterator<Item = &Interface> {
         self.interfaces.iter()
+    }
+
+    pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
+        self.objects.iter()
     }
 
     pub fn has_directive(&self, directive_name: StringKey) -> bool {
@@ -457,6 +472,8 @@ impl Schema {
         Ok(union_id)
     }
 
+    /// Sets argument definitions for a given input object.
+    /// Any existing argument definitions will be erased.
     pub fn set_input_object_args(
         &mut self,
         input_object_id: InputObjectID,
@@ -470,6 +487,8 @@ impl Schema {
         Ok(input_object_id)
     }
 
+    /// Sets argument definitions for a given field.
+    /// Any existing argument definitions on the field will be erased.
     pub fn set_field_args(
         &mut self,
         field_id: FieldID,
@@ -480,6 +499,8 @@ impl Schema {
         Ok(field_id)
     }
 
+    /// Replaces the definition of interface type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
     pub fn replace_interface(&mut self, id: InterfaceID, interface: Interface) -> Result<()> {
         if id.as_usize() >= self.interfaces.len() {
             return Err(SchemaError::UnknownTypeID(
@@ -494,6 +515,74 @@ impl Schema {
         Ok(())
     }
 
+    /// Replaces the definition of object type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_object(&mut self, id: ObjectID, object: Object) -> Result<()> {
+        if id.as_usize() >= self.objects.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Object"),
+            ));
+        }
+        self.type_map.remove(&self.get_type_name(Type::Object(id)));
+        self.type_map.insert(object.name, Type::Object(id));
+        self.objects[id.as_usize()] = object;
+        Ok(())
+    }
+
+    /// Replaces the definition of enum type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_enum(&mut self, id: EnumID, enum_: Enum) -> Result<()> {
+        if id.as_usize() >= self.enums.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Enum"),
+            ));
+        }
+        self.type_map.remove(&self.get_type_name(Type::Enum(id)));
+        self.type_map.insert(enum_.name, Type::Enum(id));
+        self.enums[id.as_usize()] = enum_;
+        Ok(())
+    }
+
+    /// Replaces the definition of input object type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_input_object(
+        &mut self,
+        id: InputObjectID,
+        input_object: InputObject,
+    ) -> Result<()> {
+        if id.as_usize() >= self.enums.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Input Object"),
+            ));
+        }
+        self.type_map
+            .remove(&self.get_type_name(Type::InputObject(id)));
+        self.type_map
+            .insert(input_object.name, Type::InputObject(id));
+        self.input_objects[id.as_usize()] = input_object;
+        Ok(())
+    }
+
+    /// Replaces the definition of union type, but keeps the same id.
+    /// Existing references to the old type now reference the replacement.
+    pub fn replace_union(&mut self, id: UnionID, union: Union) -> Result<()> {
+        if id.as_usize() >= self.enums.len() {
+            return Err(SchemaError::UnknownTypeID(
+                id.as_usize(),
+                String::from("Union"),
+            ));
+        }
+        self.type_map.remove(&self.get_type_name(Type::Union(id)));
+        self.type_map.insert(union.name, Type::Union(id));
+        self.unions[id.as_usize()] = union;
+        Ok(())
+    }
+
+    /// Replaces the definition of field, but keeps the same id.
+    /// Existing references to the old field now reference the replacement.
     pub fn replace_field(&mut self, id: FieldID, field: Field) -> Result<()> {
         let id = id.as_usize();
         if id >= self.fields.len() {
@@ -504,8 +593,8 @@ impl Schema {
     }
 
     pub fn build(
-        schema_definitions: &[ast::Definition],
-        client_definitions: &[ast::Definition],
+        schema_definitions: &[type_system_node_v1::TypeSystemDefinition],
+        client_definitions: &[type_system_node_v1::TypeSystemDefinition],
     ) -> Result<Self> {
         // Step 1: build the type_map from type names to type keys
         let mut type_map =
@@ -520,41 +609,54 @@ impl Schema {
         let mut directive_count = 0;
         for definition in schema_definitions.iter().chain(client_definitions) {
             match definition {
-                ast::Definition::SchemaDefinition { .. } => {}
-                ast::Definition::DirectiveDefinition { .. } => {
+                type_system_node_v1::TypeSystemDefinition::SchemaDefinition { .. } => {}
+                type_system_node_v1::TypeSystemDefinition::DirectiveDefinition { .. } => {
                     directive_count += 1;
                 }
-                ast::Definition::ObjectTypeDefinition { name, fields, .. } => {
+                type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
+                    name,
+                    fields,
+                    ..
+                } => {
                     type_map.insert(*name, Type::Object(ObjectID(next_object_id)));
                     field_count += fields.len();
                     next_object_id += 1;
                 }
-                ast::Definition::InterfaceTypeDefinition { name, fields, .. } => {
+                type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition {
+                    name,
+                    fields,
+                    ..
+                } => {
                     type_map.insert(*name, Type::Interface(InterfaceID(next_interface_id)));
                     field_count += fields.len();
                     next_interface_id += 1;
                 }
-                ast::Definition::UnionTypeDefinition { name, .. } => {
+                type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
                     type_map.insert(*name, Type::Union(UnionID(next_union_id)));
                     next_union_id += 1;
                 }
-                ast::Definition::InputObjectTypeDefinition { name, .. } => {
+                type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
+                    name,
+                    ..
+                } => {
                     type_map.insert(
                         *name,
                         Type::InputObject(InputObjectID(next_input_object_id)),
                     );
                     next_input_object_id += 1;
                 }
-                ast::Definition::EnumTypeDefinition { name, .. } => {
+                type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
                     type_map.insert(*name, Type::Enum(EnumID(next_enum_id)));
                     next_enum_id += 1;
                 }
-                ast::Definition::ScalarTypeDefinition { name, .. } => {
+                type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition {
+                    name, ..
+                } => {
                     type_map.insert(*name, Type::Scalar(ScalarID(next_scalar_id)));
                     next_scalar_id += 1;
                 }
-                ast::Definition::ObjectTypeExtension { .. } => {}
-                ast::Definition::InterfaceTypeExtension { .. } => {}
+                type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension { .. } => {}
+                type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
             }
         }
 
@@ -596,8 +698,10 @@ impl Schema {
         }
 
         for definition in schema_definitions.iter().chain(client_definitions) {
-            if let ast::Definition::ObjectTypeDefinition {
-                name, interfaces, ..
+            if let type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
+                name,
+                interfaces,
+                ..
             } = definition
             {
                 let object_id = match schema.type_map.get(&name) {
@@ -609,7 +713,7 @@ impl Schema {
                     match type_ {
                         Type::Interface(id) => {
                             let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
-                            interface.implementors.push(*object_id)
+                            interface.implementing_objects.push(*object_id)
                         }
                         _ => unreachable!("Must be an interface"),
                     }
@@ -646,6 +750,7 @@ impl Schema {
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
+            parent_type: None,
         });
 
         let clientid_field_id = schema.fields.len();
@@ -656,21 +761,28 @@ impl Schema {
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
+            parent_type: None,
         });
 
         Ok(schema)
     }
 
-    fn add_definition(&mut self, definition: &ast::Definition, is_extension: bool) -> Result<()> {
+    fn add_definition(
+        &mut self,
+        definition: &type_system_node_v1::TypeSystemDefinition,
+        is_extension: bool,
+    ) -> Result<()> {
         match definition {
-            ast::Definition::SchemaDefinition {
+            type_system_node_v1::TypeSystemDefinition::SchemaDefinition {
                 operation_types,
                 directives: _directives,
             } => {
-                for ast::OperationTypeDefinition { operation, type_ } in operation_types {
+                for type_system_node_v1::OperationTypeDefinition { operation, type_ } in
+                    operation_types
+                {
                     let operation_id = self.build_object_id(*type_)?;
                     match operation {
-                        ast::OperationType::Query => {
+                        type_system_node_v1::OperationType::Query => {
                             if let Some(prev_query_type) = self.query_type {
                                 return Err(SchemaError::DuplicateOperationDefinition(
                                     *operation,
@@ -681,7 +793,7 @@ impl Schema {
                                 self.query_type = Some(operation_id);
                             }
                         }
-                        ast::OperationType::Mutation => {
+                        type_system_node_v1::OperationType::Mutation => {
                             if let Some(prev_mutation_type) = self.mutation_type {
                                 return Err(SchemaError::DuplicateOperationDefinition(
                                     *operation,
@@ -692,7 +804,7 @@ impl Schema {
                                 self.mutation_type = Some(operation_id);
                             }
                         }
-                        ast::OperationType::Subscription => {
+                        type_system_node_v1::OperationType::Subscription => {
                             if let Some(prev_subscription_type) = self.subscription_type {
                                 return Err(SchemaError::DuplicateOperationDefinition(
                                     *operation,
@@ -706,7 +818,7 @@ impl Schema {
                     }
                 }
             }
-            ast::Definition::DirectiveDefinition {
+            type_system_node_v1::TypeSystemDefinition::DirectiveDefinition {
                 name,
                 arguments,
                 repeatable: _repeatable,
@@ -730,16 +842,21 @@ impl Schema {
                     },
                 );
             }
-            ast::Definition::ObjectTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
             } => {
+                let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
-                    self.build_extend_fields(&fields, &mut HashSet::with_capacity(fields.len()))?
+                    self.build_extend_fields(
+                        &fields,
+                        &mut HashSet::with_capacity(fields.len()),
+                        Some(parent_id),
+                    )?
                 } else {
-                    self.build_fields(&fields)?
+                    self.build_fields(&fields, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
@@ -754,26 +871,37 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::InterfaceTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition {
                 name,
+                interfaces,
                 directives,
                 fields,
             } => {
+                let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
-                    self.build_extend_fields(&fields, &mut HashSet::with_capacity(fields.len()))?
+                    self.build_extend_fields(
+                        &fields,
+                        &mut HashSet::with_capacity(fields.len()),
+                        Some(parent_id),
+                    )?
                 } else {
-                    self.build_fields(&fields)?
+                    self.build_fields(&fields, Some(parent_id))?
                 };
+                let interfaces = interfaces
+                    .iter()
+                    .map(|name| self.build_interface_id(*name))
+                    .collect::<Result<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
                     name: *name,
-                    implementors: vec![],
+                    implementing_objects: vec![],
                     is_extension,
                     fields,
                     directives,
+                    interfaces,
                 });
             }
-            ast::Definition::UnionTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition {
                 name,
                 directives,
                 members,
@@ -790,7 +918,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::InputObjectTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
                 name,
                 fields,
                 directives,
@@ -803,7 +931,7 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::EnumTypeDefinition {
+            type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition {
                 name,
                 directives,
                 values,
@@ -823,7 +951,10 @@ impl Schema {
                     directives,
                 });
             }
-            ast::Definition::ScalarTypeDefinition { name, directives } => {
+            type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition {
+                name,
+                directives,
+            } => {
                 let directives = self.build_directive_values(&directives);
                 self.scalars.push(Scalar {
                     name: *name,
@@ -831,12 +962,12 @@ impl Schema {
                     directives,
                 })
             }
-            ast::Definition::ObjectTypeExtension {
+            type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension {
                 name,
                 interfaces: _interfaces,
                 fields,
                 directives: _directives,
-            } => match self.type_map.get(&name) {
+            } => match self.type_map.get(&name).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
                     let field_ids = &self.objects[index].fields;
@@ -845,32 +976,41 @@ impl Schema {
                     for field_id in field_ids {
                         existing_fields.insert(self.fields[field_id.as_usize()].name);
                     }
-                    let client_fields = self.build_extend_fields(fields, &mut existing_fields)?;
+                    let client_fields = self.build_extend_fields(
+                        fields,
+                        &mut existing_fields,
+                        Some(Type::Object(id)),
+                    )?;
                     self.objects[index].fields.extend(client_fields);
                 }
                 _ => {
                     return Err(SchemaError::ExtendUndefinedType(*name));
                 }
             },
-            ast::Definition::InterfaceTypeExtension { name, fields, .. } => {
-                match self.type_map.get(&name) {
-                    Some(Type::Interface(id)) => {
-                        let index = id.as_usize();
-                        let field_ids = &self.interfaces[index].fields;
-                        let mut existing_fields =
-                            HashSet::with_capacity(field_ids.len() + fields.len());
-                        for field_id in field_ids {
-                            existing_fields.insert(self.fields[field_id.as_usize()].name);
-                        }
-                        let client_fields =
-                            self.build_extend_fields(fields, &mut existing_fields)?;
-                        self.interfaces[index].fields.extend(client_fields);
+            type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension {
+                name,
+                fields,
+                ..
+            } => match self.type_map.get(&name).cloned() {
+                Some(Type::Interface(id)) => {
+                    let index = id.as_usize();
+                    let field_ids = &self.interfaces[index].fields;
+                    let mut existing_fields =
+                        HashSet::with_capacity(field_ids.len() + fields.len());
+                    for field_id in field_ids {
+                        existing_fields.insert(self.fields[field_id.as_usize()].name);
                     }
-                    _ => {
-                        return Err(SchemaError::ExtendUndefinedType(*name));
-                    }
+                    let client_fields = self.build_extend_fields(
+                        fields,
+                        &mut existing_fields,
+                        Some(Type::Interface(id)),
+                    )?;
+                    self.interfaces[index].fields.extend(client_fields);
                 }
-            }
+                _ => {
+                    return Err(SchemaError::ExtendUndefinedType(*name));
+                }
+            },
         }
         Ok(())
     }
@@ -902,7 +1042,11 @@ impl Schema {
         FieldID(field_index)
     }
 
-    fn build_fields(&mut self, field_defs: &[ast::FieldDefinition]) -> Result<Vec<FieldID>> {
+    fn build_fields(
+        &mut self,
+        field_defs: &[type_system_node_v1::FieldDefinition],
+        parent_type: Option<Type>,
+    ) -> Result<Vec<FieldID>> {
         field_defs
             .iter()
             .map(|field_def| {
@@ -915,6 +1059,7 @@ impl Schema {
                     arguments,
                     type_,
                     directives,
+                    parent_type,
                 }))
             })
             .collect()
@@ -922,8 +1067,9 @@ impl Schema {
 
     fn build_extend_fields(
         &mut self,
-        field_defs: &[ast::FieldDefinition],
+        field_defs: &[type_system_node_v1::FieldDefinition],
         existing_fields: &mut HashSet<StringKey>,
+        parent_type: Option<Type>,
     ) -> Result<Vec<FieldID>> {
         let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.len());
         for field_def in field_defs {
@@ -939,6 +1085,7 @@ impl Schema {
                 arguments,
                 type_,
                 directives,
+                parent_type,
             }));
         }
         Ok(field_ids)
@@ -946,7 +1093,7 @@ impl Schema {
 
     fn build_arguments(
         &mut self,
-        arg_defs: &[ast::InputValueDefinition],
+        arg_defs: &[type_system_node_v1::InputValueDefinition],
     ) -> Result<ArgumentDefinitions> {
         let arg_defs: Result<Vec<Argument>> = arg_defs
             .iter()
@@ -961,24 +1108,30 @@ impl Schema {
         Ok(ArgumentDefinitions(arg_defs?))
     }
 
-    fn build_type_reference(&mut self, ast_type: &ast::Type) -> Result<TypeReference> {
+    fn build_type_reference(
+        &mut self,
+        ast_type: &type_system_node_v1::Type,
+    ) -> Result<TypeReference> {
         Ok(match ast_type {
-            ast::Type::Named(name) => TypeReference::Named(
+            type_system_node_v1::Type::Named(name) => TypeReference::Named(
                 *self
                     .type_map
                     .get(name)
                     .ok_or_else(|| SchemaError::UndefinedType(*name))?,
             ),
-            ast::Type::NonNull(of_type) => {
+            type_system_node_v1::Type::NonNull(of_type) => {
                 TypeReference::NonNull(Box::new(self.build_type_reference(of_type)?))
             }
-            ast::Type::List(of_type) => {
+            type_system_node_v1::Type::List(of_type) => {
                 TypeReference::List(Box::new(self.build_type_reference(of_type)?))
             }
         })
     }
 
-    fn build_directive_values(&mut self, directives: &[ast::Directive]) -> Vec<DirectiveValue> {
+    fn build_directive_values(
+        &mut self,
+        directives: &[type_system_node_v1::Directive],
+    ) -> Vec<DirectiveValue> {
         directives
             .iter()
             .map(|directive| DirectiveValue {
@@ -1027,19 +1180,19 @@ impl Schema {
 
         format!(
             r#"Schema {{
-query_type: {:#?}
-mutation_type: {:#?}
-subscription_type: {:#?}
-directives: {:#?}
-type_map: {:#?}
-enums: {:#?}
-fields: {:#?}
-input_objects: {:#?}
-interfaces: {:#?}
-objects: {:#?}
-scalars: {:#?}
-unions: {:#?}
-}}"#,
+ query_type: {:#?}
+ mutation_type: {:#?}
+ subscription_type: {:#?}
+ directives: {:#?}
+ type_map: {:#?}
+ enums: {:#?}
+ fields: {:#?}
+ input_objects: {:#?}
+ interfaces: {:#?}
+ objects: {:#?}
+ scalars: {:#?}
+ unions: {:#?}
+ }}"#,
             query_type,
             mutation_type,
             subscription_type,
@@ -1126,6 +1279,13 @@ impl Type {
     pub fn is_interface(self) -> bool {
         match self {
             Type::Interface(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_union(self) -> bool {
+        match self {
+            Type::Union(_) => true,
             _ => false,
         }
     }
@@ -1253,8 +1413,14 @@ impl TypeReference {
 pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
-    pub locations: Vec<DirectiveLocation>,
+    pub locations: Vec<type_system_node_v1::DirectiveLocation>,
     pub is_extension: bool,
+}
+
+impl Named for Directive {
+    fn name(&self) -> StringKey {
+        self.name
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -1300,9 +1466,10 @@ pub struct Union {
 pub struct Interface {
     pub name: StringKey,
     pub is_extension: bool,
-    pub implementors: Vec<ObjectID>,
+    pub implementing_objects: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,
+    pub interfaces: Vec<InterfaceID>,
 }
 
 #[derive(Clone, Debug)]
@@ -1312,6 +1479,11 @@ pub struct Field {
     pub arguments: ArgumentDefinitions,
     pub type_: TypeReference,
     pub directives: Vec<DirectiveValue>,
+    /// The type on which this field was defined. This field is (should)
+    /// always be set, except for special fields such as __typename and
+    /// __id, which are queryable on all types and therefore don't have
+    /// a single parent type.
+    pub parent_type: Option<Type>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -1398,17 +1570,35 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
+    fn name(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
+    fn interfaces(&self) -> &Vec<InterfaceID>;
 }
 
 impl TypeWithFields for Interface {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
+    }
+
+    fn interfaces(&self) -> &Vec<InterfaceID> {
+        &self.interfaces
     }
 }
 
 impl TypeWithFields for Object {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
+    }
+
+    fn interfaces(&self) -> &Vec<InterfaceID> {
+        &self.interfaces
     }
 }

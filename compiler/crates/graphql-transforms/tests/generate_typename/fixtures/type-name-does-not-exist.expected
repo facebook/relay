@@ -41,21 +41,6 @@ fragment CommentFragment_comment on Comment {
   }
 }
 ==================================== OUTPUT ===================================
-fragment CommentFragment_comment on Comment {
-  body {
-    text
-  }
-}
-
-fragment NonNodeStory_feedUnit on FeedUnit {
-  __isFeedUnit: __typename
-  id
-  actor {
-    __typename
-    name
-  }
-}
-
 query EasyTypeNameNotExistsQuery {
   viewer {
     newsFeed(first: 10) {
@@ -84,5 +69,20 @@ query TypeNameNotExistsWithFlattenTransformQuery {
         }
       }
     }
+  }
+}
+
+fragment CommentFragment_comment on Comment {
+  body {
+    text
+  }
+}
+
+fragment NonNodeStory_feedUnit on FeedUnit {
+  __isFeedUnit: __typename
+  id
+  actor {
+    __typename
+    name
   }
 }

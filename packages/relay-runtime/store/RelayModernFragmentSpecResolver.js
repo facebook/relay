@@ -17,6 +17,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const warning = require('warning');
 
 const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
@@ -34,6 +35,7 @@ import type {
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
+  MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
   SelectorData,
@@ -216,6 +218,7 @@ class SelectorResolver {
   _data: ?SelectorData;
   _environment: IEnvironment;
   _isMissingData: boolean;
+  _missingRequiredFields: ?MissingRequiredFields;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
@@ -228,6 +231,7 @@ class SelectorResolver {
     this._callback = callback;
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._environment = environment;
     this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
@@ -282,6 +286,12 @@ class SelectorResolver {
         throw promise;
       }
     }
+    if (this._missingRequiredFields != null) {
+      reportMissingRequiredFields(
+        this._environment,
+        this._missingRequiredFields,
+      );
+    }
     return this._data;
   }
 
@@ -296,6 +306,7 @@ class SelectorResolver {
     const snapshot = this._environment.lookup(selector);
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -331,6 +342,7 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._callback();
   };
 }

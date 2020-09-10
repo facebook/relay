@@ -15,11 +15,18 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== ERROR ====================================
-Expected the key argument to @connection to be of form '<SomeName>__comments', got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection:
-connection-invalid-key-name.invalid.graphql:5:44:
-      comments(first: 10) @connection(key: "invalid") {
+✖︎ Expected the key argument to @connection to be of form '<SomeName>__comments', got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
 
+  connection-invalid-key-name.invalid.graphql:6:44
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: "invalid") {
+      │                                            ^^^^^^^^^
+    7 │         edges {
 
-connection-invalid-key-name.invalid.graphql:4:19:
-    ... on Story {
-      comments(first: 10) @connection(key: "invalid") {
+  ℹ︎ related location
+
+  connection-invalid-key-name.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: "invalid") {
+      │       ^^^^^^^^
+    7 │         edges {

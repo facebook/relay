@@ -7,7 +7,7 @@
 
 use common::SourceLocationKey;
 use graphql_ir::{build, ExecutableDefinition, Selection};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
 use graphql_transforms::NodeIdentifier;
 use test_schema::TEST_SCHEMA;
 
@@ -21,7 +21,7 @@ fn get_selection(def: &ExecutableDefinition) -> &Selection {
 
 fn are_selections_equal(graphql: &str) -> bool {
     let source_location = SourceLocationKey::standalone("test");
-    let ast = parse(graphql, source_location).unwrap();
+    let ast = parse_executable(graphql, source_location).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
     let left = NodeIdentifier::from_selection(&TEST_SCHEMA, get_selection(&ir[0]));
     let right = NodeIdentifier::from_selection(&TEST_SCHEMA, get_selection(&ir[1]));

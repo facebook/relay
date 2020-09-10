@@ -12,14 +12,14 @@ use super::{
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
-    ValidationError, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
-use schema::{Argument as ArgumentDef, AstValue, FieldID, Schema, Type};
+use schema::{type_system_node_v1, Argument as ArgumentDef, FieldID, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
@@ -62,11 +62,11 @@ fn build_refetch_operation(
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
         if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                     fragment_name: fragment.name.item,
                 },
-                vec![id_argument.name.location],
+                id_argument.name.location,
             )]);
         }
         variable_definitions.push(VariableDefinition {
@@ -118,15 +118,15 @@ fn get_fetchable_field_name<'schema>(
         if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
             let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
             if let Some(field_name_arg) = field_name_arg {
-                if let AstValue::String(ref name) = field_name_arg.value {
+                if let type_system_node_v1::Value::String(ref name) = field_name_arg.value {
                     return Ok(Some(name));
                 }
             }
-            return Err(vec![ValidationError::new(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchDirectiveDefinition {
                     fragment_name: fragment.name.item,
                 },
-                vec![fragment.name.location],
+                fragment.name.location,
             )]);
         }
     }
@@ -145,13 +145,13 @@ fn get_identifier_field_id(
             return Ok(identifier_field_id);
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchIdentifyingField {
             fragment_name: fragment.name.item,
             identifier_field_name,
             type_name: schema.get_type_name(fragment.type_condition),
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 
@@ -175,13 +175,13 @@ fn get_fetch_field_id_and_id_arg<'s>(
             }
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchFetchField {
             fetch_field_name,
             fragment_name: fragment.name.item,
             type_name: schema.get_type_name(fragment.type_condition),
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 

@@ -1,0 +1,11 @@
+# expected-to-throw
+
+directive @source(name: String!) on OBJECT
+
+type User {
+  id: ID
+}
+
+type Page implements User @source("") {
+  id: ID
+}

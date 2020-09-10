@@ -6,10 +6,10 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::WithLocation;
+use common::{Diagnostic, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Selection, Transformed,
-    Transformer, ValidationError, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, ValidationResult, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -34,7 +34,7 @@ pub fn generate_subscription_name_metadata(program: &Program) -> ValidationResul
 
 struct GenerateSubscriptionNameMetadata<'s> {
     pub program: &'s Program,
-    pub errors: Vec<ValidationError>,
+    pub errors: Vec<Diagnostic>,
 }
 
 impl<'s> GenerateSubscriptionNameMetadata<'s> {
@@ -58,11 +58,11 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
         match operation.kind {
             OperationKind::Subscription => {
                 if operation.selections.len() != 1 {
-                    self.errors.push(ValidationError::new(
+                    self.errors.push(Diagnostic::error(
                         ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
                             subscription_name: operation.name.item,
                         },
-                        vec![operation.name.location],
+                        operation.name.location,
                     ));
                     Transformed::Keep
                 } else {
@@ -94,11 +94,11 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                             })
                         }
                         _ => {
-                            self.errors.push(ValidationError::new(
+                            self.errors.push(Diagnostic::error(
                                 ValidationMessage::GenerateSubscriptionNameSimpleSelection {
                                     subscription_name: operation.name.item,
                                 },
-                                vec![operation.name.location],
+                                operation.name.location,
                             ));
 
                             Transformed::Keep

@@ -1,4 +1,4 @@
-// @generated SignedSource<<a558579eaee3a20e5f241f3b87564dbb>>
+// @generated SignedSource<<962270ff9a737fa26a49064783db4091>>
 
 mod match_transform;
 
@@ -55,10 +55,24 @@ fn match_with_extra_args() {
 }
 
 #[test]
+fn module_on_inline_data_invalid() {
+    let input = include_str!("match_transform/fixtures/module-on-inline-data.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/module-on-inline-data.invalid.expected");
+    test_fixture(transform_fixture, "module-on-inline-data.invalid.graphql", "match_transform/fixtures/module-on-inline-data.invalid.expected", input, expected);
+}
+
+#[test]
 fn module_without_match() {
     let input = include_str!("match_transform/fixtures/module-without-match.graphql");
     let expected = include_str!("match_transform/fixtures/module-without-match.expected");
     test_fixture(transform_fixture, "module-without-match.graphql", "match_transform/fixtures/module-without-match.expected", input, expected);
+}
+
+#[test]
+fn no_server_supported_arg_invalid() {
+    let input = include_str!("match_transform/fixtures/no-server-supported-arg.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/no-server-supported-arg.invalid.expected");
+    test_fixture(transform_fixture, "no-server-supported-arg.invalid.graphql", "match_transform/fixtures/no-server-supported-arg.invalid.expected", input, expected);
 }
 
 #[test]

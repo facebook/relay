@@ -1,23 +1,23 @@
 ==================================== INPUT ====================================
-query TestQuery {
+query falsePositiveCircularFragmentReferenceRegression_TestQuery {
   viewer {
-    ...MyViewer
-    ...MyOtherViewer
+    ...falsePositiveCircularFragmentReferenceRegression_MyViewer
+    ...falsePositiveCircularFragmentReferenceRegression_MyOtherViewer
     actor {
       name
     }
   }
 }
 
-fragment MyViewer on Viewer {
-  ...MyNestedViewer
+fragment falsePositiveCircularFragmentReferenceRegression_MyViewer on Viewer {
+  ...falsePositiveCircularFragmentReferenceRegression_MyNestedViewer
 }
 
-fragment MyOtherViewer on Viewer {
-  ...MyNestedViewer
+fragment falsePositiveCircularFragmentReferenceRegression_MyOtherViewer on Viewer {
+  ...falsePositiveCircularFragmentReferenceRegression_MyNestedViewer
 }
 
-fragment MyNestedViewer on Viewer
+fragment falsePositiveCircularFragmentReferenceRegression_MyNestedViewer on Viewer
   @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
   primaryEmail @include(if: $includeEmail)
 }
@@ -27,7 +27,7 @@ fragment MyNestedViewer on Viewer
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "falsePositiveCircularFragmentReferenceRegression_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -58,12 +58,12 @@ fragment MyNestedViewer on Viewer
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "MyViewer"
+            "name": "falsePositiveCircularFragmentReferenceRegression_MyViewer"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "MyOtherViewer"
+            "name": "falsePositiveCircularFragmentReferenceRegression_MyOtherViewer"
           }
         ],
         "storageKey": null
@@ -76,7 +76,7 @@ fragment MyNestedViewer on Viewer
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "falsePositiveCircularFragmentReferenceRegression_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -126,7 +126,7 @@ fragment MyNestedViewer on Viewer
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "falsePositiveCircularFragmentReferenceRegression_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -134,7 +134,7 @@ fragment MyNestedViewer on Viewer
 
 QUERY:
 
-query TestQuery {
+query falsePositiveCircularFragmentReferenceRegression_TestQuery {
   viewer {
     actor {
       __typename
@@ -155,7 +155,7 @@ query TestQuery {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MyNestedViewer",
+  "name": "falsePositiveCircularFragmentReferenceRegression_MyNestedViewer",
   "selections": [
     {
       "condition": "includeEmail",
@@ -180,12 +180,12 @@ query TestQuery {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MyOtherViewer",
+  "name": "falsePositiveCircularFragmentReferenceRegression_MyOtherViewer",
   "selections": [
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "MyNestedViewer"
+      "name": "falsePositiveCircularFragmentReferenceRegression_MyNestedViewer"
     }
   ],
   "type": "Viewer",
@@ -196,12 +196,12 @@ query TestQuery {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MyViewer",
+  "name": "falsePositiveCircularFragmentReferenceRegression_MyViewer",
   "selections": [
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "MyNestedViewer"
+      "name": "falsePositiveCircularFragmentReferenceRegression_MyNestedViewer"
     }
   ],
   "type": "Viewer",

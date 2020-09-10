@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query UnionQuery {
+query unions_UnionQuery {
   maybeNode {
     ... on NonNode {
       name
@@ -18,7 +18,7 @@ query UnionQuery {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "UnionQuery",
+    "name": "unions_UnionQuery",
     "selections": [
       {
         "alias": null,
@@ -85,7 +85,7 @@ query UnionQuery {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "UnionQuery",
+    "name": "unions_UnionQuery",
     "selections": [
       {
         "alias": null,
@@ -184,7 +184,7 @@ query UnionQuery {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "UnionQuery",
+    "name": "unions_UnionQuery",
     "operationKind": "query",
     "text": null
   }
@@ -192,7 +192,7 @@ query UnionQuery {
 
 QUERY:
 
-query UnionQuery {
+query unions_UnionQuery {
   maybeNode {
     __typename
     ... on NonNode {

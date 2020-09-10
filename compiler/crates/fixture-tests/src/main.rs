@@ -152,7 +152,8 @@ fn sanitize_identifier(input: &str) -> String {
     input
         .chars()
         .map(|chr| match chr {
-            'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => chr,
+            'a'..='z' | '0'..='9' | '_' => chr,
+            'A'..='Z' => chr.to_ascii_lowercase(),
             _ => '_',
         })
         .collect()

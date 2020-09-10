@@ -1,4 +1,4 @@
-query NodeQuery($id: ID!) {
+query fieldsWithNullArugmentValues_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {

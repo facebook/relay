@@ -99,11 +99,10 @@ beforeEach(() => {
       return {dispose: disposeOnloadCallback};
     });
 
-  const originalExecuteWithSource = environment.executeWithSource.bind(
-    environment,
-  );
+  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
+
   jest
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {
@@ -196,7 +195,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
         it('calling dispose unsubscribes from executeWithSource', () => {
           // This ensures that no data is written to the store
-          const {dispose} = loadQuery(
+          const preloadedQuery = loadQuery(
             environment,
             preloadableConcreteRequest,
             variables,
@@ -213,7 +212,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
             expect(executeUnsubscribe).toBeDefined();
           }
 
-          dispose();
+          expect(preloadedQuery.isDisposed).toBe(false);
+          preloadedQuery.dispose();
+          expect(preloadedQuery.isDisposed).toBe(true);
           if (executeUnsubscribe != null) {
             expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
             expect(disposeEnvironmentRetain).toHaveBeenCalled();
@@ -257,7 +258,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
     it('calling dispose after the AST loads unsubscribes from executeWithSource', () => {
       // This ensures that no data is written to the store
-      const {dispose} = loadQuery(
+      const preloadedQuery = loadQuery(
         environment,
         preloadableConcreteRequest,
         variables,
@@ -278,7 +279,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
         expect(executeUnsubscribe).toBeDefined();
       }
 
-      dispose();
+      expect(preloadedQuery.isDisposed).toBe(false);
+      preloadedQuery.dispose();
+      expect(preloadedQuery.isDisposed).toBe(true);
       if (executeUnsubscribe != null) {
         expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
         expect(disposeEnvironmentRetain).toHaveBeenCalled();
@@ -286,7 +289,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
     });
 
     it('calling dispose before the AST loads clears the onLoad callback', () => {
-      const {dispose} = loadQuery(
+      const preloadedQuery = loadQuery(
         environment,
         preloadableConcreteRequest,
         variables,
@@ -299,7 +302,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(disposeOnloadCallback).toBeDefined();
       expect(disposeOnloadCallback).not.toHaveBeenCalled();
 
-      dispose();
+      expect(preloadedQuery.isDisposed).toBe(false);
+      preloadedQuery.dispose();
+      expect(preloadedQuery.isDisposed).toBe(true);
       if (disposeOnloadCallback != null) {
         expect(disposeOnloadCallback).toHaveBeenCalledTimes(1);
       }
@@ -385,7 +390,7 @@ describe('when passed a query AST', () => {
 
       it('calling dispose unsubscribes from environment.executeWithSource', () => {
         // This ensures that no data is written to the store
-        const {dispose} = loadQuery(environment, query, variables, {
+        const preloadedQuery = loadQuery(environment, query, variables, {
           fetchPolicy: 'network-only',
         });
         expect(fetch).toHaveBeenCalled();
@@ -397,7 +402,9 @@ describe('when passed a query AST', () => {
           expect(executeUnsubscribe).toBeDefined();
         }
 
-        dispose();
+        expect(preloadedQuery.isDisposed).toBe(false);
+        preloadedQuery.dispose();
+        expect(preloadedQuery.isDisposed).toBe(true);
         if (executeUnsubscribe != null) {
           expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
           expect(disposeEnvironmentRetain).toHaveBeenCalled();
@@ -431,7 +438,7 @@ describe('when passed a query AST', () => {
 
     it('calling dispose unsubscribes from environment.executeWithSource', () => {
       // This ensures that no data is written to the store
-      const {dispose} = loadQuery(environment, query, variables);
+      const preloadedQuery = loadQuery(environment, query, variables);
       expect(fetch).toHaveBeenCalled();
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       expect(environment.retain).toHaveBeenCalled();
@@ -441,7 +448,9 @@ describe('when passed a query AST', () => {
         expect(executeUnsubscribe).toBeDefined();
       }
 
-      dispose();
+      expect(preloadedQuery.isDisposed).toBe(false);
+      preloadedQuery.dispose();
+      expect(preloadedQuery.isDisposed).toBe(true);
       if (executeUnsubscribe != null) {
         expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
         expect(disposeEnvironmentRetain).toHaveBeenCalled();

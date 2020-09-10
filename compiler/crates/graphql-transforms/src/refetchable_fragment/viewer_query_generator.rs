@@ -12,10 +12,10 @@ use super::{
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::WithLocation;
+use common::{Diagnostic, WithLocation};
 use graphql_ir::{
-    FragmentDefinition, LinkedField, OperationDefinition, Selection, ValidationError,
-    ValidationMessage, ValidationResult,
+    FragmentDefinition, LinkedField, OperationDefinition, Selection, ValidationMessage,
+    ValidationResult,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
@@ -90,11 +90,11 @@ fn get_viewer_field_id(
             }
         }
     }
-    Err(vec![ValidationError::new(
+    Err(vec![Diagnostic::error(
         ValidationMessage::InvalidViewerSchemaForRefetchableFragmentOnViewer {
             fragment_name: fragment.name.item,
         },
-        vec![fragment.name.location],
+        fragment.name.location,
     )])
 }
 

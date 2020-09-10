@@ -1,4 +1,4 @@
-query TestQuery($date: String) {
+query complexArguments_TestQuery($date: String) {
   items(filter: {date: $date}) {
     date
   }

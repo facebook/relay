@@ -11,10 +11,7 @@ use crate::lsp::{
 };
 use crate::lsp::{Connection, Url};
 use crate::state::ServerState;
-use relay_compiler::{
-    errors::{BuildProjectError, SyntaxErrorWithSource, ValidationError},
-    source_for_location,
-};
+use relay_compiler::{errors::BuildProjectError, source_for_location};
 use std::fs;
 
 /// Report errors that occur during the `build_project` step
@@ -26,18 +23,10 @@ pub fn report_build_project_errors(
     for error in errors {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
-                for ValidationError { message, locations } in errors {
-                    let message = format!("{}", message);
+                for diagnostic in errors {
+                    let message = diagnostic.message().to_string();
 
-                    let location = match locations.first() {
-                        Some(&location) => location,
-                        _ => {
-                            // If we can't get the source and location we can't report the error, so
-                            // exit early.
-                            // TODO(brandondail) we should always have at least one source and location, so log here when we don't
-                            return;
-                        }
-                    };
+                    let location = diagnostic.location();
 
                     let url = match url_from_location(location, &server_state.root_dir) {
                         Some(url) => url,
@@ -51,7 +40,7 @@ pub fn report_build_project_errors(
                     server_state.register_url_with_diagnostics(url.clone());
 
                     let source = if let Some(source) =
-                        source_for_location(&server_state.root_dir, location)
+                        source_for_location(&server_state.root_dir, location.source_location())
                     {
                         source
                     } else {
@@ -92,14 +81,14 @@ pub fn report_build_project_errors(
 
 /// Report errors that occur during parsing
 pub fn report_syntax_errors(
-    errors: Vec<SyntaxErrorWithSource>,
+    errors: Vec<common::Diagnostic>,
     connection: &Connection,
     server_state: &mut ServerState,
 ) {
-    for SyntaxErrorWithSource { error, source } in errors {
+    for error in errors {
         // Remove the index from the end of the path, resolve the absolute path
         let file_path = {
-            let file_path = error.location.source_location().path();
+            let file_path = error.location().source_location().path();
             fs::canonicalize(server_state.root_dir.join(file_path)).unwrap()
         };
 
@@ -109,11 +98,18 @@ pub fn report_syntax_errors(
         // clear them out later.
         server_state.register_url_with_diagnostics(url.clone());
 
-        let message = format!("{}", error.kind);
+        let message = format!("{}", error.message());
 
+        let source = if let Some(source) =
+            source_for_location(&server_state.root_dir, error.location().source_location())
+        {
+            source
+        } else {
+            continue;
+        };
         let range =
             error
-                .location
+                .location()
                 .span()
                 .to_range(&source.text, source.line_index, source.column_index);
 

@@ -8,13 +8,17 @@
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
+use graphql_cli::DiagnosticPrinter;
 use graphql_ir::build;
-use graphql_syntax::parse;
+use graphql_syntax::{parse_executable_with_features, ParserFeatures};
 use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let ast = parse(fixture.content, source_location).unwrap();
+    let features = ParserFeatures {
+        enable_variable_definitions: true,
+    };
+    let ast = parse_executable_with_features(fixture.content, source_location, features).unwrap();
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, fixture.content);
 
@@ -23,7 +27,10 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         .map_err(|errors| {
             errors
                 .into_iter()
-                .map(|error| error.print(&sources))
+                .map(|error| {
+                    let printer = DiagnosticPrinter::new(|_| Some(fixture.content.to_string()));
+                    printer.diagnostic_to_string(&error)
+                })
                 .collect::<Vec<_>>()
                 .join("\n\n")
         })

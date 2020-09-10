@@ -12,21 +12,17 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod ast;
 mod definitions;
 mod errors;
 mod lexer;
 mod parser;
 mod token;
+pub mod type_system_node_v1;
 
-pub use ast::{
-    Definition, DirectiveLocation, FieldDefinition, InputValueDefinition, Type as AstType,
-    Value as AstValue,
-};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
     EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
-    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, UnionID,
+    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
 use lexer::Lexer;
@@ -46,9 +42,12 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 ) -> Result<Schema> {
     let mut server_definitions = parse_definitions(BUILTINS)?;
 
+    let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
-        server_definitions.extend(parse_definitions(server_sdl.as_ref())?);
+        combined_sdl.push_str("\n");
+        combined_sdl.push_str(server_sdl.as_ref());
     }
+    server_definitions.extend(parse_definitions(&combined_sdl)?);
 
     let mut extension_definitions = Vec::new();
     for extension_sdl in extension_sdls {
@@ -58,7 +57,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     Schema::build(&server_definitions, &extension_definitions)
 }
 
-pub fn parse_definitions(input: &str) -> Result<Vec<ast::Definition>> {
+pub fn parse_definitions(input: &str) -> Result<Vec<type_system_node_v1::TypeSystemDefinition>> {
     let lexer = Lexer::new(input);
     let parser = Parser::new(lexer);
     parser.parse_schema_document()

@@ -185,7 +185,7 @@ describe('with respect to loadQuery', () => {
       root: (new FakeJSResource(null): $FlowFixMe),
     };
 
-    const {dispose} = loadEntryPoint(
+    const preloadedEntryPoint = loadEntryPoint(
       {
         getEnvironment: () => env,
       },
@@ -193,12 +193,12 @@ describe('with respect to loadQuery', () => {
       {},
     );
 
-    expect(dispose).toBeDefined();
-    if (dispose) {
-      expect(mockLoadedQuery.dispose).not.toHaveBeenCalled();
-      dispose();
-      expect(mockLoadedQuery.dispose).toHaveBeenCalled();
-    }
+    expect(typeof preloadedEntryPoint.dispose).toBe('function');
+    expect(mockLoadedQuery.dispose).not.toHaveBeenCalled();
+    expect(preloadedEntryPoint.isDisposed).toBe(false);
+    preloadedEntryPoint.dispose();
+    expect(mockLoadedQuery.dispose).toHaveBeenCalledTimes(1);
+    expect(preloadedEntryPoint.isDisposed).toBe(true);
   });
 });
 
@@ -354,6 +354,83 @@ test('it should preload entry point with both queries and nested entry points', 
   ).toEqual({
     id: 'nested-my-id',
   });
+});
+
+test('it should dispose nested entry points', () => {
+  const env = createMockEnvironment();
+  const nestedEntryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myNestedQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyNestedQuery',
+                id: 'nested-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(null): $FlowFixMe),
+  };
+  const entryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'root-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+        entryPoints: {
+          myNestedEntryPoint: {
+            entryPoint: nestedEntryPoint,
+            entryPointParams: {
+              id: 'nested-' + params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(null): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {},
+  );
+  const nestedEntryPointDisposeSpy = jest.spyOn(
+    preloadedEntryPoint.entryPoints.myNestedEntryPoint,
+    'dispose',
+  );
+  expect(typeof preloadedEntryPoint.dispose).toBe('function');
+  expect(nestedEntryPointDisposeSpy).not.toHaveBeenCalled();
+  expect(preloadedEntryPoint.isDisposed).toBe(false);
+  preloadedEntryPoint.dispose();
+  expect(nestedEntryPointDisposeSpy).toHaveBeenCalledTimes(1);
+  expect(preloadedEntryPoint.isDisposed).toBe(true);
 });
 
 test('with `getEnvironment` function', () => {

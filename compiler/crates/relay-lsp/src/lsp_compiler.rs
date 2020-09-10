@@ -86,7 +86,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
             Err(err) => {
                 if let LSPError::CompilerError(err) = err {
                     match err {
-                        CompilerError::SyntaxErrors { errors } => {
+                        CompilerError::DiagnosticsError { errors } => {
                             report_syntax_errors(errors, &self.connection, &mut self.server_state)
                         }
                         CompilerError::BuildProjectsErrors { errors } => {
@@ -109,6 +109,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         CompilerError::EmptyQueryResult => {}
                         CompilerError::FileRead { .. } => {}
                         CompilerError::Syntax { .. } => {}
+                        CompilerError::JoinError { .. } => {}
                     }
                 } else {
                     // TODO(brandondail) log here
@@ -131,6 +132,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         &file_source_changes,
                         &incremental_check_event,
                         &ConsoleLogger,
+                        false,
                     )?;
 
                     if had_new_changes {
@@ -204,7 +206,10 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
 
     async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> Result<()> {
         let graphql_asts = setup_event.time("parse_sources_time", || {
-            GraphQLAsts::from_graphql_sources_map(&self.compiler_state.graphql_sources)
+            GraphQLAsts::from_graphql_sources_map(
+                &self.compiler_state.graphql_sources,
+                &self.compiler_state.get_dirty_defintions(&self.config),
+            )
         })?;
         let mut check_project_errors = vec![];
         let mut project_programs = HashMap::new();
@@ -216,6 +221,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                 let schema = Arc::clone(self.schemas.get(&project_config.name).unwrap());
                 // TODO: consider running all projects in parallel
                 let programs = check_project(
+                    &self.config,
                     project_config,
                     &self.compiler_state,
                     &graphql_asts,

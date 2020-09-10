@@ -1,4 +1,4 @@
-// @generated SignedSource<<7477e4591b12a0bc4aebae640f66e375>>
+// @generated SignedSource<<f74987503ab4032208b0c45ff5532d8b>>
 
 mod parse;
 
@@ -125,10 +125,24 @@ fn fragment_with_argument_type_invalid() {
 }
 
 #[test]
+fn fragment_with_argument_type_syntax_error_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-argument-type-syntax-error.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-argument-type-syntax-error.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-argument-type-syntax-error.invalid.graphql", "parse/fixtures/fragment-with-argument-type-syntax-error.invalid.expected", input, expected);
+}
+
+#[test]
 fn fragment_with_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-arguments.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments.expected");
     test_fixture(transform_fixture, "fragment-with-arguments.graphql", "parse/fixtures/fragment-with-arguments.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_arguments_duplicate_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-arguments-duplicate.invalid.graphql", "parse/fixtures/fragment-with-arguments-duplicate.invalid.expected", input, expected);
 }
 
 #[test]
@@ -206,6 +220,20 @@ fn fragment_with_unnecessary_unchecked_arguments_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-unnecessary-unchecked-arguments.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-unnecessary-unchecked-arguments.invalid.expected");
     test_fixture(transform_fixture, "fragment-with-unnecessary-unchecked-arguments.invalid.graphql", "parse/fixtures/fragment-with-unnecessary-unchecked-arguments.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_variable_definitions_syntax() {
+    let input = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.expected");
+    test_fixture(transform_fixture, "fragment-with-variable-definitions-syntax.graphql", "parse/fixtures/fragment-with-variable-definitions-syntax.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_variable_definitions_syntax_and_argdefs_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql", "parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.expected", input, expected);
 }
 
 #[test]

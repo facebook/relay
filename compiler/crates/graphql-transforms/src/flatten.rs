@@ -5,18 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME};
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::{
     is_relay_custom_inline_fragment_directive, PointerAddress, CUSTOM_METADATA_DIRECTIVES,
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, ScalarField, Selection, ValidationError, ValidationMessage, ValidationResult,
+    Program, ScalarField, Selection, ValidationMessage, ValidationResult,
 };
 use schema::Type;
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::NamedItem;
+use common::{Diagnostic, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
@@ -277,12 +278,13 @@ impl FlattenTransform {
                                         !flattened_module_directive.arguments[4].location_agnostic_eq(&module_directive.arguments[4])
                                     // name
                                     {
-                                        let error = ValidationError::new(
+                                        let error = Diagnostic::error(
                                             ValidationMessage::ConflictingModuleSelections,
-                                            vec![
-                                                module_directive.name.location,
-                                                flattened_module_directive.name.location,
-                                            ],
+                                            module_directive.name.location,
+                                        )
+                                        .annotate(
+                                            "conflicts with",
+                                            flattened_module_directive.name.location,
                                         );
                                         return Err(vec![error]);
                                     }
@@ -301,10 +303,23 @@ impl FlattenTransform {
                                 }));
                         }
                         Selection::LinkedField(flattened_node) => {
-                            let node_selections = match selection {
-                                Selection::LinkedField(node) => &node.selections,
+                            let node = match selection {
+                                Selection::LinkedField(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a LinkedField."),
                             };
+                            if !ignoring_type_and_location::arguments_equals(
+                                &node.arguments,
+                                &flattened_node.arguments,
+                            ) {
+                                let error = Diagnostic::error(
+                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
+                                        field_name: node.alias_or_name(&self.schema),
+                                    },
+                                    node.definition.location,
+                                )
+                                .annotate("conflicting field", flattened_node.definition.location);
+                                return Err(vec![error]);
+                            }
                             let type_ = self
                                 .schema
                                 .field(flattened_node.definition.item)
@@ -328,7 +343,7 @@ impl FlattenTransform {
                                 directives: next_directives,
                                 selections: self.merge_selections(
                                     &flattened_node.selections,
-                                    &node_selections,
+                                    &node.selections,
                                     type_,
                                 )?,
                             }));
@@ -350,7 +365,24 @@ impl FlattenTransform {
                             }));
                         }
                         Selection::ScalarField(flattened_node) => {
-                            let should_merge_handles = selection.directives().iter().any(|d| {
+                            let node = match selection {
+                                Selection::ScalarField(node) => node,
+                                _ => unreachable!("FlattenTransform: Expected a ScalarField."),
+                            };
+                            if !ignoring_type_and_location::arguments_equals(
+                                &node.arguments,
+                                &flattened_node.arguments,
+                            ) {
+                                let error = Diagnostic::error(
+                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
+                                        field_name: node.alias_or_name(&self.schema),
+                                    },
+                                    flattened_node.definition.location,
+                                )
+                                .annotate("conflicts with", node.definition.location);
+                                return Err(vec![error]);
+                            }
+                            let should_merge_handles = node.directives.iter().any(|d| {
                                 CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
                             });
                             if should_merge_handles {
@@ -427,30 +459,13 @@ fn merge_handle_directives(
             if handles.is_empty() {
                 handles.push(directive.clone());
             } else {
-                let current_handler_arg = directive.arguments.named(
-                    CUSTOM_METADATA_DIRECTIVES
-                        .handle_field_constants
-                        .handler_arg_name,
-                );
-                let current_name_arg = directive.arguments.named(
-                    CUSTOM_METADATA_DIRECTIVES
-                        .handle_field_constants
-                        .key_arg_name,
-                );
+                let current_handler_arg = directive.arguments.named(*HANDLER_ARG_NAME);
+                let current_name_arg = directive.arguments.named(*KEY_ARG_NAME);
                 let is_duplicate_handle = handles.iter().any(|handle| {
-                    current_handler_arg.location_agnostic_eq(
-                        &handle.arguments.named(
-                            CUSTOM_METADATA_DIRECTIVES
-                                .handle_field_constants
-                                .handler_arg_name,
-                        ),
-                    ) && current_name_arg.location_agnostic_eq(
-                        &handle.arguments.named(
-                            CUSTOM_METADATA_DIRECTIVES
-                                .handle_field_constants
-                                .key_arg_name,
-                        ),
-                    )
+                    current_handler_arg
+                        .location_agnostic_eq(&handle.arguments.named(*HANDLER_ARG_NAME))
+                        && current_name_arg
+                            .location_agnostic_eq(&handle.arguments.named(*KEY_ARG_NAME))
                 });
                 if !is_duplicate_handle {
                     handles.push(directive.clone());
@@ -460,4 +475,35 @@ fn merge_handle_directives(
     }
     directives.extend(handles.into_iter());
     directives
+}
+
+mod ignoring_type_and_location {
+    use crate::node_identifier::LocationAgnosticPartialEq;
+    use graphql_ir::{Argument, Value};
+
+    /// Verify that two sets of arguments are equivalent - same argument names
+    /// and values. Notably, this ignores the types of arguments and values,
+    /// which may not always be inferred identically.
+    pub fn arguments_equals(a: &[Argument], b: &[Argument]) -> bool {
+        slice_equals(a, b, |a, b| {
+            a.name.location_agnostic_eq(&b.name) && value_equals(&a.value.item, &b.value.item)
+        })
+    }
+
+    fn value_equals(a: &Value, b: &Value) -> bool {
+        match (a, b) {
+            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq(b),
+            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq(&b.name),
+            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals),
+            (Value::Object(a), Value::Object(b)) => arguments_equals(a, b),
+            _ => false,
+        }
+    }
+
+    fn slice_equals<T, F>(a: &[T], b: &[T], eq: F) -> bool
+    where
+        F: Fn(&T, &T) -> bool,
+    {
+        a.len() == b.len() && a.iter().zip(b).all(|(a, b)| eq(a, b))
+    }
 }

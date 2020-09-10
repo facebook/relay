@@ -1,13 +1,13 @@
-fragment RefetchableFragment on Node
+fragment fragmentOnNodeInterface_RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   ... on User {
     name
-    ...ProfilePicture
+    ...fragmentOnNodeInterface_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnNodeInterface_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }

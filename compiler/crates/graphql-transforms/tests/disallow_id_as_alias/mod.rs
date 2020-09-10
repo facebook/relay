@@ -7,35 +7,20 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse;
+use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_transforms::disallow_id_as_alias;
 use test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();
-    let ast = parse(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(schema, ir);
-    let validation_result = disallow_id_as_alias(&program);
+    disallow_id_as_alias(&program)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let mut sources = FnvHashMap::default();
-    sources.insert(
-        SourceLocationKey::standalone(fixture.file_name),
-        fixture.content,
-    );
-
-    match validation_result {
-        Ok(_) => Ok("OK".to_owned()),
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            Err(errs.join("\n\n"))
-        }
-    }
+    Ok("OK".to_owned())
 }

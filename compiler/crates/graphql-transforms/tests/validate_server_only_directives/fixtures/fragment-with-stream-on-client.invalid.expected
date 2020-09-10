@@ -24,11 +24,18 @@ type Foo {
   bar: String
 }
 ==================================== ERROR ====================================
-Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.:
-fragment-with-stream-on-client.invalid.graphql:10:9:
-  foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+✖︎ Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
 
+  fragment-with-stream-on-client.invalid.graphql:11:9
+   10 │   id
+   11 │   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      │         ^^^^^^
+   12 │     bar
 
-fragment-with-stream-on-client.invalid.graphql:9:5:
-  id
-  foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+  ℹ︎ related location
+
+  fragment-with-stream-on-client.invalid.graphql:11:3
+   10 │   id
+   11 │   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      │   ^^^^
+   12 │     bar

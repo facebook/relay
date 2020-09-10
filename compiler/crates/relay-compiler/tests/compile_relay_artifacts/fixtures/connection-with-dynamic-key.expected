@@ -1,22 +1,22 @@
 ==================================== INPUT ====================================
-query FeedbackQuery($id: ID!, $commentsKey: String) {
+query connectionWithDynamicKey_FeedbackQuery($id: ID!, $commentsKey: String) {
   node(id: $id) {
-    ...FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment
   }
 }
 
-query PaginationQuery(
+query connectionWithDynamicKey_PaginationQuery(
   $id: ID!
   $commentsKey: String
   $count: Int!
   $cursor: ID!
 ) {
   node(id: $id) {
-    ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+    ...connectionWithDynamicKey_FeedbackFragment @arguments(count: $count, cursor: $cursor)
   }
 }
 
-fragment FeedbackFragment on Feedback
+fragment connectionWithDynamicKey_FeedbackFragment on Feedback
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 2}
     cursor: {type: "ID"}
@@ -52,7 +52,7 @@ fragment FeedbackFragment on Feedback
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FeedbackQuery",
+    "name": "connectionWithDynamicKey_FeedbackQuery",
     "selections": [
       {
         "alias": null,
@@ -71,7 +71,7 @@ fragment FeedbackFragment on Feedback
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "FeedbackFragment"
+            "name": "connectionWithDynamicKey_FeedbackFragment"
           }
         ],
         "storageKey": null
@@ -95,7 +95,7 @@ fragment FeedbackFragment on Feedback
       }
     ],
     "kind": "Operation",
-    "name": "FeedbackQuery",
+    "name": "connectionWithDynamicKey_FeedbackQuery",
     "selections": [
       {
         "alias": null,
@@ -257,7 +257,7 @@ fragment FeedbackFragment on Feedback
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FeedbackQuery",
+    "name": "connectionWithDynamicKey_FeedbackQuery",
     "operationKind": "query",
     "text": null
   }
@@ -265,17 +265,17 @@ fragment FeedbackFragment on Feedback
 
 QUERY:
 
-query FeedbackQuery(
+query connectionWithDynamicKey_FeedbackQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment
     id
   }
 }
 
-fragment FeedbackFragment on Feedback {
+fragment connectionWithDynamicKey_FeedbackFragment on Feedback {
   id
   comments(first: 2, orderby: "date") {
     edges {
@@ -319,7 +319,7 @@ fragment FeedbackFragment on Feedback {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "PaginationQuery",
+    "name": "connectionWithDynamicKey_PaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -349,7 +349,7 @@ fragment FeedbackFragment on Feedback {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "FeedbackFragment"
+            "name": "connectionWithDynamicKey_FeedbackFragment"
           }
         ],
         "storageKey": null
@@ -383,7 +383,7 @@ fragment FeedbackFragment on Feedback {
       }
     ],
     "kind": "Operation",
-    "name": "PaginationQuery",
+    "name": "connectionWithDynamicKey_PaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -555,7 +555,7 @@ fragment FeedbackFragment on Feedback {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "PaginationQuery",
+    "name": "connectionWithDynamicKey_PaginationQuery",
     "operationKind": "query",
     "text": null
   }
@@ -563,19 +563,19 @@ fragment FeedbackFragment on Feedback {
 
 QUERY:
 
-query PaginationQuery(
+query connectionWithDynamicKey_PaginationQuery(
   $id: ID!
   $count: Int!
   $cursor: ID!
 ) {
   node(id: $id) {
     __typename
-    ...FeedbackFragment_1G22uz
+    ...connectionWithDynamicKey_FeedbackFragment_1G22uz
     id
   }
 }
 
-fragment FeedbackFragment_1G22uz on Feedback {
+fragment connectionWithDynamicKey_FeedbackFragment_1G22uz on Feedback {
   id
   comments(after: $cursor, first: $count, orderby: "date") {
     edges {
@@ -623,7 +623,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
       }
     ]
   },
-  "name": "FeedbackFragment",
+  "name": "connectionWithDynamicKey_FeedbackFragment",
   "selections": [
     {
       "alias": null,

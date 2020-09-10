@@ -21,6 +21,7 @@ const {
   createOperationDescriptor,
   getRequest,
   Observable,
+  __internal: {fetchQueryDeduped},
 } = require('relay-runtime');
 
 import type {
@@ -30,6 +31,7 @@ import type {
 } from './EntryPointTypes.flow';
 import type {
   IEnvironment,
+  OperationDescriptor,
   OperationType,
   GraphQLTaggedNode,
   GraphQLResponse,
@@ -57,8 +59,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   options?: LoadQueryOptions,
   environmentProviderOptions?: TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
-  // Flow does not know of React internals (rightly so), but we need to
-  // ensure here that this function isn't called inside render.
+  // This code ensures that we don't call loadQuery during render.
   const CurrentDispatcher =
     // $FlowFixMe[prop-missing]
     React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
@@ -74,6 +75,9 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     force: true,
   };
 
+  // makeNetworkRequest will immediately start a raw network request and
+  // return an Observable that when subscribing to it, will replay the
+  // network events that have occured so far, as well as subsequent events.
   let madeNetworkRequest = false;
   const makeNetworkRequest = (params): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
@@ -102,45 +106,90 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     return Observable.create(sink => subject.subscribe(sink));
   };
 
-  const normalizationSubject = new ReplaySubject();
+  // executeWithNetworkSource will retain and execute an operation
+  // against the Relay store, given an Observable that would provide
+  // the network events for the operation.
+  let retainReference;
+  const executeWithNetworkSource = (
+    operation: OperationDescriptor,
+    networkObservable: Observable<GraphQLResponse>,
+  ): Observable<GraphQLResponse> => {
+    retainReference = environment.retain(operation);
+    return environment.executeWithSource({
+      operation,
+      source: networkObservable,
+    });
+  };
+
+  // N.B. For loadQuery, we unconventionally want to return an Observable
+  // that isn't lazily executed, meaning that we don't want to wait
+  // until the returned Observable is subscribed to to actually start
+  // fetching and executing an operation; i.e. we want to execute the
+  // operation eagerly, when loadQuery is called.
+  // For this reason, we use an intermediate executionSubject which
+  // allows us to capture the events that occur during the eager execution
+  // of the operation, and then replay them to the Observable we
+  // ultimately return.
+  const executionSubject = new ReplaySubject();
   const returnedObservable = Observable.create(sink =>
-    normalizationSubject.subscribe(sink),
+    executionSubject.subscribe(sink),
   );
 
-  let unsubscribeFromExecute;
-  let retainReference;
-  const executeWithSource = (operation, sourceObservable) => {
-    retainReference = environment.retain(operation);
-    ({unsubscribe: unsubscribeFromExecute} = environment
-      .executeWithSource({
-        operation,
-        source: sourceObservable,
-      })
-      .subscribe({
-        error(err) {
-          normalizationSubject.error(err);
-        },
-        next(data) {
-          normalizationSubject.next(data);
-        },
-        complete() {
-          normalizationSubject.complete();
-        },
-      }));
+  let unsubscribeFromExecution;
+  const executeDeduped = (
+    operation: OperationDescriptor,
+    fetchFn: () => Observable<GraphQLResponse>,
+  ) => {
+    // N.B.
+    // Here, we are calling fetchQueryDeduped, which ensures that only
+    // a single operation is active for a given (environment, identifier) pair,
+    // and also tracks the active state of the operation, which is necessary
+    // for our Suspense infra to later be able to suspend (or not) on
+    // active operations.
+    // - If a duplicate active operation is found, it will return an
+    // Observable that replays the events of the already active operation.
+    // - If no duplicate active operation is found, it will call the fetchFn
+    // to execute the operation, and return an Observable that will provide
+    // the events for executing the operation.
+    ({unsubscribe: unsubscribeFromExecution} = fetchQueryDeduped(
+      environment,
+      operation.request.identifier,
+      fetchFn,
+    ).subscribe({
+      error(err) {
+        executionSubject.error(err);
+      },
+      next(data) {
+        executionSubject.next(data);
+      },
+      complete() {
+        executionSubject.complete();
+      },
+    }));
   };
 
   const checkAvailabilityAndExecute = concreteRequest => {
     const operation = createOperationDescriptor(concreteRequest, variables);
+
+    // N.B. If the fetch policy allows fulfillment from the store but the
+    // environment already has the data for that operation cached in the store,
+    // then we do nothing.
     const shouldFetch =
       fetchPolicy !== 'store-or-network' ||
       environment.check(operation).status !== 'available';
 
     if (shouldFetch) {
-      const source = makeNetworkRequest(concreteRequest.params);
-      executeWithSource(operation, source);
+      executeDeduped(operation, () => {
+        // N.B. Since we have the operation synchronously available here,
+        // we can immediately fetch and execute the operation.
+        const networkObservable = makeNetworkRequest(concreteRequest.params);
+        const executeObservable = executeWithNetworkSource(
+          operation,
+          networkObservable,
+        );
+        return executeObservable;
+      });
     }
-    // if the fetch policy allows fulfillment from the store and the environment
-    // has the appropriate data, we do nothing.
   };
 
   let params;
@@ -163,51 +212,67 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     if (module != null) {
       checkAvailabilityAndExecute(module);
     } else {
-      // If the module isn't synchronously available, we launch the network request
-      // immediately and ignore the fetch policy.
-      const source = makeNetworkRequest(params);
+      // If the module isn't synchronously available, we launch the
+      // network request immediately and ignore the fetch policy.
+      // Note that without the operation module we can't reliably
+      // dedupe network requests, since the request identifier is
+      // based on the variables the operation expects, and not
+      // just the variables passed as input.
+      const networkObservable = makeNetworkRequest(params);
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         moduleId,
         preloadedModule => {
-          clearTimeout(loadQueryAstTimeoutId);
+          loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
           cancelOnLoadCallback();
           const operation = createOperationDescriptor(
             preloadedModule,
             variables,
           );
-          executeWithSource(operation, source);
+          executeDeduped(operation, () =>
+            executeWithNetworkSource(operation, networkObservable),
+          );
         },
       ));
-      loadQueryAstTimeoutId = setTimeout(() => {
-        cancelOnLoadCallback();
-        const onTimeout = options?.onQueryAstLoadTimeout;
-        if (onTimeout) {
-          onTimeout();
-        }
-        // complete() the subject so that the observer knows no (additional) payloads
-        // will be delivered
-        normalizationSubject.complete();
-      }, LOAD_QUERY_AST_MAX_TIMEOUT);
+      if (!environment.isServer()) {
+        loadQueryAstTimeoutId = setTimeout(() => {
+          cancelOnLoadCallback();
+          const onTimeout = options?.onQueryAstLoadTimeout;
+          if (onTimeout) {
+            onTimeout();
+          }
+          // complete() the subject so that the observer knows no (additional) payloads
+          // will be delivered
+          executionSubject.complete();
+        }, LOAD_QUERY_AST_MAX_TIMEOUT);
+      }
     }
   } else {
     const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
-
     checkAvailabilityAndExecute(request);
   }
 
+  let isDisposed = false;
   return {
     kind: 'PreloadedQuery',
     environment,
     environmentProviderOptions,
-    dispose: () => {
-      unsubscribeFromExecute && unsubscribeFromExecute();
+    dispose() {
+      if (isDisposed) {
+        return;
+      }
+      unsubscribeFromExecution && unsubscribeFromExecution();
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();
       loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
+      isDisposed = true;
     },
     id: moduleId,
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get isDisposed() {
+      return isDisposed;
+    },
     name: params.name,
     networkCacheConfig,
     fetchPolicy,

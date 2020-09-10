@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query FooQuery($id: ID!) {
+query clientFieldsOnRoots_FooQuery($id: ID!) {
   client_root_field
 
   node(id: $id) {
@@ -7,7 +7,7 @@ query FooQuery($id: ID!) {
   }
 }
 
-mutation FooMutation($input: UnfriendInput) {
+mutation clientFieldsOnRoots_FooMutation($input: UnfriendInput) {
   client_root_field
   unfriend(input: $input) {
     clientMutationId
@@ -47,7 +47,7 @@ extend type Mutation {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FooMutation",
+    "name": "clientFieldsOnRoots_FooMutation",
     "selections": [
       {
         "alias": null,
@@ -99,7 +99,7 @@ extend type Mutation {
       }
     ],
     "kind": "Operation",
-    "name": "FooMutation",
+    "name": "clientFieldsOnRoots_FooMutation",
     "selections": [
       {
         "alias": null,
@@ -142,7 +142,7 @@ extend type Mutation {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FooMutation",
+    "name": "clientFieldsOnRoots_FooMutation",
     "operationKind": "mutation",
     "text": null
   }
@@ -150,7 +150,7 @@ extend type Mutation {
 
 QUERY:
 
-mutation FooMutation(
+mutation clientFieldsOnRoots_FooMutation(
   $input: UnfriendInput
 ) {
   unfriend(input: $input) {
@@ -170,7 +170,7 @@ mutation FooMutation(
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FooQuery",
+    "name": "clientFieldsOnRoots_FooQuery",
     "selections": [
       {
         "alias": null,
@@ -222,7 +222,7 @@ mutation FooMutation(
       }
     ],
     "kind": "Operation",
-    "name": "FooQuery",
+    "name": "clientFieldsOnRoots_FooQuery",
     "selections": [
       {
         "alias": null,
@@ -272,7 +272,7 @@ mutation FooMutation(
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FooQuery",
+    "name": "clientFieldsOnRoots_FooQuery",
     "operationKind": "query",
     "text": null
   }
@@ -280,7 +280,7 @@ mutation FooMutation(
 
 QUERY:
 
-query FooQuery(
+query clientFieldsOnRoots_FooQuery(
   $id: ID!
 ) {
   node(id: $id) {

@@ -825,8 +825,9 @@ describe('usePaginationFragment', () => {
           },
         ]);
 
-        renderer.unmount();
-
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
         TestRenderer.act(() => {
           loadNext(1);
         });
@@ -2491,7 +2492,9 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          renderer.unmount();
+          TestRenderer.act(() => {
+            renderer.unmount();
+          });
 
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);

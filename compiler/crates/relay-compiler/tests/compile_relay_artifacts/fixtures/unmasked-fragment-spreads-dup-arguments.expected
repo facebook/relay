@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment UserUtil_user on User
+fragment unmaskedFragmentSpreadsDupArguments_UserUtil_user on User
   # it should not strip exisiting local variable
   @argumentDefinitions(
     localIsRelative: {type: "Boolean", defaultValue: false}
@@ -9,19 +9,19 @@ fragment UserUtil_user on User
     width
     height
   }
-  ...UserUtil2_user @relay(mask: false)
-  ...UserUtil3_user
+  ...unmaskedFragmentSpreadsDupArguments_UserUtil2_user @relay(mask: false)
+  ...unmaskedFragmentSpreadsDupArguments_UserUtil3_user
 
   # it should merge with the same existing global variable
   url(relative: $globalIsRelative)
   anotherUrl: url(relative: $localIsRelative)
 }
 
-fragment UserUtil2_user on User {
+fragment unmaskedFragmentSpreadsDupArguments_UserUtil2_user on User {
   url(relative: $globalIsRelative)
 }
 
-fragment UserUtil3_user on User @relay(mask: false) {
+fragment unmaskedFragmentSpreadsDupArguments_UserUtil3_user on User @relay(mask: false) {
   url(relative: $globalIsRelative)
 }
 ==================================== OUTPUT ===================================
@@ -34,7 +34,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserUtil2_user",
+  "name": "unmaskedFragmentSpreadsDupArguments_UserUtil2_user",
   "selections": [
     {
       "alias": null,
@@ -65,7 +65,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   "metadata": {
     "mask": false
   },
-  "name": "UserUtil3_user",
+  "name": "unmaskedFragmentSpreadsDupArguments_UserUtil3_user",
   "selections": [
     {
       "alias": null,
@@ -103,7 +103,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserUtil_user",
+  "name": "unmaskedFragmentSpreadsDupArguments_UserUtil_user",
   "selections": [
     {
       "alias": null,
@@ -165,7 +165,7 @@ fragment UserUtil3_user on User @relay(mask: false) {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "UserUtil3_user"
+      "name": "unmaskedFragmentSpreadsDupArguments_UserUtil3_user"
     }
   ],
   "type": "User",

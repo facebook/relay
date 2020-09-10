@@ -16,10 +16,6 @@ fragment UserFragment on User {
   name
 }
 ==================================== OUTPUT ===================================
-fragment UserFragment on User {
-  name
-}
-
 query TestQuery(
   $cond: Boolean!
 ) {
@@ -33,4 +29,8 @@ query TestQuery(
       ...UserFragment @include(if: $cond)
     }
   }
+}
+
+fragment UserFragment on User {
+  name
 }

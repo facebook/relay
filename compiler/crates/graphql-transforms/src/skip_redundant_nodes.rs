@@ -118,7 +118,7 @@ pub fn skip_redundant_nodes(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
@@ -147,15 +147,7 @@ impl<'s> SkipRedundantNodesTransform {
         let is_empty = selection_map.0.is_empty();
         let identifier = NodeIdentifier::from_selection(&self.schema, selection);
         match selection {
-            Selection::ScalarField(_) => {
-                if selection_map.0.contains_key(&identifier) {
-                    Transformed::Delete
-                } else {
-                    selection_map.0.insert(identifier, None);
-                    Transformed::Keep
-                }
-            }
-            Selection::FragmentSpread(_) => {
+            Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
                 if selection_map.0.contains_key(&identifier) {
                     Transformed::Delete
                 } else {
@@ -183,7 +175,7 @@ impl<'s> SkipRedundantNodesTransform {
                     let result = self
                         .transform_linked_field(selection, &mut linked_selection_map)
                         .map(Selection::LinkedField);
-                    if !linked_selection_map.0.is_empty() {
+                    if !matches!(result, Transformed::Delete) {
                         selection_map
                             .0
                             .insert(identifier, Some(linked_selection_map));
@@ -208,7 +200,9 @@ impl<'s> SkipRedundantNodesTransform {
                     let result = self
                         .transform_condition(selection, &mut next_selection_map)
                         .map(Selection::Condition);
-                    selection_map.0.insert(identifier, Some(next_selection_map));
+                    if !matches!(result, Transformed::Delete) {
+                        selection_map.0.insert(identifier, Some(next_selection_map));
+                    }
                     result
                 }
             }
@@ -236,7 +230,7 @@ impl<'s> SkipRedundantNodesTransform {
                     let result = self
                         .transform_inline_fragment(selection, &mut linked_selection_map)
                         .map(Selection::InlineFragment);
-                    if !linked_selection_map.0.is_empty() {
+                    if !matches!(result, Transformed::Delete) {
                         selection_map
                             .0
                             .insert(identifier, Some(linked_selection_map));
@@ -248,7 +242,9 @@ impl<'s> SkipRedundantNodesTransform {
                     let result = self
                         .transform_inline_fragment(selection, &mut next_selection_map)
                         .map(Selection::InlineFragment);
-                    selection_map.0.insert(identifier, Some(next_selection_map));
+                    if !matches!(result, Transformed::Delete) {
+                        selection_map.0.insert(identifier, Some(next_selection_map));
+                    }
                     result
                 };
                 if should_cache {
@@ -435,7 +431,9 @@ impl<'s> SkipRedundantNodesTransform {
  */
 fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
     let mut result = Vec::with_capacity(selections.len());
-    unsafe { result.set_len(selections.len()) };
+    unsafe {
+        result.set_len(selections.len())
+    };
     let mut non_field_index = selections
         .iter()
         .filter(|sel| is_selection_linked_or_scalar(sel))
@@ -466,6 +464,7 @@ fn is_selection_linked_or_scalar(selection: &Selection) -> bool {
 
 /// NOTE: intentionally local to this file, this is not a fully-general purpose
 /// immutable map. see comments on methods below.
+#[derive(Debug)]
 struct VecMap<K, V> {
     data: Arc<Vec<(K, V)>>,
 }

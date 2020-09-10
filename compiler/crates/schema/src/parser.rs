@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::*;
 use crate::errors::{Result, SchemaError};
 use crate::lexer::Lexer;
 use crate::token::TokenKind;
+use crate::type_system_node_v1::*;
 use interner::{Intern, StringKey};
 
 pub struct Parser<'a> {
@@ -23,7 +23,7 @@ impl<'a> Parser<'a> {
     /**
      * Document : Definition+
      */
-    pub fn parse_schema_document(mut self) -> Result<Vec<Definition>> {
+    pub fn parse_schema_document(mut self) -> Result<Vec<TypeSystemDefinition>> {
         self.wrapped_list(
             TokenKind::SOF,
             Self::parse_type_system_definition,
@@ -45,7 +45,7 @@ impl<'a> Parser<'a> {
      *   - InputObjectTypeDefinition
      */
     #[allow(dead_code)]
-    pub fn parse_type_system_extension(&mut self) -> Result<Definition> {
+    pub fn parse_type_system_extension(&mut self) -> Result<TypeSystemDefinition> {
         self.expect_keyword("extend")?;
         match self.peek() {
             TokenKind::Name("schema") => self.parse_schema_extension(),
@@ -55,7 +55,7 @@ impl<'a> Parser<'a> {
             TokenKind::Name("union") => self.parse_union_type_extension(),
             TokenKind::Name("enum") => self.parse_enum_type_extension(),
             TokenKind::Name("input") => self.parse_input_object_type_extension(),
-            token => Err(SchemaError::Syntax(format!("Unexpected token {}", token))),
+            token => Err(self.build_syntax_error(format!("Unexpected token {}", token))),
         }
     }
 
@@ -161,7 +161,7 @@ impl<'a> Parser<'a> {
      *   - EnumTypeExtension
      *   - InputObjectTypeDefinition
      */
-    fn parse_type_system_definition(&mut self) -> Result<Definition> {
+    fn parse_type_system_definition(&mut self) -> Result<TypeSystemDefinition> {
         let _desc = self.parse_description();
         let keyword_token = self.peek();
         match keyword_token {
@@ -174,7 +174,7 @@ impl<'a> Parser<'a> {
             TokenKind::Name("input") => self.parse_input_object_type_definition(),
             TokenKind::Name("directive") => self.parse_directive_definition(),
             TokenKind::Name("extend") => self.parse_type_system_extension(),
-            token => Err(SchemaError::Syntax(format!("Unexpected token {:?}", token))),
+            token => Err(self.build_syntax_error(format!("Unexpected token {:?}", token))),
         }
     }
 
@@ -197,7 +197,7 @@ impl<'a> Parser<'a> {
     /**
      * SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
      */
-    fn parse_schema_definition(&mut self) -> Result<Definition> {
+    fn parse_schema_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.expect_keyword("schema")?;
         let directives = self.parse_directives()?;
         assert!(
@@ -209,7 +209,7 @@ impl<'a> Parser<'a> {
             Self::parse_operation_type_definition,
             TokenKind::BraceR,
         )?;
-        Ok(Definition::SchemaDefinition {
+        Ok(TypeSystemDefinition::SchemaDefinition {
             directives,
             operation_types,
         })
@@ -233,21 +233,18 @@ impl<'a> Parser<'a> {
             TokenKind::Name("query") => Ok(OperationType::Query),
             TokenKind::Name("mutation") => Ok(OperationType::Mutation),
             TokenKind::Name("subscription") => Ok(OperationType::Subscription),
-            token => Err(SchemaError::Syntax(format!(
-                "Unexpected token: {:?}",
-                token
-            ))),
+            token => Err(self.build_syntax_error(format!("Unexpected token: {:?}", token))),
         }
     }
 
     /**
      * ScalarTypeDefinition : Description? scalar Name Directives?
      */
-    fn parse_scalar_type_definition(&mut self) -> Result<Definition> {
+    fn parse_scalar_type_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.expect_keyword("scalar")?;
         let name = self.parse_name()?;
         let directives = self.parse_directives()?;
-        Ok(Definition::ScalarTypeDefinition { name, directives })
+        Ok(TypeSystemDefinition::ScalarTypeDefinition { name, directives })
     }
 
     /**
@@ -255,13 +252,13 @@ impl<'a> Parser<'a> {
      *   Description?
      *   type Name ImplementsInterfaces? Directives? FieldsDefinition?
      */
-    fn parse_object_type_definition(&mut self) -> Result<Definition> {
+    fn parse_object_type_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.expect_keyword("type")?;
         let name = self.parse_name()?;
         let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_directives()?;
         let fields = self.parse_fields_definition()?;
-        Ok(Definition::ObjectTypeDefinition {
+        Ok(TypeSystemDefinition::ObjectTypeDefinition {
             name,
             fields,
             interfaces,
@@ -355,14 +352,16 @@ impl<'a> Parser<'a> {
      * InterfaceTypeDefinition :
      *   - Description? interface Name Directives? FieldsDefinition?
      */
-    fn parse_interface_type_definition(&mut self) -> Result<Definition> {
+    fn parse_interface_type_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.parse_description();
         self.expect_keyword("interface")?;
         let name = self.parse_name()?;
+        let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_directives()?;
         let fields = self.parse_fields_definition()?;
-        Ok(Definition::InterfaceTypeDefinition {
+        Ok(TypeSystemDefinition::InterfaceTypeDefinition {
             name,
+            interfaces,
             directives,
             fields,
         })
@@ -372,13 +371,13 @@ impl<'a> Parser<'a> {
      * UnionTypeDefinition :
      *   - Description? union Name Directives? UnionMemberTypes?
      */
-    fn parse_union_type_definition(&mut self) -> Result<Definition> {
+    fn parse_union_type_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.parse_description();
         self.expect_keyword("union")?;
         let name = self.parse_name()?;
         let directives = self.parse_directives()?;
         let members = self.parse_union_member_types()?;
-        Ok(Definition::UnionTypeDefinition {
+        Ok(TypeSystemDefinition::UnionTypeDefinition {
             name,
             directives,
             members,
@@ -406,13 +405,13 @@ impl<'a> Parser<'a> {
      * EnumTypeDefinition :
      *   - Description? enum Name Directives? EnumValuesDefinition?
      */
-    fn parse_enum_type_definition(&mut self) -> Result<Definition> {
+    fn parse_enum_type_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.parse_description();
         self.expect_keyword("enum")?;
         let name = self.parse_name()?;
         let directives = self.parse_directives()?;
         let values = self.parse_enum_values_definition()?;
-        Ok(Definition::EnumTypeDefinition {
+        Ok(TypeSystemDefinition::EnumTypeDefinition {
             name,
             directives,
             values,
@@ -446,13 +445,13 @@ impl<'a> Parser<'a> {
      * InputObjectTypeDefinition :
      *   - Description? input Name Directives? InputFieldsDefinition?
      */
-    fn parse_input_object_type_definition(&mut self) -> Result<Definition> {
+    fn parse_input_object_type_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.parse_description();
         self.expect_keyword("input")?;
         let name = self.parse_name()?;
         let directives = self.parse_directives()?;
         let fields = self.parse_input_fields_definition()?;
-        Ok(Definition::InputObjectTypeDefinition {
+        Ok(TypeSystemDefinition::InputObjectTypeDefinition {
             name,
             directives,
             fields,
@@ -475,7 +474,7 @@ impl<'a> Parser<'a> {
      *  - extend schema Directives? { OperationTypeDefinition+ }
      *  - extend schema Directives
      */
-    fn parse_schema_extension(&mut self) -> Result<Definition> {
+    fn parse_schema_extension(&mut self) -> Result<TypeSystemDefinition> {
         unimplemented!("parse_schema_extension");
     }
 
@@ -483,7 +482,7 @@ impl<'a> Parser<'a> {
      * ScalarTypeExtension :
      *   - extend scalar Name Directives
      */
-    fn parse_scalar_type_extension(&mut self) -> Result<Definition> {
+    fn parse_scalar_type_extension(&mut self) -> Result<TypeSystemDefinition> {
         unimplemented!("parse_scalar_type_extension")
     }
 
@@ -493,7 +492,7 @@ impl<'a> Parser<'a> {
      *  - extend type Name ImplementsInterfaces? Directives
      *  - extend type Name ImplementsInterfaces
      */
-    fn parse_object_type_extension(&mut self) -> Result<Definition> {
+    fn parse_object_type_extension(&mut self) -> Result<TypeSystemDefinition> {
         // Name(extend) was parsed before
         self.expect_keyword("type")?;
         let name = self.parse_name()?;
@@ -501,9 +500,9 @@ impl<'a> Parser<'a> {
         let directives = self.parse_directives()?;
         let fields = self.parse_fields_definition()?;
         if interfaces.is_empty() && directives.is_empty() && fields.is_empty() {
-            return Err(SchemaError::Syntax("Unexpected".to_string()));
+            return Err(self.build_syntax_error("Unexpected".to_string()));
         }
-        Ok(Definition::ObjectTypeExtension {
+        Ok(TypeSystemDefinition::ObjectTypeExtension {
             name,
             fields,
             interfaces,
@@ -516,13 +515,13 @@ impl<'a> Parser<'a> {
      *   - extend interface Name Directives? FieldsDefinition
      *   - extend interface Name Directives
      */
-    fn parse_interface_type_extension(&mut self) -> Result<Definition> {
+    fn parse_interface_type_extension(&mut self) -> Result<TypeSystemDefinition> {
         // Name(extend) was parsed before
         self.expect_keyword("interface")?;
         let name = self.parse_name()?;
         let directives = self.parse_directives()?;
         let fields = self.parse_fields_definition()?;
-        Ok(Definition::InterfaceTypeExtension {
+        Ok(TypeSystemDefinition::InterfaceTypeExtension {
             name,
             fields,
             directives,
@@ -534,7 +533,7 @@ impl<'a> Parser<'a> {
      *   - extend union Name Directives? UnionMemberTypes
      *   - extend union Name Directives
      */
-    fn parse_union_type_extension(&mut self) -> Result<Definition> {
+    fn parse_union_type_extension(&mut self) -> Result<TypeSystemDefinition> {
         unimplemented!("parse_union_type_extension")
     }
 
@@ -543,7 +542,7 @@ impl<'a> Parser<'a> {
      *   - extend enum Name Directives? EnumValuesDefinition
      *   - extend enum Name Directives
      */
-    fn parse_enum_type_extension(&mut self) -> Result<Definition> {
+    fn parse_enum_type_extension(&mut self) -> Result<TypeSystemDefinition> {
         unimplemented!("parse_enum_type_extension")
     }
 
@@ -552,7 +551,7 @@ impl<'a> Parser<'a> {
      *   - extend input Name Directives? InputFieldsDefinition
      *   - extend input Name Directives
      */
-    fn parse_input_object_type_extension(&mut self) -> Result<Definition> {
+    fn parse_input_object_type_extension(&mut self) -> Result<TypeSystemDefinition> {
         unimplemented!("parse_input_object_type_extension")
     }
 
@@ -560,7 +559,7 @@ impl<'a> Parser<'a> {
      * DirectiveDefinition :
      *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
      */
-    fn parse_directive_definition(&mut self) -> Result<Definition> {
+    fn parse_directive_definition(&mut self) -> Result<TypeSystemDefinition> {
         self.expect_keyword("directive")?;
         self.expect_token(TokenKind::At)?;
         let name = self.parse_name()?;
@@ -569,7 +568,7 @@ impl<'a> Parser<'a> {
         self.expect_keyword("on")?;
         let locations = self.parse_directive_locations()?;
         // TODO add directives
-        Ok(Definition::DirectiveDefinition {
+        Ok(TypeSystemDefinition::DirectiveDefinition {
             name,
             arguments,
             repeatable,
@@ -645,10 +644,7 @@ impl<'a> Parser<'a> {
             }
             // experimental
             TokenKind::Name("VARIABLE_DEFINITION") => Ok(DirectiveLocation::VariableDefinition),
-            token => Err(SchemaError::Syntax(format!(
-                "Unexpected token: {:?}",
-                token
-            ))),
+            token => Err(self.build_syntax_error(format!("Unexpected token: {:?}", token))),
         }
     }
 
@@ -704,7 +700,7 @@ impl<'a> Parser<'a> {
                 self.advance();
                 Ok(node)
             }
-            token => Err(SchemaError::Syntax(format!("Unexpected token {:?}", token))),
+            token => Err(self.build_syntax_error(format!("Unexpected token {:?}", token))),
         }
     }
 
@@ -754,10 +750,7 @@ impl<'a> Parser<'a> {
     fn parse_name(&mut self) -> Result<StringKey> {
         match self.advance() {
             TokenKind::Name(name) => Ok(name.intern()),
-            token => Err(SchemaError::Syntax(format!(
-                "Expected a name, got {:?}.",
-                token
-            ))),
+            token => Err(self.build_syntax_error(format!("Expected a name, got {:?}.", token))),
         }
     }
 
@@ -768,10 +761,10 @@ impl<'a> Parser<'a> {
     fn expect_keyword(&mut self, value: &str) -> Result<()> {
         match self.advance() {
             TokenKind::Name(name) if name == value => Ok(()),
-            token => Err(SchemaError::Syntax(format!(
-                "Expected keyword {}, got {:?}.",
-                value, token
-            ))),
+            token => {
+                Err(self
+                    .build_syntax_error(format!("Expected keyword {}, got {:?}.", value, token)))
+            }
         }
     }
 
@@ -798,10 +791,7 @@ impl<'a> Parser<'a> {
         if actual == expected {
             Ok(())
         } else {
-            Err(SchemaError::Syntax(format!(
-                "Expected {:?}, got {:?}.",
-                expected, actual
-            )))
+            Err(self.build_syntax_error(format!("Expected {:?}, got {:?}.", expected, actual)))
         }
     }
 
@@ -881,5 +871,10 @@ impl<'a> Parser<'a> {
         } else {
             Ok(vec![])
         }
+    }
+
+    fn build_syntax_error(&self, message: String) -> SchemaError {
+        let (line, column, text) = self.lexer.current_position_with_line();
+        SchemaError::Syntax(message, format!("Ln {}, Col {}", line, column), text)
     }
 }

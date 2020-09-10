@@ -1969,7 +1969,7 @@ describe('RelayPublishQueue', () => {
       queue.run();
       expect(warning).toHaveBeenCalledWith(
         false,
-        'A store update was detected within another store update. Please make sure new store updates aren’t being executed within an updater function for a different update.',
+        "A store update was detected within another store update. Please make sure new store updates aren't being executed within an updater function for a different update.",
       );
     });
   });

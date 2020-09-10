@@ -175,17 +175,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_object(&mut self, id: ObjectID) -> Result {
         let object = self.schema.object(id);
         write!(self.writer, "type {}", object.name)?;
-        if !object.interfaces.is_empty() {
-            write!(
-                self.writer,
-                " implements {}",
-                object
-                    .interfaces
-                    .iter()
-                    .map(|id| self.schema.interface(*id).name)
-                    .join(" & "),
-            )?;
-        }
+        self.print_implementing_interfaces(&object.interfaces)?;
         self.print_directive_values(&object.directives)?;
         self.print_space()?;
         self.print_fields(&object.fields)?;
@@ -195,6 +185,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_interface(&mut self, id: InterfaceID) -> Result {
         let interface = self.schema.interface(id);
         write!(self.writer, "interface {}", interface.name)?;
+        self.print_implementing_interfaces(&interface.interfaces)?;
         self.print_directive_values(&interface.directives)?;
         self.print_space()?;
         self.print_fields(&interface.fields)?;
@@ -350,6 +341,20 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, ")")
     }
 
+    fn print_implementing_interfaces(&mut self, interfaces: &[InterfaceID]) -> Result {
+        if !interfaces.is_empty() {
+            write!(
+                self.writer,
+                " implements {}",
+                interfaces
+                    .iter()
+                    .map(|id| self.schema.interface(*id).name)
+                    .join(" & "),
+            )?;
+        }
+        Ok(())
+    }
+
     fn print_definition_end(&mut self) -> Result {
         self.print_new_line()?;
         self.print_new_line()
@@ -366,15 +371,15 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
 fn is_schema_of_common_name(schema: &Schema) -> bool {
     match schema.query_type() {
-        Some(_) => (),
+        Some(_) => {}
         None => return false,
     };
     match schema.mutation_type() {
-        Some(_) => (),
+        Some(_) => {}
         None => return false,
     };
     match schema.subscription_type() {
-        Some(_) => (),
+        Some(_) => {}
         None => return false,
     };
     true

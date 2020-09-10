@@ -111,14 +111,6 @@ impl Location {
     pub fn contains(&self, subspan: Span) -> bool {
         self.span.contains(subspan)
     }
-
-    pub fn print(&self, source: &str, line_offset: usize, column_offset: usize) -> String {
-        format!(
-            "{}:{}",
-            self.source_location.path(),
-            self.span.print(source, line_offset, column_offset)
-        )
-    }
 }
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
@@ -173,7 +165,7 @@ mod tests {
                 "{:?}",
                 Location::new(
                     SourceLocationKey::embedded("example/file.js", 2),
-                    Span::new(10, 20)
+                    Span::new(10, 30)
                 )
             ),
             "example/file.js:10:30".to_string()

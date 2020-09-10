@@ -47,6 +47,14 @@ impl FlowPrinter {
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(writer, *document_name, selections)?
             }
+            AST::ImportType(types, from) => self.write_import_type(writer, types, from)?,
+            AST::DeclareExportOpaqueType(alias, value) => {
+                self.write_declare_export_opaque_type(writer, alias, value)?
+            }
+            AST::ExportTypeEquals(name, value) => {
+                self.write_export_type_equals(writer, name, value)?
+            }
+            AST::ExportList(names) => self.write_export_list(writer, names)?,
         }
 
         Ok(())
@@ -196,6 +204,54 @@ impl FlowPrinter {
         self.write(writer, selections)?;
         write!(writer, ">")?;
         Ok(())
+    }
+
+    fn write_import_type(
+        &mut self,
+        writer: &mut dyn Write,
+        types: &Vec<StringKey>,
+        from: &StringKey,
+    ) -> Result {
+        write!(
+            writer,
+            "import type {{ {} }} from \"{}\";",
+            types
+                .iter()
+                .map(|t| format!("{}", t))
+                .collect::<Vec<_>>()
+                .join(", "),
+            from
+        )
+    }
+
+    fn write_declare_export_opaque_type(
+        &mut self,
+        writer: &mut dyn Write,
+        alias: &StringKey,
+        value: &StringKey,
+    ) -> Result {
+        write!(writer, "declare export opaque type {}: {};", alias, value)
+    }
+
+    fn write_export_type_equals(
+        &mut self,
+        writer: &mut dyn Write,
+        name: &StringKey,
+        value: &AST,
+    ) -> Result {
+        write!(writer, "export type {} = {};", name, self.write_type(value))
+    }
+
+    fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
+        write!(
+            writer,
+            "export type {{ {} }};",
+            names
+                .iter()
+                .map(|t| format!("{}", t))
+                .collect::<Vec<_>>()
+                .join(", "),
+        )
     }
 }
 

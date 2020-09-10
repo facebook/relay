@@ -166,15 +166,19 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         self.write_input_object_types()?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            input_variables_identifier,
-            self.writer.write_type(&input_variables_type)
+            "{}",
+            self.writer.write_type(&AST::ExportTypeEquals(
+                input_variables_identifier,
+                Box::from(input_variables_type)
+            ))
         )?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            response_identifier,
-            self.writer.write_type(&response_type)
+            "{}",
+            self.writer.write_type(&AST::ExportTypeEquals(
+                response_identifier,
+                Box::from(response_type)
+            )),
         )?;
 
         let mut operation_types = vec![
@@ -196,18 +200,20 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             for (key, ast) in self.match_fields.iter() {
                 writeln!(
                     self.result,
-                    "export type {} = {};",
-                    key,
-                    self.writer.write_type(ast)
+                    "{}",
+                    self.writer
+                        .write_type(&AST::ExportTypeEquals(*key, Box::from(ast.clone())))
                 )?;
             }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
             writeln!(
                 self.result,
-                "export type {} = {};",
-                raw_response_identifier,
-                self.writer.write_type(&raw_response_type)
+                "{}",
+                self.writer.write_type(&AST::ExportTypeEquals(
+                    raw_response_identifier,
+                    Box::from(raw_response_type)
+                ))
             )?;
             operation_types.push(Prop {
                 key: *KEY_RAW_RESPONSE,
@@ -219,9 +225,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         writeln!(
             self.result,
-            "export type {} = {};",
-            typegen_operation.name.item,
-            self.writer.write_type(&AST::ExactObject(operation_types))
+            "{}",
+            self.writer.write_type(&AST::ExportTypeEquals(
+                typegen_operation.name.item,
+                Box::from(AST::ExactObject(operation_types))
+            ))
         )?;
         Ok(())
     }
@@ -313,42 +321,59 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         if let Some(refetchable_metadata) = refetchable_metadata {
             writeln!(
                 self.result,
-                r#"import type {{ {}, {} }} from "{}.graphql";"#,
-                old_fragment_type_name, new_fragment_type_name, refetchable_metadata.operation_name
+                "{}",
+                self.writer.write_type(&AST::ImportType(
+                    vec![old_fragment_type_name, new_fragment_type_name],
+                    format!("{}.graphql", refetchable_metadata.operation_name).intern()
+                ))
             )?;
             writeln!(
                 self.result,
-                r#"export type {{ {}, {} }};"#,
-                old_fragment_type_name, new_fragment_type_name
+                "{}",
+                self.writer.write_type(&AST::ExportList(vec![
+                    old_fragment_type_name,
+                    new_fragment_type_name
+                ]))
             )?;
         } else {
             writeln!(
                 self.result,
-                "declare export opaque type {}: FragmentReference;",
-                old_fragment_type_name
+                "{}",
+                self.writer.write_type(&AST::DeclareExportOpaqueType(
+                    old_fragment_type_name,
+                    "FragmentReference".intern()
+                ))
             )?;
             writeln!(
                 self.result,
-                "declare export opaque type {}: {};",
-                new_fragment_type_name, old_fragment_type_name
+                "{}",
+                self.writer.write_type(&AST::DeclareExportOpaqueType(
+                    new_fragment_type_name,
+                    old_fragment_type_name
+                ))
             )?;
         }
         writeln!(
             self.result,
-            "export type {} = {};",
-            node.name.item,
-            self.writer.write_type(&type_)
+            "{}",
+            self.writer
+                .write_type(&AST::ExportTypeEquals(node.name.item, Box::from(type_)))
         )?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            data_type_name, data_type
+            "{}",
+            self.writer.write_type(&AST::ExportTypeEquals(
+                data_type_name.intern(),
+                Box::from(AST::RawType(data_type.intern()))
+            ))
         )?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            ref_type_name,
-            self.writer.write_type(&ref_type)
+            "{}",
+            self.writer.write_type(&AST::ExportTypeEquals(
+                ref_type_name.intern(),
+                Box::from(ref_type)
+            ))
         )?;
 
         Ok(())
@@ -998,21 +1023,33 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 fragment_reference: true,
             } => writeln!(
                 self.result,
-                r#"import type {{ FragmentReference, Local3DPayload }} from "relay-runtime";"#
+                "{}",
+                self.writer.write_type(&AST::ImportType(
+                    vec!["FragmentReference".intern(), "Local3DPayload".intern()],
+                    "relay-runtime".intern()
+                ))
             ),
             RuntimeImports {
                 local_3d_payload: true,
                 fragment_reference: false,
             } => writeln!(
                 self.result,
-                r#"import type {{ Local3DPayload }} from "relay-runtime";"#
+                "{}",
+                self.writer.write_type(&AST::ImportType(
+                    vec!["Local3DPayload".intern()],
+                    "relay-runtime".intern()
+                ))
             ),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: true,
             } => writeln!(
                 self.result,
-                r#"import type {{ FragmentReference }} from "relay-runtime";"#
+                "{}",
+                self.writer.write_type(&AST::ImportType(
+                    vec!["FragmentReference".intern()],
+                    "relay-runtime".intern()
+                ))
             ),
             RuntimeImports {
                 local_3d_payload: false,

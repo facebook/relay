@@ -27,6 +27,10 @@ pub enum AST {
     Number,
     Boolean,
     Any,
+    ImportType(Vec<StringKey>, StringKey),
+    DeclareExportOpaqueType(StringKey, StringKey),
+    ExportList(Vec<StringKey>),
+    ExportTypeEquals(StringKey, Box<AST>),
 }
 
 #[derive(Debug, Clone)]

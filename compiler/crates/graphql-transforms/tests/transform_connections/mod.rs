@@ -15,7 +15,7 @@ use graphql_transforms::{transform_connections, validate_connections, Connection
 use std::sync::Arc;
 use test_schema::get_test_schema;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     let schema = get_test_schema();

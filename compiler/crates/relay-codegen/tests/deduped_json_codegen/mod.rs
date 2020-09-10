@@ -12,7 +12,7 @@ use graphql_syntax::parse_executable;
 use relay_codegen::Printer;
 use test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut printer = Printer::default();
     let ast = parse_executable(
         fixture.content,

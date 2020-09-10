@@ -14,7 +14,7 @@ use graphql_transforms::validate_unused_variables;
 use std::sync::Arc;
 use test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     let ast = parse_executable(fixture.content, source_location).unwrap();

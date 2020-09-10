@@ -15,7 +15,7 @@ use relay_codegen::{build_request_params, Printer};
 use std::sync::Arc;
 use test_schema::get_test_schema;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut printer = Printer::default();
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 

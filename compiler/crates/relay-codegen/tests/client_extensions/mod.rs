@@ -14,7 +14,7 @@ use relay_codegen::{print_fragment, print_operation};
 use std::sync::Arc;
 use test_schema::get_test_schema_with_extensions;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let ast = parse_executable(base, SourceLocationKey::standalone(fixture.file_name)).unwrap();

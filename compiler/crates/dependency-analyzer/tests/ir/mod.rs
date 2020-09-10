@@ -22,7 +22,7 @@ fn format_definition(def: ExecutableDefinition) -> String {
 }
 
 // TODO: Test without using snapshot tests
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<&str> = fixture.content.split("%definitions%").collect();
     let first_line: &str = fixture.content.lines().next().unwrap();
 

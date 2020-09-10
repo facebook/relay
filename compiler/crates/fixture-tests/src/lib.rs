@@ -32,7 +32,7 @@
 //! `tests/first_transform/mod.rs` exports the transform to test, for example:
 //!
 //! ```ignore
-//! pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+//! pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 //!   Ok(fixture.to_uppercase())
 //! }
 //! ```

@@ -8,7 +8,7 @@
 use fixture_tests::Fixture;
 use schema::{build_schema, build_schema_with_extensions};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let result = match parts.as_slice() {
         [base] => build_schema(base),

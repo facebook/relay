@@ -21,6 +21,6 @@ fn transform(program: &Program) -> ValidationResult<Program> {
     )
 }
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, transform)
 }

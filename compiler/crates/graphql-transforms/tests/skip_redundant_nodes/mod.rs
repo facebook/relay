@@ -14,7 +14,7 @@ use graphql_transforms::{inline_fragments, skip_redundant_nodes};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let mut printed = if let [base, extensions] = parts.as_slice() {

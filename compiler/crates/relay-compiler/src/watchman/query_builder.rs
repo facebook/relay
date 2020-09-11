@@ -5,22 +5,43 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::compiler_state::SourceSet;
 use crate::config::{Config, SchemaLocation};
 use std::path::PathBuf;
 use watchman_client::prelude::*;
 
 pub fn get_watchman_expr(config: &Config) -> Expr {
-    let mut sources_conditions = vec![
-        // ending in *.js
-        Expr::Suffix(vec!["js".into()]),
-        // in one of the source roots
-        expr_any(
-            get_source_roots(&config)
-                .into_iter()
-                .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
-                .collect(),
-        ),
-    ];
+    let mut sources_conditions = vec![expr_any(
+        config
+            .sources
+            .iter()
+            .flat_map(|(path, name)| match name {
+                SourceSet::SourceSetName(name) => {
+                    std::iter::once((path, config.projects.get(&name))).collect::<Vec<_>>()
+                }
+                SourceSet::SourceSetNames(names) => names
+                    .iter()
+                    .map(|name| (path, config.projects.get(name)))
+                    .collect::<Vec<_>>(),
+            })
+            .filter_map(|(path, project)| match project {
+                Some(p) if p.enabled => Some(Expr::All(vec![
+                    // Ending in *.js or *.ts depending on the project lanague.
+                    Expr::Suffix(vec![match &p.typegen_config.language {
+                        Some(language) if language == "typescript" => "ts",
+                        _ => "js",
+                    }
+                    .into()]),
+                    // In the related source root.
+                    Expr::DirName(DirNameTerm {
+                        path: path.clone(),
+                        depth: None,
+                    }),
+                ])),
+                _ => None,
+            })
+            .collect(),
+    )];
     // not excluded by any glob
     if !config.excludes.is_empty() {
         sources_conditions.push(Expr::Not(Box::new(expr_any(

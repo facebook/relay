@@ -134,6 +134,7 @@ pub fn build_project(
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
     log_event.string("project", project_name.to_string());
+    info!("[{}] compiling...", project_name);
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event.time("build_schema_time", || {

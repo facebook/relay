@@ -10,7 +10,7 @@ use super::{Clock, WatchmanFile};
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
-use log::warn;
+use log::{info, warn};
 use serde_bser::value::Value;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
@@ -59,6 +59,7 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
+        info!("querying files to compile...");
         // If the saved state flag is passed, load from it or fail.
         if let Some(saved_state_path) = &self.config.load_saved_state_file {
             let mut compiler_state = perf_logger_event.time("deserialize_saved_state", || {

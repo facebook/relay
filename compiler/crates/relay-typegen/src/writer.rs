@@ -47,5 +47,5 @@ lazy_static! {
 }
 
 pub trait Writer {
-    fn write_type(&mut self, ast: &AST) -> String;
+    fn write_ast(&mut self, ast: &AST) -> String;
 }

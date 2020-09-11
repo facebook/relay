@@ -14,7 +14,7 @@ pub struct TypescriptPrinter {
 }
 
 impl Writer for TypescriptPrinter {
-    fn write_type(&mut self, ast: &AST) -> String {
+    fn write_ast(&mut self, ast: &AST) -> String {
         let mut writer = String::new();
         self.write(&mut writer, ast)
             .expect("Expected Ok result from writing TypeScript code");
@@ -249,7 +249,7 @@ impl TypescriptPrinter {
         name: &StringKey,
         value: &AST,
     ) -> Result {
-        write!(writer, "export type {} = {};", name, self.write_type(value))
+        write!(writer, "export type {} = {};", name, self.write_ast(value))
     }
 
     fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
@@ -271,7 +271,7 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        TypescriptPrinter::new().write_type(ast)
+        TypescriptPrinter::new().write_ast(ast)
     }
 
     #[test]

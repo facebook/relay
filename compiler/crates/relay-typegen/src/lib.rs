@@ -167,7 +167,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         writeln!(
             self.result,
             "{}",
-            self.writer.write_type(&AST::ExportTypeEquals(
+            self.writer.write_ast(&AST::ExportTypeEquals(
                 input_variables_identifier,
                 Box::from(input_variables_type)
             ))
@@ -175,7 +175,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         writeln!(
             self.result,
             "{}",
-            self.writer.write_type(&AST::ExportTypeEquals(
+            self.writer.write_ast(&AST::ExportTypeEquals(
                 response_identifier,
                 Box::from(response_type)
             )),
@@ -202,7 +202,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     self.result,
                     "{}",
                     self.writer
-                        .write_type(&AST::ExportTypeEquals(*key, Box::from(ast.clone())))
+                        .write_ast(&AST::ExportTypeEquals(*key, Box::from(ast.clone())))
                 )?;
             }
             let raw_response_identifier =
@@ -210,7 +210,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::ExportTypeEquals(
+                self.writer.write_ast(&AST::ExportTypeEquals(
                     raw_response_identifier,
                     Box::from(raw_response_type)
                 ))
@@ -226,7 +226,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         writeln!(
             self.result,
             "{}",
-            self.writer.write_type(&AST::ExportTypeEquals(
+            self.writer.write_ast(&AST::ExportTypeEquals(
                 typegen_operation.name.item,
                 Box::from(AST::ExactObject(operation_types))
             ))
@@ -322,7 +322,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::ImportType(
+                self.writer.write_ast(&AST::ImportType(
                     vec![old_fragment_type_name, new_fragment_type_name],
                     format!("{}.graphql", refetchable_metadata.operation_name).intern()
                 ))
@@ -330,7 +330,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::ExportList(vec![
+                self.writer.write_ast(&AST::ExportList(vec![
                     old_fragment_type_name,
                     new_fragment_type_name
                 ]))
@@ -339,7 +339,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::DeclareExportOpaqueType(
+                self.writer.write_ast(&AST::DeclareExportOpaqueType(
                     old_fragment_type_name,
                     "FragmentReference".intern()
                 ))
@@ -347,7 +347,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::DeclareExportOpaqueType(
+                self.writer.write_ast(&AST::DeclareExportOpaqueType(
                     new_fragment_type_name,
                     old_fragment_type_name
                 ))
@@ -357,12 +357,12 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             self.result,
             "{}",
             self.writer
-                .write_type(&AST::ExportTypeEquals(node.name.item, Box::from(type_)))
+                .write_ast(&AST::ExportTypeEquals(node.name.item, Box::from(type_)))
         )?;
         writeln!(
             self.result,
             "{}",
-            self.writer.write_type(&AST::ExportTypeEquals(
+            self.writer.write_ast(&AST::ExportTypeEquals(
                 data_type_name.intern(),
                 Box::from(AST::RawType(data_type.intern()))
             ))
@@ -370,7 +370,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         writeln!(
             self.result,
             "{}",
-            self.writer.write_type(&AST::ExportTypeEquals(
+            self.writer.write_ast(&AST::ExportTypeEquals(
                 ref_type_name.intern(),
                 Box::from(ref_type)
             ))
@@ -1024,7 +1024,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             } => writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::ImportType(
+                self.writer.write_ast(&AST::ImportType(
                     vec!["FragmentReference".intern(), "Local3DPayload".intern()],
                     "relay-runtime".intern()
                 ))
@@ -1035,7 +1035,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             } => writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::ImportType(
+                self.writer.write_ast(&AST::ImportType(
                     vec!["Local3DPayload".intern()],
                     "relay-runtime".intern()
                 ))
@@ -1046,7 +1046,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             } => writeln!(
                 self.result,
                 "{}",
-                self.writer.write_type(&AST::ImportType(
+                self.writer.write_ast(&AST::ImportType(
                     vec!["FragmentReference".intern()],
                     "relay-runtime".intern()
                 ))
@@ -1126,7 +1126,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     self.result,
                     "export type {} = {};",
                     enum_type.name,
-                    self.writer.write_type(&AST::Union(members))
+                    self.writer.write_ast(&AST::Union(members))
                 )?;
             }
         }
@@ -1155,7 +1155,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         self.result,
                         "export type {} = {};",
                         type_identifier,
-                        self.writer.write_type(&input_object_type)
+                        self.writer.write_ast(&input_object_type)
                     )?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),

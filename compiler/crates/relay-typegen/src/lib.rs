@@ -18,7 +18,7 @@ use crate::flow::FlowPrinter;
 use crate::typescript::TypescriptPrinter;
 use crate::writer::Writer;
 use common::NamedItem;
-pub use config::TypegenConfig;
+pub use config::{TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -119,13 +119,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
-        if let Some(language) = typegen_config.language.as_ref() {
-            if language == "typescript" {
-                return Box::new(TypescriptPrinter::new());
-            }
+        match &typegen_config.language {
+            TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+            TypegenLanguage::Typescript => Box::new(TypescriptPrinter::new()),
         }
-
-        Box::new(FlowPrinter::new())
     }
 
     fn generate_operation_type(

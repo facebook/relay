@@ -18,6 +18,7 @@ use graphql_text_printer::{
 };
 use graphql_transforms::{RefetchableDerivedFromMetadata, SplitOperationMetaData, MATCH_CONSTANTS};
 use interner::StringKey;
+use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -263,8 +264,8 @@ fn path_for_artifact(
         project_config,
         source_file,
         match &project_config.typegen_config.language {
-            Some(language) if language == "typescript" => format!("{}.graphql.ts", definition_name),
-            _ => format!("{}.graphql.js", definition_name),
+            TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
+            TypegenLanguage::Typescript => format!("{}.graphql.ts", definition_name),
         },
         false,
     )

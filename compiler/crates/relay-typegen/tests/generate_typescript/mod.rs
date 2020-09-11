@@ -13,7 +13,7 @@ use graphql_syntax::parse_executable;
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use relay_compiler::apply_transforms;
-use relay_typegen::{self, TypegenConfig};
+use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
@@ -67,7 +67,7 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
             frag,
             &schema,
             &TypegenConfig {
-                language: Some("typescript".to_string()),
+                language: TypegenLanguage::Typescript,
                 enum_module_suffix: None,
                 optional_input_fields: vec![],
                 custom_scalar_types: Default::default(),

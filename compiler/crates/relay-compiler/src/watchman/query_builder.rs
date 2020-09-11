@@ -7,6 +7,7 @@
 
 use crate::compiler_state::SourceSet;
 use crate::config::{Config, SchemaLocation};
+use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
 
@@ -28,8 +29,8 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                 Some(p) if p.enabled => Some(Expr::All(vec![
                     // Ending in *.js or *.ts depending on the project lanague.
                     Expr::Suffix(vec![match &p.typegen_config.language {
-                        Some(language) if language == "typescript" => "ts",
-                        _ => "js",
+                        TypegenLanguage::Flow => "js",
+                        TypegenLanguage::Typescript => "ts",
                     }
                     .into()]),
                     // In the related source root.

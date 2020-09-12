@@ -13,7 +13,7 @@
   "repository": "facebook/relay",
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "fbjs": "^1.0.0",
+    "fbjs": "^2.0.0",
     "nullthrows": "^1.1.1",
     "relay-runtime": "10.0.1"
   },

@@ -50,7 +50,7 @@
     "eslint-plugin-react": "7.11.1",
     "eslint-plugin-relay": "1.7.1",
     "fb-watchman": "^2.0.0",
-    "fbjs": "^1.0.0",
+    "fbjs": "^2.0.0",
     "fbjs-scripts": "^1.1.0",
     "flow-bin": "^0.133.0",
     "glob": "^7.1.1",

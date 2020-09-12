@@ -2053,11 +2053,6 @@ copy-props@^2.0.1:
     each-props "^1.3.0"
     is-plain-object "^2.0.1"
 
-core-js@^2.4.1:
-  version "2.6.11"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
-  integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
-
 core-js@^3.6.4:
   version "3.6.5"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.5.tgz#7395dc273af37fb2e50e9bd3d9fe841285231d1a"
@@ -2884,15 +2879,15 @@ fbjs-css-vars@^1.0.0:
   resolved "https://registry.yarnpkg.com/fbjs-css-vars/-/fbjs-css-vars-1.0.2.tgz#216551136ae02fe255932c3ec8775f18e2c078b8"
   integrity sha512-b2XGFAFdWZWg0phtAWLHCk836A1Xann+I+Dgd3Gk64MHKZO44FfoD1KxyvbSh0qZsIoXQGGlVztIY+oitJPpRQ==
 
-fbjs-scripts@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/fbjs-scripts/-/fbjs-scripts-1.2.0.tgz#069a0c0634242d10031c6460ef1fccefcdae8b27"
-  integrity sha512-5krZ8T0Bf8uky0abPoCLrfa7Orxd8UH4Qq8hRUF2RZYNMu+FmEOrBc7Ib3YVONmxTXTlLAvyrrdrVmksDb2OqQ==
+fbjs-scripts@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/fbjs-scripts/-/fbjs-scripts-2.0.0.tgz#301dafb6a3ed8090a27015173b9efa46973fe319"
+  integrity sha512-8JlwHrLDyDmGz8IBsTmf6skNxUHYocPXTn9gqjwOM88JXeO34ewmTT0GdcYukgaqBeJF7tclcQIdnjjOIJ3L5A==
   dependencies:
     "@babel/core" "^7.0.0"
     ansi-colors "^1.0.1"
     babel-preset-fbjs "^3.2.0"
-    core-js "^2.4.1"
+    core-js "^3.6.4"
     cross-spawn "^5.1.0"
     fancy-log "^1.3.2"
     object-assign "^4.0.1"

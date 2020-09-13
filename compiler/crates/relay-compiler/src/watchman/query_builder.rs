@@ -27,12 +27,12 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
             })
             .filter_map(|(path, project)| match project {
                 Some(p) if p.enabled => Some(Expr::All(vec![
-                    // Ending in *.js or *.ts depending on the project lanague.
-                    Expr::Suffix(vec![match &p.typegen_config.language {
-                        TypegenLanguage::Flow => "js",
-                        TypegenLanguage::Typescript => "ts",
+                    // Ending in *.js(x) or *.ts(x) depending on the project language.
+                    Expr::Suffix(match &p.typegen_config.language {
+                        TypegenLanguage::Flow => vec!["js", "jsx"],
+                        TypegenLanguage::Typescript => vec!["ts", "tsx"],
                     }
-                    .into()]),
+                    .into()),
                     // In the related source root.
                     Expr::DirName(DirNameTerm {
                         path: path.clone(),

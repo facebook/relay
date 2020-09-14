@@ -357,12 +357,11 @@ class RelayModernEnvironment implements IEnvironment {
     operation,
     cacheConfig,
     updater,
-  }: {
+  }: {|
     operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-    ...
-  }): RelayObservable<GraphQLResponse> {
+  |}): RelayObservable<GraphQLResponse> {
     const [logObserver, logRequestInfo] = this.__createLogObserver(
       operation.request.node.params,
       operation.request.variables,

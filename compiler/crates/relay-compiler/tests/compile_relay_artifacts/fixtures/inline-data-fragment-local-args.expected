@@ -28,6 +28,14 @@ fragment inlineDataFragmentLocalArgsProfile on User
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    15 │   @inline
 
+  ℹ︎ Variable used:
+
+  inline-data-fragment-local-args.graphql:16:24
+   15 │   @inline
+   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+      │                        ^^^^^^^
+   17 │   profilePicture(size: $sizeArg) {
+
 
 ✖︎ Variables are not yet supported inside @inline fragments.
 
@@ -37,6 +45,14 @@ fragment inlineDataFragmentLocalArgsProfile on User
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    15 │   @inline
 
+  ℹ︎ Variable used:
+
+  inline-data-fragment-local-args.graphql:16:24
+   15 │   @inline
+   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+      │                        ^^^^^^^
+   17 │   profilePicture(size: $sizeArg) {
+
 
 ✖︎ Variables are not yet supported inside @inline fragments.
 
@@ -45,3 +61,11 @@ fragment inlineDataFragmentLocalArgsProfile on User
    14 │ fragment inlineDataFragmentLocalArgsProfile on User
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    15 │   @inline
+
+  ℹ︎ Variable used:
+
+  inline-data-fragment-local-args.graphql:16:24
+   15 │   @inline
+   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+      │                        ^^^^^^^
+   17 │   profilePicture(size: $sizeArg) {

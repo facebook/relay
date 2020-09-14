@@ -77,11 +77,21 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
         if inline_directive.is_none() {
             next_fragment_spread
         } else {
-            if !fragment.variable_definitions.is_empty() {
-                self.errors.push(Diagnostic::error(
+            if !fragment.variable_definitions.is_empty()
+                || !fragment.used_global_variables.is_empty()
+            {
+                let mut error = Diagnostic::error(
                     ValidationMessage::InlineDataFragmentArgumentsNotSupported,
                     fragment.name.location,
-                ));
+                );
+                for var in fragment
+                    .variable_definitions
+                    .iter()
+                    .chain(fragment.used_global_variables.iter())
+                {
+                    error = error.annotate("Variable used:", var.name.location);
+                }
+                self.errors.push(error);
             }
             match &next_fragment_spread {
                 Transformed::Keep => {

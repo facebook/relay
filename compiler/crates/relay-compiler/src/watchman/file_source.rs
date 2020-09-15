@@ -81,7 +81,7 @@ impl<'config> FileSource<'config> {
         // If saved state is configured, try using saved state unless the config
         // forces a full build.
         if let Config {
-            full_build: false,
+            compile_everything: false,
             saved_state_config: Some(saved_state_config),
             saved_state_loader: Some(saved_state_loader),
             saved_state_version,

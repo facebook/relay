@@ -6,6 +6,7 @@
  */
 
 use crate::{
+    config::Config,
     config::{ArtifactPersister, PersistConfig},
     errors::BuildProjectError,
     Artifact, ArtifactContent,
@@ -25,7 +26,7 @@ pub async fn persist_operations(
     artifacts: &mut [Artifact],
     root_dir: &PathBuf,
     persist_config: &PersistConfig,
-    is_full_build: bool,
+    config: &Config,
     artifact_persister: &Box<dyn ArtifactPersister + Send + Sync>,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
@@ -39,7 +40,7 @@ pub async fn persist_operations(
             {
                 let text_hash = md5(text);
                 let artifact_path = root_dir.join(&artifact.path);
-                let extracted_persist_id = if is_full_build {
+                let extracted_persist_id = if config.repersist_operations {
                     None
                 } else {
                     extract_persist_id(&artifact_path, &text_hash)

@@ -90,7 +90,6 @@ fn create_configs() -> (Config, ProjectConfig) {
         artifact_writer: Box::new(ArtifactFileWriter::default()),
         codegen_command: None,
         excludes: vec![],
-        full_build: false,
         generate_extra_operation_artifacts: None,
         header: vec![],
         load_saved_state_file: None,
@@ -103,6 +102,8 @@ fn create_configs() -> (Config, ProjectConfig) {
         connection_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
         artifact_persister: None,
+        compile_everything: false,
+        repersist_operations: false,
     };
 
     (config, project_config)

@@ -8,12 +8,12 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::{Diagnostic, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, Selection, Transformed, TransformedMulti, TransformedValue,
-    Transformer, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, Value,
 };
 use interner::StringKey;
 use scope::Scope;
@@ -39,7 +39,7 @@ use std::sync::Arc;
 /// - Nodes that would become empty as a result of the above are removed.
 ///
 /// Note that unreferenced fragments are not added to the output.
-pub fn apply_fragment_arguments(program: &Program) -> ValidationResult<Program> {
+pub fn apply_fragment_arguments(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         program,
         fragments: Default::default(),

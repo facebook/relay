@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Diagnostic;
 use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Type, TypeReference};
 use thiserror::Error;
-
-pub type ValidationResult<T> = Result<T, Vec<Diagnostic>>;
 
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

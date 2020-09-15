@@ -6,14 +6,11 @@
  */
 
 use crate::root_variables::InferVariablesVisitor;
-use common::{Diagnostic, NamedItem};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
-    Validator,
-};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
 use interner::{Intern, StringKey};
 
-pub fn validate_unused_variables(program: &Program) -> ValidationResult<()> {
+pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateUnusedVariables::new(program).validate_program(program)
 }
 
@@ -38,7 +35,7 @@ impl Validator for ValidateUnusedVariables<'_> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> ValidationResult<()> {
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         let variables = self.visitor.infer_operation_variables(operation);
         let unused_variables: Vec<_> = operation
             .variable_definitions
@@ -74,7 +71,7 @@ impl Validator for ValidateUnusedVariables<'_> {
         Ok(())
     }
 
-    fn validate_fragment(&mut self, _: &FragmentDefinition) -> ValidationResult<()> {
+    fn validate_fragment(&mut self, _: &FragmentDefinition) -> DiagnosticsResult<()> {
         Ok(())
     }
 }

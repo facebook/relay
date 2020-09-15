@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
     FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, ValidationResult,
+    ValidationMessage,
 };
 
 use crate::connections::ConnectionInterface;
@@ -21,7 +21,7 @@ use std::sync::Arc;
 pub fn transform_declarative_connection(
     program: &Program,
     connection_interface: &ConnectionInterface,
-) -> ValidationResult<Program> {
+) -> DiagnosticsResult<Program> {
     let mut transform = DeclarativeConnectionMutationTransform::new(program, connection_interface);
     let next_program = transform
         .transform_program(program)

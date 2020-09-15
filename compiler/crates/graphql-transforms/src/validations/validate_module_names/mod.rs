@@ -5,16 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Diagnostic;
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
-    Validator,
-};
+use common::{Diagnostic, DiagnosticsResult};
+use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
 use graphql_syntax::OperationKind;
 
 mod extract_module_name;
 
-pub fn validate_module_names(program: &Program) -> ValidationResult<()> {
+pub fn validate_module_names(program: &Program) -> DiagnosticsResult<()> {
     (ValidateModuleNames {}).validate_program(program)
 }
 
@@ -25,7 +22,7 @@ impl Validator for ValidateModuleNames {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;
 
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> ValidationResult<()> {
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         let operation_name = operation.name.item.to_string();
         let path = operation.name.location.source_location().path();
         let module_name =
@@ -58,7 +55,7 @@ impl Validator for ValidateModuleNames {
         Ok(())
     }
 
-    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         let fragment_name = fragment.name.item.to_string();
         let path = fragment.name.location.source_location().path();
         let module_name =

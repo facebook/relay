@@ -6,10 +6,10 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
-    ValidationMessage, ValidationResult, Value,
+    ValidationMessage, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -20,7 +20,7 @@ lazy_static! {
     pub static ref PRELOADABLE_METADATA_KEY: StringKey = "relayPreloadable".intern();
 }
 
-pub fn generate_preloadable_metadata(program: &Program) -> ValidationResult<Program> {
+pub fn generate_preloadable_metadata(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = GeneratePreloadableMetadata::new(program);
     let next_program = transformer
         .transform_program(program)

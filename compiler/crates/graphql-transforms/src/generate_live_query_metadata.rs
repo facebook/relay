@@ -6,10 +6,10 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program,
-    Transformed, Transformer, ValidationMessage, ValidationResult, Value,
+    Transformed, Transformer, ValidationMessage, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -23,7 +23,7 @@ lazy_static! {
     pub static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
 }
 
-pub fn generate_live_query_metadata(program: &Program) -> ValidationResult<Program> {
+pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = GenerateLiveQueryMetadata::new(program);
     let next_program = transformer
         .transform_program(program)

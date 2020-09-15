@@ -6,16 +6,16 @@
  */
 
 use crate::relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
-use common::{Diagnostic, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::validate;
 use fnv::FnvHashMap;
 use graphql_ir::{
     ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
-    ValidationMessage, ValidationResult, Validator, Value, VariableDefinition,
+    ValidationMessage, Validator, Value, VariableDefinition,
 };
 use interner::StringKey;
 
-pub fn validate_relay_directives(program: &Program) -> ValidationResult<()> {
+pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);
     validator.validate_program(program)
 }
@@ -45,7 +45,10 @@ impl<'program> RelayDirectiveValidation<'program> {
     }
 
     /// For ...Fragment @relay(mask:false), disallow fragments with directives or local variables
-    fn validate_unmask_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
+    fn validate_unmask_fragment_spread(
+        &mut self,
+        spread: &FragmentSpread,
+    ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if !(fragment.directives.is_empty()
@@ -72,7 +75,7 @@ impl<'program> RelayDirectiveValidation<'program> {
     fn validate_reachable_arguments(
         &self,
         map: &mut FnvHashMap<StringKey, ArgumentDefinition<'program>>,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         for arg in &self.current_reachable_arguments {
             if let Some(prev_arg) = map.get(&arg.name.item) {
@@ -111,7 +114,7 @@ impl<'program> RelayDirectiveValidation<'program> {
         if errs.is_empty() { Ok(()) } else { Err(errs) }
     }
 
-    fn validate_relay_directives(&self, directives: &[Directive]) -> ValidationResult<()> {
+    fn validate_relay_directives(&self, directives: &[Directive]) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         if let Some(directive) = find_relay_directive(directives) {
             for arg in &directive.arguments {
@@ -136,7 +139,7 @@ impl Validator for RelayDirectiveValidation<'_> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         // Initialize arguments state for @relay(mask: false),
         self.current_reachable_arguments = Default::default();
         validate!(
@@ -157,7 +160,7 @@ impl Validator for RelayDirectiveValidation<'_> {
         )
     }
 
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> ValidationResult<()> {
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         // Initialize arguments state for @relay(mask: false),
         self.current_reachable_arguments = Default::default();
         validate!(
@@ -174,7 +177,7 @@ impl Validator for RelayDirectiveValidation<'_> {
         )
     }
 
-    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
+    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
         validate!(
             if let Some(directive) = find_relay_directive(&spread.directives) {
                 let mask_argument = directive.arguments.named(*MASK_ARG_NAME);

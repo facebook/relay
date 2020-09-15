@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{PerfLogEvent, PerfLogger};
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
-use graphql_ir::{Program, ValidationResult};
+use graphql_ir::Program;
 use graphql_transforms::{
     apply_fragment_arguments, client_extensions, flatten, generate_data_driven_dependency_metadata,
     generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
@@ -39,7 +39,7 @@ pub fn apply_transforms<TPerfLogger>(
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<TPerfLogger>,
-) -> ValidationResult<Programs>
+) -> DiagnosticsResult<Programs>
 where
     TPerfLogger: PerfLogger + 'static,
 {
@@ -132,7 +132,7 @@ fn apply_common_transforms(
     feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // * DisallowIdAsAlias (in validate)
     // + ConnectionTransform
@@ -172,7 +172,7 @@ fn apply_reader_transforms(
     feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + ClientExtensionsTransform
     // + FieldHandleTransform
@@ -212,7 +212,7 @@ fn apply_operation_transforms(
     connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SplitModuleImportTransform
     // * ValidateUnusedVariablesTransform (Moved to common_transforms)
@@ -261,7 +261,7 @@ fn apply_normalization_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
@@ -296,7 +296,7 @@ fn apply_operation_text_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
     // - ClientExtensionsTransform
@@ -338,7 +338,7 @@ fn apply_typegen_transforms(
     feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // * RelayDirectiveTransform
     // + MaskTransform

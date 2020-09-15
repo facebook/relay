@@ -12,12 +12,12 @@ use crate::util::{
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, ScalarField, Selection, ValidationMessage, ValidationResult,
+    Program, ScalarField, Selection, ValidationMessage,
 };
 use schema::Type;
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::{Diagnostic, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
@@ -37,7 +37,7 @@ type SeenInlineFragments = Arc<RwLock<FnvHashMap<(PointerAddress, Type), Arc<Inl
 /// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).
 ///
-pub fn flatten(program: &Program, is_for_codegen: bool) -> ValidationResult<Program> {
+pub fn flatten(program: &Program, is_for_codegen: bool) -> DiagnosticsResult<Program> {
     let next_program = Arc::new(RwLock::new(Program::new(Arc::clone(&program.schema))));
     let transform = FlattenTransform::new(program, is_for_codegen);
     let errors = Arc::new(Mutex::new(Vec::new()));
@@ -94,7 +94,7 @@ impl FlattenTransform {
     fn transform_operation(
         &self,
         operation: &OperationDefinition,
-    ) -> ValidationResult<OperationDefinition> {
+    ) -> DiagnosticsResult<OperationDefinition> {
         Ok(OperationDefinition {
             kind: operation.kind,
             name: operation.name,
@@ -108,7 +108,7 @@ impl FlattenTransform {
     fn transform_fragment(
         &self,
         fragment: &FragmentDefinition,
-    ) -> ValidationResult<FragmentDefinition> {
+    ) -> DiagnosticsResult<FragmentDefinition> {
         Ok(FragmentDefinition {
             name: fragment.name,
             type_condition: fragment.type_condition,
@@ -123,7 +123,7 @@ impl FlattenTransform {
         &self,
         selections: &[Selection],
         parent_type: Type,
-    ) -> ValidationResult<Vec<Selection>> {
+    ) -> DiagnosticsResult<Vec<Selection>> {
         let mut next_selections = Vec::with_capacity(selections.len());
         for selection in selections {
             next_selections.push(self.transform_selection(selection, parent_type)?);
@@ -137,7 +137,7 @@ impl FlattenTransform {
     fn transform_linked_field(
         &self,
         linked_field: &Arc<LinkedField>,
-    ) -> ValidationResult<Arc<LinkedField>> {
+    ) -> DiagnosticsResult<Arc<LinkedField>> {
         let should_cache = Arc::strong_count(linked_field) > 1;
         let key = PointerAddress::new(Arc::as_ref(linked_field));
         if should_cache {
@@ -173,7 +173,7 @@ impl FlattenTransform {
         &self,
         fragment: &Arc<InlineFragment>,
         parent_type: Type,
-    ) -> ValidationResult<Arc<InlineFragment>> {
+    ) -> DiagnosticsResult<Arc<InlineFragment>> {
         let should_cache = Arc::strong_count(fragment) > 1;
         let key = (PointerAddress::new(Arc::as_ref(fragment)), parent_type);
         if should_cache {
@@ -206,7 +206,7 @@ impl FlattenTransform {
         &self,
         selection: &Selection,
         parent_type: Type,
-    ) -> ValidationResult<Selection> {
+    ) -> DiagnosticsResult<Selection> {
         Ok(match selection {
             Selection::InlineFragment(node) => {
                 Selection::InlineFragment(self.transform_inline_fragment(node, parent_type)?)
@@ -229,7 +229,7 @@ impl FlattenTransform {
         flattened_selections: &mut Vec<Selection>,
         selections: &[Selection],
         parent_type: Type,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         for selection in selections {
             if let Selection::InlineFragment(inline_fragment) = selection {
                 if should_flatten_inline_fragment(inline_fragment, parent_type, self.is_for_codegen)
@@ -411,7 +411,7 @@ impl FlattenTransform {
         selections_a: &[Selection],
         selections_b: &[Selection],
         parent_type: Type,
-    ) -> ValidationResult<Vec<Selection>> {
+    ) -> DiagnosticsResult<Vec<Selection>> {
         let mut flattened_selections = Vec::with_capacity(selections_a.len());
         self.flatten_selections(&mut flattened_selections, selections_a, parent_type)?;
         self.flatten_selections(&mut flattened_selections, selections_b, parent_type)?;

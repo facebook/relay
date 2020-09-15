@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -33,7 +33,7 @@ lazy_static! {
 ///   relay_early_flush(query_name: QueryName)
 ///   a
 /// }
-pub fn relay_early_flush(program: &Program) -> ValidationResult<Program> {
+pub fn relay_early_flush(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = RelayEarlyFlush {
         program,
         errors: Default::default(),

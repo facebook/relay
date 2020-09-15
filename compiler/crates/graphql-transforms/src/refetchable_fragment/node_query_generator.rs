@@ -12,10 +12,10 @@ use super::{
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, ScalarField,
-    Selection, ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    Selection, ValidationMessage, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
@@ -27,7 +27,7 @@ fn build_refetch_operation(
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
-) -> ValidationResult<Option<RefetchRoot>> {
+) -> DiagnosticsResult<Option<RefetchRoot>> {
     let node_interface_id = schema.get_type(CONSTANTS.node_type_name).and_then(|type_| {
         if let Type::Interface(id) = type_ {
             Some(id)
@@ -167,7 +167,7 @@ fn get_node_field_id_and_id_arg<'s>(
     schema: &'s Schema,
     query_type: Type,
     fragment: &FragmentDefinition,
-) -> ValidationResult<(FieldID, &'s ArgumentDef)> {
+) -> DiagnosticsResult<(FieldID, &'s ArgumentDef)> {
     let node_field_id = schema.named_field(query_type, CONSTANTS.node_field_name);
     if let Some(node_field_id) = node_field_id {
         let node_field = schema.field(node_field_id);

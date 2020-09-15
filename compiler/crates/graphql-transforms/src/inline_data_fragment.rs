@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentSpread, InlineFragment, Program, Selection,
-    Transformed, Transformer, ValidationMessage, ValidationResult, Value,
+    Transformed, Transformer, ValidationMessage, Value,
 };
 
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
-pub fn inline_data_fragment(program: &Program) -> ValidationResult<Program> {
+pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);
     let next_program = transform
         .transform_program(program)

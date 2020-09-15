@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 mod requireable_field;
 
 use super::FeatureFlags;
@@ -13,7 +13,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, ValidationResult, Value,
+    ValidationMessage, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -35,7 +35,7 @@ lazy_static! {
 pub fn required_directive(
     program: &Program,
     feature_flags: &FeatureFlags,
-) -> ValidationResult<Program> {
+) -> DiagnosticsResult<Program> {
     let mut transform =
         RequiredDirective::new(program, feature_flags.enable_required_transform_for_prefix);
 

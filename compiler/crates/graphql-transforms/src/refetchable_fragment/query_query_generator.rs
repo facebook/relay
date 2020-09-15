@@ -12,8 +12,8 @@ use super::{
     RefetchableDerivedFromMetadata, RefetchableMetadata,
 };
 use crate::root_variables::VariableMap;
-use common::WithLocation;
-use graphql_ir::{FragmentDefinition, OperationDefinition, ValidationResult};
+use common::{DiagnosticsResult, WithLocation};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::Schema;
@@ -24,7 +24,7 @@ fn build_refetch_operation(
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
-) -> ValidationResult<Option<RefetchRoot>> {
+) -> DiagnosticsResult<Option<RefetchRoot>> {
     let query_type = schema.query_type().unwrap();
     if fragment.type_condition != query_type {
         return Ok(None);

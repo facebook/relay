@@ -8,7 +8,7 @@
 use interner::StringKey;
 use std::fmt;
 
-#[derive(PartialEq, Debug, Ord, PartialOrd, Eq, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Type {
     Named(StringKey),
     List(Box<Type>),
@@ -35,7 +35,7 @@ impl fmt::Display for Type {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TypeSystemDefinition {
     SchemaDefinition {
         directives: Vec<Directive>,
@@ -149,7 +149,7 @@ impl fmt::Display for TypeSystemDefinition {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct OperationTypeDefinition {
     pub operation: OperationType,
     pub type_: StringKey,
@@ -161,7 +161,7 @@ impl fmt::Display for OperationTypeDefinition {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct EnumValueDefinition {
     pub name: StringKey,
     pub directives: Vec<Directive>,
@@ -174,7 +174,7 @@ impl fmt::Display for EnumValueDefinition {
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum DirectiveLocation {
     Query,
     Mutation,
@@ -223,7 +223,7 @@ impl fmt::Display for DirectiveLocation {
     }
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum OperationType {
     Query,
     Mutation,
@@ -240,7 +240,7 @@ impl fmt::Display for OperationType {
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct InputValueDefinition {
     pub name: StringKey,
     pub type_: Type,
@@ -264,7 +264,7 @@ impl fmt::Display for InputValueDefinition {
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FieldDefinition {
     pub name: StringKey,
     pub type_: Type,
@@ -343,7 +343,7 @@ impl fmt::Display for ObjectField {
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
     pub name: StringKey,
     pub value: Value,
@@ -355,7 +355,7 @@ impl fmt::Display for Argument {
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Directive {
     pub name: StringKey,
     pub arguments: Vec<Argument>,

@@ -13,13 +13,16 @@
 
 'use strict';
 
+const ProfilerContext = require('./ProfilerContext');
 const React = require('react');
 
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
-const {useMemo} = require('react');
+const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
+
+import type {JSResourceReference} from 'JSResourceReference';
 
 type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   entryPoints: $PropertyType<
@@ -32,6 +35,7 @@ type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   >,
   getComponent: () => TEntryPointComponent,
   queries: $PropertyType<React.ElementConfig<TEntryPointComponent>, 'queries'>,
+  rootModuleReference: JSResourceReference<TEntryPointComponent>,
 |}>;
 
 import type {
@@ -150,6 +154,8 @@ function prepareEntryPoint<
       return (component: TEntryPointComponent);
     },
     queries: (preloadedQueries: TPreloadedQueries),
+    // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
+    rootModuleReference: (entryPoint.root: JSResourceReference<TEntryPointComponent>),
   };
 }
 
@@ -177,7 +183,13 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   // *must* be computed first to fetch the component's data-dependencies in
   // parallel with the component itself (the code).
   const entryPointParamsHash = stableStringify(entryPointParams);
-  const {getComponent, queries, entryPoints, extraProps} = useMemo(() => {
+  const {
+    getComponent,
+    queries,
+    entryPoints,
+    extraProps,
+    rootModuleReference,
+  } = useMemo(() => {
     return prepareEntryPoint(
       environmentProvider ?? {
         getEnvironment: () => environment,
@@ -191,6 +203,15 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   const Component = useMemo(() => {
     return getComponent();
   }, [getComponent]);
+
+  const profilerContext = useContext(ProfilerContext);
+  useEffect(() => {
+    environment.__log({
+      name: 'entrypoint.root.consume',
+      profilerContext,
+      rootModuleID: rootModuleReference.getModuleId(),
+    });
+  }, [environment, profilerContext, rootModuleReference]);
   return (
     <Component
       entryPoints={entryPoints}

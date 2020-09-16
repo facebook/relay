@@ -489,6 +489,11 @@ export type LogEvent =
       +name: 'read.missing_required_field',
       +owner: string,
       +fieldPath: string,
+    |}
+  | {|
+      +name: 'entrypoint.root.consume',
+      +profilerContext: mixed,
+      +rootModuleID: string,
     |};
 
 export type LogFunction = LogEvent => void;

@@ -13,6 +13,7 @@
 
 const {loadQuery} = require('./loadQuery');
 
+import type {JSResourceReference} from 'JSResourceReference';
 import type {
   EntryPoint,
   EntryPointComponent,
@@ -132,6 +133,8 @@ function loadEntryPoint<
       return isDisposed;
     },
     queries: (preloadedQueries: TPreloadedQueries),
+    // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
+    rootModuleReference: (entryPoint.root: JSResourceReference<TEntryPointComponent>),
   };
 }
 

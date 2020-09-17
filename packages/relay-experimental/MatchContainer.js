@@ -86,6 +86,7 @@ const {useMemo} = React;
 
 // Note: this type is intentionally non-exact, it is expected that the
 // object may contain sibling fields.
+type TypenameOnlyPointer = {|+__typename: string|};
 export type MatchPointer = {
   +__fragmentPropName?: ?string,
   +__module_component?: mixed,
@@ -96,7 +97,7 @@ export type MatchPointer = {
 export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {|
   +fallback?: ?TFallback,
   +loader: (module: mixed) => React.AbstractComponent<TProps>,
-  +match: ?MatchPointer,
+  +match: ?MatchPointer | ?TypenameOnlyPointer,
   +props?: TProps,
 |};
 

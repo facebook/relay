@@ -703,7 +703,7 @@ function initializeRecordSource(target: MutableRecordSource) {
 /**
  * Updates the target with information from source, also updating a mapping of
  * which records in the target were changed as a result.
- * Additionally, will marc records as invalidated at the current write epoch
+ * Additionally, will mark records as invalidated at the current write epoch
  * given the set of record ids marked as stale in this update.
  */
 function updateTargetFromSource(

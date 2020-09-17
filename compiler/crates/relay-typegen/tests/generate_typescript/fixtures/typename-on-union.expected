@@ -1,0 +1,242 @@
+==================================== INPUT ====================================
+fragment TypenameInside on Actor {
+  ... on User {
+    __typename
+    firstName
+  }
+  ... on Page {
+    __typename
+    username
+  }
+}
+
+fragment TypenameOutside on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameOutsideWithAbstractType on Node {
+  __typename
+  ... on User {
+    firstName
+    address {
+      street # only here
+      city # common
+    }
+  }
+  ... on Actor {
+    username
+    address {
+      city # common
+      country # only here
+    }
+  }
+}
+
+fragment TypenameWithoutSpreads on User {
+  __typename
+  firstName
+}
+
+fragment TypenameWithoutSpreadsAbstractType on Node {
+  __typename
+  id
+}
+
+fragment TypenameWithCommonSelections on Actor {
+  __typename
+  name
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameAlias on Actor {
+  _typeAlias: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameAliases on Actor {
+  _typeAlias1: __typename
+  _typeAlias2: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentReference } from "relay-runtime";
+export type TypenameAlias$ref = FragmentReference & { _: "TypenameAlias$ref" };
+export type TypenameAlias$fragmentType = TypenameAlias$ref & { _: "TypenameAlias$fragmentType" };
+export type TypenameAlias = {
+  readonly _typeAlias: "User",
+  readonly firstName?: string,
+  readonly $refType: TypenameAlias$ref,
+} | {
+  readonly _typeAlias: "Page",
+  readonly username?: string,
+  readonly $refType: TypenameAlias$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly _typeAlias: "%other",
+  readonly $refType: TypenameAlias$ref,
+};
+export type TypenameAlias$data = TypenameAlias;
+export type TypenameAlias$key = {
+  readonly $data?: TypenameAlias$data,
+  readonly $fragmentRefs: TypenameAlias$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameAliases$ref = FragmentReference & { _: "TypenameAliases$ref" };
+export type TypenameAliases$fragmentType = TypenameAliases$ref & { _: "TypenameAliases$fragmentType" };
+export type TypenameAliases = {
+  readonly _typeAlias1: "User",
+  readonly _typeAlias2: "User",
+  readonly firstName?: string,
+  readonly $refType: TypenameAliases$ref,
+} | {
+  readonly _typeAlias1: "Page",
+  readonly _typeAlias2: "Page",
+  readonly username?: string,
+  readonly $refType: TypenameAliases$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly _typeAlias1: "%other",
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly _typeAlias2: "%other",
+  readonly $refType: TypenameAliases$ref,
+};
+export type TypenameAliases$data = TypenameAliases;
+export type TypenameAliases$key = {
+  readonly $data?: TypenameAliases$data,
+  readonly $fragmentRefs: TypenameAliases$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameInside$ref = FragmentReference & { _: "TypenameInside$ref" };
+export type TypenameInside$fragmentType = TypenameInside$ref & { _: "TypenameInside$fragmentType" };
+export type TypenameInside = {
+  readonly __typename: "User",
+  readonly firstName?: string,
+  readonly $refType: TypenameInside$ref,
+} | {
+  readonly __typename: "Page",
+  readonly username?: string,
+  readonly $refType: TypenameInside$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: TypenameInside$ref,
+};
+export type TypenameInside$data = TypenameInside;
+export type TypenameInside$key = {
+  readonly $data?: TypenameInside$data,
+  readonly $fragmentRefs: TypenameInside$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameOutside$ref = FragmentReference & { _: "TypenameOutside$ref" };
+export type TypenameOutside$fragmentType = TypenameOutside$ref & { _: "TypenameOutside$fragmentType" };
+export type TypenameOutside = {
+  readonly __typename: "User",
+  readonly firstName?: string,
+  readonly $refType: TypenameOutside$ref,
+} | {
+  readonly __typename: "Page",
+  readonly username?: string,
+  readonly $refType: TypenameOutside$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: TypenameOutside$ref,
+};
+export type TypenameOutside$data = TypenameOutside;
+export type TypenameOutside$key = {
+  readonly $data?: TypenameOutside$data,
+  readonly $fragmentRefs: TypenameOutside$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameOutsideWithAbstractType$ref = FragmentReference & { _: "TypenameOutsideWithAbstractType$ref" };
+export type TypenameOutsideWithAbstractType$fragmentType = TypenameOutsideWithAbstractType$ref & { _: "TypenameOutsideWithAbstractType$fragmentType" };
+export type TypenameOutsideWithAbstractType = {
+  readonly __typename: string,
+  readonly username?: string,
+  readonly address?: {
+    readonly city?: string,
+    readonly country?: string,
+    readonly street?: string,
+  },
+  readonly firstName?: string,
+  readonly $refType: TypenameOutsideWithAbstractType$ref,
+};
+export type TypenameOutsideWithAbstractType$data = TypenameOutsideWithAbstractType;
+export type TypenameOutsideWithAbstractType$key = {
+  readonly $data?: TypenameOutsideWithAbstractType$data,
+  readonly $fragmentRefs: TypenameOutsideWithAbstractType$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameWithCommonSelections$ref = FragmentReference & { _: "TypenameWithCommonSelections$ref" };
+export type TypenameWithCommonSelections$fragmentType = TypenameWithCommonSelections$ref & { _: "TypenameWithCommonSelections$fragmentType" };
+export type TypenameWithCommonSelections = {
+  readonly __typename: string,
+  readonly name?: string,
+  readonly firstName?: string,
+  readonly username?: string,
+  readonly $refType: TypenameWithCommonSelections$ref,
+};
+export type TypenameWithCommonSelections$data = TypenameWithCommonSelections;
+export type TypenameWithCommonSelections$key = {
+  readonly $data?: TypenameWithCommonSelections$data,
+  readonly $fragmentRefs: TypenameWithCommonSelections$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameWithoutSpreads$ref = FragmentReference & { _: "TypenameWithoutSpreads$ref" };
+export type TypenameWithoutSpreads$fragmentType = TypenameWithoutSpreads$ref & { _: "TypenameWithoutSpreads$fragmentType" };
+export type TypenameWithoutSpreads = {
+  readonly firstName?: string,
+  readonly __typename: "User",
+  readonly $refType: TypenameWithoutSpreads$ref,
+};
+export type TypenameWithoutSpreads$data = TypenameWithoutSpreads;
+export type TypenameWithoutSpreads$key = {
+  readonly $data?: TypenameWithoutSpreads$data,
+  readonly $fragmentRefs: TypenameWithoutSpreads$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type TypenameWithoutSpreadsAbstractType$ref = FragmentReference & { _: "TypenameWithoutSpreadsAbstractType$ref" };
+export type TypenameWithoutSpreadsAbstractType$fragmentType = TypenameWithoutSpreadsAbstractType$ref & { _: "TypenameWithoutSpreadsAbstractType$fragmentType" };
+export type TypenameWithoutSpreadsAbstractType = {
+  readonly __typename: string,
+  readonly id: string,
+  readonly $refType: TypenameWithoutSpreadsAbstractType$ref,
+};
+export type TypenameWithoutSpreadsAbstractType$data = TypenameWithoutSpreadsAbstractType;
+export type TypenameWithoutSpreadsAbstractType$key = {
+  readonly $data?: TypenameWithoutSpreadsAbstractType$data,
+  readonly $fragmentRefs: TypenameWithoutSpreadsAbstractType$ref,
+};

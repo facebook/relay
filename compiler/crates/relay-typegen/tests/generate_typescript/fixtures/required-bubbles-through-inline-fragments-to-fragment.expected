@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+fragment Foo on Node {
+  __typename
+  ... on User {
+    ... on User {
+      name @required(action: LOG)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentReference } from "relay-runtime";
+export type Foo$ref = FragmentReference & { _: "Foo$ref" };
+export type Foo$fragmentType = Foo$ref & { _: "Foo$fragmentType" };
+export type Foo = {
+  readonly __typename: "User",
+  readonly name: string,
+  readonly $refType: Foo$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: Foo$ref,
+} | null;
+export type Foo$data = Foo;
+export type Foo$key = {
+  readonly $data?: Foo$data,
+  readonly $fragmentRefs: Foo$ref,
+};

@@ -18,6 +18,7 @@ use graphql_text_printer::{
 };
 use graphql_transforms::{RefetchableDerivedFromMetadata, SplitOperationMetaData, MATCH_CONSTANTS};
 use interner::StringKey;
+use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -60,7 +61,7 @@ pub fn generate_artifacts(
 
             artifacts.push(Artifact {
                 source_definition_names: metadata.parent_sources.into_iter().collect(),
-                path: path_for_js_artifact(
+                path: path_for_artifact(
                     project_config,
                     source_file,
                     normalization_operation.name.item,
@@ -175,7 +176,7 @@ fn generate_normalization_artifact<'a>(
         .expect("a type fragment should be generated for this operation");
     Ok(Artifact {
         source_definition_names: vec![source_definition_name],
-        path: path_for_js_artifact(project_config, source_file, name),
+        path: path_for_artifact(project_config, source_file, name),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization_operation),
             reader_operation: Arc::clone(reader_operation),
@@ -201,7 +202,7 @@ fn generate_reader_artifact(
         .expect("a type fragment should be generated for this fragment");
     Artifact {
         source_definition_names: vec![name],
-        path: path_for_js_artifact(
+        path: path_for_artifact(
             project_config,
             reader_fragment.name.location.source_location(),
             name,
@@ -254,7 +255,7 @@ pub fn create_path_for_artifact(
     }
 }
 
-fn path_for_js_artifact(
+fn path_for_artifact(
     project_config: &ProjectConfig,
     source_file: SourceLocationKey,
     definition_name: StringKey,
@@ -262,7 +263,10 @@ fn path_for_js_artifact(
     create_path_for_artifact(
         project_config,
         source_file,
-        format!("{}.graphql.js", definition_name),
+        match &project_config.typegen_config.language {
+            TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
+            TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+        },
         false,
     )
 }

@@ -6,24 +6,24 @@
  */
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use std::fmt::{Result, Write};
 
-pub struct FlowPrinter {
+pub struct TypeScriptPrinter {
     indentation: u32,
 }
 
-impl Writer for FlowPrinter {
+impl Writer for TypeScriptPrinter {
     fn write_ast(&mut self, ast: &AST) -> String {
         let mut writer = String::new();
         self.write(&mut writer, ast)
-            .expect("Expected Ok result from writing Flow code");
+            .expect("Expected Ok result from writing TypeScript code");
 
         writer
     }
 }
 
-impl FlowPrinter {
+impl TypeScriptPrinter {
     pub fn new() -> Self {
         Self { indentation: 0 }
     }
@@ -75,6 +75,21 @@ impl FlowPrinter {
         write!(writer, r#""%other""#)
     }
 
+    fn write_and_wrap_union(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
+        match ast {
+            AST::Union(members) if members.len() > 1 => {
+                write!(writer, "(")?;
+                self.write_union(writer, members)?;
+                write!(writer, ")")?;
+            }
+            _ => {
+                self.write(writer, ast)?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn write_union(&mut self, writer: &mut dyn Write, members: &[AST]) -> Result {
         let mut first = true;
         for member in members {
@@ -96,65 +111,54 @@ impl FlowPrinter {
             } else {
                 write!(writer, " & ")?;
             }
-            self.write(writer, member)?;
+
+            self.write_and_wrap_union(writer, member)?;
         }
         Ok(())
     }
 
     fn write_read_only_array(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
-        write!(writer, "$ReadOnlyArray<")?;
+        write!(writer, "ReadonlyArray<")?;
         self.write(writer, of_type)?;
         write!(writer, ">")
     }
 
     fn write_nullable(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
-        write!(writer, "?")?;
-        match of_type {
-            AST::Union(members) if members.len() > 1 => {
-                write!(writer, "(")?;
-                self.write(writer, of_type)?;
-                write!(writer, ")")?;
-            }
-            _ => {
-                self.write(writer, of_type)?;
-            }
+        let null_type = AST::RawType("null".intern());
+        if let AST::Union(members) = of_type {
+            let mut new_members = Vec::with_capacity(members.len() + 1);
+            new_members.extend_from_slice(members);
+            new_members.push(null_type);
+            self.write_union(writer, &*new_members)?;
+        } else {
+            self.write_union(writer, &*vec![of_type.clone(), null_type])?;
         }
         Ok(())
     }
 
     fn write_object(&mut self, writer: &mut dyn Write, props: &[Prop], exact: bool) -> Result {
-        if props.is_empty() && exact {
-            write!(writer, "{{||}}")?;
+        if props.is_empty() {
+            write!(writer, "{{}}")?;
             return Ok(());
         }
 
         // Replication of babel printer oddity: objects only containing a spread
         // are missing a newline.
         if props.len() == 1 && props[0].key == *SPREAD_KEY {
-            write!(writer, "{{| ...")?;
-            self.write(writer, &props[0].value)?;
-            writeln!(writer)?;
-            self.write_indentation(writer)?;
-            write!(writer, "|}}")?;
+            write!(writer, "{{}}")?;
             return Ok(());
         }
 
-        if exact {
-            writeln!(writer, "{{|")?;
-        } else {
-            writeln!(writer, "{{")?;
-        }
+        writeln!(writer, "{{")?;
         self.indentation += 1;
 
         let mut first = true;
         for prop in props {
-            self.write_indentation(writer)?;
             if prop.key == *SPREAD_KEY {
-                write!(writer, "...")?;
-                self.write(writer, &prop.value)?;
-                writeln!(writer, ",")?;
                 continue;
             }
+
+            self.write_indentation(writer)?;
             if let AST::OtherEnumValue = prop.value {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
@@ -165,14 +169,24 @@ impl FlowPrinter {
                 self.write_indentation(writer)?;
             }
             if prop.read_only {
-                write!(writer, "+")?;
+                write!(writer, "readonly ")?;
             }
             write!(writer, "{}", prop.key)?;
-            if prop.optional {
+            if match &prop.value {
+                AST::Nullable(_) => true,
+                _ => prop.optional,
+            } {
                 write!(writer, "?")?;
             }
             write!(writer, ": ")?;
-            self.write(writer, &prop.value)?;
+            self.write(
+                writer,
+                if let AST::Nullable(value) = &prop.value {
+                    value
+                } else {
+                    &prop.value
+                },
+            )?;
             if first && props.len() == 1 && exact {
                 writeln!(writer)?;
             } else {
@@ -180,17 +194,9 @@ impl FlowPrinter {
             }
             first = false;
         }
-        if !exact {
-            self.write_indentation(writer)?;
-            writeln!(writer, "...")?;
-        }
         self.indentation -= 1;
         self.write_indentation(writer)?;
-        if exact {
-            write!(writer, "|}}")?;
-        } else {
-            write!(writer, "}}")?;
-        }
+        write!(writer, "}}")?;
         Ok(())
     }
 
@@ -214,7 +220,7 @@ impl FlowPrinter {
     ) -> Result {
         write!(
             writer,
-            "import type {{ {} }} from \"{}\";",
+            "import {{ {} }} from \"{}\";",
             types
                 .iter()
                 .map(|t| format!("{}", t))
@@ -230,7 +236,11 @@ impl FlowPrinter {
         alias: &StringKey,
         value: &StringKey,
     ) -> Result {
-        write!(writer, "declare export opaque type {}: {};", alias, value)
+        write!(
+            writer,
+            "export type {} = {} & {{ _: \"{}\" }};",
+            alias, value, alias
+        )
     }
 
     fn write_export_type_equals(
@@ -245,7 +255,7 @@ impl FlowPrinter {
     fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
         write!(
             writer,
-            "export type {{ {} }};",
+            "export {{ {} }};",
             names
                 .iter()
                 .map(|t| format!("{}", t))
@@ -261,7 +271,7 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        FlowPrinter::new().write_ast(ast)
+        TypeScriptPrinter::new().write_ast(ast)
     }
 
     #[test]
@@ -283,7 +293,7 @@ mod tests {
     fn read_only_array_type() {
         assert_eq!(
             print_type(&AST::ReadOnlyArray(Box::new(AST::String))),
-            "$ReadOnlyArray<string>".to_string()
+            "ReadonlyArray<string>".to_string()
         );
     }
 
@@ -291,7 +301,7 @@ mod tests {
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "?string".to_string()
+            "string | null".to_string()
         );
 
         assert_eq!(
@@ -299,16 +309,70 @@ mod tests {
                 AST::String,
                 AST::Number,
             ])))),
-            "?(string | number)"
+            "string | number | null"
         )
     }
 
     #[test]
-    fn exact_object() {
+    fn intersections() {
         assert_eq!(
-            print_type(&AST::ExactObject(Vec::new())),
-            r"{||}".to_string()
+            print_type(&AST::Intersection(vec![
+                AST::ExactObject(vec![Prop {
+                    key: "first".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String
+                }]),
+                AST::ExactObject(vec![Prop {
+                    key: "second".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                }]),
+            ])),
+            r"{
+  first: string
+} & {
+  second: number
+}"
         );
+
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::Union(vec![
+                    AST::ExactObject(vec![Prop {
+                        key: "first".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String
+                    }]),
+                    AST::ExactObject(vec![Prop {
+                        key: "second".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::Number
+                    }]),
+                ]),
+                AST::ExactObject(vec![Prop {
+                    key: "third".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                }]),
+            ],)),
+            r"({
+  first: string
+} | {
+  second: number
+}) & {
+  third: number
+}"
+        );
+    }
+
+    #[test]
+    fn exact_object() {
+        assert_eq!(print_type(&AST::ExactObject(Vec::new())), r"{}".to_string());
 
         assert_eq!(
             print_type(&AST::ExactObject(vec![Prop {
@@ -317,9 +381,9 @@ mod tests {
                 read_only: false,
                 value: AST::String,
             },])),
-            r"{|
+            r"{
   single: string
-|}"
+}"
             .to_string()
         );
         assert_eq!(
@@ -337,10 +401,10 @@ mod tests {
                     value: AST::Number,
                 },
             ])),
-            r"{|
+            r"{
   foo?: string,
-  +bar: number,
-|}"
+  readonly bar: number,
+}"
             .to_string()
         );
     }
@@ -375,13 +439,13 @@ mod tests {
                     value: AST::Number,
                 },
             ])),
-            r"{|
-  foo?: {|
+            r"{
+  foo?: {
     nested_foo?: string,
-    +nested_foo2: number,
-  |},
-  +bar: number,
-|}"
+    readonly nested_foo2: number,
+  },
+  readonly bar: number,
+}"
             .to_string()
         );
     }
@@ -390,10 +454,7 @@ mod tests {
     fn inexact_object() {
         assert_eq!(
             print_type(&AST::InexactObject(Vec::new())),
-            r"{
-  ...
-}"
-            .to_string()
+            "{}".to_string()
         );
 
         assert_eq!(
@@ -405,7 +466,6 @@ mod tests {
             },])),
             r"{
   single: string,
-  ...
 }"
             .to_string()
         );
@@ -427,8 +487,7 @@ mod tests {
             ])),
             r"{
   foo: string,
-  +bar?: number,
-  ...
+  readonly bar?: number,
 }"
             .to_string()
         );
@@ -443,11 +502,11 @@ mod tests {
                 read_only: false,
                 value: AST::OtherEnumValue,
             },])),
-            r#"{|
+            r#"{
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   with_comment: "%other"
-|}"#
+}"#
             .to_string()
         );
     }

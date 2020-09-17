@@ -121,12 +121,12 @@ mod tests {
             Some("SliderIos".to_string())
         );
         assert_eq!(
-            extract_module_name("/path/Typescript.ts"),
-            Some("Typescript".to_string())
+            extract_module_name("/path/TypeScript.ts"),
+            Some("TypeScript".to_string())
         );
         assert_eq!(
-            extract_module_name("/path/Typescript.tsx"),
-            Some("Typescript".to_string())
+            extract_module_name("/path/TypeScript.tsx"),
+            Some("TypeScript".to_string())
         );
         assert_eq!(
             extract_module_name("/path/button/index.js"),

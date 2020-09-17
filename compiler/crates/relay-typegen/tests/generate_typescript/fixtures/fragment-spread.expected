@@ -1,0 +1,184 @@
+==================================== INPUT ====================================
+fragment FragmentSpread on Node {
+  id
+  ...OtherFragment
+  justFrag: profilePicture {
+    ...PictureFragment
+  }
+  fragAndField: profilePicture {
+    uri
+    ...PictureFragment
+  }
+  ... on User {
+    ...UserFrag1
+    ...UserFrag2
+  }
+}
+
+fragment ConcreateTypes on Viewer {
+  actor {
+    __typename
+    ... on Page {
+      id
+      ...PageFragment
+    }
+    ... on User {
+      name
+    }
+  }
+}
+
+fragment PictureFragment on Image {
+  __typename
+}
+
+fragment OtherFragment on Node {
+  __typename
+}
+
+fragment PageFragment on Page {
+  __typename
+}
+
+fragment UserFrag1 on User {
+  __typename
+}
+
+fragment UserFrag2 on User {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { PageFragment$ref } from "PageFragment.graphql";
+import { FragmentReference } from "relay-runtime";
+export type ConcreateTypes$ref = FragmentReference & { _: "ConcreateTypes$ref" };
+export type ConcreateTypes$fragmentType = ConcreateTypes$ref & { _: "ConcreateTypes$fragmentType" };
+export type ConcreateTypes = {
+  readonly actor?: {
+    readonly __typename: "Page",
+    readonly id: string,
+    readonly $fragmentRefs: PageFragment$ref,
+  } | {
+    readonly __typename: "User",
+    readonly name?: string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other"
+  },
+  readonly $refType: ConcreateTypes$ref,
+};
+export type ConcreateTypes$data = ConcreateTypes;
+export type ConcreateTypes$key = {
+  readonly $data?: ConcreateTypes$data,
+  readonly $fragmentRefs: ConcreateTypes$ref,
+};
+-------------------------------------------------------------------------------
+import type { OtherFragment$ref } from "OtherFragment.graphql";
+import type { PictureFragment$ref } from "PictureFragment.graphql";
+import type { UserFrag1$ref } from "UserFrag1.graphql";
+import type { UserFrag2$ref } from "UserFrag2.graphql";
+import { FragmentReference } from "relay-runtime";
+export type FragmentSpread$ref = FragmentReference & { _: "FragmentSpread$ref" };
+export type FragmentSpread$fragmentType = FragmentSpread$ref & { _: "FragmentSpread$fragmentType" };
+export type FragmentSpread = {
+  readonly id: string,
+  readonly justFrag?: {
+    readonly $fragmentRefs: PictureFragment$ref
+  },
+  readonly fragAndField?: {
+    readonly uri?: string,
+    readonly $fragmentRefs: PictureFragment$ref,
+  },
+  readonly $fragmentRefs: OtherFragment$ref & UserFrag1$ref & UserFrag2$ref,
+  readonly $refType: FragmentSpread$ref,
+};
+export type FragmentSpread$data = FragmentSpread;
+export type FragmentSpread$key = {
+  readonly $data?: FragmentSpread$data,
+  readonly $fragmentRefs: FragmentSpread$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type OtherFragment$ref = FragmentReference & { _: "OtherFragment$ref" };
+export type OtherFragment$fragmentType = OtherFragment$ref & { _: "OtherFragment$fragmentType" };
+export type OtherFragment = {
+  readonly __typename: string,
+  readonly $refType: OtherFragment$ref,
+};
+export type OtherFragment$data = OtherFragment;
+export type OtherFragment$key = {
+  readonly $data?: OtherFragment$data,
+  readonly $fragmentRefs: OtherFragment$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type PageFragment$ref = FragmentReference & { _: "PageFragment$ref" };
+export type PageFragment$fragmentType = PageFragment$ref & { _: "PageFragment$fragmentType" };
+export type PageFragment = {
+  readonly __typename: "Page",
+  readonly $refType: PageFragment$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: PageFragment$ref,
+};
+export type PageFragment$data = PageFragment;
+export type PageFragment$key = {
+  readonly $data?: PageFragment$data,
+  readonly $fragmentRefs: PageFragment$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type PictureFragment$ref = FragmentReference & { _: "PictureFragment$ref" };
+export type PictureFragment$fragmentType = PictureFragment$ref & { _: "PictureFragment$fragmentType" };
+export type PictureFragment = {
+  readonly __typename: "Image",
+  readonly $refType: PictureFragment$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: PictureFragment$ref,
+};
+export type PictureFragment$data = PictureFragment;
+export type PictureFragment$key = {
+  readonly $data?: PictureFragment$data,
+  readonly $fragmentRefs: PictureFragment$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type UserFrag1$ref = FragmentReference & { _: "UserFrag1$ref" };
+export type UserFrag1$fragmentType = UserFrag1$ref & { _: "UserFrag1$fragmentType" };
+export type UserFrag1 = {
+  readonly __typename: "User",
+  readonly $refType: UserFrag1$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: UserFrag1$ref,
+};
+export type UserFrag1$data = UserFrag1;
+export type UserFrag1$key = {
+  readonly $data?: UserFrag1$data,
+  readonly $fragmentRefs: UserFrag1$ref,
+};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+export type UserFrag2$ref = FragmentReference & { _: "UserFrag2$ref" };
+export type UserFrag2$fragmentType = UserFrag2$ref & { _: "UserFrag2$fragmentType" };
+export type UserFrag2 = {
+  readonly __typename: "User",
+  readonly $refType: UserFrag2$ref,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $refType: UserFrag2$ref,
+};
+export type UserFrag2$data = UserFrag2;
+export type UserFrag2$key = {
+  readonly $data?: UserFrag2$data,
+  readonly $fragmentRefs: UserFrag2$ref,
+};

@@ -6,10 +6,10 @@
  */
 
 use crate::root_variables::VariableMap;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, Selection, Value,
-    Variable, VariableDefinition,
+    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, Selection,
+    ValidationMessage, Value, Variable, VariableDefinition,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -87,27 +87,37 @@ pub fn build_operation_variable_definitions(
     result
 }
 
-pub fn build_used_global_variables(variable_map: &VariableMap) -> Vec<VariableDefinition> {
-    variable_map
-        .values()
-        .map(|var| VariableDefinition {
-            name: var.name,
-            type_: var.type_.clone(),
-            default_value: None,
-            directives: vec![],
-        })
-        .collect()
-}
+pub fn build_used_global_variables(
+    variable_map: &VariableMap,
+    local_variable_definitions: &[VariableDefinition],
+) -> DiagnosticsResult<Vec<VariableDefinition>> {
+    let mut errors = Vec::new();
 
-pub fn filter_fragment_variable_definitions(
-    variables_map: &VariableMap,
-    variable_definitions: &[VariableDefinition],
-) -> Vec<VariableDefinition> {
-    variable_definitions
-        .iter()
-        .filter(|var| !variables_map.contains_key(&var.name.item))
-        .cloned()
-        .collect()
+    let global_variables = variable_map
+        .values()
+        .map(|var| {
+            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item) {
+                errors.push(Diagnostic::error(
+                    ValidationMessage::LocalGlobalVariableConflict {
+                        name: local_conflicting_var.name.item,
+                    },
+                    local_conflicting_var.name.location,
+                ));
+            };
+            VariableDefinition {
+                name: var.name,
+                type_: var.type_.clone(),
+                default_value: None,
+                directives: vec![],
+            }
+        })
+        .collect();
+
+    if errors.is_empty() {
+        Ok(global_variables)
+    } else {
+        Err(errors)
+    }
 }
 
 /// Attach metadata to the operation and fragment.

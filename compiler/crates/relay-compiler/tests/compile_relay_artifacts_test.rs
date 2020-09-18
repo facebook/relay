@@ -1,4 +1,4 @@
-// @generated SignedSource<<10dfe54827fff7f74c7ebc1fa131258b>>
+// @generated SignedSource<<8940ac7ef6d51aad5bba9f5062f8373c>>
 
 mod compile_relay_artifacts;
 
@@ -661,6 +661,20 @@ fn refetchable_fragment_with_connection_with_stream() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-with-stream.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-with-stream.expected");
     test_fixture(transform_fixture, "refetchable-fragment-with-connection-with-stream.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-with-stream.expected", input, expected);
+}
+
+#[test]
+fn refetchable_with_arguments_conflicting_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments-conflicting.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments-conflicting.invalid.expected");
+    test_fixture(transform_fixture, "refetchable-with-arguments-conflicting.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable-with-arguments-conflicting.invalid.expected", input, expected);
+}
+
+#[test]
+fn refetchable_with_arguments_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected");
+    test_fixture(transform_fixture, "refetchable-with-arguments.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected", input, expected);
 }
 
 #[test]

@@ -1,4 +1,4 @@
-// @generated SignedSource<<8940ac7ef6d51aad5bba9f5062f8373c>>
+// @generated SignedSource<<1f7f5633ceaaebbf6cd9b054fabafaec>>
 
 mod compile_relay_artifacts;
 
@@ -465,6 +465,13 @@ fn missing_argument_on_field_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.expected");
     test_fixture(transform_fixture, "missing-argument-on-field.invalid.graphql", "compile_relay_artifacts/fixtures/missing-argument-on-field.invalid.expected", input, expected);
+}
+
+#[test]
+fn module_deduping() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-deduping.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-deduping.expected");
+    test_fixture(transform_fixture, "module-deduping.graphql", "compile_relay_artifacts/fixtures/module-deduping.expected", input, expected);
 }
 
 #[test]

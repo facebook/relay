@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, ValidationResult, Value,
+    ValidationMessage, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -28,7 +28,7 @@ lazy_static! {
 
 /// Transform to find calls to React Flight schema extension fields and rewrite them into calls
 /// to a generic `flight(component, props)` field.
-pub fn react_flight(program: &Program) -> ValidationResult<Program> {
+pub fn react_flight(program: &Program) -> DiagnosticsResult<Program> {
     // No-op unless the special props/component types and flight directive are defined
     let props_type = program.schema.get_type(*REACT_FLIGHT_PROPS_TYPE);
     let component_type = program.schema.get_type(*REACT_FLIGHT_COMPONENT_TYPE);

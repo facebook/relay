@@ -325,7 +325,7 @@ class SelectorResolver {
     // NOTE: We manually create the request descriptor here instead of
     // calling createOperationDescriptor() because we want to set a
     // descriptor with *unaltered* variables as the fragment owner.
-    // This is a hack that allows us to preserve exisiting (broken)
+    // This is a hack that allows us to preserve existing (broken)
     // behavior of RelayModern containers while using fragment ownership
     // to propagate variables instead of Context.
     // For more details, see the summary of D13999308

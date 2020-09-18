@@ -12,7 +12,7 @@ use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation};
 use test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),

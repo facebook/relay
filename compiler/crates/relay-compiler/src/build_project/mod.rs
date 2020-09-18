@@ -134,6 +134,7 @@ pub fn build_project(
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
     log_event.string("project", project_name.to_string());
+    info!("[{}] compiling...", project_name);
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event.time("build_schema_time", || {
@@ -189,8 +190,9 @@ pub async fn commit_project(
                 &mut artifacts,
                 &config.root_dir,
                 &persist_config,
-                config.full_build,
+                config,
                 &artifact_persister,
+                &log_event,
             )
             .await?;
             log_event.stop(persist_operations_timer);

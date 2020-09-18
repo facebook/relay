@@ -9,9 +9,9 @@ use crate::build::{
     build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
 };
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationMessage, ValidationResult};
+use crate::errors::ValidationMessage;
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Diagnostic, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use errors::{par_try_map, try2};
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
@@ -48,7 +48,7 @@ pub struct FragmentSignature {
 pub fn build_signatures(
     schema: &Schema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-) -> ValidationResult<FragmentSignatures> {
+) -> DiagnosticsResult<FragmentSignatures> {
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
         FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
@@ -84,7 +84,7 @@ pub fn build_signatures(
 fn build_fragment_signature(
     schema: &Schema,
     fragment: &graphql_syntax::FragmentDefinition,
-) -> ValidationResult<FragmentSignature> {
+) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
         Some(type_condition) => match type_condition {
@@ -164,7 +164,7 @@ fn build_fragment_variable_definitions(
     schema: &Schema,
     fragment: &graphql_syntax::FragmentDefinition,
     directive: &graphql_syntax::Directive,
-) -> ValidationResult<Vec<VariableDefinition>> {
+) -> DiagnosticsResult<Vec<VariableDefinition>> {
     if let Some(arguments) = &directive.arguments {
         Ok(arguments
             .items
@@ -223,7 +223,7 @@ fn build_fragment_variable_definitions(
                     .into())
                 }
             })
-            .collect::<ValidationResult<Vec<VariableDefinition>>>()?)
+            .collect::<DiagnosticsResult<Vec<VariableDefinition>>>()?)
     } else {
         Ok(Default::default())
     }
@@ -233,7 +233,7 @@ fn get_argument_type(
     schema: &Schema,
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
-) -> ValidationResult<TypeReference> {
+) -> DiagnosticsResult<TypeReference> {
     let type_arg = object.items.named(*TYPE);
     let type_name_and_span = match type_arg {
         Some(graphql_syntax::ConstantArgument {
@@ -280,7 +280,7 @@ fn get_default_value(
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
-) -> ValidationResult<Option<ConstantValue>> {
+) -> DiagnosticsResult<Option<ConstantValue>> {
     Ok(object
         .items
         .named(*DEFAULT_VALUE)

@@ -108,7 +108,6 @@ impl CustomMetadataDirectives {
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
             || name == *REACT_FLIGHT_DIRECTIVE_NAME
-            || name == *REQUIRED_DIRECTIVE_NAME
     }
 
     pub fn is_handle_field_directive(&self, name: StringKey) -> bool {

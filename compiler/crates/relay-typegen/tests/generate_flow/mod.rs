@@ -17,7 +17,7 @@ use relay_typegen::{self, TypegenConfig};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),

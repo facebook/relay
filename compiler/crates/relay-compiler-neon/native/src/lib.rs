@@ -23,7 +23,7 @@ use std::sync::Arc;
 
 /// Parse JS input to get list of executable definitions (ASTs)
 fn build_definitions_from_js_input(
-    input: Vec<Handle<JsValue>>,
+    input: Vec<Handle<'_, JsValue>>,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let mut documents: Vec<DiagnosticsResult<ExecutableDocument>> = Vec::with_capacity(input.len());
     let mut errors: Vec<Diagnostic> = vec![];
@@ -90,7 +90,6 @@ fn create_configs() -> (Config, ProjectConfig) {
         artifact_writer: Box::new(ArtifactFileWriter::default()),
         codegen_command: None,
         excludes: vec![],
-        full_build: false,
         generate_extra_operation_artifacts: None,
         header: vec![],
         load_saved_state_file: None,
@@ -103,12 +102,14 @@ fn create_configs() -> (Config, ProjectConfig) {
         connection_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
         artifact_persister: None,
+        compile_everything: false,
+        repersist_operations: false,
     };
 
     (config, project_config)
 }
 
-fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
+fn compile(mut cx: FunctionContext<'_>) -> JsResult<'_, JsObject> {
     let schema_text = cx.argument::<JsString>(0)?.value();
     let documents = cx.argument::<JsArray>(1)?.to_vec(&mut cx)?;
 

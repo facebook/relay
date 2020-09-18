@@ -25,7 +25,7 @@ type SourceControlFn = fn(&Mutex<Vec<PathBuf>>, &Mutex<Vec<PathBuf>>) -> crate::
 pub struct ArtifactFileWriter {
     added: Mutex<Vec<PathBuf>>,
     removed: Mutex<Vec<PathBuf>>,
-    source_control_fn: SourceControlFn,
+    source_control_fn: Option<SourceControlFn>,
 }
 
 impl Default for ArtifactFileWriter {
@@ -33,13 +33,13 @@ impl Default for ArtifactFileWriter {
         Self {
             added: Default::default(),
             removed: Default::default(),
-            source_control_fn: |_, _| Ok(()),
+            source_control_fn: None,
         }
     }
 }
 
 impl ArtifactFileWriter {
-    pub fn new(source_control_fn: SourceControlFn) -> Self {
+    pub fn new(source_control_fn: Option<SourceControlFn>) -> Self {
         Self {
             added: Default::default(),
             removed: Default::default(),
@@ -87,7 +87,11 @@ impl ArtifactWriter for ArtifactFileWriter {
     }
 
     fn finalize(&self) -> crate::errors::Result<()> {
-        (self.source_control_fn)(&self.added, &self.removed)
+        if let Some(source_control_fn) = self.source_control_fn {
+            (source_control_fn)(&self.added, &self.removed)
+        } else {
+            Ok(())
+        }
     }
 }
 

@@ -14,7 +14,7 @@ use relay_codegen::{print_fragment, print_operation};
 use std::sync::Arc;
 use test_schema::get_test_schema;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),

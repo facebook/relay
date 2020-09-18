@@ -13,9 +13,13 @@
 
 'use strict';
 
+const ProfilerContext = require('./ProfilerContext');
 const React = require('react');
 
+const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
+
+const {useContext, useEffect} = require('react');
 
 import type {
   EntryPointComponent,
@@ -47,8 +51,23 @@ function EntryPointContainer<
       'collection, and as such may no longer be present in the Relay store. ' +
       'In the future, this will become a hard error.',
   );
-  const {getComponent, queries, entryPoints, extraProps} = entryPointReference;
+  const {
+    getComponent,
+    queries,
+    entryPoints,
+    extraProps,
+    rootModuleReference,
+  } = entryPointReference;
   const Component = getComponent();
+  const profilerContext = useContext(ProfilerContext);
+  const environment = useRelayEnvironment();
+  useEffect(() => {
+    environment.__log({
+      name: 'entrypoint.root.consume',
+      profilerContext,
+      rootModuleID: rootModuleReference.getModuleId(),
+    });
+  }, [environment, profilerContext, rootModuleReference]);
   return (
     <Component
       entryPoints={entryPoints}

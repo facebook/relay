@@ -248,8 +248,6 @@ export interface Store {
 
   /**
    * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
    */
   lookup(selector: SingularReaderSelector): Snapshot;
 
@@ -259,7 +257,7 @@ export interface Store {
    * Optionally provide an OperationDescriptor indicating the source operation
    * that was being processed to produce this run.
    *
-   * This method should return an array of the affected fragment owners
+   * This method should return an array of the affected fragment owners.
    */
   notify(
     sourceOperation?: OperationDescriptor,
@@ -275,7 +273,7 @@ export interface Store {
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
-   * retained in-memory. The records will not be eligible for garbage collection
+   * retained in memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
   retain(operation: OperationDescriptor): Disposable;
@@ -489,6 +487,11 @@ export type LogEvent =
       +name: 'read.missing_required_field',
       +owner: string,
       +fieldPath: string,
+    |}
+  | {|
+      +name: 'entrypoint.root.consume',
+      +profilerContext: mixed,
+      +rootModuleID: string,
     |};
 
 export type LogFunction = LogEvent => void;
@@ -581,14 +584,12 @@ export interface IEnvironment {
   /**
    * EXPERIMENTAL
    * Returns the default render policy to use when rendering a query
-   * that uses Relay Hooks
+   * that uses Relay Hooks.
    */
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy;
 
   /**
    * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
    */
   lookup(selector: SingularReaderSelector): Snapshot;
 

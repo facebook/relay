@@ -6,10 +6,10 @@
  */
 
 use crate::INTERNAL_METADATA_DIRECTIVE;
-use common::{Diagnostic, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Selection, Transformed,
-    Transformer, ValidationMessage, ValidationResult, Value,
+    Transformer, ValidationMessage, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -19,7 +19,7 @@ lazy_static! {
     pub static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
 }
 
-pub fn generate_subscription_name_metadata(program: &Program) -> ValidationResult<Program> {
+pub fn generate_subscription_name_metadata(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = GenerateSubscriptionNameMetadata::new(program);
     let next_program = transformer
         .transform_program(program)

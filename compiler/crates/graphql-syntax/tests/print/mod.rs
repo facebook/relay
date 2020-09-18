@@ -8,7 +8,7 @@
 use fixture_tests::Fixture;
 use schema::{parse_definitions, type_system_node_v1::TypeSystemDefinition};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let type_system_definitions: Vec<TypeSystemDefinition> =
         parse_definitions(fixture.content).unwrap();
 

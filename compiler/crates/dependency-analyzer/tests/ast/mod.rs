@@ -10,7 +10,7 @@ use dependency_analyzer::{get_reachable_ast, ReachableAst};
 use fixture_tests::Fixture;
 use graphql_syntax::*;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<&str> = fixture.content.split("%definitions%").collect();
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);

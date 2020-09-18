@@ -9,12 +9,12 @@ mod directives;
 
 use super::get_applied_fragment_name;
 use crate::util::{remove_directive, replace_directive};
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, ValidationResult, Value,
+    ValidationMessage, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -46,7 +46,7 @@ lazy_static! {
     pub static ref DEFER_STREAM_CONSTANTS: DeferStreamConstants = Default::default();
 }
 
-pub fn transform_defer_stream(program: &Program) -> ValidationResult<Program> {
+pub fn transform_defer_stream(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = DeferStreamTransform {
         program,
         current_document_name: None,

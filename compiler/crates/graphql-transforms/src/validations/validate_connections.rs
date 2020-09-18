@@ -10,11 +10,11 @@ use crate::handle_fields::{
     extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
     DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
 };
-use common::{Diagnostic, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::{validate, validate_map};
 use graphql_ir::{
     Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationMessage,
-    ValidationResult, Validator, Value,
+    Validator, Value,
 };
 use interner::StringKey;
 use schema::{Field, Type, TypeReference};
@@ -22,7 +22,7 @@ use schema::{Field, Type, TypeReference};
 pub fn validate_connections(
     program: &Program,
     connection_interface: &ConnectionInterface,
-) -> ValidationResult<()> {
+) -> DiagnosticsResult<()> {
     let mut validator = ConnectionValidation::new(program, connection_interface);
     validator.validate_program(program)
 }
@@ -47,7 +47,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_field: &LinkedField,
         connection_schema_field: &Field,
         connection_directive: &Directive,
-    ) -> ValidationResult<Type> {
+    ) -> DiagnosticsResult<Type> {
         let schema = &self.program.schema;
         let field_type = connection_schema_field.type_.nullable_type();
         if field_type.is_list()
@@ -78,7 +78,7 @@ impl<'s> ConnectionValidation<'s> {
         &self,
         connection_field: &'s LinkedField,
         connection_schema_field: &'s Field,
-    ) -> ValidationResult<&'s LinkedField> {
+    ) -> DiagnosticsResult<&'s LinkedField> {
         let schema = &self.program.schema;
 
         let first_arg = connection_field
@@ -137,7 +137,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_field_type: Type,
         connection_directive: &Directive,
         edges_field: &LinkedField,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         validate!(
             self.validate_edges_spec(
                 connection_field,
@@ -166,7 +166,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_field_type: Type,
         connection_directive: &Directive,
         edges_field: &LinkedField,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         let schema = &self.program.schema;
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
@@ -258,7 +258,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_schema_field: &Field,
         connection_field_type: Type,
         connection_directive: &Directive,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         let schema = &self.program.schema;
         let connection_directive_name = connection_directive.name.item;
         let connection_type_name = schema.get_type_name(connection_field_type);
@@ -320,7 +320,7 @@ impl<'s> ConnectionValidation<'s> {
         selection_name: StringKey,
         is_valid: impl Fn(&Field, &TypeReference) -> bool,
         error: impl Fn() -> Vec<Diagnostic>,
-    ) -> ValidationResult<(&Field, &TypeReference)> {
+    ) -> DiagnosticsResult<(&Field, &TypeReference)> {
         let schema = &self.program.schema;
         if let Some(field_id) = schema.named_field(parent_type, selection_name) {
             let field = schema.field(field_id);
@@ -340,7 +340,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_field: &LinkedField,
         connection_schema_field: &Field,
         connection_directive: &Directive,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         let connection_directive_args =
             extract_handle_field_directive_args_for_connection(connection_directive);
 
@@ -378,7 +378,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_schema_field: &Field,
         connection_directive: &Directive,
         constant_handler_arg: Option<(&Argument, &ConstantValue)>,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         if let Some((arg, handler_val)) = constant_handler_arg {
             match handler_val {
                 ConstantValue::String(_) => {}
@@ -406,7 +406,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_schema_field: &Field,
         connection_directive: &Directive,
         constant_key_arg: Option<(&Argument, &ConstantValue)>,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         match constant_key_arg {
             Some((arg, key_val)) => match key_val {
                 ConstantValue::String(string_val) => {
@@ -465,7 +465,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_schema_field: &Field,
         connection_directive: &Directive,
         constant_filters_arg: Option<(&Argument, &ConstantValue)>,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         if let Some((arg, filters_val)) = constant_filters_arg {
             match filters_val {
                 ConstantValue::List(list_val) => {
@@ -512,7 +512,7 @@ impl<'s> ConnectionValidation<'s> {
         connection_schema_field: &Field,
         connection_directive: &Directive,
         dynamic_key_arg: Option<(&Argument, &Value)>,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         if let Some((dynamic_key_arg, value)) = dynamic_key_arg {
             match value {
                 Value::Variable(_) => {}
@@ -538,7 +538,7 @@ impl<'s> ConnectionValidation<'s> {
         &self,
         edges_field: &LinkedField,
         connection_field: &LinkedField,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         if edges_field.alias.is_some() {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::UnsupportedAliasingInStreamConnection {
@@ -583,7 +583,7 @@ impl<'s> Validator for ConnectionValidation<'s> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
+    fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         if let Some(connection_directive) =
             extract_connection_directive(&field.directives, self.connection_constants)
         {

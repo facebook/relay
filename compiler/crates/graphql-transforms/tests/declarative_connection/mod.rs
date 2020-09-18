@@ -9,7 +9,7 @@ use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
 use graphql_transforms::{transform_declarative_connection, ConnectionInterface};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
         transform_declarative_connection(&program, &ConnectionInterface::default())
     })

@@ -6,13 +6,10 @@
  */
 
 use crate::{root_variables::InferVariablesVisitor, MATCH_CONSTANTS};
-use common::{Diagnostic, NamedItem};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
-    Validator,
-};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
 
-pub fn validate_global_variables(program: &Program) -> ValidationResult<()> {
+pub fn validate_global_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateGlobalVariables::new(program).validate_program(program)
 }
 
@@ -34,7 +31,7 @@ impl Validator for ValidateGlobalVariables<'_> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> ValidationResult<()> {
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         // Skip 3D normalization fragments
         if operation
             .directives
@@ -83,7 +80,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         Ok(())
     }
 
-    fn validate_fragment(&mut self, _: &FragmentDefinition) -> ValidationResult<()> {
+    fn validate_fragment(&mut self, _: &FragmentDefinition) -> DiagnosticsResult<()> {
         Ok(())
     }
 }

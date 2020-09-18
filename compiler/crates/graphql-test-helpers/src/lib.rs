@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, SourceLocationKey};
+use common::{Diagnostic, DiagnosticsResult, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::{build, Program, ValidationResult};
+use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
 use std::sync::Arc;
@@ -16,7 +16,7 @@ use test_schema::get_test_schema;
 
 pub fn apply_transform_for_test<T>(fixture: &Fixture<'_>, transform: T) -> Result<String, String>
 where
-    T: Fn(&Program) -> ValidationResult<Program>,
+    T: Fn(&Program) -> DiagnosticsResult<Program>,
 {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();

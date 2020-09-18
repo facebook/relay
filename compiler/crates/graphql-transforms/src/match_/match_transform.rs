@@ -7,12 +7,12 @@
 
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
-use common::{Diagnostic, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer, ValidationMessage, ValidationResult, Value,
+    TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
 use interner::{Intern, StringKey};
@@ -21,7 +21,7 @@ use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 /// Transform and validate @match and @module
-pub fn transform_match(program: &Program) -> ValidationResult<Program> {
+pub fn transform_match(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = MatchTransform::new(program);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {

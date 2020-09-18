@@ -14,13 +14,11 @@ mod viewer_query_generator;
 use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationMessage, ValidationResult,
-};
+use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage};
 use graphql_text_printer::print_value;
 use interner::StringKey;
 use node_query_generator::NODE_QUERY_GENERATOR;
@@ -52,7 +50,7 @@ pub fn transform_refetchable_fragment(
     program: &Program,
     base_fragment_names: &'_ FnvHashSet<StringKey>,
     for_typegen: bool,
-) -> ValidationResult<Program> {
+) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
 
     let mut transformer = RefetchableFragment {
@@ -97,7 +95,7 @@ impl RefetchableFragment<'_> {
     fn transform_refetch_fragment(
         &mut self,
         fragment: &Arc<FragmentDefinition>,
-    ) -> ValidationResult<Option<RefetchRoot>> {
+    ) -> DiagnosticsResult<Option<RefetchRoot>> {
         let refetch_name = self.get_refetch_query_name(fragment)?;
         if let Some(refetch_name) = refetch_name {
             let variables_map = self.visitor.infer_fragment_variables(fragment);
@@ -134,7 +132,7 @@ impl RefetchableFragment<'_> {
     fn get_refetch_query_name(
         &mut self,
         fragment: &FragmentDefinition,
-    ) -> ValidationResult<Option<StringKey>> {
+    ) -> DiagnosticsResult<Option<StringKey>> {
         if let Some(directive) = fragment.directives.named(CONSTANTS.refetchable_name) {
             if let Some(query_name_arg) = directive.arguments.named(CONSTANTS.query_name_arg) {
                 if let Some(query_name) = query_name_arg.value.item.get_string_literal() {
@@ -185,7 +183,7 @@ impl RefetchableFragment<'_> {
     /// - Has a stable path to the connection data
     ///
     /// Connection metadata is extracted in `transform_connection`
-    fn validate_connection_metadata(&self, fragment: &FragmentDefinition) -> ValidationResult<()> {
+    fn validate_connection_metadata(&self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         if let Some(metadatas) = extract_connection_metadata_from_directive(
             &fragment.directives,
             self.connection_constants,
@@ -240,7 +238,7 @@ type BuildRefetchOperationFn = fn(
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
-) -> ValidationResult<Option<RefetchRoot>>;
+) -> DiagnosticsResult<Option<RefetchRoot>>;
 /// A strategy to generate queries for a given fragment. Multiple stategies
 /// can be tried, such as generating a `node(id: ID)` query or a query directly
 /// on the root query type.

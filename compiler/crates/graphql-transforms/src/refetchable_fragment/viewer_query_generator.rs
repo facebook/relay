@@ -7,15 +7,13 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables,
-    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
+    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{Diagnostic, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use graphql_ir::{
     FragmentDefinition, LinkedField, OperationDefinition, Selection, ValidationMessage,
-    ValidationResult,
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
@@ -27,7 +25,7 @@ fn build_refetch_operation(
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
-) -> ValidationResult<Option<RefetchRoot>> {
+) -> DiagnosticsResult<Option<RefetchRoot>> {
     if schema.get_type_name(fragment.type_condition) != CONSTANTS.viewer_type_name {
         return Ok(None);
     }
@@ -43,11 +41,11 @@ fn build_refetch_operation(
                 identifier_field: None,
             },
         ),
-        used_global_variables: build_used_global_variables(variables_map),
-        variable_definitions: filter_fragment_variable_definitions(
+        used_global_variables: build_used_global_variables(
             variables_map,
             &fragment.variable_definitions,
-        ),
+        )?,
+        variable_definitions: fragment.variable_definitions.clone(),
         ..fragment.as_ref().clone()
     });
     Ok(Some(RefetchRoot {
@@ -75,7 +73,7 @@ fn get_viewer_field_id(
     schema: &Schema,
     query_type: Type,
     fragment: &FragmentDefinition,
-) -> ValidationResult<FieldID> {
+) -> DiagnosticsResult<FieldID> {
     let viewer_type = schema.get_type(CONSTANTS.viewer_type_name);
     let viewer_field_id = schema.named_field(query_type, CONSTANTS.viewer_field_name);
     if let Some(viewer_type) = viewer_type {

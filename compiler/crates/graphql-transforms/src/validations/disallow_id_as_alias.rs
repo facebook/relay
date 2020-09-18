@@ -5,15 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use errors::validate;
-use graphql_ir::{
-    LinkedField, Program, ScalarField, ValidationMessage, ValidationResult, Validator,
-};
+use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
 use interner::{Intern, StringKey};
 use schema::{FieldID, Schema};
 
-pub fn disallow_id_as_alias(program: &Program) -> ValidationResult<()> {
+pub fn disallow_id_as_alias(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowIdAsAlias::new(program);
     validator.validate_program(program)
 }
@@ -37,7 +35,7 @@ impl Validator for DisallowIdAsAlias<'_> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
+    fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         validate!(
             if let Some(alias) = field.alias {
                 validate_field_alias(
@@ -53,7 +51,7 @@ impl Validator for DisallowIdAsAlias<'_> {
         )
     }
 
-    fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {
+    fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         if let Some(alias) = field.alias {
             validate_field_alias(
                 &self.program.schema,
@@ -72,7 +70,7 @@ fn validate_field_alias(
     id_key: StringKey,
     alias: &WithLocation<StringKey>,
     field: FieldID,
-) -> ValidationResult<()> {
+) -> DiagnosticsResult<()> {
     if alias.item == id_key && schema.field(field).name != id_key {
         Err(vec![Diagnostic::error(
             ValidationMessage::DisallowIdAsAliasError(),

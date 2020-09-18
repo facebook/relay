@@ -46,7 +46,13 @@ pub struct Config {
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
-    pub full_build: bool,
+
+    /// Compile all files. Persist ids are still re-used unless
+    /// `Config::repersist_operations` is also set.
+    pub compile_everything: bool,
+
+    /// Do not reuse persist ids from artifacts even if the text hash matches.
+    pub repersist_operations: bool,
 
     pub connection_interface: ConnectionInterface,
     pub feature_flags: FeatureFlags,
@@ -168,7 +174,6 @@ impl Config {
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
-            full_build: false,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
@@ -180,6 +185,8 @@ impl Config {
             connection_interface: config_file.connection_interface,
             feature_flags: config_file.feature_flags,
             artifact_persister: None,
+            compile_everything: false,
+            repersist_operations: false,
         };
 
         let mut validation_errors = Vec::new();
@@ -298,7 +305,8 @@ impl fmt::Debug for Config {
             root_dir,
             sources,
             excludes,
-            full_build,
+            compile_everything,
+            repersist_operations,
             projects,
             header,
             codegen_command,
@@ -316,7 +324,8 @@ impl fmt::Debug for Config {
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
-            .field("full_build", full_build)
+            .field("compile_everything", compile_everything)
+            .field("repersist_operations", repersist_operations)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
@@ -492,4 +501,8 @@ pub trait ArtifactPersister {
         artifact_text: String,
         project_config: &PersistConfig,
     ) -> std::result::Result<PersistId, PersistError>;
+
+    fn worker_count(&self) -> usize {
+        1
+    }
 }

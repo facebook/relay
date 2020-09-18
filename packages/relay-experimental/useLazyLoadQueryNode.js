@@ -95,8 +95,8 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
     if (__DEV__) {
       if (_maybeFastRefresh && _maybeFastRefresh.current) {
         /**
-         * This block only runs during fast refresh, the current resource and
-         * it's cache is disposed in the previous cleanup. Stop retaining and
+         * This block only runs during fast refresh, as the current resource and
+         * its cache are disposed in the previous cleanup. Stop retaining and
          * force a re-render to restart fetchObservable and retain correctly.
          */
         _maybeFastRefresh.current = false;

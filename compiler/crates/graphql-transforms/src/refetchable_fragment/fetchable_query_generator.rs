@@ -7,15 +7,14 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables,
-    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
+    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
     RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{Diagnostic, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
-    ValidationMessage, ValidationResult, Value, Variable, VariableDefinition,
+    ValidationMessage, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -27,7 +26,7 @@ fn build_refetch_operation(
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
-) -> ValidationResult<Option<RefetchRoot>> {
+) -> DiagnosticsResult<Option<RefetchRoot>> {
     let field_name = get_fetchable_field_name(fragment, schema)?;
     if let Some(field_name) = field_name {
         let identifier_field_name = field_name.intern();
@@ -44,11 +43,11 @@ fn build_refetch_operation(
 
         let fragment = Arc::new(FragmentDefinition {
             name: fragment.name,
-            variable_definitions: filter_fragment_variable_definitions(
+            variable_definitions: fragment.variable_definitions.clone(),
+            used_global_variables: build_used_global_variables(
                 variables_map,
                 &fragment.variable_definitions,
-            ),
-            used_global_variables: build_used_global_variables(variables_map),
+            )?,
             type_condition: fragment.type_condition,
             directives: build_fragment_metadata_as_directive(
                 fragment,
@@ -112,7 +111,7 @@ fn build_refetch_operation(
 fn get_fetchable_field_name<'schema>(
     fragment: &FragmentDefinition,
     schema: &'schema Schema,
-) -> ValidationResult<Option<&'schema str>> {
+) -> DiagnosticsResult<Option<&'schema str>> {
     if let Type::Object(id) = fragment.type_condition {
         let object = schema.object(id);
         if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
@@ -137,7 +136,7 @@ fn get_identifier_field_id(
     fragment: &FragmentDefinition,
     schema: &Schema,
     identifier_field_name: StringKey,
-) -> ValidationResult<FieldID> {
+) -> DiagnosticsResult<FieldID> {
     let identifier_field_id = schema.named_field(fragment.type_condition, identifier_field_name);
     if let Some(identifier_field_id) = identifier_field_id {
         let identifier_field = schema.field(identifier_field_id);
@@ -160,7 +159,7 @@ fn get_fetch_field_id_and_id_arg<'s>(
     schema: &'s Schema,
     query_type: Type,
     fetch_field_name: StringKey,
-) -> ValidationResult<(FieldID, &'s ArgumentDef)> {
+) -> DiagnosticsResult<(FieldID, &'s ArgumentDef)> {
     let fetch_field_id = schema.named_field(query_type, fetch_field_name);
     if let Some(fetch_field_id) = fetch_field_id {
         let fetch_field = schema.field(fetch_field_id);

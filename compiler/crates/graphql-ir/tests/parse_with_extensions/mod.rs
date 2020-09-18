@@ -13,7 +13,7 @@ use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use test_schema::get_test_schema_with_extensions;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
     sources.insert(
         SourceLocationKey::standalone(fixture.file_name),

@@ -7,13 +7,12 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables,
-    filter_fragment_variable_definitions, QueryGenerator, RefetchRoot,
+    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
     RefetchableDerivedFromMetadata, RefetchableMetadata,
 };
 use crate::root_variables::VariableMap;
-use common::WithLocation;
-use graphql_ir::{FragmentDefinition, OperationDefinition, ValidationResult};
+use common::{DiagnosticsResult, WithLocation};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::Schema;
@@ -24,7 +23,7 @@ fn build_refetch_operation(
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
-) -> ValidationResult<Option<RefetchRoot>> {
+) -> DiagnosticsResult<Option<RefetchRoot>> {
     let query_type = schema.query_type().unwrap();
     if fragment.type_condition != query_type {
         return Ok(None);
@@ -39,11 +38,11 @@ fn build_refetch_operation(
                 identifier_field: None,
             },
         ),
-        used_global_variables: build_used_global_variables(variables_map),
-        variable_definitions: filter_fragment_variable_definitions(
+        used_global_variables: build_used_global_variables(
             variables_map,
             &fragment.variable_definitions,
-        ),
+        )?,
+        variable_definitions: fragment.variable_definitions.clone(),
         ..fragment.as_ref().clone()
     });
     Ok(Some(RefetchRoot {

@@ -17,7 +17,7 @@ fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
   }
 }
 
-fragment BarNameRendererFragment on User {
+fragment moduleOverlapWithinDocument_BarNameRendererFragment on User {
   # same field alias as above and using standalone @module, so this should
   # flatten with the above selections even though the supported types are
   # different
@@ -41,12 +41,18 @@ fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUs
   }
 }
 ==================================== ERROR ====================================
-✖︎ Undefined fragment 'moduleOverlapWithinDocument_BarNameRendererFragment'
+✖︎ Found conflicting @module selections: use a unique alias on the parent fields
 
-  module-overlap-within-document.invalid.graphql:5:5
-    4 │     ...moduleOverlapWithinDocument_FooNameRendererFragment
-    5 │     ...moduleOverlapWithinDocument_BarNameRendererFragment
-      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    6 │   }
-      │ ^^
-    7 │ }
+  module-overlap-within-document.invalid.graphql:25:8
+   24 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+   25 │       @module(name: "BarMarkdownUserNameRenderer.react")
+      │        ^^^^^^
+   26 │   }
+
+  ℹ︎ conflicts with
+
+  module-overlap-within-document.invalid.graphql:13:8
+   12 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+   13 │       @module(name: "FooMarkdownUserNameRenderer.react")
+      │        ^^^^^^
+   14 │     ...moduleOverlapWithinDocument_PlainUserNameRenderer_name

@@ -6,7 +6,7 @@
  */
 
 extern crate console_error_panic_hook;
-use common::SourceLocationKey;
+use common::{Diagnostic, SourceLocationKey};
 use graphql_syntax::{parse_executable, ExecutableDefinition};
 use schema::build_schema;
 use std::panic;
@@ -17,19 +17,31 @@ pub fn compile(raw_schema: &str, documents: Box<[JsValue]>) -> Result<JsValue, J
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     let mut definitions: Vec<ExecutableDefinition> = vec![];
+    let mut errors: Vec<Diagnostic> = vec![];
+
     for document in documents.into_iter() {
         if let Some(document) = document.as_string() {
-            let doc = parse_executable(&document, SourceLocationKey::Generated).unwrap();
-            for definition in doc.definitions {
-                definitions.push(definition);
+            let doc = parse_executable(&document, SourceLocationKey::Generated);
+            match doc {
+                Ok(document) => {
+                    for definition in document.definitions {
+                        definitions.push(definition);
+                    }
+                }
+                Err(mut err) => {
+                    errors.append(&mut err);
+                }
             }
         }
     }
 
+    if !errors.is_empty() {
+        return Err(JsValue::from("Unable to parse GraphQL documents."))
+    }
+
     match build_schema(raw_schema) {
         Err(_) => Err(JsValue::from("Unable to parse schema")),
-        Ok(schema) => {
-            log(&format!("schema {:?}", schema));
+        Ok(_schema) => {
             // TODO: Figure out how to make it work with `rayon`.
             // let ir = build(&schema, &definitions);
             Ok(JsValue::from(
@@ -37,12 +49,4 @@ pub fn compile(raw_schema: &str, documents: Box<[JsValue]>) -> Result<JsValue, J
             ))
         }
     }
-}
-
-#[wasm_bindgen]
-extern "C" {
-    // Use `js_namespace` here to bind `console.log(..)` instead of just
-    // `log(..)`
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
 }

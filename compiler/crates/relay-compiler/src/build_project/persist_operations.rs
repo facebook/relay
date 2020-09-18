@@ -11,6 +11,7 @@ use crate::{
     errors::BuildProjectError,
     Artifact, ArtifactContent,
 };
+use common::PerfLogEvent;
 use lazy_static::lazy_static;
 use log::debug;
 use md5::{Digest, Md5};
@@ -28,6 +29,7 @@ pub async fn persist_operations(
     persist_config: &PersistConfig,
     config: &Config,
     artifact_persister: &Box<dyn ArtifactPersister + Send + Sync>,
+    log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
         .iter_mut()
@@ -64,7 +66,8 @@ pub async fn persist_operations(
             }
         })
         .collect::<Vec<_>>();
-    debug!("persisting {} documents", handles.len());
+    log_event.number("persist_documents", handles.len());
+    log_event.number("worker_count", artifact_persister.worker_count());
     let results = futures::future::join_all(handles).await;
     debug!("done persisting");
     let errors = results

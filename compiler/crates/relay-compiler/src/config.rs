@@ -501,4 +501,8 @@ pub trait ArtifactPersister {
         artifact_text: String,
         project_config: &PersistConfig,
     ) -> std::result::Result<PersistId, PersistError>;
+
+    fn worker_count(&self) -> usize {
+        1
+    }
 }

@@ -192,6 +192,7 @@ pub async fn commit_project(
                 &persist_config,
                 config,
                 &artifact_persister,
+                &log_event,
             )
             .await?;
             log_event.stop(persist_operations_timer);

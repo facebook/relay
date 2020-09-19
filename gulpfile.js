@@ -14,7 +14,10 @@ const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
     '@babel/plugin-transform-flow-strip-types',
-    '@babel/plugin-transform-runtime',
+    [
+      '@babel/plugin-transform-runtime',
+      {version: require('@babel/runtime/package.json').version},
+    ],
     '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-proposal-optional-catch-binding',
     '@babel/plugin-proposal-optional-chaining',

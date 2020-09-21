@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::{Result, SchemaError};
+use crate::errors::SchemaError;
 use crate::type_system_node_v1;
-use common::{Named, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem};
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
@@ -19,6 +19,10 @@ use std::slice::Iter;
 type ConstValue = type_system_node_v1::Value;
 
 type TypeMap = HashMap<StringKey, Type>;
+
+fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
+    Err(vec![Diagnostic::error(error, Location::generated())])
+}
 
 #[derive(Debug)]
 pub struct Schema {
@@ -356,21 +360,21 @@ impl Schema {
         self.type_map.contains_key(&type_name)
     }
 
-    pub fn add_directive(&mut self, directive: Directive) -> Result<()> {
+    pub fn add_directive(&mut self, directive: Directive) -> DiagnosticsResult<()> {
         if self.directives.contains_key(&directive.name) {
-            return Err(SchemaError::DuplicateDirectiveDefinition(directive.name));
+            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(directive.name));
         }
         self.directives.insert(directive.name, directive);
         Ok(())
     }
 
-    pub fn add_field(&mut self, field: Field) -> Result<FieldID> {
+    pub fn add_field(&mut self, field: Field) -> DiagnosticsResult<FieldID> {
         Ok(self.build_field(field))
     }
 
-    pub fn add_enum(&mut self, enum_: Enum) -> Result<EnumID> {
+    pub fn add_enum(&mut self, enum_: Enum) -> DiagnosticsResult<EnumID> {
         if self.type_map.contains_key(&enum_.name) {
-            return Err(SchemaError::DuplicateType(enum_.name));
+            return todo_add_location(SchemaError::DuplicateType(enum_.name));
         }
         let index: u32 = self.enums.len().try_into().unwrap();
         let name = enum_.name;
@@ -379,9 +383,12 @@ impl Schema {
         Ok(EnumID(index))
     }
 
-    pub fn add_input_object(&mut self, input_object: InputObject) -> Result<InputObjectID> {
+    pub fn add_input_object(
+        &mut self,
+        input_object: InputObject,
+    ) -> DiagnosticsResult<InputObjectID> {
         if self.type_map.contains_key(&input_object.name) {
-            return Err(SchemaError::DuplicateType(input_object.name));
+            return todo_add_location(SchemaError::DuplicateType(input_object.name));
         }
         let index: u32 = self.input_objects.len().try_into().unwrap();
         let name = input_object.name;
@@ -391,9 +398,9 @@ impl Schema {
         Ok(InputObjectID(index))
     }
 
-    pub fn add_interface(&mut self, interface: Interface) -> Result<InterfaceID> {
+    pub fn add_interface(&mut self, interface: Interface) -> DiagnosticsResult<InterfaceID> {
         if self.type_map.contains_key(&interface.name) {
-            return Err(SchemaError::DuplicateType(interface.name));
+            return todo_add_location(SchemaError::DuplicateType(interface.name));
         }
         let index: u32 = self.interfaces.len().try_into().unwrap();
         let name = interface.name;
@@ -403,9 +410,9 @@ impl Schema {
         Ok(InterfaceID(index))
     }
 
-    pub fn add_object(&mut self, object: Object) -> Result<ObjectID> {
+    pub fn add_object(&mut self, object: Object) -> DiagnosticsResult<ObjectID> {
         if self.type_map.contains_key(&object.name) {
-            return Err(SchemaError::DuplicateType(object.name));
+            return todo_add_location(SchemaError::DuplicateType(object.name));
         }
         let index: u32 = self.objects.len().try_into().unwrap();
         let name = object.name;
@@ -414,9 +421,9 @@ impl Schema {
         Ok(ObjectID(index))
     }
 
-    pub fn add_scalar(&mut self, scalar: Scalar) -> Result<ScalarID> {
+    pub fn add_scalar(&mut self, scalar: Scalar) -> DiagnosticsResult<ScalarID> {
         if self.type_map.contains_key(&scalar.name) {
-            return Err(SchemaError::DuplicateType(scalar.name));
+            return todo_add_location(SchemaError::DuplicateType(scalar.name));
         }
         let index: u32 = self.scalars.len().try_into().unwrap();
         let name = scalar.name;
@@ -425,9 +432,9 @@ impl Schema {
         Ok(ScalarID(index))
     }
 
-    pub fn add_union(&mut self, union: Union) -> Result<UnionID> {
+    pub fn add_union(&mut self, union: Union) -> DiagnosticsResult<UnionID> {
         if self.type_map.contains_key(&union.name) {
-            return Err(SchemaError::DuplicateType(union.name));
+            return todo_add_location(SchemaError::DuplicateType(union.name));
         }
         let index: u32 = self.unions.len().try_into().unwrap();
         let name = union.name;
@@ -440,13 +447,17 @@ impl Schema {
         &mut self,
         interface_id: InterfaceID,
         field_id: FieldID,
-    ) -> Result<InterfaceID> {
+    ) -> DiagnosticsResult<InterfaceID> {
         let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
         interface.fields.push(field_id);
         Ok(interface_id)
     }
 
-    pub fn add_field_to_object(&mut self, obj_id: ObjectID, field_id: FieldID) -> Result<ObjectID> {
+    pub fn add_field_to_object(
+        &mut self,
+        obj_id: ObjectID,
+        field_id: FieldID,
+    ) -> DiagnosticsResult<ObjectID> {
         let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
         object.fields.push(field_id);
         Ok(obj_id)
@@ -456,7 +467,7 @@ impl Schema {
         &mut self,
         obj_id: ObjectID,
         interface_id: InterfaceID,
-    ) -> Result<ObjectID> {
+    ) -> DiagnosticsResult<ObjectID> {
         let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
         object.interfaces.push(interface_id);
         Ok(obj_id)
@@ -466,7 +477,7 @@ impl Schema {
         &mut self,
         union_id: UnionID,
         object_id: ObjectID,
-    ) -> Result<UnionID> {
+    ) -> DiagnosticsResult<UnionID> {
         let union = self.unions.get_mut(union_id.as_usize()).unwrap();
         union.members.push(object_id);
         Ok(union_id)
@@ -478,7 +489,7 @@ impl Schema {
         &mut self,
         input_object_id: InputObjectID,
         fields: ArgumentDefinitions,
-    ) -> Result<InputObjectID> {
+    ) -> DiagnosticsResult<InputObjectID> {
         let input_object = self
             .input_objects
             .get_mut(input_object_id.as_usize())
@@ -493,7 +504,7 @@ impl Schema {
         &mut self,
         field_id: FieldID,
         args: ArgumentDefinitions,
-    ) -> Result<FieldID> {
+    ) -> DiagnosticsResult<FieldID> {
         let field = self.fields.get_mut(field_id.as_usize()).unwrap();
         field.arguments = args;
         Ok(field_id)
@@ -501,9 +512,13 @@ impl Schema {
 
     /// Replaces the definition of interface type, but keeps the same id.
     /// Existing references to the old type now reference the replacement.
-    pub fn replace_interface(&mut self, id: InterfaceID, interface: Interface) -> Result<()> {
+    pub fn replace_interface(
+        &mut self,
+        id: InterfaceID,
+        interface: Interface,
+    ) -> DiagnosticsResult<()> {
         if id.as_usize() >= self.interfaces.len() {
-            return Err(SchemaError::UnknownTypeID(
+            return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Interface"),
             ));
@@ -517,9 +532,9 @@ impl Schema {
 
     /// Replaces the definition of object type, but keeps the same id.
     /// Existing references to the old type now reference the replacement.
-    pub fn replace_object(&mut self, id: ObjectID, object: Object) -> Result<()> {
+    pub fn replace_object(&mut self, id: ObjectID, object: Object) -> DiagnosticsResult<()> {
         if id.as_usize() >= self.objects.len() {
-            return Err(SchemaError::UnknownTypeID(
+            return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Object"),
             ));
@@ -532,9 +547,9 @@ impl Schema {
 
     /// Replaces the definition of enum type, but keeps the same id.
     /// Existing references to the old type now reference the replacement.
-    pub fn replace_enum(&mut self, id: EnumID, enum_: Enum) -> Result<()> {
+    pub fn replace_enum(&mut self, id: EnumID, enum_: Enum) -> DiagnosticsResult<()> {
         if id.as_usize() >= self.enums.len() {
-            return Err(SchemaError::UnknownTypeID(
+            return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Enum"),
             ));
@@ -551,9 +566,9 @@ impl Schema {
         &mut self,
         id: InputObjectID,
         input_object: InputObject,
-    ) -> Result<()> {
+    ) -> DiagnosticsResult<()> {
         if id.as_usize() >= self.enums.len() {
-            return Err(SchemaError::UnknownTypeID(
+            return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Input Object"),
             ));
@@ -568,9 +583,9 @@ impl Schema {
 
     /// Replaces the definition of union type, but keeps the same id.
     /// Existing references to the old type now reference the replacement.
-    pub fn replace_union(&mut self, id: UnionID, union: Union) -> Result<()> {
+    pub fn replace_union(&mut self, id: UnionID, union: Union) -> DiagnosticsResult<()> {
         if id.as_usize() >= self.enums.len() {
-            return Err(SchemaError::UnknownTypeID(
+            return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Union"),
             ));
@@ -583,10 +598,10 @@ impl Schema {
 
     /// Replaces the definition of field, but keeps the same id.
     /// Existing references to the old field now reference the replacement.
-    pub fn replace_field(&mut self, id: FieldID, field: Field) -> Result<()> {
+    pub fn replace_field(&mut self, id: FieldID, field: Field) -> DiagnosticsResult<()> {
         let id = id.as_usize();
         if id >= self.fields.len() {
-            return Err(SchemaError::UnknownTypeID(id, String::from("Field")));
+            return todo_add_location(SchemaError::UnknownTypeID(id, String::from("Field")));
         }
         self.fields[id] = field;
         Ok(())
@@ -595,7 +610,7 @@ impl Schema {
     pub fn build(
         schema_definitions: &[type_system_node_v1::TypeSystemDefinition],
         client_definitions: &[type_system_node_v1::TypeSystemDefinition],
-    ) -> Result<Self> {
+    ) -> DiagnosticsResult<Self> {
         // Step 1: build the type_map from type names to type keys
         let mut type_map =
             HashMap::with_capacity(schema_definitions.len() + client_definitions.len());
@@ -771,7 +786,7 @@ impl Schema {
         &mut self,
         definition: &type_system_node_v1::TypeSystemDefinition,
         is_extension: bool,
-    ) -> Result<()> {
+    ) -> DiagnosticsResult<()> {
         match definition {
             type_system_node_v1::TypeSystemDefinition::SchemaDefinition {
                 operation_types,
@@ -784,33 +799,39 @@ impl Schema {
                     match operation {
                         type_system_node_v1::OperationType::Query => {
                             if let Some(prev_query_type) = self.query_type {
-                                return Err(SchemaError::DuplicateOperationDefinition(
-                                    *operation,
-                                    *type_,
-                                    self.object(prev_query_type).name,
-                                ));
+                                return todo_add_location(
+                                    SchemaError::DuplicateOperationDefinition(
+                                        *operation,
+                                        *type_,
+                                        self.object(prev_query_type).name,
+                                    ),
+                                );
                             } else {
                                 self.query_type = Some(operation_id);
                             }
                         }
                         type_system_node_v1::OperationType::Mutation => {
                             if let Some(prev_mutation_type) = self.mutation_type {
-                                return Err(SchemaError::DuplicateOperationDefinition(
-                                    *operation,
-                                    *type_,
-                                    self.object(prev_mutation_type).name,
-                                ));
+                                return todo_add_location(
+                                    SchemaError::DuplicateOperationDefinition(
+                                        *operation,
+                                        *type_,
+                                        self.object(prev_mutation_type).name,
+                                    ),
+                                );
                             } else {
                                 self.mutation_type = Some(operation_id);
                             }
                         }
                         type_system_node_v1::OperationType::Subscription => {
                             if let Some(prev_subscription_type) = self.subscription_type {
-                                return Err(SchemaError::DuplicateOperationDefinition(
-                                    *operation,
-                                    *type_,
-                                    self.object(prev_subscription_type).name,
-                                ));
+                                return todo_add_location(
+                                    SchemaError::DuplicateOperationDefinition(
+                                        *operation,
+                                        *type_,
+                                        self.object(prev_subscription_type).name,
+                                    ),
+                                );
                             } else {
                                 self.subscription_type = Some(operation_id);
                             }
@@ -828,7 +849,7 @@ impl Schema {
                     let str_name = name.lookup();
                     if str_name != "skip" && str_name != "include" {
                         // TODO(T63941319) @skip and @include directives are duplicated in our schema
-                        return Err(SchemaError::DuplicateDirectiveDefinition(*name));
+                        return todo_add_location(SchemaError::DuplicateDirectiveDefinition(*name));
                     }
                 }
                 let arguments = self.build_arguments(arguments)?;
@@ -861,7 +882,7 @@ impl Schema {
                 let interfaces = interfaces
                     .iter()
                     .map(|name| self.build_interface_id(*name))
-                    .collect::<Result<Vec<_>>>()?;
+                    .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.objects.push(Object {
                     name: *name,
@@ -890,7 +911,7 @@ impl Schema {
                 let interfaces = interfaces
                     .iter()
                     .map(|name| self.build_interface_id(*name))
-                    .collect::<Result<Vec<_>>>()?;
+                    .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
                     name: *name,
@@ -909,7 +930,7 @@ impl Schema {
                 let members = members
                     .iter()
                     .map(|name| self.build_object_id(*name))
-                    .collect::<Result<Vec<_>>>()?;
+                    .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.unions.push(Union {
                     name: *name,
@@ -984,7 +1005,7 @@ impl Schema {
                     self.objects[index].fields.extend(client_fields);
                 }
                 _ => {
-                    return Err(SchemaError::ExtendUndefinedType(*name));
+                    return todo_add_location(SchemaError::ExtendUndefinedType(*name));
                 }
             },
             type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension {
@@ -1008,31 +1029,31 @@ impl Schema {
                     self.interfaces[index].fields.extend(client_fields);
                 }
                 _ => {
-                    return Err(SchemaError::ExtendUndefinedType(*name));
+                    return todo_add_location(SchemaError::ExtendUndefinedType(*name));
                 }
             },
         }
         Ok(())
     }
 
-    fn build_object_id(&mut self, name: StringKey) -> Result<ObjectID> {
+    fn build_object_id(&mut self, name: StringKey) -> DiagnosticsResult<ObjectID> {
         match self.type_map.get(&name) {
             Some(Type::Object(id)) => Ok(*id),
             Some(non_object_type) => {
-                Err(SchemaError::ExpectedObjectReference(name, *non_object_type))
+                todo_add_location(SchemaError::ExpectedObjectReference(name, *non_object_type))
             }
-            None => Err(SchemaError::UndefinedType(name)),
+            None => todo_add_location(SchemaError::UndefinedType(name)),
         }
     }
 
-    fn build_interface_id(&mut self, name: StringKey) -> Result<InterfaceID> {
+    fn build_interface_id(&mut self, name: StringKey) -> DiagnosticsResult<InterfaceID> {
         match self.type_map.get(&name) {
             Some(Type::Interface(id)) => Ok(*id),
-            Some(non_interface_type) => Err(SchemaError::ExpectedInterfaceReference(
+            Some(non_interface_type) => todo_add_location(SchemaError::ExpectedInterfaceReference(
                 name,
                 *non_interface_type,
             )),
-            None => Err(SchemaError::UndefinedType(name)),
+            None => todo_add_location(SchemaError::UndefinedType(name)),
         }
     }
 
@@ -1046,7 +1067,7 @@ impl Schema {
         &mut self,
         field_defs: &[type_system_node_v1::FieldDefinition],
         parent_type: Option<Type>,
-    ) -> Result<Vec<FieldID>> {
+    ) -> DiagnosticsResult<Vec<FieldID>> {
         field_defs
             .iter()
             .map(|field_def| {
@@ -1070,11 +1091,11 @@ impl Schema {
         field_defs: &[type_system_node_v1::FieldDefinition],
         existing_fields: &mut HashSet<StringKey>,
         parent_type: Option<Type>,
-    ) -> Result<Vec<FieldID>> {
+    ) -> DiagnosticsResult<Vec<FieldID>> {
         let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.len());
         for field_def in field_defs {
             if !existing_fields.insert(field_def.name) {
-                return Err(SchemaError::DuplicateField(field_def.name));
+                return todo_add_location(SchemaError::DuplicateField(field_def.name));
             }
             let arguments = self.build_arguments(&field_def.arguments)?;
             let directives = self.build_directive_values(&field_def.directives);
@@ -1094,8 +1115,8 @@ impl Schema {
     fn build_arguments(
         &mut self,
         arg_defs: &[type_system_node_v1::InputValueDefinition],
-    ) -> Result<ArgumentDefinitions> {
-        let arg_defs: Result<Vec<Argument>> = arg_defs
+    ) -> DiagnosticsResult<ArgumentDefinitions> {
+        let arg_defs: DiagnosticsResult<Vec<Argument>> = arg_defs
             .iter()
             .map(|arg_def| {
                 Ok(Argument {
@@ -1111,14 +1132,16 @@ impl Schema {
     fn build_type_reference(
         &mut self,
         ast_type: &type_system_node_v1::Type,
-    ) -> Result<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            type_system_node_v1::Type::Named(name) => TypeReference::Named(
-                *self
-                    .type_map
-                    .get(name)
-                    .ok_or_else(|| SchemaError::UndefinedType(*name))?,
-            ),
+            type_system_node_v1::Type::Named(name) => {
+                TypeReference::Named(*self.type_map.get(name).ok_or_else(|| {
+                    vec![Diagnostic::error(
+                        SchemaError::UndefinedType(*name),
+                        Location::generated(),
+                    )]
+                })?)
+            }
             type_system_node_v1::Type::NonNull(of_type) => {
                 TypeReference::NonNull(Box::new(self.build_type_reference(of_type)?))
             }

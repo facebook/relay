@@ -56,7 +56,7 @@ function EntryPointContainer<
     queries,
     entryPoints,
     extraProps,
-    rootModuleReference,
+    rootModuleID,
   } = entryPointReference;
   const Component = getComponent();
   const profilerContext = useContext(ProfilerContext);
@@ -65,9 +65,9 @@ function EntryPointContainer<
     environment.__log({
       name: 'entrypoint.root.consume',
       profilerContext,
-      rootModuleID: rootModuleReference.getModuleId(),
+      rootModuleID,
     });
-  }, [environment, profilerContext, rootModuleReference]);
+  }, [environment, profilerContext, rootModuleID]);
   return (
     <Component
       entryPoints={entryPoints}

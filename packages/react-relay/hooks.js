@@ -30,7 +30,7 @@ const usePreloadedQuery = require('./relay-experimental/usePreloadedQuery');
 const useQueryLoader = require('./relay-experimental/useQueryLoader');
 const useRefetchableFragment = require('./relay-experimental/useRefetchableFragment');
 const useRelayEnvironment = require('./relay-experimental/useRelayEnvironment');
-const useSubscribeToInvalidationState = require('./relay-experimental/useSubscribeToInvalidationState')
+const useSubscribeToInvalidationState = require('./relay-experimental/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-experimental/useSubscription');
 
 const {graphql} = require('relay-runtime');
@@ -41,10 +41,7 @@ export type {
   RefetchFnDynamic,
 } from './relay-experimental';
 
-export type {
-  FetchPolicy,
-  RenderPolicy,
-} from 'relay-runtime';
+export type {FetchPolicy, RenderPolicy} from 'relay-runtime';
 
 /**
  * The public interface for Relay Hooks

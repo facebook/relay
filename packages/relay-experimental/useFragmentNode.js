@@ -139,7 +139,12 @@ function useFragmentNode<TFragmentData: mixed>(
   }, [mustResubscribeGenerationRef.current]);
 
   if (__DEV__) {
-    if (fragmentRef != null && fragmentResult.data == null) {
+    if (
+      fragmentRef != null &&
+      (fragmentResult.data === undefined ||
+        (Array.isArray(fragmentResult.data) &&
+          fragmentResult.data.every(data => data === undefined)))
+    ) {
       warning(
         false,
         'Relay: Expected to have been able to read non-null data for ' +

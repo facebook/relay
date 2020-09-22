@@ -1135,6 +1135,28 @@ it('should throw an error if fragment reference is non-null but read-out data is
   warning.mockClear();
 });
 
+it('should throw an error if plural fragment reference is non-null but read-out data is null', () => {
+  // Clearing the data in the environment will make it so the fragment ref
+  // we pass to useFragmentNode points to data that does not exist; we expect
+  // an error to be thrown in this case.
+  (environment.getStore().getSource(): $FlowFixMe).clear();
+  const warning = require('warning');
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+
+  renderPluralFragment();
+  expect(warning).toBeCalledTimes(2);
+  // $FlowFixMe[prop-missing]
+  const [, warningMessage] = warning.mock.calls[1];
+  expect(
+    warningMessage.startsWith(
+      'Relay: Expected to have been able to read non-null data for fragment `%s`',
+    ),
+  ).toEqual(true);
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+});
+
 it('should warn if data is missing and there are no pending requests', () => {
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});

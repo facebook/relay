@@ -16,7 +16,7 @@ const ProfilerContext = require('./relay-experimental/ProfilerContext');
 const RelayEnvironmentProvider = require('./relay-experimental/RelayEnvironmentProvider');
 
 const fetchQuery = require('./relay-experimental/fetchQuery');
-const loadQuery = require('./relay-experimental/loadQuery');
+const {loadQuery} = require('./relay-experimental/loadQuery');
 
 const loadEntryPoint = require('./relay-experimental/loadEntryPoint');
 

@@ -17,18 +17,16 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
             .sources
             .iter()
             .flat_map(|(path, name)| match name {
-                SourceSet::SourceSetName(name) => {
-                    std::iter::once((path, config.projects.get(&name))).collect::<Vec<_>>()
-                }
+                SourceSet::SourceSetName(name) => vec![(path, &config.projects[&name])],
                 SourceSet::SourceSetNames(names) => names
                     .iter()
-                    .map(|name| (path, config.projects.get(name)))
+                    .map(|name| (path, &config.projects[name]))
                     .collect::<Vec<_>>(),
             })
-            .filter_map(|(path, project)| match project {
-                Some(p) if p.enabled => Some(Expr::All(vec![
+            .map(|(path, project)| {
+                Expr::All(vec![
                     // Ending in *.js(x) or *.ts(x) depending on the project language.
-                    Expr::Suffix(match &p.typegen_config.language {
+                    Expr::Suffix(match &project.typegen_config.language {
                         TypegenLanguage::Flow => vec![PathBuf::from("js"), PathBuf::from("jsx")],
                         TypegenLanguage::TypeScript => {
                             vec![PathBuf::from("ts"), PathBuf::from("tsx")]
@@ -39,8 +37,7 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                         path: path.clone(),
                         depth: None,
                     }),
-                ])),
-                _ => None,
+                ])
             })
             .collect(),
     )];

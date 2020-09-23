@@ -137,9 +137,11 @@ pub fn build_project(
     info!("[{}] compiling...", project_name);
 
     // Construct a schema instance including project specific extensions.
-    let schema = log_event.time("build_schema_time", || {
-        Arc::new(build_schema(compiler_state, project_config))
-    });
+    let schema = log_event
+        .time("build_schema_time", || {
+            Ok(Arc::new(build_schema(compiler_state, project_config)?))
+        })
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors })?;
 
     // Apply different transform pipelines to produce the `Programs`.
     let (programs, source_hashes) = build_programs(

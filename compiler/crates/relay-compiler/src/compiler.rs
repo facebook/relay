@@ -11,7 +11,7 @@ use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::{source_for_location, watchman::FileSource};
-use common::{Diagnostic, PerfLogEvent, PerfLogger};
+use common::{Diagnostic, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
 use graphql_cli::DiagnosticPrinter;
 use log::{error, info};
@@ -54,15 +54,15 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> HashMap<ProjectName, Arc<Schema>> {
+    ) -> DiagnosticsResult<HashMap<ProjectName, Arc<Schema>>> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
         for project_config in self.config.enabled_projects() {
-            let schema = build_schema(compiler_state, project_config);
+            let schema = build_schema(compiler_state, project_config)?;
             schemas.insert(project_config.name, Arc::new(schema));
         }
         setup_event.stop(timer);
-        schemas
+        Ok(schemas)
     }
 
     pub async fn watch(&self) -> Result<()> {

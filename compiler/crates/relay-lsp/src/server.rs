@@ -5,14 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp::{
-    Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
-    DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
-    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+use crate::{
+    error::LSPError,
+    lsp::{
+        Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
+        DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
+        ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+        TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+    },
 };
 
-use relay_compiler::FileSource;
+use relay_compiler::{errors::Error::DiagnosticsError, FileSource};
 
 use relay_compiler::config::Config;
 
@@ -131,7 +134,8 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
         .subscribe(&setup_event, &ConsoleLogger)
         .await
         .unwrap();
-    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event);
+    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event)
+        .map_err(|errors| LSPError::CompilerError(DiagnosticsError { errors }))?;
     let mut lsp_compiler = LSPCompiler::new(
         &schemas,
         &config,

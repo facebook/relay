@@ -96,9 +96,9 @@ impl<'b> DedupedJSONPrinter<'b> {
                     duplicates.insert(key);
                     return;
                 }
-                for (_, val) in object {
-                    if let Primitive::Key(key) = val {
-                        Self::collect_value_duplicates(visited, duplicates, builder, *key);
+                for entry in object {
+                    if let Primitive::Key(key) = entry.value {
+                        Self::collect_value_duplicates(visited, duplicates, builder, key);
                     }
                 }
             }
@@ -152,7 +152,7 @@ impl<'b> DedupedJSONPrinter<'b> {
                 } else {
                     let next_indent = indent + 1;
                     f.push('{');
-                    for (key, value) in object {
+                    for ObjectEntry { key, value } in object {
                         f.push('\n');
                         print_indentation(f, next_indent);
                         write!(f, "\"{}\": ", key.lookup()).unwrap();
@@ -349,10 +349,11 @@ fn write_static_storage_key(
     write!(f, "\"{}(", field_name)?;
     for arg_key in args {
         let arg = builder.lookup(arg_key.assert_key()).assert_object();
-        let (_, name) = arg
+        let name = &arg
             .iter()
-            .find(|(key, _)| *key == CODEGEN_CONSTANTS.name)
-            .expect("Expected `name` to exist");
+            .find(|ObjectEntry { key, value: _ }| *key == CODEGEN_CONSTANTS.name)
+            .expect("Expected `name` to exist")
+            .value;
         let name = name.assert_string();
         write!(f, "{}:", name)?;
         write_argument_value(f, builder, arg)?;
@@ -364,23 +365,26 @@ fn write_static_storage_key(
 }
 
 fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry]) -> FmtResult {
-    let (_, key) = arg
+    let key = &arg
         .iter()
-        .find(|(key, _)| *key == CODEGEN_CONSTANTS.kind)
-        .expect("Expected `kind` to exist");
+        .find(|entry| entry.key == CODEGEN_CONSTANTS.kind)
+        .expect("Expected `kind` to exist")
+        .value;
     let key = key.assert_string();
     // match doesn't allow `CODEGEN_CONSTANTS.<>` on the match arm, falling back to if statements
     if key == CODEGEN_CONSTANTS.literal {
-        let (_, literal) = arg
+        let literal = &arg
             .iter()
-            .find(|(key, _)| *key == CODEGEN_CONSTANTS.value)
-            .expect("Expected `name` to exist");
+            .find(|entry| entry.key == CODEGEN_CONSTANTS.value)
+            .expect("Expected `name` to exist")
+            .value;
         write_constant_value(f, builder, literal)?;
     } else if key == CODEGEN_CONSTANTS.list_value {
-        let (_, items) = arg
+        let items = &arg
             .iter()
-            .find(|(key, _)| *key == CODEGEN_CONSTANTS.items)
-            .expect("Expected `items` to exist");
+            .find(|entry| entry.key == CODEGEN_CONSTANTS.items)
+            .expect("Expected `items` to exist")
+            .value;
         let array = builder.lookup(items.assert_key()).assert_array();
 
         f.push('[');
@@ -403,19 +407,21 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
         f.push(']');
     } else {
         // We filtered out Variables, here it should only be ObjectValue
-        let (_, fields) = arg
+        let fields = &arg
             .iter()
-            .find(|(key, _)| *key == CODEGEN_CONSTANTS.fields)
-            .expect("Expected `fields` to exist");
+            .find(|entry| entry.key == CODEGEN_CONSTANTS.fields)
+            .expect("Expected `fields` to exist")
+            .value;
         let fields = builder.lookup(fields.assert_key()).assert_array();
 
         f.push('{');
         for field in fields {
             let field = builder.lookup(field.assert_key()).assert_object();
-            let (_, name) = field
+            let name = &field
                 .iter()
-                .find(|(key, _)| *key == CODEGEN_CONSTANTS.name)
-                .expect("Expected `name` to exist");
+                .find(|entry| entry.key == CODEGEN_CONSTANTS.name)
+                .expect("Expected `name` to exist")
+                .value;
             let name = name.assert_string();
             write!(f, "\\\"{}\\\":", name)?;
             write_argument_value(f, builder, field)?;
@@ -452,7 +458,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
                 }
                 Ast::Object(obj) => {
                     f.push('{');
-                    for (name, value) in obj {
+                    for ObjectEntry { key: name, value } in obj {
                         write!(f, "\\\"{}\\\":", name)?;
                         write_constant_value(f, builder, value)?;
                         f.push(',');

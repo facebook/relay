@@ -143,6 +143,7 @@ function useFragmentNode<TFragmentData: mixed>(
       fragmentRef != null &&
       (fragmentResult.data === undefined ||
         (Array.isArray(fragmentResult.data) &&
+          fragmentResult.data.length > 0 &&
           fragmentResult.data.every(data => data === undefined)))
     ) {
       warning(

@@ -7,7 +7,7 @@
 
 use crate::{
     config::Config,
-    config::{ArtifactPersister, PersistConfig},
+    config::{OperationPersister, PersistConfig},
     errors::BuildProjectError,
     Artifact, ArtifactContent,
 };
@@ -28,7 +28,7 @@ pub async fn persist_operations(
     root_dir: &PathBuf,
     persist_config: &PersistConfig,
     config: &Config,
-    artifact_persister: &Box<dyn ArtifactPersister + Send + Sync>,
+    operation_persister: &Box<dyn OperationPersister + Send + Sync>,
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
@@ -53,7 +53,7 @@ pub async fn persist_operations(
                 } else {
                     let text = text.clone();
                     Some(async move {
-                        artifact_persister
+                        operation_persister
                             .persist_artifact(text, persist_config)
                             .await
                             .map(|id| {
@@ -67,7 +67,7 @@ pub async fn persist_operations(
         })
         .collect::<Vec<_>>();
     log_event.number("persist_documents", handles.len());
-    log_event.number("worker_count", artifact_persister.worker_count());
+    log_event.number("worker_count", operation_persister.worker_count());
     let results = futures::future::join_all(handles).await;
     debug!("done persisting");
     let errors = results

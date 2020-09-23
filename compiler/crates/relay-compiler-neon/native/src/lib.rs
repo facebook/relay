@@ -101,7 +101,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         saved_state_version: "0".to_owned(),
         connection_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
-        artifact_persister: None,
+        operation_persister: None,
         compile_everything: false,
         repersist_operations: false,
     };

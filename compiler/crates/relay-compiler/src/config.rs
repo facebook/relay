@@ -62,7 +62,7 @@ pub struct Config {
     pub saved_state_version: String,
 
     /// Function that is called to save operation text (e.g. to a database) and to generate an id.
-    pub artifact_persister: Option<Box<dyn ArtifactPersister + Send + Sync>>,
+    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
 }
 
 impl Config {
@@ -184,7 +184,7 @@ impl Config {
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
             feature_flags: config_file.feature_flags,
-            artifact_persister: None,
+            operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
         };
@@ -317,7 +317,7 @@ impl fmt::Debug for Config {
             connection_interface,
             feature_flags,
             saved_state_version,
-            artifact_persister,
+            operation_persister,
         } = self;
         f.debug_struct("Config")
             .field("name", name)
@@ -332,8 +332,8 @@ impl fmt::Debug for Config {
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
             .field(
-                "artifact_persister",
-                if artifact_persister.is_some() {
+                "operation_persister",
+                if operation_persister.is_some() {
                     &"Some(Fn)"
                 } else {
                     &"None"
@@ -495,7 +495,7 @@ pub struct PersistConfig {
 type PersistId = String;
 
 #[async_trait]
-pub trait ArtifactPersister {
+pub trait OperationPersister {
     async fn persist_artifact(
         &self,
         artifact_text: String,

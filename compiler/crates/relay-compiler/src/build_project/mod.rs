@@ -183,7 +183,7 @@ pub async fn commit_project(
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
 
-    if let Some(ref artifact_persister) = config.artifact_persister {
+    if let Some(ref operation_persister) = config.operation_persister {
         if let Some(ref persist_config) = project_config.persist {
             let persist_operations_timer = log_event.start("persist_operations_time");
             persist_operations::persist_operations(
@@ -191,7 +191,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
-                &artifact_persister,
+                &operation_persister,
                 &log_event,
             )
             .await?;

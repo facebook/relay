@@ -19644,6 +19644,197 @@ query RelayClientIDFieldQuery(
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: required-and-not-required-merged-in-normalization-ast.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SampleQuery($id: ID!) {
+  node(id: $id) {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment RequiredFragment on User {
+  # Normalization AST should merge this...
+  name @required(action: THROW)
+}
+
+fragment NotRequiredFragment on User {
+  # ... with this
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+      },
+    ],
+    metadata: null,
+    name: "SampleQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "id",
+            variableName: "id",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          FragmentSpread {
+            args: null,
+            name: "MyFragment",
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+      },
+    ],
+    name: "SampleQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "id",
+            variableName: "id",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "name",
+                storageKey: null,
+              },
+            ],
+            type: "User",
+            abstractKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query SampleQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...MyFragment
+    id
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment NotRequiredFragment on User {
+  name
+}
+
+fragment RequiredFragment on User {
+  name
+}
+
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "MyFragment",
+  selections: [
+    FragmentSpread {
+      args: null,
+      name: "RequiredFragment",
+    },
+    FragmentSpread {
+      args: null,
+      name: "NotRequiredFragment",
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "RequiredFragment",
+  selections: [
+    RequiredField {
+      field: ScalarField {
+        alias: null,
+        args: null,
+        name: "name",
+        storageKey: null,
+      },
+      action: "THROW",
+      path: "name",
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "NotRequiredFragment",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "name",
+      storageKey: null,
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: required-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RequiredFragment on User {

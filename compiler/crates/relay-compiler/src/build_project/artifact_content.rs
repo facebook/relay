@@ -162,6 +162,23 @@ fn generate_operation(
     if let Some(id) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
+    if project_config.variable_names_comment {
+        if normalization_operation.variable_definitions.is_empty() {
+            writeln!(content, "// @relayVariables").unwrap();
+        } else {
+            let mut variable_names: Vec<_> = normalization_operation
+                .variable_definitions
+                .iter()
+                .map(|variable_definition| variable_definition.name.item)
+                .collect();
+            variable_names.sort();
+            write!(content, "// @relayVariables").unwrap();
+            for name in variable_names {
+                write!(content, " {}", name).unwrap();
+            }
+            writeln!(content).unwrap();
+        }
+    }
     let data_driven_dependency_metadata = operation_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);

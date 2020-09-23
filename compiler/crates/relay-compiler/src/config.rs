@@ -153,6 +153,7 @@ impl Config {
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
+                    variable_names_comment: config_file_project.variable_names_comment,
                 };
                 Ok((project_name, project_config))
             })
@@ -375,6 +376,7 @@ pub struct ProjectConfig {
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
+    pub variable_names_comment: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -480,6 +482,10 @@ struct ConfigFileProject {
     /// Generate Query ($Parameters files)
     #[serde(default)]
     should_generate_parameters_file: bool,
+
+    /// Generates a `// @relayVariables name1 name2` header in generated operation files
+    #[serde(default)]
+    variable_names_comment: bool,
 }
 
 #[derive(Debug, Deserialize)]

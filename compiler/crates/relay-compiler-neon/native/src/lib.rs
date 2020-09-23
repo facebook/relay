@@ -83,6 +83,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         schema_location: SchemaLocation::File(Default::default()),
         typegen_config: Default::default(),
         persist: None,
+        variable_names_comment: false,
     };
 
     let config = Config {

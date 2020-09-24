@@ -20,7 +20,7 @@ pub struct SchemaDocument {
     pub definitions: Vec<TypeSystemDefinition>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum TypeSystemDefinition {
     SchemaDefinition(SchemaDefinition),
     SchemaExtension(SchemaExtension),
@@ -39,32 +39,32 @@ pub enum TypeSystemDefinition {
     DirectiveDefinition(DirectiveDefinition),
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct SchemaDefinition {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: List<OperationTypeDefinition>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct SchemaExtension {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: Option<List<OperationTypeDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct OperationTypeDefinition {
     pub operation: OperationType,
     pub type_: Identifier,
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Copy, Clone)]
 pub enum OperationType {
     Query,
     Mutation,
     Subscription,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ObjectTypeDefinition {
     pub name: Identifier,
     pub interfaces: Vec<Identifier>,
@@ -72,7 +72,7 @@ pub struct ObjectTypeDefinition {
     pub fields: Option<List<FieldDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ObjectTypeExtension {
     pub name: Identifier,
     pub interfaces: Vec<Identifier>,
@@ -80,7 +80,7 @@ pub struct ObjectTypeExtension {
     pub fields: Option<List<FieldDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InterfaceTypeDefinition {
     pub name: Identifier,
     pub interfaces: Vec<Identifier>,
@@ -88,7 +88,7 @@ pub struct InterfaceTypeDefinition {
     pub fields: Option<List<FieldDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InterfaceTypeExtension {
     pub name: Identifier,
     pub interfaces: Vec<Identifier>,
@@ -96,67 +96,67 @@ pub struct InterfaceTypeExtension {
     pub fields: Option<List<FieldDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct UnionTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct UnionTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ScalarTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ScalarTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct EnumTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct EnumTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InputObjectTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InputObjectTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct EnumValueDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct DirectiveDefinition {
     pub name: Identifier,
     pub arguments: Option<List<InputValueDefinition>>,
@@ -164,7 +164,7 @@ pub struct DirectiveDefinition {
     pub locations: Vec<DirectiveLocation>,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
 pub enum DirectiveLocation {
     Query,
     Mutation,
@@ -213,7 +213,7 @@ impl fmt::Display for DirectiveLocation {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InputValueDefinition {
     pub name: Identifier,
     pub type_: TypeAnnotation,
@@ -221,7 +221,7 @@ pub struct InputValueDefinition {
     pub directives: Vec<ConstantDirective>,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct FieldDefinition {
     pub name: Identifier,
     pub type_: TypeAnnotation,

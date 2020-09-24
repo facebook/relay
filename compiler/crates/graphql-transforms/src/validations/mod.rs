@@ -6,6 +6,7 @@
  */
 
 mod disallow_id_as_alias;
+mod disallow_typename_on_root;
 mod validate_connections;
 mod validate_global_variables;
 mod validate_module_names;
@@ -14,6 +15,7 @@ mod validate_server_only_directives;
 mod validate_unused_variables;
 
 pub use disallow_id_as_alias::disallow_id_as_alias;
+pub use disallow_typename_on_root::disallow_typename_on_root;
 pub use validate_connections::validate_connections;
 pub use validate_global_variables::validate_global_variables;
 pub use validate_module_names::validate_module_names;

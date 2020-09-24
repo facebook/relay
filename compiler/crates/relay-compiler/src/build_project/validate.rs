@@ -9,8 +9,8 @@ use common::DiagnosticsResult;
 use errors::try_all;
 use graphql_ir::Program;
 use graphql_transforms::{
-    disallow_id_as_alias, validate_connections, validate_module_names, validate_relay_directives,
-    validate_unused_variables, ConnectionInterface,
+    disallow_id_as_alias, disallow_typename_on_root, validate_connections, validate_module_names,
+    validate_relay_directives, validate_unused_variables, ConnectionInterface,
 };
 
 pub fn validate(
@@ -23,6 +23,7 @@ pub fn validate(
         validate_connections(program, connection_interface),
         validate_relay_directives(program),
         validate_module_names(program),
+        disallow_typename_on_root(program),
     ])?;
 
     Ok(())

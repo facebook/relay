@@ -142,6 +142,9 @@ pub enum ValidationMessage {
     )]
     DisallowIdAsAliasError(),
 
+    #[error("Relay does not allow `__typename` field on Query, Mutation or Subscription.")]
+    DisallowTypenameOnRoot(),
+
     #[error(
         "Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection."
     )]

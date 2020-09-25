@@ -1,4 +1,4 @@
-// @generated SignedSource<<1f7f5633ceaaebbf6cd9b054fabafaec>>
+// @generated SignedSource<<37d6154fa8e63d2c6a723c6733cf4910>>
 
 mod compile_relay_artifacts;
 
@@ -122,6 +122,20 @@ fn append_node_literal_edge_type_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected");
     test_fixture(transform_fixture, "append-node-literal-edge-type-name.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected", input, expected);
+}
+
+#[test]
+fn auto_filled_argument_on_defer() {
+    let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-defer.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-defer.expected");
+    test_fixture(transform_fixture, "auto-filled-argument-on-defer.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-defer.expected", input, expected);
+}
+
+#[test]
+fn auto_filled_argument_on_match() {
+    let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected");
+    test_fixture(transform_fixture, "auto-filled-argument-on-match.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected", input, expected);
 }
 
 #[test]

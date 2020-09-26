@@ -1,0 +1,7 @@
+# expected-to-throw
+# Remove once we fix T76422041
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}

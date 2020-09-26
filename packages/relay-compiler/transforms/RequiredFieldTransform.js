@@ -167,6 +167,25 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     });
   }
 
+  const childrenCanBubble = Array.from(
+    newState.currentNodeRequiredChildren.values(),
+  )
+    .map(getRequiredDirectiveMetadata)
+    .filter(Boolean)
+    .some(required => required.action !== 'THROW');
+
+  // TODO(T76422041): Replace this with code that adds metadata to the field
+  // indicating that its children can bubble. We can then consult that metadata
+  // in the type generation code.
+  if (childrenCanBubble && state.schema.isNonNull(field.type)) {
+    throw createUserError(
+      '@required does not yet work within non-nullable linked fields (T76422041)',
+      Array.from(newState.currentNodeRequiredChildren.values()).map(
+        requiredChild => requiredChild.loc,
+      ),
+    );
+  }
+
   state.requiredChildrenMap.set(pathName, newState.currentNodeRequiredChildren);
   return newField;
 }

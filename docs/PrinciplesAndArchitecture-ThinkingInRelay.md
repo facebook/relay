@@ -73,7 +73,7 @@ ReactDOM.render(
     variables={{
       storyID: '123',
     }}
-    render={(props, error) => {
+    render={({ props, error }) => {
       if (error) {
         return <ErrorView />;
       } else if (props) {

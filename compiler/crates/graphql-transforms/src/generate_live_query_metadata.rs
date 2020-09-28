@@ -81,7 +81,7 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                     let mut next_directives = operation.directives.clone();
 
                     // I'm porting JS logic here. Not sure if the case where
-                    // polling_interval and config_id both provided handeled correctly
+                    // polling_interval and config_id both provided handled correctly
                     if let Some(polling_interval) = polling_interval {
                         let poll_interval_value = match polling_interval.value.item {
                             Value::Constant(ConstantValue::Int(value)) => value,

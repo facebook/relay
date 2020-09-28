@@ -473,6 +473,16 @@ impl Schema {
         Ok(obj_id)
     }
 
+    pub fn add_parent_interface_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        parent_interface_id: InterfaceID,
+    ) -> DiagnosticsResult<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.interfaces.push(parent_interface_id);
+        Ok(interface_id)
+    }
+
     pub fn add_member_to_union(
         &mut self,
         union_id: UnionID,

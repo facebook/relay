@@ -63,6 +63,14 @@ pub struct Config {
 
     /// Function that is called to save operation text (e.g. to a database) and to generate an id.
     pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+
+    pub post_artifacts_write: Option<
+        Box<
+            dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
+                + Send
+                + Sync,
+        >,
+    >,
 }
 
 impl Config {
@@ -188,6 +196,7 @@ impl Config {
             operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
+            post_artifacts_write: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -319,7 +328,13 @@ impl fmt::Debug for Config {
             feature_flags,
             saved_state_version,
             operation_persister,
+            post_artifacts_write,
         } = self;
+
+        fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
+            if option.is_some() { "Some(Fn)" } else { "None" }
+        }
+
         f.debug_struct("Config")
             .field("name", name)
             .field("root_dir", root_dir)
@@ -334,31 +349,23 @@ impl fmt::Debug for Config {
             .field("saved_state_config", saved_state_config)
             .field(
                 "operation_persister",
-                if operation_persister.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(operation_persister),
             )
             .field(
                 "generate_extra_operation_artifacts",
-                if generate_extra_operation_artifacts.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(generate_extra_operation_artifacts),
             )
             .field(
                 "saved_state_loader",
-                if saved_state_loader.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(saved_state_loader),
             )
             .field("connection_interface", connection_interface)
             .field("feature_flags", feature_flags)
             .field("saved_state_version", saved_state_version)
+            .field(
+                "post_artifacts_write",
+                &option_fn_to_string(post_artifacts_write),
+            )
             .finish()
     }
 }

@@ -105,6 +105,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         operation_persister: None,
         compile_everything: false,
         repersist_operations: false,
+        post_artifacts_write: None,
     };
 
     (config, project_config)

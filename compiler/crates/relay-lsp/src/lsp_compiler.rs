@@ -110,6 +110,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         CompilerError::FileRead { .. } => {}
                         CompilerError::Syntax { .. } => {}
                         CompilerError::JoinError { .. } => {}
+                        CompilerError::PostArtifactsError { .. } => {}
                     }
                 } else {
                     // TODO(brandondail) log here

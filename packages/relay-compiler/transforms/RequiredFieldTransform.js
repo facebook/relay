@@ -149,6 +149,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
       directiveMetadata,
       state.parentAbstractInlineFragment,
     );
+    state.currentNodeRequiredChildren.set(field.alias, newField);
 
     const severity = getActionSeverity(directiveMetadata.action);
 

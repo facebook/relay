@@ -1144,6 +1144,36 @@ Source: GraphQL request (3:21)
 
 `;
 
+exports[`RequiredFieldTransform matches expected output: log-action-bubble-to-throw-linked-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  author @required(action: THROW) {
+    author @required(action: LOG) {
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:22)
+3:   author @required(action: THROW) {
+4:     author @required(action: LOG) {
+                        ^
+5:       name
+
+Source: GraphQL request (3:20)
+2: fragment Foo on User {
+3:   author @required(action: THROW) {
+                      ^
+4:     author @required(action: LOG) {
+
+`;
+
 exports[`RequiredFieldTransform matches expected output: multiple-required-fields.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw

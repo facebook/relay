@@ -48,6 +48,19 @@ impl ExecutableDefinition {
             ExecutableDefinition::Fragment(node) => Some(node.name.value),
         }
     }
+
+    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+        match self {
+            ExecutableDefinition::Operation(node) => node
+                .directives
+                .iter()
+                .any(|d| d.name.value == directive_name),
+            ExecutableDefinition::Fragment(node) => node
+                .directives
+                .iter()
+                .any(|d| d.name.value == directive_name),
+        }
+    }
 }
 
 impl fmt::Debug for ExecutableDefinition {

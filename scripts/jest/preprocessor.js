@@ -19,6 +19,7 @@ const babelOptions = getBabelOptions({
   // Tests use a Promise polfill so they can use jest.runAllTimers().
   autoImport: true,
   plugins: [
+    './dist/babel-plugin-relay',
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',
     '@babel/plugin-proposal-nullish-coalescing-operator',

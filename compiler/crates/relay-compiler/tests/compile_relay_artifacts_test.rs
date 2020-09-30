@@ -1,4 +1,4 @@
-// @generated SignedSource<<37d6154fa8e63d2c6a723c6733cf4910>>
+// @generated SignedSource<<945f5f4db1f1d932285f07ebe99c6895>>
 
 mod compile_relay_artifacts;
 
@@ -269,6 +269,20 @@ fn defer_multiple_fragments_same_parent() {
     let input = include_str!("compile_relay_artifacts/fixtures/defer-multiple-fragments-same-parent.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/defer-multiple-fragments-same-parent.expected");
     test_fixture(transform_fixture, "defer-multiple-fragments-same-parent.graphql", "compile_relay_artifacts/fixtures/defer-multiple-fragments-same-parent.expected", input, expected);
+}
+
+#[test]
+fn delete_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/delete-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/delete-edge.expected");
+    test_fixture(transform_fixture, "delete-edge.graphql", "compile_relay_artifacts/fixtures/delete-edge.expected", input, expected);
+}
+
+#[test]
+fn delete_edge_plural() {
+    let input = include_str!("compile_relay_artifacts/fixtures/delete-edge-plural.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/delete-edge-plural.expected");
+    test_fixture(transform_fixture, "delete-edge-plural.graphql", "compile_relay_artifacts/fixtures/delete-edge-plural.expected", input, expected);
 }
 
 #[test]

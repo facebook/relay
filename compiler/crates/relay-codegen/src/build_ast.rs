@@ -629,7 +629,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 None => Primitive::Null,
                 Some(key) => Primitive::Key(key),
             };
-            result.push(Primitive::Key(self.object(vec![
+            let mut object = vec![
                 build_alias(field.alias.map(|a| a.item), field_name),
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.args,
@@ -655,7 +655,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     key: CODEGEN_CONSTANTS.name,
                     value: Primitive::String(field_name),
                 },
-            ])))
+            ];
+            if let Some(handle_args) = values.handle_args {
+                let args = self.build_arguments(&handle_args);
+                if let Some(args) = args {
+                    object.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.handle_args,
+                        value: Primitive::Key(args),
+                    });
+                }
+            };
+            result.push(Primitive::Key(self.object(object)));
         }
     }
 

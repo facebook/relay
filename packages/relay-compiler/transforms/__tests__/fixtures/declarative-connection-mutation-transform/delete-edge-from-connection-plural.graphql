@@ -1,6 +1,6 @@
 mutation CommentsDeleteMutation(
   $input: CommentsDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentsDelete(input: $input) {
     deletedCommentIds @deleteEdge(connections: $connections)

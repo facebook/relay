@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -13,7 +13,7 @@ mutation CommentCreateMutation(
 }
 ==================================== OUTPUT ===================================
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {

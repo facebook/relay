@@ -615,7 +615,7 @@ describe('connection edge mutations', () => {
       }
 
       mutation AppendCommentMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
@@ -629,7 +629,7 @@ describe('connection edge mutations', () => {
       }
 
       mutation PrependCommentMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
@@ -643,7 +643,7 @@ describe('connection edge mutations', () => {
       }
 
       mutation DeleteCommentMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $input: CommentDeleteInput
       ) {
         commentDelete(input: $input) {
@@ -652,7 +652,7 @@ describe('connection edge mutations', () => {
       }
 
       mutation DeleteCommentsMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $input: CommentsDeleteInput
       ) {
         commentsDelete(input: $input) {
@@ -1090,7 +1090,7 @@ describe('connection node mutations', () => {
       }
 
       mutation AppendCommentMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentCreateInput
       ) {
@@ -1105,7 +1105,7 @@ describe('connection node mutations', () => {
       }
 
       mutation AppendCommentWithLiteralEdgeMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
@@ -1119,7 +1119,7 @@ describe('connection node mutations', () => {
       }
 
       mutation AppendCommentsMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentsCreateInput
       ) {
@@ -1134,7 +1134,7 @@ describe('connection node mutations', () => {
       }
 
       mutation PrependCommentMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentCreateInput
       ) {
@@ -1149,7 +1149,7 @@ describe('connection node mutations', () => {
       }
 
       mutation PrependCommentsMutation(
-        $connections: [String!]!
+        $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentsCreateInput
       ) {

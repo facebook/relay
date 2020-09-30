@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -12,7 +12,7 @@ mutation CommentCreateMutation(
 }
 ==================================== OUTPUT ===================================
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {

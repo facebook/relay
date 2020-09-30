@@ -3,7 +3,7 @@
 exports[`matches expected output: append-edge.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -18,7 +18,7 @@ mutation CommentCreateMutation(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -37,7 +37,7 @@ exports[`matches expected output: append-edge-unspported.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -63,7 +63,7 @@ Source: GraphQL request (7:12)
 exports[`matches expected output: append-node.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -77,7 +77,7 @@ mutation CommentCreateMutation(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -93,7 +93,7 @@ mutation CommentCreateMutation(
 exports[`matches expected output: append-node-edge-literal.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -106,7 +106,7 @@ mutation CommentCreateMutation(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -122,7 +122,7 @@ exports[`matches expected output: append-node-unsupported.invalid.graphql 1`] = 
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -151,7 +151,7 @@ exports[`matches expected output: delete-edge-from-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     deletedCommentId @deleteEdge(connections: $connections)
@@ -161,7 +161,7 @@ mutation CommentDeleteMutation(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     deletedCommentId @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
@@ -175,7 +175,7 @@ exports[`matches expected output: delete-edge-from-connection-on-unspported-type
 # expected-to-throw
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     __typename @deleteEdge(connections: $connections)
@@ -199,7 +199,7 @@ exports[`matches expected output: delete-edge-from-connection-plural.graphql 1`]
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentsDeleteMutation(
   $input: CommentsDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentsDelete(input: $input) {
     deletedCommentIds @deleteEdge(connections: $connections)
@@ -209,7 +209,7 @@ mutation CommentsDeleteMutation(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentsDeleteMutation(
   $input: CommentsDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentsDelete(input: $input) {
     deletedCommentIds @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))

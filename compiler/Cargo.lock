@@ -1764,6 +1764,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "fixture-tests",
+ "graphql-test-helpers",
  "interner",
  "thiserror",
 ]

@@ -147,6 +147,77 @@ Source: GraphQL request (10:9)
 
 `;
 
+exports[`matches expected output: delete-edge-from-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [String!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [String!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection-on-unspported-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [String!]!
+) {
+  commentDelete(input: $input) {
+    __typename @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @deleteEdge on field '__typename'. Expected field to return an ID or list of ID values, got String!.
+
+Source: GraphQL request (7:16)
+6:   commentDelete(input: $input) {
+7:     __typename @deleteEdge(connections: $connections)
+                  ^
+8:   }
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [String!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [String!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
+  }
+}
+
+`;
+
 exports[`matches expected output: delete-from-store.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentDeleteMutation($input: CommentDeleteInput) {

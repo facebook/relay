@@ -24,7 +24,7 @@ use std::sync::Arc;
 /// Parse JS input to get list of executable definitions (ASTs)
 fn build_definitions_from_js_input(
     input: Vec<Handle<'_, JsValue>>,
-) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+) -> Result<Vec<ExecutableDefinition>, String> {
     let mut documents: Vec<DiagnosticsResult<ExecutableDocument>> = Vec::with_capacity(input.len());
     let mut errors: Vec<Diagnostic> = vec![];
     for js_value in input {
@@ -42,8 +42,9 @@ fn build_definitions_from_js_input(
             ));
         }
     }
-    if !errors.is_empty() {
-        return Err(errors);
+
+    if let Some(err) = errors.iter().next() {
+        return Err(err.to_string());
     }
 
     let mut definitions: Vec<ExecutableDefinition> = vec![];
@@ -60,10 +61,10 @@ fn build_definitions_from_js_input(
         }
     }
 
-    if errors.is_empty() {
-        Ok(definitions)
+    if let Some(err) = errors.iter().next() {
+        Err(err.to_string())
     } else {
-        Err(errors)
+        Ok(definitions)
     }
 }
 

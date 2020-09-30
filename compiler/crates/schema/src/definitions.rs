@@ -995,9 +995,9 @@ impl Schema {
             }
             type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension {
                 name,
-                interfaces: _interfaces,
+                interfaces,
                 fields,
-                directives: _directives,
+                directives,
             } => match self.type_map.get(&name).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
@@ -1012,7 +1012,21 @@ impl Schema {
                         &mut existing_fields,
                         Some(Type::Object(id)),
                     )?;
+
                     self.objects[index].fields.extend(client_fields);
+
+                    let built_interfaces = interfaces
+                        .iter()
+                        .map(|name| self.build_interface_id(*name))
+                        .collect::<DiagnosticsResult<Vec<_>>>()?;
+                    let filtered_interfaces =
+                        _filter_duplicates(&self.objects[index].interfaces, built_interfaces);
+                    self.objects[index].interfaces.extend(filtered_interfaces);
+
+                    let built_directives = self.build_directive_values(&directives);
+                    let filtered_directives =
+                        _filter_duplicates(&self.objects[index].directives, built_directives);
+                    self.objects[index].directives.extend(filtered_directives);
                 }
                 _ => {
                     return todo_add_location(SchemaError::ExtendUndefinedType(*name));
@@ -1021,7 +1035,7 @@ impl Schema {
             type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension {
                 name,
                 fields,
-                ..
+                directives,
             } => match self.type_map.get(&name).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
@@ -1037,6 +1051,13 @@ impl Schema {
                         Some(Type::Interface(id)),
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
+
+                    let built_directives = self.build_directive_values(&directives);
+                    let filtered_directives =
+                        _filter_duplicates(&self.interfaces[index].directives, built_directives);
+                    self.interfaces[index]
+                        .directives
+                        .extend(filtered_directives);
                 }
                 _ => {
                     return todo_add_location(SchemaError::ExtendUndefinedType(*name));
@@ -1240,6 +1261,22 @@ impl Schema {
             unions,
         )
     }
+}
+
+fn _filter_duplicates<T: std::cmp::Eq + std::hash::Hash>(left: &[T], right: Vec<T>) -> Vec<T> {
+    let mut hs = HashSet::new();
+    for t in left {
+        hs.insert(t);
+    }
+
+    let mut v = Vec::new();
+    for t in right {
+        if !hs.contains(&t) {
+            v.push(t);
+        }
+    }
+
+    v
 }
 
 macro_rules! type_id {
@@ -1463,7 +1500,7 @@ pub struct Scalar {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1532,7 +1569,7 @@ impl Named for Argument {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstValue,
@@ -1544,7 +1581,7 @@ impl Named for ArgumentValue {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,

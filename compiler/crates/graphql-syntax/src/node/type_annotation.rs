@@ -26,6 +26,16 @@ impl fmt::Display for TypeAnnotation {
     }
 }
 
+impl TypeAnnotation {
+    pub fn inner(&self) -> &TypeAnnotation {
+        match self {
+            TypeAnnotation::Named(_) => self,
+            TypeAnnotation::List(of) => (*of).type_.inner(),
+            TypeAnnotation::NonNull(of) => (*of).type_.inner(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ListTypeAnnotation {
     pub span: Span,

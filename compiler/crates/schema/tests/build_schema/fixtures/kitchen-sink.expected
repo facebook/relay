@@ -118,7 +118,13 @@ Schema {
                             ArgumentValue {
                                 name: "reason",
                                 value: String(
-                                    "No longer supported",
+                                    StringNode {
+                                        token: Token {
+                                            span: 268:289,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "No longer supported",
+                                    },
                                 ),
                             },
                         ],

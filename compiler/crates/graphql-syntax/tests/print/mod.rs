@@ -6,11 +6,12 @@
  */
 
 use fixture_tests::Fixture;
-use schema::{parse_definitions, type_system_node_v1::TypeSystemDefinition};
+use schema::new_parse_definitions;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let type_system_definitions: Vec<TypeSystemDefinition> =
-        parse_definitions(fixture.content).unwrap();
+    let type_system_definitions = new_parse_definitions(fixture.content)
+        .expect("Failed to parse definitions")
+        .definitions;
 
     let result = type_system_definitions
         .iter()

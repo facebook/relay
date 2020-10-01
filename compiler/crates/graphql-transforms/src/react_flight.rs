@@ -12,7 +12,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{type_system_node_v1, Field, FieldID, Type};
+use schema::{Field, FieldID, Type};
 use std::sync::Arc;
 
 lazy_static! {
@@ -91,7 +91,7 @@ impl<'s> ReactFlightTransform<'s> {
             .unwrap()
             .value;
         match value {
-            type_system_node_v1::Value::String(name) => Ok(name.intern()),
+            graphql_syntax::ConstantValue::String(node) => Ok(node.value),
             _ => {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldExpectedModuleNameString,

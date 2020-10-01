@@ -12,20 +12,21 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod definitions;
+pub mod definitions;
 mod errors;
 mod lexer;
 mod parser;
 mod token;
 pub mod type_system_node_v1;
 
-use common::{Diagnostic, DiagnosticsResult, Location};
+use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
     EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
     ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
+pub use graphql_syntax::DirectiveLocation;
 use lexer::Lexer;
 use parser::Parser;
 
@@ -41,29 +42,38 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
     extension_sdls: &[U],
 ) -> DiagnosticsResult<Schema> {
-    let mut server_definitions =
-        parse_definitions(BUILTINS).map_err(todo_convert_to_diagnostics)?;
+    let mut server_definitions = {
+        let schema_doc =
+            graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())?;
+        schema_doc.definitions
+    };
 
     let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
-        combined_sdl.push_str("\n");
         combined_sdl.push_str(server_sdl.as_ref());
+        combined_sdl.push_str("\n");
     }
-    server_definitions
-        .extend(parse_definitions(&combined_sdl).map_err(todo_convert_to_diagnostics)?);
+    server_definitions.extend(
+        graphql_syntax::parse_schema_document(&combined_sdl, SourceLocationKey::generated())?
+            .definitions,
+    );
 
     let mut extension_definitions = Vec::new();
     for extension_sdl in extension_sdls {
         extension_definitions.extend(
-            parse_definitions(extension_sdl.as_ref()).map_err(todo_convert_to_diagnostics)?,
+            graphql_syntax::parse_schema_document(
+                extension_sdl.as_ref(),
+                SourceLocationKey::generated(),
+            )?
+            .definitions,
         );
     }
 
     Schema::build(&server_definitions, &extension_definitions)
 }
 
-fn todo_convert_to_diagnostics(err: SchemaError) -> Vec<Diagnostic> {
-    vec![Diagnostic::error(err, Location::generated())]
+pub fn new_parse_definitions(input: &str) -> DiagnosticsResult<graphql_syntax::SchemaDocument> {
+    graphql_syntax::parse_schema_document(input, SourceLocationKey::generated())
 }
 
 pub fn parse_definitions(input: &str) -> Result<Vec<type_system_node_v1::TypeSystemDefinition>> {

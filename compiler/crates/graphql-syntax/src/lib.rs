@@ -17,6 +17,7 @@ mod source;
 mod syntax_error;
 mod utils;
 
+pub use lexer::TokenKind;
 pub use node::*;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;

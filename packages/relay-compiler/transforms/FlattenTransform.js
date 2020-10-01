@@ -72,7 +72,7 @@ function flattenTransformImpl(
   );
 }
 
-function memoizedFlattenSelection(cache) {
+function memoizedFlattenSelection(cache: Map<Node, Map<?TypeID, any>>) {
   return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
     const context: CompilerContext = this.getContext();
     let nodeCache = cache.get(node);

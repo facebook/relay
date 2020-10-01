@@ -52,7 +52,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^2.0.0",
     "fbjs-scripts": "^2.0.0",
-    "flow-bin": "^0.134.0",
+    "flow-bin": "^0.135.0",
     "glob": "^7.1.1",
     "graphql": "^15.0.0",
     "gulp": "4.0.0",

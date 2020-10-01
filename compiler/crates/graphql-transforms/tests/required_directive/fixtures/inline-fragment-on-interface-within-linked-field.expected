@@ -9,7 +9,7 @@ fragment EnabledFoo on Node {
 ==================================== OUTPUT ===================================
 fragment EnabledFoo on Node {
   ... on Actor {
-    address {
+    address @__childrenCanBubbleNull {
       city @required(action: LOG) @__required(action: "LOG", path: "address.city")
     }
   }

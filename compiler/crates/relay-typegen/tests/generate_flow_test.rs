@@ -1,4 +1,4 @@
-// @generated SignedSource<<8f4d77a0002fc15db02bfc6388c5f434>>
+// @generated SignedSource<<de59d5236e18a49340ae5f9c5da7b160>>
 
 mod generate_flow;
 
@@ -209,6 +209,27 @@ fn required_bubbles_to_item_in_plural_field() {
 }
 
 #[test]
+fn required_bubbles_to_non_null_linked_field() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-linked-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-linked-field.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-non-null-linked-field.graphql", "generate_flow/fixtures/required-bubbles-to-non-null-linked-field.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_non_null_linked_field_through_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-linked-field-through-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-linked-field-through-inline-fragment.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-non-null-linked-field-through-inline-fragment.graphql", "generate_flow/fixtures/required-bubbles-to-non-null-linked-field-through-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_non_null_plural_linked_field() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-plural-linked-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-plural-linked-field.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-non-null-plural-linked-field.graphql", "generate_flow/fixtures/required-bubbles-to-non-null-plural-linked-field.expected", input, expected);
+}
+
+#[test]
 fn required_bubbles_to_query() {
     let input = include_str!("generate_flow/fixtures/required-bubbles-to-query.graphql");
     let expected = include_str!("generate_flow/fixtures/required-bubbles-to-query.expected");
@@ -220,6 +241,13 @@ fn required_bubbles_up_to_mutation_response() {
     let input = include_str!("generate_flow/fixtures/required-bubbles-up-to-mutation-response.graphql");
     let expected = include_str!("generate_flow/fixtures/required-bubbles-up-to-mutation-response.expected");
     test_fixture(transform_fixture, "required-bubbles-up-to-mutation-response.graphql", "generate_flow/fixtures/required-bubbles-up-to-mutation-response.expected", input, expected);
+}
+
+#[test]
+fn required_chain_bubbles_to_non_null_linked_field_through_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.expected");
+    test_fixture(transform_fixture, "required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.graphql", "generate_flow/fixtures/required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.expected", input, expected);
 }
 
 #[test]
@@ -255,6 +283,20 @@ fn required_throws_nested() {
     let input = include_str!("generate_flow/fixtures/required-throws-nested.graphql");
     let expected = include_str!("generate_flow/fixtures/required-throws-nested.expected");
     test_fixture(transform_fixture, "required-throws-nested.graphql", "generate_flow/fixtures/required-throws-nested.expected", input, expected);
+}
+
+#[test]
+fn required_throws_within_non_null_linked_field() {
+    let input = include_str!("generate_flow/fixtures/required-throws-within-non-null-linked-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-throws-within-non-null-linked-field.expected");
+    test_fixture(transform_fixture, "required-throws-within-non-null-linked-field.graphql", "generate_flow/fixtures/required-throws-within-non-null-linked-field.expected", input, expected);
+}
+
+#[test]
+fn required_throws_within_non_null_plural_linked_field() {
+    let input = include_str!("generate_flow/fixtures/required-throws-within-non-null-plural-linked-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-throws-within-non-null-plural-linked-field.expected");
+    test_fixture(transform_fixture, "required-throws-within-non-null-plural-linked-field.graphql", "generate_flow/fixtures/required-throws-within-non-null-plural-linked-field.expected", input, expected);
 }
 
 #[test]

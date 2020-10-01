@@ -6,7 +6,7 @@ fragment EnabledActorsRendererFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-fragment EnabledActorsRendererFragment on User {
+fragment EnabledActorsRendererFragment on User @__childrenCanBubbleNull {
   id
   profile_picture @required(action: NONE) @__required(action: "NONE", path: "profile_picture") {
     uri

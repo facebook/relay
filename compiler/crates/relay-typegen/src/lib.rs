@@ -26,7 +26,8 @@ use graphql_ir::{
 };
 use graphql_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
-    RequiredAction, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS, REQUIRED_METADATA_KEY,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
+    REQUIRED_METADATA_KEY,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
@@ -137,7 +138,15 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
         let selections = self.visit_selections(&typegen_operation.selections);
-        let response_type = self.selections_to_babel(selections, false, None);
+        let mut response_type = self.selections_to_babel(selections, false, None);
+
+        response_type = match typegen_operation
+            .directives
+            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        {
+            Some(_) => AST::Nullable(response_type.into()),
+            None => response_type,
+        };
 
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
             let raw_response_selections =
@@ -298,15 +307,9 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             base_type
         };
 
-        let children_can_bubble_null = node
-            .selections
-            .iter()
-            .any(|child_selection| selection_can_bubble_null(child_selection));
-
-        let type_ = if children_can_bubble_null {
-            AST::Nullable(type_.into())
-        } else {
-            type_
+        let type_ = match node.directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+            Some(_) => AST::Nullable(type_.into()),
+            None => type_,
         };
 
         self.runtime_imports.fragment_reference = true;
@@ -590,15 +593,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         };
         let selections = visit_selections_fn(self, &linked_field.selections);
 
-        let non_null_type = field.type_.non_null();
-        let field_type = match linked_field.directives.named(*REQUIRED_METADATA_KEY) {
-            Some(_) => &non_null_type,
-            None => &field.type_,
-        };
+        let node_type =
+            apply_required_directive_nullability(&field.type_, &linked_field.directives);
+
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
-            node_type: Some(field_type.clone()),
+            node_type: Some(node_type),
             value: None,
             conditional: false,
             concrete_type: None,
@@ -620,16 +621,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             schema_name
         };
-        let non_null_type = field.type_.non_null();
-        let field_type = match scalar_field.directives.named(*REQUIRED_METADATA_KEY) {
-            Some(_) => &non_null_type,
-            None => &field.type_,
-        };
+        let field_type =
+            apply_required_directive_nullability(&field.type_, &scalar_field.directives);
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
             node_type: None,
-            value: Some(self.transform_scalar_type(field_type, None)),
+            value: Some(self.transform_scalar_type(&field_type, None)),
             conditional: false,
             concrete_type: None,
             ref_: None,
@@ -1246,22 +1244,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 }
 
-fn field_can_buble_null(directives: &[Directive]) -> bool {
-    RequiredAction::from_directives(directives.to_vec()).map_or(false, |action| match action {
-        RequiredAction::THROW => false,
-        _ => true,
-    })
-}
-
-fn selection_can_bubble_null(selection: &Selection) -> bool {
-    match selection {
-        Selection::ScalarField(node) => field_can_buble_null(&node.directives),
-        Selection::LinkedField(node) => field_can_buble_null(&node.directives),
-        Selection::InlineFragment(node) => node.selections.iter().any(selection_can_bubble_null),
-        _ => false,
-    }
-}
-
 #[derive(Debug, Clone)]
 struct TypeSelection {
     key: StringKey,
@@ -1406,4 +1388,25 @@ fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
         .directives
         .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
         .is_some()
+}
+
+fn apply_required_directive_nullability(
+    field_type: &TypeReference,
+    directives: &[Directive],
+) -> TypeReference {
+    match directives.named(*REQUIRED_METADATA_KEY) {
+        Some(_) => field_type.non_null(),
+        None => match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+            Some(_) => match field_type {
+                // Children bubble up to the list item, not the list. So, if this is
+                // a plural field, we force the item type to be nullable, not the
+                // list itself.
+                TypeReference::List(inner) => {
+                    TypeReference::List(Box::new(inner.nullable_type().clone()))
+                }
+                _ => field_type.nullable_type().clone(),
+            },
+            None => field_type.clone(),
+        },
+    }
 }

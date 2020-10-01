@@ -7,7 +7,7 @@ query MyQuery @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 export type MyQueryVariables = {||};
-export type MyQueryResponse = {|
+export type MyQueryResponse = ?{|
   +me: {|
     +id: string,
     +name: string,

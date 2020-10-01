@@ -1034,6 +1034,8 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
     additionalParameters: JSON
     options: ProfilePictureOptions
   ): Image
+  neighbors: [User!]
+  nearest_neighbor: User!
 }
 
 enum NameRendererContext {

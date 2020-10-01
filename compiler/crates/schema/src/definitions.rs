@@ -348,6 +348,10 @@ impl Schema {
         self.interfaces.iter()
     }
 
+    pub fn get_enums(&self) -> impl Iterator<Item = &Enum> {
+        self.enums.iter()
+    }
+
     pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
         self.objects.iter()
     }

@@ -15,11 +15,13 @@ mod node;
 mod parser;
 mod source;
 mod syntax_error;
+mod utils;
 
 pub use node::*;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;
+pub use utils::*;
 
 use crate::parser::Parser;
 use common::{DiagnosticsResult, SourceLocationKey};

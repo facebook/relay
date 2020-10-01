@@ -53,7 +53,12 @@ import type {
   Selection as IRSelection,
 } from '../../core/IR';
 import type {NodeVisitor} from '../../core/IRVisitor';
-import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
+import type {
+  Schema,
+  TypeID,
+  EnumTypeID,
+  UnionTypeID,
+} from '../../core/Schema';
 import type {RequiredDirectiveMetadata} from '../../transforms/RequiredFieldTransform';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 
@@ -103,9 +108,16 @@ function makeProp(
   state: State,
   unmasked: boolean,
   concreteType?: string,
+  unionType?: UnionTypeID,
 ) {
   if (schemaName === '__typename' && concreteType) {
     value = t.stringLiteralTypeAnnotation(concreteType);
+  } else if (schemaName === '__typename' && unionType) {
+    value = t.unionTypeAnnotation(
+      schema
+        .getUnionTypes(unionType)
+        .map(type => t.stringLiteralTypeAnnotation(schema.getTypeString(type))),
+    );
   } else if (nodeType) {
     value = transformScalarType(
       schema,
@@ -113,6 +125,7 @@ function makeProp(
       state,
       selectionsToBabel(
         schema,
+        nodeType,
         [Array.from(nullthrows(nodeSelections).values())],
         state,
         unmasked,
@@ -127,23 +140,40 @@ function makeProp(
 }
 
 const isTypenameSelection = selection => selection.schemaName === '__typename';
+const isFragmentSelection = (selection: Selection) => !!selection.ref;
 const hasTypenameSelection = selections => selections.some(isTypenameSelection);
-const onlySelectsTypename = selections => selections.every(isTypenameSelection);
+const onlySelectsFragments = (selections: Selection[]) =>
+  selections.every(isFragmentSelection);
 
 function selectionsToBabel(
   schema: Schema,
+  nodeType: TypeID | null,
   selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>,
   state: State,
   unmasked: boolean,
   fragmentTypeName?: string,
 ) {
   const baseFields = new Map();
+  const baseFragments = new Map<string, Selection>();
   const byConcreteType = {};
   flattenArray(selections).forEach(selection => {
-    const {concreteType} = selection;
+    let {concreteType} = selection;
+
+    // If the concrete type matches the node type, we can add this to the base fields
+    // and fragments instead.
+    if (
+      nodeType &&
+      concreteType &&
+      schema.getTypeString(nodeType) === concreteType
+    ) {
+      concreteType = undefined;
+    }
+
     if (concreteType) {
       byConcreteType[concreteType] = byConcreteType[concreteType] ?? [];
       byConcreteType[concreteType].push(selection);
+    } else if (selection.ref) {
+      baseFragments.set(selection.ref, selection);
     } else {
       const previousSel = baseFields.get(selection.key);
 
@@ -154,21 +184,43 @@ function selectionsToBabel(
     }
   });
 
-  const types = [];
+  // If there are any concrete types that only select fragments, move those
+  // fragments to the base fragments instead.
+  for (const concreteType in byConcreteType) {
+    const concreteTypeSelections = byConcreteType[concreteType];
+    if (onlySelectsFragments(concreteTypeSelections)) {
+      concreteTypeSelections.forEach(selection =>
+        baseFragments.set(selection.ref, selection),
+      );
 
-  if (
+      delete byConcreteType[concreteType];
+    }
+  }
+
+  const concreteTypes = [];
+  const typeFieldsPresentForUnion =
     Object.keys(byConcreteType).length > 0 &&
-    onlySelectsTypename(Array.from(baseFields.values())) &&
     (hasTypenameSelection(Array.from(baseFields.values())) ||
       Object.keys(byConcreteType).every(type =>
         hasTypenameSelection(byConcreteType[type]),
-      ))
-  ) {
+      ));
+
+  if (typeFieldsPresentForUnion) {
     const typenameAliases = new Set();
     for (const concreteType in byConcreteType) {
-      types.push(
+      const concreteTypeSelections = byConcreteType[concreteType];
+      const concreteTypeSelectionsNames = concreteTypeSelections.map(
+        selection => selection.schemaName,
+      );
+
+      concreteTypes.push(
         groupRefs([
-          ...Array.from(baseFields.values()),
+          // Deduplicate any fields also selected on the concrete type.
+          ...Array.from(baseFields.values()).filter(
+            selection =>
+              isTypenameSelection(selection) &&
+              !concreteTypeSelectionsNames.includes(selection.schemaName),
+          ),
           ...byConcreteType[concreteType],
         ]).map(selection => {
           if (selection.schemaName === '__typename') {
@@ -178,24 +230,54 @@ function selectionsToBabel(
         }),
       );
     }
-    // It might be some other type then the listed concrete types. Ideally, we
-    // would set the type to diff(string, set of listed concrete types), but
-    // this doesn't exist in Flow at the time.
-    types.push(
-      Array.from(typenameAliases).map(typenameAlias => {
-        const otherProp = readOnlyObjectTypeProperty(
-          typenameAlias,
-          t.stringLiteralTypeAnnotation('%other'),
-        );
-        otherProp.leadingComments = lineComments(
-          "This will never be '%other', but we need some",
-          'value in case none of the concrete values match.',
-        );
-        return otherProp;
-      }),
-    );
-  } else {
-    let selectionMap = selectionsToMap(Array.from(baseFields.values()));
+
+    // It might be some other type then the listed concrete types. We try to
+    // figure out which types remain here.
+    let possibleTypesLeft: TypeID[] | null = null;
+    const innerType =
+      nodeType !== null ? schema.getNullableType(nodeType) : null;
+    if (innerType !== null && schema.isAbstractType(innerType)) {
+      const typesSeen = Object.keys(byConcreteType);
+      possibleTypesLeft = Array.from(schema.getPossibleTypes(innerType)).filter(
+        type => !typesSeen.includes(schema.getTypeString(type)),
+      );
+    }
+
+    // If we don't know which types are left we set the value to "%other",
+    // otherwise return a union of type names.
+    if (!possibleTypesLeft || possibleTypesLeft.length > 0) {
+      concreteTypes.push(
+        Array.from(typenameAliases).map(typenameAlias => {
+          const otherProp = readOnlyObjectTypeProperty(
+            typenameAlias,
+            possibleTypesLeft
+              ? t.unionTypeAnnotation(
+                  possibleTypesLeft.map(type =>
+                    t.stringLiteralTypeAnnotation(schema.getTypeString(type)),
+                  ),
+                )
+              : t.stringLiteralTypeAnnotation('%other'),
+          );
+          if (possibleTypesLeft) {
+            return otherProp;
+          }
+
+          const otherPropWithComment = readOnlyObjectTypeProperty(
+            typenameAlias,
+            t.stringLiteralTypeAnnotation('%other'),
+          );
+          otherPropWithComment.leadingComments = lineComments(
+            "This will never be '%other', but we need some",
+            'value in case none of the concrete values match.',
+          );
+          return otherPropWithComment;
+        }),
+      );
+    }
+  }
+
+  let selectionMap = selectionsToMap(Array.from(baseFields.values()));
+  if (!typeFieldsPresentForUnion) {
     for (const concreteType in byConcreteType) {
       selectionMap = mergeSelections(
         selectionMap,
@@ -207,37 +289,56 @@ function selectionsToBabel(
         ),
       );
     }
-    const selectionMapValues = groupRefs(
-      Array.from(selectionMap.values()),
-    ).map(sel =>
-      isTypenameSelection(sel) && sel.concreteType
-        ? makeProp(
-            schema,
-            {...sel, conditional: false},
-            state,
-            unmasked,
-            sel.concreteType,
-          )
-        : makeProp(schema, sel, state, unmasked),
-    );
-    types.push(selectionMapValues);
   }
 
-  return unionTypeAnnotation(
-    types.map(props => {
-      if (fragmentTypeName) {
-        props.push(
-          readOnlyObjectTypeProperty(
-            '$refType',
-            t.genericTypeAnnotation(t.identifier(fragmentTypeName)),
-          ),
-        );
-      }
-      return unmasked
-        ? inexactObjectTypeAnnotation(props)
-        : exactObjectTypeAnnotation(props);
-    }),
+  const baseTypeProps = groupRefs(
+    [
+      ...Array.from(baseFragments.values()),
+      ...Array.from(selectionMap.values()),
+    ].filter(
+      selection =>
+        !typeFieldsPresentForUnion || !isTypenameSelection(selection),
+    ),
+  ).map(sel =>
+    isTypenameSelection(sel) &&
+    (sel.concreteType ||
+      (nodeType && schema.isUnion(schema.getNullableType(nodeType))))
+      ? makeProp(
+          schema,
+          {...sel, conditional: false},
+          state,
+          unmasked,
+          sel.concreteType,
+          nodeType && schema.isUnion(schema.getNullableType(nodeType))
+            ? schema.getNullableType(nodeType)
+            : undefined,
+        )
+      : makeProp(schema, sel, state, unmasked),
   );
+
+  if (fragmentTypeName) {
+    baseTypeProps.push(
+      readOnlyObjectTypeProperty(
+        '$refType',
+        t.genericTypeAnnotation(t.identifier(fragmentTypeName)),
+      ),
+    );
+  }
+
+  const propsToObject = props =>
+    unmasked
+      ? inexactObjectTypeAnnotation(props)
+      : exactObjectTypeAnnotation(props);
+
+  const baseType = propsToObject(baseTypeProps);
+  if (concreteTypes.length === 0) {
+    return baseType;
+  }
+
+  const unionType = unionTypeAnnotation(concreteTypes.map(propsToObject));
+  return baseTypeProps.length > 0
+    ? t.intersectionTypeAnnotation([unionType, baseType])
+    : unionType;
 }
 
 function mergeSelection(
@@ -346,6 +447,7 @@ function createVisitor(
 
         let responseTypeDefinition = selectionsToBabel(
           schema,
+          null,
           /* $FlowFixMe: selections have already been transformed */
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
           state,
@@ -362,6 +464,7 @@ function createVisitor(
           `${node.name}Response`,
           selectionsToBabel(
             schema,
+            null,
             // $FlowFixMe[incompatible-cast] : selections have already been transformed
             (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
             state,
@@ -489,6 +592,7 @@ function createVisitor(
         const unmasked = node.metadata != null && node.metadata.mask === false;
         const baseType = selectionsToBabel(
           schema,
+          node.type,
           selections,
           state,
           unmasked,

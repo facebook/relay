@@ -111,7 +111,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
 schema = { path = "../schema" }
 test-schema = { path = "../test-schema" }
-criterion = "0.3"
+criterion = "=0.3.1"
 dashmap = "3.11.10"
 fnv = "1.0"
 indexmap = { version = "1.3", features = ["serde-1", "rayon"] }

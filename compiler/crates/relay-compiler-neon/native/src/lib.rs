@@ -85,6 +85,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         typegen_config: Default::default(),
         persist: None,
         variable_names_comment: false,
+        extra: None,
     };
 
     let config = Config {

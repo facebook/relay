@@ -162,6 +162,7 @@ impl Config {
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
+                    extra: config_file_project.extra,
                 };
                 Ok((project_name, project_config))
             })
@@ -384,6 +385,7 @@ pub struct ProjectConfig {
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
+    pub extra: Option<HashMap<String, String>>,
 }
 
 #[derive(Clone, Debug)]
@@ -493,6 +495,8 @@ struct ConfigFileProject {
     /// Generates a `// @relayVariables name1 name2` header in generated operation files
     #[serde(default)]
     variable_names_comment: bool,
+
+    extra: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Deserialize)]

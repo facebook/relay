@@ -70,7 +70,6 @@ export type State = {|
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
   +runtimeImports: Set<string>,
-  +nullCanBubbleToRoot: boolean,
 |};
 
 function generate(
@@ -286,27 +285,6 @@ function isPlural(node: Fragment): boolean {
   return Boolean(node.metadata && node.metadata.plural);
 }
 
-function irSelectionCanBubbleNull(selection: IRSelection): boolean {
-  if (selection.kind === 'InlineFragment') {
-    return selection.selections.some(irSelectionCanBubbleNull);
-  } else if (
-    selection.kind === 'ScalarField' ||
-    selection.kind === 'LinkedField'
-  ) {
-    const requiredMetadata: ?RequiredDirectiveMetadata = (selection.metadata
-      ?.required: $FlowFixMe);
-    return requiredMetadata != null && requiredMetadata.action !== 'THROW';
-  }
-  return false;
-}
-
-function visitRootOrFragment<T: Root | Fragment>(node: T, state): T {
-  if (node.selections.some(irSelectionCanBubbleNull)) {
-    state.nullCanBubbleToRoot = true;
-  }
-  return node;
-}
-
 function createVisitor(
   schema: Schema,
   options: TypeGeneratorOptions,
@@ -324,17 +302,8 @@ function createVisitor(
     noFutureProofEnums: options.noFutureProofEnums,
     matchFields: new Map(),
     runtimeImports: new Set(),
-    nullCanBubbleToRoot: false,
   };
   return {
-    enter: {
-      Root(node: Root) {
-        return visitRootOrFragment(node, state);
-      },
-      Fragment(node) {
-        return visitRootOrFragment(node, state);
-      },
-    },
     leave: {
       Root(node: Root) {
         const inputVariablesType = generateInputVariablesType(
@@ -352,7 +321,7 @@ function createVisitor(
           false,
         );
 
-        if (state.nullCanBubbleToRoot) {
+        if (node.metadata?.childrenCanBubbleNull === true) {
           responseTypeDefinition = t.nullableTypeAnnotation(
             responseTypeDefinition,
           );
@@ -360,13 +329,7 @@ function createVisitor(
 
         const responseType = exportType(
           `${node.name}Response`,
-          selectionsToBabel(
-            schema,
-            // $FlowFixMe[incompatible-cast] : selections have already been transformed
-            (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-            state,
-            false,
-          ),
+          responseTypeDefinition,
         );
 
         const operationTypes = [
@@ -496,7 +459,7 @@ function createVisitor(
         );
         let type = isPluralFragment ? readOnlyArrayOfType(baseType) : baseType;
 
-        if (state.nullCanBubbleToRoot) {
+        if (node.metadata?.childrenCanBubbleNull === true) {
           type = t.nullableTypeAnnotation(type);
         }
 
@@ -608,16 +571,31 @@ function visitScalarField(schema: Schema, node, state: State) {
   ];
 }
 
-function visitLinkedField(schema: Schema, node) {
+function getLinkedFieldNodeType(schema: Schema, node) {
   const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
     ?.required: $FlowFixMe);
-  const nodeType =
-    requiredMetadata != null ? schema.getNonNullType(node.type) : node.type;
+
+  if (requiredMetadata != null) {
+    return schema.getNonNullType(node.type);
+  }
+  if (node.metadata?.childrenCanBubbleNull === true) {
+    if (schema.isList(node.type)) {
+      // In a plural field, nulls bubble up to the item, resulting in a list of nullable items.
+      return schema.mapListItemType(node.type, inner =>
+        schema.getNullableType(inner),
+      );
+    }
+    return schema.getNullableType(node.type);
+  }
+  return node.type;
+}
+
+function visitLinkedField(schema: Schema, node) {
   return [
     {
       key: node.alias,
       schemaName: node.name,
-      nodeType: nodeType,
+      nodeType: getLinkedFieldNodeType(schema, node),
       nodeSelections: selectionsToMap(
         flattenArray(
           // $FlowFixMe[incompatible-cast] : selections have already been transformed

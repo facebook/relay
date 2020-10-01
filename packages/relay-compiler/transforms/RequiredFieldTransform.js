@@ -26,6 +26,9 @@ import type {
   Field,
   Location,
   InlineFragment,
+  Fragment,
+  Root,
+  Metadata,
 } from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {RequiredFieldAction} from 'relay-runtime';
@@ -76,6 +79,8 @@ function requiredFieldTransform(context: CompilerContext): CompilerContext {
       LinkedField: visitLinkedField,
       ScalarField: vistitScalarField,
       InlineFragment: visitInlineFragment,
+      Fragment: visitFragment,
+      Root: visitRoot,
     },
     node => ({
       schema,
@@ -87,6 +92,14 @@ function requiredFieldTransform(context: CompilerContext): CompilerContext {
       parentAbstractInlineFragment: null,
     }),
   );
+}
+
+function visitFragment(fragment: Fragment, state: State) {
+  return addChildrenCanBubbleMetadata(this.traverse(fragment, state), state);
+}
+
+function visitRoot(root: Root, state: State) {
+  return addChildrenCanBubbleMetadata(this.traverse(root, state), state);
 }
 
 function visitInlineFragment(fragment: InlineFragment, state: State) {
@@ -168,27 +181,8 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     });
   }
 
-  const childrenCanBubble = Array.from(
-    newState.currentNodeRequiredChildren.values(),
-  )
-    .map(getRequiredDirectiveMetadata)
-    .filter(Boolean)
-    .some(required => required.action !== 'THROW');
-
-  // TODO(T76422041): Replace this with code that adds metadata to the field
-  // indicating that its children can bubble. We can then consult that metadata
-  // in the type generation code.
-  if (childrenCanBubble && state.schema.isNonNull(field.type)) {
-    throw createUserError(
-      '@required does not yet work within non-nullable linked fields (T76422041)',
-      Array.from(newState.currentNodeRequiredChildren.values()).map(
-        requiredChild => requiredChild.loc,
-      ),
-    );
-  }
-
   state.requiredChildrenMap.set(pathName, newState.currentNodeRequiredChildren);
-  return newField;
+  return addChildrenCanBubbleMetadata(newField, newState);
 }
 
 function vistitScalarField(field: ScalarField, state: State): ScalarField {
@@ -205,6 +199,21 @@ function vistitScalarField(field: ScalarField, state: State): ScalarField {
   }
   assertCompatibleNullability(newField, pathName, state.pathRequiredMap);
   return newField;
+}
+
+function addChildrenCanBubbleMetadata<T: {|+metadata: Metadata|}>(
+  node: T,
+  state: State,
+): T {
+  for (const child of state.currentNodeRequiredChildren.values()) {
+    const requiredMetadata = getRequiredDirectiveMetadata(child);
+    if (requiredMetadata != null && requiredMetadata.action !== 'THROW') {
+      const metadata = {...node.metadata, childrenCanBubbleNull: true};
+      return {...node, metadata};
+    }
+  }
+
+  return node;
 }
 
 function assertParentIsNotInvalidInlineFragmet(

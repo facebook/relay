@@ -90,7 +90,7 @@ ExecutableDocument {
             ),
             variable_definitions: Some(
                 List {
-                    span: 15:57,
+                    span: 15:56,
                     start: Token {
                         span: 15:16,
                         kind: OpenParen,
@@ -193,7 +193,7 @@ ExecutableDocument {
                 },
             ],
             selections: List {
-                span: 66:393,
+                span: 66:391,
                 start: Token {
                     span: 66:67,
                     kind: OpenBrace,
@@ -228,7 +228,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 88:105,
+                                span: 88:104,
                                 start: Token {
                                     span: 88:89,
                                     kind: OpenParen,
@@ -293,7 +293,7 @@ ExecutableDocument {
                         ),
                         directives: [],
                         selections: List {
-                            span: 105:390,
+                            span: 105:389,
                             start: Token {
                                 span: 105:106,
                                 kind: OpenBrace,
@@ -355,7 +355,7 @@ ExecutableDocument {
                                         },
                                     ],
                                     selections: List {
-                                        span: 148:320,
+                                        span: 148:315,
                                         start: Token {
                                             span: 148:149,
                                             kind: OpenBrace,
@@ -375,7 +375,7 @@ ExecutableDocument {
                                                 arguments: None,
                                                 directives: [],
                                                 selections: List {
-                                                    span: 163:314,
+                                                    span: 163:309,
                                                     start: Token {
                                                         span: 163:164,
                                                         kind: OpenBrace,
@@ -424,7 +424,7 @@ ExecutableDocument {
                                                             },
                                                             arguments: Some(
                                                                 List {
-                                                                    span: 197:222,
+                                                                    span: 197:221,
                                                                     start: Token {
                                                                         span: 197:198,
                                                                         kind: OpenParen,
@@ -505,7 +505,7 @@ ExecutableDocument {
                                                                     },
                                                                     arguments: Some(
                                                                         List {
-                                                                            span: 230:241,
+                                                                            span: 230:240,
                                                                             start: Token {
                                                                                 span: 230:231,
                                                                                 kind: OpenParen,
@@ -546,7 +546,7 @@ ExecutableDocument {
                                                                 },
                                                             ],
                                                             selections: List {
-                                                                span: 241:308,
+                                                                span: 241:301,
                                                                 start: Token {
                                                                     span: 241:242,
                                                                     kind: OpenBrace,
@@ -644,7 +644,7 @@ ExecutableDocument {
                                             },
                                             arguments: Some(
                                                 List {
-                                                    span: 329:344,
+                                                    span: 329:343,
                                                     start: Token {
                                                         span: 329:330,
                                                         kind: OpenParen,
@@ -685,7 +685,7 @@ ExecutableDocument {
                                         },
                                     ],
                                     selections: List {
-                                        span: 344:365,
+                                        span: 344:360,
                                         start: Token {
                                             span: 344:345,
                                             kind: OpenBrace,
@@ -721,7 +721,7 @@ ExecutableDocument {
                                     type_condition: None,
                                     directives: [],
                                     selections: List {
-                                        span: 369:388,
+                                        span: 369:385,
                                         start: Token {
                                             span: 369:370,
                                             kind: OpenBrace,
@@ -803,7 +803,7 @@ ExecutableDocument {
                 },
             ],
             selections: List {
-                span: 424:499,
+                span: 424:497,
                 start: Token {
                     span: 424:425,
                     kind: OpenBrace,
@@ -822,7 +822,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 432:445,
+                                span: 432:444,
                                 start: Token {
                                     span: 432:433,
                                     kind: OpenParen,
@@ -880,7 +880,7 @@ ExecutableDocument {
                             },
                         ],
                         selections: List {
-                            span: 454:496,
+                            span: 454:495,
                             start: Token {
                                 span: 454:455,
                                 kind: OpenBrace,
@@ -900,7 +900,7 @@ ExecutableDocument {
                                     arguments: None,
                                     directives: [],
                                     selections: List {
-                                        span: 466:494,
+                                        span: 466:491,
                                         start: Token {
                                             span: 466:467,
                                             kind: OpenBrace,
@@ -981,7 +981,7 @@ ExecutableDocument {
             ),
             variable_definitions: Some(
                 List {
-                    span: 533:569,
+                    span: 533:566,
                     start: Token {
                         span: 533:534,
                         kind: OpenParen,
@@ -1040,7 +1040,7 @@ ExecutableDocument {
                 },
             ],
             selections: List {
-                span: 585:887,
+                span: 585:727,
                 start: Token {
                     span: 585:586,
                     kind: OpenBrace,
@@ -1059,7 +1059,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 607:623,
+                                span: 607:622,
                                 start: Token {
                                     span: 607:608,
                                     kind: OpenParen,
@@ -1099,7 +1099,7 @@ ExecutableDocument {
                         ),
                         directives: [],
                         selections: List {
-                            span: 623:726,
+                            span: 623:725,
                             start: Token {
                                 span: 623:624,
                                 kind: OpenBrace,
@@ -1119,7 +1119,7 @@ ExecutableDocument {
                                     arguments: None,
                                     directives: [],
                                     selections: List {
-                                        span: 635:724,
+                                        span: 635:721,
                                         start: Token {
                                             span: 635:636,
                                             kind: OpenBrace,
@@ -1139,7 +1139,7 @@ ExecutableDocument {
                                                 arguments: None,
                                                 directives: [],
                                                 selections: List {
-                                                    span: 650:680,
+                                                    span: 650:673,
                                                     start: Token {
                                                         span: 650:651,
                                                         kind: OpenBrace,
@@ -1180,7 +1180,7 @@ ExecutableDocument {
                                                 arguments: None,
                                                 directives: [],
                                                 selections: List {
-                                                    span: 693:720,
+                                                    span: 693:715,
                                                     start: Token {
                                                         span: 693:694,
                                                         kind: OpenBrace,
@@ -1277,7 +1277,7 @@ ExecutableDocument {
                 },
             ],
             selections: List {
-                span: 933:1035,
+                span: 933:1033,
                 start: Token {
                     span: 933:934,
                     kind: OpenBrace,
@@ -1296,7 +1296,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 940:1016,
+                                span: 940:1013,
                                 start: Token {
                                     span: 940:941,
                                     kind: OpenParen,
@@ -1483,7 +1483,7 @@ ExecutableDocument {
             variable_definitions: None,
             directives: [],
             selections: List {
-                span: 1035:1101,
+                span: 1035:1099,
                 start: Token {
                     span: 1035:1036,
                     kind: OpenBrace,
@@ -1502,7 +1502,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 1046:1092,
+                                span: 1046:1089,
                                 start: Token {
                                     span: 1046:1047,
                                     kind: OpenParen,
@@ -1628,7 +1628,7 @@ ExecutableDocument {
             variable_definitions: None,
             directives: [],
             selections: List {
-                span: 1107:1124,
+                span: 1107:1123,
                 start: Token {
                     span: 1107:1108,
                     kind: OpenBrace,

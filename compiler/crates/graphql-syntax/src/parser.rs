@@ -1485,8 +1485,6 @@ impl<'a> Parser<'a> {
     where
         F: Fn(&mut Self) -> ParseResult<T>,
     {
-        let span_start = self.index();
-
         let start = self.parse_kind(start_kind)?;
         let mut items = vec![];
         while !self.peek_kind(end_kind) {
@@ -1494,7 +1492,7 @@ impl<'a> Parser<'a> {
         }
         let end = self.parse_kind(end_kind)?;
 
-        let span = Span::new(span_start, self.index());
+        let span = Span::new(start.span.start, end.span.end);
         Ok(List {
             span,
             start,
@@ -1514,8 +1512,6 @@ impl<'a> Parser<'a> {
     where
         F: Fn(&mut Self) -> ParseResult<T>,
     {
-        let span_start = self.index();
-
         let start = self.parse_kind(start_kind)?;
         let mut items = vec![parse(self)?];
         while !self.peek_kind(end_kind) {
@@ -1523,7 +1519,7 @@ impl<'a> Parser<'a> {
         }
         let end = self.parse_kind(end_kind)?;
 
-        let span = Span::new(span_start, self.index());
+        let span = Span::new(start.span.start, end.span.end);
         Ok(List {
             span,
             start,

@@ -13,7 +13,5 @@ fragment TestFragment on User
   argument-definitions-with-typo.invalid.graphql:5:11
     4 │     id: {type: "ID"}
     5 │     size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-      │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │   ) {
-      │ ^^
-    7 │   ...Foo @arguments(size: $size)

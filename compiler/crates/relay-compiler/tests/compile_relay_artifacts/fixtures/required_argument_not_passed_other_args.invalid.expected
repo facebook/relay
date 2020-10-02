@@ -26,8 +26,6 @@ fragment requiredArgumentNotPassedFragment on User @argumentDefinitions(
     5 │     ...requiredArgumentNotPassedFragment @arguments(otherarg: [1])
       │                                                    ^^^^^^^^^^^^^^^
     6 │   }
-      │ ^^
-    7 │ }
 
   ℹ︎ defined on the fragment here
 

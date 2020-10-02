@@ -378,6 +378,32 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         check_arguments: bool,
     ) -> DiagnosticsResult<Vec<Argument>> {
         let mut has_unused_args = false;
+        let mut errors = Vec::new();
+        for variable_definition in &signature.variable_definitions {
+            if variable_definition.type_.is_non_null()
+                && variable_definition.default_value.is_none()
+                && arg_list
+                    .items
+                    .named(variable_definition.name.item)
+                    .is_none()
+            {
+                errors.push(
+                    Diagnostic::error(
+                        ValidationMessage::MissingRequiredFragmentArgument {
+                            argument_name: variable_definition.name.item,
+                        },
+                        self.location.with_span(arg_list.span),
+                    )
+                    .annotate(
+                        "defined on the fragment here",
+                        variable_definition.name.location,
+                    ),
+                );
+            }
+        }
+        if !errors.is_empty() {
+            return Err(errors);
+        }
         let result: DiagnosticsResult<Vec<Argument>> = arg_list
             .items
             .iter()
@@ -508,6 +534,29 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         {
             self.build_fragment_spread_arguments(&signature, arg_list, false)
         } else {
+            let errors: Vec<_> = signature
+                .variable_definitions
+                .iter()
+                .filter(|variable_definition| {
+                    variable_definition.type_.is_non_null()
+                        && variable_definition.default_value.is_none()
+                })
+                .map(|variable_definition| {
+                    Diagnostic::error(
+                        ValidationMessage::MissingRequiredFragmentArgument {
+                            argument_name: variable_definition.name.item,
+                        },
+                        self.location.with_span(spread.span),
+                    )
+                    .annotate(
+                        "defined on the fragment here",
+                        variable_definition.name.location,
+                    )
+                })
+                .collect();
+            if !errors.is_empty() {
+                return Err(errors);
+            }
             Ok(Default::default())
         };
 

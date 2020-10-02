@@ -1,4 +1,4 @@
-// @generated SignedSource<<945f5f4db1f1d932285f07ebe99c6895>>
+// @generated SignedSource<<deea4fe8b36fd52433a73728036fe08d>>
 
 mod compile_relay_artifacts;
 
@@ -717,6 +717,27 @@ fn relay_client_id_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "compile_relay_artifacts/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn required_argument_not_passed_default_value() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.expected");
+    test_fixture(transform_fixture, "required_argument_not_passed_default_value.graphql", "compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.expected", input, expected);
+}
+
+#[test]
+fn required_argument_not_passed_no_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_no_args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_no_args.invalid.expected");
+    test_fixture(transform_fixture, "required_argument_not_passed_no_args.invalid.graphql", "compile_relay_artifacts/fixtures/required_argument_not_passed_no_args.invalid.expected", input, expected);
+}
+
+#[test]
+fn required_argument_not_passed_other_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.expected");
+    test_fixture(transform_fixture, "required_argument_not_passed_other_args.invalid.graphql", "compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.expected", input, expected);
 }
 
 #[test]

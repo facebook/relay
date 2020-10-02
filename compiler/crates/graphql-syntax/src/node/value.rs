@@ -7,7 +7,7 @@
 
 use super::constant_value::*;
 use super::primitive::*;
-use common::{SourceLocationKey, Span, WithLocation};
+use common::{Named, SourceLocationKey, Span, WithLocation};
 use core::fmt;
 use interner::StringKey;
 
@@ -94,5 +94,11 @@ pub struct Argument {
 impl fmt::Display for Argument {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("{}: {}", self.name, self.value))
+    }
+}
+
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name.value
     }
 }

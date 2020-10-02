@@ -1,0 +1,18 @@
+# TODO this should fail, but needs product fixes.
+# The reason is that GraphQL spec disallows defaults if the type is non-nullable
+# as that would never use the default value and require you to pass the
+# argument. In other words, the type describes the type that has to be passed.
+
+query requiredArgumentNotPassedDefaultValueQuery {
+  me {
+    ...requiredArgumentNotPassedDefaultValueFragment
+  }
+}
+
+fragment requiredArgumentNotPassedDefaultValueFragment on User @argumentDefinitions(
+  sizearg: { type: "[Int!]!", defaultValue: [3] }
+) {
+  profilePicture(size: $sizearg) {
+    uri
+  }
+}

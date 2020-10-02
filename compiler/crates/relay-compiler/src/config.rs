@@ -163,6 +163,7 @@ impl Config {
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
+                    feature_flags: config_file_project.feature_flags,
                 };
                 Ok((project_name, project_config))
             })
@@ -386,6 +387,7 @@ pub struct ProjectConfig {
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
     pub extra: Option<HashMap<String, String>>,
+    pub feature_flags: Option<FeatureFlags>,
 }
 
 #[derive(Clone, Debug)]
@@ -497,6 +499,9 @@ struct ConfigFileProject {
     variable_names_comment: bool,
 
     extra: Option<HashMap<String, String>>,
+
+    #[serde(default)]
+    feature_flags: Option<FeatureFlags>,
 }
 
 #[derive(Debug, Deserialize)]

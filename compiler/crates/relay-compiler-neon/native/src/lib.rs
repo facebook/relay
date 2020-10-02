@@ -86,6 +86,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         persist: None,
         variable_names_comment: false,
         extra: None,
+        feature_flags: Default::default(),
     };
 
     let config = Config {

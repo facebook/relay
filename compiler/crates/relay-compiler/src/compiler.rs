@@ -145,8 +145,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
                 if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
-                    post_artifacts_write(&self.config)
-                        .map_err(|error| Error::PostArtifactsError { error })?;
+                    if let Err(error) = post_artifacts_write(&self.config) {
+                        let error = Error::PostArtifactsError { error };
+                        error!("{}", error);
+                        return Err(error);
+                    }
                 }
                 Ok(())
             }

@@ -6,10 +6,10 @@
  */
 
 use fixture_tests::Fixture;
-use schema::new_parse_definitions;
+use schema::parse_schema_document;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let type_system_definitions = new_parse_definitions(fixture.content)
+    let type_system_definitions = parse_schema_document(fixture.content)
         .expect("Failed to parse definitions")
         .definitions;
 

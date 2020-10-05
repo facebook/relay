@@ -65,6 +65,6 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     Schema::build(&server_definitions, &extension_definitions)
 }
 
-pub fn new_parse_definitions(input: &str) -> DiagnosticsResult<graphql_syntax::SchemaDocument> {
+pub fn parse_schema_document(input: &str) -> DiagnosticsResult<graphql_syntax::SchemaDocument> {
     graphql_syntax::parse_schema_document(input, SourceLocationKey::generated())
 }

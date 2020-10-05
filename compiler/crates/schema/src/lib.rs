@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-//! This crate contains a Schema representation and a parser to parse a
-//! GraphQL SDL string into a [`Schema`] instance.
+//! This crate contains a GraphQL schema representation.
 
 #![deny(warnings)]
 #![deny(rust_2018_idioms)]
@@ -14,10 +13,6 @@
 
 pub mod definitions;
 mod errors;
-mod lexer;
-mod parser;
-mod token;
-pub mod type_system_node_v1;
 
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
@@ -27,8 +22,6 @@ pub use definitions::{
 };
 pub use errors::{Result, SchemaError};
 pub use graphql_syntax::DirectiveLocation;
-use lexer::Lexer;
-use parser::Parser;
 
 pub const BUILTINS: &str = include_str!("./builtins.graphql");
 
@@ -74,10 +67,4 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 
 pub fn new_parse_definitions(input: &str) -> DiagnosticsResult<graphql_syntax::SchemaDocument> {
     graphql_syntax::parse_schema_document(input, SourceLocationKey::generated())
-}
-
-pub fn parse_definitions(input: &str) -> Result<Vec<type_system_node_v1::TypeSystemDefinition>> {
-    let lexer = Lexer::new(input);
-    let parser = Parser::new(lexer);
-    parser.parse_schema_document()
 }

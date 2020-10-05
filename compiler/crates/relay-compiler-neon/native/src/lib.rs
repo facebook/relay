@@ -87,6 +87,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         variable_names_comment: false,
         extra: None,
         feature_flags: Default::default(),
+        rollout: Default::default(),
     };
 
     let config = Config {

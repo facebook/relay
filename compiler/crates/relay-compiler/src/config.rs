@@ -9,6 +9,7 @@ use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use async_trait::async_trait;
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
@@ -164,6 +165,7 @@ impl Config {
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
                     feature_flags: config_file_project.feature_flags,
+                    rollout: config_file_project.rollout,
                 };
                 Ok((project_name, project_config))
             })
@@ -388,6 +390,7 @@ pub struct ProjectConfig {
     pub variable_names_comment: bool,
     pub extra: Option<HashMap<String, String>>,
     pub feature_flags: Option<FeatureFlags>,
+    pub rollout: Rollout,
 }
 
 #[derive(Clone, Debug)]
@@ -502,6 +505,11 @@ struct ConfigFileProject {
 
     #[serde(default)]
     feature_flags: Option<FeatureFlags>,
+
+    /// A generic rollout state for larger codegen changes. The default is to
+    /// pass, otherwise it should be a number between 0 and 100 as a percentage.
+    #[serde(default)]
+    pub rollout: Rollout,
 }
 
 #[derive(Debug, Deserialize)]

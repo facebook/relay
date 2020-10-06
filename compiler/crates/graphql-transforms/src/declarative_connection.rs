@@ -40,8 +40,8 @@ lazy_static! {
     pub static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
     pub static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
     pub static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
-    pub static ref PREPEND_EDGE: StringKey = "prependNode".intern();
-    pub static ref PREPEND_NODE: StringKey = "prependEdge".intern();
+    pub static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
+    pub static ref PREPEND_NODE: StringKey = "prependNode".intern();
     pub static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
 }
 

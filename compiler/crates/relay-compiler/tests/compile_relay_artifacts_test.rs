@@ -1,4 +1,4 @@
-// @generated SignedSource<<deea4fe8b36fd52433a73728036fe08d>>
+// @generated SignedSource<<55b6e275266a28edb1038b45ff766344>>
 
 mod compile_relay_artifacts;
 
@@ -584,6 +584,13 @@ fn plural_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/plural-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/plural-fragment.expected");
     test_fixture(transform_fixture, "plural-fragment.graphql", "compile_relay_artifacts/fixtures/plural-fragment.expected", input, expected);
+}
+
+#[test]
+fn prepend_node() {
+    let input = include_str!("compile_relay_artifacts/fixtures/prepend-node.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/prepend-node.expected");
+    test_fixture(transform_fixture, "prepend-node.graphql", "compile_relay_artifacts/fixtures/prepend-node.expected", input, expected);
 }
 
 #[test]

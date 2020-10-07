@@ -57,7 +57,7 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
 
 /// Run the main server loop
 pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
-    show_info_message("Relay Language Server Started!", &connection)?;
+    show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
 
     let receiver = connection.receiver.clone();
@@ -125,8 +125,9 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     });
 
     info!("Waiting for compiler to initialize...");
-
     compiler_notify.notified().await;
+    info!("Compiler has initialized");
+
     let config = load_config();
     let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
     let file_source = FileSource::connect(&config, &setup_event).await?;
@@ -152,7 +153,7 @@ fn load_config() -> Config {
     // TODO(brandondail) don't hardcode the test project config here
     let home = std::env::var("HOME").unwrap();
     let config_path = PathBuf::from(format!(
-        "{}/fbsource/fbcode/relay/config/config.test.json",
+        "{}/fbsource/fbcode/relay/config/config.example.json",
         home
     ));
     let config = Config::load(config_path).unwrap();

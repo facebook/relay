@@ -10,7 +10,8 @@
 'use strict';
 
 const babel = require('@babel/core');
-const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
+const createCacheKeyFunction = require('@jest/create-cache-key-function')
+  .default;
 const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
 

@@ -98,6 +98,14 @@ impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
         self.pending.extend(additional_pending_sources.into_iter());
     }
 
+    /// Remove deleted sources from both pending sources and processed sources.
+    fn remove_sources(&mut self, removed_sources: &[K]) {
+        for source in removed_sources {
+            self.pending.remove(source);
+            self.processed.remove(source);
+        }
+    }
+
     fn commit_pending_sources(&mut self) {
         for (file_name, pending_graphql_sources) in self.pending.drain() {
             if pending_graphql_sources.is_empty() {
@@ -488,27 +496,30 @@ impl CompilerState {
         project_set: ProjectSet,
         source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
     ) -> Result<()> {
-        // TODO: Handle deletion of schema/extension files
-        let schema_sources = files
-            .iter()
-            .map(|file| {
-                read_to_string(&file_source_changes.resolved_root, file)
-                    .map(|text| ((*file.name).to_owned(), text))
-            })
-            .collect::<Result<_>>()?;
+        let mut removed_sources = vec![];
+        let mut added_sources = FnvHashMap::default();
+        for file in files {
+            let file_name = (*file.name).to_owned();
+            if *file.exists {
+                added_sources.insert(
+                    file_name,
+                    read_to_string(&file_source_changes.resolved_root, &file)?,
+                );
+            } else {
+                removed_sources.push(file_name);
+            }
+        }
         match project_set {
             ProjectSet::ProjectName(project_name) => {
-                source_map
-                    .entry(project_name)
-                    .or_default()
-                    .merge_pending_sources(schema_sources);
+                let entry = source_map.entry(project_name).or_default();
+                entry.remove_sources(&removed_sources);
+                entry.merge_pending_sources(added_sources);
             }
             ProjectSet::ProjectNames(project_names) => {
                 for project_name in project_names {
-                    source_map
-                        .entry(project_name)
-                        .or_default()
-                        .merge_pending_sources(schema_sources.clone());
+                    let entry = source_map.entry(project_name).or_default();
+                    entry.remove_sources(&removed_sources);
+                    entry.merge_pending_sources(added_sources.clone());
                 }
             }
         };

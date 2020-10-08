@@ -87,6 +87,8 @@ pub enum ValidationMessage {
         "Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
+    #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
+    ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
     )]

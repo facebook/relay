@@ -1,4 +1,4 @@
-// @generated SignedSource<<f74987503ab4032208b0c45ff5532d8b>>
+// @generated SignedSource<<233e403ffa3e9f5746e912db9db19576>>
 
 mod parse;
 
@@ -360,6 +360,13 @@ fn object_argument() {
     let input = include_str!("parse/fixtures/object-argument.graphql");
     let expected = include_str!("parse/fixtures/object-argument.expected");
     test_fixture(transform_fixture, "object-argument.graphql", "parse/fixtures/object-argument.expected", input, expected);
+}
+
+#[test]
+fn query_with_argument_invalid() {
+    let input = include_str!("parse/fixtures/query-with-argument.invalid.graphql");
+    let expected = include_str!("parse/fixtures/query-with-argument.invalid.expected");
+    test_fixture(transform_fixture, "query-with-argument.invalid.graphql", "parse/fixtures/query-with-argument.invalid.expected", input, expected);
 }
 
 #[test]

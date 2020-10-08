@@ -865,6 +865,15 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         location: DirectiveLocation,
     ) -> DiagnosticsResult<Directive> {
         if directive.name.value == *ARGUMENT_DEFINITION {
+            if !matches!(location, DirectiveLocation::FragmentDefinition) {
+                return Err(self
+                    .record_error(Diagnostic::error(
+                        ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(
+                        ),
+                        self.location.with_span(directive.name.span),
+                    ))
+                    .into());
+            }
             return Ok(Directive {
                 name: directive
                     .name

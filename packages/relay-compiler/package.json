@@ -24,7 +24,7 @@
     "babel-preset-fbjs": "^3.3.0",
     "chalk": "^4.0.0",
     "fb-watchman": "^2.0.0",
-    "fbjs": "^2.0.0",
+    "fbjs": "^3.0.0",
     "glob": "^7.1.1",
     "immutable": "~3.7.6",
     "nullthrows": "^1.1.1",

@@ -44,6 +44,37 @@ const DeleteRecordHandler = {
   },
 };
 
+const DeleteEdgeHandler = {
+  update: (store: RecordSourceProxy, payload: HandleFieldPayload) => {
+    const record = store.get(payload.dataID);
+    if (record == null) {
+      return;
+    }
+    const {connections} = payload.handleArgs;
+    invariant(
+      connections != null,
+      'MutationHandlers: Expected connection IDs to be specified.',
+    );
+    const idOrIds = record.getValue(payload.fieldKey);
+    const idList = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
+    idList.forEach(id => {
+      if (typeof id === 'string') {
+        for (const connectionID of connections) {
+          const connection = store.get(connectionID);
+          if (connection == null) {
+            warning(
+              false,
+              `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
+            );
+            continue;
+          }
+          ConnectionHandler.deleteNode(connection, id);
+        }
+      }
+    });
+  },
+};
+
 const AppendEdgeHandler: Handler = {
   update: edgeUpdater(ConnectionHandler.insertEdgeAfter),
 };
@@ -164,4 +195,5 @@ module.exports = {
   PrependEdgeHandler,
   AppendNodeHandler,
   PrependNodeHandler,
+  DeleteEdgeHandler,
 };

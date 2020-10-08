@@ -13,7 +13,7 @@
     "jest": "cross-env NODE_ENV=test jest \"$@\"",
     "lint": "eslint --max-warnings 0 .",
     "postinstall": "npm run build",
-    "prepublishOnly": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build:clean",
+    "prepublishOnly": "npm run build:clean",
     "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run test-dependencies || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
     "test-dependencies": "node ./scripts/testDependencies.js",
@@ -34,6 +34,7 @@
     "@babel/runtime": "^7.0.0",
     "@babel/traverse": "^7.0.0",
     "@babel/types": "^7.0.0",
+    "@jest/create-cache-key-function": "^26.5.0",
     "babel-eslint": "^10.1.0",
     "babel-plugin-macros": "^2.0.0",
     "babel-plugin-tester": "^6.0.1",
@@ -50,9 +51,8 @@
     "eslint-plugin-react": "7.11.1",
     "eslint-plugin-relay": "1.7.1",
     "fb-watchman": "^2.0.0",
-    "fbjs": "^2.0.0",
-    "fbjs-scripts": "^2.0.0",
-    "flow-bin": "^0.134.0",
+    "fbjs": "^3.0.0",
+    "flow-bin": "^0.135.0",
     "glob": "^7.1.1",
     "graphql": "^15.0.0",
     "gulp": "4.0.0",
@@ -92,16 +92,14 @@
     "testRegex": "/__tests__/.*-test\\.js$",
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
-      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
+      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))"
     ],
     "rootDir": "",
     "roots": [
       "<rootDir>/node_modules/fbjs/lib/",
-      "<rootDir>/node_modules/fbjs-scripts/jest",
       "<rootDir>/packages/"
     ],
     "setupFiles": [
-      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js",
       "<rootDir>/scripts/jest/environment.js"
     ],
     "timers": "fake",

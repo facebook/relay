@@ -9,10 +9,10 @@ query EnabledFooQuery {
   }
 }
 ==================================== OUTPUT ===================================
-query EnabledFooQuery {
-  viewer @required(action: LOG) @__required(action: "LOG", path: "viewer") {
-    actor @required(action: LOG) @__required(action: "LOG", path: "viewer.actor") {
-      address @required(action: LOG) @__required(action: "LOG", path: "viewer.actor.address") {
+query EnabledFooQuery @__childrenCanBubbleNull {
+  viewer @required(action: LOG) @__required(action: "LOG", path: "viewer") @__childrenCanBubbleNull {
+    actor @required(action: LOG) @__required(action: "LOG", path: "viewer.actor") @__childrenCanBubbleNull {
+      address @required(action: LOG) @__required(action: "LOG", path: "viewer.actor.address") @__childrenCanBubbleNull {
         country @required(action: LOG) @__required(action: "LOG", path: "viewer.actor.address.country")
       }
     }

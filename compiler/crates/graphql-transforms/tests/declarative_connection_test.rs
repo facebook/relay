@@ -1,4 +1,4 @@
-// @generated SignedSource<<acf07b018c2f85777f17d2dbc0f2c36c>>
+// @generated SignedSource<<d3aea9b1407226499a0a90ee6e04d15f>>
 
 mod declarative_connection;
 
@@ -38,6 +38,27 @@ fn append_node_unsupported_invalid() {
     let input = include_str!("declarative_connection/fixtures/append-node-unsupported.invalid.graphql");
     let expected = include_str!("declarative_connection/fixtures/append-node-unsupported.invalid.expected");
     test_fixture(transform_fixture, "append-node-unsupported.invalid.graphql", "declarative_connection/fixtures/append-node-unsupported.invalid.expected", input, expected);
+}
+
+#[test]
+fn delete_edge_from_connection() {
+    let input = include_str!("declarative_connection/fixtures/delete-edge-from-connection.graphql");
+    let expected = include_str!("declarative_connection/fixtures/delete-edge-from-connection.expected");
+    test_fixture(transform_fixture, "delete-edge-from-connection.graphql", "declarative_connection/fixtures/delete-edge-from-connection.expected", input, expected);
+}
+
+#[test]
+fn delete_edge_from_connection_on_unsupported_type_invalid() {
+    let input = include_str!("declarative_connection/fixtures/delete-edge-from-connection-on-unsupported-type.invalid.graphql");
+    let expected = include_str!("declarative_connection/fixtures/delete-edge-from-connection-on-unsupported-type.invalid.expected");
+    test_fixture(transform_fixture, "delete-edge-from-connection-on-unsupported-type.invalid.graphql", "declarative_connection/fixtures/delete-edge-from-connection-on-unsupported-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn delete_edge_from_connection_plural() {
+    let input = include_str!("declarative_connection/fixtures/delete-edge-from-connection-plural.graphql");
+    let expected = include_str!("declarative_connection/fixtures/delete-edge-from-connection-plural.expected");
+    test_fixture(transform_fixture, "delete-edge-from-connection-plural.graphql", "declarative_connection/fixtures/delete-edge-from-connection-plural.expected", input, expected);
 }
 
 #[test]

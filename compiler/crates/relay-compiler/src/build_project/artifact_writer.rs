@@ -21,11 +21,13 @@ pub trait ArtifactWriter {
     fn finalize(&self) -> crate::errors::Result<()>;
 }
 
-type SourceControlFn = fn(&Mutex<Vec<PathBuf>>, &Mutex<Vec<PathBuf>>) -> crate::errors::Result<()>;
+type SourceControlFn =
+    fn(&PathBuf, &Mutex<Vec<PathBuf>>, &Mutex<Vec<PathBuf>>) -> crate::errors::Result<()>;
 pub struct ArtifactFileWriter {
     added: Mutex<Vec<PathBuf>>,
     removed: Mutex<Vec<PathBuf>>,
     source_control_fn: Option<SourceControlFn>,
+    root_dir: PathBuf,
 }
 
 impl Default for ArtifactFileWriter {
@@ -34,16 +36,18 @@ impl Default for ArtifactFileWriter {
             added: Default::default(),
             removed: Default::default(),
             source_control_fn: None,
+            root_dir: Default::default(),
         }
     }
 }
 
 impl ArtifactFileWriter {
-    pub fn new(source_control_fn: Option<SourceControlFn>) -> Self {
+    pub fn new(source_control_fn: Option<SourceControlFn>, root_dir: PathBuf) -> Self {
         Self {
             added: Default::default(),
             removed: Default::default(),
             source_control_fn,
+            root_dir,
         }
     }
 
@@ -88,7 +92,7 @@ impl ArtifactWriter for ArtifactFileWriter {
 
     fn finalize(&self) -> crate::errors::Result<()> {
         if let Some(source_control_fn) = self.source_control_fn {
-            (source_control_fn)(&self.added, &self.removed)
+            (source_control_fn)(&self.root_dir, &self.added, &self.removed)
         } else {
             Ok(())
         }

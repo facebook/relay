@@ -1,0 +1,19 @@
+# expected-to-throw
+
+query requiredArgumentNotPassedOtherArgsQuery {
+  me {
+    ...requiredArgumentNotPassedFragment @arguments(otherarg: [1])
+  }
+}
+
+fragment requiredArgumentNotPassedFragment on User @argumentDefinitions(
+  sizearg: { type: "[Int!]!" }
+  otherarg: { type: "[Int!]!" }
+) {
+  p1: profilePicture(size: $sizearg) {
+    uri
+  }
+  p2: profilePicture(size: $otherarg) {
+    uri
+  }
+}

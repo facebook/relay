@@ -39,8 +39,9 @@ lazy_static! {
     pub static ref APPEND_NODE: StringKey = "appendNode".intern();
     pub static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
     pub static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
-    pub static ref PREPEND_EDGE: StringKey = "prependNode".intern();
-    pub static ref PREPEND_NODE: StringKey = "prependEdge".intern();
+    pub static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
+    pub static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
+    pub static ref PREPEND_NODE: StringKey = "prependNode".intern();
     pub static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
 }
 
@@ -85,7 +86,9 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                 field.definition.location,
             ));
         }
-        let delete_directive = field.directives.named(*DELETE_RECORD);
+        let delete_directive = field.directives.iter().find(|directive| {
+            directive.name.item == *DELETE_RECORD || directive.name.item == *DELETE_EDGE
+        });
         let field_definition = self.program.schema.field(field.definition.item);
         match delete_directive {
             None => Transformed::Keep,
@@ -105,13 +108,18 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                     ));
                     Transformed::Keep
                 } else {
+                    let connections_arg = delete_directive.arguments.named(*CONNECTIONS_ARG_NAME);
                     let handle_directive =
                         build_handle_field_directive(HandleFieldDirectiveValues {
-                            handle: *DELETE_RECORD,
+                            handle: delete_directive.name.item,
                             key: "".intern(),
                             dynamic_key: None,
                             filters: None,
-                            handle_args: None,
+                            handle_args: if let Some(connections_arg) = connections_arg {
+                                Some(vec![connections_arg.clone()])
+                            } else {
+                                None
+                            },
                         });
                     let mut next_directives: Vec<_> = field
                         .directives
@@ -161,8 +169,8 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             }
             (None, None) => transformed_field,
             (Some(edge_directive), None) => {
-                let connetions_arg = edge_directive.arguments.named(*CONNECTIONS_ARG_NAME);
-                match connetions_arg {
+                let connections_arg = edge_directive.arguments.named(*CONNECTIONS_ARG_NAME);
+                match connections_arg {
                     None => {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ConnectionsArgumentRequired {
@@ -229,8 +237,8 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                 }
             }
             (None, Some(node_directive)) => {
-                let connetions_arg = node_directive.arguments.named(*CONNECTIONS_ARG_NAME);
-                match connetions_arg {
+                let connections_arg = node_directive.arguments.named(*CONNECTIONS_ARG_NAME);
+                match connections_arg {
                     None => {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ConnectionsArgumentRequired {

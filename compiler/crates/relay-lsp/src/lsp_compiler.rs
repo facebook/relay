@@ -16,7 +16,7 @@ use relay_compiler::FileSourceSubscription;
 use relay_compiler::{build_schema, check_project, GraphQLAsts, Programs};
 use schema::Schema;
 
-use common::{PerfLogEvent, PerfLogger};
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use interner::{Intern, StringKey};
 
 use crate::completion::{
@@ -110,6 +110,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         CompilerError::FileRead { .. } => {}
                         CompilerError::Syntax { .. } => {}
                         CompilerError::JoinError { .. } => {}
+                        CompilerError::PostArtifactsError { .. } => {}
                     }
                 } else {
                     // TODO(brandondail) log here
@@ -193,15 +194,15 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
         config: &Config,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> SchemaMap {
+    ) -> DiagnosticsResult<SchemaMap> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
         for project_config in config.enabled_projects() {
-            let schema = Arc::new(build_schema(compiler_state, project_config));
-            schemas.insert(project_config.name, schema);
+            let schema = build_schema(compiler_state, project_config)?;
+            schemas.insert(project_config.name, Arc::new(schema));
         }
         setup_event.stop(timer);
-        schemas
+        Ok(schemas)
     }
 
     async fn check_projects(&mut self, setup_event: &impl PerfLogEvent) -> Result<()> {

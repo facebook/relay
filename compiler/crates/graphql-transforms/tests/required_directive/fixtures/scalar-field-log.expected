@@ -4,7 +4,7 @@ fragment EnabledActorsRendererFragment on Node {
   name @required(action: LOG)
 }
 ==================================== OUTPUT ===================================
-fragment EnabledActorsRendererFragment on Node {
+fragment EnabledActorsRendererFragment on Node @__childrenCanBubbleNull {
   id
   name @required(action: LOG) @__required(action: "LOG", path: "name")
 }

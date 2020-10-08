@@ -21,7 +21,7 @@ export type FeedbackcommentComment = {|
 export type CommentCreateMutationVariables = {|
   input: CommentCreateInput
 |};
-export type CommentCreateMutationResponse = {|
+export type CommentCreateMutationResponse = ?{|
   +commentCreate: {|
     +comment: {|
       +id: string

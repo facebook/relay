@@ -9,4 +9,6 @@
 
 'use strict';
 
+global.__DEV__ = true;
+
 require('@babel/runtime/regenerator');

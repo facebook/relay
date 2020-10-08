@@ -16,9 +16,9 @@ use graphql_ir::{
     Argument, FragmentDefinition, LinkedField, OperationDefinition, ScalarField, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
-use graphql_syntax::OperationKind;
+use graphql_syntax::{ConstantValue, OperationKind};
 use interner::{Intern, StringKey};
-use schema::{type_system_node_v1, Argument as ArgumentDef, FieldID, Schema, Type};
+use schema::{Argument as ArgumentDef, FieldID, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
@@ -27,9 +27,7 @@ fn build_refetch_operation(
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
-    let field_name = get_fetchable_field_name(fragment, schema)?;
-    if let Some(field_name) = field_name {
-        let identifier_field_name = field_name.intern();
+    if let Some(identifier_field_name) = get_fetchable_field_name(fragment, schema)? {
         let identifier_field_id = get_identifier_field_id(fragment, schema, identifier_field_name)?;
 
         let query_type = schema.query_type().unwrap();
@@ -111,14 +109,14 @@ fn build_refetch_operation(
 fn get_fetchable_field_name<'schema>(
     fragment: &FragmentDefinition,
     schema: &'schema Schema,
-) -> DiagnosticsResult<Option<&'schema str>> {
+) -> DiagnosticsResult<Option<StringKey>> {
     if let Type::Object(id) = fragment.type_condition {
         let object = schema.object(id);
         if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
             let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
             if let Some(field_name_arg) = field_name_arg {
-                if let type_system_node_v1::Value::String(ref name) = field_name_arg.value {
-                    return Ok(Some(name));
+                if let ConstantValue::String(name) = &field_name_arg.value {
+                    return Ok(Some(name.value));
                 }
             }
             return Err(vec![Diagnostic::error(

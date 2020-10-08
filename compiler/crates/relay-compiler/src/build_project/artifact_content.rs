@@ -162,6 +162,13 @@ fn generate_operation(
     if let Some(id) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
+    if project_config.variable_names_comment {
+        write!(content, "// @relayVariables").unwrap();
+        for variable_definition in &normalization_operation.variable_definitions {
+            write!(content, " {}", variable_definition.name.item).unwrap();
+        }
+        writeln!(content).unwrap();
+    }
     let data_driven_dependency_metadata = operation_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);

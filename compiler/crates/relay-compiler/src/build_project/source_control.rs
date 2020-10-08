@@ -13,6 +13,7 @@ use std::{
 };
 
 pub fn add_to_mercurial(
+    root_dir: &PathBuf,
     added: &Mutex<Vec<PathBuf>>,
     removed: &Mutex<Vec<PathBuf>>,
 ) -> crate::errors::Result<()> {
@@ -21,6 +22,7 @@ pub fn add_to_mercurial(
         if !added.is_empty() {
             for added_files in added.chunks(100) {
                 if Command::new("hg")
+                    .current_dir(root_dir)
                     .arg("add")
                     .args(added_files)
                     .stdout(Stdio::null())
@@ -40,6 +42,7 @@ pub fn add_to_mercurial(
         if !removed.is_empty() {
             for removed_files in removed.chunks(100) {
                 if Command::new("hg")
+                    .current_dir(root_dir)
                     .arg("forget")
                     .args(removed_files)
                     .stdout(Stdio::null())

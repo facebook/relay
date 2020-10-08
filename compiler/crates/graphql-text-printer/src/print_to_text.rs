@@ -79,34 +79,6 @@ pub fn write_operation(
     printer.print_operation(operation)
 }
 
-/// This is a temporary function that replicates the formatting choices of the
-/// graphql-js printer in order to obtain output parity with the JS compiler.
-/// When the JS compiler consistency is no longer needed, this can just be
-/// replaced by write_operation.
-pub fn write_operation_with_graphqljs_formatting(
-    mut result: &mut impl Write,
-    schema: &Schema,
-    operation: &OperationDefinition,
-) -> Result {
-    let mut printer = Printer::new(&schema, &mut result);
-    printer.graphqljs_formatting = true;
-    printer.print_operation(operation)
-}
-
-/// This is a temporary function that replicates the formatting choices of the
-/// graphql-js printer in order to obtain output parity with the JS compiler.
-/// When the JS compiler consistency is no longer needed, this can just be
-/// replaced by write_operation.
-pub fn write_fragment_with_graphqljs_formatting(
-    mut result: &mut impl Write,
-    schema: &Schema,
-    fragment: &FragmentDefinition,
-) -> Result {
-    let mut printer = Printer::new(&schema, &mut result);
-    printer.graphqljs_formatting = true;
-    printer.print_fragment(fragment)
-}
-
 pub fn write_fragment(
     schema: &Schema,
     fragment: &FragmentDefinition,
@@ -142,16 +114,11 @@ pub fn write_value(schema: &Schema, value: &Value, mut result: &mut impl Write) 
 struct Printer<'schema, 'writer, W: Write> {
     schema: &'schema Schema,
     writer: &'writer mut W,
-    graphqljs_formatting: bool,
 }
 
 impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn new(schema: &'schema Schema, writer: &'writer mut W) -> Self {
-        Self {
-            schema,
-            writer,
-            graphqljs_formatting: false,
-        }
+        Self { schema, writer }
     }
 
     fn print_definition(self, definition: &ExecutableDefinition) -> Result {
@@ -384,35 +351,23 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         variable_definitions: &[VariableDefinition],
     ) -> Result {
-        let len = variable_definitions.len();
-        let mut first = true;
-        if len > 0 {
+        if !variable_definitions.is_empty() {
             write!(self.writer, "(")?;
             for var_def in variable_definitions.iter() {
-                if !self.graphqljs_formatting {
-                    writeln!(self.writer)?;
-                    self.print_indentation(TAB_SIZE)?;
-                } else if first {
-                    first = false;
-                } else {
-                    write!(self.writer, ", ")?;
-                }
+                writeln!(self.writer)?;
+                self.print_indentation(TAB_SIZE)?;
                 let type_name = self.schema.get_type_string(&var_def.type_);
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
-                if let Some(default_value) = &var_def.default_value {
-                    if self.graphqljs_formatting || !matches!(default_value, ConstantValue::Null())
-                    {
+                match &var_def.default_value {
+                    Some(ConstantValue::Null()) | None => {}
+                    Some(default_value) => {
                         write!(self.writer, " = ")?;
                         self.print_constant_value(&default_value)?;
                     }
                 }
             }
-            if self.graphqljs_formatting {
-                write!(self.writer, ")")?;
-            } else {
-                write!(self.writer, "\n)")?;
-            }
+            write!(self.writer, "\n)")?;
         }
         Ok(())
     }
@@ -423,16 +378,9 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     ) -> Result {
         if !argument_definitions.is_empty() {
             write!(self.writer, " @argumentDefinitions(")?;
-            let mut first = true;
             for arg_def in argument_definitions.iter() {
-                if !self.graphqljs_formatting {
-                    writeln!(self.writer)?;
-                    self.print_indentation(TAB_SIZE)?;
-                } else if first {
-                    first = false;
-                } else {
-                    write!(self.writer, ", ")?;
-                }
+                writeln!(self.writer)?;
+                self.print_indentation(TAB_SIZE)?;
                 let type_name = self.schema.get_type_string(&arg_def.type_);
                 write!(
                     self.writer,
@@ -446,11 +394,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 }
                 write!(self.writer, "}}")?;
             }
-            if self.graphqljs_formatting {
-                write!(self.writer, ")")?;
-            } else {
-                write!(self.writer, "\n)")?;
-            }
+            write!(self.writer, "\n)")?;
         }
         Ok(())
     }
@@ -458,8 +402,6 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_arguments(&mut self, arguments: &[Argument]) -> Result {
         if arguments.is_empty() {
             Ok(())
-        } else if self.graphqljs_formatting {
-            self.print_arguments_helper(arguments.len(), arguments.iter())
         } else {
             let non_null_arguments = arguments
                 .iter()
@@ -492,30 +434,20 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         match val {
             Value::Constant(constant_val) => self.print_constant_value(&constant_val),
             Value::Variable(variable_val) => write!(self.writer, "${}", variable_val.name.item),
-
             Value::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
-                let is_graphqljs_formatting = self.graphqljs_formatting;
-                let mut print_arg = |arg: &Argument| {
+                for arg in object
+                    .iter()
+                    .filter(|arg| !matches!(arg.value.item, Value::Constant(ConstantValue::Null())))
+                {
                     if first {
                         first = false;
                     } else {
                         write!(self.writer, ", ")?;
                     }
                     write!(self.writer, "{}: ", arg.name.item)?;
-                    self.print_value(&arg.value.item)
-                };
-                if is_graphqljs_formatting {
-                    for arg in object {
-                        print_arg(arg)?;
-                    }
-                } else {
-                    for arg in object.iter().filter(|arg| {
-                        !matches!(arg.value.item, Value::Constant(ConstantValue::Null()))
-                    }) {
-                        print_arg(arg)?;
-                    }
+                    self.print_value(&arg.value.item)?;
                 }
                 write!(self.writer, "}}")?;
                 Ok(())
@@ -523,26 +455,16 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::List(list) => {
                 write!(self.writer, "[")?;
                 let mut first = true;
-                let is_graphqljs_formatting = self.graphqljs_formatting;
-                let mut print_value = |value| {
+                for value in list
+                    .iter()
+                    .filter(|value| !matches!(value, Value::Constant(ConstantValue::Null())))
+                {
                     if first {
                         first = false;
                     } else {
                         write!(self.writer, ", ")?;
                     }
-                    self.print_value(value)
-                };
-                if is_graphqljs_formatting {
-                    for value in list {
-                        print_value(value)?;
-                    }
-                } else {
-                    for value in list
-                        .iter()
-                        .filter(|value| !matches!(value, Value::Constant(ConstantValue::Null())))
-                    {
-                        print_value(value)?;
-                    }
+                    self.print_value(value)?;
                 }
                 write!(self.writer, "]")?;
                 Ok(())
@@ -596,7 +518,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         name: StringKey,
     ) -> Result {
         if let Some(alias) = alias {
-            if self.graphqljs_formatting || alias.item != name {
+            if alias.item != name {
                 write!(self.writer, "{}: ", alias.item)?;
             }
         }

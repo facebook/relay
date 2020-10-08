@@ -30,7 +30,7 @@ ExecutableDocument {
             variable_definitions: None,
             directives: [],
             selections: List {
-                span: 20:56,
+                span: 20:55,
                 start: Token {
                     span: 20:21,
                     kind: OpenBrace,
@@ -49,7 +49,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 38:54,
+                                span: 38:53,
                                 start: Token {
                                     span: 38:39,
                                     kind: OpenParen,

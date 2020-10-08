@@ -16,7 +16,8 @@ let client = null;
 
 function activate(context) {
     // TODO(brandondail) implement a real binary resolution strategy
-    const command = path.resolve('./target/debug/relay-lsp');
+    const homedir = require('os').homedir();
+    const command = path.join(homedir, '/fbsource/fbcode/relay/target/debug/relay-lsp');
     const serverOptions = { command, args: [] };
     const clientOptions = {
         documentSelector: [

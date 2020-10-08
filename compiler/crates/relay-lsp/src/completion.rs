@@ -18,13 +18,11 @@ use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
     ServerResponse, TextDocumentPositionParams, Url,
 };
-use schema::{
-    type_system_node_v1, Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields,
-};
+use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
 
 use graphql_syntax::{
-    Directive, ExecutableDefinition, FragmentSpread, InlineFragment, LinkedField, List,
-    OperationDefinition, OperationKind, ScalarField, Selection,
+    Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
+    LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
 };
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
@@ -33,9 +31,7 @@ pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>
 pub enum CompletionKind {
     FieldName,
     FragmentSpread,
-    DirectiveName {
-        location: type_system_node_v1::DirectiveLocation,
-    },
+    DirectiveName { location: DirectiveLocation },
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -108,11 +104,9 @@ pub fn create_completion_request(
                     } = operation;
 
                     let directive_location = match kind {
-                        OperationKind::Query => type_system_node_v1::DirectiveLocation::Query,
-                        OperationKind::Mutation => type_system_node_v1::DirectiveLocation::Mutation,
-                        OperationKind::Subscription => {
-                            type_system_node_v1::DirectiveLocation::Subscription
-                        }
+                        OperationKind::Query => DirectiveLocation::Query,
+                        OperationKind::Mutation => DirectiveLocation::Mutation,
+                        OperationKind::Subscription => DirectiveLocation::Subscription,
                     };
 
                     build_request_from_selection_or_directives(
@@ -132,7 +126,7 @@ pub fn create_completion_request(
                     build_request_from_selection_or_directives(
                         &fragment.selections,
                         &fragment.directives,
-                        type_system_node_v1::DirectiveLocation::FragmentDefinition,
+                        DirectiveLocation::FragmentDefinition,
                         position_span,
                         &mut completion_request,
                     );
@@ -284,7 +278,7 @@ fn build_request_from_selections(
                     build_request_from_selection_or_directives(
                         selections,
                         directives,
-                        type_system_node_v1::DirectiveLocation::Field,
+                        DirectiveLocation::Field,
                         position_span,
                         completion_request,
                     );
@@ -298,7 +292,7 @@ fn build_request_from_selections(
                     } else {
                         build_request_from_directives(
                             directives,
-                            type_system_node_v1::DirectiveLocation::FragmentSpread,
+                            DirectiveLocation::FragmentSpread,
                             position_span,
                             completion_request,
                         );
@@ -317,7 +311,7 @@ fn build_request_from_selections(
                         build_request_from_selection_or_directives(
                             selections,
                             directives,
-                            type_system_node_v1::DirectiveLocation::InlineFragment,
+                            DirectiveLocation::InlineFragment,
                             position_span,
                             completion_request,
                         )
@@ -330,7 +324,7 @@ fn build_request_from_selections(
                     completion_request.add_type(TypePathItem::ScalarField { name: name.value });
                     build_request_from_directives(
                         directives,
-                        type_system_node_v1::DirectiveLocation::Scalar,
+                        DirectiveLocation::Scalar,
                         position_span,
                         completion_request,
                     );
@@ -342,7 +336,7 @@ fn build_request_from_selections(
 
 fn build_request_from_directives(
     directives: &[Directive],
-    location: type_system_node_v1::DirectiveLocation,
+    location: DirectiveLocation,
     position_span: Span,
     completion_request: &mut CompletionRequest,
 ) {
@@ -357,7 +351,7 @@ fn build_request_from_directives(
 fn build_request_from_selection_or_directives(
     selections: &List<Selection>,
     directives: &[Directive],
-    directive_location: type_system_node_v1::DirectiveLocation,
+    directive_location: DirectiveLocation,
     position_span: Span,
     completion_request: &mut CompletionRequest,
 ) {

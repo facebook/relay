@@ -6,17 +6,14 @@
  */
 
 use crate::errors::SchemaError;
-use crate::type_system_node_v1;
 use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem};
+use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Result as FormatResult, Write};
 use std::slice::Iter;
-
-// TODO: consider a common Value representation with the IR
-type ConstValue = type_system_node_v1::Value;
 
 type TypeMap = HashMap<StringKey, Type>;
 
@@ -330,10 +327,7 @@ impl Schema {
     }
 
     /// Returns all directives applicable for a given location(Query, Field, etc).
-    pub fn directives_for_location(
-        &self,
-        location: type_system_node_v1::DirectiveLocation,
-    ) -> Vec<&Directive> {
+    pub fn directives_for_location(&self, location: DirectiveLocation) -> Vec<&Directive> {
         self.directives
             .values()
             .filter(|directive| directive.locations.contains(&location))
@@ -346,6 +340,10 @@ impl Schema {
 
     pub fn get_interfaces(&self) -> impl Iterator<Item = &Interface> {
         self.interfaces.iter()
+    }
+
+    pub fn get_enums(&self) -> impl Iterator<Item = &Enum> {
+        self.enums.iter()
     }
 
     pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
@@ -471,6 +469,16 @@ impl Schema {
         let object = self.objects.get_mut(obj_id.as_usize()).unwrap();
         object.interfaces.push(interface_id);
         Ok(obj_id)
+    }
+
+    pub fn add_parent_interface_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        parent_interface_id: InterfaceID,
+    ) -> DiagnosticsResult<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.interfaces.push(parent_interface_id);
+        Ok(interface_id)
     }
 
     pub fn add_member_to_union(
@@ -608,8 +616,8 @@ impl Schema {
     }
 
     pub fn build(
-        schema_definitions: &[type_system_node_v1::TypeSystemDefinition],
-        client_definitions: &[type_system_node_v1::TypeSystemDefinition],
+        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
+        client_definitions: &[graphql_syntax::TypeSystemDefinition],
     ) -> DiagnosticsResult<Self> {
         // Step 1: build the type_map from type names to type keys
         let mut type_map =
@@ -624,54 +632,61 @@ impl Schema {
         let mut directive_count = 0;
         for definition in schema_definitions.iter().chain(client_definitions) {
             match definition {
-                type_system_node_v1::TypeSystemDefinition::SchemaDefinition { .. } => {}
-                type_system_node_v1::TypeSystemDefinition::DirectiveDefinition { .. } => {
+                TypeSystemDefinition::SchemaDefinition { .. } => {}
+                TypeSystemDefinition::DirectiveDefinition { .. } => {
                     directive_count += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
+                TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                     name,
                     fields,
                     ..
-                } => {
-                    type_map.insert(*name, Type::Object(ObjectID(next_object_id)));
-                    field_count += fields.len();
+                }) => {
+                    type_map.insert(name.value, Type::Object(ObjectID(next_object_id)));
+                    field_count += len_of_option_list(fields);
                     next_object_id += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition {
+                TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                     name,
                     fields,
                     ..
-                } => {
-                    type_map.insert(*name, Type::Interface(InterfaceID(next_interface_id)));
-                    field_count += fields.len();
+                }) => {
+                    type_map.insert(name.value, Type::Interface(InterfaceID(next_interface_id)));
+                    field_count += len_of_option_list(fields);
                     next_interface_id += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition { name, .. } => {
-                    type_map.insert(*name, Type::Union(UnionID(next_union_id)));
+                TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition { name, .. }) => {
+                    type_map.insert(name.value, Type::Union(UnionID(next_union_id)));
                     next_union_id += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
+                TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                     name,
                     ..
-                } => {
+                }) => {
                     type_map.insert(
-                        *name,
+                        name.value,
                         Type::InputObject(InputObjectID(next_input_object_id)),
                     );
                     next_input_object_id += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition { name, .. } => {
-                    type_map.insert(*name, Type::Enum(EnumID(next_enum_id)));
+                TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition { name, .. }) => {
+                    type_map.insert(name.value, Type::Enum(EnumID(next_enum_id)));
                     next_enum_id += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition {
+                TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                     name, ..
-                } => {
-                    type_map.insert(*name, Type::Scalar(ScalarID(next_scalar_id)));
+                }) => {
+                    type_map.insert(name.value, Type::Scalar(ScalarID(next_scalar_id)));
                     next_scalar_id += 1;
                 }
-                type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension { .. } => {}
-                type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
+                TypeSystemDefinition::ObjectTypeExtension { .. } => {}
+                TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
+                TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
+                TypeSystemDefinition::EnumTypeExtension { .. } => todo!("EnumTypeExtension"),
+                TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
+                TypeSystemDefinition::InputObjectTypeExtension { .. } => {
+                    todo!("InputObjectTypeExtension")
+                }
+                TypeSystemDefinition::ScalarTypeExtension { .. } => todo!("ScalarTypeExtension"),
             }
         }
 
@@ -713,18 +728,18 @@ impl Schema {
         }
 
         for definition in schema_definitions.iter().chain(client_definitions) {
-            if let type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
+            if let TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                 name,
                 interfaces,
                 ..
-            } = definition
+            }) = definition
             {
-                let object_id = match schema.type_map.get(&name) {
+                let object_id = match schema.type_map.get(&name.value) {
                     Some(Type::Object(id)) => id,
                     _ => unreachable!("Must be an Object type"),
                 };
                 for interface in interfaces {
-                    let type_ = schema.type_map.get(&interface).unwrap();
+                    let type_ = schema.type_map.get(&interface.value).unwrap();
                     match type_ {
                         Type::Interface(id) => {
                             let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
@@ -784,25 +799,23 @@ impl Schema {
 
     fn add_definition(
         &mut self,
-        definition: &type_system_node_v1::TypeSystemDefinition,
+        definition: &TypeSystemDefinition,
         is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match definition {
-            type_system_node_v1::TypeSystemDefinition::SchemaDefinition {
+            TypeSystemDefinition::SchemaDefinition(SchemaDefinition {
                 operation_types,
                 directives: _directives,
-            } => {
-                for type_system_node_v1::OperationTypeDefinition { operation, type_ } in
-                    operation_types
-                {
-                    let operation_id = self.build_object_id(*type_)?;
+            }) => {
+                for OperationTypeDefinition { operation, type_ } in &operation_types.items {
+                    let operation_id = self.build_object_id(type_.value)?;
                     match operation {
-                        type_system_node_v1::OperationType::Query => {
+                        OperationType::Query => {
                             if let Some(prev_query_type) = self.query_type {
                                 return todo_add_location(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
-                                        *type_,
+                                        type_.value,
                                         self.object(prev_query_type).name,
                                     ),
                                 );
@@ -810,12 +823,12 @@ impl Schema {
                                 self.query_type = Some(operation_id);
                             }
                         }
-                        type_system_node_v1::OperationType::Mutation => {
+                        OperationType::Mutation => {
                             if let Some(prev_mutation_type) = self.mutation_type {
                                 return todo_add_location(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
-                                        *type_,
+                                        type_.value,
                                         self.object(prev_mutation_type).name,
                                     ),
                                 );
@@ -823,12 +836,12 @@ impl Schema {
                                 self.mutation_type = Some(operation_id);
                             }
                         }
-                        type_system_node_v1::OperationType::Subscription => {
+                        OperationType::Subscription => {
                             if let Some(prev_subscription_type) = self.subscription_type {
                                 return todo_add_location(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
-                                        *type_,
+                                        type_.value,
                                         self.object(prev_subscription_type).name,
                                     ),
                                 );
@@ -839,41 +852,43 @@ impl Schema {
                     }
                 }
             }
-            type_system_node_v1::TypeSystemDefinition::DirectiveDefinition {
+            TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
                 arguments,
                 repeatable: _repeatable,
                 locations,
-            } => {
-                if self.directives.contains_key(name) {
-                    let str_name = name.lookup();
+            }) => {
+                if self.directives.contains_key(&name.value) {
+                    let str_name = name.value.lookup();
                     if str_name != "skip" && str_name != "include" {
                         // TODO(T63941319) @skip and @include directives are duplicated in our schema
-                        return todo_add_location(SchemaError::DuplicateDirectiveDefinition(*name));
+                        return todo_add_location(SchemaError::DuplicateDirectiveDefinition(
+                            name.value,
+                        ));
                     }
                 }
                 let arguments = self.build_arguments(arguments)?;
                 self.directives.insert(
-                    *name,
+                    name.value,
                     Directive {
-                        name: *name,
+                        name: name.value,
                         arguments,
                         locations: locations.clone(),
                         is_extension,
                     },
                 );
             }
-            type_system_node_v1::TypeSystemDefinition::ObjectTypeDefinition {
+            TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
-            } => {
+            }) => {
                 let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
                         &fields,
-                        &mut HashSet::with_capacity(fields.len()),
+                        &mut HashSet::with_capacity(len_of_option_list(fields)),
                         Some(parent_id),
                     )?
                 } else {
@@ -881,28 +896,28 @@ impl Schema {
                 };
                 let interfaces = interfaces
                     .iter()
-                    .map(|name| self.build_interface_id(*name))
+                    .map(|name| self.build_interface_id(name.value))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.objects.push(Object {
-                    name: *name,
+                    name: name.value,
                     fields,
                     is_extension,
                     interfaces,
                     directives,
                 });
             }
-            type_system_node_v1::TypeSystemDefinition::InterfaceTypeDefinition {
+            TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
                 interfaces,
                 directives,
                 fields,
-            } => {
+            }) => {
                 let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
                         &fields,
-                        &mut HashSet::with_capacity(fields.len()),
+                        &mut HashSet::with_capacity(len_of_option_list(fields)),
                         Some(parent_id),
                     )?
                 } else {
@@ -910,11 +925,11 @@ impl Schema {
                 };
                 let interfaces = interfaces
                     .iter()
-                    .map(|name| self.build_interface_id(*name))
+                    .map(|name| self.build_interface_id(name.value))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
-                    name: *name,
+                    name: name.value,
                     implementing_objects: vec![],
                     is_extension,
                     fields,
@@ -922,78 +937,83 @@ impl Schema {
                     interfaces,
                 });
             }
-            type_system_node_v1::TypeSystemDefinition::UnionTypeDefinition {
+            TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
                 name,
                 directives,
                 members,
-            } => {
+            }) => {
                 let members = members
                     .iter()
-                    .map(|name| self.build_object_id(*name))
+                    .map(|name| self.build_object_id(name.value))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.unions.push(Union {
-                    name: *name,
+                    name: name.value,
                     is_extension,
                     members,
                     directives,
                 });
             }
-            type_system_node_v1::TypeSystemDefinition::InputObjectTypeDefinition {
+            TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
                 fields,
                 directives,
-            } => {
+            }) => {
                 let fields = self.build_arguments(fields)?;
                 let directives = self.build_directive_values(&directives);
                 self.input_objects.push(InputObject {
-                    name: *name,
+                    name: name.value,
                     fields,
                     directives,
                 });
             }
-            type_system_node_v1::TypeSystemDefinition::EnumTypeDefinition {
+            TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
                 name,
                 directives,
                 values,
-            } => {
+            }) => {
                 let directives = self.build_directive_values(&directives);
-                let values = values
-                    .iter()
-                    .map(|enum_def| EnumValue {
-                        value: enum_def.name,
-                        directives: self.build_directive_values(&enum_def.directives),
-                    })
-                    .collect();
+                let values = if let Some(values) = values {
+                    values
+                        .items
+                        .iter()
+                        .map(|enum_def| EnumValue {
+                            value: enum_def.name.value,
+                            directives: self.build_directive_values(&enum_def.directives),
+                        })
+                        .collect()
+                } else {
+                    Vec::new()
+                };
                 self.enums.push(Enum {
-                    name: *name,
+                    name: name.value,
                     is_extension,
                     values,
                     directives,
                 });
             }
-            type_system_node_v1::TypeSystemDefinition::ScalarTypeDefinition {
+            TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
-            } => {
+            }) => {
                 let directives = self.build_directive_values(&directives);
                 self.scalars.push(Scalar {
-                    name: *name,
+                    name: name.value,
                     is_extension,
                     directives,
                 })
             }
-            type_system_node_v1::TypeSystemDefinition::ObjectTypeExtension {
+            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
                 name,
-                interfaces: _interfaces,
+                interfaces,
                 fields,
-                directives: _directives,
-            } => match self.type_map.get(&name).cloned() {
+                directives,
+            }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
                     let field_ids = &self.objects[index].fields;
                     let mut existing_fields =
-                        HashSet::with_capacity(field_ids.len() + fields.len());
+                        HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
                         existing_fields.insert(self.fields[field_id.as_usize()].name);
                     }
@@ -1002,22 +1022,37 @@ impl Schema {
                         &mut existing_fields,
                         Some(Type::Object(id)),
                     )?;
+
                     self.objects[index].fields.extend(client_fields);
+
+                    let built_interfaces = interfaces
+                        .iter()
+                        .map(|name| self.build_interface_id(name.value))
+                        .collect::<DiagnosticsResult<Vec<_>>>()?;
+                    let filtered_interfaces =
+                        _filter_duplicates(&self.objects[index].interfaces, built_interfaces);
+                    self.objects[index].interfaces.extend(filtered_interfaces);
+
+                    let built_directives = self.build_directive_values(&directives);
+                    let filtered_directives =
+                        _filter_duplicates(&self.objects[index].directives, built_directives);
+                    self.objects[index].directives.extend(filtered_directives);
                 }
                 _ => {
-                    return todo_add_location(SchemaError::ExtendUndefinedType(*name));
+                    return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
                 }
             },
-            type_system_node_v1::TypeSystemDefinition::InterfaceTypeExtension {
+            TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
                 fields,
+                directives,
                 ..
-            } => match self.type_map.get(&name).cloned() {
+            }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
                     let field_ids = &self.interfaces[index].fields;
                     let mut existing_fields =
-                        HashSet::with_capacity(field_ids.len() + fields.len());
+                        HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
                         existing_fields.insert(self.fields[field_id.as_usize()].name);
                     }
@@ -1027,11 +1062,25 @@ impl Schema {
                         Some(Type::Interface(id)),
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
+
+                    let built_directives = self.build_directive_values(&directives);
+                    let filtered_directives =
+                        _filter_duplicates(&self.interfaces[index].directives, built_directives);
+                    self.interfaces[index]
+                        .directives
+                        .extend(filtered_directives);
                 }
                 _ => {
-                    return todo_add_location(SchemaError::ExtendUndefinedType(*name));
+                    return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
                 }
             },
+            TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
+            TypeSystemDefinition::EnumTypeExtension { .. } => todo!("EnumTypeExtension"),
+            TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
+            TypeSystemDefinition::InputObjectTypeExtension { .. } => {
+                todo!("InputObjectTypeExtension")
+            }
+            TypeSystemDefinition::ScalarTypeExtension { .. } => todo!("ScalarTypeExtension"),
         }
         Ok(())
     }
@@ -1065,108 +1114,126 @@ impl Schema {
 
     fn build_fields(
         &mut self,
-        field_defs: &[type_system_node_v1::FieldDefinition],
+        field_defs: &Option<List<FieldDefinition>>,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
-        field_defs
-            .iter()
-            .map(|field_def| {
-                let arguments = self.build_arguments(&field_def.arguments)?;
-                let type_ = self.build_type_reference(&field_def.type_)?;
-                let directives = self.build_directive_values(&field_def.directives);
-                Ok(self.build_field(Field {
-                    name: field_def.name,
-                    is_extension: false,
-                    arguments,
-                    type_,
-                    directives,
-                    parent_type,
-                }))
-            })
-            .collect()
+        if let Some(field_defs) = field_defs {
+            field_defs
+                .items
+                .iter()
+                .map(|field_def| {
+                    let arguments = self.build_arguments(&field_def.arguments)?;
+                    let type_ = self.build_type_reference(&field_def.type_)?;
+                    let directives = self.build_directive_values(&field_def.directives);
+                    Ok(self.build_field(Field {
+                        name: field_def.name.value,
+                        is_extension: false,
+                        arguments,
+                        type_,
+                        directives,
+                        parent_type,
+                    }))
+                })
+                .collect()
+        } else {
+            Ok(Vec::new())
+        }
     }
 
     fn build_extend_fields(
         &mut self,
-        field_defs: &[type_system_node_v1::FieldDefinition],
+        field_defs: &Option<List<FieldDefinition>>,
         existing_fields: &mut HashSet<StringKey>,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
-        let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.len());
-        for field_def in field_defs {
-            if !existing_fields.insert(field_def.name) {
-                return todo_add_location(SchemaError::DuplicateField(field_def.name));
+        if let Some(field_defs) = field_defs {
+            let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.items.len());
+            for field_def in &field_defs.items {
+                if !existing_fields.insert(field_def.name.value) {
+                    return todo_add_location(SchemaError::DuplicateField(field_def.name.value));
+                }
+                let arguments = self.build_arguments(&field_def.arguments)?;
+                let directives = self.build_directive_values(&field_def.directives);
+                let type_ = self.build_type_reference(&field_def.type_)?;
+                field_ids.push(self.build_field(Field {
+                    name: field_def.name.value,
+                    is_extension: true,
+                    arguments,
+                    type_,
+                    directives,
+                    parent_type,
+                }));
             }
-            let arguments = self.build_arguments(&field_def.arguments)?;
-            let directives = self.build_directive_values(&field_def.directives);
-            let type_ = self.build_type_reference(&field_def.type_)?;
-            field_ids.push(self.build_field(Field {
-                name: field_def.name,
-                is_extension: true,
-                arguments,
-                type_,
-                directives,
-                parent_type,
-            }));
+            Ok(field_ids)
+        } else {
+            Ok(Vec::new())
         }
-        Ok(field_ids)
     }
 
     fn build_arguments(
         &mut self,
-        arg_defs: &[type_system_node_v1::InputValueDefinition],
+        arg_defs: &Option<List<InputValueDefinition>>,
     ) -> DiagnosticsResult<ArgumentDefinitions> {
-        let arg_defs: DiagnosticsResult<Vec<Argument>> = arg_defs
-            .iter()
-            .map(|arg_def| {
-                Ok(Argument {
-                    name: arg_def.name,
-                    type_: self.build_type_reference(&arg_def.type_)?,
-                    default_value: arg_def.default_value.clone(),
+        if let Some(arg_defs) = arg_defs {
+            let arg_defs: DiagnosticsResult<Vec<Argument>> = arg_defs
+                .items
+                .iter()
+                .map(|arg_def| {
+                    Ok(Argument {
+                        name: arg_def.name.value,
+                        type_: self.build_type_reference(&arg_def.type_)?,
+                        default_value: arg_def.default_value.clone(),
+                    })
                 })
-            })
-            .collect();
-        Ok(ArgumentDefinitions(arg_defs?))
+                .collect();
+            Ok(ArgumentDefinitions(arg_defs?))
+        } else {
+            Ok(ArgumentDefinitions(Vec::new()))
+        }
     }
 
     fn build_type_reference(
         &mut self,
-        ast_type: &type_system_node_v1::Type,
+        ast_type: &TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            type_system_node_v1::Type::Named(name) => {
-                TypeReference::Named(*self.type_map.get(name).ok_or_else(|| {
+            TypeAnnotation::Named(name) => {
+                TypeReference::Named(*self.type_map.get(&name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
-                        SchemaError::UndefinedType(*name),
+                        SchemaError::UndefinedType(name.value),
                         Location::generated(),
                     )]
                 })?)
             }
-            type_system_node_v1::Type::NonNull(of_type) => {
-                TypeReference::NonNull(Box::new(self.build_type_reference(of_type)?))
+            TypeAnnotation::NonNull(of_type) => {
+                TypeReference::NonNull(Box::new(self.build_type_reference(&of_type.type_)?))
             }
-            type_system_node_v1::Type::List(of_type) => {
-                TypeReference::List(Box::new(self.build_type_reference(of_type)?))
+            TypeAnnotation::List(of_type) => {
+                TypeReference::List(Box::new(self.build_type_reference(&of_type.type_)?))
             }
         })
     }
 
-    fn build_directive_values(
-        &mut self,
-        directives: &[type_system_node_v1::Directive],
-    ) -> Vec<DirectiveValue> {
+    fn build_directive_values(&mut self, directives: &[ConstantDirective]) -> Vec<DirectiveValue> {
         directives
             .iter()
-            .map(|directive| DirectiveValue {
-                name: directive.name,
-                arguments: directive
-                    .arguments
-                    .iter()
-                    .map(|argument| ArgumentValue {
-                        name: argument.name,
-                        value: argument.value.clone(),
-                    })
-                    .collect(),
+            .map(|directive| {
+                let arguments = if let Some(arguments) = &directive.arguments {
+                    arguments
+                        .items
+                        .iter()
+                        .map(|argument| ArgumentValue {
+                            name: argument.name.value,
+                            value: argument.value.clone(),
+                        })
+                        .collect()
+                } else {
+                    Vec::new()
+                };
+                DirectiveValue {
+                    name: directive.name.value,
+                    arguments,
+                }
             })
             .collect()
     }
@@ -1230,6 +1297,22 @@ impl Schema {
             unions,
         )
     }
+}
+
+fn _filter_duplicates<T: std::cmp::Eq + std::hash::Hash>(left: &[T], right: Vec<T>) -> Vec<T> {
+    let mut hs = HashSet::new();
+    for t in left {
+        hs.insert(t);
+    }
+
+    let mut v = Vec::new();
+    for t in right {
+        if !hs.contains(&t) {
+            v.push(t);
+        }
+    }
+
+    v
 }
 
 macro_rules! type_id {
@@ -1436,7 +1519,7 @@ impl TypeReference {
 pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
-    pub locations: Vec<type_system_node_v1::DirectiveLocation>,
+    pub locations: Vec<DirectiveLocation>,
     pub is_extension: bool,
 }
 
@@ -1453,7 +1536,7 @@ pub struct Scalar {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1513,7 +1596,7 @@ pub struct Field {
 pub struct Argument {
     pub name: StringKey,
     pub type_: TypeReference,
-    pub default_value: Option<ConstValue>,
+    pub default_value: Option<ConstantValue>,
 }
 
 impl Named for Argument {
@@ -1522,10 +1605,10 @@ impl Named for Argument {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ArgumentValue {
     pub name: StringKey,
-    pub value: ConstValue,
+    pub value: ConstantValue,
 }
 
 impl Named for ArgumentValue {
@@ -1534,7 +1617,7 @@ impl Named for ArgumentValue {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,
@@ -1624,4 +1707,8 @@ impl TypeWithFields for Object {
     fn interfaces(&self) -> &Vec<InterfaceID> {
         &self.interfaces
     }
+}
+
+fn len_of_option_list<T>(option_list: &Option<List<T>>) -> usize {
+    option_list.as_ref().map_or(0, |list| list.items.len())
 }

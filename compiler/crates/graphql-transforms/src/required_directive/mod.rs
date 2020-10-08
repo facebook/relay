@@ -12,8 +12,8 @@ use super::FeatureFlags;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, Value,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
+    Transformer, ValidationMessage, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -26,6 +26,7 @@ lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
     pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
     pub static ref REQUIRED_METADATA_KEY: StringKey = "__required".intern();
+    pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: StringKey = "__childrenCanBubbleNull".intern();
     pub static ref PATH_METADATA_ARGUMENT: StringKey = "path".intern();
     static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
@@ -299,7 +300,19 @@ impl<'s> Transformer for RequiredDirective<'s> {
     ) -> Transformed<FragmentDefinition> {
         self.reset_state();
         self.operation_name = Some(fragment.name.item);
-        self.default_transform_fragment(fragment)
+        let selections = self.transform_selections(&fragment.selections);
+        let directives = maybe_add_children_can_bubble_metadata_directive(
+            &fragment.directives,
+            &self.current_node_required_children,
+        );
+        if selections.should_keep() && directives.should_keep() {
+            return Transformed::Keep;
+        }
+        Transformed::Replace(FragmentDefinition {
+            directives: directives.replace_or_else(|| fragment.directives.clone()),
+            selections: selections.replace_or_else(|| fragment.selections.clone()),
+            ..fragment.clone()
+        })
     }
 
     fn transform_operation(
@@ -308,7 +321,19 @@ impl<'s> Transformer for RequiredDirective<'s> {
     ) -> Transformed<OperationDefinition> {
         self.reset_state();
         self.operation_name = Some(operation.name.item);
-        self.default_transform_operation(operation)
+        let selections = self.transform_selections(&operation.selections);
+        let directives = maybe_add_children_can_bubble_metadata_directive(
+            &operation.directives,
+            &self.current_node_required_children,
+        );
+        if selections.should_keep() && directives.should_keep() {
+            return Transformed::Keep;
+        }
+        Transformed::Replace(OperationDefinition {
+            directives: directives.replace_or_else(|| operation.directives.clone()),
+            selections: selections.replace_or_else(|| operation.selections.clone()),
+            ..operation.clone()
+        })
     }
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
@@ -338,7 +363,7 @@ impl<'s> Transformer for RequiredDirective<'s> {
         let path_name = self.path.join(".").intern();
 
         let maybe_required_metadata = self.get_required_metadata(field, path_name);
-        let next_directives = match maybe_required_metadata {
+        let mut next_directives = match maybe_required_metadata {
             Some(required_metadata) => {
                 add_metadata_directive(&field.directives, path_name, required_metadata.action)
             }
@@ -359,6 +384,12 @@ impl<'s> Transformer for RequiredDirective<'s> {
         if let Some(required_metadata) = maybe_required_metadata {
             self.assert_compatible_required_children_severity(required_metadata);
         }
+
+        next_directives = maybe_add_children_can_bubble_metadata_directive(
+            &next_directives,
+            &self.current_node_required_children,
+        )
+        .replace_or_else(|| next_directives.clone());
 
         self.within_abstract_inline_fragment = previous_abstract_fragment;
 
@@ -417,6 +448,29 @@ fn add_metadata_directive(
         ],
     });
     next_directives
+}
+
+fn maybe_add_children_can_bubble_metadata_directive(
+    directives: &[Directive],
+    current_node_required_children: &FnvHashMap<StringKey, RequiredField>,
+) -> TransformedValue<Vec<Directive>> {
+    let children_can_bubble = current_node_required_children
+        .values()
+        .any(|child| child.required.action != *THROW_ACTION);
+
+    if !children_can_bubble {
+        return TransformedValue::Keep;
+    }
+    let mut next_directives: Vec<Directive> = Vec::with_capacity(directives.len() + 1);
+    for directive in directives.iter() {
+        next_directives.push(directive.clone());
+    }
+
+    next_directives.push(Directive {
+        name: WithLocation::generated(*CHILDREN_CAN_BUBBLE_METADATA_KEY),
+        arguments: vec![],
+    });
+    TransformedValue::Replace(next_directives)
 }
 
 // Possible @required `action` enum values ordered by severity.

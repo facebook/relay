@@ -18,7 +18,7 @@ use graphql_transforms::{
     skip_unused_variables, split_module_import, transform_connections,
     transform_declarative_connection, transform_defer_stream, transform_match,
     transform_refetchable_fragment, unwrap_custom_directive_selection, validate_global_variables,
-    ConnectionInterface, FeatureFlags,
+    validate_required_arguments, ConnectionInterface, FeatureFlags,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -299,15 +299,15 @@ fn apply_operation_text_transforms(
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
-    // - ClientExtensionsTransform
+    // * ClientExtensionsTransform (not necessary in rust)
     // + SkipClientExtensionsTransform
     // + SkipUnreachableNodeTransform
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: false
-    // - SkipHandleFieldTransform
+    // * SkipHandleFieldTransform (not necessary in rust)
     // + FilterDirectivesTransform
     // + SkipUnusedVariablesTransform
-    // - ValidateRequiredArgumentsTransform
+    // + ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -323,7 +323,9 @@ fn apply_operation_text_transforms(
     let program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
     });
-
+    log_event.time("validate_required_arguments", || {
+        validate_required_arguments(&program)
+    })?;
     let program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });

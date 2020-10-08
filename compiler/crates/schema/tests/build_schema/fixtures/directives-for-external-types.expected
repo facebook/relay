@@ -274,13 +274,25 @@ Schema {
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 606:617,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Story",
+                            StringNode {
+                                token: Token {
+                                    span: 625:632,
+                                    kind: StringLiteral,
+                                },
+                                value: "Story",
+                            },
                         ),
                     },
                 ],
@@ -416,13 +428,25 @@ Schema {
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 799:810,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Country",
+                            StringNode {
+                                token: Token {
+                                    span: 818:827,
+                                    kind: StringLiteral,
+                                },
+                                value: "Country",
+                            },
                         ),
                     },
                 ],
@@ -451,13 +475,25 @@ Schema {
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 452:463,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Human",
+                            StringNode {
+                                token: Token {
+                                    span: 471:478,
+                                    kind: StringLiteral,
+                                },
+                                value: "Human",
+                            },
                         ),
                     },
                 ],
@@ -507,7 +543,13 @@ Schema {
                     ArgumentValue {
                         name: "field_name",
                         value: String(
-                            "id",
+                            StringNode {
+                                token: Token {
+                                    span: 553:557,
+                                    kind: StringLiteral,
+                                },
+                                value: "id",
+                            },
                         ),
                     },
                 ],
@@ -550,7 +592,13 @@ Schema {
                     ArgumentValue {
                         name: "field_name",
                         value: String(
-                            "id",
+                            StringNode {
+                                token: Token {
+                                    span: 906:910,
+                                    kind: StringLiteral,
+                                },
+                                value: "id",
+                            },
                         ),
                     },
                 ],
@@ -561,13 +609,25 @@ Schema {
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 930:941,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Story",
+                            StringNode {
+                                token: Token {
+                                    span: 949:956,
+                                    kind: StringLiteral,
+                                },
+                                value: "Story",
+                            },
                         ),
                     },
                 ],
@@ -611,13 +671,25 @@ Schema {
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "facebook",
+                            StringNode {
+                                token: Token {
+                                    span: 312:322,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "ID",
+                            StringNode {
+                                token: Token {
+                                    span: 330:334,
+                                    kind: StringLiteral,
+                                },
+                                value: "ID",
+                            },
                         ),
                     },
                 ],
@@ -644,13 +716,25 @@ Schema {
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "facebook",
+                            StringNode {
+                                token: Token {
+                                    span: 1017:1027,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Address",
+                            StringNode {
+                                token: Token {
+                                    span: 1035:1044,
+                                    kind: StringLiteral,
+                                },
+                                value: "Address",
+                            },
                         ),
                     },
                 ],

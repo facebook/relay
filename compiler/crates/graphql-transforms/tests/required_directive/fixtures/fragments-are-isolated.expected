@@ -10,7 +10,7 @@ fragment EnabledFragB on User {
   name @required(action: LOG)
 }
 ==================================== OUTPUT ===================================
-fragment EnabledFragB on User {
+fragment EnabledFragB on User @__childrenCanBubbleNull {
   id
   name @required(action: LOG) @__required(action: "LOG", path: "name")
 }

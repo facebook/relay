@@ -16,6 +16,7 @@ pub mod compiler_state;
 pub mod config;
 pub mod errors;
 mod graphql_asts;
+mod rollout;
 pub mod saved_state;
 mod watchman;
 
@@ -26,6 +27,6 @@ pub use build_project::{
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
     validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };
-pub use config::{ArtifactPersister, PersistConfig};
+pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;
 pub use watchman::{source_for_location, FileSource, FileSourceResult, FileSourceSubscription};

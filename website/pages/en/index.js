@@ -35,15 +35,6 @@ class HomeSplash extends React.Component {
   render() {
     return (
       <div>
-        <div className="homeContainer homeContainerWrapper homeBanner">
-          Black Lives Matter.{' '}
-          <a
-            target="_blank"
-            href="https://support.eji.org/give/153413/#!/donation/checkout">
-            Support the Equal Justice Initiative
-          </a>
-          .
-        </div>
         <div className="homeContainer">
           <div className="homeSplashFade">
             <div className="logo">

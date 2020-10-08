@@ -18,7 +18,6 @@ members = [
     "crates/relay-compiler",
     "crates/relay-lsp",
     "crates/relay-typegen",
-    "crates/schema-diff",
     "crates/schema-print",
     "crates/schema",
     "crates/signedsource",

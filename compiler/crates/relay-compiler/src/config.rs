@@ -9,6 +9,7 @@ use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use async_trait::async_trait;
 use graphql_transforms::{ConnectionInterface, FeatureFlags};
@@ -62,7 +63,15 @@ pub struct Config {
     pub saved_state_version: String,
 
     /// Function that is called to save operation text (e.g. to a database) and to generate an id.
-    pub artifact_persister: Option<Box<dyn ArtifactPersister + Send + Sync>>,
+    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+
+    pub post_artifacts_write: Option<
+        Box<
+            dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
+                + Send
+                + Sync,
+        >,
+    >,
 }
 
 impl Config {
@@ -153,6 +162,10 @@ impl Config {
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
+                    variable_names_comment: config_file_project.variable_names_comment,
+                    extra: config_file_project.extra,
+                    feature_flags: config_file_project.feature_flags,
+                    rollout: config_file_project.rollout,
                 };
                 Ok((project_name, project_config))
             })
@@ -170,7 +183,7 @@ impl Config {
 
         let config = Self {
             name: config_file.name,
-            artifact_writer: Box::new(ArtifactFileWriter::default()),
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -184,9 +197,10 @@ impl Config {
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
             feature_flags: config_file.feature_flags,
-            artifact_persister: None,
+            operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
+            post_artifacts_write: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -317,8 +331,14 @@ impl fmt::Debug for Config {
             connection_interface,
             feature_flags,
             saved_state_version,
-            artifact_persister,
+            operation_persister,
+            post_artifacts_write,
         } = self;
+
+        fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
+            if option.is_some() { "Some(Fn)" } else { "None" }
+        }
+
         f.debug_struct("Config")
             .field("name", name)
             .field("root_dir", root_dir)
@@ -332,32 +352,24 @@ impl fmt::Debug for Config {
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
             .field(
-                "artifact_persister",
-                if artifact_persister.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                "operation_persister",
+                &option_fn_to_string(operation_persister),
             )
             .field(
                 "generate_extra_operation_artifacts",
-                if generate_extra_operation_artifacts.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(generate_extra_operation_artifacts),
             )
             .field(
                 "saved_state_loader",
-                if saved_state_loader.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(saved_state_loader),
             )
             .field("connection_interface", connection_interface)
             .field("feature_flags", feature_flags)
             .field("saved_state_version", saved_state_version)
+            .field(
+                "post_artifacts_write",
+                &option_fn_to_string(post_artifacts_write),
+            )
             .finish()
     }
 }
@@ -375,6 +387,10 @@ pub struct ProjectConfig {
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
+    pub variable_names_comment: bool,
+    pub extra: Option<HashMap<String, String>>,
+    pub feature_flags: Option<FeatureFlags>,
+    pub rollout: Rollout,
 }
 
 #[derive(Clone, Debug)]
@@ -480,6 +496,20 @@ struct ConfigFileProject {
     /// Generate Query ($Parameters files)
     #[serde(default)]
     should_generate_parameters_file: bool,
+
+    /// Generates a `// @relayVariables name1 name2` header in generated operation files
+    #[serde(default)]
+    variable_names_comment: bool,
+
+    extra: Option<HashMap<String, String>>,
+
+    #[serde(default)]
+    feature_flags: Option<FeatureFlags>,
+
+    /// A generic rollout state for larger codegen changes. The default is to
+    /// pass, otherwise it should be a number between 0 and 100 as a percentage.
+    #[serde(default)]
+    pub rollout: Rollout,
 }
 
 #[derive(Debug, Deserialize)]
@@ -495,7 +525,7 @@ pub struct PersistConfig {
 type PersistId = String;
 
 #[async_trait]
-pub trait ArtifactPersister {
+pub trait OperationPersister {
     async fn persist_artifact(
         &self,
         artifact_text: String,

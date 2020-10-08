@@ -47,8 +47,8 @@ type Query {
   viewer: Viewer
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
-  fetch__User(id: ID!, token: ID!): User
-  fetch__NonNodeStory(input_fetch_id: ID!, token: ID!): NonNodeStory
+  fetch__User(id: ID!): User
+  fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
 }
 
@@ -1034,6 +1034,8 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
     additionalParameters: JSON
     options: ProfilePictureOptions
   ): Image
+  neighbors: [User!]
+  nearest_neighbor: User!
 }
 
 enum NameRendererContext {

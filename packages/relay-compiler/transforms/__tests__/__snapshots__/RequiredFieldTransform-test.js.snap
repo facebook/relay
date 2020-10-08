@@ -20,6 +20,232 @@ Source: GraphQL request (3:8)
 
 `;
 
+exports[`RequiredFieldTransform matches expected output: bubble-to-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 90,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 88,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "childrenCanBubbleNull": true,
+      },
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 84,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "LOG",
+              "actionLoc": Source {
+                start: 72,
+                end: 83,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 84,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: bubble-to-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 90,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 88,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "childrenCanBubbleNull": true,
+      },
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 84,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "LOG",
+              "actionLoc": Source {
+                start: 72,
+                end: 83,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 84,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
 exports[`RequiredFieldTransform matches expected output: duplicate-field.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
@@ -205,7 +431,9 @@ Fragment {
       },
     },
   },
-  metadata: null,
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
   name: "Foo",
   selections: [
     ScalarField {
@@ -575,7 +803,9 @@ Fragment {
               },
             },
           },
-          metadata: null,
+          metadata: {
+            "childrenCanBubbleNull": true,
+          },
           name: "address",
           selections: [
             ScalarField {
@@ -698,7 +928,9 @@ Fragment {
       },
     },
   },
-  metadata: null,
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
   name: "ActorsRendererFragment",
   selections: [
     ScalarField {
@@ -832,7 +1064,9 @@ Fragment {
       },
     },
   },
-  metadata: null,
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
   name: "ActorsRendererFragment",
   selections: [
     ScalarField {
@@ -1098,6 +1332,36 @@ Source: GraphQL request (3:21)
 
 `;
 
+exports[`RequiredFieldTransform matches expected output: log-action-bubble-to-throw-linked-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  author @required(action: THROW) {
+    author @required(action: LOG) {
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:22)
+3:   author @required(action: THROW) {
+4:     author @required(action: LOG) {
+                        ^
+5:       name
+
+Source: GraphQL request (3:20)
+2: fragment Foo on User {
+3:   author @required(action: THROW) {
+                      ^
+4:     author @required(action: LOG) {
+
+`;
+
 exports[`RequiredFieldTransform matches expected output: multiple-required-fields.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
@@ -1270,7 +1534,9 @@ Root {
       },
     },
   },
-  metadata: null,
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
   name: "FooQuery",
   argumentDefinitions: [],
   directives: [],
@@ -1322,6 +1588,7 @@ Root {
           },
           "path": "viewer",
         },
+        "childrenCanBubbleNull": true,
       },
       name: "viewer",
       selections: [
@@ -1372,6 +1639,7 @@ Root {
               },
               "path": "viewer.actor",
             },
+            "childrenCanBubbleNull": true,
           },
           name: "actor",
           selections: [
@@ -1422,6 +1690,7 @@ Root {
                   },
                   "path": "viewer.actor.address",
                 },
+                "childrenCanBubbleNull": true,
               },
               name: "address",
               selections: [
@@ -1543,7 +1812,9 @@ Fragment {
       },
     },
   },
-  metadata: null,
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
   name: "ActorsRendererFragment",
   selections: [
     ScalarField {
@@ -1649,7 +1920,9 @@ Fragment {
       },
     },
   },
-  metadata: null,
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
   name: "ActorsRendererFragment",
   selections: [
     ScalarField {
@@ -1831,6 +2104,228 @@ Fragment {
     },
   ],
   type: "Node",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: throw-within-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 92,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 90,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 86,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "THROW",
+              "actionLoc": Source {
+                start: 72,
+                end: 85,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 86,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: throw-within-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 92,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 90,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 86,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "THROW",
+              "actionLoc": Source {
+                start: 72,
+                end: 85,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 86,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
   argumentDefinitions: [],
 }
 `;

@@ -85,7 +85,7 @@ fn build_programs(
             Arc::new(program),
             Arc::new(base_fragment_names),
             &config.connection_interface,
-            Arc::new(config.feature_flags),
+            Arc::new(project_config.feature_flags.unwrap_or(config.feature_flags)),
             perf_logger,
         )
         .map_err(|errors| BuildProjectError::ValidationErrors { errors })
@@ -137,9 +137,11 @@ pub fn build_project(
     info!("[{}] compiling...", project_name);
 
     // Construct a schema instance including project specific extensions.
-    let schema = log_event.time("build_schema_time", || {
-        Arc::new(build_schema(compiler_state, project_config))
-    });
+    let schema = log_event
+        .time("build_schema_time", || {
+            Ok(Arc::new(build_schema(compiler_state, project_config)?))
+        })
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors })?;
 
     // Apply different transform pipelines to produce the `Programs`.
     let (programs, source_hashes) = build_programs(
@@ -183,7 +185,7 @@ pub async fn commit_project(
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
 
-    if let Some(ref artifact_persister) = config.artifact_persister {
+    if let Some(ref operation_persister) = config.operation_persister {
         if let Some(ref persist_config) = project_config.persist {
             let persist_operations_timer = log_event.start("persist_operations_time");
             persist_operations::persist_operations(
@@ -191,7 +193,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
-                &artifact_persister,
+                &operation_persister,
                 &log_event,
             )
             .await?;

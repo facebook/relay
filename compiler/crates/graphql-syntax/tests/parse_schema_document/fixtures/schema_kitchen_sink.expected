@@ -165,7 +165,7 @@ SchemaDocument {
             SchemaDefinition {
                 directives: [],
                 operation_types: List {
-                    span: 167:216,
+                    span: 167:214,
                     start: Token {
                         span: 167:168,
                         kind: OpenBrace,
@@ -240,7 +240,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 301:811,
+                        span: 301:809,
                         start: Token {
                             span: 301:302,
                             kind: OpenBrace,
@@ -788,7 +788,7 @@ SchemaDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 841:856,
+                                span: 841:855,
                                 start: Token {
                                     span: 841:842,
                                     kind: OpenParen,
@@ -829,7 +829,7 @@ SchemaDocument {
                 ],
                 fields: Some(
                     List {
-                        span: 856:938,
+                        span: 856:936,
                         start: Token {
                             span: 856:857,
                             kind: OpenBrace,
@@ -975,7 +975,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 974:1013,
+                        span: 974:1011,
                         start: Token {
                             span: 974:975,
                             kind: OpenBrace,
@@ -1107,7 +1107,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 1052:1113,
+                        span: 1052:1111,
                         start: Token {
                             span: 1052:1053,
                             kind: OpenBrace,
@@ -1243,7 +1243,7 @@ SchemaDocument {
                 ],
                 fields: Some(
                     List {
-                        span: 1155:1225,
+                        span: 1155:1223,
                         start: Token {
                             span: 1155:1156,
                             kind: OpenBrace,
@@ -1388,7 +1388,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 1291:1330,
+                        span: 1291:1328,
                         start: Token {
                             span: 1291:1292,
                             kind: OpenBrace,
@@ -1533,7 +1533,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 1400:1495,
+                        span: 1400:1493,
                         start: Token {
                             span: 1400:1401,
                             kind: OpenBrace,
@@ -2002,7 +2002,7 @@ SchemaDocument {
                 directives: [],
                 values: Some(
                     List {
-                        span: 1813:2001,
+                        span: 1813:1999,
                         start: Token {
                             span: 1813:1814,
                             kind: OpenBrace,
@@ -2080,7 +2080,7 @@ SchemaDocument {
                 ],
                 values: Some(
                     List {
-                        span: 2028:2078,
+                        span: 2028:2076,
                         start: Token {
                             span: 2028:2029,
                             kind: OpenBrace,
@@ -2161,7 +2161,7 @@ SchemaDocument {
                 directives: [],
                 values: Some(
                     List {
-                        span: 2115:2125,
+                        span: 2115:2123,
                         start: Token {
                             span: 2115:2116,
                             kind: OpenBrace,
@@ -2231,7 +2231,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 2167:2206,
+                        span: 2167:2204,
                         start: Token {
                             span: 2167:2168,
                             kind: OpenBrace,
@@ -2339,7 +2339,7 @@ SchemaDocument {
                 ],
                 fields: Some(
                     List {
-                        span: 2242:2294,
+                        span: 2242:2292,
                         start: Token {
                             span: 2242:2243,
                             kind: OpenBrace,
@@ -2420,7 +2420,7 @@ SchemaDocument {
                 directives: [],
                 fields: Some(
                     List {
-                        span: 2339:2392,
+                        span: 2339:2390,
                         start: Token {
                             span: 2339:2340,
                             kind: OpenBrace,
@@ -2528,7 +2528,7 @@ SchemaDocument {
                 },
                 arguments: Some(
                     List {
-                        span: 2501:2593,
+                        span: 2501:2592,
                         start: Token {
                             span: 2501:2502,
                             kind: OpenParen,
@@ -2609,7 +2609,7 @@ SchemaDocument {
                 },
                 arguments: Some(
                     List {
-                        span: 2657:2674,
+                        span: 2657:2671,
                         start: Token {
                             span: 2657:2658,
                             kind: OpenParen,
@@ -2673,7 +2673,7 @@ SchemaDocument {
                 },
                 arguments: Some(
                     List {
-                        span: 2745:2760,
+                        span: 2745:2759,
                         start: Token {
                             span: 2745:2746,
                             kind: OpenParen,
@@ -2737,7 +2737,7 @@ SchemaDocument {
                 },
                 arguments: Some(
                     List {
-                        span: 2840:2856,
+                        span: 2840:2855,
                         start: Token {
                             span: 2840:2841,
                             kind: OpenParen,
@@ -2833,7 +2833,7 @@ SchemaDocument {
                 ],
                 operation_types: Some(
                     List {
-                        span: 2945:2982,
+                        span: 2945:2981,
                         start: Token {
                             span: 2945:2946,
                             kind: OpenBrace,

@@ -1,0 +1,8 @@
+# expected-to-throw
+fragment Foo on User {
+  author @required(action: THROW) {
+    author @required(action: LOG) {
+      name
+    }
+  }
+}

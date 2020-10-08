@@ -723,7 +723,7 @@ function appendLocal3DPayload(
       t.genericTypeAnnotation(
         t.identifier('Local3DPayload'),
         t.typeParameterInstantiation([
-          t.stringLiteralTypeAnnotation(moduleImport.documentName),
+          t.stringLiteralTypeAnnotation(nullthrows(moduleImport.documentName)),
           exactObjectTypeAnnotation(
             selections
               .filter(sel => sel.schemaName !== 'js')

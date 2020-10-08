@@ -15,13 +15,13 @@
 const invariant = require('invariant');
 const t = require('@babel/types');
 
-type BabelAST = mixed;
+type BabelAST = BabelNode_DEPRECATED;
 
 /**
  * type NAME = any;
  */
 function anyTypeAlias(name: string): BabelAST {
-  return t.typeAlias(t.identifier(name), null, t.anyTypeAnnotation());
+  return t.typeAlias(t.identifier(name), undefined, t.anyTypeAnnotation());
 }
 
 /**
@@ -29,9 +29,7 @@ function anyTypeAlias(name: string): BabelAST {
  *   PROPS
  * |}
  */
-function exactObjectTypeAnnotation(
-  props: $ReadOnlyArray<BabelAST>,
-): $FlowFixMe {
+function exactObjectTypeAnnotation(props: Array<BabelAST>): $FlowFixMe {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
@@ -43,9 +41,7 @@ function exactObjectTypeAnnotation(
  *   ...
  * }
  */
-function inexactObjectTypeAnnotation(
-  props: $ReadOnlyArray<BabelAST>,
-): $FlowFixMe {
+function inexactObjectTypeAnnotation(props: Array<BabelAST>): $FlowFixMe {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.inexact = true;
   return typeAnnotation;
@@ -56,9 +52,9 @@ function inexactObjectTypeAnnotation(
  */
 function exportType(name: string, type: BabelAST): $FlowFixMe {
   return t.exportNamedDeclaration(
-    t.typeAlias(t.identifier(name), null, type),
+    t.typeAlias(t.identifier(name), undefined, type),
     [],
-    null,
+    undefined,
   );
 }
 
@@ -67,12 +63,12 @@ function exportType(name: string, type: BabelAST): $FlowFixMe {
  */
 function exportTypes(names: $ReadOnlyArray<string>): $FlowFixMe {
   const res = t.exportNamedDeclaration(
-    null,
+    undefined,
     names.map(name =>
       t.exportSpecifier(t.identifier(name), t.identifier(name)),
     ),
 
-    null,
+    undefined,
   );
   res.exportKind = 'type';
   return res;
@@ -85,7 +81,7 @@ function declareExportOpaqueType(name: string, value: string): $FlowFixMe {
   return t.declareExportDeclaration(
     t.declareOpaqueType(
       t.identifier(name),
-      null,
+      undefined,
       t.genericTypeAnnotation(t.identifier(value)),
     ),
   );
@@ -113,7 +109,7 @@ function importTypes(
  *
  * TYPES[0] & TYPES[1] & ...
  */
-function intersectionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
+function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   invariant(
     types.length > 0,
     'RelayFlowBabelFactories: cannot create an intersection of 0 types',
@@ -155,7 +151,7 @@ function stringLiteralTypeAnnotation(value: string): $FlowFixMe {
  *
  * TYPES[0] | TYPES[1] | ...
  */
-function unionTypeAnnotation(types: $ReadOnlyArray<BabelAST>): BabelAST {
+function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   invariant(
     types.length > 0,
     'RelayFlowBabelFactories: cannot create a union of 0 types',

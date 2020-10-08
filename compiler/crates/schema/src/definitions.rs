@@ -13,6 +13,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Result as FormatResult, Write};
+use std::hash::Hash;
 use std::slice::Iter;
 
 type TypeMap = HashMap<StringKey, Type>;
@@ -1545,14 +1546,14 @@ pub struct Object {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
     pub name: StringKey,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Enum {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1560,7 +1561,7 @@ pub struct Enum {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1568,7 +1569,7 @@ pub struct Union {
     pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1578,7 +1579,7 @@ pub struct Interface {
     pub interfaces: Vec<InterfaceID>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Field {
     pub name: StringKey,
     pub is_extension: bool,
@@ -1629,7 +1630,7 @@ impl Named for DirectiveValue {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumValue {
     pub value: StringKey,
     pub directives: Vec<DirectiveValue>,

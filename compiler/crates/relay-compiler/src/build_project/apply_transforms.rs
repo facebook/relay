@@ -8,7 +8,8 @@
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
-use graphql_transforms::{
+use interner::StringKey;
+use relay_transforms::{
     apply_fragment_arguments, client_extensions, flatten, generate_data_driven_dependency_metadata,
     generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
     generate_subscription_name_metadata, generate_test_operation_metadata, generate_typename,
@@ -20,7 +21,6 @@ use graphql_transforms::{
     transform_refetchable_fragment, unwrap_custom_directive_selection, validate_global_variables,
     validate_required_arguments, ConnectionInterface, FeatureFlags,
 };
-use interner::StringKey;
 use std::sync::Arc;
 
 #[derive(Debug)]

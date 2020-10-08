@@ -10,9 +10,9 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use graphql_transforms::{required_directive, FeatureFlags};
 use interner::Intern;
 use relay_codegen::{print_fragment, print_operation};
+use relay_transforms::{required_directive, FeatureFlags};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 

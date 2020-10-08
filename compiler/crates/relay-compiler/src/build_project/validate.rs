@@ -8,7 +8,7 @@
 use common::DiagnosticsResult;
 use errors::try_all;
 use graphql_ir::Program;
-use graphql_transforms::{
+use relay_transforms::{
     disallow_id_as_alias, disallow_typename_on_root, validate_connections, validate_module_names,
     validate_relay_directives, validate_unused_variables, ConnectionInterface,
 };

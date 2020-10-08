@@ -24,14 +24,14 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::{
+use indexmap::{map::Entry, IndexMap, IndexSet};
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
+use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
     REQUIRED_METADATA_KEY,
 };
-use indexmap::{map::Entry, IndexMap, IndexSet};
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
 use std::fmt::{Result, Write};
 use std::hash::Hash;

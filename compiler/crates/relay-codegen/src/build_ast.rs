@@ -14,7 +14,9 @@ use graphql_ir::{
     Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use graphql_transforms::{
+use interner::{Intern, StringKey};
+use md5::{Digest, Md5};
+use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
@@ -23,8 +25,6 @@ use graphql_transforms::{
     INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, PATH_METADATA_ARGUMENT,
     REACT_FLIGHT_DIRECTIVE_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
-use interner::{Intern, StringKey};
-use md5::{Digest, Md5};
 use schema::Schema;
 
 pub fn build_request_params_ast_key(

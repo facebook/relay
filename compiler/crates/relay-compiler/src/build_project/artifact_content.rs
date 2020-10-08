@@ -8,10 +8,10 @@
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use graphql_transforms::{
+use relay_codegen::{build_request_params, Printer};
+use relay_transforms::{
     is_preloadable_operation, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
 };
-use relay_codegen::{build_request_params, Printer};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};

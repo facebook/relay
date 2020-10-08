@@ -10,8 +10,8 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, FragmentDefinition, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use graphql_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use relay_codegen::{build_request_params, Printer};
+use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use std::sync::Arc;
 use test_schema::get_test_schema;
 

@@ -27,10 +27,10 @@ graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
 persist-query = { path = "../persist-query" }
 relay-codegen = { path = "../relay-codegen" }
+relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 signedsource = { path = "../signedsource" }

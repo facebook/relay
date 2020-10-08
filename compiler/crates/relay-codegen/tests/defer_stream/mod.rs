@@ -9,8 +9,8 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
-use graphql_transforms::{sort_selections, transform_defer_stream};
 use relay_codegen::{print_fragment, print_operation};
+use relay_transforms::{sort_selections, transform_defer_stream};
 use std::sync::Arc;
 use test_schema::get_test_schema;
 

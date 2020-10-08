@@ -8,7 +8,6 @@
 use common::{ConsoleLogger, Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError};
-use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
 use relay_codegen::Printer;
@@ -17,6 +16,7 @@ use relay_compiler::{
     config::{Config, ProjectConfig, SchemaLocation},
     generate_artifacts, ArtifactFileWriter, SourceHashes,
 };
+use relay_transforms::{ConnectionInterface, FeatureFlags};
 use schema::build_schema;
 use std::str;
 use std::sync::Arc;

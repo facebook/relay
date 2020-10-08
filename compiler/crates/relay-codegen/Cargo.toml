@@ -34,8 +34,8 @@ path = "tests/json_codegen_test.rs"
 common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-graphql-transforms = { path = "../graphql-transforms" }
 interner = { path = "../interner" }
+relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 fnv = "1.0"
 hex = "0.4"

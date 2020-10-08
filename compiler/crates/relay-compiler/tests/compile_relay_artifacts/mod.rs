@@ -11,10 +11,10 @@ use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
-use graphql_transforms::{ConnectionInterface, FeatureFlags, MATCH_CONSTANTS};
 use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
+use relay_transforms::{ConnectionInterface, FeatureFlags, MATCH_CONSTANTS};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 

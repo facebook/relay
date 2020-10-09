@@ -2318,6 +2318,33 @@ export type NonNullFragment$key = {
 };
 `;
 
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-item-in-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  parents {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +parents: $ReadOnlyArray<?{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
 exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-linked-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment SomeFragment on User {

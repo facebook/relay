@@ -1499,6 +1499,27 @@ impl TypeReference {
         }
     }
 
+    // If the type is Named or NonNull<Named> return the inner named.
+    // If the type is a List or NonNull<List> returns a matching list with nullable items.
+    pub fn with_nullable_item_type(&self) -> TypeReference {
+        match self {
+            TypeReference::Named(_) => self.clone(),
+            TypeReference::List(of) => TypeReference::List(Box::new(of.nullable_type().clone())),
+            TypeReference::NonNull(of) => {
+                let inner: &TypeReference = of;
+                match inner {
+                    TypeReference::List(_) => {
+                        TypeReference::NonNull(Box::new(of.with_nullable_item_type()))
+                    }
+                    TypeReference::Named(_) => inner.clone(),
+                    TypeReference::NonNull(_) => {
+                        unreachable!("Invalid nested TypeReference::NonNull")
+                    }
+                }
+            }
+        }
+    }
+
     pub fn list_item_type(&self) -> Option<&TypeReference> {
         match self.nullable_type() {
             TypeReference::List(of) => Some(of),

@@ -1,4 +1,4 @@
-// @generated SignedSource<<de59d5236e18a49340ae5f9c5da7b160>>
+// @generated SignedSource<<1733997eeb102e68e89fec5bd5f77095>>
 
 mod generate_flow;
 
@@ -206,6 +206,13 @@ fn required_bubbles_to_item_in_plural_field() {
     let input = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.graphql");
     let expected = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected");
     test_fixture(transform_fixture, "required-bubbles-to-item-in-plural-field.graphql", "generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_non_null_item_in_non_null_plural_linked_field() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-item-in-non-null-plural-linked-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-item-in-non-null-plural-linked-field.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-non-null-item-in-non-null-plural-linked-field.graphql", "generate_flow/fixtures/required-bubbles-to-non-null-item-in-non-null-plural-linked-field.expected", input, expected);
 }
 
 #[test]

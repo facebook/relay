@@ -1397,15 +1397,7 @@ fn apply_required_directive_nullability(
     match directives.named(*REQUIRED_METADATA_KEY) {
         Some(_) => field_type.non_null(),
         None => match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
-            Some(_) => match field_type {
-                // Children bubble up to the list item, not the list. So, if this is
-                // a plural field, we force the item type to be nullable, not the
-                // list itself.
-                TypeReference::List(inner) => {
-                    TypeReference::List(Box::new(inner.nullable_type().clone()))
-                }
-                _ => field_type.nullable_type().clone(),
-            },
+            Some(_) => field_type.with_nullable_item_type(),
             None => field_type.clone(),
         },
     }

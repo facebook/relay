@@ -1036,6 +1036,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   ): Image
   neighbors: [User!]
   nearest_neighbor: User!
+  parents: [User!]!
 }
 
 enum NameRendererContext {

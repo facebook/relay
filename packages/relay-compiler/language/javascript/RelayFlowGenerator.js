@@ -584,8 +584,18 @@ function getLinkedFieldNodeType(schema: Schema, node) {
       return schema.mapListItemType(node.type, inner =>
         schema.getNullableType(inner),
       );
+    } else if (schema.isNonNull(node.type)) {
+      const nullable = schema.getNullableType(node.type);
+      if (schema.isList(nullable)) {
+        return schema.getNonNullType(
+          schema.mapListItemType(nullable, inner =>
+            schema.getNullableType(inner),
+          ),
+        );
+      }
+      return nullable;
     }
-    return schema.getNullableType(node.type);
+    return node.type;
   }
   return node.type;
 }

@@ -52,12 +52,12 @@ pub struct Schema {
 }
 
 impl Schema {
-    pub fn mutation_type(&self) -> Option<Type> {
-        self.mutation_type.as_ref().map(|x| Type::Object(*x))
-    }
-
     pub fn query_type(&self) -> Option<Type> {
         self.query_type.as_ref().map(|x| Type::Object(*x))
+    }
+
+    pub fn mutation_type(&self) -> Option<Type> {
+        self.mutation_type.as_ref().map(|x| Type::Object(*x))
     }
 
     pub fn subscription_type(&self) -> Option<Type> {
@@ -752,50 +752,62 @@ impl Schema {
             }
         }
 
-        // In case the schema doesn't define a query, mutation or subscription
-        // type, but there is a Query, Mutation, or Subscription object type
-        // defined, default to those.
-        // This is not standard GraphQL behavior, and we might want to remove
-        // this at some point.
-        if schema.query_type.is_none() {
-            if let Some(Type::Object(id)) = schema.type_map.get(&"Query".intern()) {
-                schema.query_type = Some(*id);
-            }
-        }
-        if schema.mutation_type.is_none() {
-            if let Some(Type::Object(id)) = schema.type_map.get(&"Mutation".intern()) {
-                schema.mutation_type = Some(*id);
-            }
-        }
-        if schema.subscription_type.is_none() {
-            if let Some(Type::Object(id)) = schema.type_map.get(&"Subscription".intern()) {
-                schema.subscription_type = Some(*id);
-            }
-        }
+        schema.load_default_root_types();
+        schema.load_default_typename_field();
+        schema.load_default_clientid_field();
 
-        let typename_field_id = schema.fields.len();
-        schema.typename_field = FieldID(typename_field_id.try_into().unwrap());
-        schema.fields.push(Field {
-            name: schema.typename_field_name,
+        Ok(schema)
+    }
+
+    // In case the schema doesn't define a query, mutation or subscription
+    // type, but there is a Query, Mutation, or Subscription object type
+    // defined, default to those.
+    // This is not standard GraphQL behavior, and we might want to remove
+    // this at some point.
+    fn load_default_root_types(&mut self) {
+        if self.query_type.is_none() {
+            if let Some(Type::Object(id)) = self.type_map.get(&"Query".intern()) {
+                self.query_type = Some(*id);
+            }
+        }
+        if self.mutation_type.is_none() {
+            if let Some(Type::Object(id)) = self.type_map.get(&"Mutation".intern()) {
+                self.mutation_type = Some(*id);
+            }
+        }
+        if self.subscription_type.is_none() {
+            if let Some(Type::Object(id)) = self.type_map.get(&"Subscription".intern()) {
+                self.subscription_type = Some(*id);
+            }
+        }
+    }
+
+    fn load_default_typename_field(&mut self) {
+        let string_type = *self.type_map.get(&"String".intern()).unwrap();
+        let typename_field_id = self.fields.len();
+        self.typename_field = FieldID(typename_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: self.typename_field_name,
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
             parent_type: None,
         });
+    }
 
-        let clientid_field_id = schema.fields.len();
-        schema.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
-        schema.fields.push(Field {
-            name: schema.clientid_field_name,
+    fn load_default_clientid_field(&mut self) {
+        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let clientid_field_id = self.fields.len();
+        self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: self.clientid_field_name,
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
         });
-
-        Ok(schema)
     }
 
     fn add_definition(

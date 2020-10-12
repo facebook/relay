@@ -8,10 +8,10 @@
 use crate::{
     error::LSPError,
     lsp::{
-        Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
-        DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
-        ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-        TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+        Connection, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
+        ServerNotification, ServerRequest, ServerRequestId, TextDocumentSyncCapability,
+        TextDocumentSyncKind,
     },
 };
 
@@ -41,6 +41,7 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     server_capabilities.text_document_sync =
         Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
 
+    /* TODO: Re-enable auto-complete
     server_capabilities.completion_provider = Some(CompletionOptions {
         resolve_provider: Some(true),
         trigger_characters: None,
@@ -48,6 +49,7 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
             work_done_progress: None,
         },
     });
+    */
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -75,7 +77,8 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
         // Cache for the extracted GraphQL sources
         for msg in receiver {
             match msg {
-                Message::Request(req) => {
+                Message::Request(_) => {
+                    /* TODO: Re-enable auto-complete
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (request_id, params) = extract_request_params::<Completion>(req);
@@ -84,6 +87,7 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                             .await
                             .ok();
                     }
+                    */
                 }
                 Message::Notification(notif) => {
                     match &notif.method {
@@ -167,6 +171,7 @@ where
     notif.extract(N::METHOD).unwrap()
 }
 
+#[allow(dead_code)]
 fn extract_request_params<R>(req: ServerRequest) -> (ServerRequestId, R::Params)
 where
     R: Request,

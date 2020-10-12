@@ -6,6 +6,7 @@
  */
 
 //! Utilities for providing the completion language feature
+#![allow(dead_code)]
 use crate::lsp::Position;
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};

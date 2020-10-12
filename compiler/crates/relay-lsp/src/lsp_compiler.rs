@@ -17,12 +17,9 @@ use relay_compiler::{build_schema, check_project, GraphQLAsts, Programs};
 use schema::Schema;
 
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
-use interner::{Intern, StringKey};
+use interner::StringKey;
 
-use crate::completion::{
-    completion_items_for_request, get_completion_request, send_completion_response,
-    GraphQLSourceCache,
-};
+use crate::completion::GraphQLSourceCache;
 
 use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
 use crate::state::ServerState;
@@ -33,7 +30,6 @@ use crate::text_documents::{
 use crate::error::{LSPError, Result};
 
 use common::ConsoleLogger;
-use log::info;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::mpsc::Receiver;
 
@@ -160,7 +156,8 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
     fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
         match message {
             // Completion request
-            LSPBridgeMessage::CompletionRequest { params, request_id } => {
+            LSPBridgeMessage::CompletionRequest { .. } => {
+                /* TODO: Re-enable auto-complete
                 if let Some(completion_request) =
                     get_completion_request(params, &self.synced_graphql_documents)
                 {
@@ -177,6 +174,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         }
                     }
                 }
+                */
             }
             LSPBridgeMessage::DidOpenTextDocument(params) => {
                 on_did_open_text_document(params, &mut self.synced_graphql_documents);

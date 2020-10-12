@@ -35,6 +35,8 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationState');
 const useSubscription = require('./useSubscription');
 
+const graphql = require('relay-runtime');
+
 const {loadQuery} = require('./loadQuery');
 
 export type * from './EntryPointTypes.flow';
@@ -59,6 +61,7 @@ module.exports = {
 
   loadQuery: loadQuery,
   loadEntryPoint: loadEntryPoint,
+  graphql: graphql,
 
   prepareEntryPoint_DEPRECATED: prepareEntryPoint_DEPRECATED,
 

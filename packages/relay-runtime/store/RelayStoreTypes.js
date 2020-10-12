@@ -658,6 +658,12 @@ export interface IEnvironment {
    * whether we need to set up certain caches and timeout's.
    */
   isServer(): boolean;
+
+  /**
+   * Called by Relay when it encounters a missing field that has been annotated
+   * with `@required(action: LOG)`.
+   */
+  requiredFieldLogger: ?RequiredFieldLogger;
 }
 
 /**
@@ -872,6 +878,23 @@ export type MissingFieldHandler =
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
     |};
+
+/**
+ * A handler for events related to @required fields. Currently reports missing
+ * fields with either `action: LOG` or `action: THROW`.
+ */
+export type RequiredFieldLogger = (
+  | {|
+      +kind: 'missing_field.log',
+      +owner: string,
+      +fieldPath: string,
+    |}
+  | {|
+      +kind: 'missing_field.throw',
+      +owner: string,
+      +fieldPath: string,
+    |},
+) => void;
 
 /**
  * The results of normalizing a query.

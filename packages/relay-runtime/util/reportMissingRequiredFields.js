@@ -23,6 +23,14 @@ function reportMissingRequiredFields(
   switch (missingRequiredFields.action) {
     case 'THROW': {
       const {path, owner} = missingRequiredFields.field;
+      if (environment.requiredFieldLogger != null) {
+        // This gives the consumer the chance to throw their own error if they so wish.
+        environment.requiredFieldLogger({
+          kind: 'missing_field.throw',
+          owner,
+          fieldPath: path,
+        });
+      }
       throw new Error(
         `Relay: Missing @required value at path '${path}' in '${owner}'.`,
       );
@@ -34,6 +42,13 @@ function reportMissingRequiredFields(
           owner,
           fieldPath: path,
         });
+        if (environment.requiredFieldLogger != null) {
+          environment.requiredFieldLogger({
+            kind: 'missing_field.log',
+            owner,
+            fieldPath: path,
+          });
+        }
       });
       break;
     default: {

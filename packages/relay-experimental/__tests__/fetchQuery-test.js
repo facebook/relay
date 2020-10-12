@@ -232,12 +232,14 @@ describe('fetchQuery with missing @required value', () => {
   });
   it('provides data snapshot on next', () => {
     const logs = [];
+    const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({
       log: event => {
         if (event.name === 'read.missing_required_field') {
           logs.push(event);
         }
       },
+      requiredFieldLogger,
     });
     const query = generateAndCompile(
       `query TestQuery {
@@ -262,6 +264,11 @@ describe('fetchQuery with missing @required value', () => {
     });
     subscription.unsubscribe();
     expect(observer.next).toHaveBeenCalledWith({me: null});
+    expect(requiredFieldLogger).toHaveBeenCalledWith({
+      fieldPath: 'me.name',
+      kind: 'missing_field.log',
+      owner: 'TestQuery',
+    });
     expect(logs).toEqual([
       {
         fieldPath: 'me.name',
@@ -272,7 +279,8 @@ describe('fetchQuery with missing @required value', () => {
   });
 
   it('throws on resolution', () => {
-    const environment = createMockEnvironment({});
+    const requiredFieldLogger = jest.fn();
+    const environment = createMockEnvironment({requiredFieldLogger});
     const query = generateAndCompile(
       `query TestQuery {
           me {
@@ -289,6 +297,11 @@ describe('fetchQuery with missing @required value', () => {
 
     environment.mock.nextValue(query, {data: {me: {name: null}}});
     subscription.unsubscribe();
+    expect(requiredFieldLogger).toHaveBeenCalledWith({
+      fieldPath: 'me.name',
+      kind: 'missing_field.throw',
+      owner: 'TestQuery',
+    });
     expect(observer.error).toHaveBeenCalledWith(
       Error("Relay: Missing @required value at path 'me.name' in 'TestQuery'."),
     );

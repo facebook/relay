@@ -1,5 +1,5 @@
 mutation appendNodeCommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {

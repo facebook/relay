@@ -1910,7 +1910,7 @@ mutation ChangeNameMutation(
 exports[`compileRelayArtifacts matches expected output: append-edge.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -2088,7 +2088,7 @@ mutation CommentCreateMutation(
 exports[`compileRelayArtifacts matches expected output: append-node.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -6102,7 +6102,7 @@ exports[`compileRelayArtifacts matches expected output: delete-edge.graphql 1`] 
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     deletedCommentId @deleteEdge(connections: $connections)
@@ -6218,7 +6218,7 @@ exports[`compileRelayArtifacts matches expected output: delete-edge-plural.graph
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentsDeleteMutation(
   $input: CommentsDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentsDelete(input: $input) {
     deletedCommentIds @deleteEdge(connections: $connections)

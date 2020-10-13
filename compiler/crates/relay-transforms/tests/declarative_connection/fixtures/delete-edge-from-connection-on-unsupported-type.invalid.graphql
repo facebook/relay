@@ -1,7 +1,7 @@
 # expected-to-throw
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     __typename @deleteEdge(connections: $connections)

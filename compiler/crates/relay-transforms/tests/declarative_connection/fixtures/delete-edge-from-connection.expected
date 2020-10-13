@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     deletedCommentId @deleteEdge(connections: $connections)
@@ -10,7 +10,7 @@ mutation CommentDeleteMutation(
 ==================================== OUTPUT ===================================
 mutation CommentDeleteMutation(
   $input: CommentDeleteInput
-  $connections: [String!]!
+  $connections: [ID!]!
 ) {
   commentDelete(input: $input) {
     deletedCommentId @deleteEdge(connections: $connections) @__clientField(key: "", handle: "deleteEdge", handleArgs: {connections: $connections})

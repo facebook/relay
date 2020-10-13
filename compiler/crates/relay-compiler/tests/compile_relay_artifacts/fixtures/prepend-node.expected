@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 mutation prependNodeCommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {

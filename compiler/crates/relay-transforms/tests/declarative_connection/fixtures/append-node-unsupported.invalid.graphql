@@ -1,6 +1,6 @@
 # expected-to-throw
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {

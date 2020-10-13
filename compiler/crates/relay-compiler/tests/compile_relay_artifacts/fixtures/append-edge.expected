@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 mutation appendEdge_CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {

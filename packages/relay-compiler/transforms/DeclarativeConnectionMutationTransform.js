@@ -33,20 +33,20 @@ const LINKED_FIELD_DIRECTIVES = [
 const SCHEMA_EXTENSION = `
   directive @${DELETE_RECORD} on FIELD
   directive @${DELETE_EDGE}(
-    connections: [String!]!
+    connections: [ID!]!
   ) on FIELD
   directive @${APPEND_EDGE}(
-    connections: [String!]!
+    connections: [ID!]!
   ) on FIELD
   directive @${PREPEND_EDGE}(
-    connections: [String!]!
+    connections: [ID!]!
   ) on FIELD
   directive @${APPEND_NODE}(
-    connections: [String!]!
+    connections: [ID!]!
     edgeTypeName: String!
   ) on FIELD
   directive @${PREPEND_NODE}(
-    connections: [String!]!
+    connections: [ID!]!
     edgeTypeName: String!
   ) on FIELD
 `;

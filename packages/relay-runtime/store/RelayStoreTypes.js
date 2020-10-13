@@ -26,7 +26,6 @@ import type {
   NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
-  NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -109,14 +108,13 @@ export type MissingRequiredFields =
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type TypedSnapshot<TData> = {|
-  +data: TData,
+export type Snapshot = {|
+  +data: ?SelectorData,
   +isMissingData: boolean,
   +seenRecords: RecordMap,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
 |};
-export type Snapshot = TypedSnapshot<?SelectorData>;
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation

@@ -53,13 +53,12 @@ export opaque type InvalidationState = {|
   invalidations: Map<DataID, ?number>,
 |};
 
-type Subscription = {
+type Subscription = {|
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
   stale: boolean,
   backup: ?Snapshot,
-  ...
-};
+|};
 
 type InvalidationSubscription = {|
   callback: () => void,

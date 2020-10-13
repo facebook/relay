@@ -219,7 +219,7 @@ impl<'b> DedupedJSONPrinter<'b> {
                 Ok(())
             }
             Primitive::StorageKey(field_name, key) => {
-                print_static_storage_key(f, &self.builder, *field_name, *key)
+                write_static_storage_key(f, &self.builder, *field_name, *key)
             }
             Primitive::ModuleDependency(key) => write!(f, "require('{}.graphql')", key),
         }
@@ -326,27 +326,14 @@ impl Printer {
     }
 }
 
-/// Pre-computes storage key if possible and advantageous. Storage keys are
-/// generated for fields with supplied arguments that are all statically known
-/// (ie. literals, no variables) at build time.
-fn print_static_storage_key(
+fn write_static_storage_key(
     f: &mut String,
     builder: &AstBuilder,
     field_name: StringKey,
     args_key: AstKey,
 ) -> FmtResult {
-    // TODO (T64585375): JS compiler has an option to force a storageKey.
-    let args = builder.lookup(args_key).assert_array();
-    write_static_storage_key(f, builder, field_name, args)
-}
-
-fn write_static_storage_key(
-    f: &mut String,
-    builder: &AstBuilder,
-    field_name: StringKey,
-    args: &[Primitive],
-) -> FmtResult {
     write!(f, "\"{}(", field_name)?;
+    let args = builder.lookup(args_key).assert_array();
     for arg_key in args {
         let arg = builder.lookup(arg_key.assert_key()).assert_object();
         let name = &arg

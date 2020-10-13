@@ -196,7 +196,7 @@ fn generate_operation(
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",
-        printer.print_request_deduped(
+        printer.print_request(
             schema,
             normalization_operation,
             &operation_fragment,
@@ -245,7 +245,7 @@ fn generate_split_operation(
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation_deduped(schema, node)
+        printer.print_operation(schema, node)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
@@ -305,7 +305,7 @@ fn generate_fragment(
         content,
         "var node/*: {}*/ = {};\n",
         reader_node_flow_type,
-        printer.print_fragment_deduped(schema, reader_fragment)
+        printer.print_fragment(schema, reader_fragment)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();

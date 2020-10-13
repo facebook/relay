@@ -123,7 +123,7 @@ fn compile(mut cx: FunctionContext<'_>) -> JsResult<'_, JsObject> {
     let definitions = build_definitions_from_js_input(documents).expect("Invalid documents");
 
     let (config, project_config) = create_configs();
-    let mut printer = Printer::default();
+    let mut printer = Printer::with_dedupe();
 
     let source_hashes = SourceHashes::from_definitions(&definitions);
     let ir = build(&schema, &definitions).expect("Unable to build Relay IR");

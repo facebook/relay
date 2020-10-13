@@ -221,7 +221,7 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::default();
+            let mut printer = Printer::with_dedupe();
 
             log_event.time("write_artifacts_time", || {
                 for artifact in &artifacts {
@@ -253,7 +253,7 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::default();
+            let mut printer = Printer::with_dedupe();
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
 

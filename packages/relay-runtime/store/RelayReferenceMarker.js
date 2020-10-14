@@ -21,7 +21,6 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
-const {REACT_FLIGHT_QUERIES_STORAGE_KEY} = require('./ReactFlight');
 const {generateTypeID} = require('./TypeID');
 
 import type {ReactFlightPayloadQuery} from '../network/RelayNetworkTypes';
@@ -291,7 +290,7 @@ class RelayReferenceMarker {
 
     const reachableQueries = RelayModernRecord.getValue(
       reactFlightClientResponseRecord,
-      REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
     );
 
     if (!Array.isArray(reachableQueries)) {

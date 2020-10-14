@@ -18,6 +18,9 @@ const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 
+const {getType} = require('./RelayModernRecord');
+
+import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
 import type {
   NormalizationHandle,
   NormalizationArgument,
@@ -25,6 +28,7 @@ import type {
 } from '../util/NormalizationNode';
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+import type {ReactFlightClientResponse, Record} from './RelayStoreTypes';
 
 export type Arguments = {+[string]: mixed, ...};
 
@@ -32,6 +36,10 @@ const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
 const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
 const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
+
+const REACT_FLIGHT_QUERIES_STORAGE_KEY = 'queries';
+const REACT_FLIGHT_TREE_STORAGE_KEY = 'tree';
+const REACT_FLIGHT_TYPE_NAME = 'ReactFlightComponent';
 
 function getArgumentValue(
   arg: NormalizationArgument | ReaderArgument,
@@ -189,6 +197,38 @@ function getModuleOperationKey(documentName: string): string {
   return `${MODULE_OPERATION_KEY_PREFIX}${documentName}`;
 }
 
+function refineToReactFlightPayloadData(
+  payload: mixed,
+): ?ReactFlightPayloadData {
+  if (
+    payload == null ||
+    typeof payload !== 'object' ||
+    !Array.isArray(payload.tree) ||
+    !Array.isArray(payload.queries)
+  ) {
+    return null;
+  }
+  return (payload: $FlowFixMe);
+}
+
+function getReactFlightClientResponse(
+  record: Record,
+): ?ReactFlightClientResponse {
+  invariant(
+    getType(record) === REACT_FLIGHT_TYPE_NAME,
+    'getReactFlightClientResponse(): Expected a ReactFlightComponentRecord, ' +
+      'got %s.',
+    record,
+  );
+  const response: ?ReactFlightClientResponse = (record[
+    REACT_FLIGHT_TREE_STORAGE_KEY
+  ]: $FlowFixMe);
+  if (response != null) {
+    return response;
+  }
+  return null;
+}
+
 /**
  * Constants shared by all implementations of RecordSource/MutableRecordSource/etc.
  */
@@ -205,6 +245,13 @@ const RelayStoreUtils = {
   TYPENAME_KEY: '__typename',
   INVALIDATED_AT_KEY: '__invalidated_at',
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
+
+  // ReactFlight constants and utilities
+  REACT_FLIGHT_QUERIES_STORAGE_KEY,
+  REACT_FLIGHT_TREE_STORAGE_KEY,
+  REACT_FLIGHT_TYPE_NAME,
+  getReactFlightClientResponse,
+  refineToReactFlightPayloadData,
 
   formatStorageKey,
   getArgumentValue,

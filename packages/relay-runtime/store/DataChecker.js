@@ -26,10 +26,6 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
-const {
-  REACT_FLIGHT_TREE_STORAGE_KEY,
-  REACT_FLIGHT_QUERIES_STORAGE_KEY,
-} = require('./ReactFlight');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const {generateTypeID} = require('./TypeID');
 
@@ -528,11 +524,11 @@ class DataChecker {
 
     const tree = this._mutator.getValue(
       linkedID,
-      REACT_FLIGHT_TREE_STORAGE_KEY,
+      RelayStoreUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
     );
     const reachableQueries = this._mutator.getValue(
       linkedID,
-      REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
     );
 
     if (tree == null || !Array.isArray(reachableQueries)) {

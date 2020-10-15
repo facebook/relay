@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const LRUCache = require('./LRUCache');
@@ -39,7 +37,7 @@ import type {
 
 export type FragmentResource = FragmentResourceImpl;
 
-type FragmentResourceCache = Cache<Error | Promise<mixed> | FragmentResult>;
+type FragmentResourceCache = Cache<Promise<mixed> | FragmentResult>;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
@@ -158,7 +156,7 @@ class FragmentResourceImpl {
     // 1. Check if there's a cached value for this fragment
     const cachedValue = this._cache.get(fragmentIdentifier);
     if (cachedValue != null) {
-      if (isPromise(cachedValue) || cachedValue instanceof Error) {
+      if (isPromise(cachedValue)) {
         throw cachedValue;
       }
       if (cachedValue.snapshot) {
@@ -447,8 +445,8 @@ class FragmentResourceImpl {
       .then(() => {
         this._cache.delete(cacheKey);
       })
-      .catch(error => {
-        this._cache.set(cacheKey, error);
+      .catch((error: Error) => {
+        this._cache.delete(cacheKey);
       });
     this._cache.set(cacheKey, promise);
 
@@ -464,10 +462,7 @@ class FragmentResourceImpl {
     idx: number,
   ): void {
     const currentFragmentResult = this._cache.get(cacheKey);
-    if (
-      isPromise(currentFragmentResult) ||
-      currentFragmentResult instanceof Error
-    ) {
+    if (isPromise(currentFragmentResult)) {
       reportInvalidCachedData(latestSnapshot.selector.node.name);
       return;
     }

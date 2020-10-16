@@ -21,7 +21,7 @@ use interner::StringKey;
 
 use crate::completion::GraphQLSourceCache;
 
-use crate::error_reporting::{report_build_project_errors, report_syntax_errors};
+use crate::error_reporting::{add_build_project_errors, add_syntax_errors};
 use crate::state::ServerState;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
@@ -76,21 +76,17 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
     async fn check_projects_and_report_errors(&mut self, event: &impl PerfLogEvent) {
         match self.check_projects(event).await {
             Ok(_) => {
-                // Clear out any existing diagnostics
-                self.server_state.clear_diagnostics(&self.connection);
+                self.server_state.clear_diagnostics();
             }
             Err(err) => {
+                self.server_state.clear_diagnostics();
                 if let LSPError::CompilerError(err) = err {
                     match err {
                         CompilerError::DiagnosticsError { errors } => {
-                            report_syntax_errors(errors, &self.connection, &mut self.server_state)
+                            add_syntax_errors(errors, &mut self.server_state)
                         }
                         CompilerError::BuildProjectsErrors { errors } => {
-                            report_build_project_errors(
-                                errors,
-                                &self.connection,
-                                &mut self.server_state,
-                            )
+                            add_build_project_errors(errors, &mut self.server_state)
                         }
                         // Ignore the rest of these errors for now
                         CompilerError::ConfigFileRead { .. } => {}
@@ -113,6 +109,7 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                 }
             }
         }
+        self.server_state.commit_diagnostics(&self.connection);
     }
 
     pub async fn watch(&mut self) -> Result<()> {

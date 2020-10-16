@@ -37,11 +37,6 @@ function reportMissingRequiredFields(
     }
     case 'LOG':
       missingRequiredFields.fields.forEach(({path, owner}) => {
-        environment.__log({
-          name: 'read.missing_required_field',
-          owner,
-          fieldPath: path,
-        });
         if (environment.requiredFieldLogger != null) {
           environment.requiredFieldLogger({
             kind: 'missing_field.log',

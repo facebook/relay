@@ -110,11 +110,6 @@ describe('RelayModernFragmentSpecResolver', () => {
       kind: 'missing_field.log',
       owner: 'UserFragment',
     });
-    expect(logger).toHaveBeenCalledWith({
-      fieldPath: 'alternate_name',
-      name: 'read.missing_required_field',
-      owner: 'UserFragment',
-    });
   });
 
   it('throws when reading a @required(action: THROW) field that has become null', () => {

@@ -231,14 +231,8 @@ describe('fetchQuery with missing @required value', () => {
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   });
   it('provides data snapshot on next', () => {
-    const logs = [];
     const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({
-      log: event => {
-        if (event.name === 'read.missing_required_field') {
-          logs.push(event);
-        }
-      },
       requiredFieldLogger,
     });
     const query = generateAndCompile(
@@ -254,7 +248,6 @@ describe('fetchQuery with missing @required value', () => {
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     expect(observer.next).not.toHaveBeenCalled();
 
-    expect(logs.length).toBe(0);
     environment.mock.nextValue(query, {
       data: {
         me: {
@@ -269,13 +262,6 @@ describe('fetchQuery with missing @required value', () => {
       kind: 'missing_field.log',
       owner: 'TestQuery',
     });
-    expect(logs).toEqual([
-      {
-        fieldPath: 'me.name',
-        name: 'read.missing_required_field',
-        owner: 'TestQuery',
-      },
-    ]);
   });
 
   it('throws on resolution', () => {

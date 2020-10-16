@@ -482,11 +482,6 @@ export type LogEvent =
       +invalidatedRecordIDs: Set<DataID>,
     |}
   | {|
-      +name: 'read.missing_required_field',
-      +owner: string,
-      +fieldPath: string,
-    |}
-  | {|
       +name: 'entrypoint.root.consume',
       +profilerContext: mixed,
       +rootModuleID: string,

@@ -135,11 +135,6 @@ test('Logs if a @required(action: LOG) field is null', () => {
     kind: 'missing_field.log',
     owner: 'UserFragment',
   });
-  expect(logger).toHaveBeenCalledWith({
-    fieldPath: 'alternate_name',
-    name: 'read.missing_required_field',
-    owner: 'UserFragment',
-  });
 });
 
 test('Throws if a @required(action: THROW) field is present and then goes missing', () => {

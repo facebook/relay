@@ -8,10 +8,10 @@
 use crate::{
     error::LSPError,
     lsp::{
-        Connection, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        Connection, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit,
         InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
-        ServerNotification, ServerRequest, ServerRequestId, TextDocumentSyncCapability,
-        TextDocumentSyncKind,
+        ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
+        TextDocumentSyncCapability, TextDocumentSyncKind,
     },
 };
 
@@ -63,6 +63,7 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     info!("Running language server");
 
     let receiver = connection.receiver.clone();
+    let sender = connection.sender.clone();
 
     // A `Notify` instance used to signal that the compiler should be initialized.
     let compiler_notify = Arc::new(Notify::new());
@@ -73,11 +74,12 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     // A channel to communicate between the LSP message loop and the compiler loop
     let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
 
+    let mut has_shutdown = false;
     tokio::spawn(async move {
         // Cache for the extracted GraphQL sources
         for msg in receiver {
             match msg {
-                Message::Request(_) => {
+                Message::Request(req) => {
                     /* TODO: Re-enable auto-complete
                     // Auto-complete request
                     if req.method == Completion::METHOD {
@@ -88,6 +90,19 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                             .ok();
                     }
                     */
+                    if req.method == Shutdown::METHOD {
+                        has_shutdown = true;
+                        let (request_id, _) = extract_request_params::<Shutdown>(req);
+                        let response = ServerResponse {
+                            id: request_id,
+                            error: None,
+                            result: None,
+                        };
+                        sender.send(Message::Response(response)).ok();
+                        // TODO: We should exit when receiving Exit notification according to the protocal,
+                        // but the notification is never received.
+                        std::process::exit(0);
+                    }
                 }
                 Message::Notification(notif) => {
                     match &notif.method {
@@ -115,6 +130,9 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                                 .send(LSPBridgeMessage::DidCloseTextDocument(params))
                                 .await
                                 .ok();
+                        }
+                        method if method == Exit::METHOD => {
+                            std::process::exit(!has_shutdown as i32)
                         }
                         _ => {
                             // Notifications we don't care about
@@ -171,7 +189,6 @@ where
     notif.extract(N::METHOD).unwrap()
 }
 
-#[allow(dead_code)]
 fn extract_request_params<R>(req: ServerRequest) -> (ServerRequestId, R::Params)
 where
     R: Request,

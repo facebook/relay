@@ -192,12 +192,6 @@ fn generate_operation(
         )
     )
     .unwrap();
-    if !project_config
-        .rollout
-        .check(request_parameters.name.lookup())
-    {
-        writeln!(content, "/*\n{}*/\n", text).unwrap();
-    }
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",

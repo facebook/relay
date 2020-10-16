@@ -200,7 +200,7 @@ class RelayReader {
     record: Record,
   ) {
     if (this._missingRequiredFields?.action === 'THROW') {
-      // Chained @requried directives may cause a parent `@required(action:
+      // Chained @required directives may cause a parent `@required(action:
       // THROW)` field to become null, so the first missing field we
       // encounter is likely to be the root cause of the error.
       return;

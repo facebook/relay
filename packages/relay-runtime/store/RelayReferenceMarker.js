@@ -15,6 +15,7 @@
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
@@ -290,7 +291,7 @@ class RelayReferenceMarker {
 
     const reachableQueries = RelayModernRecord.getValue(
       reactFlightClientResponseRecord,
-      RelayStoreUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
     );
 
     if (!Array.isArray(reachableQueries)) {

@@ -18,6 +18,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
@@ -524,11 +525,11 @@ class DataChecker {
 
     const tree = this._mutator.getValue(
       linkedID,
-      RelayStoreUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
     );
     const reachableQueries = this._mutator.getValue(
       linkedID,
-      RelayStoreUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
     );
 
     if (tree == null || !Array.isArray(reachableQueries)) {

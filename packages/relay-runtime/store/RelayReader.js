@@ -31,6 +31,7 @@ const {
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
+const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
   FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
@@ -42,7 +43,6 @@ const {
   getArgumentValues,
   getStorageKey,
   getModuleComponentKey,
-  getReactFlightClientResponse,
 } = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 

@@ -49,8 +49,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 import type { Local3DPayload } from "relay-runtime";
-import type { AnotherNameRendererFragment$ref } from "AnotherNameRendererFragment.graphql";
-import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
+import type { AnotherNameRendererFragment$ref } from "./AnotherNameRendererFragment.graphql";
+import type { NameRendererFragment$ref } from "./NameRendererFragment.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -142,8 +142,8 @@ export type Test = {|
   rawResponse: TestRawResponse,
 |};
 -------------------------------------------------------------------------------
-import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
-import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
+import { MarkdownUserNameRenderer_name$ref } from "./MarkdownUserNameRenderer_name.graphql";
+import { PlainUserNameRenderer_name$ref } from "./PlainUserNameRenderer_name.graphql";
 import { FragmentReference } from "relay-runtime";
 export type AnotherNameRendererFragment$ref = FragmentReference & { _: "AnotherNameRendererFragment$ref" };
 export type AnotherNameRendererFragment$fragmentType = AnotherNameRendererFragment$ref & { _: "AnotherNameRendererFragment$fragmentType" };
@@ -178,8 +178,8 @@ export type MarkdownUserNameRenderer_name$key = {
   readonly $fragmentRefs: MarkdownUserNameRenderer_name$ref,
 };
 -------------------------------------------------------------------------------
-import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
-import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
+import { MarkdownUserNameRenderer_name$ref } from "./MarkdownUserNameRenderer_name.graphql";
+import { PlainUserNameRenderer_name$ref } from "./PlainUserNameRenderer_name.graphql";
 import { FragmentReference } from "relay-runtime";
 export type NameRendererFragment$ref = FragmentReference & { _: "NameRendererFragment$ref" };
 export type NameRendererFragment$fragmentType = NameRendererFragment$ref & { _: "NameRendererFragment$fragmentType" };

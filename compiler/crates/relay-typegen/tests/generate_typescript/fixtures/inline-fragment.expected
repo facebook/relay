@@ -95,7 +95,7 @@ export type InlineFragmentConditionalID$key = {
   readonly $fragmentRefs: InlineFragmentConditionalID$ref,
 };
 -------------------------------------------------------------------------------
-import type { SomeFragment$ref } from "SomeFragment.graphql";
+import { SomeFragment$ref } from "./SomeFragment.graphql";
 import { FragmentReference } from "relay-runtime";
 export type InlineFragmentKitchenSink$ref = FragmentReference & { _: "InlineFragmentKitchenSink$ref" };
 export type InlineFragmentKitchenSink$fragmentType = InlineFragmentKitchenSink$ref & { _: "InlineFragmentKitchenSink$fragmentType" };

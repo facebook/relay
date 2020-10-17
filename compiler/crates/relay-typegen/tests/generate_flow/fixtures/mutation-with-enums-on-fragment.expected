@@ -27,7 +27,7 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
+import type { FriendFragment$ref } from "./FriendFragment.graphql";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,

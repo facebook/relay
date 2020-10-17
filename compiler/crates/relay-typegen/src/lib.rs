@@ -1068,8 +1068,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 //     // fragments
                 writeln!(
                     self.result,
-                    "import type {{ {} }} from \"{}.graphql\";",
-                    fragment_type_name, used_fragment
+                    "{}",
+                    self.writer.write_ast(&AST::ImportType(
+                        vec![fragment_type_name],
+                        format!("./{}.graphql", used_fragment).intern()
+                    ))
                 )?;
                 //   } else if (state.useSingleArtifactDirectory) {
                 //     imports.push(
@@ -1091,13 +1094,19 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
         writeln!(
             self.result,
-            "declare export opaque type {}: FragmentReference;",
-            old_fragment_type_name
+            "{}",
+            self.writer.write_ast(&AST::DeclareExportOpaqueType(
+                old_fragment_type_name,
+                "FragmentReference".intern()
+            ))
         )?;
         writeln!(
             self.result,
-            "declare export opaque type {}: {};",
-            new_fragment_type_name, old_fragment_type_name
+            "{}",
+            self.writer.write_ast(&AST::DeclareExportOpaqueType(
+                new_fragment_type_name,
+                old_fragment_type_name
+            ))
         )?;
         Ok(())
     }
@@ -1110,9 +1119,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 writeln!(
                     self.result,
-                    "import type {{ {enum_name} }} from \"{enum_name}{enum_suffix}\";",
-                    enum_name = enum_type.name,
-                    enum_suffix = enum_module_suffix
+                    "{}",
+                    self.writer.write_ast(&AST::ImportType(
+                        vec![enum_type.name],
+                        format!("{}{}", enum_type.name, enum_module_suffix).intern()
+                    ))
                 )?;
             } else {
                 let mut members: Vec<AST> = enum_type
@@ -1123,9 +1134,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
                 writeln!(
                     self.result,
-                    "export type {} = {};",
-                    enum_type.name,
-                    self.writer.write_ast(&AST::Union(members))
+                    "{}",
+                    self.writer.write_ast(&AST::ExportTypeEquals(
+                        enum_type.name,
+                        Box::from(AST::Union(members))
+                    ))
                 )?;
             }
         }
@@ -1152,9 +1165,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 GeneratedInputObject::Resolved(input_object_type) => {
                     writeln!(
                         self.result,
-                        "export type {} = {};",
-                        type_identifier,
-                        self.writer.write_ast(&input_object_type)
+                        "{}",
+                        self.writer.write_ast(&AST::ExportTypeEquals(
+                            type_identifier.clone(),
+                            Box::from(input_object_type.clone())
+                        ))
                     )?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),

@@ -48,7 +48,7 @@ fragment UserFrag2 on User {
   __typename
 }
 ==================================== OUTPUT ===================================
-import type { PageFragment$ref } from "PageFragment.graphql";
+import { PageFragment$ref } from "./PageFragment.graphql";
 import { FragmentReference } from "relay-runtime";
 export type ConcreateTypes$ref = FragmentReference & { _: "ConcreateTypes$ref" };
 export type ConcreateTypes$fragmentType = ConcreateTypes$ref & { _: "ConcreateTypes$fragmentType" };
@@ -73,10 +73,10 @@ export type ConcreateTypes$key = {
   readonly $fragmentRefs: ConcreateTypes$ref,
 };
 -------------------------------------------------------------------------------
-import type { OtherFragment$ref } from "OtherFragment.graphql";
-import type { PictureFragment$ref } from "PictureFragment.graphql";
-import type { UserFrag1$ref } from "UserFrag1.graphql";
-import type { UserFrag2$ref } from "UserFrag2.graphql";
+import { OtherFragment$ref } from "./OtherFragment.graphql";
+import { PictureFragment$ref } from "./PictureFragment.graphql";
+import { UserFrag1$ref } from "./UserFrag1.graphql";
+import { UserFrag2$ref } from "./UserFrag2.graphql";
 import { FragmentReference } from "relay-runtime";
 export type FragmentSpread$ref = FragmentReference & { _: "FragmentSpread$ref" };
 export type FragmentSpread$fragmentType = FragmentSpread$ref & { _: "FragmentSpread$fragmentType" };

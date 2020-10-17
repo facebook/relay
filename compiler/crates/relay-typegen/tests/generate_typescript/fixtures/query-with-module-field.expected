@@ -18,7 +18,7 @@ fragment Test_userRenderer on PlainUserRenderer {
 }
 ==================================== OUTPUT ===================================
 import type { Local3DPayload } from "relay-runtime";
-import type { Test_user$ref } from "Test_user.graphql";
+import type { Test_user$ref } from "./Test_user.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -52,7 +52,7 @@ export type Test = {|
   rawResponse: TestRawResponse,
 |};
 -------------------------------------------------------------------------------
-import type { Test_userRenderer$ref } from "Test_userRenderer.graphql";
+import { Test_userRenderer$ref } from "./Test_userRenderer.graphql";
 import { FragmentReference } from "relay-runtime";
 export type Test_user$ref = FragmentReference & { _: "Test_user$ref" };
 export type Test_user$fragmentType = Test_user$ref & { _: "Test_user$fragmentType" };

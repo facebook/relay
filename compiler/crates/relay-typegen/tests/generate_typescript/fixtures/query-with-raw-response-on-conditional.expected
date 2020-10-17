@@ -16,7 +16,7 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
+import type { FriendFragment$ref } from "./FriendFragment.graphql";
 export type ExampleQueryVariables = {|
   id: string,
   condition: boolean,

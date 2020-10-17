@@ -67,7 +67,7 @@ export type RecursiveFragment$key = {
   readonly $fragmentRefs: RecursiveFragment$ref,
 };
 -------------------------------------------------------------------------------
-import type { PhotoFragment$ref } from "PhotoFragment.graphql";
+import { PhotoFragment$ref } from "./PhotoFragment.graphql";
 import { FragmentReference } from "relay-runtime";
 export type UserProfile$ref = FragmentReference & { _: "UserProfile$ref" };
 export type UserProfile$fragmentType = UserProfile$ref & { _: "UserProfile$fragmentType" };

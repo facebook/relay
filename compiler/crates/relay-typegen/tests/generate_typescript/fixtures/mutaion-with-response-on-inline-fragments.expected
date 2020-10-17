@@ -27,7 +27,7 @@ fragment InlineFragmentWithOverlappingFields on Actor {
   }
 }
 ==================================== OUTPUT ===================================
-import type { InlineFragmentWithOverlappingFields$ref } from "InlineFragmentWithOverlappingFields.graphql";
+import type { InlineFragmentWithOverlappingFields$ref } from "./InlineFragmentWithOverlappingFields.graphql";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,

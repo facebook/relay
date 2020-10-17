@@ -128,7 +128,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
         match &typegen_config.language {
             TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
-            TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new()),
+            TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
         }
     }
 

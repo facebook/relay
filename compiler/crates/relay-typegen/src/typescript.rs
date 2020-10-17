@@ -6,10 +6,12 @@
  */
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
+use crate::TypegenConfig;
 use interner::{Intern, StringKey};
 use std::fmt::{Result, Write};
 
 pub struct TypeScriptPrinter {
+    use_import_type_syntax: bool,
     indentation: u32,
 }
 
@@ -24,8 +26,11 @@ impl Writer for TypeScriptPrinter {
 }
 
 impl TypeScriptPrinter {
-    pub fn new() -> Self {
-        Self { indentation: 0 }
+    pub fn new(config: &TypegenConfig) -> Self {
+        Self {
+            indentation: 0,
+            use_import_type_syntax: config.use_import_type_syntax,
+        }
     }
 
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
@@ -220,7 +225,12 @@ impl TypeScriptPrinter {
     ) -> Result {
         write!(
             writer,
-            "import {{ {} }} from \"{}\";",
+            "import {}{{ {} }} from \"{}\";",
+            if self.use_import_type_syntax {
+                "type "
+            } else {
+                ""
+            },
             types
                 .iter()
                 .map(|t| format!("{}", t))
@@ -271,7 +281,7 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        TypeScriptPrinter::new().write_ast(ast)
+        TypeScriptPrinter::new(&Default::default()).write_ast(ast)
     }
 
     #[test]
@@ -508,6 +518,27 @@ mod tests {
   with_comment: "%other"
 }"#
             .to_string()
+        );
+    }
+
+    #[test]
+    fn import_type() {
+        assert_eq!(
+            print_type(&AST::ImportType(
+                vec!["A".intern(), "B".intern()],
+                "module".intern()
+            )),
+            "import { A, B } from \"module\";"
+        );
+
+        // TypeScriptPrinter::new(TypegenConfig { use_import_type_syntax: true, ..Default::default()}).write_ast()
+        assert_eq!(
+            TypeScriptPrinter::new(&TypegenConfig {
+                use_import_type_syntax: true,
+                ..Default::default()
+            })
+            .write_ast(&AST::ImportType(vec!["C".intern()], "./foo".intern())),
+            "import type { C } from \"./foo\";"
         );
     }
 }

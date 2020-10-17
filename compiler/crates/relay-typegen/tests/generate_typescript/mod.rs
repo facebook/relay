@@ -56,7 +56,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             typegen_operation,
             normalization_operation,
             &schema,
-            &TypegenConfig::default(),
+            &TypegenConfig {
+                language: TypegenLanguage::TypeScript,
+                ..Default::default()
+            },
         )
     });
 
@@ -68,9 +71,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             &schema,
             &TypegenConfig {
                 language: TypegenLanguage::TypeScript,
-                enum_module_suffix: None,
-                optional_input_fields: vec![],
-                custom_scalar_types: Default::default(),
+                ..Default::default()
             },
         )
     });

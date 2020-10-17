@@ -1,36 +1,52 @@
 ==================================== INPUT ====================================
-mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
+mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
   viewerNotificationsUpdateAllSeenState(input: $input) {
     stories {
-      actorCount
+      foos {
+        bar
+      }
     }
   }
+}
+
+#%extensions%
+
+extend type Story {
+  foos: [Foo]
+}
+
+type Foo {
+  bar: String
 }
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {
   clientMutationId?: string,
   storyIds?: ReadonlyArray<string | null>,
 };
-export type InputHasArrayVariables = {
+export type TestVariables = {
   input?: UpdateAllSeenStateInput
 };
-export type InputHasArrayResponse = {
+export type TestResponse = {
   readonly viewerNotificationsUpdateAllSeenState?: {
     readonly stories?: ReadonlyArray<{
-      readonly actorCount?: number
+      readonly foos?: ReadonlyArray<{
+        readonly bar?: string
+      } | null>
     } | null>
   }
 };
-export type InputHasArrayRawResponse = {
+export type TestRawResponse = {
   readonly viewerNotificationsUpdateAllSeenState?: {
     readonly stories?: ReadonlyArray<{
-      readonly actorCount?: number,
       readonly id: string,
+      readonly foos?: ReadonlyArray<{
+        readonly bar?: string
+      } | null>,
     } | null>
   }
 };
-export type InputHasArray = {
-  variables: InputHasArrayVariables,
-  response: InputHasArrayResponse,
-  rawResponse: InputHasArrayRawResponse,
+export type Test = {
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
 };

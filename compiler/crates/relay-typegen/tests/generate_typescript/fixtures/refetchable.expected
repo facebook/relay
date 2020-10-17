@@ -7,21 +7,21 @@ fragment FlowRefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FlowRefetchableFragment$ref: FragmentReference;
-declare export opaque type FlowRefetchableFragment$fragmentType: FlowRefetchableFragment$ref;
-export type FlowRefetchableFragmentQueryVariables = {|
+import { FragmentReference } from "relay-runtime";
+export type FlowRefetchableFragment$ref = FragmentReference & { _: "FlowRefetchableFragment$ref" };
+export type FlowRefetchableFragment$fragmentType = FlowRefetchableFragment$ref & { _: "FlowRefetchableFragment$fragmentType" };
+export type FlowRefetchableFragmentQueryVariables = {
   id: string
-|};
-export type FlowRefetchableFragmentQueryResponse = {|
-  +node: ?{|
-    +$fragmentRefs: FlowRefetchableFragment$ref
-  |}
-|};
-export type FlowRefetchableFragmentQuery = {|
+};
+export type FlowRefetchableFragmentQueryResponse = {
+  readonly node?: {
+    readonly $fragmentRefs: FlowRefetchableFragment$ref
+  }
+};
+export type FlowRefetchableFragmentQuery = {
   variables: FlowRefetchableFragmentQueryVariables,
   response: FlowRefetchableFragmentQueryResponse,
-|};
+};
 -------------------------------------------------------------------------------
 import { FragmentReference } from "relay-runtime";
 import { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType } from "FlowRefetchableFragmentQuery.graphql";

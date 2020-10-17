@@ -7,21 +7,21 @@ fragment RefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RefetchableFragment$ref: FragmentReference;
-declare export opaque type RefetchableFragment$fragmentType: RefetchableFragment$ref;
-export type RefetchableFragmentQueryVariables = {|
+import { FragmentReference } from "relay-runtime";
+export type RefetchableFragment$ref = FragmentReference & { _: "RefetchableFragment$ref" };
+export type RefetchableFragment$fragmentType = RefetchableFragment$ref & { _: "RefetchableFragment$fragmentType" };
+export type RefetchableFragmentQueryVariables = {
   id: string
-|};
-export type RefetchableFragmentQueryResponse = {|
-  +node: ?{|
-    +$fragmentRefs: RefetchableFragment$ref
-  |}
-|};
-export type RefetchableFragmentQuery = {|
+};
+export type RefetchableFragmentQueryResponse = {
+  readonly node?: {
+    readonly $fragmentRefs: RefetchableFragment$ref
+  }
+};
+export type RefetchableFragmentQuery = {
   variables: RefetchableFragmentQueryVariables,
   response: RefetchableFragmentQueryResponse,
-|};
+};
 -------------------------------------------------------------------------------
 import { FragmentReference } from "relay-runtime";
 import { RefetchableFragment$ref, RefetchableFragment$fragmentType } from "RefetchableFragmentQuery.graphql";

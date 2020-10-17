@@ -23,22 +23,22 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
-import type { MarkdownUserNameRenderer_name$ref } from "./MarkdownUserNameRenderer_name.graphql";
-import type { PlainUserNameRenderer_name$ref } from "./PlainUserNameRenderer_name.graphql";
-export type NameRendererQueryVariables = {||};
-export type NameRendererQueryResponse = {|
-  +me: ?{|
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
-    |}
-  |}
-|};
-export type NameRendererQuery = {|
+import { MarkdownUserNameRenderer_name$ref } from "./MarkdownUserNameRenderer_name.graphql";
+import { PlainUserNameRenderer_name$ref } from "./PlainUserNameRenderer_name.graphql";
+export type NameRendererQueryVariables = {};
+export type NameRendererQueryResponse = {
+  readonly me?: {
+    readonly nameRenderer?: {
+      readonly __fragmentPropName?: string,
+      readonly __module_component?: string,
+      readonly $fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+    }
+  }
+};
+export type NameRendererQuery = {
   variables: NameRendererQueryVariables,
   response: NameRendererQueryResponse,
-|};
+};
 -------------------------------------------------------------------------------
 import { FragmentReference } from "relay-runtime";
 export type MarkdownUserNameRenderer_name$ref = FragmentReference & { _: "MarkdownUserNameRenderer_name$ref" };

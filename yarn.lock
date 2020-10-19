@@ -2957,10 +2957,10 @@ flat-cache@^1.2.1:
     rimraf "~2.6.2"
     write "^0.2.1"
 
-flow-bin@^0.135.0:
-  version "0.135.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.135.0.tgz#70bcd7bae0231777dd05cc8707ff34b37824bbad"
-  integrity sha512-E0JIKWopjULE/fl1X+j7rh0zgcgD5nubLs3HWYeYPo+nWFy8dALvrQbFcCFoPePrkhY/fffhN28t8P1zBxB2Yg==
+flow-bin@^0.136.0:
+  version "0.136.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.136.0.tgz#2c1be64496d791ea3160047ce22968ef166835f1"
+  integrity sha512-Z0sycQDyWXiNsGAhOBUrvHPzz7Q4g38BT57+YzZGffbaBmWRNC6MGZb+R6XTzeWb30bZin5V21nPQZezJzm9cQ==
 
 flush-write-stream@^1.0.0, flush-write-stream@^1.0.2:
   version "1.1.1"

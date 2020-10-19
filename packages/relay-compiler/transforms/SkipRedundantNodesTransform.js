@@ -169,6 +169,7 @@ function transformNode<T: Node>(
   const isEmptySelectionMap = selectionMap.size === 0;
   let result;
   if (isEmptySelectionMap) {
+    // $FlowFixMe[escaped-generic]
     result = cache.get(node);
     if (result != null) {
       return result;
@@ -230,6 +231,7 @@ function transformNode<T: Node>(
   const nextNode: any = selections.length ? {...node, selections} : null;
   result = {selectionMap, node: nextNode};
   if (isEmptySelectionMap) {
+    // $FlowFixMe[escaped-generic]
     cache.set(node, result);
   }
   return result;

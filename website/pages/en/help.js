@@ -32,7 +32,7 @@ class Help extends React.Component {
       },
       {
         content:
-          'Many users idle on Discord of [Reactiflux](https://www.reactiflux.com/).',
+          'Many users idle on Discord for [Reactiflux](https://www.reactiflux.com/).',
         title: 'Discord',
       },
       {

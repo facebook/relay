@@ -80,4 +80,7 @@ pub enum SchemaValidationError {
 
     #[error("Enum cannot include value: {0}.")]
     InvalidEnumValue(StringKey),
+
+    #[error("Cyclic reference found for interface inheritance: {0}.")]
+    CyclicInterfaceInheritance(String),
 }

@@ -83,9 +83,11 @@ function traverseSelections<T: Node>(
   compilerContext: CompilerContext,
   parentType: TypeID,
 ): T {
+  // $FlowFixMe[escaped-generic]
   let nodeCache = cachesByNode.get(node);
   if (nodeCache == null) {
     nodeCache = new Map();
+    // $FlowFixMe[escaped-generic]
     cachesByNode.set(node, nodeCache);
   }
   let result = nodeCache.get(parentType);

@@ -6,9 +6,10 @@
  */
 
 use fixture_tests::Fixture;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use schema::{build_schema, build_schema_with_extensions};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let result = match parts.as_slice() {
         [base] => build_schema(base),
@@ -18,5 +19,5 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
 
     result
         .map(|schema| schema.snapshot_print())
-        .map_err(|err| format!("{}", err))
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }

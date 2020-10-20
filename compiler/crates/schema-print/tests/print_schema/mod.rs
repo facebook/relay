@@ -9,10 +9,7 @@ use fixture_tests::Fixture;
 use schema::build_schema;
 use schema_print::print;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let result = build_schema(fixture.content);
-
-    result
-        .map(|schema| print(&schema))
-        .map_err(|err| format!("{}", err))
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    let schema = build_schema(fixture.content).unwrap();
+    Ok(print(&schema))
 }

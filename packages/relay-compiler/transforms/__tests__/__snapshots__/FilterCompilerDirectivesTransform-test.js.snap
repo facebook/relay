@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterCompilerDirectivesTransform matches expected output: required-directive.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SampleQuery($id: ID!) {
+  node(id: $id) {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment RequiredFragment on User {
+  name @required(action: THROW)
+}
+
+fragment NotRequiredFragment on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SampleQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment RequiredFragment on User {
+  name
+}
+
+fragment NotRequiredFragment on User {
+  name
+}
+
+`;

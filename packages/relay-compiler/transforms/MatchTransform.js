@@ -188,6 +188,12 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
     ({name}) => name === SUPPORTED_ARGUMENT_NAME,
   );
   if (supportedArgumentDefinition == null) {
+    if (moduleKey == null) {
+      throw createUserError(
+        '@match on a field without the `supported` argument is a no-op, please remove the `@match`.',
+        [node.loc],
+      );
+    }
     return transformedNode;
   }
 

@@ -166,7 +166,7 @@ A tuple containing the following values:
 
 ### `usePreloadedQuery`
 
-Hook used to access data fetched by an earlier call to `loadQuery()`[#loadquery] or from `useQueryLoader`[#usequeryloader]. This implements the "Render-as-You-Fetch" pattern:
+Hook used to access data fetched by an earlier call to [`loadQuery()`](#loadquery) or from [`useQueryLoader`](#usequeryloader). This implements the "Render-as-You-Fetch" pattern:
 
 * Call the `loadQuery` callback returned from `useQueryLoader`. This will store a query reference in React state.
     * You can also call the imported `loadQuery` directly, which returns a query reference. In that case, store the item in state or in a React ref, and call `dispose()` on the value when you are no longer using it.

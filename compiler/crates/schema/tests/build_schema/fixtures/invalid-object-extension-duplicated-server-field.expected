@@ -11,4 +11,8 @@ extend type User {
   name: ID
 }
 ==================================== ERROR ====================================
-Duplicate field definition 'name' found.
+✖︎ Duplicate field definition 'name' found.
+
+  <generated>:1:1
+    1 │ # expected-to-throw
+    2 │

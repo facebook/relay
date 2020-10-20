@@ -8,7 +8,6 @@
 use common::{ConsoleLogger, Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError};
-use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use neon::prelude::*;
 use relay_codegen::Printer;
@@ -17,14 +16,15 @@ use relay_compiler::{
     config::{Config, ProjectConfig, SchemaLocation},
     generate_artifacts, ArtifactFileWriter, SourceHashes,
 };
+use relay_transforms::{ConnectionInterface, FeatureFlags};
 use schema::build_schema;
 use std::str;
 use std::sync::Arc;
 
 /// Parse JS input to get list of executable definitions (ASTs)
 fn build_definitions_from_js_input(
-    input: Vec<Handle<JsValue>>,
-) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    input: Vec<Handle<'_, JsValue>>,
+) -> Result<Vec<ExecutableDefinition>, String> {
     let mut documents: Vec<DiagnosticsResult<ExecutableDocument>> = Vec::with_capacity(input.len());
     let mut errors: Vec<Diagnostic> = vec![];
     for js_value in input {
@@ -42,8 +42,9 @@ fn build_definitions_from_js_input(
             ));
         }
     }
-    if !errors.is_empty() {
-        return Err(errors);
+
+    if let Some(err) = errors.iter().next() {
+        return Err(err.to_string());
     }
 
     let mut definitions: Vec<ExecutableDefinition> = vec![];
@@ -60,10 +61,10 @@ fn build_definitions_from_js_input(
         }
     }
 
-    if errors.is_empty() {
-        Ok(definitions)
+    if let Some(err) = errors.iter().next() {
+        Err(err.to_string())
     } else {
-        Err(errors)
+        Ok(definitions)
     }
 }
 
@@ -83,13 +84,17 @@ fn create_configs() -> (Config, ProjectConfig) {
         schema_location: SchemaLocation::File(Default::default()),
         typegen_config: Default::default(),
         persist: None,
+        variable_names_comment: false,
+        extra: None,
+        feature_flags: Default::default(),
+        rollout: Default::default(),
     };
 
     let config = Config {
-        artifact_writer: Box::new(ArtifactFileWriter),
+        name: None,
+        artifact_writer: Box::new(ArtifactFileWriter::default()),
         codegen_command: None,
         excludes: vec![],
-        full_build: false,
         generate_extra_operation_artifacts: None,
         header: vec![],
         load_saved_state_file: None,
@@ -101,12 +106,16 @@ fn create_configs() -> (Config, ProjectConfig) {
         saved_state_version: "0".to_owned(),
         connection_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
+        operation_persister: None,
+        compile_everything: false,
+        repersist_operations: false,
+        post_artifacts_write: None,
     };
 
     (config, project_config)
 }
 
-fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
+fn compile(mut cx: FunctionContext<'_>) -> JsResult<'_, JsObject> {
     let schema_text = cx.argument::<JsString>(0)?.value();
     let documents = cx.argument::<JsArray>(1)?.to_vec(&mut cx)?;
 
@@ -114,7 +123,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
     let definitions = build_definitions_from_js_input(documents).expect("Invalid documents");
 
     let (config, project_config) = create_configs();
-    let mut printer = Printer::default();
+    let mut printer = Printer::with_dedupe();
 
     let source_hashes = SourceHashes::from_definitions(&definitions);
     let ir = build(&schema, &definitions).expect("Unable to build Relay IR");
@@ -126,7 +135,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
         Arc::new(program),
         Arc::new(Default::default()),
         &ConnectionInterface::default(),
-        &FeatureFlags::default(),
+        Arc::new(FeatureFlags::default()),
         Arc::new(ConsoleLogger),
     )
     .expect("Unable to apply transforms");

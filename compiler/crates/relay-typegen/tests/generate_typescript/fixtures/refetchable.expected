@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+fragment FlowRefetchableFragment on Node
+  @refetchable(queryName: "FlowRefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FlowRefetchableFragment$ref: FragmentReference;
+declare export opaque type FlowRefetchableFragment$fragmentType: FlowRefetchableFragment$ref;
+export type FlowRefetchableFragmentQueryVariables = {|
+  id: string
+|};
+export type FlowRefetchableFragmentQueryResponse = {|
+  +node: ?{|
+    +$fragmentRefs: FlowRefetchableFragment$ref
+  |}
+|};
+export type FlowRefetchableFragmentQuery = {|
+  variables: FlowRefetchableFragmentQueryVariables,
+  response: FlowRefetchableFragmentQueryResponse,
+|};
+-------------------------------------------------------------------------------
+import { FragmentReference } from "relay-runtime";
+import { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType } from "FlowRefetchableFragmentQuery.graphql";
+export { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType };
+export type FlowRefetchableFragment = {
+  readonly id: string,
+  readonly name?: string,
+  readonly $refType: FlowRefetchableFragment$ref,
+};
+export type FlowRefetchableFragment$data = FlowRefetchableFragment;
+export type FlowRefetchableFragment$key = {
+  readonly $data?: FlowRefetchableFragment$data,
+  readonly $fragmentRefs: FlowRefetchableFragment$ref,
+};

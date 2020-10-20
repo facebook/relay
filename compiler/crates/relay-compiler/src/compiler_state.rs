@@ -19,9 +19,7 @@ use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::fmt;
-use std::path::PathBuf;
-use std::{fs::File, hash::Hash, io, sync::Arc};
+use std::{fmt, fs::File, hash::Hash, io, path::PathBuf, sync::Arc};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -100,6 +98,14 @@ impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
         self.pending.extend(additional_pending_sources.into_iter());
     }
 
+    /// Remove deleted sources from both pending sources and processed sources.
+    fn remove_sources(&mut self, removed_sources: &[K]) {
+        for source in removed_sources {
+            self.pending.remove(source);
+            self.processed.remove(source);
+        }
+    }
+
     fn commit_pending_sources(&mut self) {
         for (file_name, pending_graphql_sources) in self.pending.drain() {
             if pending_graphql_sources.is_empty() {
@@ -132,17 +138,19 @@ impl Source for String {
 
 impl SchemaSources {
     pub fn get_sources(&self) -> Vec<&String> {
+        let mut sources: Vec<_>;
         if self.pending.is_empty() {
-            self.processed.values().collect()
+            sources = self.processed.iter().collect();
         } else {
-            let mut result: Vec<&String> = self.pending.values().collect();
+            sources = self.pending.iter().collect();
             for (key, value) in self.processed.iter() {
                 if !self.pending.contains_key(key) {
-                    result.push(value);
+                    sources.push((key, value));
                 }
             }
-            result
         }
+        sources.sort_by_key(|file_content| file_content.0);
+        sources.iter().map(|file_content| file_content.1).collect()
     }
 }
 #[derive(Serialize, Deserialize, Debug)]
@@ -163,6 +171,7 @@ pub struct CompilerState {
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
     pub saved_state_version: String,
+    pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
 }
 
 impl CompilerState {
@@ -183,6 +192,7 @@ impl CompilerState {
             schemas: Default::default(),
             clock: file_source_changes.clock.clone(),
             saved_state_version: config.saved_state_version.clone(),
+            dirty_artifact_paths: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -264,6 +274,7 @@ impl CompilerState {
                 .extensions
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
+            || self.dirty_artifact_paths.contains_key(&project_name)
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -298,6 +309,8 @@ impl CompilerState {
         file_source_changes: &FileSourceResult,
         setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
+        // When loading from saved state, collect dirty artifacts for recompiling their source definitions
+        should_collect_changed_artifacts: bool,
     ) -> Result<bool> {
         let mut has_changed = false;
 
@@ -365,12 +378,17 @@ impl CompilerState {
                         &mut self.extensions,
                     )?;
                 }
-                FileGroup::Generated { .. } => {
-                    // TODO
+                FileGroup::Generated { project_name } => {
+                    if !should_collect_changed_artifacts {
+                        break;
+                    }
+                    self.dirty_artifact_paths.insert(
+                        project_name,
+                        files.iter().map(|f| (*f.name).clone()).collect(),
+                    );
                 }
             }
         }
-
         Ok(has_changed)
     }
 
@@ -384,6 +402,50 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        self.dirty_artifact_paths.clear();
+    }
+
+    /// Calculate dirty definitions from dirty artifacts
+    pub fn get_dirty_defintions(&self, config: &Config) -> FnvHashMap<ProjectName, Vec<StringKey>> {
+        if self.dirty_artifact_paths.is_empty() {
+            return Default::default();
+        }
+        let mut result = FnvHashMap::default();
+        for config in config.enabled_projects() {
+            let project_name = config.name;
+            let paths = self.dirty_artifact_paths.get(&project_name);
+            let mut dirty_definitions = vec![];
+            match paths {
+                None => break,
+                Some(paths) => {
+                    let mut paths = paths.clone();
+                    let artifacts = self
+                        .artifacts
+                        .get(&project_name)
+                        .expect("Expected the artifacts map to exist.");
+                    if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
+                        'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
+                            let mut added = false;
+                            for artifact_tuple in artifact_tuples {
+                                if paths.remove(&artifact_tuple.0) && !added {
+                                    dirty_definitions.push(*definition_name);
+                                    if paths.is_empty() {
+                                        break 'outer;
+                                    }
+                                    added = true;
+                                }
+                            }
+                        }
+                        if !dirty_definitions.is_empty() {
+                            result.insert(project_name, dirty_definitions);
+                        }
+                    } else {
+                        panic!("Expected the artifacts map to be populated.")
+                    }
+                }
+            }
+        }
+        result
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
@@ -434,27 +496,30 @@ impl CompilerState {
         project_set: ProjectSet,
         source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
     ) -> Result<()> {
-        // TODO: Handle deletion of schema/extension files
-        let schema_sources = files
-            .iter()
-            .map(|file| {
-                read_to_string(&file_source_changes.resolved_root, file)
-                    .map(|text| ((*file.name).to_owned(), text))
-            })
-            .collect::<Result<_>>()?;
+        let mut removed_sources = vec![];
+        let mut added_sources = FnvHashMap::default();
+        for file in files {
+            let file_name = (*file.name).to_owned();
+            if *file.exists {
+                added_sources.insert(
+                    file_name,
+                    read_to_string(&file_source_changes.resolved_root, &file)?,
+                );
+            } else {
+                removed_sources.push(file_name);
+            }
+        }
         match project_set {
             ProjectSet::ProjectName(project_name) => {
-                source_map
-                    .entry(project_name)
-                    .or_default()
-                    .merge_pending_sources(schema_sources);
+                let entry = source_map.entry(project_name).or_default();
+                entry.remove_sources(&removed_sources);
+                entry.merge_pending_sources(added_sources);
             }
             ProjectSet::ProjectNames(project_names) => {
                 for project_name in project_names {
-                    source_map
-                        .entry(project_name)
-                        .or_default()
-                        .merge_pending_sources(schema_sources.clone());
+                    let entry = source_map.entry(project_name).or_default();
+                    entry.remove_sources(&removed_sources);
+                    entry.merge_pending_sources(added_sources.clone());
                 }
             }
         };

@@ -9,12 +9,12 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
-use graphql_transforms::{client_extensions, sort_selections};
 use relay_codegen::{print_fragment, print_operation};
+use relay_transforms::{client_extensions, sort_selections};
 use std::sync::Arc;
 use test_schema::get_test_schema_with_extensions;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let ast = parse_executable(base, SourceLocationKey::standalone(fixture.file_name)).unwrap();

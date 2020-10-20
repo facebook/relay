@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+mutation CommentCreateMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) @required(action: LOG) {
+    comment @required(action: LOG) {
+      id @required(action: LOG)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type CommentCreateMutationVariables = {|
+  input: CommentCreateInput
+|};
+export type CommentCreateMutationResponse = ?{|
+  +commentCreate: {|
+    +comment: {|
+      +id: string
+    |}
+  |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+|};

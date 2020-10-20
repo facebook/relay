@@ -5,14 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp::{
-    Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
-    DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
-    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+use crate::{
+    error::LSPError,
+    lsp::{
+        Connection, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit,
+        InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
+        ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
+        TextDocumentSyncCapability, TextDocumentSyncKind,
+    },
 };
 
-use relay_compiler::FileSource;
+use relay_compiler::{errors::Error::DiagnosticsError, FileSource};
 
 use relay_compiler::config::Config;
 
@@ -38,6 +41,7 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     server_capabilities.text_document_sync =
         Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
 
+    /* TODO: Re-enable auto-complete
     server_capabilities.completion_provider = Some(CompletionOptions {
         resolve_provider: Some(true),
         trigger_characters: None,
@@ -45,6 +49,7 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
             work_done_progress: None,
         },
     });
+    */
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -54,10 +59,11 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
 
 /// Run the main server loop
 pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
-    show_info_message("Relay Language Server Started!", &connection)?;
+    show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
 
     let receiver = connection.receiver.clone();
+    let sender = connection.sender.clone();
 
     // A `Notify` instance used to signal that the compiler should be initialized.
     let compiler_notify = Arc::new(Notify::new());
@@ -68,11 +74,13 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     // A channel to communicate between the LSP message loop and the compiler loop
     let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
 
+    let mut has_shutdown = false;
     tokio::spawn(async move {
         // Cache for the extracted GraphQL sources
         for msg in receiver {
             match msg {
                 Message::Request(req) => {
+                    /* TODO: Re-enable auto-complete
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (request_id, params) = extract_request_params::<Completion>(req);
@@ -80,6 +88,20 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                             .send(LSPBridgeMessage::CompletionRequest { request_id, params })
                             .await
                             .ok();
+                    }
+                    */
+                    if req.method == Shutdown::METHOD {
+                        has_shutdown = true;
+                        let (request_id, _) = extract_request_params::<Shutdown>(req);
+                        let response = ServerResponse {
+                            id: request_id,
+                            error: None,
+                            result: None,
+                        };
+                        sender.send(Message::Response(response)).ok();
+                        // TODO: We should exit when receiving Exit notification according to the protocal,
+                        // but the notification is never received.
+                        std::process::exit(0);
                     }
                 }
                 Message::Notification(notif) => {
@@ -109,6 +131,9 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                                 .await
                                 .ok();
                         }
+                        method if method == Exit::METHOD => {
+                            std::process::exit(!has_shutdown as i32)
+                        }
                         _ => {
                             // Notifications we don't care about
                         }
@@ -122,8 +147,9 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     });
 
     info!("Waiting for compiler to initialize...");
-
     compiler_notify.notified().await;
+    info!("Compiler has initialized");
+
     let config = load_config();
     let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
     let file_source = FileSource::connect(&config, &setup_event).await?;
@@ -131,7 +157,8 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
         .subscribe(&setup_event, &ConsoleLogger)
         .await
         .unwrap();
-    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event);
+    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event)
+        .map_err(|errors| LSPError::CompilerError(DiagnosticsError { errors }))?;
     let mut lsp_compiler = LSPCompiler::new(
         &schemas,
         &config,
@@ -148,7 +175,7 @@ fn load_config() -> Config {
     // TODO(brandondail) don't hardcode the test project config here
     let home = std::env::var("HOME").unwrap();
     let config_path = PathBuf::from(format!(
-        "{}/fbsource/fbcode/relay/config/config.test.json",
+        "{}/fbsource/fbcode/relay/config/config.example.json",
         home
     ));
     let config = Config::load(config_path).unwrap();

@@ -46,6 +46,7 @@ const BABYLON_OPTIONS = {
 
 function find(text: string): $ReadOnlyArray<GraphQLTag> {
   const result: Array<GraphQLTag> = [];
+  // $FlowFixMe Discovered when typing babel/parser
   const ast = babylon.parse(text, BABYLON_OPTIONS);
 
   const visitors = {
@@ -102,6 +103,7 @@ function invariant(condition, msg, ...args) {
 }
 
 function visit(node, visitors) {
+  // $FlowFixMe Discovered when typing babel
   const fn = visitors[node.type];
   if (fn != null) {
     fn(node);

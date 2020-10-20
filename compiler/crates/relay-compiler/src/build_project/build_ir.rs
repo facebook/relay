@@ -72,7 +72,7 @@ pub fn build_ir(
     let ReachableAst {
         definitions: reachable_ast,
         base_fragment_names,
-    } = get_reachable_ast(project_asts, base_project_asts).unwrap();
+    } = get_reachable_ast(project_asts, base_project_asts);
 
     let source_hashes = SourceHashes::from_definitions(&reachable_ast);
     let ir = graphql_ir::build(&schema, &reachable_ast)?;

@@ -6,20 +6,14 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::lsp::{
-    publish_diagnostic, url_from_location, Diagnostic, DiagnosticSeverity, PublishDiagnosticsParams,
-};
-use crate::lsp::{Connection, Url};
+use crate::lsp::Url;
+use crate::lsp::{url_from_location, Diagnostic, DiagnosticSeverity};
 use crate::state::ServerState;
 use relay_compiler::{errors::BuildProjectError, source_for_location};
 use std::fs;
 
-/// Report errors that occur during the `build_project` step
-pub fn report_build_project_errors(
-    errors: Vec<BuildProjectError>,
-    connection: &Connection,
-    server_state: &mut ServerState,
-) {
+/// Add errors that occur during the `build_project` step
+pub fn add_build_project_errors(errors: Vec<BuildProjectError>, server_state: &mut ServerState) {
     for error in errors {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
@@ -36,8 +30,6 @@ pub fn report_build_project_errors(
                             return;
                         }
                     };
-
-                    server_state.register_url_with_diagnostics(url.clone());
 
                     let source = if let Some(source) =
                         source_for_location(&server_state.root_dir, location.source_location())
@@ -61,14 +53,7 @@ pub fn report_build_project_errors(
                         source: None,
                         tags: None,
                     };
-
-                    let params = PublishDiagnosticsParams {
-                        diagnostics: vec![diagnostic],
-                        uri: url,
-                        version: None,
-                    };
-
-                    publish_diagnostic(params, &connection).ok();
+                    server_state.add_diagnostic(url, diagnostic);
                 }
             }
             // We ignore persist/write errors for now. In the future we can potentially show a notification.
@@ -79,12 +64,8 @@ pub fn report_build_project_errors(
     // ...
 }
 
-/// Report errors that occur during parsing
-pub fn report_syntax_errors(
-    errors: Vec<common::Diagnostic>,
-    connection: &Connection,
-    server_state: &mut ServerState,
-) {
+/// Add errors that occur during parsing
+pub fn add_syntax_errors(errors: Vec<common::Diagnostic>, server_state: &mut ServerState) {
     for error in errors {
         // Remove the index from the end of the path, resolve the absolute path
         let file_path = {
@@ -93,10 +74,6 @@ pub fn report_syntax_errors(
         };
 
         let url = Url::from_file_path(file_path).unwrap();
-
-        // Track the url we're reporting diagnostics for so we can
-        // clear them out later.
-        server_state.register_url_with_diagnostics(url.clone());
 
         let message = format!("{}", error.message());
 
@@ -122,13 +99,6 @@ pub fn report_syntax_errors(
             source: Some(source.text),
             tags: None,
         };
-
-        let params = PublishDiagnosticsParams {
-            diagnostics: vec![diagnostic],
-            uri: url,
-            version: None,
-        };
-
-        publish_diagnostic(params, &connection).unwrap();
+        server_state.add_diagnostic(url, diagnostic);
     }
 }

@@ -47,8 +47,8 @@ type Query {
   viewer: Viewer
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
-  fetch__User(id: ID!, token: ID!): User
-  fetch__NonNodeStory(input_fetch_id: ID!, token: ID!): NonNodeStory
+  fetch__User(id: ID!): User
+  fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
 }
 
@@ -110,6 +110,7 @@ type Mutation {
   ): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
+  commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   feedbackLikeStrict(
     input: FeedbackLikeInputStrict!
@@ -151,6 +152,12 @@ input CommentCreateInput {
   feedback: CommentfeedbackFeedback
 }
 
+input CommentsCreateInput {
+  clientMutationId: String
+  feedbackId: ID
+  feedback: [CommentfeedbackFeedback]
+}
+
 input CommentfeedbackFeedback {
   comment: FeedbackcommentComment
 }
@@ -168,6 +175,11 @@ input CommentCreateSubscriptionInput {
 input CommentDeleteInput {
   clientMutationId: String
   commentId: ID
+}
+
+input CommentsDeleteInput {
+  clientMutationId: String
+  commentIds: [ID]
 }
 
 input FeedbackLikeInput {
@@ -309,9 +321,23 @@ type CommentCreateResponsePayload {
   viewer: Viewer
 }
 
+type CommentsCreateResponsePayload {
+  clientMutationId: String
+  comments: [Comment]
+  feedback: [Feedback]
+  feedbackCommentEdges: [CommentsEdge]
+  viewer: Viewer
+}
+
 type CommentDeleteResponsePayload {
   clientMutationId: String
   deletedCommentId: ID
+  feedback: Feedback
+}
+
+type CommentsDeleteResponsePayload {
+  clientMutationId: String
+  deletedCommentIds: [ID]
   feedback: Feedback
 }
 
@@ -1008,6 +1034,9 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
     additionalParameters: JSON
     options: ProfilePictureOptions
   ): Image
+  neighbors: [User!]
+  nearest_neighbor: User!
+  parents: [User!]!
 }
 
 enum NameRendererContext {

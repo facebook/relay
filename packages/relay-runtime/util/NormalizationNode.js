@@ -52,6 +52,7 @@ export type NormalizationScalarHandle = {|
   // NOTE: this property is optional because it's expected to be rarely used
   +dynamicKey?: ?NormalizationArgument,
   +filters: ?$ReadOnlyArray<string>,
+  +handleArgs?: $ReadOnlyArray<NormalizationArgument>,
 |};
 
 export type NormalizationArgument =

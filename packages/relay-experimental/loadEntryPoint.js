@@ -132,6 +132,7 @@ function loadEntryPoint<
       return isDisposed;
     },
     queries: (preloadedQueries: TPreloadedQueries),
+    rootModuleID: entryPoint.root.getModuleId(),
   };
 }
 

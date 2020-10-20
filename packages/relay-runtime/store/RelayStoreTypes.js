@@ -26,7 +26,6 @@ import type {
   NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
-  NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -109,14 +108,13 @@ export type MissingRequiredFields =
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type TypedSnapshot<TData> = {|
-  +data: TData,
+export type Snapshot = {|
+  +data: ?SelectorData,
   +isMissingData: boolean,
   +seenRecords: RecordMap,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
 |};
-export type Snapshot = TypedSnapshot<?SelectorData>;
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation
@@ -248,8 +246,6 @@ export interface Store {
 
   /**
    * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
    */
   lookup(selector: SingularReaderSelector): Snapshot;
 
@@ -259,7 +255,7 @@ export interface Store {
    * Optionally provide an OperationDescriptor indicating the source operation
    * that was being processed to produce this run.
    *
-   * This method should return an array of the affected fragment owners
+   * This method should return an array of the affected fragment owners.
    */
   notify(
     sourceOperation?: OperationDescriptor,
@@ -275,7 +271,7 @@ export interface Store {
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
-   * retained in-memory. The records will not be eligible for garbage collection
+   * retained in memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
   retain(operation: OperationDescriptor): Disposable;
@@ -486,9 +482,9 @@ export type LogEvent =
       +invalidatedRecordIDs: Set<DataID>,
     |}
   | {|
-      +name: 'read.missing_required_field',
-      +owner: string,
-      +fieldPath: string,
+      +name: 'entrypoint.root.consume',
+      +profilerContext: mixed,
+      +rootModuleID: string,
     |};
 
 export type LogFunction = LogEvent => void;
@@ -581,14 +577,12 @@ export interface IEnvironment {
   /**
    * EXPERIMENTAL
    * Returns the default render policy to use when rendering a query
-   * that uses Relay Hooks
+   * that uses Relay Hooks.
    */
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy;
 
   /**
    * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
    */
   lookup(selector: SingularReaderSelector): Snapshot;
 
@@ -657,6 +651,12 @@ export interface IEnvironment {
    * whether we need to set up certain caches and timeout's.
    */
   isServer(): boolean;
+
+  /**
+   * Called by Relay when it encounters a missing field that has been annotated
+   * with `@required(action: LOG)`.
+   */
+  requiredFieldLogger: ?RequiredFieldLogger;
 }
 
 /**
@@ -871,6 +871,23 @@ export type MissingFieldHandler =
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
     |};
+
+/**
+ * A handler for events related to @required fields. Currently reports missing
+ * fields with either `action: LOG` or `action: THROW`.
+ */
+export type RequiredFieldLogger = (
+  | {|
+      +kind: 'missing_field.log',
+      +owner: string,
+      +fieldPath: string,
+    |}
+  | {|
+      +kind: 'missing_field.throw',
+      +owner: string,
+      +fieldPath: string,
+    |},
+) => void;
 
 /**
  * The results of normalizing a query.

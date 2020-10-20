@@ -1,0 +1,48 @@
+fragment FragmentSpread on Node {
+  id
+  ...OtherFragment
+  justFrag: profilePicture {
+    ...PictureFragment
+  }
+  fragAndField: profilePicture {
+    uri
+    ...PictureFragment
+  }
+  ... on User {
+    ...UserFrag1
+    ...UserFrag2
+  }
+}
+
+fragment ConcreateTypes on Viewer {
+  actor {
+    __typename
+    ... on Page {
+      id
+      ...PageFragment
+    }
+    ... on User {
+      name
+    }
+  }
+}
+
+fragment PictureFragment on Image {
+  __typename
+}
+
+fragment OtherFragment on Node {
+  __typename
+}
+
+fragment PageFragment on Page {
+  __typename
+}
+
+fragment UserFrag1 on User {
+  __typename
+}
+
+fragment UserFrag2 on User {
+  __typename
+}

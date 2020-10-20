@@ -8,10 +8,10 @@
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use graphql_transforms::{
+use relay_codegen::{build_request_params, Printer};
+use relay_transforms::{
     is_preloadable_operation, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
 };
-use relay_codegen::{build_request_params, Printer};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -162,6 +162,13 @@ fn generate_operation(
     if let Some(id) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
+    if project_config.variable_names_comment {
+        write!(content, "// @relayVariables").unwrap();
+        for variable_definition in &normalization_operation.variable_definitions {
+            write!(content, " {}", variable_definition.name.item).unwrap();
+        }
+        writeln!(content).unwrap();
+    }
     let data_driven_dependency_metadata = operation_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
@@ -185,11 +192,10 @@ fn generate_operation(
         )
     )
     .unwrap();
-    writeln!(content, "/*\n{}*/\n", text).unwrap();
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",
-        printer.print_request_deduped(
+        printer.print_request(
             schema,
             normalization_operation,
             &operation_fragment,
@@ -238,7 +244,7 @@ fn generate_split_operation(
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation_deduped(schema, node)
+        printer.print_operation(schema, node)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
@@ -298,7 +304,7 @@ fn generate_fragment(
         content,
         "var node/*: {}*/ = {};\n",
         reader_node_flow_type,
-        printer.print_fragment_deduped(schema, reader_fragment)
+        printer.print_fragment(schema, reader_fragment)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();

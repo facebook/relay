@@ -207,6 +207,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   getComponent: () => TEntryPointComponent,
   isDisposed: boolean,
   queries: $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
+  rootModuleID: string,
 |}>;
 
 export type ThinQueryParams<

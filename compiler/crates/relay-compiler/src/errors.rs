@@ -97,6 +97,14 @@ pub enum Error {
 
     #[error("Syntax error: {error}")]
     Syntax { error: String },
+
+    #[error("A thread that the Relay compiler spun up did not shut down gracefully: {error}")]
+    JoinError { error: String },
+
+    #[error("Error in post artifact writer: {error}")]
+    PostArtifactsError {
+        error: Box<dyn std::error::Error + Sync + Send>,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -110,10 +118,14 @@ pub enum ConfigValidationError {
     #[error("Source `{source_dir}` is not a directory.")]
     SourceNotDirectory { source_dir: PathBuf },
 
-    #[error("There is no source for the project `{project_name}`, the `sources` map should contain at least one path mapping to this project name.")]
+    #[error(
+        "There is no source for the project `{project_name}`, the `sources` map should contain at least one path mapping to this project name."
+    )]
     ProjectSourceMissing { project_name: ProjectName },
 
-    #[error("The project `{project_name}` defines the base project `{base_project_name}`, but no such project exists.")]
+    #[error(
+        "The project `{project_name}` defines the base project `{base_project_name}`, but no such project exists."
+    )]
     ProjectBaseMissing {
         project_name: ProjectName,
         base_project_name: ProjectName,

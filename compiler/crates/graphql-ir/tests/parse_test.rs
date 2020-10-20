@@ -1,4 +1,4 @@
-// @generated SignedSource<<c9ff217c50856bf9043f4ecd73cffb0b>>
+// @generated SignedSource<<233e403ffa3e9f5746e912db9db19576>>
 
 mod parse;
 
@@ -223,6 +223,20 @@ fn fragment_with_unnecessary_unchecked_arguments_invalid() {
 }
 
 #[test]
+fn fragment_with_variable_definitions_syntax() {
+    let input = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.expected");
+    test_fixture(transform_fixture, "fragment-with-variable-definitions-syntax.graphql", "parse/fixtures/fragment-with-variable-definitions-syntax.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_variable_definitions_syntax_and_argdefs_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql", "parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.expected", input, expected);
+}
+
+#[test]
 fn inline_fragment_on_wrong_type_invalid() {
     let input = include_str!("parse/fixtures/inline-fragment-on-wrong-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/inline-fragment-on-wrong-type.invalid.expected");
@@ -346,6 +360,13 @@ fn object_argument() {
     let input = include_str!("parse/fixtures/object-argument.graphql");
     let expected = include_str!("parse/fixtures/object-argument.expected");
     test_fixture(transform_fixture, "object-argument.graphql", "parse/fixtures/object-argument.expected", input, expected);
+}
+
+#[test]
+fn query_with_argument_invalid() {
+    let input = include_str!("parse/fixtures/query-with-argument.invalid.graphql");
+    let expected = include_str!("parse/fixtures/query-with-argument.invalid.expected");
+    test_fixture(transform_fixture, "query-with-argument.invalid.graphql", "parse/fixtures/query-with-argument.invalid.expected", input, expected);
 }
 
 #[test]

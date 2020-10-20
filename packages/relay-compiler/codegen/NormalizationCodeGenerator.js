@@ -390,7 +390,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
             [handle.dynamicKey.loc],
           );
         }
-        return {
+        const nodeHandle = {
           alias: node.alias === node.name ? null : node.alias,
           args: generateArgs(node.args),
           filters: handle.filters,
@@ -399,6 +399,13 @@ function generateScalarField(node): Array<NormalizationSelection> {
           kind: 'ScalarHandle',
           name: node.name,
         };
+
+        if (handle.handleArgs != null) {
+          // $FlowFixMe handleArgs exists in Handle
+          nodeHandle.handleArgs = generateArgs(handle.handleArgs);
+        }
+
+        return nodeHandle;
       })) ||
     [];
   let field = {

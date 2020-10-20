@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::ValidationResult;
+use common::DiagnosticsResult;
 use errors::{validate, validate_map};
 
 use crate::ir::*;
@@ -16,11 +16,11 @@ pub trait Validator {
     const VALIDATE_ARGUMENTS: bool;
     const VALIDATE_DIRECTIVES: bool;
 
-    fn validate_program(&mut self, program: &Program) -> ValidationResult<()> {
+    fn validate_program(&mut self, program: &Program) -> DiagnosticsResult<()> {
         self.default_validate_program(program)
     }
 
-    fn default_validate_program(&mut self, program: &Program) -> ValidationResult<()> {
+    fn default_validate_program(&mut self, program: &Program) -> DiagnosticsResult<()> {
         validate!(
             validate_map(program.operations(), |operation| {
                 self.validate_operation(operation)
@@ -32,11 +32,14 @@ pub trait Validator {
     }
 
     // Fragment Definition
-    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         self.default_validate_fragment(fragment)
     }
 
-    fn default_validate_fragment(&mut self, fragment: &FragmentDefinition) -> ValidationResult<()> {
+    fn default_validate_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> DiagnosticsResult<()> {
         validate!(
             self.validate_selections(&fragment.selections),
             self.validate_directives(&fragment.directives)
@@ -44,14 +47,14 @@ pub trait Validator {
     }
 
     // Operation Definition
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> ValidationResult<()> {
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         self.default_validate_operation(operation)
     }
 
     fn default_validate_operation(
         &mut self,
         operation: &OperationDefinition,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         validate!(
             self.validate_directives(&operation.directives),
             self.validate_selections(&operation.selections)
@@ -59,15 +62,15 @@ pub trait Validator {
     }
 
     // Selection
-    fn validate_selections(&mut self, selections: &[Selection]) -> ValidationResult<()> {
+    fn validate_selections(&mut self, selections: &[Selection]) -> DiagnosticsResult<()> {
         self.validate_list(selections, Self::validate_selection)
     }
 
-    fn validate_selection(&mut self, selection: &Selection) -> ValidationResult<()> {
+    fn validate_selection(&mut self, selection: &Selection) -> DiagnosticsResult<()> {
         self.default_validate_selection(selection)
     }
 
-    fn default_validate_selection(&mut self, selection: &Selection) -> ValidationResult<()> {
+    fn default_validate_selection(&mut self, selection: &Selection) -> DiagnosticsResult<()> {
         match selection {
             Selection::FragmentSpread(selection) => self.validate_fragment_spread(selection),
             Selection::InlineFragment(selection) => self.validate_inline_fragment(selection),
@@ -78,22 +81,22 @@ pub trait Validator {
     }
 
     // Selection Kinds
-    fn validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {
+    fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         self.default_validate_scalar_field(field)
     }
 
-    fn default_validate_scalar_field(&mut self, field: &ScalarField) -> ValidationResult<()> {
+    fn default_validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         validate!(
             self.validate_arguments(&field.arguments),
             self.validate_directives(&field.directives)
         )
     }
 
-    fn validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
+    fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         self.default_validate_linked_field(field)
     }
 
-    fn default_validate_linked_field(&mut self, field: &LinkedField) -> ValidationResult<()> {
+    fn default_validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         validate!(
             self.validate_selections(&field.selections),
             self.validate_arguments(&field.arguments),
@@ -101,39 +104,39 @@ pub trait Validator {
         )
     }
 
-    fn validate_inline_fragment(&mut self, fragment: &InlineFragment) -> ValidationResult<()> {
+    fn validate_inline_fragment(&mut self, fragment: &InlineFragment) -> DiagnosticsResult<()> {
         self.default_validate_inline_fragment(fragment)
     }
 
     fn default_validate_inline_fragment(
         &mut self,
         fragment: &InlineFragment,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         validate!(
             self.validate_selections(&fragment.selections),
             self.validate_directives(&fragment.directives)
         )
     }
 
-    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> ValidationResult<()> {
+    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
         self.default_validate_fragment_spread(spread)
     }
 
     fn default_validate_fragment_spread(
         &mut self,
         spread: &FragmentSpread,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         validate!(
             self.validate_arguments(&spread.arguments),
             self.validate_directives(&spread.directives)
         )
     }
 
-    fn validate_condition(&mut self, condition: &Condition) -> ValidationResult<()> {
+    fn validate_condition(&mut self, condition: &Condition) -> DiagnosticsResult<()> {
         self.default_validate_condition(condition)
     }
 
-    fn default_validate_condition(&mut self, condition: &Condition) -> ValidationResult<()> {
+    fn default_validate_condition(&mut self, condition: &Condition) -> DiagnosticsResult<()> {
         validate!(
             self.validate_condition_value(&condition.value),
             self.validate_selections(&condition.selections)
@@ -143,14 +146,14 @@ pub trait Validator {
     fn validate_condition_value(
         &mut self,
         condition_value: &ConditionValue,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         self.default_validate_condition_value(condition_value)
     }
 
     fn default_validate_condition_value(
         &mut self,
         condition_value: &ConditionValue,
-    ) -> ValidationResult<()> {
+    ) -> DiagnosticsResult<()> {
         if Self::VALIDATE_ARGUMENTS {
             match condition_value {
                 ConditionValue::Variable(variable) => self.validate_variable(variable),
@@ -162,7 +165,7 @@ pub trait Validator {
     }
 
     // Directives
-    fn validate_directives(&mut self, directives: &[Directive]) -> ValidationResult<()> {
+    fn validate_directives(&mut self, directives: &[Directive]) -> DiagnosticsResult<()> {
         if Self::VALIDATE_DIRECTIVES {
             self.validate_list(directives, Self::validate_directive)
         } else {
@@ -170,36 +173,36 @@ pub trait Validator {
         }
     }
 
-    fn validate_directive(&mut self, directive: &Directive) -> ValidationResult<()> {
+    fn validate_directive(&mut self, directive: &Directive) -> DiagnosticsResult<()> {
         self.default_validate_directive(directive)
     }
 
-    fn default_validate_directive(&mut self, directive: &Directive) -> ValidationResult<()> {
+    fn default_validate_directive(&mut self, directive: &Directive) -> DiagnosticsResult<()> {
         self.validate_arguments(&directive.arguments)
     }
 
     // Arguments
-    fn validate_arguments(&mut self, arguments: &[Argument]) -> ValidationResult<()> {
+    fn validate_arguments(&mut self, arguments: &[Argument]) -> DiagnosticsResult<()> {
         if Self::VALIDATE_ARGUMENTS {
             self.validate_list(arguments, Self::validate_argument)?;
         }
         Ok(())
     }
 
-    fn validate_argument(&mut self, argument: &Argument) -> ValidationResult<()> {
+    fn validate_argument(&mut self, argument: &Argument) -> DiagnosticsResult<()> {
         self.default_validate_argument(argument)
     }
 
-    fn default_validate_argument(&mut self, argument: &Argument) -> ValidationResult<()> {
+    fn default_validate_argument(&mut self, argument: &Argument) -> DiagnosticsResult<()> {
         self.validate_value(&argument.value.item)
     }
 
     // Values
-    fn validate_value(&mut self, value: &Value) -> ValidationResult<()> {
+    fn validate_value(&mut self, value: &Value) -> DiagnosticsResult<()> {
         self.default_validate_value(value)
     }
 
-    fn default_validate_value(&mut self, value: &Value) -> ValidationResult<()> {
+    fn default_validate_value(&mut self, value: &Value) -> DiagnosticsResult<()> {
         match value {
             Value::Variable(variable) => self.validate_variable(variable),
             Value::Constant(_) => Ok(()),
@@ -208,15 +211,15 @@ pub trait Validator {
         }
     }
 
-    fn validate_variable(&mut self, value: &Variable) -> ValidationResult<()> {
+    fn validate_variable(&mut self, value: &Variable) -> DiagnosticsResult<()> {
         let _ = value;
         Ok(())
     }
 
     // Helpers
-    fn validate_list<F, T>(&mut self, list: &[T], f: F) -> ValidationResult<()>
+    fn validate_list<F, T>(&mut self, list: &[T], f: F) -> DiagnosticsResult<()>
     where
-        F: Fn(&mut Self, &T) -> ValidationResult<()>,
+        F: Fn(&mut Self, &T) -> DiagnosticsResult<()>,
         T: Clone,
     {
         validate_map(list, |item| f(self, item))

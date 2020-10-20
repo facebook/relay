@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @argumentDefinitions(id: {type: "ID!"}) {
+  task(number: 123) {
+    title @include(shouldInclude: true)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected '@argumentDefinitions' directive to be used on fragment definitions only.
+
+  query-with-argument.invalid.graphql:2:18
+    1 │ # expected-to-throw
+    2 │ query TestQuery @argumentDefinitions(id: {type: "ID!"}) {
+      │                  ^^^^^^^^^^^^^^^^^^^
+    3 │   task(number: 123) {
+
+
+✖︎ Unknown argument 'shouldInclude'
+
+  query-with-argument.invalid.graphql:4:20
+    3 │   task(number: 123) {
+    4 │     title @include(shouldInclude: true)
+      │                    ^^^^^^^^^^^^^
+    5 │   }

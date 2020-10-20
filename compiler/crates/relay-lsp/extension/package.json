@@ -9,6 +9,12 @@
         "onCommand:extension.runRelayCompiler"
     ],
     "main": "./extension",
+    "publisher": "Facebook",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/facebook/relay.git",
+        "directory": "compiler/crates/relay-lsp/extension/"
+    },
     "dependencies": {
         "vscode-languageclient": "^6.1.3"
     },

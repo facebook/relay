@@ -20,6 +20,7 @@ const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
 const DisallowTypenameOnRoot = require('../transforms/DisallowTypenameOnRoot');
 const FieldHandleTransform = require('../transforms/FieldHandleTransform');
+const FilterCompilerDirectivesTransform = require('../transforms/FilterCompilerDirectivesTransform');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const GenerateIDFieldTransform = require('../transforms/GenerateIDFieldTransform');
@@ -98,6 +99,7 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
+  FilterCompilerDirectivesTransform.transform,
   SkipUnreachableNodeTransform.transform,
   InlineFragmentsTransform.transform,
   // NOTE: For the codegen context, we make sure to run ClientExtensions

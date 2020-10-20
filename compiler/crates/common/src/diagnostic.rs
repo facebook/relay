@@ -6,9 +6,19 @@
  */
 
 use crate::Location;
-use std::fmt::{Debug, Display, Write};
+use std::error::Error;
+use std::fmt;
+use std::fmt::Write;
 
 pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
+
+pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> DiagnosticsResult<T> {
+    if diagnostics.is_empty() {
+        Ok(result)
+    } else {
+        Err(diagnostics)
+    }
+}
 
 /// A diagnostic message as a result of validating some code. This struct is
 /// modeled after the LSP Diagnostic type:
@@ -18,7 +28,7 @@ pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
 /// - `location` is different from LSP in that it's a file + span instead of
 ///   just a span.
 /// - Unused fields are omitted.
-#[derive(Debug)]
+#[derive(fmt::Debug)]
 pub struct Diagnostic(Box<DiagnosticData>);
 
 impl Diagnostic {
@@ -84,6 +94,14 @@ impl Diagnostic {
     }
 }
 
+impl fmt::Display for Diagnostic {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.print_without_source())
+    }
+}
+
+impl Error for Diagnostic {}
+
 // statically verify that the Diagnostic type is thread safe
 fn _assert_diagnostic_constraints()
 where
@@ -91,7 +109,7 @@ where
 {
 }
 
-#[derive(Debug)]
+#[derive(fmt::Debug)]
 struct DiagnosticData {
     /// Human readable error message.
     message: Box<dyn DiagnosticDisplay>,
@@ -105,7 +123,7 @@ struct DiagnosticData {
 }
 
 /// Secondary locations attached to a diagnostic.
-#[derive(Debug)]
+#[derive(fmt::Debug)]
 pub struct DiagnosticRelatedInformation {
     /// The message of this related diagnostic information.
     pub message: Box<dyn DiagnosticDisplay>,
@@ -116,11 +134,11 @@ pub struct DiagnosticRelatedInformation {
 
 /// Trait for diagnostic messages to allow structs that capture
 /// some data and can lazily convert it to a message.
-pub trait DiagnosticDisplay: Debug + Display + Send + Sync {}
+pub trait DiagnosticDisplay: fmt::Debug + fmt::Display + Send + Sync {}
 
 /// Automatically implement the trait if constraints are met, so that
 /// implementors don't need to.
-impl<T> DiagnosticDisplay for T where T: Debug + Display + Send + Sync {}
+impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync {}
 
 impl From<Diagnostic> for Vec<Diagnostic> {
     fn from(diagnostic: Diagnostic) -> Self {

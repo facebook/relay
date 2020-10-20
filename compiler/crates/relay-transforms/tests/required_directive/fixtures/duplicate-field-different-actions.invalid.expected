@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  name @required(action: NONE)
+  ... on User {
+    name @required(action: LOG)
+  }
+}
+==================================== ERROR ====================================
+✖︎ All references to a @required field must have matching `action` arguments. The `action` used for 'name'
+
+  duplicate-field-different-actions.invalid.graphql:3:26
+    2 │ fragment EnabledFoo on User {
+    3 │   name @required(action: NONE)
+      │                          ^^^^
+    4 │   ... on User {
+
+  ℹ︎ should be the same as the `action` declared here
+
+  duplicate-field-different-actions.invalid.graphql:5:28
+    4 │   ... on User {
+    5 │     name @required(action: LOG)
+      │                            ^^^
+    6 │   }

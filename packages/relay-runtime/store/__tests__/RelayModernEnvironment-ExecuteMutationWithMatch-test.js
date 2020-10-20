@@ -30,6 +30,8 @@ const {
 } = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 describe('executeMutation() with @match', () => {
   let callbacks;
   let commentFragment;
@@ -48,7 +50,10 @@ describe('executeMutation() with @match', () => {
   let commentQuery;
   let queryOperation;
   let operationCallback;
-  let operationLoader;
+  let operationLoader: {|
+    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+  |};
   let resolveFragment;
   let source;
   let store;

@@ -1,0 +1,17 @@
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID!"}
+    size: {type: "[Int]", defaultValue: [100]}
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @arguments(localId: $id)
+}
+
+fragment Foo($localId: ID!) on User {
+  id
+}

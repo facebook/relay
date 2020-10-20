@@ -13,7 +13,8 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::{
-    EnumID, Field, FieldID, InputObjectID, Interface, Object, Schema, Type, TypeReference, UnionID,
+    EnumID, Field, FieldID, InputObjectID, Interface, Schema, Type, TypeReference, TypeWithFields,
+    UnionID,
 };
 use schema_print::{print_directive, print_type};
 use std::fmt::Write;
@@ -144,6 +145,12 @@ impl<'schema> ValidationContext<'schema> {
                     let interface = self.schema.interface(*id);
                     // Ensure fields are valid
                     self.validate_fields(*type_name, &interface.fields);
+
+                    // Validate cyclic references
+                    if !self.validate_cyclic_implements_reference(interface) {
+                        // Ensure interface implement the interfaces they claim to.
+                        self.validate_type_with_interfaces(interface);
+                    }
                 }
                 Type::Object(id) => {
                     let object = self.schema.object(*id);
@@ -151,7 +158,7 @@ impl<'schema> ValidationContext<'schema> {
                     self.validate_fields(*type_name, &object.fields);
 
                     // Ensure objects implement the interfaces they claim to.
-                    self.validate_object_interfaces(object);
+                    self.validate_type_with_interfaces(object);
                 }
                 Type::Union(id) => {
                     // Ensure Unions include valid member types.
@@ -293,29 +300,33 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_object_interfaces(&mut self, object: &Object) {
+    fn validate_type_with_interfaces<T: TypeWithFields>(&mut self, type_: &T) {
         let mut interface_names = FnvHashSet::default();
-        for interface_id in object.interfaces.iter() {
+        for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        object.name.clone(),
+                        type_.name().clone(),
                         interface.name,
                     ),
-                    ValidationContextType::TypeNode(object.name),
+                    ValidationContextType::TypeNode(type_.name()),
                 );
                 continue;
             }
             interface_names.insert(interface.name);
-            self.validate_object_implements_interface(&object, interface);
+            self.validate_type_implements_interface(type_, interface);
         }
     }
 
-    fn validate_object_implements_interface(&mut self, object: &Object, interface: &Interface) {
-        let object_field_map = self.field_map(&object.fields);
+    fn validate_type_implements_interface<T: TypeWithFields>(
+        &mut self,
+        type_: &T,
+        interface: &Interface,
+    ) {
+        let object_field_map = self.field_map(&type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
-        let context = ValidationContextType::TypeNode(object.name);
+        let context = ValidationContextType::TypeNode(type_.name());
 
         // Assert each interface field is implemented.
         for (field_name, interface_field) in interface_field_map {
@@ -325,7 +336,7 @@ impl<'schema> ValidationContext<'schema> {
                     SchemaValidationError::InterfaceFieldNotProvided(
                         interface.name,
                         field_name,
-                        object.name,
+                        type_.name(),
                     ),
                     context,
                 );
@@ -335,13 +346,16 @@ impl<'schema> ValidationContext<'schema> {
             let object_field = object_field_map.get(&field_name).unwrap();
             // Assert interface field type is satisfied by object field type, by being
             // a valid subtype. (covariant)
-            if !self.is_type_sub_type_of(&object_field.type_, &interface_field.type_) {
+            if !self
+                .schema
+                .is_type_subtype_of(&object_field.type_, &interface_field.type_)
+            {
                 self.report_error(
                     SchemaValidationError::NotASubType(
                         interface.name,
                         field_name,
                         self.schema.get_type_name(interface_field.type_.inner()),
-                        object.name,
+                        type_.name(),
                         self.schema.get_type_name(object_field.type_.inner()),
                     ),
                     context,
@@ -362,7 +376,7 @@ impl<'schema> ValidationContext<'schema> {
                             interface.name,
                             field_name,
                             interface_argument.name,
-                            object.name,
+                            type_.name(),
                         ),
                         context,
                     );
@@ -380,7 +394,7 @@ impl<'schema> ValidationContext<'schema> {
                             field_name,
                             interface_argument.name,
                             self.schema.get_type_name(interface_argument.type_.inner()),
-                            object.name,
+                            type_.name(),
                             self.schema.get_type_name(object_argument.type_.inner()),
                         ),
                         context,
@@ -400,7 +414,7 @@ impl<'schema> ValidationContext<'schema> {
                 {
                     self.report_error(
                         SchemaValidationError::MissingRequiredArgument(
-                            object.name,
+                            type_.name(),
                             field_name,
                             object_argument.name,
                             interface.name,
@@ -410,6 +424,59 @@ impl<'schema> ValidationContext<'schema> {
                 }
             }
         }
+    }
+
+    fn validate_cyclic_implements_reference(&mut self, interface: &Interface) -> bool {
+        for id in interface.interfaces() {
+            let mut path = Vec::new();
+            let mut visited = FnvHashSet::default();
+            if self.has_path(
+                self.schema.interface(*id),
+                interface.name,
+                &mut path,
+                &mut visited,
+            ) {
+                self.report_error(
+                    SchemaValidationError::CyclicInterfaceInheritance(format!(
+                        "{}->{}",
+                        path.iter()
+                            .map(|name| name.lookup())
+                            .collect::<Vec<_>>()
+                            .join("->"),
+                        interface.name
+                    )),
+                    ValidationContextType::TypeNode(interface.name),
+                );
+                return true;
+            }
+        }
+        false
+    }
+
+    fn has_path(
+        &self,
+        root: &Interface,
+        target: StringKey,
+        path: &mut Vec<StringKey>,
+        visited: &mut FnvHashSet<StringKey>,
+    ) -> bool {
+        if visited.contains(&root.name) {
+            return false;
+        }
+
+        if root.name == target {
+            return true;
+        }
+
+        path.push(root.name);
+        visited.insert(root.name);
+        for id in root.interfaces() {
+            if self.has_path(self.schema.interface(*id), target, path, visited) {
+                return true;
+            }
+        }
+        path.remove(path.len() - 1);
+        false
     }
 
     fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {
@@ -427,76 +494,6 @@ impl<'schema> ValidationContext<'schema> {
                 context,
             );
         }
-    }
-
-    fn is_type_sub_type_of(
-        &self,
-        maybe_sub_type: &TypeReference,
-        super_type: &TypeReference,
-    ) -> bool {
-        // Equivalent type is a valid subtype
-        if maybe_sub_type == super_type {
-            return true;
-        }
-
-        // If super_type is non-null, maybe_sub_type must also be non-null.
-        if super_type.is_non_null() {
-            if maybe_sub_type.is_non_null() {
-                return self.is_type_sub_type_of(
-                    &TypeReference::Named(maybe_sub_type.inner()),
-                    &TypeReference::Named(super_type.inner()),
-                );
-            }
-            return false;
-        }
-        if maybe_sub_type.is_non_null() {
-            // If super_type is nullable, maybe_sub_type may be non-null or nullable.
-            return self
-                .is_type_sub_type_of(&TypeReference::Named(maybe_sub_type.inner()), super_type);
-        }
-
-        // If super_type type is a list, maybe_sub_type type must also be a list.
-        if super_type.is_list() {
-            if maybe_sub_type.is_list() {
-                return self.is_type_sub_type_of(
-                    &TypeReference::Named(maybe_sub_type.inner()),
-                    &TypeReference::Named(super_type.inner()),
-                );
-            }
-            return false;
-        }
-        if maybe_sub_type.is_list() {
-            // If super_type is not a list, maybe_sub_type must also be not a list.
-            return false;
-        }
-
-        // If super_type type is an abstract type, maybe_sub_type type may be a currently
-        // possible object type.
-        self.is_possible_type(super_type, maybe_sub_type)
-    }
-
-    fn is_possible_type(&self, super_type: &TypeReference, maybe_sub_type: &TypeReference) -> bool {
-        if !is_abstract_type(&super_type) || !is_object_type(&maybe_sub_type) {
-            return false;
-        }
-        let maybe_sub_type_id = maybe_sub_type.inner().get_object_id().unwrap();
-        if super_type.inner().is_interface() {
-            let interface_id = super_type.inner().get_interface_id().unwrap();
-            return self
-                .schema
-                .interface(interface_id)
-                .implementors
-                .contains(&maybe_sub_type_id)
-                || self
-                    .schema
-                    .object(maybe_sub_type_id)
-                    .interfaces
-                    .contains(&interface_id);
-        }
-        self.schema
-            .union(super_type.inner().get_union_id().unwrap())
-            .members
-            .contains(&maybe_sub_type_id)
     }
 
     fn field_map(&self, fields: &[FieldID]) -> FnvHashMap<StringKey, Field> {
@@ -584,14 +581,4 @@ fn is_output_type(type_: &TypeReference) -> bool {
 fn is_input_type(type_: &TypeReference) -> bool {
     let type_ = type_.inner();
     type_.is_enum() || type_.is_input_type() || type_.is_scalar()
-}
-
-fn is_abstract_type(type_: &TypeReference) -> bool {
-    let type_ = type_.inner();
-    type_.is_interface() || type_.is_union()
-}
-
-fn is_object_type(type_: &TypeReference) -> bool {
-    let type_ = type_.inner();
-    type_.is_object()
 }

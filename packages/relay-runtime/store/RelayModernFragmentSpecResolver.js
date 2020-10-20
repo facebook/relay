@@ -17,6 +17,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const warning = require('warning');
 
 const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
@@ -244,9 +245,6 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
-    if (this._missingRequiredFields != null) {
-      this._handleMissingRequriedFields(this._missingRequiredFields);
-    }
     if (
       RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
       this._isMissingData === true
@@ -288,30 +286,13 @@ class SelectorResolver {
         throw promise;
       }
     }
-    return this._data;
-  }
-
-  _handleMissingRequriedFields(missingRequiredFields: MissingRequiredFields) {
-    switch (missingRequiredFields.action) {
-      case 'THROW': {
-        const {path, owner} = missingRequiredFields.field;
-        throw new Error(
-          `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-        );
-      }
-      case 'LOG':
-        missingRequiredFields.fields.forEach(({path, owner}) => {
-          this._environment.__log({
-            name: 'read.missing_required_field',
-            owner,
-            fieldPath: path,
-          });
-        });
-        break;
-      default: {
-        (missingRequiredFields.action: empty);
-      }
+    if (this._missingRequiredFields != null) {
+      reportMissingRequiredFields(
+        this._environment,
+        this._missingRequiredFields,
+      );
     }
+    return this._data;
   }
 
   setSelector(selector: SingularReaderSelector): void {
@@ -344,7 +325,7 @@ class SelectorResolver {
     // NOTE: We manually create the request descriptor here instead of
     // calling createOperationDescriptor() because we want to set a
     // descriptor with *unaltered* variables as the fragment owner.
-    // This is a hack that allows us to preserve exisiting (broken)
+    // This is a hack that allows us to preserve existing (broken)
     // behavior of RelayModern containers while using fragment ownership
     // to propagate variables instead of Context.
     // For more details, see the summary of D13999308

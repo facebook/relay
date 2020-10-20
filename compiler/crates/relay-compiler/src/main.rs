@@ -27,7 +27,7 @@ struct Opt {
 
 #[tokio::main]
 async fn main() {
-    env_logger::from_env(Env::default().default_filter_or("info, error, warn")).init();
+    env_logger::from_env(Env::default().default_filter_or("info")).init();
 
     let opt = Opt::from_args();
 
@@ -51,8 +51,7 @@ async fn main() {
             Ok(_compiler_state) => {
                 info!("Done");
             }
-            Err(err) => {
-                error!("{}", err);
+            Err(_) => {
                 std::process::exit(1);
             }
         }

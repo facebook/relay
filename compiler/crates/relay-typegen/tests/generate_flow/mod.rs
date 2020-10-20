@@ -10,14 +10,14 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
-use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use relay_compiler::apply_transforms;
+use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::{self, TypegenConfig};
 use std::sync::Arc;
 use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
@@ -37,7 +37,10 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
-        &FeatureFlags::default(),
+        Arc::new(FeatureFlags {
+            enable_flight_transform: false,
+            enable_required_transform_for_prefix: Some("".intern()),
+        }),
         Arc::new(ConsoleLogger),
     )
     .unwrap();

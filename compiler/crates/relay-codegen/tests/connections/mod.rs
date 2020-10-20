@@ -10,13 +10,13 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, FragmentDefinition, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use graphql_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use relay_codegen::{build_request_params, Printer};
+use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use std::sync::Arc;
 use test_schema::get_test_schema;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let mut printer = Printer::default();
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    let mut printer = Printer::with_dedupe();
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     let schema = get_test_schema();
@@ -46,11 +46,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 type_condition: def.type_,
             };
             let request_parameters = build_request_params(&def);
-            printer.print_request_deduped(&schema, def, &operation_fragment, request_parameters)
+            printer.print_request(&schema, def, &operation_fragment, request_parameters)
         })
         .collect::<Vec<_>>();
     for def in next_program.fragments() {
-        printed.push(printer.print_fragment_deduped(&schema, def));
+        printed.push(printer.print_fragment(&schema, def));
     }
     printed.sort();
     Ok(printed.join("\n\n"))

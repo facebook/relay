@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+fragment LinkedField on User {
+  name
+  profilePicture {
+    uri
+    width
+    height
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentReference } from "relay-runtime";
+export type LinkedField$ref = FragmentReference & { _: "LinkedField$ref" };
+export type LinkedField$fragmentType = LinkedField$ref & { _: "LinkedField$fragmentType" };
+export type LinkedField = {
+  readonly name?: string,
+  readonly profilePicture?: {
+    readonly uri?: string,
+    readonly width?: number,
+    readonly height?: number,
+  },
+  readonly $refType: LinkedField$ref,
+};
+export type LinkedField$data = LinkedField;
+export type LinkedField$key = {
+  readonly $data?: LinkedField$data,
+  readonly $fragmentRefs: LinkedField$ref,
+};

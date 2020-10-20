@@ -1,36 +1,29 @@
 # expected-to-throw
-query matchFieldsOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
+query matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...matchFieldsOverlapAcrossDocuments_FooNameRendererFragment
-    ...matchFieldsOverlapAcrossDocuments_BarNameRendererFragment
+    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment
+    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment matchFieldOverlapAcrossDocuments_FooNameRendererFragment on User {
   id
   nameRenderer @match {
-    ...matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+    ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
       @module(name: "FooMarkdownUserNameRenderer.react")
   }
 }
 
-fragment matchFieldsOverlapAcrossDocuments_BarNameRendererFragment on User {
+fragment matchFieldOverlapAcrossDocuments_BarNameRendererFragment on User {
   # same field and supported types as above but different selections:
   # should flatten together
   nameRenderer @match {
-    ...matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+    ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
       @module(name: "BarMarkdownUserNameRenderer.react")
   }
 }
 
-fragment matchFieldsOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment matchFieldsOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

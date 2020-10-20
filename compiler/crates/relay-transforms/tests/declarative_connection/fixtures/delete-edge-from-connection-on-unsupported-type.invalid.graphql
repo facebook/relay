@@ -1,0 +1,9 @@
+# expected-to-throw
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    __typename @deleteEdge(connections: $connections)
+  }
+}

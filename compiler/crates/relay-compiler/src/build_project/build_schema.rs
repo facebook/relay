@@ -7,9 +7,13 @@
 
 use crate::compiler_state::CompilerState;
 use crate::config::ProjectConfig;
+use common::DiagnosticsResult;
 use schema::Schema;
 
-pub fn build_schema(compiler_state: &CompilerState, project_config: &ProjectConfig) -> Schema {
+pub fn build_schema(
+    compiler_state: &CompilerState,
+    project_config: &ProjectConfig,
+) -> DiagnosticsResult<Schema> {
     let relay_extensions = String::from(schema::RELAY_EXTENSIONS);
     let mut extensions = vec![&relay_extensions];
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
@@ -27,5 +31,5 @@ pub fn build_schema(compiler_state: &CompilerState, project_config: &ProjectConf
             .into_iter()
             .map(String::as_str),
     );
-    schema::build_schema_with_extensions(&schema_sources, &extensions).unwrap()
+    schema::build_schema_with_extensions(&schema_sources, &extensions)
 }

@@ -23,6 +23,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub enum LSPBridgeMessage {
+    #[allow(dead_code)]
     CompletionRequest {
         request_id: ServerRequestId,
         params: CompletionParams,

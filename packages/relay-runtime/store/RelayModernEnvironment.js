@@ -48,6 +48,7 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
+  RequiredFieldLogger,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -84,6 +85,7 @@ export type EnvironmentConfig = {|
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
+  +requiredFieldLogger?: RequiredFieldLogger,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -103,6 +105,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
+  requiredFieldLogger: ?RequiredFieldLogger;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -134,6 +137,7 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
+    this.requiredFieldLogger = config.requiredFieldLogger;
     this._defaultRenderPolicy =
       config.UNSTABLE_defaultRenderPolicy ??
       RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
@@ -357,12 +361,11 @@ class RelayModernEnvironment implements IEnvironment {
     operation,
     cacheConfig,
     updater,
-  }: {
+  }: {|
     operation: OperationDescriptor,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-    ...
-  }): RelayObservable<GraphQLResponse> {
+  |}): RelayObservable<GraphQLResponse> {
     const [logObserver, logRequestInfo] = this.__createLogObserver(
       operation.request.node.params,
       operation.request.variables,

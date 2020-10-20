@@ -1,4 +1,4 @@
-// @generated SignedSource<<4aeff436c854abe17c422a4918052b6e>>
+// @generated SignedSource<<031a4252e88c9ed11853d0a90ce6ef7e>>
 
 mod validate_schema;
 
@@ -24,6 +24,13 @@ fn validate_input_object() {
     let input = include_str!("validate_schema/fixtures/validate_input_object.graphql");
     let expected = include_str!("validate_schema/fixtures/validate_input_object.expected");
     test_fixture(transform_fixture, "validate_input_object.graphql", "validate_schema/fixtures/validate_input_object.expected", input, expected);
+}
+
+#[test]
+fn validate_interface_implements_interface_cyclic() {
+    let input = include_str!("validate_schema/fixtures/validate_interface_implements_interface_cyclic.graphql");
+    let expected = include_str!("validate_schema/fixtures/validate_interface_implements_interface_cyclic.expected");
+    test_fixture(transform_fixture, "validate_interface_implements_interface_cyclic.graphql", "validate_schema/fixtures/validate_interface_implements_interface_cyclic.expected", input, expected);
 }
 
 #[test]

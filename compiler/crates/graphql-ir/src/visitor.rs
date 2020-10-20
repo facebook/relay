@@ -117,7 +117,7 @@ pub trait Visitor {
         if Self::VISIT_ARGUMENTS {
             match condition_value {
                 ConditionValue::Variable(variable) => self.visit_variable(variable),
-                ConditionValue::Constant(_) => (),
+                ConditionValue::Constant(_) => {}
             }
         }
     }
@@ -160,7 +160,7 @@ pub trait Visitor {
     fn default_visit_value(&mut self, value: &Value) {
         match value {
             Value::Variable(variable) => self.visit_variable(variable),
-            Value::Constant(_) => (),
+            Value::Constant(_) => {}
             Value::List(items) => self.visit_list(items, Self::visit_value),
             Value::Object(arguments) => self.visit_arguments(arguments),
         }

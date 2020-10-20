@@ -1,0 +1,21 @@
+# expected-to-throw
+
+query refetchableWithArgumentsQuery($site: String) {
+  node(id: "x") {
+    ...refetchableWithArgumentsF1
+  }
+}
+
+fragment refetchableWithArgumentsF1 on Node
+  @argumentDefinitions(site: {type: "String"})
+  @refetchable(queryName: "RefetchableWithArgumentsRefetchQuery")
+{
+  # local $site
+  p1: url(site: $site)
+  ...refetchableWithArgumentsF2
+}
+
+fragment refetchableWithArgumentsF2 on Node {
+  # global $site
+  p2: url(site: $site)
+}

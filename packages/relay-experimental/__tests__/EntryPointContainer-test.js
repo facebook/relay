@@ -77,6 +77,7 @@ let nestedEntryPointResource;
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
   _resource: T | null;
+  getModuleId: () => string;
   getModuleIfRequired: () => T | null;
   load: () => Promise<T>;
   resolve: T => void;
@@ -85,6 +86,7 @@ class FakeJSResource<T> {
     this._resolve = null;
     this._resource = resource;
 
+    this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
     this.load = jest.fn(() => {
       return new Promise(resolve => {

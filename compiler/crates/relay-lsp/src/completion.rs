@@ -6,6 +6,7 @@
  */
 
 //! Utilities for providing the completion language feature
+#![allow(dead_code)]
 use crate::lsp::Position;
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
@@ -18,13 +19,11 @@ use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
     ServerResponse, TextDocumentPositionParams, Url,
 };
-use schema::{
-    Directive as SchemaDirective, DirectiveLocation, Schema, Type, TypeReference, TypeWithFields,
-};
+use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
 
 use graphql_syntax::{
-    Directive, ExecutableDefinition, FragmentSpread, InlineFragment, LinkedField, List,
-    OperationDefinition, OperationKind, ScalarField, Selection,
+    Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
+    LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
 };
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;

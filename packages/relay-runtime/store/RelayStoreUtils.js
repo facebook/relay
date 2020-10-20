@@ -18,6 +18,7 @@ const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 
+import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
 import type {
   NormalizationHandle,
   NormalizationArgument,
@@ -25,6 +26,7 @@ import type {
 } from '../util/NormalizationNode';
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+import type {ReactFlightClientResponse, Record} from './RelayStoreTypes';
 
 export type Arguments = {+[string]: mixed, ...};
 

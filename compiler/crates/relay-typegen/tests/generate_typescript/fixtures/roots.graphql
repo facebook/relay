@@ -1,0 +1,25 @@
+query ExampleQuery($id: ID!) {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment ExampleFragment on User {
+  id
+}
+
+mutation TestMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) {
+    comment {
+      id
+    }
+  }
+}
+
+subscription TestSubscription($input: FeedbackLikeInput) {
+  feedbackLikeSubscribe(input: $input) {
+    feedback {
+      id
+    }
+  }
+}

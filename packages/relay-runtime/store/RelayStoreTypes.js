@@ -656,7 +656,7 @@ export interface IEnvironment {
    * Called by Relay when it encounters a missing field that has been annotated
    * with `@required(action: LOG)`.
    */
-  requiredFieldLogger: ?RequiredFieldLogger;
+  requiredFieldLogger: RequiredFieldLogger;
 }
 
 /**

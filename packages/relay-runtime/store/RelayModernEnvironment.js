@@ -86,7 +86,7 @@ export type EnvironmentConfig = {|
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
-  +requiredFieldLogger?: RequiredFieldLogger,
+  +requiredFieldLogger?: ?RequiredFieldLogger,
 |};
 
 class RelayModernEnvironment implements IEnvironment {

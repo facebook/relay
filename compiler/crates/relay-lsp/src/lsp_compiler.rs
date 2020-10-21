@@ -119,25 +119,25 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                     if let Some(file_source_changes) = changes? {
                         let incremental_check_event =
                         ConsoleLogger.create_event("incremental_check_event");
-                    let incremental_check_time =
-                        incremental_check_event.start("incremental_check_time");
-                    let had_new_changes = self.compiler_state.merge_file_source_changes(
-                        &self.config,
-                        &file_source_changes,
-                        &incremental_check_event,
-                        &ConsoleLogger,
-                        false,
-                    )?;
+                        let incremental_check_time =
+                            incremental_check_event.start("incremental_check_time");
+                        let had_new_changes = self.compiler_state.merge_file_source_changes(
+                            &self.config,
+                            &file_source_changes,
+                            &incremental_check_event,
+                            &ConsoleLogger,
+                            false,
+                        )?;
 
-                    if had_new_changes {
-                        self.check_projects_and_report_errors(&incremental_check_event).await;
-                    }
+                        if had_new_changes {
+                            self.check_projects_and_report_errors(&incremental_check_event).await;
+                        }
 
-                    incremental_check_event.stop(incremental_check_time);
-                    ConsoleLogger.complete_event(incremental_check_event);
-                    // We probably don't want the messages queue to grow indefinitely
-                    // and we need to flush then, as the check/build is completed
-                    ConsoleLogger.flush();
+                        incremental_check_event.stop(incremental_check_time);
+                        ConsoleLogger.complete_event(incremental_check_event);
+                        // We probably don't want the messages queue to grow indefinitely
+                        // and we need to flush then, as the check/build is completed
+                        ConsoleLogger.flush();
 
                     }
                 }

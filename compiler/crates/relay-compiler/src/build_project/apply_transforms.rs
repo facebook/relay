@@ -147,10 +147,10 @@ fn apply_common_transforms(
         transform_connections(&program, connection_interface)
     });
     let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
+    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;

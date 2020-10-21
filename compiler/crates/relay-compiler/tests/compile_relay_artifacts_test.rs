@@ -1,4 +1,4 @@
-// @generated SignedSource<<55b6e275266a28edb1038b45ff766344>>
+// @generated SignedSource<<b848fc64dee35f22629c872fc41f700e>>
 
 mod compile_relay_artifacts;
 
@@ -521,6 +521,13 @@ fn module_overlap_within_document_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected");
     test_fixture(transform_fixture, "module-overlap-within-document.invalid.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected", input, expected);
+}
+
+#[test]
+fn module_with_defer() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-with-defer.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-with-defer.expected");
+    test_fixture(transform_fixture, "module-with-defer.graphql", "compile_relay_artifacts/fixtures/module-with-defer.expected", input, expected);
 }
 
 #[test]

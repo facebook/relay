@@ -780,11 +780,15 @@ impl Schema {
             }
         }
 
-        schema.load_default_root_types();
-        schema.load_default_typename_field();
-        schema.load_default_clientid_field();
+        schema.load_defaults();
 
         Ok(schema)
+    }
+
+    pub fn load_defaults(&mut self) {
+        self.load_default_root_types();
+        self.load_default_typename_field();
+        self.load_default_clientid_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription

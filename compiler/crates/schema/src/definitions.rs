@@ -616,6 +616,33 @@ impl Schema {
         Ok(())
     }
 
+    /// Creates an uninitialized, invalid schema which can then be added to using the add_*
+    /// methods. Note that we still bake in some assumptions about the clientid and typename
+    /// fields, but in practice this is not an issue.
+    pub fn create_uninitialized() -> Schema {
+        Schema {
+            query_type: None,
+            mutation_type: None,
+            subscription_type: None,
+            type_map: HashMap::new(),
+            clientid_field: FieldID(0),
+            typename_field: FieldID(0),
+            clientid_field_name: "__id".intern(),
+            typename_field_name: "__typename".intern(),
+            string_type: None,
+            id_type: None,
+            unchecked_argument_type_sentinel: None,
+            directives: HashMap::new(),
+            enums: Vec::new(),
+            fields: Vec::new(),
+            input_objects: Vec::new(),
+            interfaces: Vec::new(),
+            objects: Vec::new(),
+            scalars: Vec::new(),
+            unions: Vec::new(),
+        }
+    }
+
     pub fn build(
         schema_definitions: &[graphql_syntax::TypeSystemDefinition],
         client_definitions: &[graphql_syntax::TypeSystemDefinition],

@@ -1108,7 +1108,12 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         input I {value: String}
     `),
       [],
-      ['type ClientUser { client_id: ID }'],
+      [
+        `
+        type ClientUser { client_id: ID }
+        input ClientInput { client_id: ID }
+      `,
+      ],
     );
 
     test('assert scalar type', () => {
@@ -1148,6 +1153,7 @@ describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {
         '[String]',
         'I',
         'E',
+        'ClientInput',
       ]);
       testInvalidTypeNames('assertInputType', [
         'A',

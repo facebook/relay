@@ -39,6 +39,9 @@ extend type User {
   nickname: String
   client: ClientType
 }
+input ClientInput {
+  clientName: String
+}
 ==================================== OUTPUT ===================================
 Schema {
  query_type: Some(
@@ -93,6 +96,7 @@ Schema {
  type_map: {
     "Actor": Union(0),
     "Boolean": Scalar(3),
+    "ClientInput": InputObject(0),
     "ClientType": Object(3),
     "Float": Scalar(1),
     "ID": Scalar(4),
@@ -323,7 +327,21 @@ Schema {
         parent_type: None,
     },
 ]
- input_objects: []
+ input_objects: [
+    InputObject {
+        name: "ClientInput",
+        fields: [
+            Argument {
+                name: "clientName",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        directives: [],
+    },
+]
  interfaces: [
     Interface {
         name: "Node",

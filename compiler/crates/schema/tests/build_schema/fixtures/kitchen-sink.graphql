@@ -38,3 +38,6 @@ extend type User {
   nickname: String
   client: ClientType
 }
+input ClientInput {
+  clientName: String
+}

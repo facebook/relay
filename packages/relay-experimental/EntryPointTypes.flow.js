@@ -210,6 +210,24 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   rootModuleID: string,
 |}>;
 
+type _ComponentFromEntryPoint = <
+  +TPreloadParams,
+  +TComponent,
+  +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
+>(
+  TEntryPoint,
+) => TComponent;
+
+type ComponentFromEntryPoint<+TEntryPoint> = $Call<
+  _ComponentFromEntryPoint,
+  TEntryPoint,
+>;
+
+export type EntryPointElementConfig<+TEntryPoint> = $PropertyType<
+  ElementConfig<ComponentFromEntryPoint<TEntryPoint>>,
+  'props',
+>;
+
 export type ThinQueryParams<
   TQuery: OperationType,
   TEnvironmentProviderOptions,

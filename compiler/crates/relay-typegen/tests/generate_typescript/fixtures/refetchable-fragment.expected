@@ -7,15 +7,13 @@ fragment RefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
-import { FragmentReference } from "relay-runtime";
-export type RefetchableFragment$ref = FragmentReference & { _: "RefetchableFragment$ref" };
-export type RefetchableFragment$fragmentType = RefetchableFragment$ref & { _: "RefetchableFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragmentQueryVariables = {
   id: string
 };
 export type RefetchableFragmentQueryResponse = {
   readonly node?: {
-    readonly $fragmentRefs: RefetchableFragment$ref
+    readonly " $fragmentRefs": RefetchableFragment$ref
   }
 };
 export type RefetchableFragmentQuery = {
@@ -23,18 +21,16 @@ export type RefetchableFragmentQuery = {
   response: RefetchableFragmentQueryResponse,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-import { RefetchableFragment$ref, RefetchableFragment$fragmentType } from "RefetchableFragmentQuery.graphql";
-export { RefetchableFragment$ref, RefetchableFragment$fragmentType };
+import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragment = {
   readonly id: string,
   readonly fragAndField?: {
     readonly uri?: string
   },
-  readonly $refType: RefetchableFragment$ref,
+  readonly " $refType": FragmentRefs<"RefetchableFragment">,
 };
 export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
   readonly $data?: RefetchableFragment$data,
-  readonly $fragmentRefs: RefetchableFragment$ref,
+  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
 };

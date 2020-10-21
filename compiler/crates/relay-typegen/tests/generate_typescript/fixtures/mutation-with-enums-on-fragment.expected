@@ -27,7 +27,6 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import { FriendFragment$ref } from "./FriendFragment.graphql";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {
   clientMutationId?: string,
@@ -53,7 +52,7 @@ export type CommentCreateMutationResponse = {
           readonly node?: {
             readonly id: string,
             readonly __typename: string,
-            readonly $fragmentRefs: FriendFragment$ref,
+            readonly " $fragmentRefs": FriendFragment$ref,
           }
         } | null>
       }
@@ -87,19 +86,17 @@ export type CommentCreateMutation = {
 };
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
-import { FragmentReference } from "relay-runtime";
-export type FriendFragment$ref = FragmentReference & { _: "FriendFragment$ref" };
-export type FriendFragment$fragmentType = FriendFragment$ref & { _: "FriendFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
   readonly name?: string,
   readonly lastName?: string,
   readonly profilePicture2?: {
     readonly test_enums?: TestEnums
   },
-  readonly $refType: FriendFragment$ref,
+  readonly " $refType": FragmentRefs<"FriendFragment">,
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   readonly $data?: FriendFragment$data,
-  readonly $fragmentRefs: FriendFragment$ref,
+  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
 };

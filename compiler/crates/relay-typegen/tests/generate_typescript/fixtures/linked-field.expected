@@ -43,9 +43,7 @@ export type UnionTypeTest = {
   response: UnionTypeTestResponse,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type LinkedField$ref = FragmentReference & { _: "LinkedField$ref" };
-export type LinkedField$fragmentType = LinkedField$ref & { _: "LinkedField$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type LinkedField = {
   readonly profilePicture?: {
     readonly uri?: string,
@@ -61,10 +59,10 @@ export type LinkedField = {
   readonly actor?: {
     readonly id: string
   },
-  readonly $refType: LinkedField$ref,
+  readonly " $refType": FragmentRefs<"LinkedField">,
 };
 export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
   readonly $data?: LinkedField$data,
-  readonly $fragmentRefs: LinkedField$ref,
+  readonly " $fragmentRefs": FragmentRefs<"LinkedField">,
 };

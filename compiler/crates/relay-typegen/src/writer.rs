@@ -27,9 +27,11 @@ pub enum AST {
     Number,
     Boolean,
     Any,
+    FragmentReference(Vec<StringKey>),
     ImportType(Vec<StringKey>, StringKey),
-    DeclareExportOpaqueType(StringKey, StringKey),
-    ExportList(Vec<StringKey>),
+    ImportFragmentType(Vec<StringKey>, StringKey),
+    DeclareExportFragment(StringKey, Option<StringKey>),
+    ExportFragmentList(Vec<StringKey>),
     ExportTypeEquals(StringKey, Box<AST>),
 }
 
@@ -47,5 +49,9 @@ lazy_static! {
 }
 
 pub trait Writer {
+    fn get_runtime_fragment_import(&self) -> StringKey {
+        "FragmentReference".intern()
+    }
+
     fn write_ast(&mut self, ast: &AST) -> String;
 }

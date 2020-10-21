@@ -27,7 +27,6 @@ fragment InlineFragmentWithOverlappingFields on Actor {
   }
 }
 ==================================== OUTPUT ===================================
-import { InlineFragmentWithOverlappingFields$ref } from "./InlineFragmentWithOverlappingFields.graphql";
 export type CommentCreateInput = {
   clientMutationId?: string,
   feedbackId?: string,
@@ -46,7 +45,7 @@ export type TestMutationResponse = {
   readonly commentCreate?: {
     readonly viewer?: {
       readonly actor?: {
-        readonly $fragmentRefs: InlineFragmentWithOverlappingFields$ref
+        readonly " $fragmentRefs": InlineFragmentWithOverlappingFields$ref
       }
     }
   }
@@ -87,9 +86,7 @@ export type TestMutation = {
   rawResponse: TestMutationRawResponse,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type InlineFragmentWithOverlappingFields$ref = FragmentReference & { _: "InlineFragmentWithOverlappingFields$ref" };
-export type InlineFragmentWithOverlappingFields$fragmentType = InlineFragmentWithOverlappingFields$ref & { _: "InlineFragmentWithOverlappingFields$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields = {
   readonly hometown?: {
     readonly id: string,
@@ -99,10 +96,10 @@ export type InlineFragmentWithOverlappingFields = {
     },
   },
   readonly name?: string,
-  readonly $refType: InlineFragmentWithOverlappingFields$ref,
+  readonly " $refType": FragmentRefs<"InlineFragmentWithOverlappingFields">,
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {
   readonly $data?: InlineFragmentWithOverlappingFields$data,
-  readonly $fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">,
 };

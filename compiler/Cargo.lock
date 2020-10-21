@@ -289,16 +289,16 @@ checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 
 [[package]]
 name = "criterion"
-version = "0.3.3"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70daa7ceec6cf143990669a04c7df13391d55fb27bd4079d252fca774ba244d8"
+checksum = "1fc755679c12bda8e5523a71e4d654b6bf2e14bd838dfc48cde6559a05caf7d1"
 dependencies = [
  "atty",
  "cast",
  "clap",
  "criterion-plot",
  "csv",
- "itertools 0.9.0",
+ "itertools 0.8.2",
  "lazy_static",
  "num-traits",
  "oorandom",
@@ -306,7 +306,6 @@ dependencies = [
  "rayon",
  "regex",
  "serde",
- "serde_cbor",
  "serde_derive",
  "serde_json",
  "tinytemplate",
@@ -734,31 +733,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "graphql-transforms"
-version = "0.0.0"
-dependencies = [
- "common",
- "criterion",
- "dashmap",
- "errors",
- "fixture-tests",
- "fnv",
- "graphql-cli",
- "graphql-ir",
- "graphql-syntax",
- "graphql-test-helpers",
- "graphql-text-printer",
- "indexmap",
- "interner",
- "lazy_static",
- "parking_lot",
- "rayon",
- "schema",
- "serde",
- "test-schema",
-]
-
-[[package]]
 name = "h2"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -776,12 +750,6 @@ dependencies = [
  "tokio-util",
  "tracing",
 ]
-
-[[package]]
-name = "half"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d36fab90f82edc3c747f9d438e06cf0a491055896f2a279638bb5beed6c40177"
 
 [[package]]
 name = "hashbrown"
@@ -1590,12 +1558,12 @@ dependencies = [
  "graphql-ir",
  "graphql-syntax",
  "graphql-test-helpers",
- "graphql-transforms",
  "hex",
  "indexmap",
  "interner",
  "lazy_static",
  "md-5",
+ "relay-transforms",
  "schema",
  "test-schema",
 ]
@@ -1618,7 +1586,6 @@ dependencies = [
  "graphql-syntax",
  "graphql-test-helpers",
  "graphql-text-printer",
- "graphql-transforms",
  "hex",
  "interner",
  "lazy_static",
@@ -1628,6 +1595,7 @@ dependencies = [
  "rayon",
  "regex",
  "relay-codegen",
+ "relay-transforms",
  "relay-typegen",
  "schema",
  "serde",
@@ -1650,12 +1618,12 @@ dependencies = [
  "graphql-ir",
  "graphql-syntax",
  "graphql-text-printer",
- "graphql-transforms",
  "interner",
  "neon",
  "neon-build",
  "relay-codegen",
  "relay-compiler",
+ "relay-transforms",
  "schema",
 ]
 
@@ -1691,6 +1659,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "relay-transforms"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "criterion",
+ "dashmap",
+ "errors",
+ "fixture-tests",
+ "fnv",
+ "graphql-cli",
+ "graphql-ir",
+ "graphql-syntax",
+ "graphql-test-helpers",
+ "graphql-text-printer",
+ "indexmap",
+ "interner",
+ "lazy_static",
+ "parking_lot",
+ "rayon",
+ "schema",
+ "serde",
+ "test-schema",
+]
+
+[[package]]
 name = "relay-typegen"
 version = "0.0.0"
 dependencies = [
@@ -1699,11 +1692,11 @@ dependencies = [
  "fnv",
  "graphql-ir",
  "graphql-syntax",
- "graphql-transforms",
  "indexmap",
  "interner",
  "lazy_static",
  "relay-compiler",
+ "relay-transforms",
  "schema",
  "serde",
  "test-schema",
@@ -1764,19 +1757,10 @@ version = "0.0.0"
 dependencies = [
  "common",
  "fixture-tests",
+ "graphql-syntax",
  "graphql-test-helpers",
  "interner",
  "thiserror",
-]
-
-[[package]]
-name = "schema-diff"
-version = "0.0.0"
-dependencies = [
- "fnv",
- "interner",
- "lazy_static",
- "schema",
 ]
 
 [[package]]
@@ -1860,16 +1844,6 @@ version = "0.11.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "16ae07dd2f88a366f15bd0632ba725227018c69a1c8550a927324f8eb8368bb9"
 dependencies = [
- "serde",
-]
-
-[[package]]
-name = "serde_cbor"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e18acfa2f90e8b735b2836ab8d538de304cbb6729a7360729ea5a895d15a622"
-dependencies = [
- "half",
  "serde",
 ]
 

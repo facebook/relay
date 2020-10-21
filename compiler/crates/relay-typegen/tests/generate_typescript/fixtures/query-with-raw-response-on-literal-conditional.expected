@@ -22,7 +22,6 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import { FriendFragment$ref } from "./FriendFragment.graphql";
 export type ExampleQueryVariables = {
   id: string
 };
@@ -32,7 +31,7 @@ export type ExampleQueryResponse = {
     readonly friends?: {
       readonly count?: number
     },
-    readonly $fragmentRefs: FriendFragment$ref,
+    readonly " $fragmentRefs": FriendFragment$ref,
   }
 };
 export type ExampleQueryRawResponse = {
@@ -48,9 +47,7 @@ export type ExampleQuery = {
   rawResponse: ExampleQueryRawResponse,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type FriendFragment$ref = FragmentReference & { _: "FriendFragment$ref" };
-export type FriendFragment$fragmentType = FriendFragment$ref & { _: "FriendFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
   readonly name?: string,
   readonly lastName?: string,
@@ -58,10 +55,10 @@ export type FriendFragment = {
     readonly id: string,
     readonly name?: string,
   },
-  readonly $refType: FriendFragment$ref,
+  readonly " $refType": FragmentRefs<"FriendFragment">,
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   readonly $data?: FriendFragment$data,
-  readonly $fragmentRefs: FriendFragment$ref,
+  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
 };

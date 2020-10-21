@@ -45,8 +45,8 @@ lazy_static! {
     static ref VARIABLES: StringKey = "variables".intern();
     static ref RESPONSE: StringKey = "response".intern();
     static ref KEY_DATA: StringKey = "$data".intern();
-    static ref KEY_REF_TYPE: StringKey = "$refType".intern();
-    static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
     static ref TYPE_ID: StringKey = "ID".intern();
     static ref TYPE_STRING: StringKey = "String".intern();
@@ -58,9 +58,14 @@ lazy_static! {
 }
 
 macro_rules! write_ast {
-    ($self:ident, $ast:expr) => {
-        ::std::writeln!($self.result, "{}", $self.writer.write_ast(&$ast))
-    };
+    ($self:ident, $ast:expr) => {{
+        let output = $self.writer.write_ast(&$ast);
+        if output.is_empty() {
+            Ok(())
+        } else {
+            ::std::writeln!($self.result, "{}", output)
+        }
+    }};
 }
 
 pub fn generate_fragment_type(
@@ -260,13 +265,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             read_only: true,
             value: AST::Identifier(format!("{}$data", node.name.item).intern()),
         };
-        let old_fragment_type_name = format!("{}$ref", node.name.item).intern();
+        let old_fragment_type_name = node.name.item;
         let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
         let ref_type_fragment_ref_property = Prop {
             key: *KEY_FRAGMENT_REFS,
             optional: false,
             read_only: true,
-            value: AST::Identifier(old_fragment_type_name),
+            value: AST::FragmentReference(vec![old_fragment_type_name]),
         };
         let is_plural_fragment = is_plural(node);
         let mut ref_type =
@@ -306,26 +311,27 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         self.write_runtime_imports()?;
 
         let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
+        let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
         if let Some(refetchable_metadata) = refetchable_metadata {
             write_ast!(
                 self,
-                AST::ImportType(
+                AST::ImportFragmentType(
                     vec![old_fragment_type_name, new_fragment_type_name],
                     format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                 )
             )?;
             write_ast!(
                 self,
-                AST::ExportList(vec![old_fragment_type_name, new_fragment_type_name,])
+                AST::ExportFragmentList(vec![old_fragment_type_name, new_fragment_type_name,])
             )?;
         } else {
             write_ast!(
                 self,
-                AST::DeclareExportOpaqueType(old_fragment_type_name, "FragmentReference".intern(),)
+                AST::DeclareExportFragment(old_fragment_type_name, None)
             )?;
             write_ast!(
                 self,
-                AST::DeclareExportOpaqueType(new_fragment_type_name, old_fragment_type_name,)
+                AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
             )?;
         }
         write_ast!(
@@ -738,7 +744,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                             key: *KEY_REF_TYPE,
                             optional: false,
                             read_only: true,
-                            value: AST::Identifier(fragment_type_name),
+                            value: AST::FragmentReference(vec![fragment_type_name]),
                         });
                     }
                     if unmasked {
@@ -991,7 +997,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             } => write_ast!(
                 self,
                 AST::ImportType(
-                    vec!["FragmentReference".intern(), "Local3DPayload".intern()],
+                    vec![
+                        self.writer.get_runtime_fragment_import(),
+                        "Local3DPayload".intern()
+                    ],
                     "relay-runtime".intern(),
                 )
             ),
@@ -1007,7 +1016,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 fragment_reference: true,
             } => write_ast!(
                 self,
-                AST::ImportType(vec!["FragmentReference".intern()], "relay-runtime".intern(),)
+                AST::ImportType(
+                    vec![self.writer.get_runtime_fragment_import()],
+                    "relay-runtime".intern(),
+                )
             ),
             RuntimeImports {
                 local_3d_payload: false,
@@ -1027,7 +1039,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 //     // fragments
                 write_ast!(
                     self,
-                    AST::ImportType(
+                    AST::ImportFragmentType(
                         vec![fragment_type_name],
                         format!("./{}.graphql", used_fragment).intern(),
                     )
@@ -1052,11 +1064,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
         write_ast!(
             self,
-            AST::DeclareExportOpaqueType(old_fragment_type_name, "FragmentReference".intern(),)
+            AST::DeclareExportFragment(old_fragment_type_name, None,)
         )?;
         write_ast!(
             self,
-            AST::DeclareExportOpaqueType(new_fragment_type_name, old_fragment_type_name,)
+            AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name),)
         )?;
         Ok(())
     }

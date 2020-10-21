@@ -83,15 +83,13 @@ export type TestSubscription = {
   response: TestSubscriptionResponse,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type ExampleFragment$ref = FragmentReference & { _: "ExampleFragment$ref" };
-export type ExampleFragment$fragmentType = ExampleFragment$ref & { _: "ExampleFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type ExampleFragment = {
   readonly id: string,
-  readonly $refType: ExampleFragment$ref,
+  readonly " $refType": FragmentRefs<"ExampleFragment">,
 };
 export type ExampleFragment$data = ExampleFragment;
 export type ExampleFragment$key = {
   readonly $data?: ExampleFragment$data,
-  readonly $fragmentRefs: ExampleFragment$ref,
+  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">,
 };

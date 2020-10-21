@@ -226,7 +226,7 @@ impl<'program> MatchTransform<'program> {
                     ValidationMessage::InvalidModuleWithAdditionalDirectives {
                         spread_name: spread.fragment.item,
                     },
-                    spread.arguments[0].name.location,
+                    spread.directives[1].name.location,
                 ));
             }
 

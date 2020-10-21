@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react") @defer
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react") @defer
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ @module used on invalid fragment spread '...MarkdownUserNameRenderer_name'. @module may not have additional directives.
+
+  module-with-other-directives.invalid.graphql:7:56
+    6 │     ...MarkdownUserNameRenderer_name
+    7 │       @module(name: "MarkdownUserNameRenderer.react") @defer
+      │                                                        ^^^^^
+    8 │   }
+
+
+✖︎ @module used on invalid fragment spread '...PlainUserNameRenderer_name'. @module may not have additional directives.
+
+  module-with-other-directives.invalid.graphql:5:81
+    4 │   nameRenderer {
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react") @defer
+      │                                                                                 ^^^^^
+    6 │     ...MarkdownUserNameRenderer_name

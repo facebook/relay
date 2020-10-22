@@ -59,7 +59,7 @@ function handlerProvider(handle) {
 
 ## Adding a `log` function
 
-You can get access to the inner life cycle stages of Relay, and log those. Super helpful for tracing, and debugging. For an in-depth look at what log events you can access, I urge you to try it out. Log a few things, and have a play. Alternively you can find a [list of possible events](https://github.com/facebook/relay/blob/37cee8039b888755e4ad4219e703be13a9a49ebb/packages/relay-runtime/store/RelayStoreTypes.js#L410) in the source code.
+You can get access to the inner life cycle stages of Relay, and log those. Super helpful for tracing, and debugging. For an in-depth look at what log events you can access, we urge you to try it out. Log a few things, and have a play. Alternively you can find a [list of possible events](https://github.com/facebook/relay/blob/37cee8039b888755e4ad4219e703be13a9a49ebb/packages/relay-runtime/store/RelayStoreTypes.js#L410) in the source code.
 
 Most notably there are `execute.X` events, that run through `start` -> `next` -> to either `complete` or `error`. Which as you'd assume, are for those various states.
 

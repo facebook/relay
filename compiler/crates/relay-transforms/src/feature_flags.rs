@@ -10,8 +10,13 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone, Copy)]
 pub struct FeatureFlags {
+    #[serde(default)]
     pub enable_flight_transform: bool,
+
     pub enable_required_transform_for_prefix: Option<StringKey>,
+
+    #[serde(default)]
+    pub no_preloadable_metadata: bool,
 }
 
 impl Default for FeatureFlags {
@@ -19,6 +24,7 @@ impl Default for FeatureFlags {
         FeatureFlags {
             enable_flight_transform: false,
             enable_required_transform_for_prefix: None,
+            no_preloadable_metadata: false,
         }
     }
 }

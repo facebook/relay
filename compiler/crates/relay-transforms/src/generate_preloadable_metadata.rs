@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::INTERNAL_METADATA_DIRECTIVE;
+use crate::{FeatureFlags, INTERNAL_METADATA_DIRECTIVE};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
@@ -20,8 +20,11 @@ lazy_static! {
     pub static ref PRELOADABLE_METADATA_KEY: StringKey = "relayPreloadable".intern();
 }
 
-pub fn generate_preloadable_metadata(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transformer = GeneratePreloadableMetadata::new(program);
+pub fn generate_preloadable_metadata(
+    program: &Program,
+    feature_flags: &FeatureFlags,
+) -> DiagnosticsResult<Program> {
+    let mut transformer = GeneratePreloadableMetadata::new(program, feature_flags);
     let next_program = transformer
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -35,13 +38,15 @@ pub fn generate_preloadable_metadata(program: &Program) -> DiagnosticsResult<Pro
 
 struct GeneratePreloadableMetadata<'s> {
     pub program: &'s Program,
+    feature_flags: &'s FeatureFlags,
     pub errors: Vec<Diagnostic>,
 }
 
 impl<'s> GeneratePreloadableMetadata<'s> {
-    fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, feature_flags: &'s FeatureFlags) -> Self {
         GeneratePreloadableMetadata {
             program,
+            feature_flags,
             errors: vec![],
         }
     }
@@ -65,35 +70,39 @@ impl<'s> Transformer for GeneratePreloadableMetadata<'s> {
                     .count();
 
                 if preloadable_directives_len == 1 {
-                    let mut next_directives = Vec::with_capacity(operation.directives.len());
-                    for directive in &operation.directives {
-                        // replace @preloadable with @__metadata
-                        if directive.name.item == *PRELOADABLE_DIRECTIVE_NAME {
-                            next_directives.push(Directive {
-                                name: WithLocation::new(
-                                    operation.name.location,
-                                    *INTERNAL_METADATA_DIRECTIVE,
-                                ),
-                                arguments: vec![Argument {
+                    if !self.feature_flags.no_preloadable_metadata {
+                        let mut next_directives = Vec::with_capacity(operation.directives.len());
+                        for directive in &operation.directives {
+                            // replace @preloadable with @__metadata
+                            if directive.name.item == *PRELOADABLE_DIRECTIVE_NAME {
+                                next_directives.push(Directive {
                                     name: WithLocation::new(
                                         operation.name.location,
-                                        *PRELOADABLE_METADATA_KEY,
+                                        *INTERNAL_METADATA_DIRECTIVE,
                                     ),
-                                    value: WithLocation::new(
-                                        operation.name.location,
-                                        Value::Constant(ConstantValue::Boolean(true)),
-                                    ),
-                                }],
-                            });
-                        } else {
-                            next_directives.push(directive.clone());
+                                    arguments: vec![Argument {
+                                        name: WithLocation::new(
+                                            operation.name.location,
+                                            *PRELOADABLE_METADATA_KEY,
+                                        ),
+                                        value: WithLocation::new(
+                                            operation.name.location,
+                                            Value::Constant(ConstantValue::Boolean(true)),
+                                        ),
+                                    }],
+                                });
+                            } else {
+                                next_directives.push(directive.clone());
+                            }
                         }
-                    }
 
-                    Transformed::Replace(OperationDefinition {
-                        directives: next_directives,
-                        ..operation.clone()
-                    })
+                        Transformed::Replace(OperationDefinition {
+                            directives: next_directives,
+                            ..operation.clone()
+                        })
+                    } else {
+                        Transformed::Keep
+                    }
                 } else if preloadable_directives_len == 0 {
                     Transformed::Keep
                 } else {
@@ -122,9 +131,16 @@ impl<'s> Transformer for GeneratePreloadableMetadata<'s> {
 
 /// Check, if the operation is @preloadable
 pub fn is_preloadable_operation(operation: &OperationDefinition) -> bool {
-    let directive = operation.directives.named(*INTERNAL_METADATA_DIRECTIVE);
-    if let Some(directive) = directive {
-        directive
+    if operation
+        .directives
+        .named(*PRELOADABLE_DIRECTIVE_NAME)
+        .is_some()
+    {
+        true
+    } else if let Some(metadata_directive) =
+        operation.directives.named(*INTERNAL_METADATA_DIRECTIVE)
+    {
+        metadata_directive
             .arguments
             .named(*PRELOADABLE_METADATA_KEY)
             .is_some()

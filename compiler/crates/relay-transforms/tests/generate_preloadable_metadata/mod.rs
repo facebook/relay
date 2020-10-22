@@ -7,8 +7,10 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::generate_preloadable_metadata;
+use relay_transforms::{generate_preloadable_metadata, FeatureFlags};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    apply_transform_for_test(fixture, generate_preloadable_metadata)
+    apply_transform_for_test(fixture, |program| {
+        generate_preloadable_metadata(program, &FeatureFlags::default())
+    })
 }

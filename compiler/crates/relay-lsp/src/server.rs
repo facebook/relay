@@ -75,8 +75,8 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
 
     tokio::spawn(async move {
-        // Cache for the extracted GraphQL sources
         for msg in receiver {
+            info!("Received LSP message\n{:?}", msg);
             match msg {
                 Message::Request(req) => {
                     /* TODO: Re-enable auto-complete

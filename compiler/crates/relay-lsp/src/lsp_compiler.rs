@@ -30,6 +30,7 @@ use crate::text_documents::{
 use crate::error::{LSPError, Result};
 
 use common::ConsoleLogger;
+use log::info;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::mpsc::Receiver;
 
@@ -117,8 +118,9 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
             select! {
                 changes = self.subscription.next_change() => {
                     if let Some(file_source_changes) = changes? {
+                        info!("Received watchman message\n{:?}", file_source_changes);
                         let incremental_check_event =
-                        ConsoleLogger.create_event("incremental_check_event");
+                            ConsoleLogger.create_event("incremental_check_event");
                         let incremental_check_time =
                             incremental_check_event.start("incremental_check_time");
                         let had_new_changes = self.compiler_state.merge_file_source_changes(
@@ -138,12 +140,11 @@ impl<'schema, 'config> LSPCompiler<'schema, 'config> {
                         // We probably don't want the messages queue to grow indefinitely
                         // and we need to flush then, as the check/build is completed
                         ConsoleLogger.flush();
-
                     }
                 }
                 message = self.lsp_rx.recv() => {
                     if let Some(message) = message {
-                      self.on_lsp_bridge_message(message);
+                        self.on_lsp_bridge_message(message);
                     }
                 }
             }

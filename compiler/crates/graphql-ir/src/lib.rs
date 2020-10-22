@@ -22,6 +22,8 @@ mod visitor;
 
 pub use crate::errors::ValidationMessage;
 pub use build::build_ir as build;
+pub use build::build_ir_with_extra_features;
+pub use build::AdditionalBuilderFeatures;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;

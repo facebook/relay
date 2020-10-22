@@ -21,6 +21,23 @@ use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type, TypeReference,
 };
 
+#[derive(Clone, Copy)]
+pub struct AdditionalBuilderFeatures {
+    /// Allow the fragment spread not defined
+    pub allow_undefined_fragment_spreads: bool,
+    /// Assuming that we don't have fragment spread arguments,
+    pub assume_no_fragment_spread_arguments: bool,
+}
+
+impl Default for AdditionalBuilderFeatures {
+    fn default() -> Self {
+        Self {
+            allow_undefined_fragment_spreads: false,
+            assume_no_fragment_spread_arguments: false,
+        }
+    }
+}
+
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
 pub fn build_ir(
@@ -29,7 +46,27 @@ pub fn build_ir(
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
     par_try_map(definitions, |definition| {
-        let mut builder = Builder::new(schema, &signatures, definition.location());
+        let mut builder = Builder::new(schema, &signatures, definition.location(), None);
+        builder.build_definition(definition)
+    })
+}
+
+/// Converts a self-contained corpus of definitions into typed IR, or returns
+/// a list of errors if the corpus is invalid. `extra_features` can be set to
+/// control the builder activities.
+pub fn build_ir_with_extra_features(
+    schema: &Schema,
+    definitions: &[graphql_syntax::ExecutableDefinition],
+    extra_features: AdditionalBuilderFeatures,
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    let signatures = build_signatures(schema, &definitions)?;
+    par_try_map(definitions, |definition| {
+        let mut builder = Builder::new(
+            schema,
+            &signatures,
+            definition.location(),
+            Some(extra_features),
+        );
         builder.build_definition(definition)
     })
 }
@@ -40,7 +77,7 @@ pub fn build_type_annotation(
     location: Location,
 ) -> DiagnosticsResult<TypeReference> {
     let signatures = Default::default();
-    let mut builder = Builder::new(schema, &signatures, location);
+    let mut builder = Builder::new(schema, &signatures, location, None);
     builder.build_type_annotation(annotation)
 }
 
@@ -52,7 +89,7 @@ pub fn build_constant_value(
     validation: ValidationLevel,
 ) -> DiagnosticsResult<ConstantValue> {
     let signatures = Default::default();
-    let mut builder = Builder::new(schema, &signatures, location);
+    let mut builder = Builder::new(schema, &signatures, location, None);
     builder.build_constant_value(value, type_, validation)
 }
 
@@ -62,7 +99,7 @@ pub fn build_variable_definitions(
     location: Location,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     let signatures = Default::default();
-    let mut builder = Builder::new(schema, &signatures, location);
+    let mut builder = Builder::new(schema, &signatures, location, None);
     builder.build_variable_definitions(definitions)
 }
 
@@ -83,6 +120,7 @@ struct Builder<'schema, 'signatures> {
     location: Location,
     defined_variables: VariableDefinitions,
     used_variabales: UsedVariables,
+    features: AdditionalBuilderFeatures,
 }
 
 impl<'schema, 'signatures> Builder<'schema, 'signatures> {
@@ -90,6 +128,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         schema: &'schema Schema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
+        builder_features: Option<AdditionalBuilderFeatures>,
     ) -> Self {
         Self {
             schema,
@@ -97,6 +136,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             location,
             defined_variables: Default::default(),
             used_variabales: UsedVariables::default(),
+            features: builder_features.unwrap_or_default(),
         }
     }
 
@@ -462,6 +502,21 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         // Exit early if the fragment does not exist
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
+            None if self.features.allow_undefined_fragment_spreads
+                && self.features.assume_no_fragment_spread_arguments =>
+            {
+                let directives = self.build_directives(
+                    spread.directives.iter(),
+                    DirectiveLocation::FragmentSpread,
+                )?;
+                return Ok(FragmentSpread {
+                    fragment: spread
+                        .name
+                        .name_with_location(self.location.source_location()),
+                    arguments: Vec::new(),
+                    directives,
+                });
+            }
             None => {
                 return Err(self
                     .record_error(Diagnostic::error(

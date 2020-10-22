@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a8f5e13ebd16da9582c09b0df379a130>>
+ * @generated SignedSource<<f969924e7d3de3c2afbad3a9749df094>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -39,23 +39,6 @@ export type RelayModernEnvironmentViewerTest_SetLocationMutation = {|
   variables: RelayModernEnvironmentViewerTest_SetLocationMutationVariables,
   response: RelayModernEnvironmentViewerTest_SetLocationMutationResponse,
 |};
-*/
-
-/*
-mutation RelayModernEnvironmentViewerTest_SetLocationMutation(
-  $input: LocationInput!
-) {
-  setLocation(input: $input) {
-    viewer {
-      marketplace_settings {
-        location {
-          latitude
-          longitude
-        }
-      }
-    }
-  }
-}
 */
 
 var node/*: ConcreteRequest*/ = (function(){

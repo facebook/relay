@@ -89,4 +89,4 @@ const environment = new Environment({
 });
 ```
 
-If you're using Sentry to track those errors, there is a community projet geared toward making that integration easier. See [relay-sentry](https://github.com/maraisr/relay-sentry)
+If you're using Sentry to track those events, there is a community project geared toward making that integration easier. See [relay-sentry](https://github.com/maraisr/relay-sentry)

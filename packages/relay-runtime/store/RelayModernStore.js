@@ -24,6 +24,7 @@ const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const invariant = require('invariant');
+const isEmptyObject = require('../util/isEmptyObject');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
@@ -301,8 +302,13 @@ class RelayModernStore implements Store {
 
     const source = this.getSource();
     const updatedOwners = [];
+    const hasUpdatedRecords = !isEmptyObject(this._updatedRecordIDs);
     this._subscriptions.forEach(subscription => {
-      const owner = this._updateSubscription(source, subscription);
+      const owner = this._updateSubscription(
+        source,
+        subscription,
+        hasUpdatedRecords,
+      );
       if (owner != null) {
         updatedOwners.push(owner);
       }
@@ -428,12 +434,12 @@ class RelayModernStore implements Store {
   _updateSubscription(
     source: RecordSource,
     subscription: Subscription,
+    hasUpdatedRecords: boolean,
   ): ?RequestDescriptor {
     const {backup, callback, snapshot, stale} = subscription;
-    const hasOverlappingUpdates = hasOverlappingIDs(
-      snapshot.seenRecords,
-      this._updatedRecordIDs,
-    );
+    const hasOverlappingUpdates =
+      hasUpdatedRecords &&
+      hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs);
     if (!stale && !hasOverlappingUpdates) {
       return;
     }

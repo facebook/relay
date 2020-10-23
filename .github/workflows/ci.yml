@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x, 12.x, 14.x, 15.x]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 15.x
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Test dependencies
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 15.x
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Flow
@@ -86,7 +86,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x, 12.x, 14.x, 15.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -109,7 +109,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x, 12.x, 14.x, 15.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -140,7 +140,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 15.x
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts

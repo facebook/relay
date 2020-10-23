@@ -463,10 +463,6 @@ struct ConfigFileProject {
     /// By default the will use `output` *if available
     extra_artifacts_output: Option<PathBuf>,
 
-    /// Enable extra file generation for project
-    #[serde(default)]
-    extra_artifacts_generation_enabled: bool,
-
     /// If `output` is provided and `shard_output` is `true`, shard the files
     /// by putting them under `{output_dir}/{source_relative_path}`
     #[serde(default)]

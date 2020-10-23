@@ -74,7 +74,6 @@ where
                         connection_interface,
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
-                        Arc::clone(&feature_flags),
                     )?;
 
                     try_join(
@@ -213,7 +212,6 @@ fn apply_operation_transforms(
     connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-    feature_flags: Arc<FeatureFlags>,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SplitModuleImportTransform
@@ -241,7 +239,7 @@ fn apply_operation_transforms(
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
     let program = log_event.time("generate_preloadable_metadata", || {
-        generate_preloadable_metadata(&program, &feature_flags)
+        generate_preloadable_metadata(&program)
     })?;
     let program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)

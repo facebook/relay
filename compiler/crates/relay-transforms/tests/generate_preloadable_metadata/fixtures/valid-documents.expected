@@ -5,7 +5,7 @@ query Query @preloadable {
   }
 }
 ==================================== OUTPUT ===================================
-query Query @__metadata(relayPreloadable: true) {
+query Query @preloadable {
   node(id: "foo") {
     id
   }

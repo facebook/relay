@@ -18,7 +18,6 @@ fn transform(program: &Program) -> DiagnosticsResult<Program> {
         &FeatureFlags {
             enable_required_transform_for_prefix: Some("Enabled".intern()),
             enable_flight_transform: false,
-            no_preloadable_metadata: false,
         },
     )
 }

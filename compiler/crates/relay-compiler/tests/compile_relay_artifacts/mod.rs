@@ -48,7 +48,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
         enable_required_transform_for_prefix: Some("".intern()),
-        no_preloadable_metadata: false,
     };
 
     // TODO pass base fragment names

@@ -40,7 +40,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Arc::new(FeatureFlags {
             enable_flight_transform: false,
             enable_required_transform_for_prefix: Some("".intern()),
-            no_preloadable_metadata: false,
         }),
         Arc::new(ConsoleLogger),
     )

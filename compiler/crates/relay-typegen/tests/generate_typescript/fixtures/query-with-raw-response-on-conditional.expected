@@ -22,7 +22,7 @@ export type ExampleQueryVariables = {
 };
 export type ExampleQueryResponse = {
   readonly node?: {
-    readonly " $fragmentRefs": FriendFragment$ref
+    readonly " $fragmentRefs": FragmentRefs<"FriendFragment">
   }
 };
 export type ExampleQueryRawResponse = {

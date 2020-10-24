@@ -53,7 +53,7 @@ export type ConcreateTypes = {
   readonly actor?: {
     readonly __typename: "Page",
     readonly id: string,
-    readonly " $fragmentRefs": PageFragment$ref,
+    readonly " $fragmentRefs": FragmentRefs<"PageFragment">,
   } | {
     readonly __typename: "User",
     readonly name?: string,
@@ -74,13 +74,13 @@ import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread = {
   readonly id: string,
   readonly justFrag?: {
-    readonly " $fragmentRefs": PictureFragment$ref
+    readonly " $fragmentRefs": FragmentRefs<"PictureFragment">
   },
   readonly fragAndField?: {
     readonly uri?: string,
-    readonly " $fragmentRefs": PictureFragment$ref,
+    readonly " $fragmentRefs": FragmentRefs<"PictureFragment">,
   },
-  readonly " $fragmentRefs": OtherFragment$ref & UserFrag1$ref & UserFrag2$ref,
+  readonly " $fragmentRefs": FragmentRefs<"OtherFragment" | "UserFrag1" | "UserFrag2">,
   readonly " $refType": FragmentRefs<"FragmentSpread">,
 };
 export type FragmentSpread$data = FragmentSpread;

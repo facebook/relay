@@ -13,7 +13,7 @@ export type FlowRefetchableFragmentQueryVariables = {
 };
 export type FlowRefetchableFragmentQueryResponse = {
   readonly node?: {
-    readonly " $fragmentRefs": FlowRefetchableFragment$ref
+    readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">
   }
 };
 export type FlowRefetchableFragmentQuery = {

@@ -52,7 +52,7 @@ export type CommentCreateMutationResponse = {
           readonly node?: {
             readonly id: string,
             readonly __typename: string,
-            readonly " $fragmentRefs": FriendFragment$ref,
+            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
           }
         } | null>
       }

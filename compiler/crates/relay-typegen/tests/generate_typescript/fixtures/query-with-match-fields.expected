@@ -32,7 +32,7 @@ import { Local3DPayload } from "relay-runtime";
 export type TestVariables = {};
 export type TestResponse = {
   readonly node?: {
-    readonly " $fragmentRefs": NameRendererFragment$ref
+    readonly " $fragmentRefs": FragmentRefs<"NameRendererFragment">
   }
 };
 export type PlainUserNameRenderer_name = {
@@ -99,7 +99,7 @@ export type NameRendererFragment = {
   readonly nameRenderer?: {
     readonly __fragmentPropName?: string,
     readonly __module_component?: string,
-    readonly " $fragmentRefs": PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+    readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">,
   },
   readonly " $refType": FragmentRefs<"NameRendererFragment">,
 };

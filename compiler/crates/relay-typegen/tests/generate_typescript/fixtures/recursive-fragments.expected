@@ -9,7 +9,7 @@ fragment FragmentSpread on Node {
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread = {
   readonly id: string,
-  readonly " $fragmentRefs": FragmentSpread$ref,
+  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
   readonly " $refType": FragmentRefs<"FragmentSpread">,
 };
 export type FragmentSpread$data = FragmentSpread;

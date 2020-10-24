@@ -45,7 +45,7 @@ export type TestMutationResponse = {
   readonly commentCreate?: {
     readonly viewer?: {
       readonly actor?: {
-        readonly " $fragmentRefs": InlineFragmentWithOverlappingFields$ref
+        readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">
       }
     }
   }

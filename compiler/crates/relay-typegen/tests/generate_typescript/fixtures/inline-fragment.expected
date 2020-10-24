@@ -101,7 +101,7 @@ export type InlineFragmentKitchenSink = {
       readonly height?: number,
     },
     readonly name?: string,
-    readonly " $fragmentRefs": SomeFragment$ref,
+    readonly " $fragmentRefs": FragmentRefs<"SomeFragment">,
   },
   readonly " $refType": FragmentRefs<"InlineFragmentKitchenSink">,
 };

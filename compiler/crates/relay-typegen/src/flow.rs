@@ -64,7 +64,7 @@ impl FlowPrinter {
             }
             AST::ExportFragmentList(names) => self.write_export_list(writer, names),
             AST::ImportFragmentType(types, from) => self.write_import_type(writer, types, from),
-            AST::FragmentReference(fragments) => self.write_union(
+            AST::FragmentReference(fragments) => self.write_intersection(
                 writer,
                 fragments
                     .iter()

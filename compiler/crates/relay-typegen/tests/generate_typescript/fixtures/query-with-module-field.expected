@@ -21,7 +21,7 @@ import { Local3DPayload } from "relay-runtime";
 export type TestVariables = {};
 export type TestResponse = {
   readonly node?: {
-    readonly " $fragmentRefs": Test_user$ref
+    readonly " $fragmentRefs": FragmentRefs<"Test_user">
   }
 };
 export type Test_userRenderer = {
@@ -54,7 +54,7 @@ export type Test_user = {
   readonly plainUserRenderer?: {
     readonly __fragmentPropName?: string,
     readonly __module_component?: string,
-    readonly " $fragmentRefs": Test_userRenderer$ref,
+    readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">,
   },
   readonly " $refType": FragmentRefs<"Test_user">,
 };

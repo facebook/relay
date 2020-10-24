@@ -67,7 +67,7 @@ export type UserProfile = {
     readonly uri?: string,
     readonly width?: number,
     readonly height?: number,
-    readonly " $fragmentRefs": PhotoFragment$ref,
+    readonly " $fragmentRefs": FragmentRefs<"PhotoFragment">,
   },
   readonly " $refType": FragmentRefs<"UserProfile">,
 };

@@ -13,7 +13,7 @@ export type RefetchableFragmentQueryVariables = {
 };
 export type RefetchableFragmentQueryResponse = {
   readonly node?: {
-    readonly " $fragmentRefs": RefetchableFragment$ref
+    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">
   }
 };
 export type RefetchableFragmentQuery = {

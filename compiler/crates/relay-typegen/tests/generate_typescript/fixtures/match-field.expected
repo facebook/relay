@@ -42,7 +42,7 @@ export type NameRendererFragment = {
   readonly nameRenderer?: {
     readonly __fragmentPropName?: string,
     readonly __module_component?: string,
-    readonly " $fragmentRefs": PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref,
+    readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">,
   },
   readonly " $refType": FragmentRefs<"NameRendererFragment">,
 };

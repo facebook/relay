@@ -54,7 +54,7 @@ export type CommentCreateMutationResponse = {
         readonly edges?: ReadonlyArray<{
           readonly node?: {
             readonly lastName?: string,
-            readonly " $fragmentRefs": FriendFragment$ref,
+            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
           }
         } | null>
       }
@@ -104,7 +104,7 @@ export type FriendFragment = {
   readonly name?: string,
   readonly lastName?: string,
   readonly feedback?: {
-    readonly " $fragmentRefs": FeedbackFragment$ref
+    readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">
   },
   readonly " $refType": FragmentRefs<"FriendFragment">,
 };

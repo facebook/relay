@@ -11,6 +11,7 @@ use lazy_static::lazy_static;
 #[derive(Debug, Clone)]
 pub enum AST {
     Union(Vec<AST>),
+    #[allow(dead_code)]
     Intersection(Vec<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),

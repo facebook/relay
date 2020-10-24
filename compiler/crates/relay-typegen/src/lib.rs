@@ -1326,15 +1326,10 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
         }
     }
     if !refs.is_empty() {
-        let value = AST::Intersection(
-            refs.into_iter()
-                .map(|ref_| AST::Identifier(get_old_fragment_type_name(ref_)))
-                .collect(),
-        );
         result.push(TypeSelection {
             key: *KEY_FRAGMENT_REFS,
             conditional: false,
-            value: Some(value),
+            value: Some(AST::FragmentReference(refs)),
             schema_name: None,
             node_type: None,
             concrete_type: None,

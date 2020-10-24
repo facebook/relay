@@ -97,7 +97,7 @@ export type TypenameAlias = {
 };
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
-  readonly $data?: TypenameAlias$data,
+  readonly " $data"?: TypenameAlias$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameAlias">,
 };
 -------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ export type TypenameAliases = {
 };
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
-  readonly $data?: TypenameAliases$data,
+  readonly " $data"?: TypenameAliases$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameAliases">,
 };
 -------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ export type TypenameInside = {
 };
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
-  readonly $data?: TypenameInside$data,
+  readonly " $data"?: TypenameInside$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameInside">,
 };
 -------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ export type TypenameOutside = {
 };
 export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
-  readonly $data?: TypenameOutside$data,
+  readonly " $data"?: TypenameOutside$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameOutside">,
 };
 -------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ export type TypenameOutsideWithAbstractType = {
 };
 export type TypenameOutsideWithAbstractType$data = TypenameOutsideWithAbstractType;
 export type TypenameOutsideWithAbstractType$key = {
-  readonly $data?: TypenameOutsideWithAbstractType$data,
+  readonly " $data"?: TypenameOutsideWithAbstractType$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameOutsideWithAbstractType">,
 };
 -------------------------------------------------------------------------------
@@ -197,7 +197,7 @@ export type TypenameWithCommonSelections = {
 };
 export type TypenameWithCommonSelections$data = TypenameWithCommonSelections;
 export type TypenameWithCommonSelections$key = {
-  readonly $data?: TypenameWithCommonSelections$data,
+  readonly " $data"?: TypenameWithCommonSelections$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameWithCommonSelections">,
 };
 -------------------------------------------------------------------------------
@@ -209,7 +209,7 @@ export type TypenameWithoutSpreads = {
 };
 export type TypenameWithoutSpreads$data = TypenameWithoutSpreads;
 export type TypenameWithoutSpreads$key = {
-  readonly $data?: TypenameWithoutSpreads$data,
+  readonly " $data"?: TypenameWithoutSpreads$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameWithoutSpreads">,
 };
 -------------------------------------------------------------------------------
@@ -221,6 +221,6 @@ export type TypenameWithoutSpreadsAbstractType = {
 };
 export type TypenameWithoutSpreadsAbstractType$data = TypenameWithoutSpreadsAbstractType;
 export type TypenameWithoutSpreadsAbstractType$key = {
-  readonly $data?: TypenameWithoutSpreadsAbstractType$data,
+  readonly " $data"?: TypenameWithoutSpreadsAbstractType$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameWithoutSpreadsAbstractType">,
 };

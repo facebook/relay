@@ -21,6 +21,6 @@ export type Foo = {
 } | null;
 export type Foo$data = Foo;
 export type Foo$key = {
-  readonly $data?: Foo$data,
+  readonly " $data"?: Foo$data,
   readonly " $fragmentRefs": FragmentRefs<"Foo">,
 };

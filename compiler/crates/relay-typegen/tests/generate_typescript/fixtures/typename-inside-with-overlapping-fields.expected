@@ -38,6 +38,6 @@ export type TypenameInsideWithOverlappingFields = {
 };
 export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;
 export type TypenameInsideWithOverlappingFields$key = {
-  readonly $data?: TypenameInsideWithOverlappingFields$data,
+  readonly " $data"?: TypenameInsideWithOverlappingFields$data,
   readonly " $fragmentRefs": FragmentRefs<"TypenameInsideWithOverlappingFields">,
 };

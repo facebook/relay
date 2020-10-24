@@ -44,7 +44,7 @@ lazy_static! {
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
     static ref VARIABLES: StringKey = "variables".intern();
     static ref RESPONSE: StringKey = "response".intern();
-    static ref KEY_DATA: StringKey = "$data".intern();
+    pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();

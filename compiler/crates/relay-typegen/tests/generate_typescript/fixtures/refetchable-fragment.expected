@@ -31,6 +31,6 @@ export type RefetchableFragment = {
 };
 export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
-  readonly $data?: RefetchableFragment$data,
+  readonly " $data"?: RefetchableFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
 };

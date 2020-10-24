@@ -58,6 +58,6 @@ export type FriendFragment = {
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
-  readonly $data?: FriendFragment$data,
+  readonly " $data"?: FriendFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
 };

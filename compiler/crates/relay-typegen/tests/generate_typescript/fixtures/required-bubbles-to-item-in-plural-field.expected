@@ -18,6 +18,6 @@ export type NonNullFragment = {
 };
 export type NonNullFragment$data = NonNullFragment;
 export type NonNullFragment$key = {
-  readonly $data?: NonNullFragment$data,
+  readonly " $data"?: NonNullFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"NonNullFragment">,
 };

@@ -95,7 +95,7 @@ export type FeedbackFragment = {
 };
 export type FeedbackFragment$data = FeedbackFragment;
 export type FeedbackFragment$key = {
-  readonly $data?: FeedbackFragment$data,
+  readonly " $data"?: FeedbackFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">,
 };
 -------------------------------------------------------------------------------
@@ -110,6 +110,6 @@ export type FriendFragment = {
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
-  readonly $data?: FriendFragment$data,
+  readonly " $data"?: FriendFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
 };

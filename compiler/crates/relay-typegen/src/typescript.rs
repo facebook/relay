@@ -7,7 +7,7 @@
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
 use crate::TypegenConfig;
-use crate::{KEY_FRAGMENT_REFS, KEY_REF_TYPE};
+use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_REF_TYPE};
 use interner::{Intern, StringKey};
 use std::fmt::{Result, Write};
 
@@ -185,6 +185,8 @@ impl TypeScriptPrinter {
                     format!("\" {}\"", *KEY_FRAGMENT_REFS).intern()
                 } else if prop.key == *KEY_REF_TYPE {
                     format!("\" {}\"", *KEY_REF_TYPE).intern()
+                } else if prop.key == *KEY_DATA {
+                    format!("\" {}\"", *KEY_DATA).intern()
                 } else {
                     prop.key
                 }

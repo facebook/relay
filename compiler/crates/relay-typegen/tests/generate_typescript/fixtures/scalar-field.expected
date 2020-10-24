@@ -31,6 +31,6 @@ export type ScalarField = {
 };
 export type ScalarField$data = ScalarField;
 export type ScalarField$key = {
-  readonly $data?: ScalarField$data,
+  readonly " $data"?: ScalarField$data,
   readonly " $fragmentRefs": FragmentRefs<"ScalarField">,
 };

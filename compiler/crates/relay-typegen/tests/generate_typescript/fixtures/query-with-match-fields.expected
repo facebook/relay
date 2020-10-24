@@ -89,7 +89,7 @@ export type MarkdownUserNameRenderer_name = {
 };
 export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
 export type MarkdownUserNameRenderer_name$key = {
-  readonly $data?: MarkdownUserNameRenderer_name$data,
+  readonly " $data"?: MarkdownUserNameRenderer_name$data,
   readonly " $fragmentRefs": FragmentRefs<"MarkdownUserNameRenderer_name">,
 };
 -------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ export type NameRendererFragment = {
 };
 export type NameRendererFragment$data = NameRendererFragment;
 export type NameRendererFragment$key = {
-  readonly $data?: NameRendererFragment$data,
+  readonly " $data"?: NameRendererFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"NameRendererFragment">,
 };
 -------------------------------------------------------------------------------
@@ -119,6 +119,6 @@ export type PlainUserNameRenderer_name = {
 };
 export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
 export type PlainUserNameRenderer_name$key = {
-  readonly $data?: PlainUserNameRenderer_name$data,
+  readonly " $data"?: PlainUserNameRenderer_name$data,
   readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name">,
 };

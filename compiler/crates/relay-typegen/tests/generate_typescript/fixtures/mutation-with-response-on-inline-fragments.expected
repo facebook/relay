@@ -100,6 +100,6 @@ export type InlineFragmentWithOverlappingFields = {
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {
-  readonly $data?: InlineFragmentWithOverlappingFields$data,
+  readonly " $data"?: InlineFragmentWithOverlappingFields$data,
   readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">,
 };

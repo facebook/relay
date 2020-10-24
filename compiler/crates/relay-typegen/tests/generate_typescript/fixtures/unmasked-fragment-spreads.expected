@@ -34,7 +34,7 @@ export type AnotherRecursiveFragment = {
 };
 export type AnotherRecursiveFragment$data = AnotherRecursiveFragment;
 export type AnotherRecursiveFragment$key = {
-  readonly $data?: AnotherRecursiveFragment$data,
+  readonly " $data"?: AnotherRecursiveFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"AnotherRecursiveFragment">,
 };
 -------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ export type PhotoFragment = {
 };
 export type PhotoFragment$data = PhotoFragment;
 export type PhotoFragment$key = {
-  readonly $data?: PhotoFragment$data,
+  readonly " $data"?: PhotoFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"PhotoFragment">,
 };
 -------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ export type RecursiveFragment = {
 };
 export type RecursiveFragment$data = RecursiveFragment;
 export type RecursiveFragment$key = {
-  readonly $data?: RecursiveFragment$data,
+  readonly " $data"?: RecursiveFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"RecursiveFragment">,
 };
 -------------------------------------------------------------------------------
@@ -73,6 +73,6 @@ export type UserProfile = {
 };
 export type UserProfile$data = UserProfile;
 export type UserProfile$key = {
-  readonly $data?: UserProfile$data,
+  readonly " $data"?: UserProfile$data,
   readonly " $fragmentRefs": FragmentRefs<"UserProfile">,
 };

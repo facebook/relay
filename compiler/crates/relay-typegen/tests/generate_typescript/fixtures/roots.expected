@@ -90,6 +90,6 @@ export type ExampleFragment = {
 };
 export type ExampleFragment$data = ExampleFragment;
 export type ExampleFragment$key = {
-  readonly $data?: ExampleFragment$data,
+  readonly " $data"?: ExampleFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">,
 };

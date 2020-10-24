@@ -60,7 +60,7 @@ export type Test_user = {
 };
 export type Test_user$data = Test_user;
 export type Test_user$key = {
-  readonly $data?: Test_user$data,
+  readonly " $data"?: Test_user$data,
   readonly " $fragmentRefs": FragmentRefs<"Test_user">,
 };
 -------------------------------------------------------------------------------
@@ -73,6 +73,6 @@ export type Test_userRenderer = {
 };
 export type Test_userRenderer$data = Test_userRenderer;
 export type Test_userRenderer$key = {
-  readonly $data?: Test_userRenderer$data,
+  readonly " $data"?: Test_userRenderer$data,
   readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">,
 };

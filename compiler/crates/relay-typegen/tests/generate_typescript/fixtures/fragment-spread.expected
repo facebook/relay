@@ -66,7 +66,7 @@ export type ConcreateTypes = {
 };
 export type ConcreateTypes$data = ConcreateTypes;
 export type ConcreateTypes$key = {
-  readonly $data?: ConcreateTypes$data,
+  readonly " $data"?: ConcreateTypes$data,
   readonly " $fragmentRefs": FragmentRefs<"ConcreateTypes">,
 };
 -------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ export type FragmentSpread = {
 };
 export type FragmentSpread$data = FragmentSpread;
 export type FragmentSpread$key = {
-  readonly $data?: FragmentSpread$data,
+  readonly " $data"?: FragmentSpread$data,
   readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
 };
 -------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ export type OtherFragment = {
 };
 export type OtherFragment$data = OtherFragment;
 export type OtherFragment$key = {
-  readonly $data?: OtherFragment$data,
+  readonly " $data"?: OtherFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"OtherFragment">,
 };
 -------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ export type PageFragment = {
 };
 export type PageFragment$data = PageFragment;
 export type PageFragment$key = {
-  readonly $data?: PageFragment$data,
+  readonly " $data"?: PageFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"PageFragment">,
 };
 -------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ export type PictureFragment = {
 };
 export type PictureFragment$data = PictureFragment;
 export type PictureFragment$key = {
-  readonly $data?: PictureFragment$data,
+  readonly " $data"?: PictureFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"PictureFragment">,
 };
 -------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ export type UserFrag1 = {
 };
 export type UserFrag1$data = UserFrag1;
 export type UserFrag1$key = {
-  readonly $data?: UserFrag1$data,
+  readonly " $data"?: UserFrag1$data,
   readonly " $fragmentRefs": FragmentRefs<"UserFrag1">,
 };
 -------------------------------------------------------------------------------
@@ -160,6 +160,6 @@ export type UserFrag2 = {
 };
 export type UserFrag2$data = UserFrag2;
 export type UserFrag2$key = {
-  readonly $data?: UserFrag2$data,
+  readonly " $data"?: UserFrag2$data,
   readonly " $fragmentRefs": FragmentRefs<"UserFrag2">,
 };

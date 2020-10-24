@@ -29,6 +29,6 @@ export type FlowRefetchableFragment = {
 };
 export type FlowRefetchableFragment$data = FlowRefetchableFragment;
 export type FlowRefetchableFragment$key = {
-  readonly $data?: FlowRefetchableFragment$data,
+  readonly " $data"?: FlowRefetchableFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">,
 };

@@ -75,7 +75,7 @@ export type InlineFragment = {
 };
 export type InlineFragment$data = InlineFragment;
 export type InlineFragment$key = {
-  readonly $data?: InlineFragment$data,
+  readonly " $data"?: InlineFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"InlineFragment">,
 };
 -------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ export type InlineFragmentConditionalID = {
 };
 export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
 export type InlineFragmentConditionalID$key = {
-  readonly $data?: InlineFragmentConditionalID$data,
+  readonly " $data"?: InlineFragmentConditionalID$data,
   readonly " $fragmentRefs": FragmentRefs<"InlineFragmentConditionalID">,
 };
 -------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ export type InlineFragmentKitchenSink = {
 };
 export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
 export type InlineFragmentKitchenSink$key = {
-  readonly $data?: InlineFragmentKitchenSink$data,
+  readonly " $data"?: InlineFragmentKitchenSink$data,
   readonly " $fragmentRefs": FragmentRefs<"InlineFragmentKitchenSink">,
 };
 -------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ export type InlineFragmentWithOverlappingFields = {
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {
-  readonly $data?: InlineFragmentWithOverlappingFields$data,
+  readonly " $data"?: InlineFragmentWithOverlappingFields$data,
   readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">,
 };
 -------------------------------------------------------------------------------
@@ -141,6 +141,6 @@ export type SomeFragment = {
 };
 export type SomeFragment$data = SomeFragment;
 export type SomeFragment$key = {
-  readonly $data?: SomeFragment$data,
+  readonly " $data"?: SomeFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"SomeFragment">,
 };

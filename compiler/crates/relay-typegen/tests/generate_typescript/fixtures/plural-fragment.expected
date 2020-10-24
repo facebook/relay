@@ -10,6 +10,6 @@ export type PluralFragment = ReadonlyArray<{
 }>;
 export type PluralFragment$data = PluralFragment;
 export type PluralFragment$key = ReadonlyArray<{
-  readonly $data?: PluralFragment$data,
+  readonly " $data"?: PluralFragment$data,
   readonly " $fragmentRefs": FragmentRefs<"PluralFragment">,
 }>;

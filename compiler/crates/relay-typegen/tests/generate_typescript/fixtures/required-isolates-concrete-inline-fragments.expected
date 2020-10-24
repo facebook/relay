@@ -38,7 +38,7 @@ export type Bar = {
 } | null;
 export type Bar$data = Bar;
 export type Bar$key = {
-  readonly $data?: Bar$data,
+  readonly " $data"?: Bar$data,
   readonly " $fragmentRefs": FragmentRefs<"Bar">,
 };
 -------------------------------------------------------------------------------
@@ -61,6 +61,6 @@ export type Foo = {
 } | null;
 export type Foo$data = Foo;
 export type Foo$key = {
-  readonly $data?: Foo$data,
+  readonly " $data"?: Foo$data,
   readonly " $fragmentRefs": FragmentRefs<"Foo">,
 };

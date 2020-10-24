@@ -63,6 +63,6 @@ export type LinkedField = {
 };
 export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
-  readonly $data?: LinkedField$data,
+  readonly " $data"?: LinkedField$data,
   readonly " $fragmentRefs": FragmentRefs<"LinkedField">,
 };

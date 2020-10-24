@@ -14,6 +14,6 @@ export type FragmentSpread = {
 };
 export type FragmentSpread$data = FragmentSpread;
 export type FragmentSpread$key = {
-  readonly $data?: FragmentSpread$data,
+  readonly " $data"?: FragmentSpread$data,
   readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
 };

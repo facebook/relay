@@ -8,15 +8,15 @@ mutation CommentCreateMutation($input: CommentCreateInput!) {
 }
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
-  clientMutationId?: string,
-  feedbackId?: string,
-  feedback?: CommentfeedbackFeedback,
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+  feedback?: CommentfeedbackFeedback | null,
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment
+  comment?: FeedbackcommentComment | null
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback
+  feedback?: CommentfeedbackFeedback | null
 };
 export type CommentCreateMutationVariables = {
   input: CommentCreateInput

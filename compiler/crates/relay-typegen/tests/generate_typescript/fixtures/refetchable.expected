@@ -12,9 +12,9 @@ export type FlowRefetchableFragmentQueryVariables = {
   id: string
 };
 export type FlowRefetchableFragmentQueryResponse = {
-  readonly node?: {
+  readonly node: {
     readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">
-  }
+  } | null
 };
 export type FlowRefetchableFragmentQuery = {
   variables: FlowRefetchableFragmentQueryVariables,
@@ -24,7 +24,7 @@ export type FlowRefetchableFragmentQuery = {
 import { FragmentRefs } from "relay-runtime";
 export type FlowRefetchableFragment = {
   readonly id: string,
-  readonly name?: string,
+  readonly name?: string | null,
   readonly " $refType": FragmentRefs<"FlowRefetchableFragment">,
 };
 export type FlowRefetchableFragment$data = FlowRefetchableFragment;

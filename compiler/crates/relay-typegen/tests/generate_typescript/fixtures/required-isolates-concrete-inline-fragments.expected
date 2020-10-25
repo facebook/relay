@@ -32,8 +32,8 @@ import { FragmentRefs } from "relay-runtime";
 export type Bar = {
   readonly name?: string,
   readonly body?: {
-    readonly text?: string
-  },
+    readonly text: string | null
+  } | null,
   readonly " $refType": FragmentRefs<"Bar">,
 } | null;
 export type Bar$data = Bar;
@@ -49,9 +49,9 @@ export type Foo = {
   readonly " $refType": FragmentRefs<"Foo">,
 } | {
   readonly __typename: "Comment",
-  readonly body?: {
-    readonly text?: string
-  },
+  readonly body: {
+    readonly text: string | null
+  } | null,
   readonly " $refType": FragmentRefs<"Foo">,
 } | {
   // This will never be '%other', but we need some

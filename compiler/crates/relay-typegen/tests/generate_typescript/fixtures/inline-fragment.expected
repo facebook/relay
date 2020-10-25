@@ -67,10 +67,10 @@ fragment SomeFragment on User {
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragment = {
   readonly id: string,
-  readonly name?: string,
+  readonly name?: string | null,
   readonly message?: {
-    readonly text?: string
-  },
+    readonly text: string | null
+  } | null,
   readonly " $refType": FragmentRefs<"InlineFragment">,
 };
 export type InlineFragment$data = InlineFragment;
@@ -82,7 +82,7 @@ export type InlineFragment$key = {
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentConditionalID = {
   readonly id?: string,
-  readonly name?: string,
+  readonly name?: string | null,
   readonly " $refType": FragmentRefs<"InlineFragmentConditionalID">,
 };
 export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
@@ -93,16 +93,16 @@ export type InlineFragmentConditionalID$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentKitchenSink = {
-  readonly actor?: {
+  readonly actor: {
     readonly id: string,
-    readonly profilePicture?: {
-      readonly uri?: string,
-      readonly width?: number,
-      readonly height?: number,
-    },
-    readonly name?: string,
+    readonly profilePicture: {
+      readonly uri: string | null,
+      readonly width?: number | null,
+      readonly height?: number | null,
+    } | null,
+    readonly name?: string | null,
     readonly " $fragmentRefs": FragmentRefs<"SomeFragment">,
-  },
+  } | null,
   readonly " $refType": FragmentRefs<"InlineFragmentKitchenSink">,
 };
 export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
@@ -115,12 +115,12 @@ import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields = {
   readonly hometown?: {
     readonly id: string,
-    readonly name?: string,
+    readonly name: string | null,
     readonly message?: {
-      readonly text?: string
-    },
-  },
-  readonly name?: string,
+      readonly text: string | null
+    } | null,
+  } | null,
+  readonly name?: string | null,
   readonly " $refType": FragmentRefs<"InlineFragmentWithOverlappingFields">,
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;

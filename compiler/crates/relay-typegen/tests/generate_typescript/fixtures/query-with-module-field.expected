@@ -20,28 +20,28 @@ fragment Test_userRenderer on PlainUserRenderer {
 import { Local3DPayload } from "relay-runtime";
 export type TestVariables = {};
 export type TestResponse = {
-  readonly node?: {
+  readonly node: {
     readonly " $fragmentRefs": FragmentRefs<"Test_user">
-  }
+  } | null
 };
 export type Test_userRenderer = {
-  readonly user?: {
-    readonly username?: string,
+  readonly user: {
+    readonly username: string | null,
     readonly id: string,
-  }
+  } | null
 };
 export type TestRawResponse = {
-  readonly node?: {
+  readonly node: {
     readonly __typename: "User",
     readonly id: string,
-    readonly plainUserRenderer?: {
-      readonly __module_operation_Test_user?: any,
-      readonly __module_component_Test_user?: any,
-    } | Local3DPayload<"Test_user", {}>,
+    readonly plainUserRenderer: {
+      readonly __module_operation_Test_user: any | null,
+      readonly __module_component_Test_user: any | null,
+    } | Local3DPayload<"Test_user", {}> | null,
   } | {
     readonly __typename: string,
     readonly id: string,
-  }
+  } | null
 };
 export type Test = {
   variables: TestVariables,
@@ -51,11 +51,11 @@ export type Test = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type Test_user = {
-  readonly plainUserRenderer?: {
-    readonly __fragmentPropName?: string,
-    readonly __module_component?: string,
+  readonly plainUserRenderer: {
+    readonly __fragmentPropName?: string | null,
+    readonly __module_component?: string | null,
     readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">,
-  },
+  } | null,
   readonly " $refType": FragmentRefs<"Test_user">,
 };
 export type Test_user$data = Test_user;
@@ -66,9 +66,9 @@ export type Test_user$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type Test_userRenderer = {
-  readonly user?: {
-    readonly username?: string
-  },
+  readonly user: {
+    readonly username: string | null
+  } | null,
   readonly " $refType": FragmentRefs<"Test_userRenderer">,
 };
 export type Test_userRenderer$data = Test_userRenderer;

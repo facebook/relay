@@ -29,9 +29,9 @@ export type ExampleQueryVariables = {
   id: string
 };
 export type ExampleQueryResponse = {
-  readonly node?: {
+  readonly node: {
     readonly id: string
-  }
+  } | null
 };
 export type ExampleQuery = {
   variables: ExampleQueryVariables,
@@ -39,25 +39,25 @@ export type ExampleQuery = {
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
-  clientMutationId?: string,
-  feedbackId?: string,
-  feedback?: CommentfeedbackFeedback,
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+  feedback?: CommentfeedbackFeedback | null,
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment
+  comment?: FeedbackcommentComment | null
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback
+  feedback?: CommentfeedbackFeedback | null
 };
 export type TestMutationVariables = {
   input: CommentCreateInput
 };
 export type TestMutationResponse = {
-  readonly commentCreate?: {
-    readonly comment?: {
+  readonly commentCreate: {
+    readonly comment: {
       readonly id: string
-    }
-  }
+    } | null
+  } | null
 };
 export type TestMutation = {
   variables: TestMutationVariables,
@@ -65,18 +65,18 @@ export type TestMutation = {
 };
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
-  clientMutationId?: string,
-  feedbackId?: string,
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
 };
 export type TestSubscriptionVariables = {
-  input?: FeedbackLikeInput
+  input?: FeedbackLikeInput | null
 };
 export type TestSubscriptionResponse = {
-  readonly feedbackLikeSubscribe?: {
-    readonly feedback?: {
+  readonly feedbackLikeSubscribe: {
+    readonly feedback: {
       readonly id: string
-    }
-  }
+    } | null
+  } | null
 };
 export type TestSubscription = {
   variables: TestSubscriptionVariables,

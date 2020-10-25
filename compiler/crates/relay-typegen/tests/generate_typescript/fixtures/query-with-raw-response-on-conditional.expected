@@ -21,24 +21,24 @@ export type ExampleQueryVariables = {
   condition: boolean,
 };
 export type ExampleQueryResponse = {
-  readonly node?: {
+  readonly node: {
     readonly " $fragmentRefs": FragmentRefs<"FriendFragment">
-  }
+  } | null
 };
 export type ExampleQueryRawResponse = {
-  readonly node?: {
+  readonly node: {
     readonly __typename: "User",
     readonly id: string,
-    readonly name?: string,
-    readonly lastName?: string,
-    readonly feedback?: {
+    readonly name: string | null,
+    readonly lastName: string | null,
+    readonly feedback: {
       readonly id: string,
-      readonly name?: string,
-    },
+      readonly name: string | null,
+    } | null,
   } | {
     readonly __typename: string,
     readonly id: string,
-  }
+  } | null
 };
 export type ExampleQuery = {
   variables: ExampleQueryVariables,
@@ -48,12 +48,12 @@ export type ExampleQuery = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
-  readonly name?: string,
-  readonly lastName?: string,
+  readonly name?: string | null,
+  readonly lastName?: string | null,
   readonly feedback?: {
     readonly id: string,
-    readonly name?: string,
-  },
+    readonly name: string | null,
+  } | null,
   readonly " $refType": FragmentRefs<"FriendFragment">,
 };
 export type FriendFragment$data = FriendFragment;

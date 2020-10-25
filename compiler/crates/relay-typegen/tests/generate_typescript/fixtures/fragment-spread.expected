@@ -50,18 +50,18 @@ fragment UserFrag2 on User {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type ConcreateTypes = {
-  readonly actor?: {
+  readonly actor: {
     readonly __typename: "Page",
     readonly id: string,
     readonly " $fragmentRefs": FragmentRefs<"PageFragment">,
   } | {
     readonly __typename: "User",
-    readonly name?: string,
+    readonly name: string | null,
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other"
-  },
+  } | null,
   readonly " $refType": FragmentRefs<"ConcreateTypes">,
 };
 export type ConcreateTypes$data = ConcreateTypes;
@@ -73,13 +73,13 @@ export type ConcreateTypes$key = {
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread = {
   readonly id: string,
-  readonly justFrag?: {
+  readonly justFrag: {
     readonly " $fragmentRefs": FragmentRefs<"PictureFragment">
-  },
-  readonly fragAndField?: {
-    readonly uri?: string,
+  } | null,
+  readonly fragAndField: {
+    readonly uri: string | null,
     readonly " $fragmentRefs": FragmentRefs<"PictureFragment">,
-  },
+  } | null,
   readonly " $fragmentRefs": FragmentRefs<"OtherFragment" | "UserFrag1" | "UserFrag2">,
   readonly " $refType": FragmentRefs<"FragmentSpread">,
 };

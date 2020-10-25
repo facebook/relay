@@ -51,80 +51,80 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 import { Local3DPayload } from "relay-runtime";
 export type TestVariables = {};
 export type TestResponse = {
-  readonly node?: {
-    readonly username?: string,
+  readonly node: {
+    readonly username?: string | null,
     readonly " $fragmentRefs": FragmentRefs<"NameRendererFragment">,
-  },
-  readonly viewer?: {
-    readonly actor?: {
-      readonly name?: string,
+  } | null,
+  readonly viewer: {
+    readonly actor: {
+      readonly name?: string | null,
       readonly " $fragmentRefs": FragmentRefs<"AnotherNameRendererFragment">,
-    }
-  },
+    } | null
+  } | null,
 };
 export type PlainUserNameRenderer_name = {
-  readonly plaintext?: string,
-  readonly data?: {
-    readonly text?: string,
-    readonly id?: string,
-  },
+  readonly plaintext: string | null,
+  readonly data: {
+    readonly text: string | null,
+    readonly id: string | null,
+  } | null,
 };
 export type MarkdownUserNameRenderer_name = {
-  readonly markdown?: string,
-  readonly data?: {
-    readonly markup?: string,
-    readonly id?: string,
-  },
+  readonly markdown: string | null,
+  readonly data: {
+    readonly markup: string | null,
+    readonly id: string | null,
+  } | null,
 };
 export type TestRawResponse = {
-  readonly node?: {
+  readonly node: {
     readonly __typename: "User",
     readonly id: string,
-    readonly username?: string,
-    readonly nameRenderer?: {
+    readonly username: string | null,
+    readonly nameRenderer: {
       readonly __typename: "PlainUserNameRenderer",
-      readonly __module_operation_NameRendererFragment?: any,
-      readonly __module_component_NameRendererFragment?: any,
+      readonly __module_operation_NameRendererFragment: any | null,
+      readonly __module_component_NameRendererFragment: any | null,
     } | Local3DPayload<"NameRendererFragment", {
       readonly __typename: "PlainUserNameRenderer",
     }> | {
       readonly __typename: "MarkdownUserNameRenderer",
-      readonly __module_operation_NameRendererFragment?: any,
-      readonly __module_component_NameRendererFragment?: any,
+      readonly __module_operation_NameRendererFragment: any | null,
+      readonly __module_component_NameRendererFragment: any | null,
     } | Local3DPayload<"NameRendererFragment", {
       readonly __typename: "MarkdownUserNameRenderer",
     }> | {
       readonly __typename: string
-    },
+    } | null,
   } | {
     readonly __typename: string,
     readonly id: string,
-  },
-  readonly viewer?: {
-    readonly actor?: {
+  } | null,
+  readonly viewer: {
+    readonly actor: {
       readonly __typename: "User",
       readonly id: string,
-      readonly name?: string,
-      readonly nameRenderer?: {
+      readonly name: string | null,
+      readonly nameRenderer: {
         readonly __typename: "PlainUserNameRenderer",
-        readonly __module_operation_AnotherNameRendererFragment?: any,
-        readonly __module_component_AnotherNameRendererFragment?: any,
+        readonly __module_operation_AnotherNameRendererFragment: any | null,
+        readonly __module_component_AnotherNameRendererFragment: any | null,
       } | Local3DPayload<"AnotherNameRendererFragment", {
         readonly __typename: "PlainUserNameRenderer",
       }> | {
         readonly __typename: "MarkdownUserNameRenderer",
-        readonly __module_operation_AnotherNameRendererFragment?: any,
-        readonly __module_component_AnotherNameRendererFragment?: any,
+        readonly __module_operation_AnotherNameRendererFragment: any | null,
+        readonly __module_component_AnotherNameRendererFragment: any | null,
       } | Local3DPayload<"AnotherNameRendererFragment", {
         readonly __typename: "MarkdownUserNameRenderer",
       }> | {
         readonly __typename: string
-      },
+      } | null,
     } | {
       readonly __typename: string,
       readonly id: string,
-    }
-  },
+    } | null
+  } | null,
 };
 export type Test = {
   variables: TestVariables,
@@ -134,12 +134,12 @@ export type Test = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type AnotherNameRendererFragment = {
-  readonly name?: string,
-  readonly nameRenderer?: {
-    readonly __fragmentPropName?: string,
-    readonly __module_component?: string,
+  readonly name: string | null,
+  readonly nameRenderer: {
+    readonly __fragmentPropName?: string | null,
+    readonly __module_component?: string | null,
     readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">,
-  },
+  } | null,
   readonly " $refType": FragmentRefs<"AnotherNameRendererFragment">,
 };
 export type AnotherNameRendererFragment$data = AnotherNameRendererFragment;
@@ -150,10 +150,10 @@ export type AnotherNameRendererFragment$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type MarkdownUserNameRenderer_name = {
-  readonly markdown?: string,
-  readonly data?: {
-    readonly markup?: string
-  },
+  readonly markdown: string | null,
+  readonly data: {
+    readonly markup: string | null
+  } | null,
   readonly " $refType": FragmentRefs<"MarkdownUserNameRenderer_name">,
 };
 export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
@@ -165,11 +165,11 @@ export type MarkdownUserNameRenderer_name$key = {
 import { FragmentRefs } from "relay-runtime";
 export type NameRendererFragment = {
   readonly id: string,
-  readonly nameRenderer?: {
-    readonly __fragmentPropName?: string,
-    readonly __module_component?: string,
+  readonly nameRenderer: {
+    readonly __fragmentPropName?: string | null,
+    readonly __module_component?: string | null,
     readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">,
-  },
+  } | null,
   readonly " $refType": FragmentRefs<"NameRendererFragment">,
 };
 export type NameRendererFragment$data = NameRendererFragment;
@@ -180,10 +180,10 @@ export type NameRendererFragment$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type PlainUserNameRenderer_name = {
-  readonly plaintext?: string,
-  readonly data?: {
-    readonly text?: string
-  },
+  readonly plaintext: string | null,
+  readonly data: {
+    readonly text: string | null
+  } | null,
   readonly " $refType": FragmentRefs<"PlainUserNameRenderer_name">,
 };
 export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;

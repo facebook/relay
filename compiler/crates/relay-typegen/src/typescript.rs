@@ -191,21 +191,11 @@ impl TypeScriptPrinter {
                     prop.key
                 }
             )?;
-            if match &prop.value {
-                AST::Nullable(_) => true,
-                _ => prop.optional,
-            } {
+            if prop.optional {
                 write!(writer, "?")?;
             }
             write!(writer, ": ")?;
-            self.write(
-                writer,
-                if let AST::Nullable(value) = &prop.value {
-                    value
-                } else {
-                    &prop.value
-                },
-            )?;
+            self.write(writer, &prop.value)?;
             if first && props.len() == 1 && exact {
                 writeln!(writer)?;
             } else {

@@ -18,22 +18,22 @@ fragment TypenameInsideWithOverlappingFields on Viewer {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type TypenameInsideWithOverlappingFields = {
-  readonly actor?: {
+  readonly actor: {
     readonly __typename: "Page",
     readonly id: string,
-    readonly name?: string,
+    readonly name: string | null,
   } | {
     readonly __typename: "User",
     readonly id: string,
-    readonly name?: string,
-    readonly profile_picture?: {
-      readonly uri?: string
-    },
+    readonly name: string | null,
+    readonly profile_picture: {
+      readonly uri: string | null
+    } | null,
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other"
-  },
+  } | null,
   readonly " $refType": FragmentRefs<"TypenameInsideWithOverlappingFields">,
 };
 export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;

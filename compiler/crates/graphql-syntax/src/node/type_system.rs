@@ -9,7 +9,7 @@ use super::constant_directive::ConstantDirective;
 use super::constant_value::ConstantValue;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
-use common::Span;
+use common::Location;
 use interner::StringKey;
 use std::fmt;
 
@@ -17,7 +17,7 @@ use std::fmt;
 /// This excludes schema definitions and schema extensions.
 #[derive(Debug)]
 pub struct SchemaDocument {
-    pub span: Span,
+    pub location: Location,
     pub definitions: Vec<TypeSystemDefinition>,
 }
 

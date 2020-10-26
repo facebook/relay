@@ -15,7 +15,7 @@ type OnlyInterfaces implements
   & Node
 ==================================== OUTPUT ===================================
 SchemaDocument {
-    span: 0:203,
+    location: type_definition.graphql:0:203,
     definitions: [
         ObjectTypeDefinition(
             ObjectTypeDefinition {

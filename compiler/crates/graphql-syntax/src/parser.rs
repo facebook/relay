@@ -122,7 +122,10 @@ impl<'a> Parser<'a> {
         )?;
         let end = self.index();
         let span = Span::new(start, end);
-        Ok(SchemaDocument { span, definitions })
+        Ok(SchemaDocument {
+            location: Location::new(self.source_location, span),
+            definitions,
+        })
     }
 
     /// Definition :

@@ -1,4 +1,4 @@
-// @generated SignedSource<<b848fc64dee35f22629c872fc41f700e>>
+// @generated SignedSource<<897574b3e620055f860a76ac8bc82d9a>>
 
 mod compile_relay_artifacts;
 
@@ -290,6 +290,13 @@ fn directive_with_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/directive_with_conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/directive_with_conditions.expected");
     test_fixture(transform_fixture, "directive_with_conditions.graphql", "compile_relay_artifacts/fixtures/directive_with_conditions.expected", input, expected);
+}
+
+#[test]
+fn duplicate_directive_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/duplicate-directive.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/duplicate-directive.invalid.expected");
+    test_fixture(transform_fixture, "duplicate-directive.invalid.graphql", "compile_relay_artifacts/fixtures/duplicate-directive.invalid.expected", input, expected);
 }
 
 #[test]

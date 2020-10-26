@@ -909,9 +909,43 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         directives: impl IntoIterator<Item = &'a graphql_syntax::Directive>,
         location: DirectiveLocation,
     ) -> DiagnosticsResult<Vec<Directive>> {
-        try_map(directives, |directive| {
+        let directives = try_map(directives, |directive| {
             self.build_directive(directive, location)
-        })
+        })?;
+
+        // Check for repeated directives that are not @repeatable
+        if directives.len() > 1 {
+            for (index, directive) in directives.iter().enumerate() {
+                let directive_repeatable = self.schema.get_directive(directive.name.item).map_or(
+                    // Default to `false` instead of expecting a definition
+                    // since @arguments directive is not defined in the schema.
+                    false,
+                    |dir| dir.repeatable,
+                );
+                if directive_repeatable {
+                    continue;
+                }
+                if let Some(repeated_directive) = directives
+                    .iter()
+                    .skip(index + 1)
+                    .find(|other_directive| other_directive.name.item == directive.name.item)
+                {
+                    return Err(self
+                        .record_error(
+                            Diagnostic::error(
+                                ValidationMessage::RepeatedNonRepeatableDirective {
+                                    name: directive.name.item,
+                                },
+                                repeated_directive.name.location,
+                            )
+                            .annotate("previously used here", directive.name.location),
+                        )
+                        .into());
+                }
+            }
+        }
+
+        Ok(directives)
     }
 
     fn build_directive(
@@ -920,7 +954,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         location: DirectiveLocation,
     ) -> DiagnosticsResult<Directive> {
         if directive.name.value == *ARGUMENT_DEFINITION {
-            if !matches!(location, DirectiveLocation::FragmentDefinition) {
+            if location != DirectiveLocation::FragmentDefinition {
                 return Err(self
                     .record_error(Diagnostic::error(
                         ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(

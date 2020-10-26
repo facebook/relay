@@ -18,11 +18,12 @@ directive @relay(
 ) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD
 
 # Handles
+# prettier-ignore
 directive @__clientField(
   filters: [String!]
   handle: String!
   key: String
-) on FIELD
+) repeatable on FIELD
 
 # MatchTransform
 directive @match(key: String) on FIELD

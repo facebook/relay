@@ -532,10 +532,8 @@ pub enum ValidationMessage {
     )]
     LiveQueryTransformInvalidConfigId { query_name: StringKey },
 
-    #[error(
-        "Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough."
-    )]
-    RedundantPreloadableDirective,
+    #[error("The directive `@{name}` can only be used once at this location.")]
+    RepeatedNonRepeatableDirective { name: StringKey },
 
     #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
     ConnectionMutationDirectiveOnScalarField {
@@ -617,9 +615,6 @@ pub enum ValidationMessage {
         "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match"
     )]
     RequiredWithinAbstractInlineFragment,
-
-    #[error("Unexpected second @required directive. @requried may only be used once per field")]
-    RequiredOncePerField,
 
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,

@@ -15,6 +15,7 @@ mod build_ir;
 mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
+mod is_operation_preloadable;
 mod persist_operations;
 mod source_control;
 mod validate;
@@ -36,6 +37,7 @@ pub use generate_artifacts::{
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
+pub use is_operation_preloadable::is_operation_preloadable;
 use log::info;
 use relay_codegen::Printer;
 use schema::Schema;

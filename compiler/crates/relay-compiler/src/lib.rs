@@ -25,7 +25,7 @@ pub use build_project::{
     artifact_writer::{ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter},
     build_schema, check_project, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
-    validate, Artifact, ArtifactContent, Programs, SourceHashes,
+    is_operation_preloadable, validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;

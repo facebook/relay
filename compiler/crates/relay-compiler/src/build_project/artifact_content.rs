@@ -5,13 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::is_operation_preloadable;
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer};
-use relay_transforms::{
-    is_preloadable_operation, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
-};
+use relay_transforms::{DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -207,7 +206,7 @@ fn generate_operation(
     writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
     writeln!(content, "}}\n").unwrap();
     // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
-    if is_preloadable_operation(normalization_operation) {
+    if is_operation_preloadable(normalization_operation) {
         writeln!(
               content,
               "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",

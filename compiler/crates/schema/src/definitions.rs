@@ -900,7 +900,7 @@ impl Schema {
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
                 arguments,
-                repeatable: _repeatable,
+                repeatable,
                 locations,
             }) => {
                 if self.directives.contains_key(&name.value) {
@@ -919,6 +919,7 @@ impl Schema {
                         name: name.value,
                         arguments,
                         locations: locations.clone(),
+                        repeatable: *repeatable,
                         is_extension,
                     },
                 );
@@ -1586,6 +1587,7 @@ pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
+    pub repeatable: bool,
     pub is_extension: bool,
 }
 

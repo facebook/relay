@@ -64,7 +64,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --manifest-path=compiler/Cargo.toml
+          args: --manifest-path=compiler/Cargo.toml --locked
 
   test-rust:
     name: Test Rust
@@ -78,7 +78,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --manifest-path=compiler/Cargo.toml
+          args: --manifest-path=compiler/Cargo.toml --locked
 
   test-relay-compiler-neon:
     name: Test Relay Compiler (Neon)

@@ -8,7 +8,7 @@
 use crate::error::Result;
 use crate::error_reporting::LSPErrorReporter;
 use crate::lsp::{
-    show_info_message, Connection, DidChangeTextDocument, DidCloseTextDocument,
+    set_ready_status, show_info_message, Connection, DidChangeTextDocument, DidCloseTextDocument,
     DidOpenTextDocument, Exit, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
     ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
     Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
@@ -52,7 +52,6 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
 pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
     show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
-
     let receiver = connection.receiver.clone();
     let sender = connection.sender.clone();
 
@@ -142,6 +141,7 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     info!("Waiting for compiler to initialize...");
     compiler_notify.notified().await;
     info!("Compiler has initialized");
+    set_ready_status(&connection.sender);
 
     let mut config = load_config();
     config.error_reporter = Box::new(LSPErrorReporter::new(

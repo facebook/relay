@@ -7,8 +7,8 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp::{
-    publish_diagnostic, url_from_location, Diagnostic, DiagnosticSeverity,
-    PublishDiagnosticsParams, Url,
+    publish_diagnostic, set_ready_status, set_running_status, url_from_location, Diagnostic,
+    DiagnosticSeverity, PublishDiagnosticsParams, Url,
 };
 use common::Diagnostic as CompilerDiagnostic;
 use crossbeam::crossbeam_channel::Sender;
@@ -92,7 +92,12 @@ impl ErrorReporter for LSPErrorReporter {
         self.commit_diagnostics();
     }
 
-    fn clear_diagnostics(&self) {
+    fn build_starts(&self) {
+        set_running_status(&self.sender);
+    }
+
+    fn build_finishes(&self) {
+        set_ready_status(&self.sender);
         {
             let mut active_diagnostics = self.active_diagnostics.write().unwrap();
             for diagnostics in active_diagnostics.values_mut() {

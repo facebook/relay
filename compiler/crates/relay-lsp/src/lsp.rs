@@ -19,6 +19,7 @@ pub use lsp_server::{
     Notification as ServerNotification, ProtocolError, Request as ServerRequest,
     RequestId as ServerRequestId, Response as ServerResponse,
 };
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
@@ -43,6 +44,77 @@ pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> 
     } else {
         None
     }
+}
+
+#[derive(Debug)]
+pub enum ShowStatus {}
+
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ShowStatusParams {
+    #[serde(rename = "type")]
+    pub typ: MessageType,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub progress: Option<Progress>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uri: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub short_message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub actions: Option<Vec<MessageActionItem>>,
+}
+
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+pub struct Progress {
+    numerator: f32,
+    denominator: Option<f32>,
+}
+
+impl Request for ShowStatus {
+    type Params = ShowStatusParams;
+    type Result = ();
+    const METHOD: &'static str = "window/showStatus";
+}
+
+pub fn set_ready_status(sender: &Sender<Message>) {
+    update_status(
+        Some("Relay: ready".into()),
+        Some("Relay: ready".into()),
+        MessageType::Info,
+        sender,
+    );
+}
+
+pub fn set_running_status(sender: &Sender<Message>) {
+    update_status(
+        Some("Relay: compiling".into()),
+        Some("Relay: compiling".into()),
+        MessageType::Warning,
+        sender,
+    );
+}
+
+fn update_status(
+    short_message: Option<String>,
+    message: Option<String>,
+    typ: MessageType,
+    sender: &Sender<Message>,
+) {
+    let request = ServerRequest::new(
+        ShowStatus::METHOD.to_string().into(),
+        ShowStatus::METHOD.into(),
+        ShowStatusParams {
+            typ,
+            progress: None,
+            uri: None,
+            message,
+            short_message,
+            actions: None,
+        },
+    );
+    sender.send(Message::Request(request)).unwrap();
 }
 
 /// Show a notification in the client

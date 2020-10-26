@@ -132,6 +132,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
+        self.config.error_reporter.build_starts();
         let result = build_projects(
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
@@ -139,7 +140,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
-        self.config.error_reporter.clear_diagnostics();
+        self.config.error_reporter.build_finishes();
         match result {
             Ok(()) => {
                 compiler_state.complete_compilation();

@@ -31,7 +31,7 @@ use tokio::sync::{mpsc, Notify};
 
 use crate::lsp_compiler::LSPCompiler;
 
-use crate::text_documents::initialize_compiler_if_contains_graphql;
+use crate::text_documents::extract_graphql_sources;
 
 /// Initializes an LSP connection, handling the `initize` message and `initialized` notification
 /// handshake.
@@ -67,9 +67,16 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
 
     // A `Notify` instance used to signal that the compiler should be initialized.
     let compiler_notify = Arc::new(Notify::new());
-
-    // Thread for the LSP message loop
-    let compiler_notifier = compiler_notify.clone();
+    let compiler_notify_clone = compiler_notify.clone();
+    let mut has_notified = false;
+    let mut on_opened_document = move |text: &String| {
+        if !has_notified {
+            if extract_graphql_sources(text).is_some() {
+                has_notified = true;
+                compiler_notify_clone.notify();
+            }
+        }
+    };
 
     // A channel to communicate between the LSP message loop and the compiler loop
     let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
@@ -106,10 +113,7 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                     match &notif.method {
                         method if method == DidOpenTextDocument::METHOD => {
                             let params = extract_notif_params::<DidOpenTextDocument>(notif);
-                            initialize_compiler_if_contains_graphql(
-                                &params,
-                                compiler_notifier.clone(),
-                            );
+                            on_opened_document(&params.text_document.text);
                             lsp_tx
                                 .send(LSPBridgeMessage::DidOpenTextDocument(params))
                                 .await

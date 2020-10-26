@@ -10,10 +10,9 @@ use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
-use crate::{source_for_location, watchman::FileSource};
-use common::{Diagnostic, DiagnosticsResult, PerfLogEvent, PerfLogger};
+use crate::watchman::FileSource;
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use graphql_cli::DiagnosticPrinter;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
@@ -157,7 +156,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 match &error {
                     Error::DiagnosticsError { errors } => {
                         for diagnostic in errors {
-                            self.print_diagnostic(diagnostic);
+                            self.config.error_reporter.report_diagnostic(diagnostic);
                         }
                     }
                     Error::BuildProjectsErrors { errors } => {
@@ -179,7 +178,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
                 for diagnostic in errors {
-                    self.print_diagnostic(diagnostic);
+                    self.config.error_reporter.report_diagnostic(diagnostic);
                 }
             }
             BuildProjectError::PersistErrors { errors } => {
@@ -191,13 +190,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 error!("{}", error);
             }
         }
-    }
-
-    fn print_diagnostic(&self, diagnostic: &Diagnostic) {
-        let printer = DiagnosticPrinter::new(|source_location| {
-            source_for_location(&self.config.root_dir, source_location).map(|source| source.text)
-        });
-        error!("{}", printer.diagnostic_to_string(diagnostic));
     }
 }
 

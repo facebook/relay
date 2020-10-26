@@ -8,6 +8,7 @@
 use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
+use crate::error_reporter::{ConsoleErrorReporter, ErrorReporter};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
@@ -72,6 +73,8 @@ pub struct Config {
                 + Sync,
         >,
     >,
+
+    pub error_reporter: Box<dyn ErrorReporter + Send + Sync>,
 }
 
 impl Config {
@@ -184,6 +187,7 @@ impl Config {
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
+            error_reporter: Box::new(ConsoleErrorReporter::new(root_dir.clone())),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -333,6 +337,7 @@ impl fmt::Debug for Config {
             saved_state_version,
             operation_persister,
             post_artifacts_write,
+            ..
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {

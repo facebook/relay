@@ -14,6 +14,7 @@ mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
+pub mod error_reporter;
 pub mod errors;
 mod graphql_asts;
 mod rollout;

@@ -8,6 +8,7 @@
 //! Utilities for reading, writing, and transforming data for the LSP service
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
+use crossbeam::crossbeam_channel::Sender;
 pub use lsp_server::{Connection, Message};
 pub use lsp_types::{notification::*, request::*, *};
 
@@ -65,11 +66,10 @@ pub fn show_info_message(message: impl Into<String>, connection: &Connection) ->
 /// Publish diagnostics to the client
 pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
-    connection: &Connection,
+    sender: &Sender<Message>,
 ) -> Result<()> {
     let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    connection
-        .sender
+    sender
         .send(Message::Notification(notif))
         .unwrap_or_else(|_| {
             // TODO(brandondail) log here

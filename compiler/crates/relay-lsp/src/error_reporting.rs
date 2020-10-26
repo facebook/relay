@@ -6,89 +6,78 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::lsp::Url;
-use crate::lsp::{url_from_location, Diagnostic, DiagnosticSeverity};
-use crate::state::ServerState;
-use relay_compiler::{errors::BuildProjectError, source_for_location};
-use std::fs;
+use crate::lsp::{
+    publish_diagnostic, url_from_location, Diagnostic, DiagnosticSeverity,
+    PublishDiagnosticsParams, Url,
+};
+use common::Diagnostic as CompilerDiagnostic;
+use crossbeam::crossbeam_channel::Sender;
+use lsp_server::Message;
+use relay_compiler::{error_reporter::ErrorReporter, source_for_location};
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::sync::{Arc, RwLock};
 
-/// Add errors that occur during the `build_project` step
-pub fn add_build_project_errors(errors: Vec<BuildProjectError>, server_state: &mut ServerState) {
-    for error in errors {
-        match error {
-            BuildProjectError::ValidationErrors { errors } => {
-                for diagnostic in errors {
-                    let message = diagnostic.message().to_string();
-
-                    let location = diagnostic.location();
-
-                    let url = match url_from_location(location, &server_state.root_dir) {
-                        Some(url) => url,
-                        None => {
-                            // If we can't parse the location as a Url we can't report the error
-                            // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
-                            return;
-                        }
-                    };
-
-                    let source = if let Some(source) =
-                        source_for_location(&server_state.root_dir, location.source_location())
-                    {
-                        source
-                    } else {
-                        return;
-                    };
-                    let range = location.span().to_range(
-                        &source.text,
-                        source.line_index,
-                        source.column_index,
-                    );
-
-                    let diagnostic = Diagnostic {
-                        code: None,
-                        message,
-                        range,
-                        related_information: None,
-                        severity: Some(DiagnosticSeverity::Error),
-                        source: None,
-                        tags: None,
-                    };
-                    server_state.add_diagnostic(url, diagnostic);
-                }
-            }
-            // We ignore persist/write errors for now. In the future we can potentially show a notification.
-            BuildProjectError::PersistErrors { .. } => {}
-            BuildProjectError::WriteFileError { .. } => {}
-        }
-    }
-    // ...
+pub struct LSPErrorReporter {
+    active_diagnostics: Arc<RwLock<HashMap<Url, Vec<Diagnostic>>>>,
+    sender: Sender<Message>,
+    root_dir: PathBuf,
 }
 
-/// Add errors that occur during parsing
-pub fn add_syntax_errors(errors: Vec<common::Diagnostic>, server_state: &mut ServerState) {
-    for error in errors {
-        // Remove the index from the end of the path, resolve the absolute path
-        let file_path = {
-            let file_path = error.location().source_location().path();
-            fs::canonicalize(server_state.root_dir.join(file_path)).unwrap()
+impl LSPErrorReporter {
+    pub fn new(root_dir: PathBuf, sender: Sender<Message>) -> Self {
+        Self {
+            active_diagnostics: Default::default(),
+            sender,
+            root_dir,
+        }
+    }
+
+    fn add_diagnostic(&self, url: Url, diagnostic: Diagnostic) {
+        self.active_diagnostics
+            .write()
+            .unwrap()
+            .entry(url)
+            .or_default()
+            .push(diagnostic);
+    }
+
+    fn commit_diagnostics(&self) {
+        for (url, diagnostics) in self.active_diagnostics.read().unwrap().iter() {
+            let params = PublishDiagnosticsParams {
+                diagnostics: diagnostics.clone(),
+                uri: url.clone(),
+                version: None,
+            };
+            publish_diagnostic(params, &self.sender).ok();
+        }
+    }
+}
+
+impl ErrorReporter for LSPErrorReporter {
+    fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
+        let message = diagnostic.message().to_string();
+
+        let location = diagnostic.location();
+
+        let url = match url_from_location(location, &self.root_dir) {
+            Some(url) => url,
+            None => {
+                // If we can't parse the location as a Url we can't report the error
+                // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
+                return;
+            }
         };
 
-        let url = Url::from_file_path(file_path).unwrap();
-
-        let message = format!("{}", error.message());
-
-        let source = if let Some(source) =
-            source_for_location(&server_state.root_dir, error.location().source_location())
-        {
-            source
-        } else {
-            continue;
-        };
-        let range =
-            error
-                .location()
-                .span()
-                .to_range(&source.text, source.line_index, source.column_index);
+        let source =
+            if let Some(source) = source_for_location(&self.root_dir, location.source_location()) {
+                source
+            } else {
+                return;
+            };
+        let range = location
+            .span()
+            .to_range(&source.text, source.line_index, source.column_index);
 
         let diagnostic = Diagnostic {
             code: None,
@@ -96,9 +85,20 @@ pub fn add_syntax_errors(errors: Vec<common::Diagnostic>, server_state: &mut Ser
             range,
             related_information: None,
             severity: Some(DiagnosticSeverity::Error),
-            source: Some(source.text),
+            source: None,
             tags: None,
         };
-        server_state.add_diagnostic(url, diagnostic);
+        self.add_diagnostic(url, diagnostic);
+        self.commit_diagnostics();
+    }
+
+    fn clear_diagnostics(&self) {
+        {
+            let mut active_diagnostics = self.active_diagnostics.write().unwrap();
+            for diagnostics in active_diagnostics.values_mut() {
+                diagnostics.clear();
+            }
+        }
+        self.commit_diagnostics();
     }
 }

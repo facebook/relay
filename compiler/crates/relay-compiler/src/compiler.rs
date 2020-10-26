@@ -139,6 +139,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
+        self.config.error_reporter.clear_diagnostics();
         match result {
             Ok(()) => {
                 compiler_state.complete_compilation();

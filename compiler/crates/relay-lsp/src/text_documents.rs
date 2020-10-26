@@ -6,6 +6,7 @@
  */
 
 //! Utilities related to LSP text document syncing
+#![allow(dead_code)]
 
 use crate::lsp::{
     DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,

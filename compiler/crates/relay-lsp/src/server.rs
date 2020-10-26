@@ -5,31 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    error::LSPError,
-    lsp::{
-        Connection, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit,
-        InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
-        ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
-        TextDocumentSyncCapability, TextDocumentSyncKind,
-    },
+use crate::error::Result;
+use crate::error_reporting::LSPErrorReporter;
+use crate::lsp::{
+    show_info_message, Connection, DidChangeTextDocument, DidCloseTextDocument,
+    DidOpenTextDocument, Exit, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
+    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
+    Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
 };
-
-use relay_compiler::{errors::Error::DiagnosticsError, FileSource};
-
+use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 
-use crate::error::Result;
-use crate::lsp::show_info_message;
-
 use common::ConsoleLogger;
-use common::PerfLogger;
 use log::info;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Notify};
-
-use crate::lsp_compiler::LSPCompiler;
 
 use crate::text_documents::extract_graphql_sources;
 
@@ -79,7 +70,7 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     };
 
     // A channel to communicate between the LSP message loop and the compiler loop
-    let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
+    let (mut lsp_tx, _lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
 
     tokio::spawn(async move {
         for msg in receiver {
@@ -152,24 +143,13 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     compiler_notify.notified().await;
     info!("Compiler has initialized");
 
-    let config = load_config();
-    let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
-    let file_source = FileSource::connect(&config, &setup_event).await?;
-    let (compiler_state, subscription) = file_source
-        .subscribe(&setup_event, &ConsoleLogger)
-        .await
-        .unwrap();
-    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event)
-        .map_err(|errors| LSPError::CompilerError(DiagnosticsError { errors }))?;
-    let mut lsp_compiler = LSPCompiler::new(
-        &schemas,
-        &config,
-        subscription,
-        compiler_state,
-        lsp_rx,
-        connection,
-    );
-    lsp_compiler.watch().await.unwrap();
+    let mut config = load_config();
+    config.error_reporter = Box::new(LSPErrorReporter::new(
+        config.root_dir.clone(),
+        connection.sender.clone(),
+    ));
+    let compiler = Compiler::new(config, Arc::new(ConsoleLogger));
+    compiler.watch().await.unwrap();
     Ok(())
 }
 

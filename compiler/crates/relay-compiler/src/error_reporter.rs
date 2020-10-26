@@ -13,6 +13,7 @@ use std::path::PathBuf;
 
 pub trait ErrorReporter {
     fn report_diagnostic(&self, diagnostic: &Diagnostic);
+    fn clear_diagnostics(&self);
 }
 
 pub struct ConsoleErrorReporter {
@@ -32,4 +33,6 @@ impl ErrorReporter for ConsoleErrorReporter {
         });
         error!("{}", printer.diagnostic_to_string(diagnostic));
     }
+
+    fn clear_diagnostics(&self) {}
 }

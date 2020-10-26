@@ -14,17 +14,17 @@ mod error_reporting;
 mod lsp;
 mod server;
 mod text_documents;
-use lsp_server::Connection;
-
 use error::Result;
 use log::info;
+use lsp_server::Connection;
+use relay_compiler::config::Config;
 
-pub async fn start_language_server() -> Result<()> {
+pub async fn start_language_server(config: Config) -> Result<()> {
     let (connection, io_handles) = Connection::stdio();
     info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     info!("JSON-RPC handshake completed");
-    server::run(connection, params).await?;
+    server::run(connection, config, params).await?;
     io_handles.join()?;
     Ok(())
 }

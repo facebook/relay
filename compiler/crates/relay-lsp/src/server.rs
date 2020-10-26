@@ -18,7 +18,6 @@ use relay_compiler::config::Config;
 
 use common::ConsoleLogger;
 use log::info;
-use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Notify};
 
@@ -49,7 +48,11 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
 }
 
 /// Run the main server loop
-pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
+pub async fn run(
+    connection: Connection,
+    mut config: Config,
+    _params: InitializeParams,
+) -> Result<()> {
     show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
     let receiver = connection.receiver.clone();
@@ -143,7 +146,6 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     info!("Compiler has initialized");
     set_ready_status(&connection.sender);
 
-    let mut config = load_config();
     config.error_reporter = Box::new(LSPErrorReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),
@@ -151,17 +153,6 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     let compiler = Compiler::new(config, Arc::new(ConsoleLogger));
     compiler.watch().await.unwrap();
     Ok(())
-}
-
-fn load_config() -> Config {
-    // TODO(brandondail) don't hardcode the test project config here
-    let home = std::env::var("HOME").unwrap();
-    let config_path = PathBuf::from(format!(
-        "{}/fbsource/fbcode/relay/config/config.example.json",
-        home
-    ));
-    let config = Config::load(config_path).unwrap();
-    config
 }
 
 fn extract_notif_params<N>(notif: ServerNotification) -> N::Params

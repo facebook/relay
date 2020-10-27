@@ -1,4 +1,4 @@
-// @generated SignedSource<<233e403ffa3e9f5746e912db9db19576>>
+// @generated SignedSource<<7cdf52d355a7d3e6921d6373d5048081>>
 
 mod parse;
 
@@ -388,6 +388,13 @@ fn simple_query() {
     let input = include_str!("parse/fixtures/simple-query.graphql");
     let expected = include_str!("parse/fixtures/simple-query.expected");
     test_fixture(transform_fixture, "simple-query.graphql", "parse/fixtures/simple-query.expected", input, expected);
+}
+
+#[test]
+fn typename_with_arguments_invalid() {
+    let input = include_str!("parse/fixtures/typename_with_arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/typename_with_arguments.invalid.expected");
+    test_fixture(transform_fixture, "typename_with_arguments.invalid.graphql", "parse/fixtures/typename_with_arguments.invalid.expected", input, expected);
 }
 
 #[test]

@@ -136,7 +136,7 @@ pub enum ValidationMessage {
     )]
     InvalidArgumentsKeys(String),
 
-    #[error("Unexpected arguments on '__typename' field")]
+    #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
 
     #[error(

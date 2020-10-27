@@ -483,25 +483,22 @@ it('disposes query references associated with previous suspensions when multiple
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
-    jest.runOnlyPendingTimers(); // Trigger fallback.
+    jest.runOnlyPendingTimers(); // Trigger transition.
     expect(loadQuery).toHaveBeenCalledTimes(1);
-    expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
 
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise2);
     });
-    jest.runOnlyPendingTimers(); // Trigger fallback.
+    jest.runOnlyPendingTimers(); // Trigger transition.
     expect(loadQuery).toHaveBeenCalledTimes(2);
-    expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;
 
     ReactTestRenderer.act(() => {
       initialStateChange(resolvableSuspensePromise);
     });
-    jest.runOnlyPendingTimers(); // Trigger fallback.
+    jest.runOnlyPendingTimers(); // Trigger transition.
     expect(loadQuery).toHaveBeenCalledTimes(3);
-    expect(instance.toJSON()).toEqual('fallback');
     const thirdDispose = dispose;
 
     expect(firstDispose).not.toHaveBeenCalled();
@@ -590,16 +587,14 @@ it('disposes query references associated with subsequent suspensions when multip
       initialStateChange(resolvableSuspensePromise);
     });
 
-    jest.runOnlyPendingTimers(); // Trigger fallback.
+    jest.runOnlyPendingTimers(); // Trigger transition.
     expect(loadQuery).toHaveBeenCalledTimes(1);
-    expect(instance.toJSON()).toEqual('fallback');
     const firstDispose = dispose;
 
     ReactTestRenderer.act(() => {
       initialStateChange(unresolvablePromise);
     });
     expect(loadQuery).toHaveBeenCalledTimes(2);
-    expect(instance.toJSON()).toEqual('fallback');
     const secondDispose = dispose;
 
     ReactTestRenderer.act(() => {

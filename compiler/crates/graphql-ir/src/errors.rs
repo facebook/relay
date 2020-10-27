@@ -607,9 +607,12 @@ pub enum ValidationMessage {
     InvalidFlightFieldReturnType,
 
     #[error(
-        "Expected all fields on the same parent with the name or alias '{field_name}' to have the same name and arguments."
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after appling fragment arguments. This field has the applied argument values: {arguments_a}"
     )]
-    InvalidSameFieldWithDifferentArguments { field_name: StringKey },
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
+    },
 
     #[error(
         "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match"

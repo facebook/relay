@@ -10,6 +10,7 @@ use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
+use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
@@ -73,12 +74,15 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
+        let mut red_to_green = RedToGreen::new();
+
         if self
             .build_projects(&mut compiler_state, &setup_event)
             .await
             .is_err()
         {
-            // noop, build_projects should have logged already
+            // build_projects should have logged already
+            red_to_green.log_error()
         } else {
             info!("Compilation completed.");
         }
@@ -110,9 +114,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         .await
                         .is_err()
                     {
-                        // noop, build_projects should have logged already
+                        // build_projects should have logged already
+                        red_to_green.log_error()
                     } else {
                         info!("Compilation completed.");
+                        red_to_green.clear_error_and_log(self.perf_logger.as_ref());
                     }
                     incremental_build_event.stop(incremental_build_time);
                     info!("Waiting for changes...");

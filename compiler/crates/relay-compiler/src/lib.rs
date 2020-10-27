@@ -17,6 +17,7 @@ pub mod config;
 pub mod error_reporter;
 pub mod errors;
 mod graphql_asts;
+mod red_to_green;
 mod rollout;
 pub mod saved_state;
 mod watchman;

@@ -16,6 +16,8 @@ pub enum SyntaxError {
     ExpectedSelection,
     #[error("Expected a fragment, mutation, query, or subscription definition")]
     ExpectedDefinition,
+    #[error("Expected a definition")]
+    ExpectedExecutableDefinition,
     #[error("Expected a 'mutation', 'query', or 'subscription' keyword")]
     ExpectedOperationKind,
     #[error(

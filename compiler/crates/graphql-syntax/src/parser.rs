@@ -61,6 +61,16 @@ impl<'a> Parser<'a> {
         parser
     }
 
+    pub fn parse_document(mut self) -> DiagnosticsResult<Document> {
+        let document = self.parse_document_impl();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok(document.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     /// Parses a document consisting only of executable nodes: operations and
     /// fragments.
     pub fn parse_executable_document(mut self) -> DiagnosticsResult<ExecutableDocument> {
@@ -103,6 +113,17 @@ impl<'a> Parser<'a> {
     // Document / Definitions
 
     /// Document : Definition+
+    fn parse_document_impl(&mut self) -> ParseResult<Document> {
+        let start = self.index();
+        let definitions = self.parse_list(|s| s.peek_definition(), |s| s.parse_definition())?;
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(Document {
+            location: Location::new(self.source_location, span),
+            definitions,
+        })
+    }
+
     fn parse_executable_document_impl(&mut self) -> ParseResult<ExecutableDocument> {
         let start = self.index();
         let definitions = self.parse_list(
@@ -126,6 +147,48 @@ impl<'a> Parser<'a> {
             location: Location::new(self.source_location, span),
             definitions,
         })
+    }
+
+    /// Definition :
+    /// [x] ExecutableDefinition
+    /// [x]  TypeSystemDefinition
+    /// [x]  TypeSystemExtension
+    fn peek_definition(&self) -> bool {
+        self.peek_executable_definition() || self.peek_type_system_definition()
+    }
+    fn parse_definition(&mut self) -> ParseResult<Definition> {
+        let token = self.peek();
+        let source = self.source(&token);
+        match (token.kind, source) {
+            (TokenKind::OpenBrace, _)
+            | (TokenKind::Identifier, "query")
+            | (TokenKind::Identifier, "mutation")
+            | (TokenKind::Identifier, "subscription")
+            | (TokenKind::Identifier, "fragment") => Ok(Definition::ExecutableDefinition(
+                self.parse_executable_definition()?,
+            )),
+            (TokenKind::StringLiteral, _)
+            | (TokenKind::BlockStringLiteral, _)
+            | (TokenKind::Identifier, "schema")
+            | (TokenKind::Identifier, "scalar")
+            | (TokenKind::Identifier, "type")
+            | (TokenKind::Identifier, "interface")
+            | (TokenKind::Identifier, "union")
+            | (TokenKind::Identifier, "enum")
+            | (TokenKind::Identifier, "input")
+            | (TokenKind::Identifier, "directive")
+            | (TokenKind::Identifier, "extend") => Ok(Definition::TypeSystemDefinition(
+                self.parse_type_system_definition()?,
+            )),
+            _ => {
+                let error = Diagnostic::error(
+                    SyntaxError::ExpectedDefinition,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+        }
     }
 
     /// Definition :
@@ -168,7 +231,7 @@ impl<'a> Parser<'a> {
             )),
             _ => {
                 let error = Diagnostic::error(
-                    SyntaxError::ExpectedDefinition,
+                    SyntaxError::ExpectedExecutableDefinition,
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);

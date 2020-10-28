@@ -310,40 +310,6 @@ describe('when passed a PreloadableConcreteRequest', () => {
       }
     });
 
-    it('should execute an onError callback if the query AST is not loaded in time and onQueryAstLoadTimeout is passed in', done => {
-      const onQueryAstLoadTimeout = jest.fn(() => done());
-      const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-      loadQuery(environment, preloadableConcreteRequest, variables, {
-        onQueryAstLoadTimeout,
-      });
-      jest.advanceTimersByTime(LOAD_QUERY_AST_MAX_TIMEOUT - 1);
-      expect(onQueryAstLoadTimeout).not.toHaveBeenCalled();
-      jest.advanceTimersByTime(1);
-      expect(onQueryAstLoadTimeout).toHaveBeenCalled();
-    });
-
-    it('completes the source if the AST times out', () => {
-      const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-      const loaded = loadQuery(
-        environment,
-        preloadableConcreteRequest,
-        variables,
-      );
-      const events = [];
-      const source = loaded.source;
-      if (source) {
-        source.subscribe({
-          complete: () => events.push('complete'),
-          error: error => events.push('error', error),
-          next: payload => events.push('next', payload),
-        });
-      }
-      jest.advanceTimersByTime(LOAD_QUERY_AST_MAX_TIMEOUT - 1);
-      expect(events).toEqual([]);
-      jest.advanceTimersByTime(1);
-      expect(events).toEqual(['complete']);
-    });
-
     it('passes a callback to onLoad that calls executeWithSource', () => {
       loadQuery(environment, preloadableConcreteRequest, variables);
       expect(environment.executeWithSource).not.toHaveBeenCalled();

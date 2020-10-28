@@ -79,8 +79,8 @@ type BadConnectionPageInfo {
 
 ✖︎ Expected the key argument to @connection to be a string literal for field 'badConnection'.
 
-  connection-invalid-edge-type.invalid.graphql:6:7
+  connection-invalid-edge-type.invalid.graphql:6:52
     5 │     ... on User {
     6 │       badConnection(first: $first, after: $after) @connection {
-      │       ^^^^^^^^^^^^^
+      │                                                    ^^^^^^^^^^
     7 │         edges {

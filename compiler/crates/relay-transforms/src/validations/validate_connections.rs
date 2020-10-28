@@ -452,7 +452,7 @@ impl<'s> ConnectionValidation<'s> {
                         connection_field_name: connection_schema_field.name,
                         key_arg_name: *KEY_ARG_NAME,
                     },
-                    connection_field.definition.location,
+                    connection_directive.name.location,
                 )]);
             }
         }

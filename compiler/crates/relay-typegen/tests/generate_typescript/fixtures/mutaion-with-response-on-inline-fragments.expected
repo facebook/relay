@@ -28,64 +28,64 @@ fragment InlineFragmentWithOverlappingFields on Actor {
 }
 ==================================== OUTPUT ===================================
 import type { InlineFragmentWithOverlappingFields$ref } from "InlineFragmentWithOverlappingFields.graphql";
-export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
-  feedback?: ?CommentfeedbackFeedback,
-|};
-export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
-|};
-export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
-|};
-export type TestMutationVariables = {|
+export type CommentCreateInput = {
+  clientMutationId?: string,
+  feedbackId?: string,
+  feedback?: CommentfeedbackFeedback,
+};
+export type CommentfeedbackFeedback = {
+  comment?: FeedbackcommentComment
+};
+export type FeedbackcommentComment = {
+  feedback?: CommentfeedbackFeedback
+};
+export type TestMutationVariables = {
   input: CommentCreateInput
-|};
-export type TestMutationResponse = {|
-  +commentCreate: ?{|
-    +viewer: ?{|
-      +actor: ?{|
-        +$fragmentRefs: InlineFragmentWithOverlappingFields$ref
-      |}
-    |}
-  |}
-|};
-export type TestMutationRawResponse = {|
-  +commentCreate: ?{|
-    +viewer: ?{|
-      +actor: ?({|
-        +__typename: "User",
-        +__isActor: "User",
-        +id: string,
-        +hometown: ?{|
-          +id: string,
-          +name: ?string,
-        |},
-      |} | {|
-        +__typename: "Page",
-        +__isActor: "Page",
-        +id: string,
-        +name: ?string,
-        +hometown: ?{|
-          +id: string,
-          +message: ?{|
-            +text: ?string
-          |},
-        |},
-      |} | {|
-        +__typename: string,
-        +__isActor: string,
-        +id: string,
-      |})
-    |}
-  |}
-|};
-export type TestMutation = {|
+};
+export type TestMutationResponse = {
+  readonly commentCreate?: {
+    readonly viewer?: {
+      readonly actor?: {
+        readonly $fragmentRefs: InlineFragmentWithOverlappingFields$ref
+      }
+    }
+  }
+};
+export type TestMutationRawResponse = {
+  readonly commentCreate?: {
+    readonly viewer?: {
+      readonly actor?: {
+        readonly __typename: "User",
+        readonly __isActor: "User",
+        readonly id: string,
+        readonly hometown?: {
+          readonly id: string,
+          readonly name?: string,
+        },
+      } | {
+        readonly __typename: "Page",
+        readonly __isActor: "Page",
+        readonly id: string,
+        readonly name?: string,
+        readonly hometown?: {
+          readonly id: string,
+          readonly message?: {
+            readonly text?: string
+          },
+        },
+      } | {
+        readonly __typename: string,
+        readonly __isActor: string,
+        readonly id: string,
+      }
+    }
+  }
+};
+export type TestMutation = {
   variables: TestMutationVariables,
   response: TestMutationResponse,
   rawResponse: TestMutationRawResponse,
-|};
+};
 -------------------------------------------------------------------------------
 import { FragmentReference } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields$ref = FragmentReference & { _: "InlineFragmentWithOverlappingFields$ref" };

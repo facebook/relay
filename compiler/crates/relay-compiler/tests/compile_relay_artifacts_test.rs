@@ -1,4 +1,4 @@
-// @generated SignedSource<<479388c442ba56cc64177d44f17bbf0b>>
+// @generated SignedSource<<743d91247f699ec0ed83aaf2a59c7cae>>
 
 mod compile_relay_artifacts;
 
@@ -675,6 +675,20 @@ fn redundant_selection_in_inline_fragments() {
     let input = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected");
     test_fixture(transform_fixture, "redundant-selection-in-inline-fragments.graphql", "compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected", input, expected);
+}
+
+#[test]
+fn refetchable_conflict_with_operation_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_conflict_with_operation.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_conflict_with_operation.invalid.expected");
+    test_fixture(transform_fixture, "refetchable_conflict_with_operation.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable_conflict_with_operation.invalid.expected", input, expected);
+}
+
+#[test]
+fn refetchable_conflict_with_refetchable_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_conflict_with_refetchable.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_conflict_with_refetchable.invalid.expected");
+    test_fixture(transform_fixture, "refetchable_conflict_with_refetchable.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable_conflict_with_refetchable.invalid.expected", input, expected);
 }
 
 #[test]

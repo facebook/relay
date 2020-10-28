@@ -446,6 +446,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "A unique query name has to be specified in `@refetchable`, an operation `{query_name}` already exists."
+    )]
+    RefetchableQueryConflictWithQuery { query_name: StringKey },
+
+    #[error(
         "Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope."
     )]
     RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },

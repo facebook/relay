@@ -71,6 +71,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 enum_module_suffix: None,
                 optional_input_fields: vec![],
                 custom_scalar_types: Default::default(),
+                haste: true,
             },
         )
     });

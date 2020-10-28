@@ -434,6 +434,9 @@ class RelayReader {
       reactFlightClientResponseRecord,
     );
     data[applicationName] = clientResponse;
+    this._seenRecords[
+      reactFlightClientResponseRecordID
+    ] = reactFlightClientResponseRecord;
     return clientResponse;
   }
 

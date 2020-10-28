@@ -19,8 +19,12 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   if (
     prevData === nextData ||
     typeof prevData !== 'object' ||
+    prevData instanceof Set ||
+    prevData instanceof Map ||
     !prevData ||
     typeof nextData !== 'object' ||
+    nextData instanceof Map ||
+    nextData instanceof Map ||
     !nextData
   ) {
     return nextData;

@@ -1866,7 +1866,10 @@ describe('RelayReader', () => {
         id: '1',
       });
       source = RelayRecordSource.create(records);
-      const {data, isMissingData} = read(source, operation.fragment);
+      const {data, isMissingData, seenRecords} = read(
+        source,
+        operation.fragment,
+      );
       expect(isMissingData).toBe(false);
       expect(data).toMatchInlineSnapshot(`
         Object {
@@ -1877,6 +1880,11 @@ describe('RelayReader', () => {
           },
         }
       `);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:root',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+      ]);
     });
 
     it('should read data correctly when ReactFlightClientResponse is null in the store', () => {
@@ -1904,7 +1912,10 @@ describe('RelayReader', () => {
         id: '1',
       });
       source = RelayRecordSource.create(records);
-      const {data, isMissingData} = read(source, operation.fragment);
+      const {data, isMissingData, seenRecords} = read(
+        source,
+        operation.fragment,
+      );
       expect(isMissingData).toBe(false);
       expect(data).toMatchInlineSnapshot(`
           Object {
@@ -1913,6 +1924,11 @@ describe('RelayReader', () => {
             },
           }
         `);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:root',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+      ]);
     });
 
     it('should be missing data when ReactFlightClientResponse is undefined in the store', () => {
@@ -1940,7 +1956,10 @@ describe('RelayReader', () => {
         id: '1',
       });
       source = RelayRecordSource.create(records);
-      const {data, isMissingData} = read(source, operation.fragment);
+      const {data, isMissingData, seenRecords} = read(
+        source,
+        operation.fragment,
+      );
       expect(isMissingData).toBe(true);
       expect(data).toMatchInlineSnapshot(`
         Object {
@@ -1949,6 +1968,11 @@ describe('RelayReader', () => {
           },
         }
       `);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:root',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+      ]);
     });
 
     it('should be missing data when the linked ReactFlightClientResponseRecord is missing', () => {
@@ -1975,7 +1999,10 @@ describe('RelayReader', () => {
         id: '1',
       });
       source = RelayRecordSource.create(records);
-      const {data, isMissingData} = read(source, operation.fragment);
+      const {data, isMissingData, seenRecords} = read(
+        source,
+        operation.fragment,
+      );
       expect(isMissingData).toBe(true);
       expect(data).toMatchInlineSnapshot(`
         Object {
@@ -1984,6 +2011,11 @@ describe('RelayReader', () => {
           },
         }
       `);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:root',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+      ]);
     });
   });
 });

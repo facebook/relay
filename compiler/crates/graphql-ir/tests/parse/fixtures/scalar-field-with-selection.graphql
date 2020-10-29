@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment ScalarHandleField on User {
+  name {
+    id
+  }
+}

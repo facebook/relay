@@ -1,4 +1,4 @@
-// @generated SignedSource<<7cdf52d355a7d3e6921d6373d5048081>>
+// @generated SignedSource<<571e38e288c7fd293b329ce551743dcd>>
 
 mod parse;
 
@@ -265,6 +265,13 @@ fn invalid_argument_type_invalid() {
 }
 
 #[test]
+fn linked_field_with_no_selection_invalid() {
+    let input = include_str!("parse/fixtures/linked-field-with-no-selection.invalid.graphql");
+    let expected = include_str!("parse/fixtures/linked-field-with-no-selection.invalid.expected");
+    test_fixture(transform_fixture, "linked-field-with-no-selection.invalid.graphql", "parse/fixtures/linked-field-with-no-selection.invalid.expected", input, expected);
+}
+
+#[test]
 fn linked_handle_field() {
     let input = include_str!("parse/fixtures/linked-handle-field.graphql");
     let expected = include_str!("parse/fixtures/linked-handle-field.expected");
@@ -367,6 +374,13 @@ fn query_with_argument_invalid() {
     let input = include_str!("parse/fixtures/query-with-argument.invalid.graphql");
     let expected = include_str!("parse/fixtures/query-with-argument.invalid.expected");
     test_fixture(transform_fixture, "query-with-argument.invalid.graphql", "parse/fixtures/query-with-argument.invalid.expected", input, expected);
+}
+
+#[test]
+fn scalar_field_with_selection() {
+    let input = include_str!("parse/fixtures/scalar-field-with-selection.graphql");
+    let expected = include_str!("parse/fixtures/scalar-field-with-selection.expected");
+    test_fixture(transform_fixture, "scalar-field-with-selection.graphql", "parse/fixtures/scalar-field-with-selection.expected", input, expected);
 }
 
 #[test]

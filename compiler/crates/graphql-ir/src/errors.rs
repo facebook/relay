@@ -25,10 +25,16 @@ pub enum ValidationMessage {
     ExpectedType(TypeReference),
     #[error("The type `{type_}` has no field `{field}`")]
     UnknownField { type_: StringKey, field: StringKey },
-    #[error("Expected no selections on scalar field '{0:?}.{1}'")]
-    InvalidSelectionsOnScalarField(Type, StringKey),
-    #[error("Expected selections on field '{0:?}.{1}'")]
-    ExpectedSelectionsOnObjectField(Type, StringKey),
+    #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
+    InvalidSelectionsOnScalarField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
+    ExpectedSelectionsOnObjectField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
     #[error("Unknown argument '{0}'")]
     UnknownArgument(StringKey),
     #[error("Unknown directive '{0}'")]

@@ -733,10 +733,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if field_definition.type_.inner().is_scalar() || field_definition.type_.inner().is_enum() {
             return Err(self
                 .record_error(Diagnostic::error(
-                    ValidationMessage::InvalidSelectionsOnScalarField(
-                        parent_type.inner(),
-                        field.name.value,
-                    ),
+                    ValidationMessage::InvalidSelectionsOnScalarField {
+                        type_name: self.schema.get_type_name(parent_type.inner()),
+                        field_name: field.name.value,
+                    },
                     self.location.with_span(span),
                 ))
                 .into());
@@ -791,10 +791,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         {
             return Err(self
                 .record_error(Diagnostic::error(
-                    ValidationMessage::ExpectedSelectionsOnObjectField(
-                        parent_type.inner(),
-                        field.name.value,
-                    ),
+                    ValidationMessage::ExpectedSelectionsOnObjectField {
+                        type_name: self.schema.get_type_name(parent_type.inner()),
+                        field_name: field.name.value,
+                    },
                     self.location.with_span(span),
                 ))
                 .into());

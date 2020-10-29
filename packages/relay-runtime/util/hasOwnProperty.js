@@ -10,7 +10,7 @@
 
 'use strict';
 
-function hasOwnProperty(obj: {+[key: string]: mixed}, key: string) {
+function hasOwnProperty(obj: {+[key: string]: mixed}, key: string): boolean {
   return (Object.prototype.hasOwnProperty.call(obj, key): boolean);
 }
 

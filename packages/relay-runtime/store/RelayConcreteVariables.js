@@ -18,6 +18,8 @@ import type {NormalizationOperation} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
+const hasOwnProperty = require('../util/hasOwnProperty');
+
 /**
  * Determines the variables that are in scope for a fragment given the variables
  * in scope at the root query as well as any arguments applied at the fragment
@@ -32,7 +34,7 @@ function getFragmentVariables(
 ): Variables {
   let variables;
   fragment.argumentDefinitions.forEach(definition => {
-    if (argumentVariables.hasOwnProperty(definition.name)) {
+    if (hasOwnProperty(argumentVariables, definition.name)) {
       return;
     }
     variables = variables || {...argumentVariables};
@@ -41,7 +43,7 @@ function getFragmentVariables(
         variables[definition.name] = definition.defaultValue;
         break;
       case 'RootArgument':
-        if (!rootVariables.hasOwnProperty(definition.name)) {
+        if (!hasOwnProperty(rootVariables, definition.name)) {
           /*
            * Global variables passed as values of @arguments are not required to
            * be declared unless they are used by the callee fragment or a

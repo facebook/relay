@@ -16,6 +16,7 @@ const RelayModernRecord = require('../store/RelayModernRecord');
 const RelayRecordProxy = require('./RelayRecordProxy');
 
 const invariant = require('invariant');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
@@ -113,7 +114,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   }
 
   get(dataID: DataID): ?RecordProxy {
-    if (!this._proxies.hasOwnProperty(dataID)) {
+    if (!hasOwnProperty(this._proxies, dataID)) {
       const status = this.__mutator.getStatus(dataID);
       if (status === EXISTENT) {
         this._proxies[dataID] = new RelayRecordProxy(

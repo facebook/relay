@@ -21,6 +21,7 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {generateTypeID} = require('./TypeID');
 
@@ -114,7 +115,7 @@ class RelayReferenceMarker {
 
   _getVariableValue(name: string): mixed {
     invariant(
-      this._variables.hasOwnProperty(name),
+      hasOwnProperty(this._variables, name),
       'RelayReferenceMarker(): Undefined variable `%s`.',
       name,
     );

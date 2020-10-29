@@ -16,6 +16,7 @@ const areEqual = require('areEqual');
 const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
 const warning = require('warning');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {isClientID} = require('./ClientID');
 const {
@@ -97,7 +98,7 @@ function clone(record: Record): Record {
  */
 function copyFields(source: Record, sink: Record): void {
   for (const key in source) {
-    if (source.hasOwnProperty(key)) {
+    if (hasOwnProperty(source, key)) {
       if (key !== ID_KEY && key !== TYPENAME_KEY) {
         sink[key] = source[key];
       }
@@ -145,12 +146,12 @@ function getValue(record: Record, storageKey: string): mixed {
   const value = record[storageKey];
   if (value && typeof value === 'object') {
     invariant(
-      !value.hasOwnProperty(REF_KEY) && !value.hasOwnProperty(REFS_KEY),
+      !hasOwnProperty(value, REF_KEY) && !hasOwnProperty(value, REFS_KEY),
       'RelayModernRecord.getValue(): Expected a scalar (non-link) value for `%s.%s` ' +
         'but found %s.',
       record[ID_KEY],
       storageKey,
-      value.hasOwnProperty(REF_KEY)
+      hasOwnProperty(value, REF_KEY)
         ? 'a linked record'
         : 'plural linked records',
     );

@@ -19,6 +19,7 @@ const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const warning = require('warning');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
@@ -96,7 +97,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   dispose(): void {
     for (const key in this._resolvers) {
-      if (this._resolvers.hasOwnProperty(key)) {
+      if (hasOwnProperty(this._resolvers, key)) {
         disposeCallback(this._resolvers[key]);
       }
     }
@@ -109,7 +110,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
       const prevData = this._data;
       let nextData;
       for (const key in this._resolvers) {
-        if (this._resolvers.hasOwnProperty(key)) {
+        if (hasOwnProperty(this._resolvers, key)) {
           const resolver = this._resolvers[key];
           const prevItem = prevData[key];
           if (resolver) {
@@ -143,7 +144,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._props = {};
 
     for (const key in ownedSelectors) {
-      if (ownedSelectors.hasOwnProperty(key)) {
+      if (hasOwnProperty(ownedSelectors, key)) {
         const ownedSelector = ownedSelectors[key];
         let resolver = this._resolvers[key];
         if (ownedSelector == null) {
@@ -191,7 +192,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   setVariables(variables: Variables, request: ConcreteRequest): void {
     for (const key in this._resolvers) {
-      if (this._resolvers.hasOwnProperty(key)) {
+      if (hasOwnProperty(this._resolvers, key)) {
         const resolver = this._resolvers[key];
         if (resolver) {
           resolver.setVariables(variables, request);

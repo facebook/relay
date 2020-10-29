@@ -14,6 +14,8 @@
 
 import type {Record} from '../../store/RelayStoreTypes';
 
+const hasOwnProperty = require('../../util/hasOwnProperty');
+
 type Call = {name: string, ...};
 
 export type EdgeRecord = Record & {
@@ -85,7 +87,7 @@ const ConnectionInterface = {
    * same identity.
    */
   isConnectionCall(call: Call): boolean {
-    return CONNECTION_CALLS.hasOwnProperty(call.name);
+    return hasOwnProperty(CONNECTION_CALLS, call.name);
   },
 };
 

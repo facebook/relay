@@ -15,6 +15,7 @@
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -169,7 +170,7 @@ class RelayResponseNormalizer {
 
   _getVariableValue(name: string): mixed {
     invariant(
-      this._variables.hasOwnProperty(name),
+      hasOwnProperty(this._variables, name),
       'RelayResponseNormalizer(): Undefined variable `%s`.',
       name,
     );
@@ -212,7 +213,7 @@ class RelayResponseNormalizer {
               this._traverseSelections(selection, record, data);
             }
           } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const implementsInterface = data.hasOwnProperty(abstractKey);
+            const implementsInterface = hasOwnProperty(data, abstractKey);
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
             let typeRecord = this._recordSource.get(typeID);
@@ -232,7 +233,7 @@ class RelayResponseNormalizer {
             // legacy behavior for abstract refinements: always normalize even
             // if the type doesn't conform, but track if the type matches or not
             // for determining whether response fields are expected to be present
-            const implementsInterface = data.hasOwnProperty(abstractKey);
+            const implementsInterface = hasOwnProperty(data, abstractKey);
             const parentIsUnmatchedAbstractType = this._isUnmatchedAbstractType;
             this._isUnmatchedAbstractType =
               this._isUnmatchedAbstractType || !implementsInterface;
@@ -244,7 +245,7 @@ class RelayResponseNormalizer {
         case TYPE_DISCRIMINATOR: {
           if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
             const {abstractKey} = selection;
-            const implementsInterface = data.hasOwnProperty(abstractKey);
+            const implementsInterface = hasOwnProperty(data, abstractKey);
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
             let typeRecord = this._recordSource.get(typeID);

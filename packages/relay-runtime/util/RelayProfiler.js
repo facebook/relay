@@ -15,6 +15,8 @@
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
+const hasOwnProperty = require('../util/hasOwnProperty');
+
 function emptyFunction() {}
 
 const aggregateHandlersByName: {[name: string]: Array<Handler>, ...} = {
@@ -86,7 +88,7 @@ const RelayProfiler = {
     names: {[key: string]: string, ...},
   ): void {
     for (const key in names) {
-      if (names.hasOwnProperty(key)) {
+      if (hasOwnProperty(names, key)) {
         if (typeof object[key] === 'function') {
           object[key] = RelayProfiler.instrument(names[key], object[key]);
         }
@@ -112,7 +114,7 @@ const RelayProfiler = {
       originalFunction.detachHandler = emptyFunction;
       return originalFunction;
     }
-    if (!aggregateHandlersByName.hasOwnProperty(name)) {
+    if (!hasOwnProperty(aggregateHandlersByName, name)) {
       aggregateHandlersByName[name] = [];
     }
     const catchallHandlers = aggregateHandlersByName['*'];
@@ -190,7 +192,7 @@ const RelayProfiler = {
    */
   attachAggregateHandler(name: string, handler: Handler): void {
     if (shouldInstrument(name)) {
-      if (!aggregateHandlersByName.hasOwnProperty(name)) {
+      if (!hasOwnProperty(aggregateHandlersByName, name)) {
         aggregateHandlersByName[name] = [];
       }
       aggregateHandlersByName[name].push(handler);
@@ -202,7 +204,7 @@ const RelayProfiler = {
    */
   detachAggregateHandler(name: string, handler: Handler): void {
     if (shouldInstrument(name)) {
-      if (aggregateHandlersByName.hasOwnProperty(name)) {
+      if (hasOwnProperty(aggregateHandlersByName, name)) {
         removeFromArray(aggregateHandlersByName[name], handler);
       }
     }
@@ -223,7 +225,7 @@ const RelayProfiler = {
    */
   profile(name: string, state?: any): {stop: (error?: Error) => void, ...} {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
-    const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
+    const hasNamedHandlers = hasOwnProperty(profileHandlersByName, name);
     if (hasNamedHandlers || hasCatchAllHandlers) {
       const profileHandlers =
         hasNamedHandlers && hasCatchAllHandlers
@@ -255,7 +257,7 @@ const RelayProfiler = {
    */
   attachProfileHandler(name: string, handler: ProfileHandler): void {
     if (shouldInstrument(name)) {
-      if (!profileHandlersByName.hasOwnProperty(name)) {
+      if (!hasOwnProperty(profileHandlersByName, name)) {
         profileHandlersByName[name] = [];
       }
       profileHandlersByName[name].push(handler);
@@ -267,7 +269,7 @@ const RelayProfiler = {
    */
   detachProfileHandler(name: string, handler: ProfileHandler): void {
     if (shouldInstrument(name)) {
-      if (profileHandlersByName.hasOwnProperty(name)) {
+      if (hasOwnProperty(profileHandlersByName, name)) {
         removeFromArray(profileHandlersByName[name], handler);
       }
     }

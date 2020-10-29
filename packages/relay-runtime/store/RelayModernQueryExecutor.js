@@ -23,6 +23,7 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {generateClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
@@ -326,7 +327,7 @@ class Executor {
       if (
         response.data === null &&
         response.extensions != null &&
-        !response.hasOwnProperty('errors')
+        !hasOwnProperty(response, 'errors')
       ) {
         // Skip extensions-only payloads
         return;
@@ -334,7 +335,7 @@ class Executor {
         // Error if any other payload in the batch is missing data, regardless of whether
         // it had `errors` or not.
         const errors =
-          response.hasOwnProperty('errors') && response.errors != null
+          hasOwnProperty(response, 'errors') && response.errors != null
             ? response.errors
             : null;
         const messages = errors

@@ -15,6 +15,7 @@
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
@@ -201,7 +202,7 @@ function getSelectorsFromObject(
 ): {[key: string]: ?ReaderSelector, ...} {
   const selectors = {};
   for (const key in fragments) {
-    if (fragments.hasOwnProperty(key)) {
+    if (hasOwnProperty(fragments, key)) {
       const fragment = fragments[key];
       const item = object[key];
       selectors[key] = getSelector(fragment, item);
@@ -225,7 +226,7 @@ function getDataIDsFromObject(
 ): {[key: string]: ?(DataID | Array<DataID>), ...} {
   const ids = {};
   for (const key in fragments) {
-    if (fragments.hasOwnProperty(key)) {
+    if (hasOwnProperty(fragments, key)) {
       const fragment = fragments[key];
       const item = object[key];
       ids[key] = getDataIDsFromFragment(fragment, item);
@@ -326,7 +327,7 @@ function getVariablesFromObject(
 ): Variables {
   const variables = {};
   for (const key in fragments) {
-    if (fragments.hasOwnProperty(key)) {
+    if (hasOwnProperty(fragments, key)) {
       const fragment = fragments[key];
       const item = object[key];
       const itemVariables = getVariablesFromFragment(fragment, item);

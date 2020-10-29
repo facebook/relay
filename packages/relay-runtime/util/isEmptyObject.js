@@ -10,12 +10,11 @@
  */
 
 'use strict';
-
-const hasOwnProperty = Object.prototype.hasOwnProperty;
+const hasOwnProperty = require('./hasOwnProperty');
 
 function isEmptyObject(obj: {+[key: string]: mixed}): boolean {
   for (const key in obj) {
-    if (hasOwnProperty.call(obj, key)) {
+    if (hasOwnProperty(obj, key)) {
       return false;
     }
   }

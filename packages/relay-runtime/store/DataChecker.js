@@ -24,6 +24,7 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
 const getOperation = require('../util/getOperation');
+const hasOwnProperty = require('../util/hasOwnProperty');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
@@ -157,7 +158,7 @@ class DataChecker {
 
   _getVariableValue(name: string): mixed {
     invariant(
-      this._variables.hasOwnProperty(name),
+      hasOwnProperty(this._variables, name),
       'RelayAsyncLoader(): Undefined variable `%s`.',
       name,
     );

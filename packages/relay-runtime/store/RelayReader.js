@@ -16,6 +16,7 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 const {
   CLIENT_EXTENSION,
@@ -187,7 +188,7 @@ class RelayReader {
 
   _getVariableValue(name: string): mixed {
     invariant(
-      this._variables.hasOwnProperty(name),
+      hasOwnProperty(this._variables, name),
       'RelayReader(): Undefined variable `%s`.',
       name,
     );

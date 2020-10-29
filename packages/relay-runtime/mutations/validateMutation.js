@@ -28,6 +28,7 @@ type ValidationContext = {
   ...
 };
 const warning = require('warning');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 let validateMutation = () => {};
 if (__DEV__) {
@@ -140,7 +141,7 @@ if (__DEV__) {
     context.visitedPaths.add(path);
     switch (field.kind) {
       case 'ScalarField':
-        if (optimisticResponse.hasOwnProperty(fieldName) === false) {
+        if (hasOwnProperty(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;

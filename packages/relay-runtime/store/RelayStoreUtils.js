@@ -17,6 +17,7 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
 import type {
@@ -160,7 +161,7 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
   }
   const values = [];
   for (const argName in argValues) {
-    if (argValues.hasOwnProperty(argName)) {
+    if (hasOwnProperty(argValues, argName)) {
       const value = argValues[argName];
       if (value != null) {
         values.push(argName + ':' + (JSON.stringify(value) ?? 'undefined'));
@@ -176,7 +177,7 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
  */
 function getStableVariableValue(name: string, variables: Variables): mixed {
   invariant(
-    variables.hasOwnProperty(name),
+    hasOwnProperty(variables, name),
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );

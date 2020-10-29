@@ -13,8 +13,7 @@
 'use strict';
 
 import type {RecordMap, UpdatedRecords} from './RelayStoreTypes';
-
-const hasOwnProperty = Object.prototype.hasOwnProperty;
+const hasOwnProperty = require('../util/hasOwnProperty');
 
 function hasOverlappingIDs(
   seenRecords: RecordMap,
@@ -22,8 +21,8 @@ function hasOverlappingIDs(
 ): boolean {
   for (const key in seenRecords) {
     if (
-      hasOwnProperty.call(seenRecords, key) &&
-      hasOwnProperty.call(updatedRecordIDs, key)
+      hasOwnProperty(seenRecords, key) &&
+      hasOwnProperty(updatedRecordIDs, key)
     ) {
       return true;
     }

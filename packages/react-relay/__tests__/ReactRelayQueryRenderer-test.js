@@ -19,6 +19,7 @@ const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
+const {graphql} = require('relay-runtime');
 
 const {
   createOperationDescriptor,
@@ -38,6 +39,7 @@ const {
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
+  let NextQuery;
 
   let cacheConfig;
   let environment;
@@ -87,18 +89,29 @@ describe('ReactRelayQueryRenderer', () => {
 
     environment = createMockEnvironment();
     store = environment.getStore();
-    ({TestQuery} = generateAndCompile(`
-      query TestQuery($id: ID = "<default>") {
+    TestQuery = graphql`
+      query ReactRelayQueryRendererTestQuery($id: ID = "<default>") {
         node(id: $id) {
           id
-          ...TestFragment
+          ...ReactRelayQueryRendererTestFragment
         }
       }
+    `;
+    NextQuery = graphql`
+      query ReactRelayQueryRendererTestNextQuery($id: ID!) {
+        node(id: $id) {
+          ... on User {
+            name
+          }
+        }
+      }
+    `;
 
-      fragment TestFragment on User {
+    graphql`
+      fragment ReactRelayQueryRendererTestFragment on User {
         name
       }
-    `));
+    `;
 
     render = jest.fn(() => <div />);
     variables = {id: '4'};
@@ -239,7 +252,7 @@ describe('ReactRelayQueryRenderer', () => {
                 id: '4',
 
                 __fragments: {
-                  TestFragment: {},
+                  ReactRelayQueryRendererTestFragment: {},
                 },
 
                 __fragmentOwner: owner.request,
@@ -263,7 +276,7 @@ describe('ReactRelayQueryRenderer', () => {
                 id: '4',
 
                 __fragments: {
-                  TestFragment: {},
+                  ReactRelayQueryRendererTestFragment: {},
                 },
 
                 __fragmentOwner: owner.request,
@@ -324,7 +337,7 @@ describe('ReactRelayQueryRenderer', () => {
                 id: '4',
 
                 __fragments: {
-                  TestFragment: {},
+                  ReactRelayQueryRendererTestFragment: {},
                 },
 
                 __fragmentOwner: owner.request,
@@ -348,7 +361,7 @@ describe('ReactRelayQueryRenderer', () => {
                 id: '4',
 
                 __fragments: {
-                  TestFragment: {},
+                  ReactRelayQueryRendererTestFragment: {},
                 },
 
                 __fragmentOwner: owner.request,
@@ -401,7 +414,7 @@ describe('ReactRelayQueryRenderer', () => {
               id: '4',
 
               __fragments: {
-                TestFragment: {},
+                ReactRelayQueryRendererTestFragment: {},
               },
 
               __fragmentOwner: firstOwner.request,
@@ -460,7 +473,7 @@ describe('ReactRelayQueryRenderer', () => {
               id: '6',
 
               __fragments: {
-                TestFragment: {},
+                ReactRelayQueryRendererTestFragment: {},
               },
 
               __fragmentOwner: thirdOwner.request,
@@ -536,7 +549,7 @@ describe('ReactRelayQueryRenderer', () => {
             id: '4',
 
             __fragments: {
-              TestFragment: {},
+              ReactRelayQueryRendererTestFragment: {},
             },
 
             __fragmentOwner: owner.request,
@@ -571,7 +584,7 @@ describe('ReactRelayQueryRenderer', () => {
             id: '4',
 
             __fragments: {
-              TestFragment: {},
+              ReactRelayQueryRendererTestFragment: {},
             },
 
             __fragmentOwner: owner.request,
@@ -748,7 +761,7 @@ describe('ReactRelayQueryRenderer', () => {
           node: {
             id: '<default>',
             __fragments: {
-              TestFragment: {},
+              ReactRelayQueryRendererTestFragment: {},
             },
             __fragmentOwner: owner.request,
             __id: '<default>',
@@ -1066,7 +1079,7 @@ describe('ReactRelayQueryRenderer', () => {
             id: '4',
 
             __fragments: {
-              TestFragment: {},
+              ReactRelayQueryRendererTestFragment: {},
             },
 
             __fragmentOwner: owner.request,
@@ -1123,7 +1136,7 @@ describe('ReactRelayQueryRenderer', () => {
                   id: '4',
 
                   __fragments: {
-                    TestFragment: {},
+                    ReactRelayQueryRendererTestFragment: {},
                   },
 
                   __fragmentOwner: owner.request,
@@ -1143,7 +1156,7 @@ describe('ReactRelayQueryRenderer', () => {
                   id: '4',
 
                   __fragments: {
-                    TestFragment: {},
+                    ReactRelayQueryRendererTestFragment: {},
                   },
 
                   __fragmentOwner: owner.request,
@@ -1197,7 +1210,7 @@ describe('ReactRelayQueryRenderer', () => {
             id: '4',
 
             __fragments: {
-              TestFragment: {},
+              ReactRelayQueryRendererTestFragment: {},
             },
 
             __fragmentOwner: owner.request,
@@ -1224,21 +1237,10 @@ describe('ReactRelayQueryRenderer', () => {
     });
   });
   describe('when props change during a fetch', () => {
-    let NextQuery;
     let renderer;
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
-
       variables = {id: '4'};
       renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -1329,22 +1331,11 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('when props change after a fetch fails', () => {
-    let NextQuery;
     let error;
     let renderer;
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
-
       variables = {id: '4'};
       renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -1417,21 +1408,10 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('when props change after a fetch succeeds', () => {
-    let NextQuery;
     let renderer;
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
-
       renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -1572,21 +1552,10 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('multiple payloads', () => {
-    let NextQuery;
     let renderer;
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
-
       renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer

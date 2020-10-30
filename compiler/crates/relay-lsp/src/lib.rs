@@ -14,17 +14,25 @@ mod error_reporting;
 mod lsp;
 mod server;
 mod text_documents;
+use common::PerfLogger;
 use error::Result;
 use log::info;
 use lsp_server::Connection;
 use relay_compiler::config::Config;
+use std::sync::Arc;
 
-pub async fn start_language_server(config: Config) -> Result<()> {
+pub async fn start_language_server<TPerfLogger>(
+    config: Config,
+    perf_logger: Arc<TPerfLogger>,
+) -> Result<()>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
     let (connection, io_handles) = Connection::stdio();
     info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     info!("JSON-RPC handshake completed");
-    server::run(connection, config, params).await?;
+    server::run(connection, config, params, perf_logger).await?;
     io_handles.join()?;
     Ok(())
 }

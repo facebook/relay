@@ -13,11 +13,10 @@ use crate::lsp::{
     ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
     Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
 };
+use common::{ConsoleLogger, PerfLogger};
+use log::info;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
-
-use common::ConsoleLogger;
-use log::info;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Notify};
 
@@ -48,11 +47,15 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
 }
 
 /// Run the main server loop
-pub async fn run(
+pub async fn run<TPerfLogger>(
     connection: Connection,
     mut config: Config,
     _params: InitializeParams,
-) -> Result<()> {
+    _perf_logger: Arc<TPerfLogger>,
+) -> Result<()>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
     show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
     let receiver = connection.receiver.clone();

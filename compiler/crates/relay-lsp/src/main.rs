@@ -7,16 +7,17 @@
 
 #![warn(clippy::all)]
 
+use common::ConsoleLogger;
 use env_logger::Env;
 use relay_compiler::config::Config;
 use relay_language_server::error::Result;
 use relay_language_server::start_language_server;
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::from_env(Env::default().default_filter_or("info, warn, error, debug")).init();
-    start_language_server(load_config()).await
+    start_language_server(load_config(), Arc::new(ConsoleLogger)).await
 }
 
 fn load_config() -> Config {

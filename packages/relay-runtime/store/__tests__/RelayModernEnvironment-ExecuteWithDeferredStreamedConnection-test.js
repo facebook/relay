@@ -81,16 +81,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
             }
           }
         }
-
-        fragment FeedEdgeFragment on NewsFeedEdge {
-          cursor
-          node {
-            id
-            feedback {
-              id
-            }
-          }
-        }
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);

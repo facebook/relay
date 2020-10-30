@@ -23,17 +23,15 @@ use schema::{
 
 #[derive(Clone, Copy)]
 pub struct AdditionalBuilderFeatures {
-    /// Allow the fragment spread not defined
+    /// Do not error when a fragment spread references a fragment that is not
+    /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
-    /// Assuming that we don't have fragment spread arguments,
-    pub assume_no_fragment_spread_arguments: bool,
 }
 
 impl Default for AdditionalBuilderFeatures {
     fn default() -> Self {
         Self {
             allow_undefined_fragment_spreads: false,
-            assume_no_fragment_spread_arguments: false,
         }
     }
 }
@@ -502,9 +500,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         // Exit early if the fragment does not exist
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
-            None if self.features.allow_undefined_fragment_spreads
-                && self.features.assume_no_fragment_spread_arguments =>
-            {
+            None if self.features.allow_undefined_fragment_spreads => {
                 let directives = self.build_directives(
                     spread.directives.iter(),
                     DirectiveLocation::FragmentSpread,

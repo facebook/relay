@@ -76,18 +76,6 @@ describe('execute() a query with nested @stream', () => {
           }
         }
 
-        fragment FeedEdgeFragment on NewsFeedEdge {
-          cursor
-          node {
-            id
-            feedback {
-              actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
-                name @__clientField(handle: "name_handler")
-              }
-            }
-          }
-        }
-
         # keep in sync with above
         fragment ActorFragment on Actor {
           name @__clientField(handle: "name_handler")

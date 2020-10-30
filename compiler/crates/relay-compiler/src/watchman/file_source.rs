@@ -124,7 +124,7 @@ impl<'config> FileSource<'config> {
         self,
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
-    ) -> Result<(CompilerState, FileSourceSubscription<'config>)> {
+    ) -> Result<(CompilerState, FileSourceSubscription)> {
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
@@ -148,7 +148,7 @@ impl<'config> FileSource<'config> {
         Ok((
             compiler_state,
             FileSourceSubscription {
-                file_source: self,
+                resolved_root: self.resolved_root.clone(),
                 subscription,
             },
         ))
@@ -248,12 +248,12 @@ impl<'config> FileSource<'config> {
     }
 }
 
-pub struct FileSourceSubscription<'config> {
-    file_source: FileSource<'config>,
+pub struct FileSourceSubscription {
+    resolved_root: ResolvedRoot,
     subscription: WatchmanSubscription<WatchmanFile>,
 }
 
-impl<'config> FileSourceSubscription<'config> {
+impl FileSourceSubscription {
     /// Awaits changes from Watchman and provides the next set of changes
     /// if there were any changes to files
     pub async fn next_change(&mut self) -> Result<Option<FileSourceResult>> {
@@ -262,7 +262,7 @@ impl<'config> FileSourceSubscription<'config> {
             if let Some(files) = changes.files {
                 return Ok(Some(FileSourceResult {
                     files,
-                    resolved_root: self.file_source.resolved_root.clone(),
+                    resolved_root: self.resolved_root.clone(),
                     clock: changes.clock,
                     saved_state_info: None,
                 }));

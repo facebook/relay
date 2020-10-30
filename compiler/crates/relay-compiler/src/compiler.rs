@@ -17,8 +17,11 @@ use futures::future::join_all;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
-use std::{collections::HashMap, sync::Arc};
-use tokio::task;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
+use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
 where
@@ -89,8 +92,26 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         self.perf_logger.complete_event(setup_event);
         info!("Waiting for changes...");
 
+        let existing_file_source_changes_source = Arc::new(Mutex::new(vec![]));
+        let existing_file_source_changes = existing_file_source_changes_source.clone();
+        let notify_sender = Arc::new(Notify::new());
+        let notify_receiver = notify_sender.clone();
+        task::spawn(async move {
+            loop {
+                if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
+                    existing_file_source_changes_source
+                        .lock()
+                        .unwrap()
+                        .push(file_source_changes);
+                    notify_sender.notify();
+                }
+            }
+        });
+
         loop {
-            if let Some(file_source_changes) = subscription.next_change().await? {
+            notify_receiver.notified().await;
+            let mut existing_file_source_changes = existing_file_source_changes.lock().unwrap();
+            if !existing_file_source_changes.is_empty() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
@@ -98,14 +119,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
-
-                let had_new_changes = compiler_state.merge_file_source_changes(
-                    &self.config,
-                    &file_source_changes,
-                    &incremental_build_event,
-                    self.perf_logger.as_ref(),
-                    false,
-                )?;
+                let mut had_new_changes = false;
+                for file_source_changes in existing_file_source_changes.drain(..) {
+                    had_new_changes = had_new_changes
+                        || compiler_state.merge_file_source_changes(
+                            &self.config,
+                            &file_source_changes,
+                            &incremental_build_event,
+                            self.perf_logger.as_ref(),
+                            false,
+                        )?;
+                }
+                std::mem::drop(existing_file_source_changes);
 
                 if had_new_changes {
                     info!("Change detected, start compiling...");

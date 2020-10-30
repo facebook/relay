@@ -119,7 +119,7 @@ struct Builder<'schema, 'signatures> {
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
-    used_variabales: UsedVariables,
+    used_variables: UsedVariables,
     features: AdditionalBuilderFeatures,
 }
 
@@ -135,7 +135,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             signatures,
             location,
             defined_variables: Default::default(),
-            used_variabales: UsedVariables::default(),
+            used_variables: UsedVariables::default(),
             features: builder_features.unwrap_or_default(),
         }
     }
@@ -175,7 +175,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let selections = self.build_selections(&fragment.selections.items, &fragment_type);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
-            .used_variabales
+            .used_variables
             .iter()
             .map(|(name, usage)| VariableDefinition {
                 name: WithLocation::new(self.location.with_span(usage.span), *name),
@@ -254,9 +254,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let selections =
             self.build_selections(&operation.selections.items, &operation_type_reference);
         let (directives, selections) = try2(directives, selections)?;
-        if !self.used_variabales.is_empty() {
+        if !self.used_variables.is_empty() {
             Err(self
-                .used_variabales
+                .used_variables
                 .iter()
                 .map(|(undefined_variable, usage)| {
                     Diagnostic::error(
@@ -1047,7 +1047,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     ))
                     .into());
             }
-        } else if let Some(prev_usage) = self.used_variabales.get(&variable.name) {
+        } else if let Some(prev_usage) = self.used_variables.get(&variable.name) {
             let is_used_subtype = self
                 .schema
                 .is_type_subtype_of(used_as_type, &prev_usage.type_);
@@ -1074,7 +1074,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             // If the currently used type is a subtype of the previous usage, then it could
             // be a narrower type. Update our inference to reflect the stronger requirements.
             if is_used_subtype {
-                self.used_variabales.insert(
+                self.used_variables.insert(
                     variable.name,
                     VariableUsage {
                         type_: used_as_type.clone(),
@@ -1083,7 +1083,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 );
             }
         } else {
-            self.used_variabales.insert(
+            self.used_variables.insert(
                 variable.name,
                 VariableUsage {
                     type_: used_as_type.clone(),

@@ -23,7 +23,7 @@ use tokio::sync::{mpsc, Notify};
 
 use crate::text_documents::extract_graphql_sources;
 
-/// Initializes an LSP connection, handling the `initize` message and `initialized` notification
+/// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
 pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     let mut server_capabilities = ServerCapabilities::default();
@@ -97,7 +97,7 @@ pub async fn run(
                             result: None,
                         };
                         sender.send(Message::Response(response)).ok();
-                        // TODO: We should exit when receiving Exit notification according to the protocal,
+                        // TODO: We should exit when receiving Exit notification according to the protocol,
                         // but the notification is never received.
                         std::process::exit(0);
                     }

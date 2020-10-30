@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::murmurhash;
+mod murmurhash;
+
 use graphql_ir::{Argument, ConstantValue, Value};
 use std::fmt;
 
@@ -30,7 +31,7 @@ pub fn hash_arguments(args: &[Argument]) -> Option<String> {
                 .collect::<Vec<String>>()
                 .join(",")
         );
-        Some(murmurhash(&args_string))
+        Some(murmurhash::murmurhash(&args_string))
     }
 }
 

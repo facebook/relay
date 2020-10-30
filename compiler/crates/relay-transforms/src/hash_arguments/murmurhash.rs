@@ -103,27 +103,3 @@ fn test_murmurhash() {
     assert_eq!(murmurhash("{}"), "2wIPj2");
     assert_eq!(murmurhash(""), "0");
 }
-
-// TODO: this breaks the local build
-// extern crate test;
-// #[allow(unused_imports)]
-// use test::Bencher;
-
-// #[bench]
-// fn bench_normal_input(b: &mut Bencher) {
-//     let normal_input = "{arg: \"{arg: {count: 20, start: 0, end: 5}}\"}";
-//     b.iter(|| {
-//         murmurhash(normal_input);
-//     });
-// }
-
-// #[bench]
-// fn bench_large_input(b: &mut Bencher) {
-//     let large_input = &str::repeat(
-//         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-//         200,
-//     );
-//     b.iter(|| {
-//         murmurhash(large_input);
-//     });
-// }

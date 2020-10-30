@@ -23,4 +23,4 @@ pub use location::{Location, SourceLocationKey, WithLocation};
 pub use murmurhash::murmurhash;
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
-pub use span::{Span, Spanned};
+pub use span::Span;

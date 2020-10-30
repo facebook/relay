@@ -57,6 +57,7 @@ impl TypeScriptPrinter {
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(writer, *document_name, selections)
             }
+            AST::DefineType(name, value) => self.write_type_definition(writer, name, value),
             AST::ImportType(types, from) => self.write_import_type(writer, types, from),
             AST::ExportTypeEquals(name, value) => {
                 self.write_export_type_equals(writer, name, value)
@@ -260,6 +261,15 @@ impl TypeScriptPrinter {
                 .join(", "),
             from
         )
+    }
+
+    fn write_type_definition(
+        &mut self,
+        writer: &mut dyn Write,
+        name: &StringKey,
+        value: &Box<AST>,
+    ) -> Result {
+        write!(writer, "type {} = {};", name, self.write_ast(value))
     }
 
     fn write_export_type_equals(

@@ -28,6 +28,7 @@ pub enum AST {
     Number,
     Boolean,
     Any,
+    DefineType(StringKey, Box<AST>),
     FragmentReference(Vec<StringKey>),
     ImportType(Vec<StringKey>, StringKey),
     ImportFragmentType(Vec<StringKey>, StringKey),

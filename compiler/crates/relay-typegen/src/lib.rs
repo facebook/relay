@@ -1049,7 +1049,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
                 //   );
                 } else {
-                    writeln!(self.result, "type {} = any;", fragment_type_name)?;
+                    write_ast!(
+                        self,
+                        AST::DefineType(fragment_type_name, Box::new(AST::Any))
+                    )?;
                 }
             }
         }

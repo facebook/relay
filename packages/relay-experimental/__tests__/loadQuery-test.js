@@ -64,6 +64,8 @@ let environment;
 let executeUnsubscribe;
 let executeObservable;
 
+let networkUnsubscribe;
+
 let disposeEnvironmentRetain;
 
 let resolvedModule;
@@ -73,9 +75,19 @@ let executeOnloadCallback;
 
 beforeEach(() => {
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
-    return Observable.create(_sink => {
+    const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    const originalSubscribe = observable.subscribe.bind(observable);
+    networkUnsubscribe = jest.fn();
+    jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
+      const subscription = originalSubscribe(...args);
+      jest
+        .spyOn(subscription, 'unsubscribe')
+        .mockImplementation(() => networkUnsubscribe());
+      return subscription;
+    });
+    return observable;
   });
   environment = createMockEnvironment({network: Network.create(fetch)});
 
@@ -215,9 +227,28 @@ describe('when passed a PreloadableConcreteRequest', () => {
           expect(preloadedQuery.isDisposed).toBe(false);
           preloadedQuery.dispose();
           expect(preloadedQuery.isDisposed).toBe(true);
+          expect(executeUnsubscribe).not.toBe(null);
           if (executeUnsubscribe != null) {
             expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
             expect(disposeEnvironmentRetain).toHaveBeenCalled();
+          }
+        });
+
+        it('calling dispose unsubscribes from the network request', () => {
+          // This ensures that live queries stop issuing network requests
+          const preloadedQuery = loadQuery(
+            environment,
+            preloadableConcreteRequest,
+            variables,
+            {
+              fetchPolicy: 'store-or-network',
+            },
+          );
+          preloadedQuery.dispose();
+
+          expect(networkUnsubscribe).not.toBe(null);
+          if (networkUnsubscribe != null) {
+            expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
           }
         });
       });
@@ -282,9 +313,30 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(preloadedQuery.isDisposed).toBe(false);
       preloadedQuery.dispose();
       expect(preloadedQuery.isDisposed).toBe(true);
+
+      expect(executeUnsubscribe).not.toBe(null);
       if (executeUnsubscribe != null) {
         expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
         expect(disposeEnvironmentRetain).toHaveBeenCalled();
+      }
+    });
+
+    it('calling dispose after the AST loads unsubscribes from the network request', () => {
+      // This ensures that live queries stop issuing network requests
+      const preloadedQuery = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
+      executeOnloadCallback(query);
+      preloadedQuery.dispose();
+
+      expect(networkUnsubscribe).not.toBe(null);
+      if (networkUnsubscribe != null) {
+        expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
       }
     });
 
@@ -371,9 +423,24 @@ describe('when passed a query AST', () => {
         expect(preloadedQuery.isDisposed).toBe(false);
         preloadedQuery.dispose();
         expect(preloadedQuery.isDisposed).toBe(true);
+
+        expect(executeUnsubscribe).not.toBe(null);
         if (executeUnsubscribe != null) {
           expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
           expect(disposeEnvironmentRetain).toHaveBeenCalled();
+        }
+      });
+
+      it('calling dispose unsubscribes from the network request', () => {
+        // This ensures that live queries stop issuing network requests
+        const preloadedQuery = loadQuery(environment, query, variables, {
+          fetchPolicy: 'network-only',
+        });
+        preloadedQuery.dispose();
+
+        expect(networkUnsubscribe).not.toBe(null);
+        if (networkUnsubscribe != null) {
+          expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
         }
       });
     });
@@ -417,9 +484,22 @@ describe('when passed a query AST', () => {
       expect(preloadedQuery.isDisposed).toBe(false);
       preloadedQuery.dispose();
       expect(preloadedQuery.isDisposed).toBe(true);
+
+      expect(executeUnsubscribe).not.toBe(null);
       if (executeUnsubscribe != null) {
         expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
         expect(disposeEnvironmentRetain).toHaveBeenCalled();
+      }
+    });
+
+    it('calling dispose unsubscribes from the network request', () => {
+      // This ensures that live queries stop issuing network requests
+      const preloadedQuery = loadQuery(environment, query, variables);
+      preloadedQuery.dispose();
+
+      expect(networkUnsubscribe).not.toBe(null);
+      if (networkUnsubscribe != null) {
+        expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
       }
     });
   });

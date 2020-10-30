@@ -73,6 +73,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     force: true,
   };
 
+  let unsubscribeFromNetworkRequest;
   // makeNetworkRequest will immediately start a raw network request and
   // return an Observable that when subscribing to it, will replay the
   // network events that have occured so far, as well as subsequent events.
@@ -90,7 +91,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     );
 
     const subject = new ReplaySubject();
-    sourceObservable.subscribe({
+    ({unsubscribe: unsubscribeFromNetworkRequest} = sourceObservable.subscribe({
       error(err) {
         subject.error(err);
       },
@@ -100,7 +101,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       complete() {
         subject.complete();
       },
-    });
+    }));
     return Observable.create(sink => subject.subscribe(sink));
   };
 
@@ -246,6 +247,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       if (isDisposed) {
         return;
       }
+      unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
       unsubscribeFromExecution && unsubscribeFromExecution();
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();

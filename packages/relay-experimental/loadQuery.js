@@ -38,6 +38,7 @@ import type {
 } from 'relay-runtime';
 
 let RenderDispatcher = null;
+let fetchKey = 100001;
 
 function useTrackLoadQueryInRender() {
   if (RenderDispatcher === null) {
@@ -66,6 +67,13 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
     'Relay: `loadQuery` (or `loadEntryPoint`) should not be called inside a React render function.',
   );
+
+  // Every time you call loadQuery we will generate a new fetchKey. This will ensure that every query
+  // reference that is created and passed to usePreloadedQuery is properly evaluated, even if they are
+  // for the same query/variables. Specifically, we want to avoid a case where we try to refetch a
+  // query by calling loadQuery a second time, and have the Suspense cache in usePreloadedQuery reuse
+  // the cached result instead of the new result it would get from evaluating the new query ref.
+  fetchKey++;
 
   const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
   const networkCacheConfig = {
@@ -253,6 +261,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       cancelOnLoadCallback && cancelOnLoadCallback();
       isDisposed = true;
     },
+    fetchKey,
     id: moduleId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {

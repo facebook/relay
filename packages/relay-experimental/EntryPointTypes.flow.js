@@ -85,6 +85,7 @@ export type PreloadedQueryInner<
   +dispose: () => void,
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
+  +fetchKey: string | number,
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
   +isDisposed: boolean,

@@ -21,7 +21,7 @@ pub enum AST {
     String,
     StringLiteral(StringKey),
     /// Prints as `"%other" with a comment explaining open enums.
-    OtherEnumValue,
+    OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
     ExactObject(Vec<Prop>),
     InexactObject(Vec<Prop>),

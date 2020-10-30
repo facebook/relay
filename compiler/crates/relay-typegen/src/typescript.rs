@@ -43,7 +43,7 @@ impl TypeScriptPrinter {
             AST::Any => write!(writer, "any"),
             AST::String => write!(writer, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(writer, *literal),
-            AST::OtherEnumValue => self.write_other_string(writer),
+            AST::OtherTypename => self.write_other_string(writer),
             AST::Number => write!(writer, "number"),
             AST::Boolean => write!(writer, "boolean"),
             AST::Identifier(identifier) => write!(writer, "{}", identifier),
@@ -166,7 +166,7 @@ impl TypeScriptPrinter {
             }
 
             self.write_indentation(writer)?;
-            if let AST::OtherEnumValue = prop.value {
+            if let AST::OtherTypename = prop.value {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
                 writeln!(
@@ -507,7 +507,7 @@ mod tests {
                 key: "with_comment".intern(),
                 optional: false,
                 read_only: false,
-                value: AST::OtherEnumValue,
+                value: AST::OtherTypename,
             },])),
             r#"{
   // This will never be '%other', but we need some

@@ -693,7 +693,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         key: *typename_alias,
                         read_only: true,
                         optional: false,
-                        value: AST::OtherEnumValue,
+                        value: AST::OtherTypename,
                     })
                     .collect(),
             );

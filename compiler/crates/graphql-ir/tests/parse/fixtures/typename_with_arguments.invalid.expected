@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment TypenameWithArguments on User {
+  __typename(arg: 1)
+}
+==================================== ERROR ====================================
+✖︎ Unexpected arguments on `__typename` field
+
+  typename_with_arguments.invalid.graphql:4:13
+    3 │ fragment TypenameWithArguments on User {
+    4 │   __typename(arg: 1)
+      │             ^^^^^^^^
+    5 │ }

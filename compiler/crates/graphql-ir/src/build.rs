@@ -21,6 +21,21 @@ use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type, TypeReference,
 };
 
+#[derive(Clone, Copy)]
+pub struct AdditionalBuilderFeatures {
+    /// Do not error when a fragment spread references a fragment that is not
+    /// defined in the same program.
+    pub allow_undefined_fragment_spreads: bool,
+}
+
+impl Default for AdditionalBuilderFeatures {
+    fn default() -> Self {
+        Self {
+            allow_undefined_fragment_spreads: false,
+        }
+    }
+}
+
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
 pub fn build_ir(
@@ -29,7 +44,27 @@ pub fn build_ir(
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
     par_try_map(definitions, |definition| {
-        let mut builder = Builder::new(schema, &signatures, definition.location());
+        let mut builder = Builder::new(schema, &signatures, definition.location(), None);
+        builder.build_definition(definition)
+    })
+}
+
+/// Converts a self-contained corpus of definitions into typed IR, or returns
+/// a list of errors if the corpus is invalid. `extra_features` can be set to
+/// control the builder activities.
+pub fn build_ir_with_extra_features(
+    schema: &Schema,
+    definitions: &[graphql_syntax::ExecutableDefinition],
+    extra_features: AdditionalBuilderFeatures,
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    let signatures = build_signatures(schema, &definitions)?;
+    par_try_map(definitions, |definition| {
+        let mut builder = Builder::new(
+            schema,
+            &signatures,
+            definition.location(),
+            Some(extra_features),
+        );
         builder.build_definition(definition)
     })
 }
@@ -40,7 +75,7 @@ pub fn build_type_annotation(
     location: Location,
 ) -> DiagnosticsResult<TypeReference> {
     let signatures = Default::default();
-    let mut builder = Builder::new(schema, &signatures, location);
+    let mut builder = Builder::new(schema, &signatures, location, None);
     builder.build_type_annotation(annotation)
 }
 
@@ -52,7 +87,7 @@ pub fn build_constant_value(
     validation: ValidationLevel,
 ) -> DiagnosticsResult<ConstantValue> {
     let signatures = Default::default();
-    let mut builder = Builder::new(schema, &signatures, location);
+    let mut builder = Builder::new(schema, &signatures, location, None);
     builder.build_constant_value(value, type_, validation)
 }
 
@@ -62,7 +97,7 @@ pub fn build_variable_definitions(
     location: Location,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     let signatures = Default::default();
-    let mut builder = Builder::new(schema, &signatures, location);
+    let mut builder = Builder::new(schema, &signatures, location, None);
     builder.build_variable_definitions(definitions)
 }
 
@@ -82,7 +117,8 @@ struct Builder<'schema, 'signatures> {
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
-    used_variabales: UsedVariables,
+    used_variables: UsedVariables,
+    features: AdditionalBuilderFeatures,
 }
 
 impl<'schema, 'signatures> Builder<'schema, 'signatures> {
@@ -90,13 +126,15 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         schema: &'schema Schema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
+        builder_features: Option<AdditionalBuilderFeatures>,
     ) -> Self {
         Self {
             schema,
             signatures,
             location,
             defined_variables: Default::default(),
-            used_variabales: UsedVariables::default(),
+            used_variables: UsedVariables::default(),
+            features: builder_features.unwrap_or_default(),
         }
     }
 
@@ -135,7 +173,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let selections = self.build_selections(&fragment.selections.items, &fragment_type);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
-            .used_variabales
+            .used_variables
             .iter()
             .map(|(name, usage)| VariableDefinition {
                 name: WithLocation::new(self.location.with_span(usage.span), *name),
@@ -214,9 +252,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let selections =
             self.build_selections(&operation.selections.items, &operation_type_reference);
         let (directives, selections) = try2(directives, selections)?;
-        if !self.used_variabales.is_empty() {
+        if !self.used_variables.is_empty() {
             Err(self
-                .used_variabales
+                .used_variables
                 .iter()
                 .map(|(undefined_variable, usage)| {
                     Diagnostic::error(
@@ -462,6 +500,19 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         // Exit early if the fragment does not exist
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
+            None if self.features.allow_undefined_fragment_spreads => {
+                let directives = self.build_directives(
+                    spread.directives.iter(),
+                    DirectiveLocation::FragmentSpread,
+                )?;
+                return Ok(FragmentSpread {
+                    fragment: spread
+                        .name
+                        .name_with_location(self.location.source_location()),
+                    arguments: Vec::new(),
+                    directives,
+                });
+            }
             None => {
                 return Err(self
                     .record_error(Diagnostic::error(
@@ -678,10 +729,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if field_definition.type_.inner().is_scalar() || field_definition.type_.inner().is_enum() {
             return Err(self
                 .record_error(Diagnostic::error(
-                    ValidationMessage::InvalidSelectionsOnScalarField(
-                        parent_type.inner(),
-                        field.name.value,
-                    ),
+                    ValidationMessage::InvalidSelectionsOnScalarField {
+                        type_name: self.schema.get_type_name(parent_type.inner()),
+                        field_name: field.name.value,
+                    },
                     self.location.with_span(span),
                 ))
                 .into());
@@ -736,10 +787,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         {
             return Err(self
                 .record_error(Diagnostic::error(
-                    ValidationMessage::ExpectedSelectionsOnObjectField(
-                        parent_type.inner(),
-                        field.name.value,
-                    ),
+                    ValidationMessage::ExpectedSelectionsOnObjectField {
+                        type_name: self.schema.get_type_name(parent_type.inner()),
+                        field_name: field.name.value,
+                    },
                     self.location.with_span(span),
                 ))
                 .into());
@@ -854,9 +905,43 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         directives: impl IntoIterator<Item = &'a graphql_syntax::Directive>,
         location: DirectiveLocation,
     ) -> DiagnosticsResult<Vec<Directive>> {
-        try_map(directives, |directive| {
+        let directives = try_map(directives, |directive| {
             self.build_directive(directive, location)
-        })
+        })?;
+
+        // Check for repeated directives that are not @repeatable
+        if directives.len() > 1 {
+            for (index, directive) in directives.iter().enumerate() {
+                let directive_repeatable = self.schema.get_directive(directive.name.item).map_or(
+                    // Default to `false` instead of expecting a definition
+                    // since @arguments directive is not defined in the schema.
+                    false,
+                    |dir| dir.repeatable,
+                );
+                if directive_repeatable {
+                    continue;
+                }
+                if let Some(repeated_directive) = directives
+                    .iter()
+                    .skip(index + 1)
+                    .find(|other_directive| other_directive.name.item == directive.name.item)
+                {
+                    return Err(self
+                        .record_error(
+                            Diagnostic::error(
+                                ValidationMessage::RepeatedNonRepeatableDirective {
+                                    name: directive.name.item,
+                                },
+                                repeated_directive.name.location,
+                            )
+                            .annotate("previously used here", directive.name.location),
+                        )
+                        .into());
+                }
+            }
+        }
+
+        Ok(directives)
     }
 
     fn build_directive(
@@ -865,7 +950,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         location: DirectiveLocation,
     ) -> DiagnosticsResult<Directive> {
         if directive.name.value == *ARGUMENT_DEFINITION {
-            if !matches!(location, DirectiveLocation::FragmentDefinition) {
+            if location != DirectiveLocation::FragmentDefinition {
                 return Err(self
                     .record_error(Diagnostic::error(
                         ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(
@@ -958,7 +1043,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     ))
                     .into());
             }
-        } else if let Some(prev_usage) = self.used_variabales.get(&variable.name) {
+        } else if let Some(prev_usage) = self.used_variables.get(&variable.name) {
             let is_used_subtype = self
                 .schema
                 .is_type_subtype_of(used_as_type, &prev_usage.type_);
@@ -985,7 +1070,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             // If the currently used type is a subtype of the previous usage, then it could
             // be a narrower type. Update our inference to reflect the stronger requirements.
             if is_used_subtype {
-                self.used_variabales.insert(
+                self.used_variables.insert(
                     variable.name,
                     VariableUsage {
                         type_: used_as_type.clone(),
@@ -994,7 +1079,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 );
             }
         } else {
-            self.used_variabales.insert(
+            self.used_variables.insert(
                 variable.name,
                 VariableUsage {
                     type_: used_as_type.clone(),

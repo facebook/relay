@@ -1,4 +1,4 @@
-// @generated SignedSource<<962270ff9a737fa26a49064783db4091>>
+// @generated SignedSource<<69905f466853447f287fb0188a0d91b2>>
 
 mod match_transform;
 
@@ -59,6 +59,13 @@ fn module_on_inline_data_invalid() {
     let input = include_str!("match_transform/fixtures/module-on-inline-data.invalid.graphql");
     let expected = include_str!("match_transform/fixtures/module-on-inline-data.invalid.expected");
     test_fixture(transform_fixture, "module-on-inline-data.invalid.graphql", "match_transform/fixtures/module-on-inline-data.invalid.expected", input, expected);
+}
+
+#[test]
+fn module_with_other_directives_invalid() {
+    let input = include_str!("match_transform/fixtures/module-with-other-directives.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/module-with-other-directives.invalid.expected");
+    test_fixture(transform_fixture, "module-with-other-directives.invalid.graphql", "match_transform/fixtures/module-with-other-directives.invalid.expected", input, expected);
 }
 
 #[test]

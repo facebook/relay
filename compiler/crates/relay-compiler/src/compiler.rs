@@ -10,15 +10,18 @@ use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
 use crate::graphql_asts::GraphQLAsts;
-use crate::{source_for_location, watchman::FileSource};
-use common::{Diagnostic, DiagnosticsResult, PerfLogEvent, PerfLogger};
+use crate::red_to_green::RedToGreen;
+use crate::watchman::FileSource;
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use graphql_cli::DiagnosticPrinter;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
-use std::{collections::HashMap, sync::Arc};
-use tokio::task;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
+use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
 where
@@ -74,20 +77,41 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
+        let mut red_to_green = RedToGreen::new();
+
         if self
             .build_projects(&mut compiler_state, &setup_event)
             .await
             .is_err()
         {
-            // noop, build_projects should have logged already
+            // build_projects should have logged already
+            red_to_green.log_error()
         } else {
             info!("Compilation completed.");
         }
         self.perf_logger.complete_event(setup_event);
         info!("Waiting for changes...");
 
+        let existing_file_source_changes_source = Arc::new(Mutex::new(vec![]));
+        let existing_file_source_changes = existing_file_source_changes_source.clone();
+        let notify_sender = Arc::new(Notify::new());
+        let notify_receiver = notify_sender.clone();
+        task::spawn(async move {
+            loop {
+                if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
+                    existing_file_source_changes_source
+                        .lock()
+                        .unwrap()
+                        .push(file_source_changes);
+                    notify_sender.notify();
+                }
+            }
+        });
+
         loop {
-            if let Some(file_source_changes) = subscription.next_change().await? {
+            notify_receiver.notified().await;
+            let mut existing_file_source_changes = existing_file_source_changes.lock().unwrap();
+            if !existing_file_source_changes.is_empty() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
@@ -95,14 +119,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
                 // TODO Single change to file in VSCode sometimes produces
                 // 2 watchman change events for the same file
-
-                let had_new_changes = compiler_state.merge_file_source_changes(
-                    &self.config,
-                    &file_source_changes,
-                    &incremental_build_event,
-                    self.perf_logger.as_ref(),
-                    false,
-                )?;
+                let mut had_new_changes = false;
+                for file_source_changes in existing_file_source_changes.drain(..) {
+                    had_new_changes = had_new_changes
+                        || compiler_state.merge_file_source_changes(
+                            &self.config,
+                            &file_source_changes,
+                            &incremental_build_event,
+                            self.perf_logger.as_ref(),
+                            false,
+                        )?;
+                }
+                std::mem::drop(existing_file_source_changes);
 
                 if had_new_changes {
                     info!("Change detected, start compiling...");
@@ -111,9 +139,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         .await
                         .is_err()
                     {
-                        // noop, build_projects should have logged already
+                        // build_projects should have logged already
+                        red_to_green.log_error()
                     } else {
                         info!("Compilation completed.");
+                        red_to_green.clear_error_and_log(self.perf_logger.as_ref());
                     }
                     incremental_build_event.stop(incremental_build_time);
                     info!("Waiting for changes...");
@@ -133,6 +163,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
+        self.config.error_reporter.build_starts();
         let result = build_projects(
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
@@ -140,6 +171,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
+        self.config.error_reporter.build_finishes();
         match result {
             Ok(()) => {
                 compiler_state.complete_compilation();
@@ -157,7 +189,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 match &error {
                     Error::DiagnosticsError { errors } => {
                         for diagnostic in errors {
-                            self.print_diagnostic(diagnostic);
+                            self.config.error_reporter.report_diagnostic(diagnostic);
                         }
                     }
                     Error::BuildProjectsErrors { errors } => {
@@ -179,7 +211,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         match error {
             BuildProjectError::ValidationErrors { errors } => {
                 for diagnostic in errors {
-                    self.print_diagnostic(diagnostic);
+                    self.config.error_reporter.report_diagnostic(diagnostic);
                 }
             }
             BuildProjectError::PersistErrors { errors } => {
@@ -191,13 +223,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 error!("{}", error);
             }
         }
-    }
-
-    fn print_diagnostic(&self, diagnostic: &Diagnostic) {
-        let printer = DiagnosticPrinter::new(|source_location| {
-            source_for_location(&self.config.root_dir, source_location).map(|source| source.text)
-        });
-        error!("{}", printer.diagnostic_to_string(diagnostic));
     }
 }
 

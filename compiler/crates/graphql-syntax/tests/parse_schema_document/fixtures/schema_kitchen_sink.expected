@@ -159,7 +159,7 @@ extend schema @onSchema {
 }
 ==================================== OUTPUT ===================================
 SchemaDocument {
-    span: 106:2982,
+    location: schema_kitchen_sink.graphql:106:2982,
     definitions: [
         SchemaDefinition(
             SchemaDefinition {

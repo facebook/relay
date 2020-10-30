@@ -42,6 +42,7 @@ Schema {
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -62,6 +63,7 @@ Schema {
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
 ]

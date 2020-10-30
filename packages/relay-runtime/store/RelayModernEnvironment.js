@@ -22,6 +22,7 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
 
@@ -85,7 +86,7 @@ export type EnvironmentConfig = {|
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
-  +requiredFieldLogger?: RequiredFieldLogger,
+  +requiredFieldLogger?: ?RequiredFieldLogger,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -105,7 +106,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
-  requiredFieldLogger: ?RequiredFieldLogger;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -137,7 +138,8 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
-    this.requiredFieldLogger = config.requiredFieldLogger;
+    this.requiredFieldLogger =
+      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._defaultRenderPolicy =
       config.UNSTABLE_defaultRenderPolicy ??
       RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true

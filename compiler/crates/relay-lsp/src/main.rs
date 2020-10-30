@@ -7,60 +7,26 @@
 
 #![warn(clippy::all)]
 
-mod client;
-mod completion;
-mod error;
-mod error_reporting;
-mod lsp;
-mod lsp_compiler;
-mod server;
-mod state;
-mod text_documents;
-use lsp_server::Connection;
-
+use common::ConsoleLogger;
 use env_logger::Env;
-use error::Result;
-use log::info;
+use relay_compiler::config::Config;
+use relay_language_server::error::Result;
+use relay_language_server::start_language_server;
+use std::{path::PathBuf, sync::Arc};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::from_env(Env::default().default_filter_or("info, warn, error, debug")).init();
-    let (connection, io_handles) = Connection::stdio();
-    info!("Initialized stdio transport layer");
-    let params = server::initialize(&connection)?;
-    info!("JSON-RPC handshake completed");
-    server::run(connection, params).await?;
-    io_handles.join()?;
-    Ok(())
+    start_language_server(load_config(), Arc::new(ConsoleLogger)).await
 }
 
-#[cfg(test)]
-mod tests {
-    use super::client;
-    use super::error::Result;
-    use super::server;
-    use lsp_server::Connection;
-    use lsp_types::{ClientCapabilities, InitializeParams};
-    #[test]
-    fn initialize() -> Result<()> {
-        // Test with an in-memory connection pair
-        let (connection, client) = Connection::memory();
-        // Mock set of client parameters. The `root_path` field is deprecated, but
-        // still required to construct the params, so we allow deprecated fields here.
-        #[allow(deprecated)]
-        let init_params = InitializeParams {
-            process_id: Some(1),
-            root_path: None,
-            root_uri: None,
-            initialization_options: None,
-            capabilities: ClientCapabilities::default(),
-            trace: None,
-            workspace_folders: None,
-            client_info: None,
-        };
-        client::initialize(&client, &init_params, 0);
-        let params = server::initialize(&connection)?;
-        assert_eq!(params, init_params);
-        Ok(())
-    }
+fn load_config() -> Config {
+    // TODO(brandondail) don't hardcode the test project config here
+    let home = std::env::var("HOME").unwrap();
+    let config_path = PathBuf::from(format!(
+        "{}/fbsource/fbcode/relay/config/config.example.json",
+        home
+    ));
+    let config = Config::load(config_path).unwrap();
+    config
 }

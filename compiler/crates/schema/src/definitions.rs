@@ -35,10 +35,10 @@ pub struct Schema {
     clientid_field_name: StringKey,
     typename_field_name: StringKey,
 
-    string_type: Type,
-    id_type: Type,
+    string_type: Option<Type>,
+    id_type: Option<Type>,
 
-    unchecked_argument_type_sentinel: TypeReference,
+    unchecked_argument_type_sentinel: Option<TypeReference>,
 
     directives: HashMap<StringKey, Directive>,
 
@@ -81,7 +81,7 @@ impl Schema {
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
     pub fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
-        &self.unchecked_argument_type_sentinel
+        self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
     pub fn is_type_subtype_of(
@@ -187,7 +187,7 @@ impl Schema {
     }
 
     pub fn is_string(&self, type_: Type) -> bool {
-        type_ == self.string_type
+        type_ == self.string_type.unwrap()
     }
 
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
@@ -316,7 +316,7 @@ impl Schema {
     }
 
     pub fn is_id(&self, type_: Type) -> bool {
-        type_ == self.id_type
+        type_ == self.id_type.unwrap()
     }
 
     pub fn get_type_map(&self) -> impl Iterator<Item = (&StringKey, &Type)> {
@@ -616,6 +616,33 @@ impl Schema {
         Ok(())
     }
 
+    /// Creates an uninitialized, invalid schema which can then be added to using the add_*
+    /// methods. Note that we still bake in some assumptions about the clientid and typename
+    /// fields, but in practice this is not an issue.
+    pub fn create_uninitialized() -> Schema {
+        Schema {
+            query_type: None,
+            mutation_type: None,
+            subscription_type: None,
+            type_map: HashMap::new(),
+            clientid_field: FieldID(0),
+            typename_field: FieldID(0),
+            clientid_field_name: "__id".intern(),
+            typename_field_name: "__typename".intern(),
+            string_type: None,
+            id_type: None,
+            unchecked_argument_type_sentinel: None,
+            directives: HashMap::new(),
+            enums: Vec::new(),
+            fields: Vec::new(),
+            input_objects: Vec::new(),
+            interfaces: Vec::new(),
+            objects: Vec::new(),
+            scalars: Vec::new(),
+            unions: Vec::new(),
+        }
+    }
+
     pub fn build(
         schema_definitions: &[graphql_syntax::TypeSystemDefinition],
         client_definitions: &[graphql_syntax::TypeSystemDefinition],
@@ -695,8 +722,9 @@ impl Schema {
         let string_type = *type_map.get(&"String".intern()).unwrap();
         let id_type = *type_map.get(&"ID".intern()).unwrap();
 
-        let unchecked_argument_type_sentinel =
-            TypeReference::Named(*type_map.get(&"Boolean".intern()).unwrap());
+        let unchecked_argument_type_sentinel = Some(TypeReference::Named(
+            *type_map.get(&"Boolean".intern()).unwrap(),
+        ));
 
         let mut schema = Schema {
             query_type: None,
@@ -707,8 +735,8 @@ impl Schema {
             typename_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             typename_field_name: "__typename".intern(),
-            string_type,
-            id_type,
+            string_type: Some(string_type),
+            id_type: Some(id_type),
             unchecked_argument_type_sentinel,
             directives: HashMap::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
@@ -752,11 +780,15 @@ impl Schema {
             }
         }
 
-        schema.load_default_root_types();
-        schema.load_default_typename_field();
-        schema.load_default_clientid_field();
+        schema.load_defaults();
 
         Ok(schema)
+    }
+
+    pub fn load_defaults(&mut self) {
+        self.load_default_root_types();
+        self.load_default_typename_field();
+        self.load_default_clientid_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription
@@ -868,7 +900,7 @@ impl Schema {
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
                 arguments,
-                repeatable: _repeatable,
+                repeatable,
                 locations,
             }) => {
                 if self.directives.contains_key(&name.value) {
@@ -887,6 +919,7 @@ impl Schema {
                         name: name.value,
                         arguments,
                         locations: locations.clone(),
+                        repeatable: *repeatable,
                         is_extension,
                     },
                 );
@@ -1554,6 +1587,7 @@ pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
+    pub repeatable: bool,
     pub is_extension: bool,
 }
 

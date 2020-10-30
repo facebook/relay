@@ -45,6 +45,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     )
     .unwrap();
 
+    let typegen_config = TypegenConfig {
+        language: TypegenLanguage::TypeScript,
+        haste: true,
+        ..Default::default()
+    };
+
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
@@ -56,25 +62,15 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             typegen_operation,
             normalization_operation,
             &schema,
-            &TypegenConfig {
-                language: TypegenLanguage::TypeScript,
-                ..Default::default()
-            },
+            &typegen_config,
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
-    let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type(
-            frag,
-            &schema,
-            &TypegenConfig {
-                language: TypegenLanguage::TypeScript,
-                ..Default::default()
-            },
-        )
-    });
+    let fragment_strings = fragments
+        .into_iter()
+        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &typegen_config));
 
     let mut result: Vec<String> = operation_strings.collect();
     result.extend(fragment_strings);

@@ -24,19 +24,23 @@ module.exports = function(options) {
     stripDEV: options.env === 'production',
   });
 
-  fbjsPreset.presets[0].plugins.push([
-    require('./rewrite-modules'),
-    {
-      map: {
-        ErrorUtils: 'fbjs/lib/ErrorUtils',
-        Promise: 'promise-polyfill',
-        areEqual: 'fbjs/lib/areEqual',
-        invariant: 'fbjs/lib/invariant',
-        mapObject: 'fbjs/lib/mapObject',
-        warning: 'fbjs/lib/warning',
-      },
-    },
-  ]);
+  fbjsPreset.presets.push({
+    plugins: [
+      [
+        require('./rewrite-modules'),
+        {
+          map: {
+            ErrorUtils: 'fbjs/lib/ErrorUtils',
+            Promise: 'promise-polyfill',
+            areEqual: 'fbjs/lib/areEqual',
+            invariant: 'fbjs/lib/invariant',
+            mapObject: 'fbjs/lib/mapObject',
+            warning: 'fbjs/lib/warning',
+          },
+        },
+      ],
+    ],
+  });
 
   if (options.postPlugins) {
     fbjsPreset.presets.push({

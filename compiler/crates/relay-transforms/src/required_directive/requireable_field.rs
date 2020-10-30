@@ -6,7 +6,7 @@
  */
 
 use super::{ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
-use common::{Diagnostic, Location, Named, NamedItem, WithLocation};
+use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{ConstantValue, Directive, LinkedField, ScalarField, ValidationMessage, Value};
 use interner::StringKey;
 use schema::Schema;
@@ -21,37 +21,17 @@ pub struct RequiredMetadata {
 pub trait RequireableField {
     fn directives(&self) -> &Vec<Directive>;
     fn name_with_location(&self, schema: &Schema) -> WithLocation<StringKey>;
-    fn required_directive(&self) -> Result<Option<&Directive>, Diagnostic> {
-        let mut required_directives = self
-            .directives()
-            .iter()
-            .filter(|directive| directive.name() == *REQUIRED_DIRECTIVE_NAME);
-        let maybe_first_directive = required_directives.next();
-        let maybe_second_directive = required_directives.next();
-
-        if let Some(first_directive) = maybe_first_directive {
-            if let Some(second_directive) = maybe_second_directive {
-                return Err(Diagnostic::error(
-                    ValidationMessage::RequiredOncePerField,
-                    second_directive.name.location,
-                )
-                .annotate("it also appears here", first_directive.name.location));
-            }
-        }
-        Ok(maybe_first_directive)
-    }
-
     fn required_metadata(&self) -> Result<Option<RequiredMetadata>, Diagnostic> {
-        self.required_directive()?
-            .map_or(Ok(None), |required_directive| {
-                get_action_argument(required_directive).map(|action_arg| {
-                    Some(RequiredMetadata {
-                        action: action_arg.item,
-                        action_location: action_arg.location,
-                        directive_location: required_directive.name.location,
-                    })
-                })
-            })
+        if let Some(required_directive) = self.directives().named(*REQUIRED_DIRECTIVE_NAME) {
+            let action_arg = get_action_argument(required_directive)?;
+            Ok(Some(RequiredMetadata {
+                action: action_arg.item,
+                action_location: action_arg.location,
+                directive_location: required_directive.name.location,
+            }))
+        } else {
+            Ok(None)
+        }
     }
 }
 

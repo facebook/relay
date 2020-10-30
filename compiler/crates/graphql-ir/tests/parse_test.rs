@@ -1,4 +1,4 @@
-// @generated SignedSource<<233e403ffa3e9f5746e912db9db19576>>
+// @generated SignedSource<<571e38e288c7fd293b329ce551743dcd>>
 
 mod parse;
 
@@ -265,6 +265,13 @@ fn invalid_argument_type_invalid() {
 }
 
 #[test]
+fn linked_field_with_no_selection_invalid() {
+    let input = include_str!("parse/fixtures/linked-field-with-no-selection.invalid.graphql");
+    let expected = include_str!("parse/fixtures/linked-field-with-no-selection.invalid.expected");
+    test_fixture(transform_fixture, "linked-field-with-no-selection.invalid.graphql", "parse/fixtures/linked-field-with-no-selection.invalid.expected", input, expected);
+}
+
+#[test]
 fn linked_handle_field() {
     let input = include_str!("parse/fixtures/linked-handle-field.graphql");
     let expected = include_str!("parse/fixtures/linked-handle-field.expected");
@@ -370,6 +377,13 @@ fn query_with_argument_invalid() {
 }
 
 #[test]
+fn scalar_field_with_selection() {
+    let input = include_str!("parse/fixtures/scalar-field-with-selection.graphql");
+    let expected = include_str!("parse/fixtures/scalar-field-with-selection.expected");
+    test_fixture(transform_fixture, "scalar-field-with-selection.graphql", "parse/fixtures/scalar-field-with-selection.expected", input, expected);
+}
+
+#[test]
 fn scalar_handle_field() {
     let input = include_str!("parse/fixtures/scalar-handle-field.graphql");
     let expected = include_str!("parse/fixtures/scalar-handle-field.expected");
@@ -388,6 +402,13 @@ fn simple_query() {
     let input = include_str!("parse/fixtures/simple-query.graphql");
     let expected = include_str!("parse/fixtures/simple-query.expected");
     test_fixture(transform_fixture, "simple-query.graphql", "parse/fixtures/simple-query.expected", input, expected);
+}
+
+#[test]
+fn typename_with_arguments_invalid() {
+    let input = include_str!("parse/fixtures/typename_with_arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/typename_with_arguments.invalid.expected");
+    test_fixture(transform_fixture, "typename_with_arguments.invalid.graphql", "parse/fixtures/typename_with_arguments.invalid.expected", input, expected);
 }
 
 #[test]

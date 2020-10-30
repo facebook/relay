@@ -25,10 +25,16 @@ pub enum ValidationMessage {
     ExpectedType(TypeReference),
     #[error("The type `{type_}` has no field `{field}`")]
     UnknownField { type_: StringKey, field: StringKey },
-    #[error("Expected no selections on scalar field '{0:?}.{1}'")]
-    InvalidSelectionsOnScalarField(Type, StringKey),
-    #[error("Expected selections on field '{0:?}.{1}'")]
-    ExpectedSelectionsOnObjectField(Type, StringKey),
+    #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
+    InvalidSelectionsOnScalarField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
+    ExpectedSelectionsOnObjectField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
     #[error("Unknown argument '{0}'")]
     UnknownArgument(StringKey),
     #[error("Unknown directive '{0}'")]
@@ -136,7 +142,7 @@ pub enum ValidationMessage {
     )]
     InvalidArgumentsKeys(String),
 
-    #[error("Unexpected arguments on '__typename' field")]
+    #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
 
     #[error(
@@ -446,6 +452,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "A unique query name has to be specified in `@refetchable`, an operation `{query_name}` already exists."
+    )]
+    RefetchableQueryConflictWithQuery { query_name: StringKey },
+
+    #[error(
         "Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope."
     )]
     RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
@@ -532,10 +543,8 @@ pub enum ValidationMessage {
     )]
     LiveQueryTransformInvalidConfigId { query_name: StringKey },
 
-    #[error(
-        "Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough."
-    )]
-    RedundantPreloadableDirective,
+    #[error("The directive `@{name}` can only be used once at this location.")]
+    RepeatedNonRepeatableDirective { name: StringKey },
 
     #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
     ConnectionMutationDirectiveOnScalarField {
@@ -609,17 +618,17 @@ pub enum ValidationMessage {
     InvalidFlightFieldReturnType,
 
     #[error(
-        "Expected all fields on the same parent with the name or alias '{field_name}' to have the same name and arguments."
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after appling fragment arguments. This field has the applied argument values: {arguments_a}"
     )]
-    InvalidSameFieldWithDifferentArguments { field_name: StringKey },
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
+    },
 
     #[error(
         "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match"
     )]
     RequiredWithinAbstractInlineFragment,
-
-    #[error("Unexpected second @required directive. @requried may only be used once per field")]
-    RequiredOncePerField,
 
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,

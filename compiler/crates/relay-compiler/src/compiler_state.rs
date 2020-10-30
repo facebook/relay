@@ -411,37 +411,32 @@ impl CompilerState {
             return Default::default();
         }
         let mut result = FnvHashMap::default();
-        for config in config.enabled_projects() {
-            let project_name = config.name;
-            let paths = self.dirty_artifact_paths.get(&project_name);
-            let mut dirty_definitions = vec![];
-            match paths {
-                None => break,
-                Some(paths) => {
-                    let mut paths = paths.clone();
-                    let artifacts = self
-                        .artifacts
-                        .get(&project_name)
-                        .expect("Expected the artifacts map to exist.");
-                    if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
-                        'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
-                            let mut added = false;
-                            for artifact_tuple in artifact_tuples {
-                                if paths.remove(&artifact_tuple.0) && !added {
-                                    dirty_definitions.push(*definition_name);
-                                    if paths.is_empty() {
-                                        break 'outer;
-                                    }
-                                    added = true;
+        for (project_name, paths) in self.dirty_artifact_paths.iter() {
+            if config.projects[project_name].enabled {
+                let mut paths = paths.clone();
+                let artifacts = self
+                    .artifacts
+                    .get(&project_name)
+                    .expect("Expected the artifacts map to exist.");
+                if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
+                    let mut dirty_definitions = vec![];
+                    'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
+                        let mut added = false;
+                        for artifact_tuple in artifact_tuples {
+                            if paths.remove(&artifact_tuple.0) && !added {
+                                dirty_definitions.push(*definition_name);
+                                if paths.is_empty() {
+                                    break 'outer;
                                 }
+                                added = true;
                             }
                         }
-                        if !dirty_definitions.is_empty() {
-                            result.insert(project_name, dirty_definitions);
-                        }
-                    } else {
-                        panic!("Expected the artifacts map to be populated.")
                     }
+                    if !dirty_definitions.is_empty() {
+                        result.insert(*project_name, dirty_definitions);
+                    }
+                } else {
+                    panic!("Expected the artifacts map to be populated.")
                 }
             }
         }

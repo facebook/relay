@@ -14,8 +14,10 @@ mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
+pub mod error_reporter;
 pub mod errors;
 mod graphql_asts;
+mod red_to_green;
 mod rollout;
 pub mod saved_state;
 mod watchman;
@@ -25,7 +27,7 @@ pub use build_project::{
     artifact_writer::{ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter},
     build_schema, check_project, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
-    validate, Artifact, ArtifactContent, Programs, SourceHashes,
+    is_operation_preloadable, validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;

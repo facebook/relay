@@ -97,15 +97,3 @@ impl From<std::ops::Range<usize>> for Span {
         Span::from_usize(range.start, range.end)
     }
 }
-
-#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
-pub struct Spanned<T> {
-    pub span: Span,
-    pub item: T,
-}
-
-impl<T> Spanned<T> {
-    pub fn new(span: Span, item: T) -> Self {
-        Self { span, item }
-    }
-}

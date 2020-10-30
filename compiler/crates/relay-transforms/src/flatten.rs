@@ -11,13 +11,14 @@ use crate::util::{
     is_relay_custom_inline_fragment_directive, PointerAddress, CUSTOM_METADATA_DIRECTIVES,
 };
 use graphql_ir::{
-    Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, ScalarField, Selection, ValidationMessage,
+    Argument, Condition, Directive, FragmentDefinition, InlineFragment, LinkedField,
+    OperationDefinition, Program, ScalarField, Selection, ValidationMessage,
 };
+use interner::StringKey;
 use schema::Type;
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
@@ -311,14 +312,13 @@ impl FlattenTransform {
                                 &node.arguments,
                                 &flattened_node.arguments,
                             ) {
-                                let error = Diagnostic::error(
-                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
-                                        field_name: node.alias_or_name(&self.schema),
-                                    },
+                                return Err(vec![self.create_conflicting_fields_error(
+                                    node.alias_or_name(&self.schema),
+                                    flattened_node.definition.location,
+                                    &flattened_node.arguments,
                                     node.definition.location,
-                                )
-                                .annotate("conflicting field", flattened_node.definition.location);
-                                return Err(vec![error]);
+                                    &node.arguments,
+                                )]);
                             }
                             let type_ = self
                                 .schema
@@ -373,14 +373,13 @@ impl FlattenTransform {
                                 &node.arguments,
                                 &flattened_node.arguments,
                             ) {
-                                let error = Diagnostic::error(
-                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
-                                        field_name: node.alias_or_name(&self.schema),
-                                    },
+                                return Err(vec![self.create_conflicting_fields_error(
+                                    node.alias_or_name(&self.schema),
                                     flattened_node.definition.location,
-                                )
-                                .annotate("conflicts with", node.definition.location);
-                                return Err(vec![error]);
+                                    &flattened_node.arguments,
+                                    node.definition.location,
+                                    &node.arguments,
+                                )]);
                             }
                             let should_merge_handles = node.directives.iter().any(|d| {
                                 CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
@@ -416,6 +415,30 @@ impl FlattenTransform {
         self.flatten_selections(&mut flattened_selections, selections_a, parent_type)?;
         self.flatten_selections(&mut flattened_selections, selections_b, parent_type)?;
         Ok(flattened_selections)
+    }
+
+    fn create_conflicting_fields_error(
+        &self,
+        field_name: StringKey,
+        location_a: Location,
+        arguments_a: &[Argument],
+        location_b: Location,
+        arguments_b: &[Argument],
+    ) -> Diagnostic {
+        Diagnostic::error(
+            ValidationMessage::InvalidSameFieldWithDifferentArguments {
+                field_name,
+                arguments_a: graphql_text_printer::print_arguments(&self.schema, &arguments_a),
+            },
+            location_a,
+        )
+        .annotate(
+            format!(
+                "which conflicts with this field with applied argument values {}",
+                graphql_text_printer::print_arguments(&self.schema, &arguments_b),
+            ),
+            location_b,
+        )
     }
 }
 

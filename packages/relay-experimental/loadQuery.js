@@ -37,8 +37,6 @@ import type {
   GraphQLResponse,
 } from 'relay-runtime';
 
-const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-
 let RenderDispatcher = null;
 
 function useTrackLoadQueryInRender() {
@@ -75,6 +73,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     force: true,
   };
 
+  let unsubscribeFromNetworkRequest;
   // makeNetworkRequest will immediately start a raw network request and
   // return an Observable that when subscribing to it, will replay the
   // network events that have occured so far, as well as subsequent events.
@@ -92,7 +91,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     );
 
     const subject = new ReplaySubject();
-    sourceObservable.subscribe({
+    ({unsubscribe: unsubscribeFromNetworkRequest} = sourceObservable.subscribe({
       error(err) {
         subject.error(err);
       },
@@ -102,7 +101,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       complete() {
         subject.complete();
       },
-    });
+    }));
     return Observable.create(sink => subject.subscribe(sink));
   };
 
@@ -193,7 +192,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 
   let params;
-  let loadQueryAstTimeoutId;
   let cancelOnLoadCallback;
   let moduleId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
@@ -222,7 +220,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         moduleId,
         preloadedModule => {
-          loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
           cancelOnLoadCallback();
           const operation = createOperationDescriptor(
             preloadedModule,
@@ -233,18 +230,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           );
         },
       ));
-      if (!environment.isServer()) {
-        loadQueryAstTimeoutId = setTimeout(() => {
-          cancelOnLoadCallback();
-          const onTimeout = options?.onQueryAstLoadTimeout;
-          if (onTimeout) {
-            onTimeout();
-          }
-          // complete() the subject so that the observer knows no (additional) payloads
-          // will be delivered
-          executionSubject.complete();
-        }, LOAD_QUERY_AST_MAX_TIMEOUT);
-      }
     }
   } else {
     const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
@@ -262,10 +247,10 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       if (isDisposed) {
         return;
       }
+      unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
       unsubscribeFromExecution && unsubscribeFromExecution();
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();
-      loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
       isDisposed = true;
     },
     id: moduleId,
@@ -281,4 +266,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 }
 
-module.exports = {loadQuery, useTrackLoadQueryInRender};
+module.exports = {
+  loadQuery,
+  useTrackLoadQueryInRender,
+};

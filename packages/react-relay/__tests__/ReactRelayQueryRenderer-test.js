@@ -33,7 +33,6 @@ const {
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
 const {
   createMockEnvironment,
-  generateAndCompile,
   simpleClone,
 } = require('relay-test-utils-internal');
 

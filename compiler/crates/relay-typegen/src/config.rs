@@ -22,7 +22,7 @@ impl Default for TypegenLanguage {
     }
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
@@ -49,6 +49,10 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub use_import_type_syntax: bool,
 
+    /// Whether to future proof enums by including "%future added value" as a possible value.
+    #[serde(default = "default_future_proofness")]
+    pub future_proof_enums: bool,
+
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
@@ -58,4 +62,23 @@ pub struct TypegenConfig {
     /// style.
     #[serde(default)]
     pub haste: bool,
+}
+
+// Custom impl for Default to set future proofness to true when using Default::default().
+impl Default for TypegenConfig {
+    fn default() -> Self {
+        Self {
+            language: TypegenLanguage::default(),
+            enum_module_suffix: None,
+            optional_input_fields: vec![],
+            use_import_type_syntax: false,
+            future_proof_enums: default_future_proofness(),
+            custom_scalar_types: FnvHashMap::default(),
+            haste: false,
+        }
+    }
+}
+
+fn default_future_proofness() -> bool {
+    true
 }

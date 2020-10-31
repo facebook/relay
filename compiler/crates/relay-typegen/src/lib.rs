@@ -1095,7 +1095,9 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     .iter()
                     .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
-                members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+                if self.typegen_config.future_proof_enums {
+                    members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+                }
                 write_ast!(
                     self,
                     AST::ExportTypeEquals(enum_type.name, Box::from(AST::Union(members)))

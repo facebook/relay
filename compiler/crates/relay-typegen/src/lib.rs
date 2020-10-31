@@ -1041,7 +1041,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         self,
                         AST::ImportFragmentType(
                             vec![fragment_type_name],
-                            format!("./{}.graphql", used_fragment).intern()
+                            format!("{}.graphql", used_fragment).intern()
                         )
                     )?;
                 // } else if (state.useSingleArtifactDirectory) {

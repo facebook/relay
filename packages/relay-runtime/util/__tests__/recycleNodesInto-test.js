@@ -247,6 +247,20 @@ describe('recycleNodesInto', () => {
   });
 
   describe('weaksets', () => {
+    describe('when not supported by environment', () => {
+      const WeakSetOriginal = WeakSet;
+      beforeEach(() => {
+        delete global.WeakSet;
+      });
+      afterEach(() => {
+        global.WeakSet = WeakSetOriginal;
+      });
+      it('handles weaksets being undefined', () => {
+        const data = {};
+        expect(() => recycleNodesInto(data, data)).not.toThrow();
+      });
+    });
+
     it('does not recycle weaksets with unequal values', () => {
       const prevData = new WeakSet([{a: 1}, {b: 2}, {c: 3}]);
       const nextData = new WeakSet([{a: 4}, {b: 5}, {c: 6}]);
@@ -279,6 +293,20 @@ describe('recycleNodesInto', () => {
   });
 
   describe('weakmaps', () => {
+    describe('when not supported by environment', () => {
+      const WeakMapOriginal = WeakMap;
+      beforeEach(() => {
+        delete global.WeakMap;
+      });
+      afterEach(() => {
+        global.WeakMap = WeakMapOriginal;
+      });
+      it('handles weakmaps being undefined', () => {
+        const data = {};
+        expect(() => recycleNodesInto(data, data)).not.toThrow();
+      });
+    });
+
     it('does not recycle weakmaps with unequal values', () => {
       const a = {};
       const prevData = new WeakMap();

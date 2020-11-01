@@ -32,7 +32,7 @@ use relay_transforms::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
     REQUIRED_METADATA_KEY,
 };
-use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
+use schema::{EnumID, Object, ScalarID, Schema, Type, TypeReference, Union};
 use std::fmt::{Result, Write};
 use std::hash::Hash;
 use writer::{Prop, AST, SPREAD_KEY};
@@ -149,7 +149,8 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
         let selections = self.visit_selections(&typegen_operation.selections);
-        let mut response_type = self.selections_to_babel(selections, false, None);
+        let mut response_type =
+            self.selections_to_babel(Some(typegen_operation.type_), selections, false, None);
 
         response_type = match typegen_operation
             .directives
@@ -286,6 +287,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let unmasked = RelayDirective::is_unmasked_fragment_definition(&node);
 
         let base_type = self.selections_to_babel(
+            Some(node.type_condition),
             selections,
             unmasked,
             if unmasked {
@@ -620,19 +622,36 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
     fn selections_to_babel(
         &mut self,
+        node_type: Option<Type>,
         selections: Vec<TypeSelection>,
         unmasked: bool,
         fragment_type_name: Option<StringKey>,
     ) -> AST {
         let mut base_fields: TypeSelectionMap = Default::default();
+        let mut base_fragments: IndexMap<_, _> = Default::default();
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
         for selection in selections {
-            if let Some(concrete_type) = selection.concrete_type {
+            // If the concrete type matches the node type, we can add this to the base fields
+            // and fragments instead.
+            let concrete_type = match (node_type, selection.concrete_type) {
+                (Some(node_type), Some(concrete_type)) => {
+                    if node_type.eq(&concrete_type) {
+                        None
+                    } else {
+                        Some(concrete_type)
+                    }
+                }
+                (None, Some(concrete_type)) => Some(concrete_type),
+                _ => None,
+            };
+            if let Some(concrete_type) = concrete_type {
                 by_concrete_type
                     .entry(concrete_type)
                     .or_insert_with(Vec::new)
                     .push(selection);
+            } else if let Some(ref_name) = selection.ref_ {
+                base_fragments.insert(ref_name, selection);
             } else {
                 let key = TypeSelectionKey {
                     key: selection.key,
@@ -650,26 +669,57 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             }
         }
 
-        let mut types: Vec<Vec<Prop>> = Vec::new();
-
         #[allow(clippy::ptr_arg)]
         fn has_typename_selection(selections: &Vec<TypeSelection>) -> bool {
             selections.iter().any(TypeSelection::is_typename)
         }
 
-        if !by_concrete_type.is_empty()
-            && base_fields.values().all(TypeSelection::is_typename)
+        #[allow(clippy::ptr_arg)]
+        fn only_selects_fragments(selections: &Vec<TypeSelection>) -> bool {
+            selections.iter().all(TypeSelection::is_fragment)
+        }
+
+        // If there are any concrete types that only select fragments, move those
+        // fragments to the base fragments instead.
+        let by_concrete_type = by_concrete_type
+            .into_iter()
+            .filter_map(|(concrete_type, selections)| {
+                if only_selects_fragments(&selections) {
+                    for selection in selections {
+                        // Note that only_selects_fragments ensures that ref_.is_some().
+                        base_fragments.insert(selection.ref_.unwrap(), selection.clone());
+                    }
+
+                    None
+                } else {
+                    Some((concrete_type, selections))
+                }
+            })
+            .collect::<IndexMap<_, _>>();
+
+        let mut concrete_types: Vec<_> = Vec::new();
+        let type_fields_present_for_union = !by_concrete_type.is_empty()
             && (base_fields.values().any(TypeSelection::is_typename)
-                || by_concrete_type.values().all(has_typename_selection))
-        {
+                || by_concrete_type.values().all(has_typename_selection));
+
+        if type_fields_present_for_union {
             let mut typename_aliases = IndexSet::new();
-            for (concrete_type, selections) in by_concrete_type {
-                types.push(
+            for (concrete_type, selections) in &by_concrete_type {
+                let selection_names = selections
+                    .iter()
+                    .map(|selection| selection.schema_name)
+                    .collect::<Vec<_>>();
+
+                concrete_types.push(
                     group_refs(
                         base_fields
                             .iter()
-                            .map(|(_, v)| v.clone())
-                            .chain(selections.into_iter())
+                            .map(|(_, v)| v)
+                            .filter(|v| {
+                                v.is_typename() && !selection_names.contains(&v.schema_name)
+                            })
+                            .cloned()
+                            .chain(selections.clone().into_iter())
                             .collect(),
                     )
                     .into_iter()
@@ -677,28 +727,79 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         if selection.is_typename() {
                             typename_aliases.insert(selection.key);
                         }
-                        self.make_prop(selection, unmasked, Some(concrete_type))
+                        self.make_prop(selection, unmasked, Some(*concrete_type), None)
                     })
                     .collect(),
                 );
             }
 
-            // It might be some other type then the listed concrete types. Ideally, we
-            // would set the type to diff(string, set of listed concrete types), but
-            // this doesn't exist in Flow at the time.
-            types.push(
-                typename_aliases
-                    .iter()
-                    .map(|typename_alias| Prop {
-                        key: *typename_alias,
-                        read_only: true,
-                        optional: false,
-                        value: AST::OtherTypename,
-                    })
-                    .collect(),
-            );
-        } else {
-            let mut selection_map = selections_to_map(hashmap_into_value_vec(base_fields), false);
+            // It might be some other type then the listed concrete types. We try to
+            // figure out which types remain here.
+            let possible_types_left: Option<Vec<&Object>> = if let Some(node_type) = node_type {
+                if let Some(possible_types) = self.schema.get_possible_types(node_type) {
+                    let types_seen = by_concrete_type
+                        .keys()
+                        .map(|type_| self.schema.get_type_name(*type_))
+                        .collect::<Vec<_>>();
+                    Some(
+                        possible_types
+                            .into_iter()
+                            .filter(|possible_type| !types_seen.contains(&possible_type.name))
+                            .collect(),
+                    )
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
+            if self.typegen_config.future_proof_abstract_types
+                || match &possible_types_left {
+                    Some(types) => !types.is_empty(),
+                    None => true,
+                }
+            {
+                concrete_types.push(
+                    typename_aliases
+                        .iter()
+                        .map(|typename_alias| Prop {
+                            key: *typename_alias,
+                            read_only: true,
+                            optional: false,
+                            value: possible_types_left
+                                .as_ref()
+                                .map(|types| {
+                                    AST::Union(
+                                        types
+                                            .iter()
+                                            .map(|type_| AST::StringLiteral(type_.name))
+                                            .chain(
+                                                // Would be nicer to chain() with iter::once or iter::empty, but then
+                                                // the if and else branch have incompatible return types.
+                                                std::iter::repeat(AST::OtherTypename).take(
+                                                    if self
+                                                        .typegen_config
+                                                        .future_proof_abstract_types
+                                                    {
+                                                        1
+                                                    } else {
+                                                        0
+                                                    },
+                                                ),
+                                            )
+                                            .collect(),
+                                    )
+                                })
+                                .unwrap_or(AST::OtherTypename),
+                        })
+                        .collect(),
+                );
+            }
+        }
+
+        let mut selection_map = selections_to_map(hashmap_into_value_vec(base_fields), false);
+        if !type_fields_present_for_union {
             for concrete_type_selections in by_concrete_type.values() {
                 selection_map = merge_selections(
                     selection_map,
@@ -715,46 +816,69 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     true,
                 )
             }
-            let selection_map_values = group_refs(hashmap_into_value_vec(selection_map))
-                .into_iter()
-                .map(|sel| {
-                    if sel.is_typename() && sel.concrete_type.is_some() {
-                        self.make_prop(
-                            TypeSelection {
-                                conditional: false,
-                                ..sel
-                            },
-                            unmasked,
-                            sel.concrete_type,
-                        )
-                    } else {
-                        self.make_prop(sel, unmasked, None)
-                    }
-                })
-                .collect();
-            types.push(selection_map_values);
         }
 
-        AST::Union(
-            types
-                .into_iter()
-                .map(|mut props: Vec<Prop>| {
-                    if let Some(fragment_type_name) = fragment_type_name {
-                        props.push(Prop {
-                            key: *KEY_REF_TYPE,
-                            optional: false,
-                            read_only: true,
-                            value: AST::FragmentReference(vec![fragment_type_name]),
-                        });
-                    }
-                    if unmasked {
-                        AST::InexactObject(props)
-                    } else {
-                        AST::ExactObject(props)
-                    }
-                })
+        let mut base_type_props = group_refs(
+            base_fragments
+                .values()
+                .chain(selection_map.values())
+                .filter(|selection| !type_fields_present_for_union || !selection.is_typename())
+                .cloned()
                 .collect(),
         )
+        .into_iter()
+        .map(|selection| {
+            if selection.is_typename()
+                && (selection.concrete_type.is_some()
+                    || matches!(node_type, Some(type_) if type_.is_union()))
+            {
+                self.make_prop(
+                    TypeSelection {
+                        conditional: false,
+                        ..selection
+                    },
+                    unmasked,
+                    selection.concrete_type,
+                    match node_type {
+                        Some(Type::Union(union)) => Some(self.schema.union(union)),
+                        _ => None,
+                    },
+                )
+            } else {
+                self.make_prop(selection, unmasked, None, None)
+            }
+        })
+        .collect::<Vec<_>>();
+
+        if let Some(fragment_type_name) = fragment_type_name {
+            base_type_props.push(Prop {
+                key: *KEY_REF_TYPE,
+                optional: false,
+                read_only: true,
+                value: AST::FragmentReference(vec![fragment_type_name]),
+            });
+        }
+
+        let props_to_object = |props: Vec<Prop>| -> AST {
+            if unmasked {
+                AST::InexactObject(props)
+            } else {
+                AST::ExactObject(props)
+            }
+        };
+
+        let base_type_props_not_empty = !base_type_props.is_empty();
+        let base_type = props_to_object(base_type_props);
+        if concrete_types.is_empty() {
+            return base_type;
+        }
+
+        let union_type = AST::Union(concrete_types.into_iter().map(props_to_object).collect());
+        if base_type_props_not_empty {
+            AST::Intersection(vec![union_type, base_type])
+        } else {
+            union_type
+        }
     }
 
     fn raw_response_selections_to_babel(
@@ -843,6 +967,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         type_selection: TypeSelection,
         unmasked: bool,
         concrete_type: Option<Type>,
+        union_type: Option<&Union>,
     ) -> Prop {
         let TypeSelection {
             key,
@@ -855,6 +980,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } = type_selection;
         let value = if let Some(node_type) = node_type {
             let object_props = self.selections_to_babel(
+                Some(node_type.inner()),
                 hashmap_into_value_vec(node_selections.unwrap()),
                 unmasked,
                 None,
@@ -863,6 +989,15 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else if schema_name == Some(*KEY_TYPENAME) {
             if let Some(concrete_type) = concrete_type {
                 AST::StringLiteral(self.schema.get_type_name(concrete_type))
+            } else if let Some(union_type) = union_type {
+                AST::Union(
+                    union_type
+                        .members
+                        .iter()
+                        .map(|member| self.schema.object(*member))
+                        .map(|type_| AST::StringLiteral(type_.name))
+                        .collect(),
+                )
             } else {
                 value.unwrap()
             }
@@ -1239,6 +1374,10 @@ impl TypeSelection {
         } else {
             false
         }
+    }
+
+    fn is_fragment(&self) -> bool {
+        self.ref_.is_some()
     }
 }
 

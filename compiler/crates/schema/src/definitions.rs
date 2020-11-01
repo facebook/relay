@@ -190,6 +190,26 @@ impl Schema {
         type_ == self.string_type.unwrap()
     }
 
+    pub fn get_possible_types(&self, type_: Type) -> Option<Vec<&Object>> {
+        match type_ {
+            Type::Union(union) => Some(
+                self.union(union)
+                    .members
+                    .iter()
+                    .map(|id| self.object(*id))
+                    .collect(),
+            ),
+            Type::Interface(interface) => Some(
+                self.interface(interface)
+                    .implementing_objects
+                    .iter()
+                    .map(|id| self.object(*id))
+                    .collect(),
+            ),
+            _ => None,
+        }
+    }
+
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
         match type_ {
             TypeReference::Named(inner) => {

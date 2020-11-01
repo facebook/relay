@@ -53,6 +53,10 @@ pub struct TypegenConfig {
     #[serde(default = "default_future_proofness")]
     pub future_proof_enums: bool,
 
+    /// Whether to future proof union and interface types by including "%other" as a possible type.
+    #[serde(default = "default_future_proofness")]
+    pub future_proof_abstract_types: bool,
+
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
@@ -72,6 +76,7 @@ impl Default for TypegenConfig {
             enum_module_suffix: None,
             optional_input_fields: vec![],
             use_import_type_syntax: false,
+            future_proof_abstract_types: default_future_proofness(),
             future_proof_enums: default_future_proofness(),
             custom_scalar_types: FnvHashMap::default(),
             haste: false,

@@ -1263,7 +1263,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     write_ast!(
                         self,
                         AST::ExportTypeEquals(
-                            type_identifier.clone(),
+                            *type_identifier,
                             Box::from(input_object_type.clone())
                         )
                     )?;

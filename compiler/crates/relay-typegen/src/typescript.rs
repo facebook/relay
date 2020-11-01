@@ -225,7 +225,7 @@ impl TypeScriptPrinter {
     fn write_fragment_references(
         &mut self,
         writer: &mut dyn Write,
-        fragments: &Vec<StringKey>,
+        fragments: &[StringKey],
     ) -> Result {
         write!(writer, "FragmentRefs<")?;
         self.write(
@@ -243,7 +243,7 @@ impl TypeScriptPrinter {
     fn write_import_type(
         &mut self,
         writer: &mut dyn Write,
-        types: &Vec<StringKey>,
+        types: &[StringKey],
         from: &StringKey,
     ) -> Result {
         write!(
@@ -267,7 +267,7 @@ impl TypeScriptPrinter {
         &mut self,
         writer: &mut dyn Write,
         name: &StringKey,
-        value: &Box<AST>,
+        value: &AST,
     ) -> Result {
         write!(writer, "type {} = {};", name, self.write_ast(value))
     }

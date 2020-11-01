@@ -222,7 +222,7 @@ impl FlowPrinter {
     fn write_import_type(
         &mut self,
         writer: &mut dyn Write,
-        types: &Vec<StringKey>,
+        types: &[StringKey],
         from: &StringKey,
     ) -> Result {
         write!(
@@ -259,12 +259,12 @@ impl FlowPrinter {
         &mut self,
         writer: &mut dyn Write,
         name: &StringKey,
-        value: &Box<AST>,
+        value: &AST,
     ) -> Result {
         write!(writer, "type {} = {};", name, self.write_ast(value))
     }
 
-    fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
+    fn write_export_list(&mut self, writer: &mut dyn Write, names: &[StringKey]) -> Result {
         write!(
             writer,
             "export type {{ {} }};",

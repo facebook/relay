@@ -167,7 +167,7 @@ impl TypeScriptPrinter {
             }
 
             self.write_indentation(writer)?;
-            if let AST::OtherTypename = prop.value {
+            if prop.value.contains_other_typename() {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
                 writeln!(

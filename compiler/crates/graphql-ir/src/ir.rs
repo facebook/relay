@@ -20,6 +20,21 @@ pub enum ExecutableDefinition {
     Fragment(FragmentDefinition),
 }
 
+impl ExecutableDefinition {
+    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+        match self {
+            ExecutableDefinition::Operation(node) => node
+                .directives
+                .iter()
+                .any(|d| d.name.item == directive_name),
+            ExecutableDefinition::Fragment(node) => node
+                .directives
+                .iter()
+                .any(|d| d.name.item == directive_name),
+        }
+    }
+}
+
 /// A fully-typed mutation, query, or subscription definition
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct OperationDefinition {

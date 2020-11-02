@@ -13,7 +13,7 @@ use crate::lsp::{
     ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
     Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
 };
-use common::{ConsoleLogger, PerfLogger};
+use common::{PerfLogEvent, PerfLogger};
 use log::info;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
@@ -51,7 +51,7 @@ pub async fn run<TPerfLogger>(
     connection: Connection,
     mut config: Config,
     _params: InitializeParams,
-    _perf_logger: Arc<TPerfLogger>,
+    perf_logger: Arc<TPerfLogger>,
 ) -> Result<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -76,9 +76,11 @@ where
 
     // A channel to communicate between the LSP message loop and the compiler loop
     let (mut lsp_tx, _lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
+    let logger_for_process = Arc::clone(&perf_logger);
 
     tokio::spawn(async move {
         for msg in receiver {
+            let perf_logger_msg_event = logger_for_process.create_event("lsp_message");
             info!("Received LSP message\n{:?}", msg);
             match msg {
                 Message::Request(req) => {
@@ -93,6 +95,9 @@ where
                     }
                     */
                     if req.method == Shutdown::METHOD {
+                        perf_logger_msg_event.string("method", req.method.clone());
+                        logger_for_process.complete_event(perf_logger_msg_event);
+                        logger_for_process.flush();
                         let (request_id, _) = extract_request_params::<Shutdown>(req);
                         let response = ServerResponse {
                             id: request_id,
@@ -106,6 +111,11 @@ where
                     }
                 }
                 Message::Notification(notif) => {
+                    let mut should_flush_perf_log_event = true;
+                    perf_logger_msg_event.string("method", notif.method.clone());
+                    let lsp_message_processing_time =
+                        perf_logger_msg_event.start("lsp_message_processing_time");
+
                     match &notif.method {
                         method if method == DidOpenTextDocument::METHOD => {
                             let params = extract_notif_params::<DidOpenTextDocument>(notif);
@@ -130,11 +140,20 @@ where
                                 .ok();
                         }
                         method if method == Exit::METHOD => {
+                            perf_logger_msg_event.stop(lsp_message_processing_time);
+                            logger_for_process.complete_event(perf_logger_msg_event);
+                            logger_for_process.flush();
                             std::process::exit(0);
                         }
                         _ => {
+                            should_flush_perf_log_event = false;
                             // Notifications we don't care about
                         }
+                    }
+                    if should_flush_perf_log_event {
+                        perf_logger_msg_event.stop(lsp_message_processing_time);
+                        logger_for_process.complete_event(perf_logger_msg_event);
+                        logger_for_process.flush();
                     }
                 }
                 Message::Response(_) => {
@@ -153,7 +172,7 @@ where
         config.root_dir.clone(),
         connection.sender.clone(),
     ));
-    let compiler = Compiler::new(config, Arc::new(ConsoleLogger));
+    let compiler = Compiler::new(config, Arc::clone(&perf_logger));
     compiler.watch().await.unwrap();
     Ok(())
 }

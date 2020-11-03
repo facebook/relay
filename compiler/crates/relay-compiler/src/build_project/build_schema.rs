@@ -14,8 +14,7 @@ pub fn build_schema(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
 ) -> DiagnosticsResult<Schema> {
-    let relay_extensions = String::from(schema::RELAY_EXTENSIONS);
-    let mut extensions = vec![&relay_extensions];
+    let mut extensions = vec![];
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
         extensions.extend(project_extensions.get_sources());
     }
@@ -31,5 +30,5 @@ pub fn build_schema(
             .into_iter()
             .map(String::as_str),
     );
-    schema::build_schema_with_extensions(&schema_sources, &extensions)
+    relay_schema::build_schema_with_extensions(&schema_sources, &extensions)
 }

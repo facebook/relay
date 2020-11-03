@@ -46,4 +46,4 @@ md-5 = "0.8"
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
-test-schema = { path = "../test-schema" }
+relay-test-schema = { path = "../relay-test-schema" }

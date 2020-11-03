@@ -109,8 +109,8 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
+relay-test-schema = { path = "../relay-test-schema" }
 schema = { path = "../schema" }
-test-schema = { path = "../test-schema" }
 criterion = "=0.3.1"
 dashmap = "3.11.10"
 fnv = "1.0"

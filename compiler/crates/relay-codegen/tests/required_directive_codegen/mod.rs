@@ -12,9 +12,9 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use interner::Intern;
 use relay_codegen::{print_fragment, print_operation};
+use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{required_directive, FeatureFlags};
 use std::sync::Arc;
-use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();

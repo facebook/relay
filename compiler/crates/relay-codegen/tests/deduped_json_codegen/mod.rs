@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use relay_codegen::Printer;
-use test_schema::TEST_SCHEMA;
+use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut printer = Printer::with_dedupe();

@@ -7,6 +7,7 @@
 
 #![deny(clippy::all)]
 
+use colored::Colorize;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::collections::HashMap;
 use std::fs;
@@ -145,6 +146,32 @@ use fixture_tests::test_fixture;
             .as_bytes(),
         )
         .unwrap();
+
+        check_targets_file(&dir);
+    }
+}
+
+fn check_targets_file(test_dir: &PathBuf) {
+    let targets_path = test_dir.parent().unwrap().parent().unwrap().join("TARGETS");
+    let targets_content = match std::fs::read_to_string(&targets_path) {
+        Ok(content) => content,
+        Err(_) => return,
+    };
+
+    let expected_substr = format!(
+        "\"tests/{}_test.rs\"",
+        test_dir.file_stem().unwrap().to_str().unwrap()
+    );
+
+    if !targets_content.contains(&expected_substr) {
+        eprintln!(
+            "{}",
+            format!(
+                "WARNING: expected {:?} to contain substring {}",
+                targets_path, expected_substr
+            )
+            .yellow()
+        );
     }
 }
 

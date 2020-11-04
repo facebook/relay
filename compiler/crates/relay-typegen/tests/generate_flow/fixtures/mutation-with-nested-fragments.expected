@@ -31,7 +31,7 @@ fragment FeedbackFragment on Feedback {
   name
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "./FriendFragment.graphql";
+import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -103,7 +103,7 @@ export type FeedbackFragment$key = {
   ...
 };
 -------------------------------------------------------------------------------
-import type { FeedbackFragment$ref } from "./FeedbackFragment.graphql";
+import type { FeedbackFragment$ref } from "FeedbackFragment.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type FriendFragment$ref: FragmentReference;
 declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;

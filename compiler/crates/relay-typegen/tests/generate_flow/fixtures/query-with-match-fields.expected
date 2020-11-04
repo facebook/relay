@@ -29,7 +29,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 import type { Local3DPayload } from "relay-runtime";
-import type { NameRendererFragment$ref } from "./NameRendererFragment.graphql";
+import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -101,8 +101,8 @@ export type MarkdownUserNameRenderer_name$key = {
   ...
 };
 -------------------------------------------------------------------------------
-import type { MarkdownUserNameRenderer_name$ref } from "./MarkdownUserNameRenderer_name.graphql";
-import type { PlainUserNameRenderer_name$ref } from "./PlainUserNameRenderer_name.graphql";
+import type { MarkdownUserNameRenderer_name$ref } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$ref } from "PlainUserNameRenderer_name.graphql";
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type NameRendererFragment$ref: FragmentReference;
 declare export opaque type NameRendererFragment$fragmentType: NameRendererFragment$ref;

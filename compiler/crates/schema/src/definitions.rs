@@ -239,6 +239,10 @@ impl Schema {
         self.directives.get(&name)
     }
 
+    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+        self.directives.get_mut(&name)
+    }
+
     pub fn is_extension_directive(&self, name: StringKey) -> bool {
         if let Some(directive) = self.get_directive(name) {
             directive.is_extension

@@ -8,18 +8,10 @@ query missingArgumentOnFieldTestQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'missingArgumentOnFieldTestQuery'.
+✖︎ Missing required argument: `capitalize`
 
   missing-argument-on-field.invalid.graphql:5:7
     4 │     hometown {
     5 │       nameWithArgs
       │       ^^^^^^^^^^^^
     6 │     }
-
-  ℹ︎ Root definition:
-
-  missing-argument-on-field.invalid.graphql:2:7
-    1 │ # expected-to-throw
-    2 │ query missingArgumentOnFieldTestQuery {
-      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │   node {

@@ -17,9 +17,15 @@ use graphql_syntax::{DirectiveLocation, List, OperationKind};
 use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
+use lazy_static::lazy_static;
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type, TypeReference,
 };
+
+lazy_static! {
+    static ref MATCH_NAME: StringKey = "match".intern();
+    static ref SUPPORTED_NAME: StringKey = "supported".intern();
+}
 
 /// The semantic of defining variables on a fragment definition.
 #[derive(Copy, Clone, PartialEq)]
@@ -41,6 +47,11 @@ pub struct BuilderOptions {
 
     /// The semantic of defining variables on a fragment definition.
     pub fragment_variables_semantic: FragmentVariablesSemantic,
+
+    /// Enable a Relay special cases:
+    /// - Fields with a @match directive do not require to pass the non-nullable
+    ///   `supported` argument.
+    pub relay_mode: bool,
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
@@ -59,6 +70,7 @@ pub fn build_ir_with_relay_options(
             BuilderOptions {
                 allow_undefined_fragment_spreads: false,
                 fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                relay_mode: true,
             },
         );
         builder.build_definition(definition)
@@ -93,6 +105,7 @@ pub fn build_type_annotation(
         BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: false,
         },
     );
     builder.build_type_annotation(annotation)
@@ -113,6 +126,7 @@ pub fn build_constant_value(
         BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: false,
         },
     );
     builder.build_constant_value(value, type_, validation)
@@ -131,6 +145,7 @@ pub fn build_variable_definitions(
         BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: false,
         },
     );
     builder.build_variable_definitions(definitions)
@@ -783,7 +798,19 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .into());
         }
         let alias = self.build_alias(&field.alias);
-        let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
+        let relay_supported_arg_optional = self.options.relay_mode;
+        let arguments = self.build_arguments(
+            field.name.span,
+            &field.arguments,
+            &field_definition.arguments,
+            |arg_name: &StringKey| {
+                if relay_supported_arg_optional {
+                    field.directives.named(*MATCH_NAME).is_none() || *arg_name != *SUPPORTED_NAME
+                } else {
+                    true
+                }
+            },
+        );
         let selections = self.build_selections(&field.selections.items, &field_definition.type_);
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
@@ -841,7 +868,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .into());
         }
         let alias = self.build_alias(&field.alias);
-        let arguments = self.build_arguments(&field.arguments, &field_definition.arguments);
+        let arguments = self.build_arguments(
+            field.name.span,
+            &field.arguments,
+            &field_definition.arguments,
+            |_| true,
+        );
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, directives) = try2(arguments, directives)?;
 
@@ -918,9 +950,29 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
     fn build_arguments(
         &mut self,
+        span: Span,
         arguments: &Option<graphql_syntax::List<graphql_syntax::Argument>>,
         argument_definitions: &ArgumentDefinitions,
+        is_non_nullable_field_required: impl Fn(&StringKey) -> bool,
     ) -> DiagnosticsResult<Vec<Argument>> {
+        let missing_arg_names = argument_definitions
+            .iter()
+            .filter(|arg_def| arg_def.type_.is_non_null())
+            .filter(|required_arg_def| {
+                arguments
+                    .iter()
+                    .flat_map(|args| &args.items)
+                    .all(|arg| arg.name.value != required_arg_def.name)
+            })
+            .map(|missing_arg| missing_arg.name)
+            .filter(is_non_nullable_field_required)
+            .collect::<Vec<_>>();
+        if !missing_arg_names.is_empty() {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::MissingRequiredArguments { missing_arg_names },
+                self.location.with_span(span),
+            )]);
+        }
         match arguments {
             Some(arguments) => arguments
                 .items
@@ -1029,8 +1081,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )
             .into());
         }
-        let arguments =
-            self.build_arguments(&directive.arguments, &directive_definition.arguments)?;
+        let arguments = self.build_arguments(
+            directive.name.span,
+            &directive.arguments,
+            &directive_definition.arguments,
+            |_| true,
+        )?;
         Ok(Directive {
             name: directive
                 .name

@@ -1,18 +1,15 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-
-query missingArgumentOnDirectiveViewerQuery {
-  node {
-    body @customDirective {
-      text
-    }
+query TestQuery {
+  me {
+    name @customDirective # directive missing level argument
   }
 }
 ==================================== ERROR ====================================
 ✖︎ Missing required argument: `level`
 
-  missing-argument-on-directive.invalid.graphql:5:11
-    4 │   node {
-    5 │     body @customDirective {
+  directive_missing_required_argument.invalid.graphql:4:11
+    3 │   me {
+    4 │     name @customDirective # directive missing level argument
       │           ^^^^^^^^^^^^^^^
-    6 │       text
+    5 │   }

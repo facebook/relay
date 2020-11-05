@@ -1,4 +1,4 @@
-// @generated SignedSource<<571e38e288c7fd293b329ce551743dcd>>
+// @generated SignedSource<<2cd1b37d2c01934635d2482e29944ce5>>
 
 mod parse;
 
@@ -48,6 +48,13 @@ fn directive_match_on_fragment_invalid() {
 }
 
 #[test]
+fn directive_missing_required_argument_invalid() {
+    let input = include_str!("parse/fixtures/directive_missing_required_argument.invalid.graphql");
+    let expected = include_str!("parse/fixtures/directive_missing_required_argument.invalid.expected");
+    test_fixture(transform_fixture, "directive_missing_required_argument.invalid.graphql", "parse/fixtures/directive_missing_required_argument.invalid.expected", input, expected);
+}
+
+#[test]
 fn directive_module_match_on_query_invalid() {
     let input = include_str!("parse/fixtures/directive-module-match-on-query.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive-module-match-on-query.invalid.expected");
@@ -69,6 +76,13 @@ fn directive_unknown_argument_invalid() {
 }
 
 #[test]
+fn directive_wrong_argument_type_invalid() {
+    let input = include_str!("parse/fixtures/directive_wrong_argument_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/directive_wrong_argument_type.invalid.expected");
+    test_fixture(transform_fixture, "directive_wrong_argument_type.invalid.graphql", "parse/fixtures/directive_wrong_argument_type.invalid.expected", input, expected);
+}
+
+#[test]
 fn enum_values() {
     let input = include_str!("parse/fixtures/enum-values.graphql");
     let expected = include_str!("parse/fixtures/enum-values.expected");
@@ -83,17 +97,31 @@ fn enum_values_invalid() {
 }
 
 #[test]
+fn field_argument_missing_required_invalid() {
+    let input = include_str!("parse/fixtures/field_argument_missing_required.invalid.graphql");
+    let expected = include_str!("parse/fixtures/field_argument_missing_required.invalid.expected");
+    test_fixture(transform_fixture, "field_argument_missing_required.invalid.graphql", "parse/fixtures/field_argument_missing_required.invalid.expected", input, expected);
+}
+
+#[test]
+fn field_argument_unknown_invalid() {
+    let input = include_str!("parse/fixtures/field_argument_unknown.invalid.graphql");
+    let expected = include_str!("parse/fixtures/field_argument_unknown.invalid.expected");
+    test_fixture(transform_fixture, "field_argument_unknown.invalid.graphql", "parse/fixtures/field_argument_unknown.invalid.expected", input, expected);
+}
+
+#[test]
+fn field_argument_wrong_type_invalid() {
+    let input = include_str!("parse/fixtures/field_argument_wrong_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/field_argument_wrong_type.invalid.expected");
+    test_fixture(transform_fixture, "field_argument_wrong_type.invalid.graphql", "parse/fixtures/field_argument_wrong_type.invalid.expected", input, expected);
+}
+
+#[test]
 fn field_arguments() {
     let input = include_str!("parse/fixtures/field-arguments.graphql");
     let expected = include_str!("parse/fixtures/field-arguments.expected");
     test_fixture(transform_fixture, "field-arguments.graphql", "parse/fixtures/field-arguments.expected", input, expected);
-}
-
-#[test]
-fn field_unknown_argument_invalid() {
-    let input = include_str!("parse/fixtures/field-unknown-argument.invalid.graphql");
-    let expected = include_str!("parse/fixtures/field-unknown-argument.invalid.expected");
-    test_fixture(transform_fixture, "field-unknown-argument.invalid.graphql", "parse/fixtures/field-unknown-argument.invalid.expected", input, expected);
 }
 
 #[test]

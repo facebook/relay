@@ -664,7 +664,7 @@ type Page implements Node & Actor {
   username: String
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
-  nameWithDefaultArgs(capitalize: Boolean! = false): String
+  nameWithDefaultArgs(capitalize: Boolean = false): String
 }
 
 type PageInfo {

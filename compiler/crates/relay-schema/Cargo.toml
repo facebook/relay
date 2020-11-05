@@ -9,4 +9,6 @@ include = ["src/**/*.graphql", "src/**/*.rs"]
 
 [dependencies]
 common = { path = "../common" }
+interner = { path = "../interner" }
 schema = { path = "../schema" }
+lazy_static = "1.0"

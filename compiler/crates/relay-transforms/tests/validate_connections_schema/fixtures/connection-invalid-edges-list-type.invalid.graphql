@@ -3,7 +3,7 @@ query NodeQuery($id: ID!, $first: Int, $after: ID) {
   node(id: $id) {
     id
     ... on User {
-      badConnection(first: $first, after: $after) @connection {
+      badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
         edges
       }
     }

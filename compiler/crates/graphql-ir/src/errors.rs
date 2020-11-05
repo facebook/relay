@@ -672,6 +672,16 @@ pub enum ValidationMessage {
     )]
     LocalGlobalVariableConflict { name: StringKey },
 
+    #[error("Missing required {}: `{}`",
+        if missing_arg_names.len() > 1 { "arguments" } else { "argument" },
+        missing_arg_names
+            .iter()
+            .map(|arg| arg.lookup())
+            .collect::<Vec<_>>()
+            .join("`, `"))
+    ]
+    MissingRequiredArguments { missing_arg_names: Vec<StringKey> },
+
     #[error(
         "Required argument '{argument_name}: {type_string}' is missing on '{node_name}' in '{root_name}'."
     )]

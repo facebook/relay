@@ -1,4 +1,4 @@
-// @generated SignedSource<<ffb6a7e8a49b7dc08c75b44278797366>>
+// @generated SignedSource<<8024f24863ad2e8983d9363d7d49f02e>>
 
 mod validate_required_arguments;
 
@@ -55,8 +55,8 @@ fn missing_argument_on_linked_field_invalid() {
 }
 
 #[test]
-fn missing_argument_on_linked_field_on_abstract_type() {
-    let input = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.graphql");
-    let expected = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.expected");
-    test_fixture(transform_fixture, "missing-argument-on-linked-field-on-abstract-type.graphql", "validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.expected", input, expected);
+fn missing_argument_on_linked_field_on_abstract_type_invalid() {
+    let input = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.invalid.graphql");
+    let expected = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.invalid.expected");
+    test_fixture(transform_fixture, "missing-argument-on-linked-field-on-abstract-type.invalid.graphql", "validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.invalid.expected", input, expected);
 }

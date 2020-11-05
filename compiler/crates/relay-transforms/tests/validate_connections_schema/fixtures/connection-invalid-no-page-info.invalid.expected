@@ -4,7 +4,7 @@ query NodeQuery($id: ID!, $first: Int, $after: ID) {
   node(id: $id) {
     id
     ... on User {
-      badConnection(first: $first, after: $after) @connection {
+      badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
         edges {
           cursor
           node {
@@ -46,15 +46,6 @@ type BadConnectionPageInfo {
 
   connection-invalid-no-page-info.invalid.graphql:6:7
     5 │     ... on User {
-    6 │       badConnection(first: $first, after: $after) @connection {
+    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
       │       ^^^^^^^^^^^^^
-    7 │         edges {
-
-
-✖︎ Expected the key argument to @connection to be a string literal for field 'badConnection'.
-
-  connection-invalid-no-page-info.invalid.graphql:6:52
-    5 │     ... on User {
-    6 │       badConnection(first: $first, after: $after) @connection {
-      │                                                    ^^^^^^^^^^
     7 │         edges {

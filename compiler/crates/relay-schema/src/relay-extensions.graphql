@@ -42,7 +42,7 @@ directive @stream_connection(
   key: String!
   filters: [String]
   handler: String
-  label: String!
+  label: String
   initial_count: Int!
   if: Boolean = true
   use_customized_batch: Boolean = false

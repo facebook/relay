@@ -533,7 +533,5 @@ pub trait OperationPersister {
         project_config: &PersistConfig,
     ) -> std::result::Result<PersistId, PersistError>;
 
-    fn worker_count(&self) -> usize {
-        1
-    }
+    fn worker_count(&self) -> usize;
 }

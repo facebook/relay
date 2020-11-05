@@ -23,6 +23,10 @@ use schema::{
 };
 
 lazy_static! {
+    static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();
+
+    /// Relay extension field that's available on all types.
+    static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
     static ref MATCH_NAME: StringKey = "match".intern();
     static ref SUPPORTED_NAME: StringKey = "supported".intern();
 }
@@ -828,16 +832,16 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         field: &graphql_syntax::ScalarField,
         parent_type: &TypeReference,
     ) -> DiagnosticsResult<ScalarField> {
-        let field_name = field.name.value.lookup();
-        if field_name == "__typename" {
+        let field_name = field.name.value;
+        if field_name == *TYPENAME_FIELD_NAME {
             return self.build_typename_field(field);
-        } else if field_name == "__id" {
+        } else if self.options.relay_mode && field_name == *CLIENT_ID_FIELD_NAME {
             return self.build_clientid_field(field);
         };
         let span = field.name.span;
         let field_id = match self.lookup_field(
             parent_type.inner(),
-            field.name.value,
+            field_name,
             &field.arguments,
             &field.directives,
         ) {
@@ -847,7 +851,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .record_error(Diagnostic::error(
                         ValidationMessage::UnknownField {
                             type_: self.schema.get_type_name(parent_type.inner()),
-                            field: field.name.value,
+                            field: field_name,
                         },
                         self.location.with_span(span),
                     ))
@@ -861,7 +865,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .record_error(Diagnostic::error(
                     ValidationMessage::ExpectedSelectionsOnObjectField {
                         type_name: self.schema.get_type_name(parent_type.inner()),
-                        field_name: field.name.value,
+                        field_name,
                     },
                     self.location.with_span(span),
                 ))

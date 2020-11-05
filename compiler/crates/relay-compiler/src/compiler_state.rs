@@ -18,6 +18,7 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
+use schema::Schema;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
@@ -181,6 +182,8 @@ pub struct CompilerState {
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
+    #[serde(skip)]
+    pub schema_cache: FnvHashMap<ProjectName, Arc<Schema>>,
 }
 
 impl CompilerState {
@@ -203,6 +206,7 @@ impl CompilerState {
             saved_state_version: config.saved_state_version.clone(),
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
+            schema_cache: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -276,15 +280,18 @@ impl CompilerState {
         self.graphql_sources
             .get(&project_name)
             .map_or(false, |sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+            || self.project_has_pending_schema_changes(project_name)
+            || self.dirty_artifact_paths.contains_key(&project_name)
+    }
+
+    pub fn project_has_pending_schema_changes(&self, project_name: ProjectName) -> bool {
+        self.schemas
+            .get(&project_name)
+            .map_or(false, |sources| !sources.pending.is_empty())
             || self
                 .extensions
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
-            || self.dirty_artifact_paths.contains_key(&project_name)
     }
 
     pub fn has_processed_changes(&self) -> bool {

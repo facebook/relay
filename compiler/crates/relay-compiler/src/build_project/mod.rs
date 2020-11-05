@@ -154,7 +154,7 @@ pub fn build_project(
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
-            Ok(Arc::new(build_schema(compiler_state, project_config)?))
+            Ok(build_schema(compiler_state, project_config)?)
         })
         .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })

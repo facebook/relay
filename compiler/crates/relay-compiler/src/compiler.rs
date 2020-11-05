@@ -59,7 +59,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         let mut schemas = HashMap::new();
         for project_config in self.config.enabled_projects() {
             let schema = build_schema(compiler_state, project_config)?;
-            schemas.insert(project_config.name, Arc::new(schema));
+            schemas.insert(project_config.name, schema);
         }
         setup_event.stop(timer);
         Ok(schemas)
@@ -307,6 +307,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         dirty_artifact_paths,
                     )
                     .await?,
+                    schema,
                 ))
             }));
         }
@@ -316,20 +317,20 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 error: e.to_string(),
             })?;
             match inner_result {
-                Ok((project_name, next_artifact_map)) => {
+                Ok((project_name, next_artifact_map, schema)) => {
                     let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                     compiler_state
                         .artifacts
                         .insert(project_name, next_artifact_map);
+                    compiler_state
+                        .schema_cache
+                        .insert(project_name, schema.to_owned());
                 }
                 Err(error) => {
                     errors.push(error);
                 }
             }
         }
-    };
-
-    if errors.is_empty() {
         Ok(())
     } else {
         Err(Error::BuildProjectsErrors { errors })

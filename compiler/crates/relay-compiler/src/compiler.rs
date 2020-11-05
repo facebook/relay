@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, commit_project};
+use crate::build_project::{build_project, build_schema, commit_project, BuildProjectFailure};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{BuildProjectError, Error, Result};
@@ -17,10 +17,7 @@ use futures::future::join_all;
 use log::{error, info};
 use rayon::prelude::*;
 use schema::Schema;
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
@@ -92,15 +89,14 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         self.perf_logger.complete_event(setup_event);
         info!("Waiting for changes...");
 
-        let existing_file_source_changes_source = Arc::new(Mutex::new(vec![]));
-        let existing_file_source_changes = existing_file_source_changes_source.clone();
+        let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
         task::spawn(async move {
             loop {
                 if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
-                    existing_file_source_changes_source
-                        .lock()
+                    pending_file_source_changes
+                        .write()
                         .unwrap()
                         .push(file_source_changes);
                     notify_sender.notify();
@@ -110,27 +106,21 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
         loop {
             notify_receiver.notified().await;
-            let mut existing_file_source_changes = existing_file_source_changes.lock().unwrap();
-            if !existing_file_source_changes.is_empty() {
+            // Single change to file sometimes produces 2 watchman change events for the same file
+            // wait for 50ms in case there is a subsquent request
+            tokio::time::delay_for(std::time::Duration::from_millis(50)).await;
+            if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
-                // TODO Single change to file in VSCode sometimes produces
-                // 2 watchman change events for the same file
-                let mut had_new_changes = false;
-                for file_source_changes in existing_file_source_changes.drain(..) {
-                    had_new_changes = had_new_changes
-                        || compiler_state.merge_file_source_changes(
-                            &self.config,
-                            &file_source_changes,
-                            &incremental_build_event,
-                            self.perf_logger.as_ref(),
-                            false,
-                        )?;
-                }
-                std::mem::drop(existing_file_source_changes);
+                let had_new_changes = compiler_state.merge_file_source_changes(
+                    &self.config,
+                    &incremental_build_event,
+                    self.perf_logger.as_ref(),
+                    false,
+                )?;
 
                 if had_new_changes {
                     info!("Change detected, start compiling...");
@@ -197,11 +187,16 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             self.print_project_error(error);
                         }
                     }
+                    Error::Cancelled => {
+                        info!("Compilation cancelled due to new changes.");
+                    }
                     error => {
                         error!("{}", error);
                     }
                 }
-                error!("Compilation failed.");
+                if !matches!(error, Error::Cancelled) {
+                    error!("Compilation failed.");
+                }
                 Err(error)
             }
         }
@@ -239,6 +234,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         )
     })?;
 
+    if compiler_state.has_pending_file_source_changes() {
+        return Err(Error::Cancelled);
+    }
+
     let build_results: Vec<_> = config
         .par_enabled_projects()
         .filter(|project_config| {
@@ -264,7 +263,12 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     for result in build_results {
         match result {
             Ok(result) => results.push(result),
-            Err(error) => errors.push(error),
+            Err(error) => match error {
+                BuildProjectFailure::Error(error) => errors.push(error),
+                BuildProjectFailure::Cancelled => {
+                    return Err(Error::Cancelled);
+                }
+            },
         }
     }
 

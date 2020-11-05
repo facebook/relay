@@ -68,9 +68,13 @@ impl<'config> FileSource<'config> {
             let file_source_result = self
                 .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
                 .await?;
+            compiler_state
+                .pending_file_source_changes
+                .write()
+                .unwrap()
+                .push(file_source_result);
             compiler_state.merge_file_source_changes(
                 &self.config,
-                &file_source_result,
                 perf_logger_event,
                 perf_logger,
                 true,
@@ -234,9 +238,13 @@ impl<'config> FileSource<'config> {
         if compiler_state.saved_state_version != saved_state_version {
             return Err("Saved state version doesn't match.");
         }
+        compiler_state
+            .pending_file_source_changes
+            .write()
+            .unwrap()
+            .push(file_source_result);
         if let Err(parse_error) = compiler_state.merge_file_source_changes(
             &self.config,
-            &file_source_result,
             perf_logger_event,
             perf_logger,
             true,

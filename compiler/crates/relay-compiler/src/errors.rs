@@ -105,6 +105,9 @@ pub enum Error {
     PostArtifactsError {
         error: Box<dyn std::error::Error + Sync + Send>,
     },
+
+    #[error("Compilation cancelled due to new changes")]
+    Cancelled,
 }
 
 #[derive(Debug, Error)]

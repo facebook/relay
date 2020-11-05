@@ -19,7 +19,14 @@ use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::{fmt, fs::File, hash::Hash, io, path::PathBuf, sync::Arc};
+use std::{
+    fmt,
+    fs::File,
+    hash::Hash,
+    io,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -172,6 +179,8 @@ pub struct CompilerState {
     pub clock: Clock,
     pub saved_state_version: String,
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    #[serde(skip)]
+    pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
 }
 
 impl CompilerState {
@@ -193,6 +202,7 @@ impl CompilerState {
             clock: file_source_changes.clock.clone(),
             saved_state_version: config.saved_state_version.clone(),
             dirty_artifact_paths: Default::default(),
+            pending_file_source_changes: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -301,91 +311,92 @@ impl CompilerState {
                 .any(|sources| !sources.pending.is_empty())
     }
 
-    /// Merges the provided pending changes from the file source into the compiler state.
+    /// Merges pending changes from the file source into the compiler state.
     /// Returns a boolean indicating if any new changes were merged.
     pub fn merge_file_source_changes(
         &mut self,
         config: &Config,
-        file_source_changes: &FileSourceResult,
         setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
         // When loading from saved state, collect dirty artifacts for recompiling their source definitions
         should_collect_changed_artifacts: bool,
     ) -> Result<bool> {
         let mut has_changed = false;
+        for file_source_changes in self.pending_file_source_changes.write().unwrap().drain(..) {
+            let categorized = setup_event.time("categorize_files_time", || {
+                categorize_files(config, &file_source_changes.files)
+            });
 
-        let categorized = setup_event.time("categorize_files_time", || {
-            categorize_files(config, &file_source_changes.files)
-        });
+            for (category, files) in categorized {
+                match category {
+                    FileGroup::Source { source_set } => {
+                        // TODO: possible optimization to only set this if the
+                        // extracted sources actually differ.
+                        has_changed = true;
 
-        for (category, files) in categorized {
-            match category {
-                FileGroup::Source { source_set } => {
-                    // TODO: possible optimization to only set this if the
-                    // extracted sources actually differ.
-                    has_changed = true;
-
-                    let log_event = perf_logger.create_event("categorize");
-                    log_event.string("source_set_name", source_set.to_string());
-                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
-                    let sources = files
-                        .par_iter()
-                        .map(|file| {
-                            let graphql_strings = if *file.exists {
-                                extract_graphql_strings_from_file(
-                                    &file_source_changes.resolved_root,
-                                    &file,
-                                )?
-                            } else {
-                                Vec::new()
-                            };
-                            Ok(((*file.name).to_owned(), graphql_strings))
-                        })
-                        .collect::<Result<_>>()?;
-                    log_event.stop(extract_timer);
-                    match source_set {
-                        SourceSet::SourceSetName(source_set_name) => {
-                            self.graphql_sources
-                                .entry(source_set_name)
-                                .or_default()
-                                .merge_pending_sources(sources);
-                        }
-                        SourceSet::SourceSetNames(names) => {
-                            for source_set_name in names {
+                        let log_event = perf_logger.create_event("categorize");
+                        log_event.string("source_set_name", source_set.to_string());
+                        let extract_timer =
+                            log_event.start("extract_graphql_strings_from_file_time");
+                        let sources = files
+                            .par_iter()
+                            .map(|file| {
+                                let graphql_strings = if *file.exists {
+                                    extract_graphql_strings_from_file(
+                                        &file_source_changes.resolved_root,
+                                        &file,
+                                    )?
+                                } else {
+                                    Vec::new()
+                                };
+                                Ok(((*file.name).to_owned(), graphql_strings))
+                            })
+                            .collect::<Result<_>>()?;
+                        log_event.stop(extract_timer);
+                        match source_set {
+                            SourceSet::SourceSetName(source_set_name) => {
                                 self.graphql_sources
                                     .entry(source_set_name)
                                     .or_default()
-                                    .merge_pending_sources(sources.clone());
+                                    .merge_pending_sources(sources);
+                            }
+                            SourceSet::SourceSetNames(names) => {
+                                for source_set_name in names {
+                                    self.graphql_sources
+                                        .entry(source_set_name)
+                                        .or_default()
+                                        .merge_pending_sources(sources.clone());
+                                }
                             }
                         }
                     }
-                }
-                FileGroup::Schema { project_set } => {
-                    has_changed = true;
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut self.schemas,
-                    )?;
-                }
-                FileGroup::Extension { project_set } => {
-                    has_changed = true;
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut self.extensions,
-                    )?;
-                }
-                FileGroup::Generated { project_name } => {
-                    if !should_collect_changed_artifacts {
-                        break;
+                    FileGroup::Schema { project_set } => {
+                        has_changed = true;
+                        Self::process_schema_change(
+                            &file_source_changes,
+                            files,
+                            project_set,
+                            &mut self.schemas,
+                        )?;
                     }
-                    self.dirty_artifact_paths.insert(
-                        project_name,
-                        files.iter().map(|f| (*f.name).clone()).collect(),
-                    );
+                    FileGroup::Extension { project_set } => {
+                        has_changed = true;
+                        Self::process_schema_change(
+                            &file_source_changes,
+                            files,
+                            project_set,
+                            &mut self.extensions,
+                        )?;
+                    }
+                    FileGroup::Generated { project_name } => {
+                        if !should_collect_changed_artifacts {
+                            break;
+                        }
+                        self.dirty_artifact_paths.insert(
+                            project_name,
+                            files.iter().map(|f| (*f.name).clone()).collect(),
+                        );
+                    }
                 }
             }
         }
@@ -466,6 +477,10 @@ impl CompilerState {
             source: err,
         })?;
         Ok(state)
+    }
+
+    pub fn has_pending_file_source_changes(&self) -> bool {
+        !self.pending_file_source_changes.read().unwrap().is_empty()
     }
 
     fn set_pending_source_set(

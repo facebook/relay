@@ -253,12 +253,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let name = match &operation.name {
             Some(name) => name,
             None => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedOperationName(),
-                        operation.location,
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedOperationName(),
+                    operation.location,
+                )]);
             }
         };
         let kind = operation
@@ -274,12 +272,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let operation_type = match operation_type {
             Some(operation_type) => operation_type,
             None => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnsupportedOperation(kind),
-                        operation.location,
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::UnsupportedOperation(kind),
+                    operation.location,
+                )]);
             }
         };
 
@@ -346,14 +342,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     ) -> DiagnosticsResult<VariableDefinition> {
         let type_ = self.build_type_annotation(&definition.type_)?;
         if !type_.inner().is_input_type() {
-            return Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::ExpectedVariablesToHaveInputType(
-                        self.schema.get_type_name(type_.inner()),
-                    ),
-                    self.location.with_span(definition.span),
-                ))
-                .into());
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::ExpectedVariablesToHaveInputType(
+                    self.schema.get_type_name(type_.inner()),
+                ),
+                self.location.with_span(definition.span),
+            )]);
         }
         let default_value = match &definition.default_value {
             Some(default_value) => Some(self.build_constant_value(
@@ -391,12 +385,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         match annotation {
             graphql_syntax::TypeAnnotation::Named(name) => match self.schema.get_type(name.value) {
                 Some(type_) => Ok(TypeReference::Named(type_)),
-                None => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnknownType(name.value),
-                        self.location.with_span(name.span),
-                    ))
-                    .into()),
+                None => Err(vec![Diagnostic::error(
+                    ValidationMessage::UnknownType(name.value),
+                    self.location.with_span(name.span),
+                )]),
             },
             graphql_syntax::TypeAnnotation::NonNull(non_null) => {
                 let inner = self.build_type_annotation_inner(&non_null.type_)?;
@@ -527,12 +519,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ValidationLevel::Loose,
                     )?)
                 } else {
-                    Err(self
-                        .record_error(Diagnostic::error(
-                            ValidationMessage::UnknownArgument(arg.name.value),
-                            self.location.with_span(arg.span),
-                        ))
-                        .into())
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::UnknownArgument(arg.name.value),
+                        self.location.with_span(arg.span),
+                    )])
                 }
             })
             .collect();
@@ -570,12 +560,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 });
             }
             None => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UndefinedFragment(spread.name.value),
-                        self.location.with_span(spread.span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::UndefinedFragment(spread.name.value),
+                    self.location.with_span(spread.span),
+                )]);
             }
         };
 
@@ -584,24 +572,22 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             .are_overlapping_types(parent_type.inner(), signature.type_condition)
         {
             // no possible overlap
-            return Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::InvalidFragmentSpreadType {
-                        fragment_name: spread.name.value,
-                        parent_type: self
-                            .schema
-                            .get_type_name(parent_type.inner())
-                            .lookup()
-                            .to_owned(),
-                        type_condition: self
-                            .schema
-                            .get_type_name(signature.type_condition)
-                            .lookup()
-                            .to_owned(),
-                    },
-                    self.location.with_span(spread.span),
-                ))
-                .into());
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::InvalidFragmentSpreadType {
+                    fragment_name: spread.name.value,
+                    parent_type: self
+                        .schema
+                        .get_type_name(parent_type.inner())
+                        .lookup()
+                        .to_owned(),
+                    type_condition: self
+                        .schema
+                        .get_type_name(signature.type_condition)
+                        .lookup()
+                        .to_owned(),
+                },
+                self.location.with_span(spread.span),
+            )]);
         }
 
         if self.options.fragment_variables_semantic != FragmentVariablesSemantic::PassedValue {
@@ -635,7 +621,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             for location in locations {
                 error = error.annotate("duplicate definition", location);
             }
-            return Err(self.record_error(error).into());
+            return Err(vec![error]);
         }
 
         let arguments = if let Some(graphql_syntax::Directive {
@@ -702,21 +688,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                             Some(type_condition)
                         }
                         _ => {
-                            return Err(self
-                                .record_error(Diagnostic::error(
-                                    ValidationMessage::ExpectedCompositeType(type_condition),
-                                    self.location.with_span(type_condition_node.type_.span),
-                                ))
-                                .into());
+                            return Err(vec![Diagnostic::error(
+                                ValidationMessage::ExpectedCompositeType(type_condition),
+                                self.location.with_span(type_condition_node.type_.span),
+                            )]);
                         }
                     },
                     None => {
-                        return Err(self
-                            .record_error(Diagnostic::error(
-                                ValidationMessage::UnknownType(type_name),
-                                self.location.with_span(type_condition_node.type_.span),
-                            ))
-                            .into());
+                        return Err(vec![Diagnostic::error(
+                            ValidationMessage::UnknownType(type_name),
+                            self.location.with_span(type_condition_node.type_.span),
+                        )]);
                     }
                 }
             }
@@ -729,23 +711,21 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 .are_overlapping_types(parent_type.inner(), type_condition))
             {
                 // no possible overlap
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::InvalidInlineFragmentTypeCondition {
-                            parent_type: self
-                                .schema
-                                .get_type_name(parent_type.inner())
-                                .lookup()
-                                .to_owned(),
-                            type_condition: self
-                                .schema
-                                .get_type_name(type_condition)
-                                .lookup()
-                                .to_owned(),
-                        },
-                        self.location.with_span(fragment.span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::InvalidInlineFragmentTypeCondition {
+                        parent_type: self
+                            .schema
+                            .get_type_name(parent_type.inner())
+                            .lookup()
+                            .to_owned(),
+                        type_condition: self
+                            .schema
+                            .get_type_name(type_condition)
+                            .lookup()
+                            .to_owned(),
+                    },
+                    self.location.with_span(fragment.span),
+                )]);
             }
         }
 
@@ -778,28 +758,24 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnknownField {
-                            type_: self.schema.get_type_name(parent_type.inner()),
-                            field: field.name.value,
-                        },
-                        self.location.with_span(span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::UnknownField {
+                        type_: self.schema.get_type_name(parent_type.inner()),
+                        field: field.name.value,
+                    },
+                    self.location.with_span(span),
+                )]);
             }
         };
         let field_definition = self.schema.field(field_id);
         if field_definition.type_.inner().is_scalar() || field_definition.type_.inner().is_enum() {
-            return Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::InvalidSelectionsOnScalarField {
-                        type_name: self.schema.get_type_name(parent_type.inner()),
-                        field_name: field.name.value,
-                    },
-                    self.location.with_span(span),
-                ))
-                .into());
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::InvalidSelectionsOnScalarField {
+                    type_name: self.schema.get_type_name(parent_type.inner()),
+                    field_name: field.name.value,
+                },
+                self.location.with_span(span),
+            )]);
         }
         let alias = self.build_alias(&field.alias);
         let relay_supported_arg_optional = self.options.relay_mode;
@@ -847,29 +823,25 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnknownField {
-                            type_: self.schema.get_type_name(parent_type.inner()),
-                            field: field_name,
-                        },
-                        self.location.with_span(span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::UnknownField {
+                        type_: self.schema.get_type_name(parent_type.inner()),
+                        field: field_name,
+                    },
+                    self.location.with_span(span),
+                )]);
             }
         };
         let field_definition = self.schema.field(field_id);
         if !field_definition.type_.inner().is_scalar() && !field_definition.type_.inner().is_enum()
         {
-            return Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::ExpectedSelectionsOnObjectField {
-                        type_name: self.schema.get_type_name(parent_type.inner()),
-                        field_name,
-                    },
-                    self.location.with_span(span),
-                ))
-                .into());
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::ExpectedSelectionsOnObjectField {
+                    type_name: self.schema.get_type_name(parent_type.inner()),
+                    field_name,
+                },
+                self.location.with_span(span),
+            )]);
         }
         let alias = self.build_alias(&field.alias);
         let arguments = self.build_arguments(
@@ -896,11 +868,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_id = self.schema.clientid_field();
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
-            return Err(Diagnostic::error(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidArgumentsOnTypenameField(),
                 self.location.with_span(arguments.span),
-            )
-            .into());
+            )]);
         }
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {
@@ -922,11 +893,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_id = self.schema.typename_field();
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
-            return Err(Diagnostic::error(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidArgumentsOnTypenameField(),
                 self.location.with_span(arguments.span),
-            )
-            .into());
+            )]);
         }
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {
@@ -988,12 +958,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                             &argument_definition.type_,
                             ValidationLevel::Strict,
                         ),
-                        None => Err(self
-                            .record_error(Diagnostic::error(
-                                ValidationMessage::UnknownArgument(argument.name.value),
-                                self.location.with_span(argument.name.span),
-                            ))
-                            .into()),
+                        None => Err(vec![Diagnostic::error(
+                            ValidationMessage::UnknownArgument(argument.name.value),
+                            self.location.with_span(argument.name.span),
+                        )]),
                     },
                 )
                 .collect(),
@@ -1027,17 +995,15 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .skip(index + 1)
                     .find(|other_directive| other_directive.name.item == directive.name.item)
                 {
-                    return Err(self
-                        .record_error(
-                            Diagnostic::error(
-                                ValidationMessage::RepeatedNonRepeatableDirective {
-                                    name: directive.name.item,
-                                },
-                                repeated_directive.name.location,
-                            )
-                            .annotate("previously used here", directive.name.location),
+                    return Err(vec![
+                        Diagnostic::error(
+                            ValidationMessage::RepeatedNonRepeatableDirective {
+                                name: directive.name.item,
+                            },
+                            repeated_directive.name.location,
                         )
-                        .into());
+                        .annotate("previously used here", directive.name.location),
+                    ]);
                 }
             }
         }
@@ -1052,13 +1018,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     ) -> DiagnosticsResult<Directive> {
         if directive.name.value == *ARGUMENT_DEFINITION {
             if location != DirectiveLocation::FragmentDefinition {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(
-                        ),
-                        self.location.with_span(directive.name.span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+                    self.location.with_span(directive.name.span),
+                )]);
             }
             return Ok(Directive {
                 name: directive
@@ -1070,20 +1033,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let directive_definition = match self.schema.get_directive(directive.name.value) {
             Some(directive_definition) => directive_definition,
             None => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnknownDirective(directive.name.value),
-                        self.location.with_span(directive.name.span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::UnknownDirective(directive.name.value),
+                    self.location.with_span(directive.name.span),
+                )]);
             }
         };
         if !directive_definition.locations.contains(&location) {
-            return Err(Diagnostic::error(
+            return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidDirectiveUsageUnsupportedLocation(directive.name.value),
                 self.location.with_span(directive.name.span),
-            )
-            .into());
+            )]);
         }
         let arguments = self.build_arguments(
             directive.name.span,
@@ -1138,15 +1098,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             {
                 let defined_type = self.schema.get_type_string(&variable_definition.type_);
                 let used_type = self.schema.get_type_string(used_as_type);
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::InvalidVariableUsage {
-                            defined_type,
-                            used_type,
-                        },
-                        self.location.with_span(variable.span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::InvalidVariableUsage {
+                        defined_type,
+                        used_type,
+                    },
+                    self.location.with_span(variable.span),
+                )]);
             }
         } else if let Some(prev_usage) = self.used_variables.get(&variable.name) {
             let is_used_subtype = self
@@ -1161,16 +1119,16 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 let next_type = self.schema.get_type_string(used_as_type);
                 let next_span = self.location.with_span(variable.span);
                 let prev_span = self.location.with_span(prev_usage.span);
-                return Err(self
-                    .record_error(Diagnostic::error(
+                return Err(vec![
+                    Diagnostic::error(
                         ValidationMessage::IncompatibleVariableUsage {
                             prev_type,
                             next_type,
                         },
                         next_span,
-                    ))
-                    .annotate("is incompatible with", prev_span)
-                    .into());
+                    )
+                    .annotate("is incompatible with", prev_span),
+                ]);
             }
             // If the currently used type is a subtype of the previous usage, then it could
             // be a narrower type. Update our inference to reflect the stronger requirements.
@@ -1241,21 +1199,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
                 Type::Enum(id) => {
                     let type_definition = self.schema.enum_(*id);
-                    Err(self
-                        .record_error(Diagnostic::error(
-                            ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                            self.location.with_span(value.span()),
-                        ))
-                        .into())
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                        self.location.with_span(value.span()),
+                    )])
                 }
                 Type::Scalar(id) => {
                     let type_definition = self.schema.scalar(*id);
-                    Err(self
-                        .record_error(Diagnostic::error(
-                            ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                            self.location.with_span(value.span()),
-                        ))
-                        .into())
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                        self.location.with_span(value.span()),
+                    )])
                 }
                 _ => unreachable!("input types must be list, input object, enum, or scalar"),
             },
@@ -1274,12 +1228,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 unreachable!("Constants should fall into the build_constant_input_object path")
             }
             _ => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(value.span()),
+                )]);
             }
         };
         let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
@@ -1298,13 +1250,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     required_fields.remove(&x.name.value);
                     let prev_span = seen_fields.insert(x.name.value, x.name.span);
                     if let Some(prev_span) = prev_span {
-                        return Err(self
-                            .record_error(Diagnostic::error(
+                        return Err(vec![
+                            Diagnostic::error(
                                 ValidationMessage::DuplicateInputField(x.name.value),
                                 self.location.with_span(prev_span),
-                            ))
-                            .annotate("also defined here", self.location.with_span(x.name.span))
-                            .into());
+                            )
+                            .annotate("also defined here", self.location.with_span(x.name.span)),
+                        ]);
                     };
 
                     let value_span = x.value.span();
@@ -1322,15 +1274,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ),
                     })
                 }
-                None => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnknownField {
-                            type_: type_definition.name,
-                            field: x.name.value,
-                        },
-                        self.location.with_span(x.name.span),
-                    ))
-                    .into()),
+                None => Err(vec![Diagnostic::error(
+                    ValidationMessage::UnknownField {
+                        type_: type_definition.name,
+                        field: x.name.value,
+                    },
+                    self.location.with_span(x.name.span),
+                )]),
             })
             .collect();
         if required_fields.is_empty() {
@@ -1338,12 +1288,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
             missing.sort_by_key(|x| x.lookup());
-            Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::MissingRequiredFields(missing, type_definition.name),
-                    self.location.with_span(object.span),
-                ))
-                .into())
+            Err(vec![Diagnostic::error(
+                ValidationMessage::MissingRequiredFields(missing, type_definition.name),
+                self.location.with_span(object.span),
+            )])
         }
     }
 
@@ -1358,14 +1306,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         // conversions can assume the input is not ConstantValue::Null.
         if let graphql_syntax::ConstantValue::Null(null) = &value {
             if type_.is_non_null() {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(
-                            self.schema.get_type_name(type_.inner()),
-                        ),
-                        self.location.with_span(null.span),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(
+                        self.schema.get_type_name(type_.inner()),
+                    ),
+                    self.location.with_span(null.span),
+                )]);
             } else {
                 return Ok(ConstantValue::Null());
             }
@@ -1414,12 +1360,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let object = match value {
             graphql_syntax::ConstantValue::Object(object) => object,
             _ => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(value.span()),
+                )]);
             }
         };
         let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
@@ -1438,18 +1382,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     required_fields.remove(&x.name.value);
                     let prev_span = seen_fields.insert(x.name.value, x.name.span);
                     if let Some(prev_span) = prev_span {
-                        return Err(self
-                            .record_error(
-                                Diagnostic::error(
-                                    ValidationMessage::DuplicateInputField(x.name.value),
-                                    self.location.with_span(prev_span),
-                                )
-                                .annotate(
-                                    "also defined here",
-                                    self.location.with_span(x.name.span),
-                                ),
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateInputField(x.name.value),
+                                self.location.with_span(prev_span),
                             )
-                            .into());
+                            .annotate("also defined here", self.location.with_span(x.name.span)),
+                        ]);
                     };
 
                     let value_span = x.value.span();
@@ -1464,15 +1403,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         ),
                     })
                 }
-                None => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::UnknownField {
-                            type_: type_definition.name,
-                            field: x.name.value,
-                        },
-                        self.location.with_span(x.name.span),
-                    ))
-                    .into()),
+                None => Err(vec![Diagnostic::error(
+                    ValidationMessage::UnknownField {
+                        type_: type_definition.name,
+                        field: x.name.value,
+                    },
+                    self.location.with_span(x.name.span),
+                )]),
             })
             .collect();
         if required_fields.is_empty() {
@@ -1480,12 +1417,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
             missing.sort_by_key(|x| x.lookup());
-            Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::MissingRequiredFields(missing, type_definition.name),
-                    self.location.with_span(object.span),
-                ))
-                .into())
+            Err(vec![Diagnostic::error(
+                ValidationMessage::MissingRequiredFields(missing, type_definition.name),
+                self.location.with_span(object.span),
+            )])
         }
     }
 
@@ -1497,20 +1432,16 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let value = match node {
             graphql_syntax::ConstantValue::Enum(value) => value.value,
             graphql_syntax::ConstantValue::String(_) => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedEnumValueGotString(type_definition.name),
-                        self.location.with_span(node.span()),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedEnumValueGotString(type_definition.name),
+                    self.location.with_span(node.span()),
+                )]);
             }
             _ => {
-                return Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(node.span()),
-                    ))
-                    .into());
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(node.span()),
+                )]);
             }
         };
         match type_definition.values.iter().find(|enum_value| {
@@ -1519,12 +1450,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 || enum_value.value == value.lookup().to_uppercase().intern()
         }) {
             Some(_) => Ok(ConstantValue::Enum(value)),
-            _ => Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                    self.location.with_span(node.span()),
-                ))
-                .into()),
+            _ => Err(vec![Diagnostic::error(
+                ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                self.location.with_span(node.span()),
+            )]),
         }
     }
 
@@ -1539,62 +1468,50 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 graphql_syntax::ConstantValue::String(node) => {
                     Ok(ConstantValue::String(node.value))
                 }
-                _ => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into()),
+                _ => Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(value.span()),
+                )]),
             },
             "String" => match value {
                 graphql_syntax::ConstantValue::String(node) => {
                     Ok(ConstantValue::String(node.value))
                 }
-                _ => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into()),
+                _ => Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(value.span()),
+                )]),
             },
             "Float" => match value {
                 graphql_syntax::ConstantValue::Float(node) => Ok(ConstantValue::Float(node.value)),
                 graphql_syntax::ConstantValue::Int(node) => {
                     Ok(ConstantValue::Float(From::from(node.value)))
                 }
-                _ => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into()),
+                _ => Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(value.span()),
+                )]),
             },
             "Boolean" => match value {
                 graphql_syntax::ConstantValue::Boolean(node) => {
                     Ok(ConstantValue::Boolean(node.value))
                 }
-                _ => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into()),
+                _ => Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
+                    self.location.with_span(value.span()),
+                )]),
             },
             "Int" => match value {
                 graphql_syntax::ConstantValue::Int(node) => Ok(ConstantValue::Int(node.value)),
-                _ => Err(self
-                    .record_error(Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name),
-                        self.location.with_span(value.span()),
-                    ))
-                    .into()),
-            },
-            _ => Err(self
-                .record_error(Diagnostic::error(
-                    ValidationMessage::UnsupportedCustomScalarType(type_definition.name),
+                _ => Err(vec![Diagnostic::error(
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                     self.location.with_span(value.span()),
-                ))
-                .into()),
+                )]),
+            },
+            _ => Err(vec![Diagnostic::error(
+                ValidationMessage::UnsupportedCustomScalarType(type_definition.name),
+                self.location.with_span(value.span()),
+            )]),
         }
     }
     fn lookup_field(
@@ -1649,11 +1566,6 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             }
         }
         None
-    }
-
-    fn record_error(&mut self, error: Diagnostic) -> Diagnostic {
-        // panic!("{:?}", error);
-        error
     }
 }
 

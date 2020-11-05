@@ -101,6 +101,7 @@ if (__DEV__) {
         return;
       case 'ScalarField':
       case 'LinkedField':
+      case 'FlightField':
         return validateField(optimisticResponse, selection, context);
       case 'InlineFragment':
         const type = selection.type;
@@ -127,8 +128,6 @@ if (__DEV__) {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
-      case 'FlightField':
-        throw new Error('Flight fields are not yet supported.');
       default:
         (selection: empty);
         return;
@@ -189,6 +188,21 @@ if (__DEV__) {
             return;
           }
         }
+      case 'FlightField':
+        if (
+          optimisticResponse[fieldName] === null ||
+          (hasOwnProperty.call(optimisticResponse, fieldName) &&
+            optimisticResponse[fieldName] === undefined)
+        ) {
+          return;
+        }
+        throw new Error(
+          'validateMutation: Flight fields are not compatible with ' +
+            'optimistic updates, as React does not have the component code ' +
+            'necessary to process new data on the client. Instead, you ' +
+            'should update your code to require a full refetch of the Flight ' +
+            'field so your UI can be updated.',
+        );
     }
   };
 

@@ -1,5 +1,0 @@
-# expected-to-throw
-fragment EnabledFragment on Node @inline {
-  id
-  name @required(action: LOG)
-}

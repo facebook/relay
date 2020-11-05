@@ -630,9 +630,6 @@ pub enum ValidationMessage {
     )]
     RequiredWithinAbstractInlineFragment,
 
-    #[error("@required is not supported within @inline fragments.")]
-    RequiredWithinInlineDirective,
-
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,
 

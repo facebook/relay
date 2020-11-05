@@ -31,7 +31,6 @@ lazy_static! {
     static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
-    static ref INLINE_DIRECTIVE_NAME: StringKey = "inline".intern();
 }
 
 pub fn required_directive(
@@ -68,7 +67,6 @@ struct RequiredDirective<'s> {
     errors: Vec<Diagnostic>,
     path: Vec<&'s str>,
     within_abstract_inline_fragment: bool,
-    parent_inline_fragment_directive: Option<Location>,
     path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
     current_node_required_children: FnvHashMap<StringKey, RequiredField>,
     required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
@@ -83,7 +81,6 @@ impl<'program> RequiredDirective<'program> {
             errors: Default::default(),
             path: vec![],
             within_abstract_inline_fragment: false,
-            parent_inline_fragment_directive: None,
             path_required_map: Default::default(),
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
@@ -95,7 +92,6 @@ impl<'program> RequiredDirective<'program> {
     fn reset_state(&mut self) {
         self.path_required_map = Default::default();
         self.current_node_required_children = Default::default();
-        self.parent_inline_fragment_directive = None;
         self.required_children_map = Default::default();
         self.operation_name = Default::default();
     }
@@ -107,18 +103,6 @@ impl<'program> RequiredDirective<'program> {
                 // TODO(T70172661): Also referece the location of the inline fragment, once they have a location.
                 *directive_location,
             ))
-        }
-    }
-
-    fn assert_not_within_inline_directive(&mut self, directive_location: &Location) {
-        if let Some(location) = self.parent_inline_fragment_directive {
-            self.errors.push(
-                Diagnostic::error(
-                    ValidationMessage::RequiredWithinInlineDirective,
-                    *directive_location,
-                )
-                .annotate("The fragment is annotated as @inline here.", location),
-            )
         }
     }
 
@@ -205,7 +189,6 @@ impl<'program> RequiredDirective<'program> {
                 ))
             }
             self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
-            self.assert_not_within_inline_directive(&metadata.directive_location);
             self.current_node_required_children.insert(
                 path_name,
                 RequiredField {
@@ -240,7 +223,7 @@ impl<'program> RequiredDirective<'program> {
                         required_metadata.action_location,
                     )
                     .annotate(
-                        "so that it can match its parent",
+                        "So that it can match its parent",
                         required_child.required.action_location,
                     ),
                 );
@@ -317,11 +300,6 @@ impl<'s> Transformer for RequiredDirective<'s> {
     ) -> Transformed<FragmentDefinition> {
         self.reset_state();
         self.operation_name = Some(fragment.name.item);
-        self.parent_inline_fragment_directive = fragment
-            .directives
-            .named(*INLINE_DIRECTIVE_NAME)
-            .map(|inline_directive| inline_directive.name.location);
-
         let selections = self.transform_selections(&fragment.selections);
         let directives = maybe_add_children_can_bubble_metadata_directive(
             &fragment.directives,

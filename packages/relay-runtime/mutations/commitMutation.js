@@ -13,7 +13,6 @@
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');

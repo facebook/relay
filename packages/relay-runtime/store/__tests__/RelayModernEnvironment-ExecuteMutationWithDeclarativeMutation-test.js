@@ -274,12 +274,10 @@ describe('deleteFromStore', () => {
     let fetch;
     let next;
     let operation;
-    let queryOperation;
     let source;
     let store;
     let subject;
     let variables;
-    let queryVariables;
     let firstCommentQueryOperation;
     let secondCommentQueryOperation;
 

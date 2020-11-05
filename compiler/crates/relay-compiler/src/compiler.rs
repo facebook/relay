@@ -331,6 +331,9 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 }
             }
         }
+    }
+
+    if errors.is_empty() {
         Ok(())
     } else {
         Err(Error::BuildProjectsErrors { errors })

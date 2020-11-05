@@ -394,7 +394,8 @@ type Date {
   year: Int
 }
 
-type Feedback implements Node {
+type Feedback implements Node & HasJsField {
+  js(module: String!, id: String): JSDependency
   actor: Actor
   actors: [Actor]
   actorCount: Int

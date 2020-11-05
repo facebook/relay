@@ -19,14 +19,15 @@ import type {
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-type ValidationContext = {
+type ValidationContext = {|
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
   missingDiff: Object,
   extraDiff: Object,
-  ...
-};
+  moduleImportPaths: Set<string>,
+|};
+
 const warning = require('warning');
 
 let validateMutation = () => {};
@@ -55,6 +56,7 @@ if (__DEV__) {
       variables: variables || {},
       missingDiff: {},
       extraDiff: {},
+      moduleImportPaths: new Set(),
     };
     validateSelections(
       optimisticResponse,
@@ -114,6 +116,7 @@ if (__DEV__) {
         });
         return;
       case 'ModuleImport':
+        return validateModuleImport(context);
       case 'LinkedHandle':
       case 'ScalarHandle':
       case 'Defer':
@@ -128,6 +131,10 @@ if (__DEV__) {
         (selection: empty);
         return;
     }
+  };
+
+  const validateModuleImport = (context: ValidationContext) => {
+    context.moduleImportPaths.add(context.path);
   };
 
   const validateField = (
@@ -198,6 +205,10 @@ if (__DEV__) {
     Object.keys(optimisticResponse).forEach((key: string) => {
       const value = optimisticResponse[key];
       const path = `${context.path}.${key}`;
+      // if it's a module import path we don't have an ast so we cannot validate it
+      if (context.moduleImportPaths.has(path)) {
+        return;
+      }
       if (!context.visitedPaths.has(path)) {
         addFieldToDiff(path, context.extraDiff);
         return;

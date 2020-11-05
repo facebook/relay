@@ -615,6 +615,34 @@ describe('validateOptimisticResponse', () => {
       variables: null,
       shouldWarn: true,
     },
+    {
+      name: 'Does not log a warning for ModuleImport sub selections',
+      mutation: generateAndCompile(
+        `
+          mutation FeedbackLikeMutation(
+            $input: FeedbackLikeInput
+          ) {
+            feedbackLike(input: $input) {
+              feedback {
+                ...TheGrooviestReactModule_groovygroovy @module(name: "GroovyModule.react")
+              }
+            }
+          }
+          fragment TheGrooviestReactModule_groovygroovy on Feedback {
+            doesViewerLike
+          }
+      `,
+      ).FeedbackLikeMutation,
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
     it(name, () => {
       jest.clearAllMocks();

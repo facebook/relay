@@ -551,7 +551,7 @@ describe('validateOptimisticResponse', () => {
         },
       },
       variables: null,
-      shouldWarn: true,
+      shouldWarn: false,
     },
     {
       name: 'Does not log a warning for client-side schema extensions',

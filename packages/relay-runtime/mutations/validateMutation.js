@@ -30,6 +30,8 @@ type ValidationContext = {|
 
 const warning = require('warning');
 
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+
 let validateMutation = () => {};
 if (__DEV__) {
   const addFieldToDiff = (path: string, diff: Object, isScalar) => {
@@ -147,7 +149,7 @@ if (__DEV__) {
     context.visitedPaths.add(path);
     switch (field.kind) {
       case 'ScalarField':
-        if (optimisticResponse.hasOwnProperty(fieldName) === false) {
+        if (hasOwnProperty.call(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;
@@ -155,7 +157,7 @@ if (__DEV__) {
         const selections = field.selections;
         if (
           optimisticResponse[fieldName] === null ||
-          (Object.hasOwnProperty(fieldName) &&
+          (hasOwnProperty.call(optimisticResponse, fieldName) &&
             optimisticResponse[fieldName] === undefined)
         ) {
           return;

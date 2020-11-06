@@ -7,8 +7,8 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp::{
-    publish_diagnostic, set_ready_status, set_running_status, Diagnostic, DiagnosticSeverity,
-    Position, PublishDiagnosticsParams, Range, Url,
+    publish_diagnostic, set_ready_status, set_running_status, url_from_location, Diagnostic,
+    DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url,
 };
 use common::Diagnostic as CompilerDiagnostic;
 use crossbeam::crossbeam_channel::Sender;
@@ -62,12 +62,15 @@ impl LSPStatusReporter {
 
         let location = diagnostic.location();
 
-        let url = match Url::from_file_path(&self.root_dir).ok() {
+        let url = match url_from_location(location, &self.root_dir) {
             Some(url) => url,
             None => {
-                // If we can't parse the location as a Url we can't report the error
                 // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
-                return;
+                if let Ok(root) = Url::from_directory_path(&self.root_dir) {
+                    root
+                } else {
+                    return;
+                }
             }
         };
 

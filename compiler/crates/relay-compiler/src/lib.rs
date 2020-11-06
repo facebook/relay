@@ -14,12 +14,12 @@ mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
-pub mod error_reporter;
 pub mod errors;
 mod graphql_asts;
 mod red_to_green;
 mod rollout;
 pub mod saved_state;
+pub mod status_reporter;
 mod watchman;
 
 pub use build_project::{

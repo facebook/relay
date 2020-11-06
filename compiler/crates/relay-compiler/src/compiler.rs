@@ -8,13 +8,13 @@
 use crate::build_project::{build_project, build_schema, commit_project, BuildProjectFailure};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
-use crate::errors::{BuildProjectError, Error, Result};
+use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use log::{error, info};
+use log::info;
 use rayon::prelude::*;
 use schema::Schema;
 use std::{collections::HashMap, sync::Arc};
@@ -153,7 +153,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        self.config.error_reporter.build_starts();
+        self.config.status_reporter.build_starts();
         let result = build_projects(
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
@@ -161,63 +161,22 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
-        self.config.error_reporter.build_finishes();
-        match result {
+        let result = match result {
             Ok(()) => {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
                 if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
                     if let Err(error) = post_artifacts_write(&self.config) {
                         let error = Error::PostArtifactsError { error };
-                        error!("{}", error);
                         return Err(error);
                     }
                 }
                 Ok(())
             }
-            Err(error) => {
-                match &error {
-                    Error::DiagnosticsError { errors } => {
-                        for diagnostic in errors {
-                            self.config.error_reporter.report_diagnostic(diagnostic);
-                        }
-                    }
-                    Error::BuildProjectsErrors { errors } => {
-                        for error in errors {
-                            self.print_project_error(error);
-                        }
-                    }
-                    Error::Cancelled => {
-                        info!("Compilation cancelled due to new changes.");
-                    }
-                    error => {
-                        error!("{}", error);
-                    }
-                }
-                if !matches!(error, Error::Cancelled) {
-                    error!("Compilation failed.");
-                }
-                Err(error)
-            }
-        }
-    }
-
-    fn print_project_error(&self, error: &BuildProjectError) {
-        match error {
-            BuildProjectError::ValidationErrors { errors } => {
-                for diagnostic in errors {
-                    self.config.error_reporter.report_diagnostic(diagnostic);
-                }
-            }
-            BuildProjectError::PersistErrors { errors } => {
-                for error in errors {
-                    error!("{}", error);
-                }
-            }
-            _ => {
-                error!("{}", error);
-            }
-        }
+            Err(error) => Err(error),
+        };
+        self.config.status_reporter.build_finishes(&result);
+        result
     }
 }
 

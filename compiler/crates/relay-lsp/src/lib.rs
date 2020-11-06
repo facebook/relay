@@ -10,9 +10,9 @@
 mod client;
 mod completion;
 pub mod error;
-mod error_reporting;
 mod lsp;
 mod server;
+mod status_reporting;
 mod text_documents;
 use common::PerfLogger;
 use error::Result;

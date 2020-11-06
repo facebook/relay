@@ -7,24 +7,28 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp::{
-    publish_diagnostic, set_ready_status, set_running_status, url_from_location, Diagnostic,
-    DiagnosticSeverity, PublishDiagnosticsParams, Url,
+    publish_diagnostic, set_ready_status, set_running_status, Diagnostic, DiagnosticSeverity,
+    Position, PublishDiagnosticsParams, Range, Url,
 };
 use common::Diagnostic as CompilerDiagnostic;
 use crossbeam::crossbeam_channel::Sender;
 use lsp_server::Message;
-use relay_compiler::{error_reporter::ErrorReporter, source_for_location};
+use relay_compiler::{
+    errors::{BuildProjectError, Error, Result},
+    source_for_location,
+    status_reporter::StatusReporter,
+};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
-pub struct LSPErrorReporter {
+pub struct LSPStatusReporter {
     active_diagnostics: Arc<RwLock<HashMap<Url, Vec<Diagnostic>>>>,
     sender: Sender<Message>,
     root_dir: PathBuf,
 }
 
-impl LSPErrorReporter {
+impl LSPStatusReporter {
     pub fn new(root_dir: PathBuf, sender: Sender<Message>) -> Self {
         Self {
             active_diagnostics: Default::default(),
@@ -52,15 +56,13 @@ impl LSPErrorReporter {
             publish_diagnostic(params, &self.sender).ok();
         }
     }
-}
 
-impl ErrorReporter for LSPErrorReporter {
     fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
         let message = diagnostic.message().to_string();
 
         let location = diagnostic.location();
 
-        let url = match url_from_location(location, &self.root_dir) {
+        let url = match Url::from_file_path(&self.root_dir).ok() {
             Some(url) => url,
             None => {
                 // If we can't parse the location as a Url we can't report the error
@@ -89,20 +91,77 @@ impl ErrorReporter for LSPErrorReporter {
             tags: None,
         };
         self.add_diagnostic(url, diagnostic);
-        self.commit_diagnostics();
     }
 
+    fn report_error(&self, error: &Error) {
+        match error {
+            Error::DiagnosticsError { errors } => {
+                for diagnostic in errors {
+                    self.report_diagnostic(diagnostic);
+                }
+            }
+            Error::BuildProjectsErrors { errors } => {
+                for error in errors {
+                    self.print_project_error(error);
+                }
+            }
+            Error::Cancelled => {
+                // Ignore the cancellation
+            }
+            error => {
+                self.print_generic_error(format!("{}", error));
+            }
+        }
+    }
+
+    fn print_project_error(&self, error: &BuildProjectError) {
+        match error {
+            BuildProjectError::ValidationErrors { errors } => {
+                for diagnostic in errors {
+                    self.report_diagnostic(diagnostic);
+                }
+            }
+            BuildProjectError::PersistErrors { errors } => {
+                for error in errors {
+                    self.print_generic_error(format!("{}", error));
+                }
+            }
+            _ => {
+                self.print_generic_error(format!("{}", error));
+            }
+        }
+    }
+
+    fn print_generic_error(&self, message: String) {
+        let diagnostic = Diagnostic {
+            code: None,
+            message,
+            range: Range::new(Position::new(0, 0), Position::new(0, 0)),
+            related_information: None,
+            severity: Some(DiagnosticSeverity::Error),
+            source: None,
+            tags: None,
+        };
+        let url = Url::from_directory_path(&self.root_dir).unwrap();
+        self.add_diagnostic(url, diagnostic);
+    }
+}
+
+impl StatusReporter for LSPStatusReporter {
     fn build_starts(&self) {
         set_running_status(&self.sender);
     }
 
-    fn build_finishes(&self) {
+    fn build_finishes(&self, result: &Result<()>) {
         set_ready_status(&self.sender);
         {
             let mut active_diagnostics = self.active_diagnostics.write().unwrap();
             for diagnostics in active_diagnostics.values_mut() {
                 diagnostics.clear();
             }
+        }
+        if let Err(error) = result {
+            self.report_error(error);
         }
         self.commit_diagnostics();
     }

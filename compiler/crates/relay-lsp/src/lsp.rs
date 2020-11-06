@@ -14,14 +14,11 @@ pub use lsp_types::{notification::*, request::*, *};
 
 use crate::error::Result;
 
-use common::Location;
 pub use lsp_server::{
     Notification as ServerNotification, ProtocolError, Request as ServerRequest,
     RequestId as ServerRequestId, Response as ServerResponse,
 };
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub enum LSPBridgeMessage {
@@ -33,17 +30,6 @@ pub enum LSPBridgeMessage {
     DidOpenTextDocument(DidOpenTextDocumentParams),
     DidChangeTextDocument(DidChangeTextDocumentParams),
     DidCloseTextDocument(DidCloseTextDocumentParams),
-}
-
-/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
-/// Returns None if we are unable to do the conversion
-pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
-    let file_path = location.source_location().path();
-    if let Ok(canonical_path) = fs::canonicalize(root_dir.join(file_path)) {
-        Url::from_file_path(canonical_path).ok()
-    } else {
-        None
-    }
 }
 
 #[derive(Debug)]

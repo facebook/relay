@@ -179,6 +179,7 @@ pub struct CompilerState {
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
     pub saved_state_version: String,
+    #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,

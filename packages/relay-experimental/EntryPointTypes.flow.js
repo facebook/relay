@@ -185,10 +185,7 @@ export type PreloadProps<
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{|
-  entryPoints?: $ObjMap<
-    TPreloadedEntryPoints,
-    ExtractEntryPointTypeHelper<TPreloadParams>,
-  >,
+  entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
   extraProps?: TExtraProps,
   queries?: $ObjMap<
     TPreloadedQueries,
@@ -247,7 +244,8 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-export type ExtractEntryPointTypeHelper<TEntryPointParams> = <
+export type ExtractEntryPointTypeHelper = <
+  TEntryPointParams,
   TEntryPointComponent,
 >(
   ?PreloadedEntryPoint<TEntryPointComponent>,

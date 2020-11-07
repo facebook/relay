@@ -118,6 +118,42 @@ const network = Network.create(fetchQuery, subscribe);
 ...
 ```
 
+or if your server uses [graphql-ws](https://github.com/enisdenjo/graphql-ws), this is how you would use the client in Relay:
+
+```javascript
+import {
+  Network,
+  Observable,
+  RequestParameters,
+  Variables,
+} from 'relay-runtime';
+import { createClient } from 'graphql-ws';
+
+const wsClient = createClient({
+  url: 'wss://relayis.awesome/graphql',
+});
+
+// you can also perform queries and mutations besides the subscriptions
+// through websocket, if you server allows them of course
+function fetchOrSubscribe(operation: RequestParameters, variables: Variables) {
+  return Observable.create((sink) => {
+    if (!operation.text) {
+      return sink.error(new Error('Operation text cannot be empty'));
+    }
+    return wsClient.subscribe(
+      {
+        operationName: operation.name,
+        query: operation.text,
+        variables,
+      },
+      sink
+    );
+  });
+}
+
+export const network = Network.create(fetchOrSubscribe, fetchOrSubscribe);
+```
+
 # Updating the client on each response
 
 For more complex use-cases, you may wish to perform custom logic to update

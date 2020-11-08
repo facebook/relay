@@ -660,17 +660,6 @@ export interface IEnvironment {
 }
 
 /**
- * The results of reading data for a fragment. This is similar to a `Selector`,
- * but references the (fragment) node by name rather than by value.
- */
-export type FragmentPointer = {
-  __id: DataID,
-  __fragments: {[fragmentName: string]: Variables, ...},
-  __fragmentOwner: RequestDescriptor,
-  ...
-};
-
-/**
  * The partial shape of an object with a '...Fragment @module(name: "...")'
  * selection
  */

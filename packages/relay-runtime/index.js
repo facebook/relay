@@ -113,7 +113,6 @@ export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   FragmentMap,
-  FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,

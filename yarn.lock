@@ -3743,13 +3743,6 @@ gulp-header@2.0.7:
     map-stream "0.0.7"
     through2 "^2.0.0"
 
-gulp-once@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/gulp-once/-/gulp-once-2.0.3.tgz#3fd594a14f726e2a81040ebb1fc3216de6939dba"
-  integrity sha1-P9WUoU9ybiqBBA67H8MhbeaTnbo=
-  dependencies:
-    plugin-error "^1.0.1"
-
 gulp-rename@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/gulp-rename/-/gulp-rename-2.0.0.tgz#9bbc3962b0c0f52fc67cd5eaff6c223ec5b9cf6c"

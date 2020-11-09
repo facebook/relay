@@ -17,6 +17,7 @@ use relay_compiler::{
     errors::{BuildProjectError, Error, Result},
     source_for_location,
     status_reporter::StatusReporter,
+    FsSourceReader, SourceReader,
 };
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -26,6 +27,7 @@ pub struct LSPStatusReporter {
     active_diagnostics: Arc<RwLock<HashMap<Url, Vec<Diagnostic>>>>,
     sender: Sender<Message>,
     root_dir: PathBuf,
+    source_reader: Box<dyn SourceReader + Send + Sync>,
 }
 
 impl LSPStatusReporter {
@@ -34,7 +36,13 @@ impl LSPStatusReporter {
             active_diagnostics: Default::default(),
             sender,
             root_dir,
+            source_reader: Box::new(FsSourceReader),
         }
+    }
+
+    #[cfg(test)]
+    fn set_source_reader(&mut self, source_reader: Box<dyn SourceReader + Send + Sync>) {
+        self.source_reader = source_reader;
     }
 
     fn add_diagnostic(&self, url: Url, diagnostic: Diagnostic) {
@@ -74,12 +82,16 @@ impl LSPStatusReporter {
             }
         };
 
-        let source =
-            if let Some(source) = source_for_location(&self.root_dir, location.source_location()) {
-                source
-            } else {
-                return;
-            };
+        let source = if let Some(source) = source_for_location(
+            &self.root_dir,
+            location.source_location(),
+            self.source_reader.as_ref(),
+        ) {
+            source
+        } else {
+            return;
+        };
+
         let range = location
             .span()
             .to_range(&source.text, source.line_index, source.column_index);
@@ -167,5 +179,54 @@ impl StatusReporter for LSPStatusReporter {
             self.report_error(error);
         }
         self.commit_diagnostics();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::LSPStatusReporter;
+    use common::{Diagnostic, Location, SourceLocationKey, Span};
+    use crossbeam::crossbeam_channel;
+    use interner::Intern;
+    use relay_compiler::SourceReader;
+    use std::path::PathBuf;
+
+    struct MockSourceReader(String);
+
+    impl SourceReader for MockSourceReader {
+        fn read_to_string(&self, _path: &PathBuf) -> std::io::Result<String> {
+            Ok(self.0.to_string())
+        }
+    }
+
+    #[test]
+    fn report_diagnostic_test() {
+        let root_dir = PathBuf::from("/tmp");
+        let (sender, _) = crossbeam_channel::unbounded();
+        let mut reporter = LSPStatusReporter::new(root_dir, sender);
+        reporter.set_source_reader(Box::new(MockSourceReader("Content".to_string())));
+        let source_location = SourceLocationKey::Standalone {
+            path: "foo.txt".intern(),
+        };
+        assert_eq!(reporter.active_diagnostics.read().unwrap().len(), 0);
+        reporter.report_diagnostic(&Diagnostic::error(
+            "test message",
+            Location::new(source_location, Span { start: 0, end: 1 }),
+        ));
+        assert_eq!(reporter.active_diagnostics.read().unwrap().len(), 1);
+    }
+
+    /// This test will assert that the message without URL (with generated source) won't be reported by LSPStatusReporter
+    /// I'm not sure if this is the right behavior, but lets capture it here.
+    #[test]
+    fn do_not_report_diagnostic_without_url_test() {
+        let root_dir = PathBuf::from("/tmp");
+        let (sender, _) = crossbeam_channel::unbounded();
+
+        let mut reporter = LSPStatusReporter::new(root_dir, sender);
+        reporter.set_source_reader(Box::new(MockSourceReader("".to_string())));
+
+        reporter.report_diagnostic(&Diagnostic::error("-", Location::generated()));
+        assert_eq!(reporter.active_diagnostics.read().unwrap().len(), 0);
     }
 }

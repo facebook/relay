@@ -7,7 +7,7 @@
 
 use crate::{
     errors::{BuildProjectError, Error, Result},
-    source_for_location,
+    source_for_location, FsSourceReader, SourceReader,
 };
 use common::Diagnostic;
 use graphql_cli::DiagnosticPrinter;
@@ -20,12 +20,16 @@ pub trait StatusReporter {
 }
 
 pub struct ConsoleStatusReporter {
+    source_reader: Box<dyn SourceReader + Send + Sync>,
     root_dir: PathBuf,
 }
 
 impl ConsoleStatusReporter {
     pub fn new(root_dir: PathBuf) -> Self {
-        Self { root_dir }
+        Self {
+            root_dir,
+            source_reader: Box::new(FsSourceReader),
+        }
     }
 }
 
@@ -71,7 +75,8 @@ impl ConsoleStatusReporter {
 
     fn print_diagnostic(&self, diagnostic: &Diagnostic) {
         let printer = DiagnosticPrinter::new(|source_location| {
-            source_for_location(&self.root_dir, source_location).map(|source| source.text)
+            source_for_location(&self.root_dir, source_location, self.source_reader.as_ref())
+                .map(|source| source.text)
         });
         error!("{}", printer.diagnostic_to_string(diagnostic));
     }

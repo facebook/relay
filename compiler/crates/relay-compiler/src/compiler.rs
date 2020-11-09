@@ -107,7 +107,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         loop {
             notify_receiver.notified().await;
             // Single change to file sometimes produces 2 watchman change events for the same file
-            // wait for 50ms in case there is a subsquent request
+            // wait for 50ms in case there is a subsequent request
             tokio::time::delay_for(std::time::Duration::from_millis(50)).await;
             if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
@@ -189,7 +189,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
-            &compiler_state.get_dirty_defintions(&config),
+            &compiler_state.get_dirty_definitions(&config),
         )
     })?;
 

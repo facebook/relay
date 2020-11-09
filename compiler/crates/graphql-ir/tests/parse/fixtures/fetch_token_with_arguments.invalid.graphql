@@ -1,0 +1,4 @@
+# expected-to-throw
+fragment Foo on User {
+  __token(arg: 1)
+}

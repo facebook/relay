@@ -24,6 +24,7 @@ use schema::{
 
 lazy_static! {
     static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();
+    static ref FETCH_TOKEN_FIELD_NAME: StringKey = "__token".intern();
 
     /// Relay extension field that's available on all types.
     static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
@@ -813,6 +814,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             return self.build_typename_field(field);
         } else if self.options.relay_mode && field_name == *CLIENT_ID_FIELD_NAME {
             return self.build_clientid_field(field);
+        } else if field_name == *FETCH_TOKEN_FIELD_NAME {
+            return self.build_fetch_token_field(field);
         };
         let span = field.name.span;
         let field_id = match self.lookup_field(
@@ -897,6 +900,32 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 ValidationMessage::InvalidArgumentsOnTypenameField(),
                 self.location.with_span(arguments.span),
             )]);
+        }
+        let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
+        Ok(ScalarField {
+            alias,
+            definition: WithLocation::from_span(
+                self.location.source_location(),
+                field.name.span,
+                field_id,
+            ),
+            arguments: Default::default(),
+            directives,
+        })
+    }
+
+    fn build_fetch_token_field(
+        &mut self,
+        field: &graphql_syntax::ScalarField,
+    ) -> DiagnosticsResult<ScalarField> {
+        let field_id = self.schema.fetch_token_field();
+        let alias = self.build_alias(&field.alias);
+        if let Some(arguments) = &field.arguments {
+            return Err(Diagnostic::error(
+                ValidationMessage::InvalidArgumentsOnFetchTokenField(),
+                self.location.with_span(arguments.span),
+            )
+            .into());
         }
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
         Ok(ScalarField {

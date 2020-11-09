@@ -145,6 +145,9 @@ pub enum ValidationMessage {
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
 
+    #[error("Unexpected arguments on '__token' field")]
+    InvalidArgumentsOnFetchTokenField(),
+
     #[error(
         "Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`."
     )]

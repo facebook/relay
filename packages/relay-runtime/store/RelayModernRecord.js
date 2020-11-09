@@ -17,7 +17,7 @@ const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {isClientID} = require('./ClientID');
+import {isClientID} from './ClientID';
 const {
   ID_KEY,
   REF_KEY,

@@ -34,7 +34,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
-const {generateClientID, isClientID} = require('./ClientID');
+import {generateClientID, isClientID} from './ClientID';
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   refineToReactFlightPayloadData,

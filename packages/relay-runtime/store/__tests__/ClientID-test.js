@@ -13,11 +13,11 @@
 
 'use strict';
 
-const {
+import {
   generateClientID,
   generateUniqueClientID,
   isClientID,
-} = require('../ClientID');
+} from '../ClientID';
 
 it('creates unique local ids', () => {
   const set = new Set();

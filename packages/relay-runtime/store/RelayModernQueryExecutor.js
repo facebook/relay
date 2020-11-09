@@ -24,7 +24,7 @@ const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
 
-const {generateClientID} = require('./ClientID');
+import {generateClientID} from './ClientID';
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 

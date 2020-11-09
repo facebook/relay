@@ -14,7 +14,7 @@
 
 const invariant = require('invariant');
 
-const {generateClientID} = require('../store/ClientID');
+import {generateClientID} from '../store/ClientID';
 const {getStableStorageKey} = require('../store/RelayStoreUtils');
 
 import type {RecordProxy} from '../store/RelayStoreTypes';

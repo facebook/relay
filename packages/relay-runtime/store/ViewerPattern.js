@@ -12,7 +12,7 @@
 
 'use strict';
 
-const {generateClientID} = require('./ClientID');
+import {generateClientID} from './ClientID';
 const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';

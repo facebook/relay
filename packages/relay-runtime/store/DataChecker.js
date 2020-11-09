@@ -26,7 +26,7 @@ const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourc
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
-const {isClientID} = require('./ClientID');
+import {isClientID} from './ClientID';
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const {generateTypeID} = require('./TypeID');
 

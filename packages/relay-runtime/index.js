@@ -60,11 +60,11 @@ const reportMissingRequiredFields = require('./util/reportMissingRequiredFields'
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
-const {
+import {
   generateClientID,
   generateUniqueClientID,
   isClientID,
-} = require('./store/ClientID');
+} from './store/ClientID';
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {

@@ -20,7 +20,7 @@ const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
 const {getRequest} = require('../query/GraphQLTag');
-const {generateUniqueClientID} = require('../store/ClientID');
+import {generateUniqueClientID} from '../store/ClientID';
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');

@@ -18,7 +18,7 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {generateClientID} = require('../../store/ClientID');
+import {generateClientID} from '../../store/ClientID';
 
 import type {
   HandleFieldPayload,

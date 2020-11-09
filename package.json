@@ -63,7 +63,7 @@
     "gulp-rename": "^2.0.0",
     "gulp-util": "3.0.8",
     "immutable": "~3.7.6",
-    "jest": "^24.8.0",
+    "jest": "^26.6.3",
     "nullthrows": "^1.1.1",
     "prettier": "1.19.1",
     "promise-polyfill": "6.1.0",

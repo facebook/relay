@@ -24,7 +24,7 @@ const mockJSResource = <TModule>(
   getModuleId(): string {
     return '';
   },
-  getModuleIfRequired(): TModule {
+  getModuleIfRequired(): ?TModule {
     return module;
   },
   load(): Promise<TModule> {

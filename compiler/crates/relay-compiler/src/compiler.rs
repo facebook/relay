@@ -168,10 +168,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
                     if let Err(error) = post_artifacts_write(&self.config) {
                         let error = Error::PostArtifactsError { error };
-                        return Err(error);
+                        Err(error)
+                    } else {
+                        Ok(())
                     }
+                } else {
+                    Ok(())
                 }
-                Ok(())
             }
             Err(error) => Err(error),
         };

@@ -109,35 +109,6 @@ fn build_programs(
     Ok((programs, Arc::new(source_hashes)))
 }
 
-pub fn check_project(
-    config: &Config,
-    project_config: &ProjectConfig,
-    compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
-    schema: Arc<Schema>,
-    perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<Programs, BuildProjectFailure> {
-    let log_event = perf_logger.create_event("check_project");
-    let build_time = log_event.start("check_time");
-    let project_name = project_config.name.lookup();
-    log_event.string("project", project_name.to_string());
-
-    let (programs, _) = build_programs(
-        config,
-        project_config,
-        compiler_state,
-        graphql_asts,
-        schema,
-        &log_event,
-        Arc::clone(&perf_logger),
-    )?;
-
-    log_event.stop(build_time);
-    perf_logger.complete_event(log_event);
-
-    Ok(programs)
-}
-
 pub fn build_project(
     config: &Config,
     project_config: &ProjectConfig,

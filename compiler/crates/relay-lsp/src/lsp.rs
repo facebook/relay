@@ -82,6 +82,15 @@ pub fn set_ready_status(sender: &Sender<Message>) {
     );
 }
 
+pub fn set_initializing_status(sender: &Sender<Message>) {
+    update_status(
+        Some("Relay: initializing".into()),
+        Some("Relay: initializing".into()),
+        MessageType::Warning,
+        sender,
+    );
+}
+
 pub fn set_running_status(sender: &Sender<Message>) {
     update_status(
         Some("Relay: compiling".into()),

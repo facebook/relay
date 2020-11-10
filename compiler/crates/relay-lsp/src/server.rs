@@ -7,10 +7,10 @@
 
 use crate::error::Result;
 use crate::lsp::{
-    set_ready_status, show_info_message, Connection, DidChangeTextDocument, DidCloseTextDocument,
-    DidOpenTextDocument, Exit, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
-    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
-    Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
+    set_initializing_status, show_info_message, Connection, DidChangeTextDocument,
+    DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams, LSPBridgeMessage, Message,
+    Notification, Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
+    ServerResponse, Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
 };
 use crate::status_reporting::LSPStatusReporter;
 use common::{PerfLogEvent, PerfLogger};
@@ -165,8 +165,7 @@ where
 
     info!("Waiting for compiler to initialize...");
     compiler_notify.notified().await;
-    info!("Compiler has initialized");
-    set_ready_status(&connection.sender);
+    set_initializing_status(&connection.sender);
 
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),

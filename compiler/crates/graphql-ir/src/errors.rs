@@ -682,6 +682,9 @@ pub enum ValidationMessage {
     ]
     MissingRequiredArguments { missing_arg_names: Vec<StringKey> },
 
+    #[error("Duplicate argument `{name}`")]
+    DuplicateArgument { name: StringKey },
+
     #[error(
         "Required argument '{argument_name}: {type_string}' is missing on '{node_name}' in '{root_name}'."
     )]

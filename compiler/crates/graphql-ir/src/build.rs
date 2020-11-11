@@ -958,6 +958,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         argument_definitions: &ArgumentDefinitions,
         is_non_nullable_field_required: impl Fn(&StringKey) -> bool,
     ) -> DiagnosticsResult<Vec<Argument>> {
+        // check for missing required (non-nullable) arguments
         let missing_arg_names = argument_definitions
             .iter()
             .filter(|arg_def| arg_def.type_.is_non_null())
@@ -976,8 +977,26 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 self.location.with_span(span),
             )]);
         }
-        match arguments {
-            Some(arguments) => arguments
+
+        if let Some(arguments) = arguments {
+            // check for duplicate arguments
+            for (i, arg) in arguments.items.iter().enumerate() {
+                for other_arg in arguments.items.iter().skip(i + 1) {
+                    if arg.name.value == other_arg.name.value {
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateArgument {
+                                    name: arg.name.value,
+                                },
+                                self.location.with_span(arg.span),
+                            )
+                            .annotate("conflicts with", self.location.with_span(other_arg.span)),
+                        ]);
+                    }
+                }
+            }
+
+            arguments
                 .items
                 .iter()
                 .map(
@@ -993,8 +1012,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         )]),
                     },
                 )
-                .collect(),
-            None => Ok(vec![]),
+                .collect()
+        } else {
+            Ok(vec![])
         }
     }
 

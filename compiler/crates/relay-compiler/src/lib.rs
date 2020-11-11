@@ -32,6 +32,6 @@ pub use build_project::{
 pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;
 pub use watchman::{
-    source_for_location, FileSource, FileSourceResult, FileSourceSubscription, FsSourceReader,
-    SourceReader,
+    source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
+    FileSourceSubscription, FsSourceReader, SourceReader,
 };

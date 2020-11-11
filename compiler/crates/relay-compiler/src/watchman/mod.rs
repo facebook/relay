@@ -15,7 +15,7 @@ mod watchman_file;
 pub use self::extract_graphql::{
     extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
 };
-pub use file_categorizer::categorize_files;
+pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
 pub use file_source::{FileSource, FileSourceResult, FileSourceSubscription};
 pub use watchman_client::prelude::Clock;

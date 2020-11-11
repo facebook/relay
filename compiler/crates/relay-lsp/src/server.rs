@@ -24,12 +24,13 @@ use crate::text_documents::{
 };
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
-use interner::{Intern, StringKey};
+use interner::StringKey;
 use log::info;
-use relay_compiler::{compiler::Compiler, config::Config};
+use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::Schema;
 use std::{
     collections::HashMap,
+    path::PathBuf,
     sync::{Arc, RwLock},
 };
 use tokio::sync::{mpsc, mpsc::Receiver, Notify};
@@ -39,6 +40,8 @@ pub struct Server {
     schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
     synced_graphql_documents: GraphQLSourceCache,
     lsp_rx: Receiver<LSPBridgeMessage>,
+    file_categorizer: FileCategorizer,
+    root_dir: PathBuf,
 }
 
 impl Server {
@@ -46,13 +49,19 @@ impl Server {
         match message {
             // Completion request
             LSPBridgeMessage::CompletionRequest { request_id, params } => {
-                if let Some(completion_request) =
-                    get_completion_request(params, &self.synced_graphql_documents)
-                {
+                if let Some(completion_request) = get_completion_request(
+                    params,
+                    &self.synced_graphql_documents,
+                    &self.file_categorizer,
+                    &self.root_dir,
+                ) {
                     info!("completion_request {:#?}", &completion_request);
-                    // TODO don't hardcode schema here
-                    let project_key = "facebook".intern();
-                    if let Some(schema) = self.schemas.read().unwrap().get(&project_key) {
+                    if let Some(schema) = self
+                        .schemas
+                        .read()
+                        .unwrap()
+                        .get(&completion_request.project_name)
+                    {
                         // TODO: Add program
                         let programs = None;
                         info!("programs? {:?}", programs.is_some());
@@ -232,6 +241,8 @@ where
         schemas: Default::default(),
         sender: connection.sender.clone(),
         lsp_rx,
+        file_categorizer: FileCategorizer::from_config(&config),
+        root_dir: config.root_dir.clone(),
     };
 
     config.status_reporter = Box::new(LSPStatusReporter::new(

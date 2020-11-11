@@ -7,24 +7,22 @@
 
 //! Utilities for providing the completion language feature
 use crate::lsp::Position;
-use common::{SourceLocationKey, Span};
-use crossbeam::Sender;
-use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
-use interner::StringKey;
-use log::info;
-
-use relay_compiler::Programs;
-
 use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Message, ServerRequestId, ServerResponse,
     TextDocumentPositionParams, Url,
 };
-use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
-
+use common::{SourceLocationKey, Span};
+use crossbeam::Sender;
+use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
 use graphql_syntax::{
     Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
     LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
 };
+use interner::StringKey;
+use log::info;
+use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup, Programs};
+use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
+use std::path::PathBuf;
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
@@ -42,18 +40,19 @@ pub struct CompletionRequest {
     /// A list of type metadata that we can use to resolve the leaf
     /// type the request is being made against
     type_path: Vec<TypePathItem>,
-}
-
-impl Default for CompletionRequest {
-    fn default() -> Self {
-        CompletionRequest {
-            kind: CompletionKind::FieldName,
-            type_path: vec![],
-        }
-    }
+    /// The project the request belongs to,
+    pub project_name: StringKey,
 }
 
 impl CompletionRequest {
+    fn new(project_name: StringKey) -> Self {
+        Self {
+            kind: CompletionKind::FieldName,
+            type_path: vec![],
+            project_name,
+        }
+    }
+
     fn add_type(&mut self, type_path_item: TypePathItem) {
         self.type_path.push(type_path_item)
     }
@@ -83,9 +82,10 @@ pub enum TypePathItem {
 pub fn create_completion_request(
     document: ExecutableDocument,
     position_span: Span,
+    project_name: StringKey,
 ) -> Option<CompletionRequest> {
     info!("Building completion path for {:#?}", document);
-    let mut completion_request = CompletionRequest::default();
+    let mut completion_request = CompletionRequest::new(project_name);
 
     for definition in document.definitions {
         match &definition {
@@ -482,6 +482,8 @@ pub fn send_completion_response(
 pub fn get_completion_request(
     params: CompletionParams,
     graphql_source_cache: &GraphQLSourceCache,
+    file_categorizer: &FileCategorizer,
+    root_dir: &PathBuf,
 ) -> Option<CompletionRequest> {
     let CompletionParams {
         text_document_position,
@@ -492,6 +494,24 @@ pub fn get_completion_request(
         position,
     } = text_document_position;
     let url = text_document.uri;
+
+    let absolute_file_path = PathBuf::from(url.path());
+    let file_path = if let Ok(file_path) = absolute_file_path.strip_prefix(root_dir) {
+        file_path
+    } else {
+        info!("Failed to parse file path: {:#?}", &absolute_file_path);
+        return None;
+    };
+    let project_name =
+        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path.into()) {
+            match source_set {
+                SourceSet::SourceSetName(source) => source,
+                SourceSet::SourceSetNames(sources) => sources[0],
+            }
+        } else {
+            return None;
+        };
+
     let graphql_sources = match graphql_source_cache.get(&url) {
         Some(sources) => sources,
         // If we have no sources for this file, do nothing
@@ -542,7 +562,8 @@ pub fn get_completion_request(
             // already be updated *with the characters that triggered the completion request*
             // since the change event fires before completion.
             info!("position_span: {:?}", position_span);
-            let completion_request = create_completion_request(document, position_span);
+            let completion_request =
+                create_completion_request(document, position_span, project_name);
             info!("Completion path: {:#?}", completion_request);
             completion_request
         }

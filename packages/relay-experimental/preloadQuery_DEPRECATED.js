@@ -154,7 +154,9 @@ function preloadQueryDeduped<TQuery: OperationType>(
 
   const availability =
     fetchPolicy === STORE_OR_NETWORK_DEFAULT && query != null && query != null
-      ? environment.check(createOperationDescriptor(query, variables))
+      ? environment.check(
+          createOperationDescriptor(query, variables, networkCacheConfig),
+        )
       : {status: 'missing'};
 
   let nextQueryEntry: ?PendingQueryEntry;

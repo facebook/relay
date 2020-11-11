@@ -229,10 +229,9 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const paginationQuery = createOperationDescriptor(
         paginationRequest,
         paginationVariables,
+        {force: true},
       );
-      fetchQuery(environment, paginationQuery, {
-        networkCacheConfig: {force: true},
-      }).subscribe({
+      fetchQuery(environment, paginationQuery).subscribe({
         ...observer,
         start: subscription => {
           startFetch(subscription);

@@ -361,11 +361,9 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
-    cacheConfig,
     updater,
   }: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
     const [logObserver, logRequestInfo] = this.__createLogObserver(
@@ -377,7 +375,7 @@ class RelayModernEnvironment implements IEnvironment {
         .execute(
           operation.request.node.params,
           operation.request.variables,
-          cacheConfig || {},
+          operation.request.cacheConfig || {},
           null,
           logRequestInfo,
         )
@@ -413,14 +411,12 @@ class RelayModernEnvironment implements IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({
-    cacheConfig,
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
   }: {|
-    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
@@ -445,7 +441,7 @@ class RelayModernEnvironment implements IEnvironment {
           operation.request.node.params,
           operation.request.variables,
           {
-            ...cacheConfig,
+            ...operation.request.cacheConfig,
             force: true,
           },
           uploadables,

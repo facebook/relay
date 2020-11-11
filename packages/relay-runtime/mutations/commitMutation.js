@@ -114,6 +114,7 @@ function commitMutation<T: MutationParameters>(
   const operation = createOperationDescriptor(
     mutation,
     variables,
+    cacheConfig,
     generateUniqueClientID(),
   );
   // TODO: remove this check after we fix flow.
@@ -141,7 +142,6 @@ function commitMutation<T: MutationParameters>(
   const errors = [];
   const subscription = environment
     .executeMutation({
-      cacheConfig,
       operation,
       optimisticResponse,
       optimisticUpdater,

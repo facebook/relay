@@ -72,10 +72,11 @@ describe('QueryResource', () => {
     `,
     ).UserQuery;
 
-    query = createOperationDescriptor(gqlQuery, variables);
+    query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryMissingData = createOperationDescriptor(
       gqlQueryMissingData,
       variables,
+      {force: true},
     );
     environment.commitPayload(query, {
       node: {
@@ -84,12 +85,8 @@ describe('QueryResource', () => {
       },
     });
 
-    fetchObservable = fetchQuery(environment, query, {
-      networkCacheConfig: {force: true},
-    });
-    fetchObservableMissingData = fetchQuery(environment, queryMissingData, {
-      networkCacheConfig: {force: true},
-    });
+    fetchObservable = fetchQuery(environment, query);
+    fetchObservableMissingData = fetchQuery(environment, queryMissingData);
 
     release = jest.fn();
     environment.retain.mockImplementation((...args) => {
@@ -384,13 +381,11 @@ describe('QueryResource', () => {
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
+              {force: true},
             );
             const fetchObservableWithFragments = fetchQuery(
               environment,
               queryWithFragments,
-              {
-                networkCacheConfig: {force: true},
-              },
             );
             expect(environment.check(queryWithFragments)).toEqual({
               status: 'available',
@@ -442,13 +437,11 @@ describe('QueryResource', () => {
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
+              {force: true},
             );
             const fetchObservableWithFragments = fetchQuery(
               environment,
               queryWithFragments,
-              {
-                networkCacheConfig: {force: true},
-              },
             );
             expect(environment.check(queryWithFragments)).toEqual({
               status: 'missing',
@@ -498,6 +491,7 @@ describe('QueryResource', () => {
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
+              {force: true},
             );
             environment.commitPayload(queryWithFragments, {
               node: {
@@ -508,9 +502,6 @@ describe('QueryResource', () => {
             const fetchObservableWithFragments = fetchQuery(
               environment,
               queryWithFragments,
-              {
-                networkCacheConfig: {force: true},
-              },
             );
 
             environment.commitUpdate(storeProxy => {
@@ -843,13 +834,11 @@ describe('QueryResource', () => {
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
+              {force: true},
             );
             const fetchObservableWithFragments = fetchQuery(
               environment,
               queryWithFragments,
-              {
-                networkCacheConfig: {force: true},
-              },
             );
             expect(environment.check(queryWithFragments)).toEqual({
               status: 'available',
@@ -901,13 +890,11 @@ describe('QueryResource', () => {
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
+              {force: true},
             );
             const fetchObservableWithFragments = fetchQuery(
               environment,
               queryWithFragments,
-              {
-                networkCacheConfig: {force: true},
-              },
             );
             expect(environment.check(queryWithFragments)).toEqual({
               status: 'missing',
@@ -957,13 +944,11 @@ describe('QueryResource', () => {
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
+              {force: true},
             );
             const fetchObservableWithFragments = fetchQuery(
               environment,
               queryWithFragments,
-              {
-                networkCacheConfig: {force: true},
-              },
             );
             expect(environment.check(queryWithFragments)).toEqual({
               status: 'missing',
@@ -2776,7 +2761,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
       }
     `,
     ).UserQuery;
-    query = createOperationDescriptor(gqlQuery, variables);
+    query = createOperationDescriptor(gqlQuery, variables, {force: true});
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -2784,9 +2769,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
       },
     });
 
-    fetchObservable = fetchQuery(environment, query, {
-      networkCacheConfig: {force: true},
-    });
+    fetchObservable = fetchQuery(environment, query);
 
     release = jest.fn();
     environment.retain.mockImplementation((...args) => {

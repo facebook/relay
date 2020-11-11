@@ -23,6 +23,7 @@ import type {
   GraphQLTaggedNode,
   OperationDescriptor,
   Variables,
+  CacheConfig,
 } from 'relay-runtime';
 
 const {useMemo} = React;
@@ -30,11 +31,17 @@ const {useMemo} = React;
 function useMemoOperationDescriptor(
   gqlQuery: GraphQLTaggedNode,
   variables: Variables,
+  cacheConfig?: ?CacheConfig,
 ): OperationDescriptor {
   const [memoVariables] = useMemoVariables(variables);
   return useMemo(
-    () => createOperationDescriptor(getRequest(gqlQuery), memoVariables),
-    [gqlQuery, memoVariables],
+    () =>
+      createOperationDescriptor(
+        getRequest(gqlQuery),
+        memoVariables,
+        cacheConfig,
+      ),
+    [gqlQuery, memoVariables, cacheConfig],
   );
 }
 

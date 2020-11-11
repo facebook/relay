@@ -47,11 +47,11 @@ describe('fetchQuery', () => {
 
   it('fetches the query', () => {
     cacheConfig = {force: true};
+    operation = createOperationDescriptor(query, variables, cacheConfig);
     fetchQuery(environment, query, variables, cacheConfig);
     expect(environment.execute.mock.calls.length).toBe(1);
     const args = environment.execute.mock.calls[0][0];
-    expect(args).toEqual({operation, cacheConfig});
-    expect(args.cacheConfig).toBe(cacheConfig);
+    expect(args).toEqual({operation});
   });
 
   it('resolves with the query results after first value', async () => {

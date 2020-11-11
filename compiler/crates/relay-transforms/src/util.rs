@@ -10,7 +10,7 @@ use crate::connections::ConnectionConstants;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
-use crate::react_flight::REACT_FLIGHT_DIRECTIVE_NAME;
+use crate::react_flight::{REACT_FLIGHT_DIRECTIVE_NAME, REACT_FLIGHT_METADATA_KEY};
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
 use crate::required_directive::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
@@ -97,6 +97,7 @@ impl CustomMetadataDirectives {
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
             || name == *REACT_FLIGHT_DIRECTIVE_NAME
+            || name == *REACT_FLIGHT_METADATA_KEY
             || name == *REQUIRED_DIRECTIVE_NAME
             || name == *REQUIRED_METADATA_KEY
             || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
@@ -111,6 +112,7 @@ impl CustomMetadataDirectives {
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
             || name == *REACT_FLIGHT_DIRECTIVE_NAME
+            || name == *REACT_FLIGHT_METADATA_KEY
             || name == *REQUIRED_DIRECTIVE_NAME
     }
 

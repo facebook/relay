@@ -30,6 +30,8 @@ lazy_static! {
     static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
     static ref MATCH_NAME: StringKey = "match".intern();
     static ref SUPPORTED_NAME: StringKey = "supported".intern();
+
+    static ref FIXME_FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
 }
 
 /// The semantic of defining variables on a fragment definition.
@@ -1573,14 +1575,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if let Some(field_id) = self.schema.named_field(parent_type, field_name) {
             return Some(field_id);
         };
-        // Handle @fixme_fat_interface: if present and the parent type is abstract, see
-        // if one of the implementors has this field and if so use that definition.
-        if !directives
-            .iter()
-            .any(|x| x.name.value.lookup() == "fixme_fat_interface")
-        {
+        if directives.named(*FIXME_FAT_INTERFACE).is_none() {
             return None;
         };
+        // Handle @fixme_fat_interface: if present and the parent type is abstract, see
+        // if one of the implementors has this field and if so use that definition.
         let possible_types = match parent_type {
             Type::Interface(id) => {
                 let interface = self.schema.interface(id);
@@ -1594,7 +1593,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             _ => unreachable!("Parent type of a field must be an interface, union, or object"),
         };
         if let Some(possible_types) = possible_types {
-            for possible_type in possible_types.iter() {
+            for possible_type in possible_types {
                 let field = self
                     .schema
                     .named_field(Type::Object(*possible_type), field_name);

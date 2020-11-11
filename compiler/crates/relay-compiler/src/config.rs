@@ -13,6 +13,7 @@ use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
+use graphql_ir::Program;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -543,4 +544,4 @@ pub trait OperationPersister {
     fn worker_count(&self) -> usize;
 }
 
-type OnBuildProjectSuccess = Box<dyn Fn(ProjectName, &Arc<Schema>) + Send + Sync>;
+type OnBuildProjectSuccess = Box<dyn Fn(ProjectName, &Arc<Schema>, &Program) + Send + Sync>;

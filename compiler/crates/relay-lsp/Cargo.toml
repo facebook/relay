@@ -10,6 +10,7 @@ include = ["src/**/*.rs"]
 [dependencies]
 common = { path = "../common" }
 extract-graphql = { path = "../extract-graphql" }
+graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
 relay-compiler = { path = "../relay-compiler" }

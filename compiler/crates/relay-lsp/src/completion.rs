@@ -13,6 +13,7 @@ use crate::lsp::{
 };
 use common::{SourceLocationKey, Span};
 use crossbeam::Sender;
+use graphql_ir::Program;
 use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
 use graphql_syntax::{
     Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
@@ -20,9 +21,13 @@ use graphql_syntax::{
 };
 use interner::StringKey;
 use log::info;
-use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup, Programs};
+use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
-use std::path::PathBuf;
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
@@ -195,9 +200,9 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
 }
 
 /// Finds all the valid fragment names for a given type. Used to complete fragment spreads
-fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringKey> {
+fn get_valid_fragments_for_type(type_: Type, source_program: &Program) -> Vec<StringKey> {
     let mut valid_fragment_names = vec![];
-    for fragment in programs.source.fragments() {
+    for fragment in source_program.fragments() {
         if fragment.type_condition == type_ {
             valid_fragment_names.push(fragment.name.item);
         }
@@ -208,9 +213,9 @@ fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringK
 
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
-    programs: &Programs,
+    source_program: &Program,
 ) -> Vec<CompletionItem> {
-    get_valid_fragments_for_type(type_, programs)
+    get_valid_fragments_for_type(type_, source_program)
         .iter()
         .map(|fragment_name| {
             CompletionItem::new_simple(fragment_name.to_string(), String::from(""))
@@ -221,15 +226,17 @@ fn resolve_completion_items_for_fragment_spread(
 pub fn completion_items_for_request(
     request: CompletionRequest,
     schema: &Schema,
-    programs: Option<&Programs>,
+    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
+    let project_name = request.project_name;
     let leaf_type = request.resolve_leaf_type(schema)?;
     info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
     match kind {
         CompletionKind::FragmentSpread => {
-            if let Some(programs) = programs {
-                let items = resolve_completion_items_for_fragment_spread(leaf_type, programs);
+            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+                info!("has source program");
+                let items = resolve_completion_items_for_fragment_spread(leaf_type, source_program);
                 Some(items)
             } else {
                 None

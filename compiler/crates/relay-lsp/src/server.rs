@@ -24,6 +24,7 @@ use crate::text_documents::{
 };
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
+use graphql_ir::Program;
 use interner::StringKey;
 use log::info;
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
@@ -42,6 +43,7 @@ pub struct Server {
     lsp_rx: Receiver<LSPBridgeMessage>,
     file_categorizer: FileCategorizer,
     root_dir: PathBuf,
+    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
 }
 
 impl Server {
@@ -62,12 +64,11 @@ impl Server {
                         .unwrap()
                         .get(&completion_request.project_name)
                     {
-                        // TODO: Add program
-                        let programs = None;
-                        info!("programs? {:?}", programs.is_some());
-                        if let Some(items) =
-                            completion_items_for_request(completion_request, schema, programs)
-                        {
+                        if let Some(items) = completion_items_for_request(
+                            completion_request,
+                            schema,
+                            &self.source_programs,
+                        ) {
                             send_completion_response(items, request_id, &self.sender);
                         }
                     }
@@ -87,6 +88,10 @@ impl Server {
 
     fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> {
         self.schemas.clone()
+    }
+
+    fn get_source_programs(&self) -> Arc<RwLock<HashMap<StringKey, Program>>> {
+        self.source_programs.clone()
     }
 
     async fn watch(&mut self) -> Result<()> {
@@ -243,6 +248,7 @@ where
         lsp_rx,
         file_categorizer: FileCategorizer::from_config(&config),
         root_dir: config.root_dir.clone(),
+        source_programs: Default::default(),
     };
 
     config.status_reporter = Box::new(LSPStatusReporter::new(
@@ -251,12 +257,18 @@ where
     ));
 
     let schemas_writer = server.get_schemas();
-    config.on_build_project_success = Some(Box::new(move |project_name, schema| {
-        schemas_writer
-            .write()
-            .unwrap()
-            .insert(project_name, schema.clone());
-    }));
+    let source_programs_writer = server.get_source_programs();
+    config.on_build_project_success =
+        Some(Box::new(move |project_name, schema, source_program| {
+            schemas_writer
+                .write()
+                .unwrap()
+                .insert(project_name, schema.clone());
+            source_programs_writer
+                .write()
+                .unwrap()
+                .insert(project_name, source_program.clone());
+        }));
 
     tokio::spawn(async move {
         let compiler = Compiler::new(config, Arc::clone(&perf_logger));

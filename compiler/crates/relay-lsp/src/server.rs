@@ -5,22 +5,89 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::completion::{
+    completion_items_for_request, get_completion_request, send_completion_response,
+    GraphQLSourceCache,
+};
 use crate::error::Result;
 use crate::lsp::{
-    set_initializing_status, show_info_message, Connection, DidChangeTextDocument,
-    DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams, LSPBridgeMessage, Message,
-    Notification, Request, ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    ServerResponse, Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind,
+    set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams,
+    LSPBridgeMessage, Message, Notification, Request, ServerCapabilities, ServerNotification,
+    ServerRequest, ServerRequestId, ServerResponse, Shutdown, TextDocumentSyncCapability,
+    TextDocumentSyncKind, WorkDoneProgressOptions,
 };
 use crate::status_reporting::LSPStatusReporter;
-use common::{PerfLogEvent, PerfLogger};
-use log::info;
-use relay_compiler::compiler::Compiler;
-use relay_compiler::config::Config;
-use std::sync::Arc;
-use tokio::sync::{mpsc, Notify};
-
 use crate::text_documents::extract_graphql_sources;
+use crate::text_documents::{
+    on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
+};
+use common::{PerfLogEvent, PerfLogger};
+use crossbeam::Sender;
+use interner::{Intern, StringKey};
+use log::info;
+use relay_compiler::{compiler::Compiler, config::Config};
+use schema::Schema;
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
+use tokio::sync::{mpsc, mpsc::Receiver, Notify};
+
+pub struct Server {
+    sender: Sender<Message>,
+    schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
+    synced_graphql_documents: GraphQLSourceCache,
+    lsp_rx: Receiver<LSPBridgeMessage>,
+}
+
+impl Server {
+    fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
+        match message {
+            // Completion request
+            LSPBridgeMessage::CompletionRequest { request_id, params } => {
+                if let Some(completion_request) =
+                    get_completion_request(params, &self.synced_graphql_documents)
+                {
+                    info!("completion_request {:#?}", &completion_request);
+                    // TODO don't hardcode schema here
+                    let project_key = "facebook".intern();
+                    if let Some(schema) = self.schemas.read().unwrap().get(&project_key) {
+                        // TODO: Add program
+                        let programs = None;
+                        info!("programs? {:?}", programs.is_some());
+                        if let Some(items) =
+                            completion_items_for_request(completion_request, schema, programs)
+                        {
+                            send_completion_response(items, request_id, &self.sender);
+                        }
+                    }
+                }
+            }
+            LSPBridgeMessage::DidOpenTextDocument(params) => {
+                on_did_open_text_document(params, &mut self.synced_graphql_documents);
+            }
+            LSPBridgeMessage::DidChangeTextDocument(params) => {
+                on_did_change_text_document(params, &mut self.synced_graphql_documents);
+            }
+            LSPBridgeMessage::DidCloseTextDocument(params) => {
+                on_did_close_text_document(params, &mut self.synced_graphql_documents);
+            }
+        }
+    }
+
+    fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> {
+        self.schemas.clone()
+    }
+
+    async fn watch(&mut self) -> Result<()> {
+        loop {
+            if let Some(message) = self.lsp_rx.recv().await {
+                self.on_lsp_bridge_message(message)
+            }
+        }
+    }
+}
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -30,7 +97,6 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     server_capabilities.text_document_sync =
         Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
 
-    /* TODO: Re-enable auto-complete
     server_capabilities.completion_provider = Some(CompletionOptions {
         resolve_provider: Some(true),
         trigger_characters: None,
@@ -38,7 +104,6 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
             work_done_progress: None,
         },
     });
-    */
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -66,16 +131,14 @@ where
     let compiler_notify_clone = compiler_notify.clone();
     let mut has_notified = false;
     let mut on_opened_document = move |text: &String| {
-        if !has_notified {
-            if extract_graphql_sources(text).is_some() {
-                has_notified = true;
-                compiler_notify_clone.notify();
-            }
+        if !has_notified && extract_graphql_sources(text).is_some() {
+            has_notified = true;
+            compiler_notify_clone.notify();
         }
     };
 
     // A channel to communicate between the LSP message loop and the compiler loop
-    let (mut lsp_tx, _lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
+    let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
     let logger_for_process = Arc::clone(&perf_logger);
 
     tokio::spawn(async move {
@@ -84,7 +147,6 @@ where
             info!("Received LSP message\n{:?}", msg);
             match msg {
                 Message::Request(req) => {
-                    /* TODO: Re-enable auto-complete
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (request_id, params) = extract_request_params::<Completion>(req);
@@ -92,9 +154,7 @@ where
                             .send(LSPBridgeMessage::CompletionRequest { request_id, params })
                             .await
                             .ok();
-                    }
-                    */
-                    if req.method == Shutdown::METHOD {
+                    } else if req.method == Shutdown::METHOD {
                         perf_logger_msg_event.string("method", req.method.clone());
                         logger_for_process.complete_event(perf_logger_msg_event);
                         logger_for_process.flush();
@@ -167,12 +227,32 @@ where
     compiler_notify.notified().await;
     set_initializing_status(&connection.sender);
 
+    let mut server = Server {
+        synced_graphql_documents: Default::default(),
+        schemas: Default::default(),
+        sender: connection.sender.clone(),
+        lsp_rx,
+    };
+
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),
     ));
-    let compiler = Compiler::new(config, Arc::clone(&perf_logger));
-    compiler.watch().await.unwrap();
+
+    let schemas_writer = server.get_schemas();
+    config.on_build_project_success = Some(Box::new(move |project_name, schema| {
+        schemas_writer
+            .write()
+            .unwrap()
+            .insert(project_name, schema.clone());
+    }));
+
+    tokio::spawn(async move {
+        let compiler = Compiler::new(config, Arc::clone(&perf_logger));
+        compiler.watch().await
+    });
+
+    server.watch().await?;
     Ok(())
 }
 

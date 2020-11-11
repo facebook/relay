@@ -6,9 +6,9 @@
  */
 
 //! Utilities for providing the completion language feature
-#![allow(dead_code)]
 use crate::lsp::Position;
 use common::{SourceLocationKey, Span};
+use crossbeam::Sender;
 use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
@@ -16,8 +16,8 @@ use log::info;
 use relay_compiler::Programs;
 
 use crate::lsp::{
-    CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
-    ServerResponse, TextDocumentPositionParams, Url,
+    CompletionItem, CompletionParams, CompletionResponse, Message, ServerRequestId, ServerResponse,
+    TextDocumentPositionParams, Url,
 };
 use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
 
@@ -461,7 +461,7 @@ pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Sp
 pub fn send_completion_response(
     items: Vec<CompletionItem>,
     request_id: ServerRequestId,
-    connection: &Connection,
+    sender: &Sender<Message>,
 ) {
     // If there are no items, don't send any response
     if items.is_empty() {
@@ -474,7 +474,7 @@ pub fn send_completion_response(
         error: None,
         result,
     };
-    connection.sender.send(Message::Response(response)).ok();
+    sender.send(Message::Response(response)).ok();
 }
 
 /// Return a `CompletionPath` for this request, only if the completion request occurs

@@ -484,8 +484,35 @@ pub fn send_completion_response(
     sender.send(Message::Response(response)).ok();
 }
 
+/// Return a `GraphQLSource` for a given position, if the position
+/// falls within a graphql literal.
+pub fn get_graphql_source<'a>(
+    text_document_position: &'a TextDocumentPositionParams,
+    graphql_source_cache: &'a GraphQLSourceCache,
+) -> Option<&'a GraphQLSource> {
+    let TextDocumentPositionParams {
+        text_document,
+        position,
+    } = text_document_position;
+    let url = &text_document.uri;
+
+    let graphql_sources = graphql_source_cache.get(url)?;
+
+    info!("Current sources: {:#?}", *graphql_sources);
+    info!("position: {:?}", position);
+
+    // We have GraphQL documents, now check if the position
+    // falls within the range of one of these documents.
+    let graphql_source = graphql_sources.iter().find(|graphql_source| {
+        let range = graphql_source.to_range();
+        position >= &range.start && position <= &range.end
+    })?;
+
+    Some(graphql_source)
+}
+
 /// Return a `CompletionPath` for this request, only if the completion request occurs
-// within a GraphQL document. Otherwise return `None`
+/// within a GraphQL document. Otherwise return `None`
 pub fn get_completion_request(
     params: CompletionParams,
     graphql_source_cache: &GraphQLSourceCache,
@@ -496,11 +523,10 @@ pub fn get_completion_request(
         text_document_position,
         ..
     } = params;
-    let TextDocumentPositionParams {
-        text_document,
-        position,
-    } = text_document_position;
-    let url = text_document.uri;
+    let graphql_source = get_graphql_source(&text_document_position, graphql_source_cache)?;
+
+    let url = &text_document_position.text_document.uri;
+    let position = text_document_position.position;
 
     let absolute_file_path = PathBuf::from(url.path());
     let file_path = if let Ok(file_path) = absolute_file_path.strip_prefix(root_dir) {
@@ -509,6 +535,7 @@ pub fn get_completion_request(
         info!("Failed to parse file path: {:#?}", &absolute_file_path);
         return None;
     };
+
     let project_name =
         if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path.into()) {
             match source_set {
@@ -518,37 +545,6 @@ pub fn get_completion_request(
         } else {
             return None;
         };
-
-    let graphql_sources = match graphql_source_cache.get(&url) {
-        Some(sources) => sources,
-        // If we have no sources for this file, do nothing
-        None => return None,
-    };
-
-    info!(
-        "Got completion request for file with sources: {:#?}",
-        *graphql_sources
-    );
-
-    info!("position: {:?}", position);
-
-    // We have GraphQL documents, now check if the completion request
-    // falls within the range of one of these documents.
-    let mut target_graphql_source: Option<&GraphQLSource> = None;
-    for graphql_source in &*graphql_sources {
-        let range = graphql_source.to_range();
-        if position >= range.start && position <= range.end {
-            target_graphql_source = Some(graphql_source);
-            break;
-        }
-    }
-
-    let graphql_source = match target_graphql_source {
-        Some(source) => source,
-        // Exit early if this completion request didn't fall within
-        // the range of one of our GraphQL documents
-        None => return None,
-    };
 
     match parse_executable(
         &graphql_source.text,

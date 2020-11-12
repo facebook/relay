@@ -1495,16 +1495,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-        match type_definition.values.iter().find(|enum_value| {
-            enum_value.value == value
-                || enum_value.value == value.lookup().to_lowercase().intern()
-                || enum_value.value == value.lookup().to_uppercase().intern()
-        }) {
-            Some(_) => Ok(ConstantValue::Enum(value)),
-            _ => Err(vec![Diagnostic::error(
+        if type_definition
+            .values
+            .iter()
+            .any(|enum_value| enum_value.value == value)
+        {
+            Ok(ConstantValue::Enum(value))
+        } else {
+            Err(vec![Diagnostic::error(
                 ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                 self.location.with_span(node.span()),
-            )]),
+            )])
         }
     }
 

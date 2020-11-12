@@ -6,6 +6,7 @@
  */
 
 //! Utilities related to LSP text document syncing
+#![allow(dead_code)]
 
 use crate::lsp::{
     DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
@@ -14,22 +15,8 @@ use crate::lsp::{
 
 use graphql_syntax::GraphQLSource;
 use log::info;
-use std::sync::Arc;
-use tokio::sync::Notify;
 
 pub type GraphQLTextDocumentCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
-
-pub fn initialize_compiler_if_contains_graphql(
-    params: &DidOpenTextDocumentParams,
-    compiler_init_notify: Arc<Notify>,
-) {
-    let DidOpenTextDocumentParams { text_document } = params;
-    let TextDocumentItem { text, .. } = text_document;
-
-    if extract_graphql_sources(&text).is_some() {
-        compiler_init_notify.notify();
-    }
-}
 
 pub fn on_did_open_text_document(
     params: DidOpenTextDocumentParams,
@@ -87,7 +74,7 @@ pub fn on_did_change_text_document(
 
 /// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`
 /// if extracting fails or there are no GraphQL chunks in the file.
-fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
+pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
     match extract_graphql::parse_chunks(source) {
         Ok(chunks) => {
             if chunks.is_empty() {

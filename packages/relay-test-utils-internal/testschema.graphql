@@ -106,6 +106,7 @@ type Mutation {
     input: ApplicationRequestDeleteAllInput
   ): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
+  commentsCreate(input: CommentsCreateInput): CommentsCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
@@ -119,6 +120,7 @@ type Mutation {
     input: UpdateAllSeenStateInput
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
+  storyUpdate(input: StoryUpdateInput): StoryUpdateResponsePayload
 }
 
 type Subscription {
@@ -147,6 +149,12 @@ input CommentCreateInput {
   clientMutationId: String
   feedbackId: ID
   feedback: CommentfeedbackFeedback
+}
+
+input CommentsCreateInput {
+  clientMutationId: String
+  feedbackId: ID
+  feedback: [CommentfeedbackFeedback]
 }
 
 input CommentfeedbackFeedback {
@@ -227,6 +235,11 @@ type CheckinSearchResult {
 input CheckinSearchInput {
   query: String
   inputs: [CheckinSearchInput]
+}
+
+input StoryUpdateInput {
+  clientMutationId: String
+  body: Text
 }
 
 type PlainCommentBody {
@@ -312,6 +325,14 @@ type CommentCreateResponsePayload {
   viewer: Viewer
 }
 
+type CommentsCreateResponsePayload {
+  clientMutationId: String
+  comments: [Comment]
+  feedback: [Feedback]
+  feedbackCommentEdges: [CommentsEdge]
+  viewer: Viewer
+}
+
 type CommentDeleteResponsePayload {
   clientMutationId: String
   deletedCommentId: ID
@@ -322,6 +343,11 @@ type CommentsDeleteResponsePayload {
   clientMutationId: String
   deletedCommentIds: [ID]
   feedback: Feedback
+}
+
+type StoryUpdateResponsePayload {
+  clientMutationId: String
+  story: Story
 }
 
 type CommentsConnection {
@@ -368,7 +394,8 @@ type Date {
   year: Int
 }
 
-type Feedback implements Node {
+type Feedback implements Node & HasJsField {
+  js(module: String!, id: String): JSDependency
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -1029,6 +1056,9 @@ type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTyp
     additionalParameters: JSON
     options: ProfilePictureOptions
   ): Image
+  neighbors: [User!]
+  nearest_neighbor: User!
+  parents: [User!]!
 }
 
 enum NameRendererContext {

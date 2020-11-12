@@ -16,9 +16,13 @@ pub enum SyntaxError {
     ExpectedSelection,
     #[error("Expected a fragment, mutation, query, or subscription definition")]
     ExpectedDefinition,
+    #[error("Expected a definition")]
+    ExpectedExecutableDefinition,
     #[error("Expected a 'mutation', 'query', or 'subscription' keyword")]
     ExpectedOperationKind,
-    #[error("Expected a valid variable name after $ (alphabetic character followed by any number of alphabetic, number and _ characters)")]
+    #[error(
+        "Expected a valid variable name after $ (alphabetic character followed by any number of alphabetic, number and _ characters)"
+    )]
     ExpectedVariableIdentifier,
     #[error("Expected the keyword '{0}'")]
     ExpectedKeyword(&'static str),
@@ -36,7 +40,9 @@ pub enum SyntaxError {
     InvalidInteger,
     #[error("Invalid number value, expected an int or float")]
     InvalidNumberLiteral,
-    #[error("Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5")]
+    #[error(
+        "Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5"
+    )]
     InvalidFloatLiteralMissingZero,
     #[error("Invalid float value, GraphQL requires a leading zero, eg. 0.56")]
     InvalidFloatMissingZeroLiteral,

@@ -10,9 +10,9 @@ use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_text_printer::print_ir;
-use test_schema::TEST_SCHEMA;
+use relay_test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let ast = parse_executable(fixture.content, source_location).unwrap();
     build(&TEST_SCHEMA, &ast.definitions)

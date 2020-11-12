@@ -132,7 +132,7 @@ Another way to enable optimistic updates is via the `optimisticUpdater`, which c
 We can give Relay instructions in the form of a `configs` array on how to use the response from each mutation to update the client-side store. We do this by configuring the mutation with one or more of the following config types:
 
 ### NODE_DELETE
-Given a deletedIDFieldName, Relay will remove the node(s) from the store.
+Given a `deletedIDFieldName`, Relay will remove the node(s) from the store.
 
 **Note**: this will not remove it from any connection it might be in. If you want to remove a node from a connection, take a look at [RANGE_DELETE](#RANGE_DELETE).
 
@@ -207,7 +207,7 @@ function commit(environment, factionID, name) {
 ```
 
 ### RANGE_DELETE
-Given a parent, connectionKeys, one or more DataIDs in the response payload, and
+Given a parent, `connectionKeys`, one or more DataIDs in the response payload, and
 a path between the parent and the connection, Relay will remove the node(s)
 from the connection but leave the associated record(s) in the store.
 

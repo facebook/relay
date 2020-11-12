@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+fragment EnabledActorsRendererFragment on User {
+  id
+  profile_picture @required(action: NONE) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledActorsRendererFragment on User @__childrenCanBubbleNull {
+  id
+  profile_picture @required(action: NONE) @__required(action: "NONE", path: "profile_picture") {
+    uri
+  }
+}

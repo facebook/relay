@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
+  viewerNotificationsUpdateAllSeenState(input: $input) {
+    stories {
+      actorCount
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdateAllSeenStateInput = {
+  clientMutationId?: string,
+  storyIds?: ReadonlyArray<string | null>,
+};
+export type InputHasArrayVariables = {
+  input?: UpdateAllSeenStateInput
+};
+export type InputHasArrayResponse = {
+  readonly viewerNotificationsUpdateAllSeenState?: {
+    readonly stories?: ReadonlyArray<{
+      readonly actorCount?: number
+    } | null>
+  }
+};
+export type InputHasArrayRawResponse = {
+  readonly viewerNotificationsUpdateAllSeenState?: {
+    readonly stories?: ReadonlyArray<{
+      readonly actorCount?: number,
+      readonly id: string,
+    } | null>
+  }
+};
+export type InputHasArray = {
+  variables: InputHasArrayVariables,
+  response: InputHasArrayResponse,
+  rawResponse: InputHasArrayRawResponse,
+};

@@ -5,22 +5,42 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::compiler_state::SourceSet;
 use crate::config::{Config, SchemaLocation};
+use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use watchman_client::prelude::*;
 
 pub fn get_watchman_expr(config: &Config) -> Expr {
-    let mut sources_conditions = vec![
-        // ending in *.js
-        Expr::Suffix(vec!["js".into()]),
-        // in one of the source roots
-        expr_any(
-            get_source_roots(&config)
-                .into_iter()
-                .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
-                .collect(),
-        ),
-    ];
+    let mut sources_conditions = vec![expr_any(
+        config
+            .sources
+            .iter()
+            .flat_map(|(path, name)| match name {
+                SourceSet::SourceSetName(name) => vec![(path, &config.projects[&name])],
+                SourceSet::SourceSetNames(names) => names
+                    .iter()
+                    .map(|name| (path, &config.projects[name]))
+                    .collect::<Vec<_>>(),
+            })
+            .map(|(path, project)| {
+                Expr::All(vec![
+                    // Ending in *.js(x) or *.ts(x) depending on the project language.
+                    Expr::Suffix(match &project.typegen_config.language {
+                        TypegenLanguage::Flow => vec![PathBuf::from("js"), PathBuf::from("jsx")],
+                        TypegenLanguage::TypeScript => {
+                            vec![PathBuf::from("ts"), PathBuf::from("tsx")]
+                        }
+                    }),
+                    // In the related source root.
+                    Expr::DirName(DirNameTerm {
+                        path: path.clone(),
+                        depth: None,
+                    }),
+                ])
+            })
+            .collect(),
+    )];
     // not excluded by any glob
     if !config.excludes.is_empty() {
         sources_conditions.push(Expr::Not(Box::new(expr_any(

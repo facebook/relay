@@ -10,7 +10,7 @@ use super::{Clock, WatchmanFile};
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
-use log::warn;
+use log::{info, warn};
 use serde_bser::value::Value;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
@@ -59,6 +59,7 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
+        info!("querying files to compile...");
         // If the saved state flag is passed, load from it or fail.
         if let Some(saved_state_path) = &self.config.load_saved_state_file {
             let mut compiler_state = perf_logger_event.time("deserialize_saved_state", || {
@@ -67,11 +68,16 @@ impl<'config> FileSource<'config> {
             let file_source_result = self
                 .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
                 .await?;
+            compiler_state
+                .pending_file_source_changes
+                .write()
+                .unwrap()
+                .push(file_source_result);
             compiler_state.merge_file_source_changes(
                 &self.config,
-                &file_source_result,
                 perf_logger_event,
                 perf_logger,
+                true,
             )?;
             return Ok(compiler_state);
         }
@@ -79,7 +85,7 @@ impl<'config> FileSource<'config> {
         // If saved state is configured, try using saved state unless the config
         // forces a full build.
         if let Config {
-            full_build: false,
+            compile_everything: false,
             saved_state_config: Some(saved_state_config),
             saved_state_loader: Some(saved_state_loader),
             saved_state_version,
@@ -122,7 +128,7 @@ impl<'config> FileSource<'config> {
         self,
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
-    ) -> Result<(CompilerState, FileSourceSubscription<'config>)> {
+    ) -> Result<(CompilerState, FileSourceSubscription)> {
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
@@ -146,7 +152,7 @@ impl<'config> FileSource<'config> {
         Ok((
             compiler_state,
             FileSourceSubscription {
-                file_source: self,
+                resolved_root: self.resolved_root.clone(),
                 subscription,
             },
         ))
@@ -232,11 +238,16 @@ impl<'config> FileSource<'config> {
         if compiler_state.saved_state_version != saved_state_version {
             return Err("Saved state version doesn't match.");
         }
+        compiler_state
+            .pending_file_source_changes
+            .write()
+            .unwrap()
+            .push(file_source_result);
         if let Err(parse_error) = compiler_state.merge_file_source_changes(
             &self.config,
-            &file_source_result,
             perf_logger_event,
             perf_logger,
+            true,
         ) {
             Ok(Err(parse_error))
         } else {
@@ -245,12 +256,12 @@ impl<'config> FileSource<'config> {
     }
 }
 
-pub struct FileSourceSubscription<'config> {
-    file_source: FileSource<'config>,
+pub struct FileSourceSubscription {
+    resolved_root: ResolvedRoot,
     subscription: WatchmanSubscription<WatchmanFile>,
 }
 
-impl<'config> FileSourceSubscription<'config> {
+impl FileSourceSubscription {
     /// Awaits changes from Watchman and provides the next set of changes
     /// if there were any changes to files
     pub async fn next_change(&mut self) -> Result<Option<FileSourceResult>> {
@@ -259,7 +270,7 @@ impl<'config> FileSourceSubscription<'config> {
             if let Some(files) = changes.files {
                 return Ok(Some(FileSourceResult {
                     files,
-                    resolved_root: self.file_source.resolved_root.clone(),
+                    resolved_root: self.resolved_root.clone(),
                     clock: changes.clock,
                     saved_state_info: None,
                 }));

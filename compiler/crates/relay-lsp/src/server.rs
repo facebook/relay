@@ -5,32 +5,105 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp::{
-    Completion, CompletionOptions, Connection, DidChangeTextDocument, DidCloseTextDocument,
-    DidOpenTextDocument, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
-    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId,
-    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+use crate::completion::{
+    completion_items_for_request, get_completion_request, send_completion_response,
+    GraphQLSourceCache,
 };
-
-use relay_compiler::FileSource;
-
-use relay_compiler::config::Config;
-
 use crate::error::Result;
-use crate::lsp::show_info_message;
-
-use common::ConsoleLogger;
-use common::PerfLogger;
+use crate::lsp::{
+    set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams,
+    LSPBridgeMessage, Message, Notification, Request, ServerCapabilities, ServerNotification,
+    ServerRequest, ServerRequestId, ServerResponse, Shutdown, TextDocumentSyncCapability,
+    TextDocumentSyncKind, WorkDoneProgressOptions,
+};
+use crate::status_reporting::LSPStatusReporter;
+use crate::text_documents::extract_graphql_sources;
+use crate::text_documents::{
+    on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
+};
+use common::{PerfLogEvent, PerfLogger};
+use crossbeam::Sender;
+use graphql_ir::Program;
+use interner::StringKey;
 use log::info;
-use std::path::PathBuf;
-use std::sync::Arc;
-use tokio::sync::{mpsc, Notify};
+use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
+use schema::Schema;
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
+use tokio::sync::{mpsc, mpsc::Receiver, Notify};
 
-use crate::lsp_compiler::LSPCompiler;
+pub struct Server {
+    sender: Sender<Message>,
+    schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
+    synced_graphql_documents: GraphQLSourceCache,
+    lsp_rx: Receiver<LSPBridgeMessage>,
+    file_categorizer: FileCategorizer,
+    root_dir: PathBuf,
+    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+}
 
-use crate::text_documents::initialize_compiler_if_contains_graphql;
+impl Server {
+    fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
+        match message {
+            // Completion request
+            LSPBridgeMessage::CompletionRequest { request_id, params } => {
+                if let Some(completion_request) = get_completion_request(
+                    params,
+                    &self.synced_graphql_documents,
+                    &self.file_categorizer,
+                    &self.root_dir,
+                ) {
+                    info!("completion_request {:#?}", &completion_request);
+                    if let Some(schema) = self
+                        .schemas
+                        .read()
+                        .unwrap()
+                        .get(&completion_request.project_name)
+                    {
+                        if let Some(items) = completion_items_for_request(
+                            completion_request,
+                            schema,
+                            &self.source_programs,
+                        ) {
+                            send_completion_response(items, request_id, &self.sender);
+                        }
+                    }
+                }
+            }
+            LSPBridgeMessage::DidOpenTextDocument(params) => {
+                on_did_open_text_document(params, &mut self.synced_graphql_documents);
+            }
+            LSPBridgeMessage::DidChangeTextDocument(params) => {
+                on_did_change_text_document(params, &mut self.synced_graphql_documents);
+            }
+            LSPBridgeMessage::DidCloseTextDocument(params) => {
+                on_did_close_text_document(params, &mut self.synced_graphql_documents);
+            }
+        }
+    }
 
-/// Initializes an LSP connection, handling the `initize` message and `initialized` notification
+    fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> {
+        self.schemas.clone()
+    }
+
+    fn get_source_programs(&self) -> Arc<RwLock<HashMap<StringKey, Program>>> {
+        self.source_programs.clone()
+    }
+
+    async fn watch(&mut self) -> Result<()> {
+        loop {
+            if let Some(message) = self.lsp_rx.recv().await {
+                self.on_lsp_bridge_message(message)
+            }
+        }
+    }
+}
+
+/// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
 pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     let mut server_capabilities = ServerCapabilities::default();
@@ -53,24 +126,39 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
 }
 
 /// Run the main server loop
-pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()> {
-    show_info_message("Relay Language Server Started!", &connection)?;
+pub async fn run<TPerfLogger>(
+    connection: Connection,
+    mut config: Config,
+    _params: InitializeParams,
+    perf_logger: Arc<TPerfLogger>,
+) -> Result<()>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
+    show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
-
     let receiver = connection.receiver.clone();
+    let sender = connection.sender.clone();
 
     // A `Notify` instance used to signal that the compiler should be initialized.
     let compiler_notify = Arc::new(Notify::new());
-
-    // Thread for the LSP message loop
-    let compiler_notifier = compiler_notify.clone();
+    let compiler_notify_clone = compiler_notify.clone();
+    let mut has_notified = false;
+    let mut on_opened_document = move |text: &String| {
+        if !has_notified && extract_graphql_sources(text).is_some() {
+            has_notified = true;
+            compiler_notify_clone.notify();
+        }
+    };
 
     // A channel to communicate between the LSP message loop and the compiler loop
     let (mut lsp_tx, lsp_rx) = mpsc::channel::<LSPBridgeMessage>(100);
+    let logger_for_process = Arc::clone(&perf_logger);
 
     tokio::spawn(async move {
-        // Cache for the extracted GraphQL sources
         for msg in receiver {
+            let perf_logger_msg_event = logger_for_process.create_event("lsp_message");
+            info!("Received LSP message\n{:?}", msg);
             match msg {
                 Message::Request(req) => {
                     // Auto-complete request
@@ -80,16 +168,32 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                             .send(LSPBridgeMessage::CompletionRequest { request_id, params })
                             .await
                             .ok();
+                    } else if req.method == Shutdown::METHOD {
+                        perf_logger_msg_event.string("method", req.method.clone());
+                        logger_for_process.complete_event(perf_logger_msg_event);
+                        logger_for_process.flush();
+                        let (request_id, _) = extract_request_params::<Shutdown>(req);
+                        let response = ServerResponse {
+                            id: request_id,
+                            error: None,
+                            result: None,
+                        };
+                        sender.send(Message::Response(response)).ok();
+                        // TODO: We should exit when receiving Exit notification according to the protocol,
+                        // but the notification is never received.
+                        std::process::exit(0);
                     }
                 }
                 Message::Notification(notif) => {
+                    let mut should_flush_perf_log_event = true;
+                    perf_logger_msg_event.string("method", notif.method.clone());
+                    let lsp_message_processing_time =
+                        perf_logger_msg_event.start("lsp_message_processing_time");
+
                     match &notif.method {
                         method if method == DidOpenTextDocument::METHOD => {
                             let params = extract_notif_params::<DidOpenTextDocument>(notif);
-                            initialize_compiler_if_contains_graphql(
-                                &params,
-                                compiler_notifier.clone(),
-                            );
+                            on_opened_document(&params.text_document.text);
                             lsp_tx
                                 .send(LSPBridgeMessage::DidOpenTextDocument(params))
                                 .await
@@ -109,9 +213,21 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
                                 .await
                                 .ok();
                         }
+                        method if method == Exit::METHOD => {
+                            perf_logger_msg_event.stop(lsp_message_processing_time);
+                            logger_for_process.complete_event(perf_logger_msg_event);
+                            logger_for_process.flush();
+                            std::process::exit(0);
+                        }
                         _ => {
+                            should_flush_perf_log_event = false;
                             // Notifications we don't care about
                         }
+                    }
+                    if should_flush_perf_log_event {
+                        perf_logger_msg_event.stop(lsp_message_processing_time);
+                        logger_for_process.complete_event(perf_logger_msg_event);
+                        logger_for_process.flush();
                     }
                 }
                 Message::Response(_) => {
@@ -122,37 +238,45 @@ pub async fn run(connection: Connection, _params: InitializeParams) -> Result<()
     });
 
     info!("Waiting for compiler to initialize...");
-
     compiler_notify.notified().await;
-    let config = load_config();
-    let setup_event = ConsoleLogger.create_event("lsp_compiler_setup");
-    let file_source = FileSource::connect(&config, &setup_event).await?;
-    let (compiler_state, subscription) = file_source
-        .subscribe(&setup_event, &ConsoleLogger)
-        .await
-        .unwrap();
-    let schemas = LSPCompiler::build_schemas(&config, &compiler_state, &setup_event);
-    let mut lsp_compiler = LSPCompiler::new(
-        &schemas,
-        &config,
-        subscription,
-        compiler_state,
-        lsp_rx,
-        connection,
-    );
-    lsp_compiler.watch().await.unwrap();
-    Ok(())
-}
+    set_initializing_status(&connection.sender);
 
-fn load_config() -> Config {
-    // TODO(brandondail) don't hardcode the test project config here
-    let home = std::env::var("HOME").unwrap();
-    let config_path = PathBuf::from(format!(
-        "{}/fbsource/fbcode/relay/config/config.test.json",
-        home
+    let mut server = Server {
+        synced_graphql_documents: Default::default(),
+        schemas: Default::default(),
+        sender: connection.sender.clone(),
+        lsp_rx,
+        file_categorizer: FileCategorizer::from_config(&config),
+        root_dir: config.root_dir.clone(),
+        source_programs: Default::default(),
+    };
+
+    config.status_reporter = Box::new(LSPStatusReporter::new(
+        config.root_dir.clone(),
+        connection.sender.clone(),
     ));
-    let config = Config::load(config_path).unwrap();
-    config
+
+    let schemas_writer = server.get_schemas();
+    let source_programs_writer = server.get_source_programs();
+    config.on_build_project_success =
+        Some(Box::new(move |project_name, schema, source_program| {
+            schemas_writer
+                .write()
+                .unwrap()
+                .insert(project_name, schema.clone());
+            source_programs_writer
+                .write()
+                .unwrap()
+                .insert(project_name, source_program.clone());
+        }));
+
+    tokio::spawn(async move {
+        let compiler = Compiler::new(config, Arc::clone(&perf_logger));
+        compiler.watch().await
+    });
+
+    server.watch().await?;
+    Ok(())
 }
 
 fn extract_notif_params<N>(notif: ServerNotification) -> N::Params

@@ -1910,7 +1910,7 @@ mutation ChangeNameMutation(
 exports[`compileRelayArtifacts matches expected output: append-edge.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -2079,6 +2079,160 @@ mutation CommentCreateMutation(
       node {
         id
       }
+    }
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: append-node.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "edgeTypeName",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    metadata: null,
+    name: "CommentCreateMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentCreateResponsePayload",
+        name: "commentCreate",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: "Comment",
+            name: "comment",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Mutation",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "edgeTypeName",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    name: "CommentCreateMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentCreateResponsePayload",
+        name: "commentCreate",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: "Comment",
+            name: "comment",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "id",
+                storageKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+          LinkedHandle {
+            alias: null,
+            args: null,
+            filters: null,
+            handle: "appendNode",
+            key: "",
+            name: "comment",
+            handleArgs: [
+              Variable {
+                name: "connections",
+                variableName: "connections",
+              },
+              Variable {
+                name: "edgeTypeName",
+                variableName: "edgeTypeName",
+              },
+            ],
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+mutation CommentCreateMutation(
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment {
+      id
     }
   }
 }
@@ -5942,6 +6096,238 @@ Fragment {
   type: "Feedback",
   abstractKey: null,
 }
+`;
+
+exports[`compileRelayArtifacts matches expected output: delete-edge.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    metadata: null,
+    name: "CommentDeleteMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentDeleteResponsePayload",
+        name: "commentDelete",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "deletedCommentId",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Mutation",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+    ],
+    name: "CommentDeleteMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentDeleteResponsePayload",
+        name: "commentDelete",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "deletedCommentId",
+            storageKey: null,
+          },
+          ScalarHandle {
+            alias: null,
+            args: null,
+            filters: null,
+            handle: "deleteEdge",
+            key: "",
+            name: "deletedCommentId",
+            handleArgs: [
+              Variable {
+                name: "connections",
+                variableName: "connections",
+              },
+            ],
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+) {
+  commentDelete(input: $input) {
+    deletedCommentId
+  }
+}
+
+`;
+
+exports[`compileRelayArtifacts matches expected output: delete-edge-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [ID!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+    ],
+    metadata: null,
+    name: "CommentsDeleteMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentsDeleteResponsePayload",
+        name: "commentsDelete",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "deletedCommentIds",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Mutation",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "input",
+      },
+      LocalArgument {
+        defaultValue: null,
+        name: "connections",
+      },
+    ],
+    name: "CommentsDeleteMutation",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "input",
+            variableName: "input",
+          },
+        ],
+        concreteType: "CommentsDeleteResponsePayload",
+        name: "commentsDelete",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "deletedCommentIds",
+            storageKey: null,
+          },
+          ScalarHandle {
+            alias: null,
+            args: null,
+            filters: null,
+            handle: "deleteEdge",
+            key: "",
+            name: "deletedCommentIds",
+            handleArgs: [
+              Variable {
+                name: "connections",
+                variableName: "connections",
+              },
+            ],
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds
+  }
+}
+
 `;
 
 exports[`compileRelayArtifacts matches expected output: explicit-null-argument.graphql 1`] = `
@@ -10821,6 +11207,197 @@ Source: GraphQL request (2:1)
    ^
 3:   node {
 
+`;
+
+exports[`compileRelayArtifacts matches expected output: module-deduping.grpahql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query moduleDedupingQuery($cond: Boolean!) {
+  me {
+    nameRenderer {
+      ...moduleDeduping_frag @module(name: "Component.react")
+      ... @include(if: $cond) {
+        ...moduleDeduping_frag @module(name: "Component.react")
+        ...moduleDeduping_frag @module(name: "Component.react")
+      }
+    }
+  }
+}
+
+fragment moduleDeduping_frag on PlainUserNameRenderer {
+  __typename
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "cond",
+      },
+    ],
+    metadata: null,
+    name: "moduleDedupingQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: null,
+        concreteType: "User",
+        name: "me",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: null,
+            name: "nameRenderer",
+            plural: false,
+            selections: [
+              InlineFragment {
+                selections: [
+                  ModuleImport {
+                    documentName: "moduleDedupingQuery",
+                    fragmentName: "moduleDeduping_frag",
+                    fragmentPropName: "frag",
+                  },
+                ],
+                type: "PlainUserNameRenderer",
+                abstractKey: null,
+              },
+            ],
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "cond",
+      },
+    ],
+    name: "moduleDedupingQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: null,
+        concreteType: "User",
+        name: "me",
+        plural: false,
+        selections: [
+          LinkedField {
+            alias: null,
+            args: null,
+            concreteType: null,
+            name: "nameRenderer",
+            plural: false,
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "__typename",
+                storageKey: null,
+              },
+              InlineFragment {
+                selections: [
+                  ModuleImport {
+                    documentName: "moduleDedupingQuery",
+                    fragmentName: "moduleDeduping_frag",
+                    fragmentPropName: "frag",
+                  },
+                ],
+                type: "PlainUserNameRenderer",
+                abstractKey: null,
+              },
+              Condition {
+                condition: "cond",
+                passingValue: true,
+                selections: [
+                  TypeDiscriminator {
+                    abstractKey: "__isUserNameRenderer",
+                  },
+                ],
+              },
+            ],
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query moduleDedupingQuery(
+  $cond: Boolean!
+) {
+  me {
+    nameRenderer {
+      __typename
+      ... on PlainUserNameRenderer {
+        ...moduleDeduping_frag
+        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer")
+        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer")
+      }
+      __isUserNameRenderer: __typename @include(if: $cond)
+      ... on PlainUserNameRenderer @include(if: $cond) {
+        ...moduleDeduping_frag
+        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer")
+        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer")
+      }
+    }
+    id
+  }
+}
+
+fragment moduleDeduping_frag on PlainUserNameRenderer {
+  __typename
+}
+
+
+SplitOperation {
+  metadata: {
+    "derivedFrom": "moduleDeduping_frag",
+  },
+  name: "moduleDeduping_frag$normalization",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "__typename",
+      storageKey: null,
+    },
+  ],
+}
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "moduleDeduping_frag",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "__typename",
+      storageKey: null,
+    },
+  ],
+  type: "PlainUserNameRenderer",
+  abstractKey: null,
+}
 `;
 
 exports[`compileRelayArtifacts matches expected output: module-overlap-across-documents.graphql 1`] = `
@@ -19297,6 +19874,197 @@ query RelayClientIDFieldQuery(
   }
 }
 
+`;
+
+exports[`compileRelayArtifacts matches expected output: required-and-not-required-merged-in-normalization-ast.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SampleQuery($id: ID!) {
+  node(id: $id) {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment RequiredFragment on User {
+  # Normalization AST should merge this...
+  name @required(action: THROW)
+}
+
+fragment NotRequiredFragment on User {
+  # ... with this
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+      },
+    ],
+    metadata: null,
+    name: "SampleQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "id",
+            variableName: "id",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          FragmentSpread {
+            args: null,
+            name: "MyFragment",
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [
+      LocalArgument {
+        defaultValue: null,
+        name: "id",
+      },
+    ],
+    name: "SampleQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Variable {
+            name: "id",
+            variableName: "id",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              ScalarField {
+                alias: null,
+                args: null,
+                name: "name",
+                storageKey: null,
+              },
+            ],
+            type: "User",
+            abstractKey: null,
+          },
+        ],
+        storageKey: null,
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query SampleQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...MyFragment
+    id
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment NotRequiredFragment on User {
+  name
+}
+
+fragment RequiredFragment on User {
+  name
+}
+
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "MyFragment",
+  selections: [
+    FragmentSpread {
+      args: null,
+      name: "RequiredFragment",
+    },
+    FragmentSpread {
+      args: null,
+      name: "NotRequiredFragment",
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "RequiredFragment",
+  selections: [
+    RequiredField {
+      field: ScalarField {
+        alias: null,
+        args: null,
+        name: "name",
+        storageKey: null,
+      },
+      action: "THROW",
+      path: "name",
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "NotRequiredFragment",
+  selections: [
+    ScalarField {
+      alias: null,
+      args: null,
+      name: "name",
+      storageKey: null,
+    },
+  ],
+  type: "User",
+  abstractKey: null,
+}
 `;
 
 exports[`compileRelayArtifacts matches expected output: required-field.graphql 1`] = `

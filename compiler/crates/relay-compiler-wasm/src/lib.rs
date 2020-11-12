@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-extern crate console_error_panic_hook;
 use common::SourceLocationKey;
 use graphql_syntax::{parse_executable, ExecutableDefinition};
 use schema::build_schema;
@@ -29,7 +28,10 @@ pub fn compile(raw_schema: &str, documents: Box<[JsValue]>) -> Result<JsValue, J
     match build_schema(raw_schema) {
         Err(_) => Err(JsValue::from("Unable to parse schema")),
         Ok(schema) => {
-            log(&format!("schema {:?}", schema));
+            #[allow(unused_unsafe)]
+            unsafe {
+                log(&format!("schema {:?}", schema));
+            }
             // TODO: Figure out how to make it work with `rayon`.
             // let ir = build(&schema, &definitions);
             Ok(JsValue::from(

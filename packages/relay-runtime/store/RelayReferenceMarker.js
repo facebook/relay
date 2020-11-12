@@ -15,13 +15,13 @@
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
-const {REACT_FLIGHT_QUERIES_STORAGE_KEY} = require('./ReactFlight');
 const {generateTypeID} = require('./TypeID');
 
 import type {ReactFlightPayloadQuery} from '../network/RelayNetworkTypes';
@@ -156,6 +156,7 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
+        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
           invariant(
             false,
@@ -290,7 +291,7 @@ class RelayReferenceMarker {
 
     const reachableQueries = RelayModernRecord.getValue(
       reactFlightClientResponseRecord,
-      REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
     );
 
     if (!Array.isArray(reachableQueries)) {

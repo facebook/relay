@@ -1,0 +1,15 @@
+query moduleDedupingQuery($cond: Boolean!) {
+  me {
+    nameRenderer {
+      ...moduleDeduping_frag @module(name: "Component.react")
+      ... @include(if: $cond) {
+        ...moduleDeduping_frag @module(name: "Component.react")
+        ...moduleDeduping_frag @module(name: "Component.react")
+      }
+    }
+  }
+}
+
+fragment moduleDeduping_frag on PlainUserNameRenderer {
+  __typename
+}

@@ -26,7 +26,7 @@ export type ProfilerContextType = {
 
 const ProfilerContext: React$Context<ProfilerContextType> = React.createContext(
   {
-    wrapPrepareQueryResource: <T>(cb: () => T) => {
+    wrapPrepareQueryResource: <T>(cb: () => T): T => {
       return cb();
     },
   },

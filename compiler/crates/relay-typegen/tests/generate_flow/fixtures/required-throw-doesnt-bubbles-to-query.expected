@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query FooQuery {
+  me @required(action: THROW) {
+    firstName
+    lastName
+  }
+}
+==================================== OUTPUT ===================================
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: {|
+    +firstName: ?string,
+    +lastName: ?string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};

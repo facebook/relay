@@ -23,12 +23,11 @@ const CACHE_CAPACITY = 1000;
 
 const DEFAULT_FETCH_POLICY = 'store-or-network';
 
-const DATA_RETENTION_TIMEOUT = 30 * 1000;
+const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
 
 import type {
   Disposable,
   FetchPolicy,
-  FragmentPointer,
   GraphQLResponse,
   IEnvironment,
   Observable,
@@ -57,12 +56,12 @@ type QueryResourceCacheEntry = {|
 |};
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
-  fragmentRef: FragmentPointer,
+  fragmentRef: mixed,
   ...
 } = {|
   cacheKey: string,
   fragmentNode: ReaderFragment,
-  fragmentRef: FragmentPointer,
+  fragmentRef: mixed,
   operation: OperationDescriptor,
 |};
 
@@ -182,6 +181,12 @@ function createCacheEntry(
         releaseQueryTimeout = null;
         releaseTemporaryRetain = null;
         disposable.dispose();
+        // Normally if this entry never commits, the request would've ended by the
+        // time this timeout expires and the temporary retain is released. However,
+        // we need to do this for live queries which remain open indefinitely.
+        if (retainCount <= 0 && currentNetworkSubscription != null) {
+          currentNetworkSubscription.unsubscribe();
+        }
       };
       releaseQueryTimeout = setTimeout(
         localReleaseTemporaryRetain,

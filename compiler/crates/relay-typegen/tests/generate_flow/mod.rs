@@ -10,14 +10,14 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
-use graphql_transforms::{ConnectionInterface, FeatureFlags};
 use interner::Intern;
 use relay_compiler::apply_transforms;
-use relay_typegen::{self, TypegenConfig};
+use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
+use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
-use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
@@ -37,10 +37,21 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
-        &FeatureFlags::default(),
+        Arc::new(FeatureFlags {
+            enable_flight_transform: false,
+            enable_required_transform_for_prefix: Some("".intern()),
+        }),
         Arc::new(ConsoleLogger),
     )
     .unwrap();
+
+    let typegen_config = TypegenConfig {
+        language: TypegenLanguage::Flow,
+        enum_module_suffix: None,
+        optional_input_fields: Default::default(),
+        custom_scalar_types: Default::default(),
+        haste: true,
+    };
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
@@ -53,15 +64,15 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
             typegen_operation,
             normalization_operation,
             &schema,
-            &TypegenConfig::default(),
+            &typegen_config,
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
-    let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type(frag, &schema, &TypegenConfig::default())
-    });
+    let fragment_strings = fragments
+        .into_iter()
+        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &typegen_config));
 
     let mut result: Vec<String> = operation_strings.collect();
     result.extend(fragment_strings);

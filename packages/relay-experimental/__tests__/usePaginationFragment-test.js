@@ -324,24 +324,30 @@ describe('usePaginationFragment', () => {
     // Manually set the refetchable operation for the test.
     gqlFragmentWithStreaming.metadata.refetch.operation = gqlPaginationQueryWithStreaming;
 
-    query = createOperationDescriptor(gqlQuery, variables);
+    query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryNestedFragment = createOperationDescriptor(
       gqlQueryNestedFragment,
       variablesNestedFragment,
+      {force: true},
     );
     queryWithoutID = createOperationDescriptor(
       gqlQueryWithoutID,
       variablesWithoutID,
+      {force: true},
     );
     queryWithLiteralArgs = createOperationDescriptor(
       gqlQueryWithLiteralArgs,
       variables,
+      {force: true},
     );
     queryWithStreaming = createOperationDescriptor(
       gqlQueryWithStreaming,
       variables,
+      {force: true},
     );
-    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables);
+    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
+      force: true,
+    });
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -718,6 +724,7 @@ describe('usePaginationFragment', () => {
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
+        {force: true},
       );
       // Commit a payload with name and profile_picture are missing
       environment.commitPayload(missingDataQuery, {
@@ -2378,7 +2385,9 @@ describe('usePaginationFragment', () => {
 
           // Pass new parent fragment ref with different variables
           const newVariables = {...variables, isViewerFriend: true};
-          const newQuery = createOperationDescriptor(gqlQuery, newVariables);
+          const newQuery = createOperationDescriptor(gqlQuery, newVariables, {
+            force: true,
+          });
           environment.commitPayload(newQuery, {
             node: {
               __typename: 'User',
@@ -3401,6 +3410,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3518,6 +3528,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3697,6 +3708,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3814,6 +3826,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -4045,7 +4058,9 @@ describe('usePaginationFragment', () => {
         // Manually set the refetchable operation for the test.
         gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
 
-        query = createOperationDescriptor(gqlQuery, fetchVariables);
+        query = createOperationDescriptor(gqlQuery, fetchVariables, {
+          force: true,
+        });
 
         environment.commitPayload(query, {
           nonNodeStory: {

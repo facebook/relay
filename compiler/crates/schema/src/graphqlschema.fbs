@@ -1,0 +1,74 @@
+// graphqlschema.fbs
+namespace graphqlschema;
+
+enum FBConstValueKind : byte {
+    Null = 0,
+    String,
+    Bool,
+    Int,
+    Float,
+    Enum,
+    List,
+    Object
+}
+
+table FBConstValue {
+    kind:FBConstValueKind;
+    string_value:string;
+    bool_value:bool;
+    int_value:string;
+    float_value:string;
+    enum_value:string;
+    list_value:FBListValue;
+    object_value:FBObjectValue;
+}
+
+table FBListValue {
+    values:[FBConstValue];
+}
+
+table FBObjectField {
+    name:string;
+    value:FBConstValue;
+}
+
+table FBObjectValue {
+    fields:[FBObjectField];
+}
+
+enum FBTypeKind : byte {
+    Scalar = 0
+}
+
+table FBType {
+    kind:FBTypeKind;
+    scalar_id:uint32;
+}
+
+table FBArgumentValue {
+    name:string;
+    value:FBConstValue;
+}
+
+table FBDirectiveValue {
+    name:string;
+    arguments:[FBArgumentValue];
+}
+
+table FBScalar {
+    name:string;
+    is_extension:bool;
+    directives:[FBDirectiveValue];
+}
+
+table FBTypeMap {
+    name:string (key);
+    value:FBType;
+}
+
+table FBSchema {
+    types:[FBTypeMap];
+    scalars:[FBScalar];
+}
+
+root_type FBSchema;

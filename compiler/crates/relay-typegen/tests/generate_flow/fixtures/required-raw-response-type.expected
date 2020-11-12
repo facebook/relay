@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+query MyQuery @raw_response_type {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+    name @required(action: LOG)
+  }
+}
+==================================== OUTPUT ===================================
+export type MyQueryVariables = {||};
+export type MyQueryResponse = ?{|
+  +me: {|
+    +id: string,
+    +name: string,
+  |}
+|};
+export type MyQueryRawResponse = {|
+  +me: ?{|
+    +id: string,
+    +name: ?string,
+  |}
+|};
+export type MyQuery = {|
+  variables: MyQueryVariables,
+  response: MyQueryResponse,
+  rawResponse: MyQueryRawResponse,
+|};

@@ -93,7 +93,7 @@ describe('@connection', () => {
     });
   });
 
-  it('When a field is @requried and a @connection _and_ null, it bubbles null up to its parent', () => {
+  it('When a field is @required and a @connection _and_ null, it bubbles null up to its parent', () => {
     const operationSnapshot = environment.lookup(operation.fragment);
     const operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);

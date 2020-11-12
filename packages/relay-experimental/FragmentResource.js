@@ -25,13 +25,13 @@ const {
   getSelector,
   isPromise,
   recycleNodesInto,
+  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 import type {Cache} from './LRUCache';
 import type {
   Disposable,
   IEnvironment,
-  MissingRequiredFields,
   ReaderFragment,
   RequestDescriptor,
   Snapshot,
@@ -39,7 +39,7 @@ import type {
 
 export type FragmentResource = FragmentResourceImpl;
 
-type FragmentResourceCache = Cache<Error | Promise<mixed> | FragmentResult>;
+type FragmentResourceCache = Cache<Promise<mixed> | FragmentResult>;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
@@ -158,7 +158,7 @@ class FragmentResourceImpl {
     // 1. Check if there's a cached value for this fragment
     const cachedValue = this._cache.get(fragmentIdentifier);
     if (cachedValue != null) {
-      if (isPromise(cachedValue) || cachedValue instanceof Error) {
+      if (isPromise(cachedValue)) {
         throw cachedValue;
       }
       if (cachedValue.snapshot) {
@@ -195,8 +195,6 @@ class FragmentResourceImpl {
         ? fragmentSelector.selectors.map(s => environment.lookup(s))
         : environment.lookup(fragmentSelector);
 
-    this._reportMissingRequiredFieldsInSnapshot(snapshot);
-
     const fragmentOwner =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors[0].owner
@@ -205,6 +203,7 @@ class FragmentResourceImpl {
       fragmentOwner.node.params.name ?? 'Unknown Parent Query';
 
     if (!isMissingData(snapshot)) {
+      this._reportMissingRequiredFieldsInSnapshot(snapshot);
       const fragmentResult = getFragmentResult(fragmentIdentifier, snapshot);
       this._cache.set(fragmentIdentifier, fragmentResult);
       return fragmentResult;
@@ -247,42 +246,26 @@ class FragmentResourceImpl {
       parentQueryName,
     );
 
+    this._reportMissingRequiredFieldsInSnapshot(snapshot);
     return getFragmentResult(fragmentIdentifier, snapshot);
   }
 
   _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        const singleSnapshot = s;
-        this._reportMissingRequiredFields(singleSnapshot.missingRequiredFields);
+        if (s.missingRequiredFields != null) {
+          reportMissingRequiredFields(
+            this._environment,
+            s.missingRequiredFields,
+          );
+        }
       });
     } else {
-      this._reportMissingRequiredFields(snapshot.missingRequiredFields);
-    }
-  }
-
-  _reportMissingRequiredFields(missingRequiredFields: ?MissingRequiredFields) {
-    if (missingRequiredFields == null) {
-      return;
-    }
-    switch (missingRequiredFields.action) {
-      case 'THROW': {
-        const {path, owner} = missingRequiredFields.field;
-        throw new Error(
-          `Relay: Missing @required value at path '${path}' in '${owner}'.`,
+      if (snapshot.missingRequiredFields != null) {
+        reportMissingRequiredFields(
+          this._environment,
+          snapshot.missingRequiredFields,
         );
-      }
-      case 'LOG':
-        missingRequiredFields.fields.forEach(({path, owner}) => {
-          this._environment.__log({
-            name: 'read.missing_required_field',
-            owner,
-            fieldPath: path,
-          });
-        });
-        break;
-      default: {
-        (missingRequiredFields.action: empty);
       }
     }
   }
@@ -464,8 +447,8 @@ class FragmentResourceImpl {
       .then(() => {
         this._cache.delete(cacheKey);
       })
-      .catch(error => {
-        this._cache.set(cacheKey, error);
+      .catch((error: Error) => {
+        this._cache.delete(cacheKey);
       });
     this._cache.set(cacheKey, promise);
 
@@ -481,10 +464,7 @@ class FragmentResourceImpl {
     idx: number,
   ): void {
     const currentFragmentResult = this._cache.get(cacheKey);
-    if (
-      isPromise(currentFragmentResult) ||
-      currentFragmentResult instanceof Error
-    ) {
+    if (isPromise(currentFragmentResult)) {
       reportInvalidCachedData(latestSnapshot.selector.node.name);
       return;
     }

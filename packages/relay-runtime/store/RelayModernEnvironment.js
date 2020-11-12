@@ -22,6 +22,7 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
 
@@ -48,6 +49,7 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
+  RequiredFieldLogger,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -84,6 +86,7 @@ export type EnvironmentConfig = {|
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
+  +requiredFieldLogger?: ?RequiredFieldLogger,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -103,6 +106,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -134,6 +138,8 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
+    this.requiredFieldLogger =
+      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._defaultRenderPolicy =
       config.UNSTABLE_defaultRenderPolicy ??
       RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
@@ -355,14 +361,11 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
-    cacheConfig,
     updater,
-  }: {
+  }: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-    ...
-  }): RelayObservable<GraphQLResponse> {
+  |}): RelayObservable<GraphQLResponse> {
     const [logObserver, logRequestInfo] = this.__createLogObserver(
       operation.request.node.params,
       operation.request.variables,
@@ -372,7 +375,7 @@ class RelayModernEnvironment implements IEnvironment {
         .execute(
           operation.request.node.params,
           operation.request.variables,
-          cacheConfig || {},
+          operation.request.cacheConfig || {},
           null,
           logRequestInfo,
         )
@@ -408,14 +411,12 @@ class RelayModernEnvironment implements IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({
-    cacheConfig,
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
   }: {|
-    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
@@ -440,7 +441,7 @@ class RelayModernEnvironment implements IEnvironment {
           operation.request.node.params,
           operation.request.variables,
           {
-            ...cacheConfig,
+            ...operation.request.cacheConfig,
             force: true,
           },
           uploadables,

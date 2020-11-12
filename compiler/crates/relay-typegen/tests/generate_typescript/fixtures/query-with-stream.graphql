@@ -1,0 +1,18 @@
+query TestStream @raw_response_type {
+  node(id: "1") {
+    ... on User {
+      name
+      friends(first: 10)
+        @stream_connection(
+          key: "PaginationFragment_friends"
+          initial_count: 1
+        ) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}

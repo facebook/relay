@@ -264,6 +264,7 @@ class RelayMockPayloadGenerator {
           );
           break;
         }
+        // $FlowFixMe[incompatible-type]
         case CONNECTION: {
           mockData = this._traverseSelections(
             [selection.edges, selection.pageInfo],

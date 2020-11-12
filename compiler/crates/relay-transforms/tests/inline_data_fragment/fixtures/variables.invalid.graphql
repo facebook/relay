@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment User on User {
+  ...UserProfile
+}
+
+fragment UserProfile on User @inline {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    uri
+  }
+}

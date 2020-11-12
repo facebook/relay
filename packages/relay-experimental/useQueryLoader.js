@@ -26,7 +26,7 @@ import type {
 } from './EntryPointTypes.flow';
 import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
 
-type UseLoadQueryHookType<TQuery: OperationType> = [
+type useQueryLoaderHookType<TQuery: OperationType> = [
   ?PreloadedQuery<TQuery>,
   (
     variables: $ElementType<TQuery, 'variables'>,
@@ -43,9 +43,10 @@ type NullQueryReference = {|
 |};
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
 
-function useLoadQuery<TQuery: OperationType>(
+function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-): UseLoadQueryHookType<TQuery> {
+  initialQueryReference?: ?PreloadedQuery<TQuery>,
+): useQueryLoaderHookType<TQuery> {
   /**
    * We want to always call `queryReference.dispose()` for every call to
    * `setQueryReference(loadQuery(...))` so that no leaks of data in Relay stores
@@ -66,25 +67,43 @@ function useLoadQuery<TQuery: OperationType>(
    * query references.
    */
 
+  const initialQueryReferenceInternal =
+    initialQueryReference ?? initialNullQueryReferenceState;
+
   const environment = useRelayEnvironment();
   useTrackLoadQueryInRender();
 
   const isMountedRef = useIsMountedRef();
-  const undisposedQueryReferencesRef = useRef(
-    new Set([initialNullQueryReferenceState]),
-  );
+  const undisposedQueryReferencesRef = useRef<
+    Set<PreloadedQuery<TQuery> | NullQueryReference>,
+  >(new Set([initialQueryReferenceInternal]));
 
   const [queryReference, setQueryReference] = useState<
     PreloadedQuery<TQuery> | NullQueryReference,
-  >(initialNullQueryReferenceState);
+  >(() => initialQueryReferenceInternal);
+
+  const [
+    previousInitialQueryReference,
+    setPreviousInitialQueryReference,
+  ] = useState<PreloadedQuery<TQuery> | NullQueryReference>(
+    () => initialQueryReferenceInternal,
+  );
+
+  if (initialQueryReferenceInternal !== previousInitialQueryReference) {
+    // Rendering the query reference makes it "managed" by this hook, so
+    // we start keeping track of it so we can dispose it when it is no longer
+    // necessary here
+    // TODO(T78446637): Handle disposal of managed query references in
+    // components that were never mounted after rendering
+    undisposedQueryReferencesRef.current.add(initialQueryReferenceInternal);
+    setPreviousInitialQueryReference(initialQueryReferenceInternal);
+    setQueryReference(initialQueryReferenceInternal);
+  }
 
   const disposeQuery = useCallback(() => {
     if (isMountedRef.current) {
-      const nullQueryReference = {
-        kind: 'NullQueryReference',
-      };
-      undisposedQueryReferencesRef.current.add(nullQueryReference);
-      setQueryReference(nullQueryReference);
+      undisposedQueryReferencesRef.current.add(initialNullQueryReferenceState);
+      setQueryReference(initialNullQueryReferenceState);
     }
   }, [setQueryReference, isMountedRef]);
 
@@ -112,7 +131,8 @@ function useLoadQuery<TQuery: OperationType>(
 
           undisposedQueryReferences.delete(undisposedQueryReference);
           if (undisposedQueryReference.kind !== 'NullQueryReference') {
-            undisposedQueryReference.dispose();
+            undisposedQueryReference.dispose &&
+              undisposedQueryReference.dispose();
           }
         }
       }
@@ -126,7 +146,7 @@ function useLoadQuery<TQuery: OperationType>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
         if (unhandledStateChange.kind !== 'NullQueryReference') {
-          unhandledStateChange.dispose();
+          unhandledStateChange.dispose && unhandledStateChange.dispose();
         }
       }
     };
@@ -158,4 +178,4 @@ function useLoadQuery<TQuery: OperationType>(
   ];
 }
 
-module.exports = useLoadQuery;
+module.exports = useQueryLoader;

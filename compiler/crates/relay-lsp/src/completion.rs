@@ -7,24 +7,26 @@
 
 //! Utilities for providing the completion language feature
 use crate::lsp::Position;
+use crate::lsp::{
+    CompletionItem, CompletionParams, CompletionResponse, Message, ServerRequestId, ServerResponse,
+    TextDocumentPositionParams, Url,
+};
 use common::{SourceLocationKey, Span};
+use crossbeam::Sender;
+use graphql_ir::Program;
 use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
+use graphql_syntax::{
+    Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
+    LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
+};
 use interner::StringKey;
 use log::info;
-
-use relay_compiler::Programs;
-
-use crate::lsp::{
-    CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
-    ServerResponse, TextDocumentPositionParams, Url,
-};
-use schema::{
-    Directive as SchemaDirective, DirectiveLocation, Schema, Type, TypeReference, TypeWithFields,
-};
-
-use graphql_syntax::{
-    Directive, ExecutableDefinition, FragmentSpread, InlineFragment, LinkedField, List,
-    OperationDefinition, OperationKind, ScalarField, Selection,
+use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
+use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    sync::{Arc, RwLock},
 };
 
 pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
@@ -43,18 +45,19 @@ pub struct CompletionRequest {
     /// A list of type metadata that we can use to resolve the leaf
     /// type the request is being made against
     type_path: Vec<TypePathItem>,
-}
-
-impl Default for CompletionRequest {
-    fn default() -> Self {
-        CompletionRequest {
-            kind: CompletionKind::FieldName,
-            type_path: vec![],
-        }
-    }
+    /// The project the request belongs to,
+    pub project_name: StringKey,
 }
 
 impl CompletionRequest {
+    fn new(project_name: StringKey) -> Self {
+        Self {
+            kind: CompletionKind::FieldName,
+            type_path: vec![],
+            project_name,
+        }
+    }
+
     fn add_type(&mut self, type_path_item: TypePathItem) {
         self.type_path.push(type_path_item)
     }
@@ -84,9 +87,10 @@ pub enum TypePathItem {
 pub fn create_completion_request(
     document: ExecutableDocument,
     position_span: Span,
+    project_name: StringKey,
 ) -> Option<CompletionRequest> {
     info!("Building completion path for {:#?}", document);
-    let mut completion_request = CompletionRequest::default();
+    let mut completion_request = CompletionRequest::new(project_name);
 
     for definition in document.definitions {
         match &definition {
@@ -196,9 +200,9 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
 }
 
 /// Finds all the valid fragment names for a given type. Used to complete fragment spreads
-fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringKey> {
+fn get_valid_fragments_for_type(type_: Type, source_program: &Program) -> Vec<StringKey> {
     let mut valid_fragment_names = vec![];
-    for fragment in programs.source.fragments() {
+    for fragment in source_program.fragments() {
         if fragment.type_condition == type_ {
             valid_fragment_names.push(fragment.name.item);
         }
@@ -209,9 +213,9 @@ fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringK
 
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
-    programs: &Programs,
+    source_program: &Program,
 ) -> Vec<CompletionItem> {
-    get_valid_fragments_for_type(type_, programs)
+    get_valid_fragments_for_type(type_, source_program)
         .iter()
         .map(|fragment_name| {
             CompletionItem::new_simple(fragment_name.to_string(), String::from(""))
@@ -222,15 +226,17 @@ fn resolve_completion_items_for_fragment_spread(
 pub fn completion_items_for_request(
     request: CompletionRequest,
     schema: &Schema,
-    programs: Option<&Programs>,
+    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
+    let project_name = request.project_name;
     let leaf_type = request.resolve_leaf_type(schema)?;
     info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
     match kind {
         CompletionKind::FragmentSpread => {
-            if let Some(programs) = programs {
-                let items = resolve_completion_items_for_fragment_spread(leaf_type, programs);
+            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+                info!("has source program");
+                let items = resolve_completion_items_for_fragment_spread(leaf_type, source_program);
                 Some(items)
             } else {
                 None
@@ -462,7 +468,7 @@ pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Sp
 pub fn send_completion_response(
     items: Vec<CompletionItem>,
     request_id: ServerRequestId,
-    connection: &Connection,
+    sender: &Sender<Message>,
 ) {
     // If there are no items, don't send any response
     if items.is_empty() {
@@ -475,7 +481,7 @@ pub fn send_completion_response(
         error: None,
         result,
     };
-    connection.sender.send(Message::Response(response)).ok();
+    sender.send(Message::Response(response)).ok();
 }
 
 /// Return a `CompletionPath` for this request, only if the completion request occurs
@@ -483,6 +489,8 @@ pub fn send_completion_response(
 pub fn get_completion_request(
     params: CompletionParams,
     graphql_source_cache: &GraphQLSourceCache,
+    file_categorizer: &FileCategorizer,
+    root_dir: &PathBuf,
 ) -> Option<CompletionRequest> {
     let CompletionParams {
         text_document_position,
@@ -493,6 +501,24 @@ pub fn get_completion_request(
         position,
     } = text_document_position;
     let url = text_document.uri;
+
+    let absolute_file_path = PathBuf::from(url.path());
+    let file_path = if let Ok(file_path) = absolute_file_path.strip_prefix(root_dir) {
+        file_path
+    } else {
+        info!("Failed to parse file path: {:#?}", &absolute_file_path);
+        return None;
+    };
+    let project_name =
+        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path.into()) {
+            match source_set {
+                SourceSet::SourceSetName(source) => source,
+                SourceSet::SourceSetNames(sources) => sources[0],
+            }
+        } else {
+            return None;
+        };
+
     let graphql_sources = match graphql_source_cache.get(&url) {
         Some(sources) => sources,
         // If we have no sources for this file, do nothing
@@ -543,7 +569,8 @@ pub fn get_completion_request(
             // already be updated *with the characters that triggered the completion request*
             // since the change event fires before completion.
             info!("position_span: {:?}", position_span);
-            let completion_request = create_completion_request(document, position_span);
+            let completion_request =
+                create_completion_request(document, position_span, project_name);
             info!("Completion path: {:#?}", completion_request);
             completion_request
         }

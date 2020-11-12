@@ -11,7 +11,11 @@ use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use interner::StringKey;
 
-pub type ObjectEntry = (StringKey, Primitive);
+#[derive(Eq, PartialEq, Hash, Debug)]
+pub struct ObjectEntry {
+    pub key: StringKey,
+    pub value: Primitive,
+}
 
 /// An interned codegen AST
 #[derive(Eq, PartialEq, Hash, Debug)]

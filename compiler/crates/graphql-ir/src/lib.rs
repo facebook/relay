@@ -20,8 +20,11 @@ mod transform;
 mod validator;
 mod visitor;
 
-pub use crate::errors::{ValidationMessage, ValidationResult};
-pub use build::build_ir as build;
+pub use crate::errors::ValidationMessage;
+pub use build::{
+    build_ir_with_extra_features, build_ir_with_relay_options as build, BuilderOptions,
+    FragmentVariablesSemantic,
+};
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;

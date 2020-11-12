@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, WithLocation};
+use common::{Location, Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
 use schema::Schema;
@@ -18,6 +18,21 @@ use std::sync::Arc;
 pub enum ExecutableDefinition {
     Operation(OperationDefinition),
     Fragment(FragmentDefinition),
+}
+
+impl ExecutableDefinition {
+    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+        match self {
+            ExecutableDefinition::Operation(node) => node
+                .directives
+                .iter()
+                .any(|d| d.name.item == directive_name),
+            ExecutableDefinition::Fragment(node) => node
+                .directives
+                .iter()
+                .any(|d| d.name.item == directive_name),
+        }
+    }
 }
 
 /// A fully-typed mutation, query, or subscription definition
@@ -159,6 +174,13 @@ impl LinkedField {
             schema.field(self.definition.item).name
         }
     }
+    pub fn alias_or_name_location(&self) -> Location {
+        if let Some(name) = self.alias {
+            name.location
+        } else {
+            self.definition.location
+        }
+    }
 }
 
 /// Name Arguments?
@@ -176,6 +198,13 @@ impl ScalarField {
             name.item
         } else {
             schema.field(self.definition.item).name
+        }
+    }
+    pub fn alias_or_name_location(&self) -> Location {
+        if let Some(name) = self.alias {
+            name.location
+        } else {
+            self.definition.location
         }
     }
 }

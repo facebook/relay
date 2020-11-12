@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-extern crate neon_build;
-
 fn main() {
     neon_build::setup(); // must be called in build.rs
 

@@ -23,7 +23,7 @@ import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
 
 export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
-  [type: string]: string | (BabelTypes => mixed),
+  [type: string]: string | (BabelTypes => BabelNode_DEPRECATED),
   ...,
 };
 
@@ -37,7 +37,7 @@ function transformScalarType(
   schema: Schema,
   type: TypeID,
   state: State,
-  objectProps?: mixed,
+  objectProps?: BabelNode_DEPRECATED,
 ): mixed {
   if (schema.isNonNull(type)) {
     return transformNonNullableScalarType(
@@ -58,7 +58,7 @@ function transformNonNullableScalarType(
   type: TypeID,
   state: State,
   objectProps,
-) {
+): BabelNode_DEPRECATED {
   if (schema.isList(type)) {
     return readOnlyArrayOfType(
       transformScalarType(
@@ -135,7 +135,7 @@ function transformNonNullableInputType(
   schema: Schema,
   type: TypeID,
   state: State,
-) {
+): BabelNode_DEPRECATED {
   if (schema.isList(type)) {
     return readOnlyArrayOfType(
       transformInputType(schema, schema.getListItemType(type), state),

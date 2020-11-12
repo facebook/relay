@@ -21,25 +21,81 @@ pub trait ArtifactWriter {
     fn finalize(&self) -> crate::errors::Result<()>;
 }
 
-pub struct ArtifactFileWriter;
+type SourceControlFn =
+    fn(&PathBuf, &Mutex<Vec<PathBuf>>, &Mutex<Vec<PathBuf>>) -> crate::errors::Result<()>;
+pub struct ArtifactFileWriter {
+    added: Mutex<Vec<PathBuf>>,
+    removed: Mutex<Vec<PathBuf>>,
+    source_control_fn: Option<SourceControlFn>,
+    root_dir: PathBuf,
+}
 
+impl Default for ArtifactFileWriter {
+    fn default() -> Self {
+        Self {
+            added: Default::default(),
+            removed: Default::default(),
+            source_control_fn: None,
+            root_dir: Default::default(),
+        }
+    }
+}
+
+impl ArtifactFileWriter {
+    pub fn new(source_control_fn: Option<SourceControlFn>, root_dir: PathBuf) -> Self {
+        Self {
+            added: Default::default(),
+            removed: Default::default(),
+            source_control_fn,
+            root_dir,
+        }
+    }
+
+    fn write_file(&self, path: &PathBuf, content: &[u8]) -> io::Result<()> {
+        let mut should_add = false;
+        if path.exists() {
+            let existing_content = std::fs::read(path)?;
+            if existing_content == content {
+                return Ok(());
+            }
+        } else {
+            should_add = true;
+            ensure_file_directory_exists(path)?;
+        }
+
+        let mut file = File::create(path)?;
+        file.write_all(&content)?;
+        if should_add {
+            self.added.lock().unwrap().push(path.clone());
+        }
+        Ok(())
+    }
+}
 impl ArtifactWriter for ArtifactFileWriter {
     fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        write_file(&path, &content).map_err(|error| BuildProjectError::WriteFileError {
-            file: path,
-            source: error,
-        })
+        self.write_file(&path, &content)
+            .map_err(|error| BuildProjectError::WriteFileError {
+                file: path,
+                source: error,
+            })
     }
 
     fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        std::fs::remove_file(&path).unwrap_or_else(|_| {
-            info!("tried to delete already deleted file: {:?}", path);
-        });
+        match std::fs::remove_file(&path) {
+            Ok(_) => {
+                self.removed.lock().unwrap().push(path);
+            }
+            _ => info!("tried to delete already deleted file: {:?}", path),
+        }
         Ok(())
     }
 
     fn finalize(&self) -> crate::errors::Result<()> {
-        Ok(())
+        if let Some(source_control_fn) = self.source_control_fn {
+            (source_control_fn)(&self.root_dir, &self.added, &self.removed)
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -142,21 +198,6 @@ fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
         }
     }
 
-    Ok(())
-}
-
-fn write_file(path: &PathBuf, content: &[u8]) -> io::Result<()> {
-    if path.exists() {
-        let existing_content = std::fs::read(path)?;
-        if existing_content == content {
-            return Ok(());
-        }
-    } else {
-        ensure_file_directory_exists(path)?;
-    }
-
-    let mut file = File::create(path)?;
-    file.write_all(&content)?;
     Ok(())
 }
 

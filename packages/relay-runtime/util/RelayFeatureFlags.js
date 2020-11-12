@@ -18,8 +18,9 @@ type FeatureFlags = {|
   ENABLE_RELAY_CONTAINERS_SUSPENSE: boolean,
   ENABLE_PRECISE_TYPE_REFINEMENT: boolean,
   ENABLE_REACT_FLIGHT_COMPONENT_FIELD: boolean,
-  ENABLE_REQUIRED_DIRECTIVES: boolean | 'LIMITED',
+  ENABLE_REQUIRED_DIRECTIVES: boolean | string,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
+  ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -30,6 +31,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_REACT_FLIGHT_COMPONENT_FIELD: false,
   ENABLE_REQUIRED_DIRECTIVES: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
+  ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: false,
 };
 
 module.exports = RelayFeatureFlags;

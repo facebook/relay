@@ -90,6 +90,33 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
+  it('if two @required(action: THROW) errors cascade, report the more deeply nested one', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+      },
+    });
+    const {FooQuery} = generateAndCompile(`
+      query FooQuery {
+        me @required(action: THROW) {
+          lastName @required(action: THROW)
+        }
+      }
+    `);
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, missingRequiredFields} = read(source, operation.fragment);
+    expect(data).toEqual(null);
+    expect(missingRequiredFields.field.path).toBe('me.lastName');
+  });
+
   it('bubbles @required(action: LOG) scalars up to LinkedField even if subsequent fields are not unexpectedly null', () => {
     const source = RelayRecordSource.create({
       'client:root': {

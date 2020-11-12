@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query EnabledUserQuery($action: RequiredFieldAction!) {
+  me @required(action: $action) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected `action` argument to be a literal
+
+  required-dynamic-arg.invalid.graphql:3:24
+    2 │ query EnabledUserQuery($action: RequiredFieldAction!) {
+    3 │   me @required(action: $action) {
+      │                        ^^^^^^^
+    4 │     id

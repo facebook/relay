@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use colored::Colorize;
-use std::cmp;
 use std::convert::TryFrom;
 use std::fmt;
 
@@ -14,12 +12,6 @@ use std::fmt;
 pub struct Span {
     pub start: u32,
     pub end: u32,
-}
-
-impl From<std::ops::Range<usize>> for Span {
-    fn from(range: std::ops::Range<usize>) -> Self {
-        Span::from_usize(range.start, range.end)
-    }
 }
 
 impl Span {
@@ -92,54 +84,16 @@ impl Span {
         }
         lsp_types::Range::new(start_position, end_position)
     }
-
-    pub fn print(self, source: &str) -> String {
-        let start = self.start as usize;
-        let end = self.end as usize;
-
-        let mut index = 0;
-        let mut line_start = 0;
-        let mut slice_start = start;
-        let mut slice_end = end;
-        for chr in source.chars() {
-            if index == start {
-                slice_start = line_start;
-            }
-
-            if chr == '\n' {
-                line_start = index + 1;
-                if index > end {
-                    slice_end = line_start;
-                    break;
-                }
-            }
-            index += chr.len_utf8();
-        }
-        slice_start = cmp::min(start, slice_start);
-        slice_end = cmp::max(end, slice_end);
-        format!(
-            "{}{}{}",
-            &source[slice_start..start],
-            source[start..end].color("red"),
-            &source[end..slice_end].trim_end()
-        )
-    }
 }
 
 impl fmt::Debug for Span {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt.write_str(&format!("{}:{}", self.start, self.end))
+        write!(fmt, "{}:{}", self.start, self.end)
     }
 }
 
-#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
-pub struct Spanned<T> {
-    pub span: Span,
-    pub item: T,
-}
-
-impl<T> Spanned<T> {
-    pub fn new(span: Span, item: T) -> Self {
-        Self { span, item }
+impl From<std::ops::Range<usize>> for Span {
+    fn from(range: std::ops::Range<usize>) -> Self {
+        Span::from_usize(range.start, range.end)
     }
 }

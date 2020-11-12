@@ -24,11 +24,15 @@ pub struct GraphQLAsts {
 impl GraphQLAsts {
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<SourceSetName, GraphQLSources>,
+        dirty_definitions_map: &FnvHashMap<SourceSetName, Vec<StringKey>>,
     ) -> Result<FnvHashMap<SourceSetName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
             .map(|(&source_set_name, sources)| {
-                let asts = GraphQLAsts::from_graphql_sources(sources)?;
+                let asts = GraphQLAsts::from_graphql_sources(
+                    sources,
+                    dirty_definitions_map.get(&source_set_name),
+                )?;
                 Ok((source_set_name, asts))
             })
             .collect::<Result<_>>()
@@ -37,12 +41,19 @@ impl GraphQLAsts {
     /// Parses all source files for all projects into ASTs and builds up a Sources map that can
     /// be used to print errors with source code listing.
     /// Additionally collects the set of definition names that updated, given the compiler state
-    pub fn from_graphql_sources(graphql_sources: &GraphQLSources) -> Result<Self> {
+    pub fn from_graphql_sources(
+        graphql_sources: &GraphQLSources,
+        dirty_definitions: Option<&Vec<StringKey>>,
+    ) -> Result<Self> {
         let mut syntax_errors = Vec::new();
 
         let mut asts = Vec::new();
         let mut pending_definition_names = FnvHashSet::default();
         let mut removed_definition_names = Vec::new();
+
+        if let Some(dirty_definitions) = dirty_definitions {
+            pending_definition_names.extend(dirty_definitions);
+        }
 
         // Iterate over all pending sources, and parse each graphql string.
         // Prefer the entry from the pending source set, which contains the

@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query requiredArgumentNotPassedOtherArgsQuery {
+  me {
+    ...requiredArgumentNotPassedFragment @arguments(otherarg: [1])
+  }
+}
+
+fragment requiredArgumentNotPassedFragment on User @argumentDefinitions(
+  sizearg: { type: "[Int!]!" }
+  otherarg: { type: "[Int!]!" }
+) {
+  p1: profilePicture(size: $sizearg) {
+    uri
+  }
+  p2: profilePicture(size: $otherarg) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument `sizearg` on this fragment spread.
+
+  required_argument_not_passed_other_args.invalid.graphql:5:52
+    4 │   me {
+    5 │     ...requiredArgumentNotPassedFragment @arguments(otherarg: [1])
+      │                                                    ^^^^^^^^^^^^^^^
+    6 │   }
+
+  ℹ︎ defined on the fragment here
+
+  required_argument_not_passed_other_args.invalid.graphql:10:3
+    9 │ fragment requiredArgumentNotPassedFragment on User @argumentDefinitions(
+   10 │   sizearg: { type: "[Int!]!" }
+      │   ^^^^^^^
+   11 │   otherarg: { type: "[Int!]!" }

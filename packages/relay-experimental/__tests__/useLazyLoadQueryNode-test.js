@@ -47,9 +47,7 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(query.request.node, query.request.variables),
   ).toEqual(true);
 }
 
@@ -442,9 +440,9 @@ describe('useLazyLoadQueryNode', () => {
     expect(release).toBeCalledTimes(2);
 
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   it('disposes ongoing network request when component unmounts after committing', () => {
@@ -477,9 +475,40 @@ describe('useLazyLoadQueryNode', () => {
     // Assert data is released
     expect(release).toBeCalledTimes(1);
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
+  });
+
+  it('cancels network request when temporarily retained component that never commits is disposed of after timeout', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    ReactTestRenderer.act(() => {
+      instance.unmount();
+    });
+    // Resolve a payload but don't complete the network request
+    environment.mock.nextValue(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    // Trigger releasing of the temporary retain
+    jest.runAllTimers();
+    // Assert data is released
+    expect(release).toBeCalledTimes(1);
+    // Assert request in flight is cancelled
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   describe('partial rendering', () => {

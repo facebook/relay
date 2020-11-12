@@ -35,13 +35,13 @@ const {
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
+const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
+  refineToReactFlightPayloadData,
   REACT_FLIGHT_QUERIES_STORAGE_KEY,
   REACT_FLIGHT_TREE_STORAGE_KEY,
   REACT_FLIGHT_TYPE_NAME,
-  refineToReactFlightPayloadData,
-} = require('./ReactFlight');
-const {createNormalizationSelector} = require('./RelayModernSelector');
+} = require('./RelayStoreReactFlightUtils');
 const {
   getArgumentValues,
   getHandleStorageKey,

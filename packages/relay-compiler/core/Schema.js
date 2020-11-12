@@ -542,6 +542,21 @@ class Schema {
     return type;
   }
 
+  mapListItemType(type: TypeID, mapper: (inner: TypeID) => TypeID): TypeID {
+    if (!(type instanceof List)) {
+      throw createCompilerError('Expected List type');
+    }
+    const innerType = mapper(type.ofType);
+    const cacheKey = `[${this.getTypeString(innerType)}]`;
+    let newType = this._typeWrappersMap.get(cacheKey);
+    if (newType) {
+      return newType;
+    }
+    newType = new List(innerType);
+    this._typeWrappersMap.set(cacheKey, newType);
+    return newType;
+  }
+
   areEqualTypes(typeA: TypeID, typeB: TypeID): boolean {
     if (typeA === typeB) {
       return true;

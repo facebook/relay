@@ -5,4 +5,8 @@ type User {
   emails: [Email!]!
 }
 ==================================== ERROR ====================================
-Reference to undefined type 'Email'.
+✖︎ Reference to undefined type 'Email'.
+
+  <generated>:1:1
+    1 │ # expected-to-throw
+    2 │

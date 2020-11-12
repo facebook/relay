@@ -181,8 +181,7 @@ impl FileCategorizer {
                     panic!(
                         "Overlapping input sources are incompatible with relative generated \
                         directories. Got `{:?}` in a relative generated directory with source set {:?}",
-                        path,
-                        source_set
+                        path, source_set
                     );
                 }
             } else {

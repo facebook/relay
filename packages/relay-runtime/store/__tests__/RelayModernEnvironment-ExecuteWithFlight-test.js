@@ -161,7 +161,10 @@ describe('execute() with Flight field', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
     expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
-    store.__gc();
+
+    store.scheduleGC();
+    jest.runAllTimers();
+
     expect(environment.lookup(innerOperation.fragment).data).toEqual({
       node: {
         name: 'Lauren',
@@ -259,7 +262,10 @@ describe('execute() with Flight field', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
     expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
-    store.__gc(); // Invoke gc to verify that data is retained
+
+    store.scheduleGC(); // Invoke gc to verify that data is retained
+    jest.runAllTimers();
+
     expect(environment.lookup(innerOperation.fragment).data).toEqual({
       node: {
         name: 'Lauren',

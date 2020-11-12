@@ -233,7 +233,7 @@ class RelayModernStore implements Store {
 
         if (rootEntryIsStale) {
           this._roots.delete(id);
-          this._scheduleGC();
+          this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
 
@@ -243,7 +243,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             this._roots.delete(_id);
-            this._scheduleGC();
+            this.scheduleGC();
           }
         }
       }
@@ -413,7 +413,7 @@ class RelayModernStore implements Store {
       if (this._gcHoldCounter > 0) {
         this._gcHoldCounter--;
         if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
-          this._scheduleGC();
+          this.scheduleGC();
           this._shouldScheduleGC = false;
         }
       }
@@ -592,7 +592,7 @@ class RelayModernStore implements Store {
     }
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
-      this._scheduleGC();
+      this.scheduleGC();
     }
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
@@ -614,7 +614,7 @@ class RelayModernStore implements Store {
     });
   }
 
-  _scheduleGC() {
+  scheduleGC() {
     if (this._gcHoldCounter > 0) {
       this._shouldScheduleGC = true;
       return;

@@ -55,7 +55,11 @@ fn build_refetch_operation(
                     identifier_field: Some(identifier_field_name),
                 },
             ),
-            selections: enforce_selections_with_id_field(fragment, identifier_field_id),
+            selections: enforce_selections_with_id_field(
+                fragment,
+                identifier_field_id,
+                schema.fetch_token_field(),
+            ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
         if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
@@ -182,29 +186,36 @@ fn get_fetch_field_id_and_id_arg<'s>(
     )])
 }
 
+fn has_field(selections: &[Selection], field_id: FieldID) -> bool {
+    selections.iter().any(|sel| match sel {
+        Selection::ScalarField(field) => field.definition.item == field_id,
+        _ => false,
+    })
+}
+
 fn enforce_selections_with_id_field(
     fragment: &FragmentDefinition,
     identifier_field_id: FieldID,
+    fetch_token_field_id: FieldID,
 ) -> Vec<Selection> {
     let mut next_selections = fragment.selections.clone();
-    let has_id_field = next_selections.iter().any(|sel| {
-        if let Selection::ScalarField(field) = sel {
-            field.definition.item == identifier_field_id
-        } else {
-            false
-        }
-    });
-    if has_id_field {
-        next_selections
-    } else {
+    if !has_field(&next_selections, identifier_field_id) {
         next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
             alias: None,
             definition: WithLocation::new(fragment.name.location, identifier_field_id),
             arguments: vec![],
             directives: vec![],
         })));
-        next_selections
     }
+    if !has_field(&next_selections, fetch_token_field_id) {
+        next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
+            alias: None,
+            definition: WithLocation::generated(fetch_token_field_id),
+            arguments: vec![],
+            directives: vec![],
+        })));
+    }
+    next_selections
 }
 
 pub const FETCHABLE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {

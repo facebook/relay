@@ -202,7 +202,7 @@ class RelayModernStore implements Store {
       operationAvailability,
       operationLastWrittenAt,
       rootEntry?.fetchTime,
-      this._queryCacheExpirationTime,
+      operation.request?.cacheConfig?.ttl ?? this._queryCacheExpirationTime,
     );
   }
 
@@ -225,11 +225,12 @@ class RelayModernStore implements Store {
       rootEntry.refCount--;
 
       if (rootEntry.refCount === 0) {
-        const {_queryCacheExpirationTime} = this;
+        const ttl =
+          operation.request?.cacheConfig?.ttl ?? this._queryCacheExpirationTime;
         const rootEntryIsStale =
           rootEntry.fetchTime != null &&
-          _queryCacheExpirationTime != null &&
-          rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
+          ttl != null &&
+          rootEntry.fetchTime <= Date.now() - ttl;
 
         if (rootEntryIsStale) {
           this._roots.delete(id);

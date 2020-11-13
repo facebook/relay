@@ -28,6 +28,7 @@ const {generateAndCompile} = require('relay-test-utils-internal');
 describe('query cache expiration time', () => {
   let environment;
   let operationDescriptor;
+  let operationCustomTTLDescriptor;
   let ParentQuery;
   let source;
   let store;
@@ -59,6 +60,11 @@ describe('query cache expiration time', () => {
       store,
     });
     operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
+    operationCustomTTLDescriptor = createOperationDescriptor(
+      ParentQuery,
+      {size: 32},
+      {ttl: QUERY_CACHE_EXPIRATION_TIME + 10},
+    );
   });
 
   afterEach(() => {
@@ -176,6 +182,130 @@ describe('query cache expiration time', () => {
       fetchTime += 1;
       expect(environment.check(operationDescriptor)).toEqual({
         status: 'stale',
+      });
+    });
+  });
+
+  describe('custom ttl in CacheConfig', () => {
+    let customTTL = QUERY_CACHE_EXPIRATION_TIME + 10;
+    beforeEach(() => {
+      operationDescriptor = createOperationDescriptor(
+        ParentQuery,
+        {size: 32},
+        {ttl: customTTL},
+      );
+    });
+
+    it('retains disposed query in release buffer if less time than the query cache expiration time has passed when query is released', () => {
+      environment.commitPayload(operationDescriptor, {
+        me: {
+          id: '4',
+          name: 'Zuck',
+        },
+      });
+      const {dispose} = environment.retain(operationDescriptor);
+      const snapshot = environment.lookup(
+        createReaderSelector(
+          ParentQuery.fragment,
+          ROOT_ID,
+          {},
+          operationDescriptor.request,
+        ),
+      );
+      // data is still in the store
+      expect(snapshot.data).toEqual({
+        me: {
+          id: '4',
+          name: 'Zuck',
+        },
+      });
+
+      fetchTime += customTTL - 1;
+      dispose();
+      jest.runAllTimers();
+      const snapshot2 = environment.lookup(
+        createReaderSelector(
+          ParentQuery.fragment,
+          ROOT_ID,
+          {},
+          operationDescriptor.request,
+        ),
+      );
+
+      // data is still in the store
+      expect(snapshot2.data).toEqual({
+        me: {
+          id: '4',
+          name: 'Zuck',
+        },
+      });
+    });
+
+    it('immediately releases stale disposed items', () => {
+      environment.commitPayload(operationDescriptor, {
+        me: {
+          id: '4',
+          name: 'Zuck',
+        },
+      });
+      const {dispose} = environment.retain(operationDescriptor);
+      const snapshot = environment.lookup(
+        createReaderSelector(
+          ParentQuery.fragment,
+          ROOT_ID,
+          {},
+          operationDescriptor.request,
+        ),
+      );
+      // data is still in the store
+      expect(snapshot.data).toEqual({
+        me: {
+          id: '4',
+          name: 'Zuck',
+        },
+      });
+      fetchTime += customTTL;
+      dispose();
+      jest.runAllTimers();
+      const snapshot2 = environment.lookup(
+        createReaderSelector(
+          ParentQuery.fragment,
+          ROOT_ID,
+          {},
+          operationDescriptor.request,
+        ),
+      );
+      // data is not in the store
+      expect(snapshot2.data).toBe(undefined);
+    });
+
+    describe('with check()', () => {
+      it('returns available for retained data until query cache expiration time has passed', () => {
+        environment.commitPayload(operationDescriptor, {
+          me: {
+            id: '4',
+            name: 'Zuck',
+          },
+        });
+        const {dispose} = environment.retain(operationDescriptor);
+        const originalFetchTime = fetchTime;
+
+        expect(environment.check(operationDescriptor)).toEqual({
+          status: 'available',
+          fetchTime: originalFetchTime,
+        });
+
+        dispose();
+        fetchTime += customTTL - 1;
+        expect(environment.check(operationDescriptor)).toEqual({
+          status: 'available',
+          fetchTime: originalFetchTime,
+        });
+
+        fetchTime += 1;
+        expect(environment.check(operationDescriptor)).toEqual({
+          status: 'stale',
+        });
       });
     });
   });

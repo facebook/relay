@@ -7,7 +7,6 @@
 
 use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
-    GraphQLSourceCache,
 };
 use crate::error::Result;
 use crate::lsp::{
@@ -15,7 +14,7 @@ use crate::lsp::{
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams,
     LSPBridgeMessage, Message, Notification, Request, ServerCapabilities, ServerNotification,
     ServerRequest, ServerRequestId, ServerResponse, Shutdown, TextDocumentSyncCapability,
-    TextDocumentSyncKind, WorkDoneProgressOptions,
+    TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
@@ -25,6 +24,7 @@ use crate::text_documents::{
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
+use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use log::info;
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
@@ -39,7 +39,7 @@ use tokio::sync::{mpsc, mpsc::Receiver, Notify};
 pub struct Server {
     sender: Sender<Message>,
     schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
-    synced_graphql_documents: GraphQLSourceCache,
+    synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     lsp_rx: Receiver<LSPBridgeMessage>,
     file_categorizer: FileCategorizer,
     root_dir: PathBuf,

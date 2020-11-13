@@ -20,6 +20,7 @@ use log::info;
 use lsp_server::Connection;
 use relay_compiler::config::Config;
 use std::sync::Arc;
+mod utils;
 
 pub async fn start_language_server<TPerfLogger>(
     config: Config,

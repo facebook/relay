@@ -529,14 +529,14 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
             })
             .collect();
-        if !check_arguments && !has_unused_args {
-            Err(vec![Diagnostic::error(
-                ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
-                self.location.with_span(arg_list.span),
-            )])
-        } else {
-            result
-        }
+        // if !check_arguments && !has_unused_args {
+        //     Err(vec![Diagnostic::error(
+        //         ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
+        //         self.location.with_span(arg_list.span),
+        //     )])
+        // } else {
+        result
+        // }
     }
 
     fn build_fragment_spread(

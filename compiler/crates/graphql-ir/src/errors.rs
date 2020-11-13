@@ -697,4 +697,7 @@ pub enum ValidationMessage {
 
     #[error("Missing required argument `{argument_name}` on this fragment spread.")]
     MissingRequiredFragmentArgument { argument_name: StringKey },
+
+    #[error("Duplicate variable `{name}`")]
+    DuplicateVariable { name: StringKey },
 }

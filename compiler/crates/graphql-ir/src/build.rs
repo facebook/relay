@@ -334,6 +334,25 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         definitions: &[graphql_syntax::VariableDefinition],
     ) -> DiagnosticsResult<Vec<VariableDefinition>> {
+        // check for duplicate variables
+        let mut seen_variables: FnvHashMap<StringKey, Span> = FnvHashMap::default();
+        for variable in definitions {
+            if let Some(other_variable_span) = seen_variables.get(&variable.name.name) {
+                return Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::DuplicateVariable {
+                            name: variable.name.name,
+                        },
+                        self.location.with_span(variable.span),
+                    )
+                    .annotate(
+                        "conflicts with",
+                        self.location.with_span(*other_variable_span),
+                    ),
+                ]);
+            }
+            seen_variables.insert(variable.name.name, variable.span);
+        }
         try_map(definitions, |definition| {
             self.build_variable_definition(definition)
         })

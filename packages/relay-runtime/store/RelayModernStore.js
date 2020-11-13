@@ -18,12 +18,14 @@ const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const invariant = require('invariant');
+const isEmptyObject = require('../util/isEmptyObject');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
@@ -231,7 +233,7 @@ class RelayModernStore implements Store {
 
         if (rootEntryIsStale) {
           this._roots.delete(id);
-          this._scheduleGC();
+          this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
 
@@ -241,7 +243,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             this._roots.delete(_id);
-            this._scheduleGC();
+            this.scheduleGC();
           }
         }
       }
@@ -301,8 +303,13 @@ class RelayModernStore implements Store {
 
     const source = this.getSource();
     const updatedOwners = [];
+    const hasUpdatedRecords = !isEmptyObject(this._updatedRecordIDs);
     this._subscriptions.forEach(subscription => {
-      const owner = this._updateSubscription(source, subscription);
+      const owner = this._updateSubscription(
+        source,
+        subscription,
+        hasUpdatedRecords,
+      );
       if (owner != null) {
         updatedOwners.push(owner);
       }
@@ -406,7 +413,7 @@ class RelayModernStore implements Store {
       if (this._gcHoldCounter > 0) {
         this._gcHoldCounter--;
         if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
-          this._scheduleGC();
+          this.scheduleGC();
           this._shouldScheduleGC = false;
         }
       }
@@ -428,12 +435,12 @@ class RelayModernStore implements Store {
   _updateSubscription(
     source: RecordSource,
     subscription: Subscription,
+    hasUpdatedRecords: boolean,
   ): ?RequestDescriptor {
     const {backup, callback, snapshot, stale} = subscription;
-    const hasOverlappingUpdates = hasOverlappingIDs(
-      snapshot.seenRecords,
-      this._updatedRecordIDs,
-    );
+    const hasOverlappingUpdates =
+      hasUpdatedRecords &&
+      hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs);
     if (!stale && !hasOverlappingUpdates) {
       return;
     }
@@ -585,7 +592,7 @@ class RelayModernStore implements Store {
     }
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
-      this._scheduleGC();
+      this.scheduleGC();
     }
     this._subscriptions.forEach(subscription => {
       const backup = subscription.backup;
@@ -607,7 +614,7 @@ class RelayModernStore implements Store {
     });
   }
 
-  _scheduleGC() {
+  scheduleGC() {
     if (this._gcHoldCounter > 0) {
       this._shouldScheduleGC = true;
       return;
@@ -771,7 +778,15 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
+      // ReactFlightClientResponses are lazy and only materialize when readRoot
+      // is called when we read the field, so if the record is a Flight field
+      // we always use the new record's data regardless of whether
+      // it actually changed. Let React take care of reconciliation instead.
+      const nextRecord =
+        RelayModernRecord.getType(targetRecord) ===
+        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
+          ? sourceRecord
+          : RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {

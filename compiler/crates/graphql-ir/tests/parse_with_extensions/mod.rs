@@ -11,7 +11,7 @@ use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::build;
 use graphql_syntax::parse_executable;
-use test_schema::get_test_schema_with_extensions;
+use relay_test_schema::get_test_schema_with_extensions;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut sources = FnvHashMap::default();

@@ -84,6 +84,7 @@ export type RequestDescriptor = {|
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
   +variables: Variables,
+  +cacheConfig: ?CacheConfig,
 |};
 
 /**
@@ -599,7 +600,6 @@ export interface IEnvironment {
    */
   execute(config: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse>;
 
@@ -614,7 +614,6 @@ export interface IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({|
-    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
@@ -656,19 +655,8 @@ export interface IEnvironment {
    * Called by Relay when it encounters a missing field that has been annotated
    * with `@required(action: LOG)`.
    */
-  requiredFieldLogger: ?RequiredFieldLogger;
+  requiredFieldLogger: RequiredFieldLogger;
 }
-
-/**
- * The results of reading data for a fragment. This is similar to a `Selector`,
- * but references the (fragment) node by name rather than by value.
- */
-export type FragmentPointer = {
-  __id: DataID,
-  __fragments: {[fragmentName: string]: Variables, ...},
-  __fragmentOwner: RequestDescriptor,
-  ...
-};
 
 /**
  * The partial shape of an object with a '...Fragment @module(name: "...")'

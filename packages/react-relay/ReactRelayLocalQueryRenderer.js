@@ -24,7 +24,12 @@ const {
 
 const areEqual = require('areEqual');
 
-import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
+import type {
+  GraphQLTaggedNode,
+  IEnvironment,
+  Variables,
+  CacheConfig,
+} from 'relay-runtime';
 
 type Props = {
   environment: IEnvironment,
@@ -32,6 +37,7 @@ type Props = {
   // $FlowFixMe[unclear-type]
   render: ({props: ?Object, ...}) => React.Node,
   variables: Variables,
+  cacheConfig?: ?CacheConfig,
   ...
 };
 
@@ -47,12 +53,12 @@ function useDeepCompare<T: {...}>(value: T): T {
 }
 
 function ReactRelayLocalQueryRenderer(props: Props): React.Node {
-  const {environment, query, variables, render} = props;
+  const {environment, query, variables, render, cacheConfig} = props;
   const latestVariables = useDeepCompare(variables);
   const operation = useMemo(() => {
     const request = getRequest(query);
-    return createOperationDescriptor(request, latestVariables);
-  }, [query, latestVariables]);
+    return createOperationDescriptor(request, latestVariables, cacheConfig);
+  }, [query, latestVariables, cacheConfig]);
 
   const relayContext = useMemo(() => ({environment}), [environment]);
 

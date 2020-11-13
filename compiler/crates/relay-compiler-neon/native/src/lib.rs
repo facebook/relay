@@ -14,7 +14,9 @@ use relay_codegen::Printer;
 use relay_compiler::{
     apply_transforms,
     config::{Config, ProjectConfig, SchemaLocation},
-    generate_artifacts, ArtifactFileWriter, SourceHashes,
+    generate_artifacts,
+    status_reporter::ConsoleStatusReporter,
+    ArtifactFileWriter, SourceHashes,
 };
 use relay_transforms::{ConnectionInterface, FeatureFlags};
 use schema::build_schema;
@@ -110,6 +112,8 @@ fn create_configs() -> (Config, ProjectConfig) {
         compile_everything: false,
         repersist_operations: false,
         post_artifacts_write: None,
+        status_reporter: Box::new(ConsoleStatusReporter::new(Default::default())),
+        on_build_project_success: None,
     };
 
     (config, project_config)

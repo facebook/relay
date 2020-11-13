@@ -1326,7 +1326,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     callback.mockClear();
 
     // Triggers a GC
-    store.__gc();
+    store.scheduleGC();
     jest.runAllTimers();
 
     // Second edge should be appended correctly

@@ -9,6 +9,7 @@ use lsp_server::ProtocolError;
 use relay_compiler::errors::Error as CompilerError;
 use serde_json::Error as SerdeError;
 use std::io::Error as IOError;
+use tokio::task::JoinError;
 
 pub type Result<T> = std::result::Result<T, LSPError>;
 
@@ -28,9 +29,11 @@ pub enum LSPError {
     CompilerError(CompilerError),
     IOError(IOError),
     SerdeError(SerdeError),
+    JoinError(JoinError),
 }
 
 extend_error!(CompilerError);
 extend_error!(IOError);
 extend_error!(ProtocolError);
 extend_error!(SerdeError);
+extend_error!(JoinError);

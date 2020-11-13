@@ -1063,21 +1063,21 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         for used_fragment in used_fragments {
             let fragment_type_name = get_old_fragment_type_name(*used_fragment);
             if !self.generated_fragments.contains(used_fragment) {
-                //   if (state.useHaste) {
-                //     // TODO(T22653277) support non-haste environments when importing
-                //     // fragments
-                writeln!(
-                    self.result,
-                    "import type {{ {} }} from \"{}.graphql\";",
-                    fragment_type_name, used_fragment
-                )?;
-                //   } else if (state.useSingleArtifactDirectory) {
-                //     imports.push(
-                //       importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
-                //     );
-                //   } else {
-                //     imports.push(anyTypeAlias(fragmentTypeName));
-                //   }
+                if self.typegen_config.haste {
+                    // TODO(T22653277) support non-haste environments when importing
+                    // fragments
+                    writeln!(
+                        self.result,
+                        "import type {{ {} }} from \"{}.graphql\";",
+                        fragment_type_name, used_fragment
+                    )?;
+                // } else if (state.useSingleArtifactDirectory) {
+                //   imports.push(
+                //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
+                //   );
+                } else {
+                    writeln!(self.result, "type {} = any;", fragment_type_name)?;
+                }
             }
         }
         Ok(())

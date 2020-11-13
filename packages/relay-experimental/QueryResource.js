@@ -23,12 +23,11 @@ const CACHE_CAPACITY = 1000;
 
 const DEFAULT_FETCH_POLICY = 'store-or-network';
 
-const DATA_RETENTION_TIMEOUT = 30 * 1000;
+const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
 
 import type {
   Disposable,
   FetchPolicy,
-  FragmentPointer,
   GraphQLResponse,
   IEnvironment,
   Observable,
@@ -57,12 +56,12 @@ type QueryResourceCacheEntry = {|
 |};
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
-  fragmentRef: FragmentPointer,
+  fragmentRef: mixed,
   ...
 } = {|
   cacheKey: string,
   fragmentNode: ReaderFragment,
-  fragmentRef: FragmentPointer,
+  fragmentRef: mixed,
   operation: OperationDescriptor,
 |};
 

@@ -16,18 +16,10 @@ query missingArgumentOnLinkedFieldViewerQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Required argument 'supported: [String!]!' is missing on 'commentBody' in 'missingArgumentOnLinkedFieldSomeComment'.
+✖︎ Missing required argument: `supported`
 
   missing-argument-on-linked-field.invalid.graphql:3:3
     2 │ fragment missingArgumentOnLinkedFieldSomeComment on Comment {
     3 │   commentBody {
       │   ^^^^^^^^^^^
     4 │     ... on PlainCommentBody {
-
-  ℹ︎ Root definition:
-
-  missing-argument-on-linked-field.invalid.graphql:2:10
-    1 │ # expected-to-throw
-    2 │ fragment missingArgumentOnLinkedFieldSomeComment on Comment {
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │   commentBody {

@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  task(task_id: 123) {
+    title
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unknown argument 'task_id'
+
+  field_argument_unknown.invalid.graphql:3:8
+    2 │ query TestQuery {
+    3 │   task(task_id: 123) {
+      │        ^^^^^^^
+    4 │     title

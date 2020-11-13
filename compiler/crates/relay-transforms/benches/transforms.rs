@@ -13,12 +13,12 @@ use common::SourceLocationKey;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
+use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{
     generate_id_field, generate_typename, inline_fragments, skip_client_extensions, sort_selections,
 };
 use std::env;
 use std::fs;
-use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut path = env::current_dir().unwrap();

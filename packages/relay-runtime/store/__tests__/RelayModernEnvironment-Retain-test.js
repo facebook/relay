@@ -21,10 +21,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {
-  createReaderSelector,
-  createNormalizationSelector,
-} = require('../RelayModernSelector');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 

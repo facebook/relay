@@ -42,6 +42,7 @@ Schema {
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -62,6 +63,7 @@ Schema {
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
 ]
@@ -191,6 +193,18 @@ Schema {
         type_: NonNull(
             Named(
                 Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__token",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
             ),
         ),
         directives: [],

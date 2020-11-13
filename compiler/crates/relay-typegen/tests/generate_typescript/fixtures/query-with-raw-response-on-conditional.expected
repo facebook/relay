@@ -17,35 +17,35 @@ fragment FriendFragment on User {
 }
 ==================================== OUTPUT ===================================
 import type { FriendFragment$ref } from "FriendFragment.graphql";
-export type ExampleQueryVariables = {|
+export type ExampleQueryVariables = {
   id: string,
   condition: boolean,
-|};
-export type ExampleQueryResponse = {|
-  +node: ?{|
-    +$fragmentRefs: FriendFragment$ref
-  |}
-|};
-export type ExampleQueryRawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +lastName: ?string,
-    +feedback: ?{|
-      +id: string,
-      +name: ?string,
-    |},
-  |} | {|
-    +__typename: string,
-    +id: string,
-  |})
-|};
-export type ExampleQuery = {|
+};
+export type ExampleQueryResponse = {
+  readonly node?: {
+    readonly $fragmentRefs: FriendFragment$ref
+  }
+};
+export type ExampleQueryRawResponse = {
+  readonly node?: {
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name?: string,
+    readonly lastName?: string,
+    readonly feedback?: {
+      readonly id: string,
+      readonly name?: string,
+    },
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }
+};
+export type ExampleQuery = {
   variables: ExampleQueryVariables,
   response: ExampleQueryResponse,
   rawResponse: ExampleQueryRawResponse,
-|};
+};
 -------------------------------------------------------------------------------
 import { FragmentReference } from "relay-runtime";
 export type FriendFragment$ref = FragmentReference & { _: "FriendFragment$ref" };

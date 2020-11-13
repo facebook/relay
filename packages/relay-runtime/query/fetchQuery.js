@@ -37,9 +37,9 @@ function fetchQuery<T: OperationType>(
   if (query.params.operationKind !== 'query') {
     throw new Error('fetchQuery: Expected query operation');
   }
-  const operation = createOperationDescriptor(query, variables);
+  const operation = createOperationDescriptor(query, variables, cacheConfig);
   return environment
-    .execute({operation, cacheConfig})
+    .execute({operation})
     .map(() => environment.lookup(operation.fragment).data)
     .toPromise();
 }

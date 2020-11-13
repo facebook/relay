@@ -47,4 +47,9 @@ pub struct TypegenConfig {
     /// { "Url": "String" }
     #[serde(default)]
     pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
+
+    /// Use haste style (global name) imports instead of common-js path based
+    /// style.
+    #[serde(default)]
+    pub haste: bool,
 }

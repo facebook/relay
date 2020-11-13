@@ -47,9 +47,7 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(query.request.node, query.request.variables),
   ).toEqual(true);
 }
 

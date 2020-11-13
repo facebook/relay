@@ -6,9 +6,10 @@
  */
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use fnv::FnvHashSet;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, Value,
+    Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
+    ScalarField, Selection, Transformed, Transformer, ValidationMessage, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -16,6 +17,9 @@ use schema::{Field, FieldID, Type};
 use std::sync::Arc;
 
 lazy_static! {
+    pub static ref REACT_FLIGHT_METADATA_KEY: StringKey = "__ReactFlightMetadata".intern();
+    pub static ref REACT_FLIGHT_METADATA_ARG_KEY: StringKey =
+        "__ReactFlightMetadataComponent".intern();
     pub static ref REACT_FLIGHT_DIRECTIVE_NAME: StringKey = "__ReactFlightComponent".intern();
     static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
     static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: StringKey = "props".intern();
@@ -51,6 +55,9 @@ struct ReactFlightTransform<'s> {
     errors: Vec<Diagnostic>,
     program: &'s Program,
     props_type: Type,
+    // server components encountered as a dependency of the visited operation/fragment
+    // NOTE: this is operation/fragment-specific
+    components: FnvHashSet<StringKey>,
 }
 
 impl<'s> ReactFlightTransform<'s> {
@@ -60,6 +67,7 @@ impl<'s> ReactFlightTransform<'s> {
             errors: Default::default(),
             program,
             props_type,
+            components: Default::default(),
         }
     }
 
@@ -174,12 +182,67 @@ impl<'s> ReactFlightTransform<'s> {
         }
         Ok(flight_field_id)
     }
+
+    // Generate a metadata directive recording which server components were reachable
+    // from the visited IR nodes
+    fn generate_flight_metadata_directive(&self) -> Directive {
+        Directive {
+            name: WithLocation::generated(*REACT_FLIGHT_METADATA_KEY),
+            arguments: vec![Argument {
+                name: WithLocation::generated(*REACT_FLIGHT_METADATA_ARG_KEY),
+                value: WithLocation::generated(Value::Constant(ConstantValue::List(
+                    self.components
+                        .iter()
+                        .cloned()
+                        .map(ConstantValue::String)
+                        .collect(),
+                ))),
+            }],
+        }
+    }
 }
 
 impl<'s> Transformer for ReactFlightTransform<'s> {
     const NAME: &'static str = "ReactFlightTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        self.components.clear(); // reset components per document
+        self.default_transform_operation(operation)
+            .map(|operation| {
+                let mut next_directives: Vec<Directive> =
+                    Vec::with_capacity(operation.directives.len() + 1);
+                next_directives.extend(operation.directives.iter().cloned());
+                next_directives.push(self.generate_flight_metadata_directive());
+
+                OperationDefinition {
+                    directives: next_directives,
+                    ..operation
+                }
+            })
+    }
+
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        self.components.clear(); // reset components per document
+        self.default_transform_fragment(fragment).map(|fragment| {
+            let mut next_directives: Vec<Directive> =
+                Vec::with_capacity(fragment.directives.len() + 1);
+            next_directives.extend(fragment.directives.iter().cloned());
+            next_directives.push(self.generate_flight_metadata_directive());
+
+            FragmentDefinition {
+                directives: next_directives,
+                ..fragment
+            }
+        })
+    }
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
@@ -201,6 +264,9 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
                 Ok(value) => value,
                 Err(_) => return Transformed::Keep,
             };
+
+        // Record that the given component is reachable from this field
+        self.components.insert(component_name);
 
         // Rewrite into a call to the `flight` field, passing the original arguments
         // as values of the `props` argument:

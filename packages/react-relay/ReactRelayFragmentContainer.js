@@ -262,6 +262,7 @@ function createContainer<
   $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
   Instance,
 > {
+  // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

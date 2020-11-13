@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, ExecutableDefinition};
 use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation};
-use test_schema::TEST_SCHEMA;
+use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(

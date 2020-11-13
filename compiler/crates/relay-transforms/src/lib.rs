@@ -23,7 +23,6 @@ mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
-mod generate_preloadable_metadata;
 mod generate_subscription_name_metadata;
 mod generate_typename;
 mod handle_fields;
@@ -79,7 +78,6 @@ pub use generate_data_driven_dependency_metadata::{
 };
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
-pub use generate_preloadable_metadata::{generate_preloadable_metadata, is_preloadable_operation};
 pub use generate_subscription_name_metadata::generate_subscription_name_metadata;
 pub use generate_typename::{generate_typename, TYPE_DISCRIMINATOR_DIRECTIVE_NAME};
 pub use handle_fields::{
@@ -92,7 +90,10 @@ pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{split_module_import, transform_match, SplitOperationMetaData, MATCH_CONSTANTS};
 pub use node_identifier::NodeIdentifier;
-pub use react_flight::{react_flight, REACT_FLIGHT_DIRECTIVE_NAME};
+pub use react_flight::{
+    react_flight, REACT_FLIGHT_DIRECTIVE_NAME, REACT_FLIGHT_METADATA_ARG_KEY,
+    REACT_FLIGHT_METADATA_KEY,
+};
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,

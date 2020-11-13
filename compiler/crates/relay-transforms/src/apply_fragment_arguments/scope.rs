@@ -87,7 +87,7 @@ mod tests {
     use interner::Intern;
     use schema::TypeReference;
 
-    use test_schema::TEST_SCHEMA;
+    use relay_test_schema::TEST_SCHEMA;
 
     fn default_location() -> Location {
         Location::new(SourceLocationKey::standalone("test-file"), Span::new(0, 0))

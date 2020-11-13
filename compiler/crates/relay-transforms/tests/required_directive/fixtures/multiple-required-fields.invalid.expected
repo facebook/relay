@@ -6,7 +6,7 @@ query EnabledUserQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unexpected second @required directive. @requried may only be used once per field
+✖︎ The directive `@required` can only be used once at this location.
 
   multiple-required-fields.invalid.graphql:3:31
     2 │ query EnabledUserQuery {
@@ -14,7 +14,7 @@ query EnabledUserQuery {
       │                               ^^^^^^^^
     4 │     id
 
-  ℹ︎ it also appears here
+  ℹ︎ previously used here
 
   multiple-required-fields.invalid.graphql:3:7
     2 │ query EnabledUserQuery {

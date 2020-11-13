@@ -262,20 +262,25 @@ describe('useBlockingPaginationFragment', () => {
     // Manually set the refetchable operation for the test.
     gqlFragment.metadata.refetch.operation = gqlPaginationQuery;
 
-    query = createOperationDescriptor(gqlQuery, variables);
+    query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryNestedFragment = createOperationDescriptor(
       gqlQueryNestedFragment,
       variablesNestedFragment,
+      {force: true},
     );
     queryWithoutID = createOperationDescriptor(
       gqlQueryWithoutID,
       variablesWithoutID,
+      {force: true},
     );
     queryWithLiteralArgs = createOperationDescriptor(
       gqlQueryWithLiteralArgs,
       variables,
+      {force: true},
     );
-    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables);
+    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
+      force: true,
+    });
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -664,6 +669,7 @@ describe('useBlockingPaginationFragment', () => {
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
+        {force: true},
       );
       // Commit a payload with name and profile_picture are missing
       environment.commitPayload(missingDataQuery, {
@@ -2901,7 +2907,9 @@ describe('useBlockingPaginationFragment', () => {
 
           // Pass new parent fragment ref with different variables
           const newVariables = {...variables, isViewerFriend: true};
-          const newQuery = createOperationDescriptor(gqlQuery, newVariables);
+          const newQuery = createOperationDescriptor(gqlQuery, newVariables, {
+            force: true,
+          });
           environment.commitPayload(newQuery, {
             node: {
               __typename: 'User',
@@ -3682,6 +3690,7 @@ describe('useBlockingPaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3793,6 +3802,7 @@ describe('useBlockingPaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3966,6 +3976,7 @@ describe('useBlockingPaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -4077,6 +4088,7 @@ describe('useBlockingPaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,

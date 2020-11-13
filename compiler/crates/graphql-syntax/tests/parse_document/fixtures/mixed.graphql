@@ -1,0 +1,12 @@
+scalar Foo
+
+"""
+Definition with comment
+"""
+type User {
+  id: ID!
+}
+
+fragment F on User {
+  id
+}

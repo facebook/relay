@@ -14,4 +14,4 @@ graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-test-schema = { path = "../test-schema" }
+relay-test-schema = { path = "../relay-test-schema" }

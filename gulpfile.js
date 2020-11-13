@@ -31,7 +31,6 @@ const gulp = require('gulp');
 const chmod = require('gulp-chmod');
 const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
-const once = require('gulp-once');
 const path = require('path');
 const rename = require('gulp-rename');
 const webpack = require('webpack');
@@ -108,7 +107,6 @@ const buildDist = function(filename, opts, isProduction) {
 // Paths from package-root
 const PACKAGES = 'packages';
 const DIST = 'dist';
-const ONCE_FILE = '.checksums';
 
 // Globs for paths in PACKAGES
 const INCLUDE_GLOBS = [
@@ -246,7 +244,6 @@ const modules = gulp.parallel(
           .src(INCLUDE_GLOBS, {
             cwd: path.join(PACKAGES, build.package),
           })
-          .pipe(once())
           .pipe(babel(babelOptions))
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
       },
@@ -280,7 +277,6 @@ builds.forEach(build => {
         .src(['*.graphql'], {
           cwd: path.join(PACKAGES, build.package),
         })
-        .pipe(once())
         .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
     },
     function copyPackageJSON() {
@@ -288,7 +284,6 @@ builds.forEach(build => {
         .src(['package.json'], {
           cwd: path.join(PACKAGES, build.package),
         })
-        .pipe(once())
         .pipe(gulp.dest(path.join(DIST, build.package)));
     },
   );
@@ -365,7 +360,7 @@ builds.forEach(build => {
 });
 const bundlesMin = gulp.series(bundlesMinTasks);
 
-const clean = () => del(ONCE_FILE).then(() => del(DIST));
+const clean = () => del(DIST);
 const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
 const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),

@@ -42,7 +42,6 @@ export type PreloadOptions = {|
 export type LoadQueryOptions = {|
   +fetchPolicy?: ?PreloadFetchPolicy,
   +networkCacheConfig?: ?CacheConfig,
-  +onQueryAstLoadTimeout?: ?() => void,
 |};
 
 // Note: the phantom type parameter here helps ensures that the
@@ -86,6 +85,7 @@ export type PreloadedQueryInner<
   +dispose: () => void,
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
+  +fetchKey: string | number,
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
   +isDisposed: boolean,
@@ -185,10 +185,7 @@ export type PreloadProps<
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{|
-  entryPoints?: $ObjMap<
-    TPreloadedEntryPoints,
-    ExtractEntryPointTypeHelper<TPreloadParams>,
-  >,
+  entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
   extraProps?: TExtraProps,
   queries?: $ObjMap<
     TPreloadedQueries,
@@ -210,6 +207,24 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   rootModuleID: string,
 |}>;
 
+type _ComponentFromEntryPoint = <
+  +TPreloadParams,
+  +TComponent,
+  +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
+>(
+  TEntryPoint,
+) => TComponent;
+
+type ComponentFromEntryPoint<+TEntryPoint> = $Call<
+  _ComponentFromEntryPoint,
+  TEntryPoint,
+>;
+
+export type EntryPointElementConfig<+TEntryPoint> = $PropertyType<
+  ElementConfig<ComponentFromEntryPoint<TEntryPoint>>,
+  'props',
+>;
+
 export type ThinQueryParams<
   TQuery: OperationType,
   TEnvironmentProviderOptions,
@@ -229,7 +244,8 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-export type ExtractEntryPointTypeHelper<TEntryPointParams> = <
+export type ExtractEntryPointTypeHelper = <
+  TEntryPointParams,
   TEntryPointComponent,
 >(
   ?PreloadedEntryPoint<TEntryPointComponent>,

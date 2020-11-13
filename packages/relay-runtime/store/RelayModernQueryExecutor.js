@@ -614,7 +614,7 @@ class Executor {
         if (this._optimisticUpdates == null) {
           warning(
             false,
-            'RelayModernQueryExecutor: Unexpected ModuleImport optimisitc ' +
+            'RelayModernQueryExecutor: Unexpected ModuleImport optimistic ' +
               'update in operation %s.' +
               this._operation.request.node.params.name,
           );

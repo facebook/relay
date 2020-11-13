@@ -14,6 +14,7 @@ mod lsp;
 mod server;
 mod status_reporting;
 mod text_documents;
+mod type_path;
 use common::PerfLogger;
 use error::Result;
 use log::info;

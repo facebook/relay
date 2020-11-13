@@ -8,24 +8,11 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use common::{SourceLocationKey, Span};
-use graphql_syntax::OperationKind;
 use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
-use schema::{Schema, Type};
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-/// An item in the list of type metadata that we can use to resolve the leaf
-/// type the request (completion/hover) is being made against
-pub enum TypePathItem {
-    Operation(OperationKind),
-    FragmentDefinition { type_name: StringKey },
-    InlineFragment { type_name: StringKey },
-    LinkedField { name: StringKey },
-    ScalarField { name: StringKey },
-}
 
 /// Return a `GraphQLSource` for a given position, if the position
 /// falls within a graphql literal.
@@ -54,7 +41,7 @@ pub fn get_graphql_source<'a>(
     Some(graphql_source)
 }
 
-/// Return a `CompletionPath` for this request, only if the completion request occurs
+/// Return a parsed executable document for this LSP request, only if the request occurs
 /// within a GraphQL document. Otherwise return `None`
 pub fn extract_executable_document_from_text(
     text_document_position: TextDocumentPositionParams,
@@ -141,22 +128,4 @@ fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> 
         }
     }
     None
-}
-
-/// Given a root path item and the schema this function will return a root type of the document
-/// For operations -> Query/Mutation/Subscription
-/// For fragments -> type of the fragment
-pub fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Option<Type> {
-    match root_path_item {
-        TypePathItem::Operation(kind) => match kind {
-            OperationKind::Query => schema.query_type(),
-            OperationKind::Mutation => schema.mutation_type(),
-            OperationKind::Subscription => schema.subscription_type(),
-        },
-        TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name),
-        _ => {
-            // TODO(brandondail) log here
-            None
-        }
-    }
 }

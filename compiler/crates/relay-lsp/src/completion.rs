@@ -10,7 +10,8 @@ use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Message, ServerRequestId, ServerResponse,
     Url,
 };
-use crate::utils::{extract_executable_document_from_text, resolve_root_type, TypePathItem};
+use crate::type_path::{TypePath, TypePathItem};
+use crate::utils::extract_executable_document_from_text;
 use common::Span;
 use crossbeam::Sender;
 use graphql_ir::Program;
@@ -29,21 +30,20 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub enum CompletionKind {
     FieldName,
     FragmentSpread,
     DirectiveName { location: DirectiveLocation },
 }
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct CompletionRequest {
     /// The type of the completion request we're responding to
     kind: CompletionKind,
     /// A list of type metadata that we can use to resolve the leaf
     /// type the request is being made against
-    type_path: Vec<TypePathItem>,
-    /// The project the request belongs to,
+    type_path: TypePath,
+    /// The project the request belongs to
     pub project_name: StringKey,
 }
 
@@ -51,25 +51,9 @@ impl CompletionRequest {
     fn new(project_name: StringKey) -> Self {
         Self {
             kind: CompletionKind::FieldName,
-            type_path: vec![],
+            type_path: Default::default(),
             project_name,
         }
-    }
-
-    fn add_type(&mut self, type_path_item: TypePathItem) {
-        self.type_path.push(type_path_item)
-    }
-
-    /// Returns the leaf type, which is the type that the completion request is being made against.
-    fn resolve_leaf_type(self, schema: &Schema) -> Option<Type> {
-        let mut type_path = self.type_path;
-        type_path.reverse();
-        let mut type_ =
-            resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
-        while let Some(path_item) = type_path.pop() {
-            type_ = resolve_relative_type(type_, path_item, schema)?;
-        }
-        Some(type_)
     }
 }
 
@@ -86,7 +70,9 @@ pub fn create_completion_request(
             ExecutableDefinition::Operation(operation) => {
                 if operation.location.contains(position_span) {
                     let (_, kind) = operation.operation.clone()?;
-                    completion_request.add_type(TypePathItem::Operation(kind));
+                    completion_request
+                        .type_path
+                        .add_type(TypePathItem::Operation(kind));
 
                     info!(
                         "Completion request is within operation: {:?}",
@@ -117,7 +103,9 @@ pub fn create_completion_request(
             ExecutableDefinition::Fragment(fragment) => {
                 if fragment.location.contains(position_span) {
                     let type_name = fragment.type_condition.type_.value;
-                    completion_request.add_type(TypePathItem::FragmentDefinition { type_name });
+                    completion_request
+                        .type_path
+                        .add_type(TypePathItem::FragmentDefinition { type_name });
                     build_request_from_selection_or_directives(
                         &fragment.selections,
                         &fragment.directives,
@@ -130,31 +118,6 @@ pub fn create_completion_request(
         }
     }
     Some(completion_request)
-}
-
-fn resolve_relative_type(
-    parent_type: Type,
-    path_item: TypePathItem,
-    schema: &Schema,
-) -> Option<Type> {
-    match path_item {
-        TypePathItem::Operation(_) => {
-            // TODO(brandondail) log here
-            None
-        }
-        TypePathItem::FragmentDefinition { .. } => {
-            // TODO(brandondail) log here
-            None
-        }
-        TypePathItem::LinkedField { name } => {
-            let field_id = schema.named_field(parent_type, name)?;
-            let field = schema.field(field_id);
-            info!("resolved type for {:?} : {:?}", field.name, field.type_);
-            Some(field.type_.inner())
-        }
-        TypePathItem::ScalarField { .. } => Some(parent_type),
-        TypePathItem::InlineFragment { type_name } => schema.get_type(type_name),
-    }
 }
 
 fn resolve_completion_items_from_fields<T: TypeWithFields>(
@@ -203,7 +166,7 @@ pub fn completion_items_for_request(
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let project_name = request.project_name;
-    let leaf_type = request.resolve_leaf_type(schema)?;
+    let leaf_type = request.type_path.resolve_leaf_type(schema)?;
     info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
     match kind {
         CompletionKind::FragmentSpread => {
@@ -255,7 +218,9 @@ fn build_request_from_selections(
                         directives,
                         ..
                     } = node;
-                    completion_request.add_type(TypePathItem::LinkedField { name: name.value });
+                    completion_request
+                        .type_path
+                        .add_type(TypePathItem::LinkedField { name: name.value });
                     build_request_from_selection_or_directives(
                         selections,
                         directives,
@@ -288,7 +253,9 @@ fn build_request_from_selections(
                     } = node;
                     if let Some(type_condition) = type_condition {
                         let type_name = type_condition.type_.value;
-                        completion_request.add_type(TypePathItem::InlineFragment { type_name });
+                        completion_request
+                            .type_path
+                            .add_type(TypePathItem::InlineFragment { type_name });
                         build_request_from_selection_or_directives(
                             selections,
                             directives,
@@ -302,7 +269,9 @@ fn build_request_from_selections(
                     let ScalarField {
                         directives, name, ..
                     } = node;
-                    completion_request.add_type(TypePathItem::ScalarField { name: name.value });
+                    completion_request
+                        .type_path
+                        .add_type(TypePathItem::ScalarField { name: name.value });
                     build_request_from_directives(
                         directives,
                         DirectiveLocation::Scalar,
@@ -445,7 +414,7 @@ pub fn get_completion_request(
         root_dir,
     ) {
         let completion_request = create_completion_request(document, position_span, project_name);
-        info!("Completion path: {:#?}", completion_request);
+        info!("Completion request: {:#?}", completion_request);
         completion_request
     } else {
         None

@@ -32,6 +32,9 @@ lazy_static! {
     static ref SUPPORTED_NAME: StringKey = "supported".intern();
 
     static ref FIXME_FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
+
+    static ref DIRECTIVE_UNCHECKED_ARGUMENTS: StringKey = "uncheckedArguments_DEPRECATED".intern();
+    static ref DIRECTIVE_ARGUMENTS: StringKey = "arguments".intern();
 }
 
 /// The semantic of defining variables on a fragment definition.
@@ -481,9 +484,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         signature: &FragmentSignature,
         arg_list: &List<graphql_syntax::Argument>,
-        check_arguments: bool,
+        validation_level: ValidationLevel,
     ) -> DiagnosticsResult<Vec<Argument>> {
-        let mut has_unused_args = false;
+        let mut has_invalid_arg = false;
         let mut errors = Vec::new();
         for variable_definition in &signature.variable_definitions {
             if variable_definition.type_.is_non_null()
@@ -526,15 +529,19 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     // but the persist query allowed them as the types are the same underlyingly.
                     // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
                     // types of variables passed to @args at all
-                    Ok(self.build_argument(
+                    let arg_result = self.build_argument(
                         arg,
                         &argument_definition.type_,
-                        ValidationLevel::Loose,
-                    )?)
-                } else if !check_arguments {
-                    // TODO: fully handle uncheckedArguments_DEPRECATED. Currently, this just creates
-                    // a fake Boolean type.
-                    has_unused_args = true;
+                        ValidationLevel::Strict,
+                    );
+                    if arg_result.is_err() && validation_level == ValidationLevel::Loose {
+                        has_invalid_arg = true;
+                        self.build_argument(arg, &argument_definition.type_, ValidationLevel::Loose)
+                    } else {
+                        arg_result
+                    }
+                } else if validation_level == ValidationLevel::Loose {
+                    has_invalid_arg = true;
                     Ok(self.build_argument(
                         arg,
                         self.schema.unchecked_argument_type_sentinel(),
@@ -548,14 +555,14 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
             })
             .collect();
-        // if !check_arguments && !has_unused_args {
-        //     Err(vec![Diagnostic::error(
-        //         ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
-        //         self.location.with_span(arg_list.span),
-        //     )])
-        // } else {
-        result
-        // }
+        if validation_level == ValidationLevel::Loose && !has_invalid_arg {
+            Err(vec![Diagnostic::error(
+                ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
+                self.location.with_span(arg_list.span),
+            )])
+        } else {
+            result
+        }
     }
 
     fn build_fragment_spread(
@@ -625,16 +632,14 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let (mut argument_directives, other_directives) = spread
             .directives
             .iter()
-            .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "arguments");
+            .partition::<Vec<_>, _>(|directive| {
+                directive.name.value == *DIRECTIVE_ARGUMENTS
+                    || directive.name.value == *DIRECTIVE_UNCHECKED_ARGUMENTS
+            });
 
-        let (mut unchecked_argument_directives, other_directives) = other_directives
-            .into_iter()
-            .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "uncheckedArguments_DEPRECATED");
-
-        if argument_directives.len() + unchecked_argument_directives.len() > 1 {
+        if argument_directives.len() > 1 {
             let mut locations = argument_directives
                 .iter()
-                .chain(unchecked_argument_directives.iter())
                 .map(|x| self.location.with_span(x.span));
             let mut error = Diagnostic::error(
                 ValidationMessage::ExpectedOneArgumentsDirective(),
@@ -647,17 +652,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
 
         let arguments = if let Some(graphql_syntax::Directive {
+            name,
             arguments: Some(arg_list),
             ..
         }) = argument_directives.pop()
         {
-            self.build_fragment_spread_arguments(&signature, arg_list, true)
-        } else if let Some(graphql_syntax::Directive {
-            arguments: Some(arg_list),
-            ..
-        }) = unchecked_argument_directives.pop()
-        {
-            self.build_fragment_spread_arguments(&signature, arg_list, false)
+            let validation_level = if name.value == *DIRECTIVE_UNCHECKED_ARGUMENTS {
+                ValidationLevel::Loose
+            } else {
+                ValidationLevel::Strict
+            };
+            self.build_fragment_spread_arguments(&signature, &arg_list, validation_level)
         } else {
             let errors: Vec<_> = signature
                 .variable_definitions

@@ -32,11 +32,6 @@ class Help extends React.Component {
       },
       {
         content:
-          'Many users idle on Discord in [#relay](https://discord.gg/0ZcbPKXt5bX40xsQ) on [Reactiflux](https://www.reactiflux.com/).',
-        title: 'Discord',
-      },
-      {
-        content:
           'Hashtag [#relayjs](https://twitter.com/search?q=%23relayjs) is used on Twitter to keep up with the latest Relay news.',
         title: 'Twitter',
       },
@@ -46,7 +41,7 @@ class Help extends React.Component {
       <div className="docMainWrapper wrapper">
         <Container className="mainContainer documentContainer postContainer">
           <div className="post">
-            <GridBlock contents={supportLinks} layout="threeColumn" />
+            <GridBlock contents={supportLinks} />
           </div>
         </Container>
       </div>

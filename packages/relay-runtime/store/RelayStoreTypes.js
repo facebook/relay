@@ -434,6 +434,8 @@ export type LogEvent =
       +name: 'execute.info',
       +transactionID: number,
       +info: mixed,
+      +params: RequestParameters,
+      +variables: Variables,
     |}
   | {|
       +name: 'execute.start',
@@ -445,19 +447,27 @@ export type LogEvent =
       +name: 'execute.next',
       +transactionID: number,
       +response: GraphQLResponse,
+      +params: RequestParameters,
+      +variables: Variables,
     |}
   | {|
       +name: 'execute.error',
       +transactionID: number,
       +error: Error,
+      +params: RequestParameters,
+      +variables: Variables,
     |}
   | {|
       +name: 'execute.complete',
       +transactionID: number,
+      +params: RequestParameters,
+      +variables: Variables,
     |}
   | {|
       +name: 'execute.unsubscribe',
       +transactionID: number,
+      +params: RequestParameters,
+      +variables: Variables,
     |}
   | {|
       +name: 'store.publish',

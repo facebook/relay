@@ -528,6 +528,8 @@ class RelayModernEnvironment implements IEnvironment {
           name: 'execute.next',
           transactionID,
           response,
+          params,
+          variables
         });
       },
       error: error => {
@@ -535,18 +537,24 @@ class RelayModernEnvironment implements IEnvironment {
           name: 'execute.error',
           transactionID,
           error,
+          params,
+          variables
         });
       },
       complete: () => {
         log({
           name: 'execute.complete',
           transactionID,
+          params,
+          variables
         });
       },
       unsubscribe: () => {
         log({
           name: 'execute.unsubscribe',
           transactionID,
+          params,
+          variables
         });
       },
     };
@@ -555,6 +563,8 @@ class RelayModernEnvironment implements IEnvironment {
         name: 'execute.info',
         transactionID,
         info,
+        params,
+        variables
       });
     };
     return [logObserver, logRequestInfo];

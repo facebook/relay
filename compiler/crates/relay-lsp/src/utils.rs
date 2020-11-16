@@ -18,15 +18,15 @@ use log::info;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 #[derive(Debug, Clone, Copy)]
-pub enum HoverKind {
+pub enum NodeKind {
     FieldName,
     FragmentSpread(StringKey),
 }
 
 #[derive(Debug)]
-pub struct HoverRequest {
-    /// The type of the hover request we're responding to
-    pub kind: HoverKind,
+pub struct NodeResolutionInfo {
+    /// The type of the leaf node on which the information request was made
+    pub kind: NodeKind,
     /// A list of type metadata that we can use to resolve the leaf
     /// type the request is being made against
     pub type_path: TypePath,
@@ -34,10 +34,10 @@ pub struct HoverRequest {
     pub project_name: StringKey,
 }
 
-impl HoverRequest {
+impl NodeResolutionInfo {
     fn new(project_name: StringKey) -> Self {
         Self {
-            kind: HoverKind::FieldName,
+            kind: NodeKind::FieldName,
             type_path: Default::default(),
             project_name,
         }
@@ -46,7 +46,7 @@ impl HoverRequest {
 
 /// Return a `GraphQLSource` for a given position, if the position
 /// falls within a graphql literal.
-pub fn get_graphql_source<'a>(
+fn get_graphql_source<'a>(
     text_document_position: &'a TextDocumentPositionParams,
     graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
 ) -> Option<&'a GraphQLSource> {
@@ -159,51 +159,55 @@ fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> 
     None
 }
 
-pub fn create_hover_request(
+fn create_node_resolution_info(
     document: ExecutableDocument,
     position_span: Span,
     project_name: StringKey,
-) -> Option<HoverRequest> {
-    info!("Building hover path for {:#?}", document);
-    let mut hover_request = HoverRequest::new(project_name);
+) -> Option<NodeResolutionInfo> {
+    info!("Building node resolution info for {:#?}", document);
+    let mut node_resolution_info = NodeResolutionInfo::new(project_name);
 
     for definition in document.definitions {
         match &definition {
             ExecutableDefinition::Operation(operation) => {
                 if operation.location.contains(position_span) {
                     let (_, kind) = operation.operation.clone()?;
-                    hover_request
+                    node_resolution_info
                         .type_path
                         .add_type(TypePathItem::Operation(kind));
 
-                    info!("Hover request is within operation: {:?}", operation.name);
+                    info!("Node is within operation: {:?}", operation.name);
                     let OperationDefinition { selections, .. } = operation;
 
-                    build_request_from_selections(selections, position_span, &mut hover_request);
+                    build_node_resolution_info_from_selections(
+                        selections,
+                        position_span,
+                        &mut node_resolution_info,
+                    );
                 }
             }
             ExecutableDefinition::Fragment(fragment) => {
                 if fragment.location.contains(position_span) {
                     let type_name = fragment.type_condition.type_.value;
-                    hover_request
+                    node_resolution_info
                         .type_path
                         .add_type(TypePathItem::FragmentDefinition { type_name });
-                    build_request_from_selections(
+                    build_node_resolution_info_from_selections(
                         &fragment.selections,
                         position_span,
-                        &mut hover_request,
+                        &mut node_resolution_info,
                     );
                 }
             }
         }
     }
-    Some(hover_request)
+    Some(node_resolution_info)
 }
 
-fn build_request_from_selections(
+fn build_node_resolution_info_from_selections(
     selections: &List<Selection>,
     position_span: Span,
-    hover_request: &mut HoverRequest,
+    node_resolution_info: &mut NodeResolutionInfo,
 ) {
     if let Some(item) = selections
         .items
@@ -212,19 +216,23 @@ fn build_request_from_selections(
     {
         match item {
             Selection::LinkedField(node) => {
-                hover_request.kind = HoverKind::FieldName;
+                node_resolution_info.kind = NodeKind::FieldName;
                 let LinkedField {
                     name, selections, ..
                 } = node;
-                hover_request
+                node_resolution_info
                     .type_path
                     .add_type(TypePathItem::LinkedField { name: name.value });
-                build_request_from_selections(selections, position_span, hover_request);
+                build_node_resolution_info_from_selections(
+                    selections,
+                    position_span,
+                    node_resolution_info,
+                );
             }
             Selection::FragmentSpread(spread) => {
                 let FragmentSpread { name, .. } = spread;
                 if name.span.contains(position_span) {
-                    hover_request.kind = HoverKind::FragmentSpread(name.value);
+                    node_resolution_info.kind = NodeKind::FragmentSpread(name.value);
                 }
             }
             Selection::InlineFragment(node) => {
@@ -235,16 +243,20 @@ fn build_request_from_selections(
                 } = node;
                 if let Some(type_condition) = type_condition {
                     let type_name = type_condition.type_.value;
-                    hover_request
+                    node_resolution_info
                         .type_path
                         .add_type(TypePathItem::InlineFragment { type_name });
-                    build_request_from_selections(selections, position_span, hover_request)
+                    build_node_resolution_info_from_selections(
+                        selections,
+                        position_span,
+                        node_resolution_info,
+                    )
                 }
             }
             Selection::ScalarField(node) => {
                 let ScalarField { name, .. } = node;
-                hover_request.kind = HoverKind::FieldName;
-                hover_request
+                node_resolution_info.kind = NodeKind::FieldName;
+                node_resolution_info
                     .type_path
                     .add_type(TypePathItem::ScalarField { name: name.value });
             }
@@ -252,14 +264,14 @@ fn build_request_from_selections(
     }
 }
 
-/// Return a `HoverRequest` for this hover message, only if the request occurs
-/// within a GraphQL document. Otherwise return `None`
-pub fn get_hover_request(
+/// Return a `NodeResolutionInfo` for this request if the request occured
+/// within a GraphQL document.
+pub fn get_node_resolution_info(
     text_document_position: TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
-) -> Option<HoverRequest> {
+) -> Option<NodeResolutionInfo> {
     let (document, position_span, project_name) = extract_executable_document_from_text(
         text_document_position,
         graphql_source_cache,
@@ -267,5 +279,5 @@ pub fn get_hover_request(
         root_dir,
     )?;
 
-    create_hover_request(document, position_span, project_name)
+    create_node_resolution_info(document, position_span, project_name)
 }

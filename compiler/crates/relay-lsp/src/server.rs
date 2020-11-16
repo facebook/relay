@@ -9,7 +9,7 @@ use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
 };
 use crate::error::Result;
-use crate::hover::{hover_contents_for_request, send_hover_response};
+use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
     set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, HoverRequest,
@@ -22,7 +22,7 @@ use crate::text_documents::extract_graphql_sources;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
-use crate::utils::get_hover_request;
+use crate::utils::get_node_resolution_info;
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
@@ -55,8 +55,8 @@ impl Server {
                 request_id,
                 text_document_position,
             } => {
-                let get_hover_contents = || {
-                    let hover_request = get_hover_request(
+                let get_hover_response_contents = || {
+                    let hover_request = get_node_resolution_info(
                         text_document_position,
                         &self.synced_graphql_documents,
                         &self.file_categorizer,
@@ -68,15 +68,14 @@ impl Server {
                         .unwrap()
                         .get(&hover_request.project_name)
                     {
-                        hover_contents_for_request(hover_request, schema, &self.source_programs)
+                        get_hover_response_contents(hover_request, schema, &self.source_programs)
                     } else {
                         None
                     }
                 };
 
-                send_hover_response(get_hover_contents(), request_id, &self.sender);
+                send_hover_response(get_hover_response_contents(), request_id, &self.sender);
             }
-            // Completion request
             LSPBridgeMessage::CompletionRequest { request_id, params } => {
                 if let Some(completion_request) = get_completion_request(
                     params,

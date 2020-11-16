@@ -9,7 +9,7 @@
 use crate::lsp::{
     Hover, HoverContents, LanguageString, MarkedString, Message, ServerRequestId, ServerResponse,
 };
-use crate::utils::{HoverKind, HoverRequest};
+use crate::utils::{NodeKind, NodeResolutionInfo};
 use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_text_printer::print_fragment;
@@ -20,21 +20,21 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-pub fn hover_contents_for_request(
-    request: HoverRequest,
+pub fn get_hover_response_contents(
+    request: NodeResolutionInfo,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<HoverContents> {
     let kind = request.kind;
 
     match kind {
-        HoverKind::FieldName => {
+        NodeKind::FieldName => {
             let type_ref = request.type_path.resolve_current_type_reference(schema)?;
             let type_name = schema.get_type_string(&type_ref);
 
             Some(HoverContents::Scalar(MarkedString::String(type_name)))
         }
-        HoverKind::FragmentSpread(fragment_name) => {
+        NodeKind::FragmentSpread(fragment_name) => {
             let project_name = request.project_name;
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
                 let fragment_text =

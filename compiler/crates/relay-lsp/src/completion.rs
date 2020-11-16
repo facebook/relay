@@ -407,16 +407,14 @@ pub fn get_completion_request(
         ..
     } = params;
 
-    if let Some((document, position_span, project_name)) = extract_executable_document_from_text(
+    let (document, position_span, project_name) = extract_executable_document_from_text(
         text_document_position,
         graphql_source_cache,
         file_categorizer,
         root_dir,
-    ) {
-        let completion_request = create_completion_request(document, position_span, project_name);
-        info!("Completion request: {:#?}", completion_request);
-        completion_request
-    } else {
-        None
-    }
+    )?;
+
+    let completion_request = create_completion_request(document, position_span, project_name);
+    info!("Completion request: {:#?}", completion_request);
+    completion_request
 }

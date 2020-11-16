@@ -9,12 +9,13 @@ use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
 };
 use crate::error::Result;
+use crate::hover::{get_hover_request, hover_contents_for_request, send_hover_response};
 use crate::lsp::{
     set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams,
-    LSPBridgeMessage, Message, Notification, Request, ServerCapabilities, ServerNotification,
-    ServerRequest, ServerRequestId, ServerResponse, Shutdown, TextDocumentSyncCapability,
-    TextDocumentSyncKind, Url, WorkDoneProgressOptions,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, HoverRequest,
+    InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
+    ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
+    TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
@@ -49,6 +50,31 @@ pub struct Server {
 impl Server {
     fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
         match message {
+            LSPBridgeMessage::HoverRequest {
+                request_id,
+                text_document_position,
+            } => {
+                let result = get_hover_request(
+                    text_document_position,
+                    &self.synced_graphql_documents,
+                    &self.file_categorizer,
+                    &self.root_dir,
+                );
+                if let Some(hover_request) = result {
+                    if let Some(schema) = self
+                        .schemas
+                        .read()
+                        .unwrap()
+                        .get(&hover_request.project_name)
+                    {
+                        if let Some(hover_contents) =
+                            hover_contents_for_request(hover_request, schema, &self.source_programs)
+                        {
+                            send_hover_response(hover_contents, request_id, &self.sender);
+                        }
+                    }
+                }
+            }
             // Completion request
             LSPBridgeMessage::CompletionRequest { request_id, params } => {
                 if let Some(completion_request) = get_completion_request(
@@ -119,6 +145,8 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
         },
     });
 
+    server_capabilities.hover_provider = Some(true);
+
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
     let params: InitializeParams = serde_json::from_value(params)?;
@@ -166,6 +194,17 @@ where
                         let (request_id, params) = extract_request_params::<Completion>(req);
                         lsp_tx
                             .send(LSPBridgeMessage::CompletionRequest { request_id, params })
+                            .await
+                            .ok();
+                    } else if req.method == HoverRequest::METHOD {
+                        info!("hover request....");
+                        let (request_id, text_document_position) =
+                            extract_request_params::<HoverRequest>(req);
+                        lsp_tx
+                            .send(LSPBridgeMessage::HoverRequest {
+                                request_id,
+                                text_document_position,
+                            })
                             .await
                             .ok();
                     } else if req.method == Shutdown::METHOD {

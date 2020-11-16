@@ -10,18 +10,19 @@
 mod client;
 mod completion;
 pub mod error;
+mod hover;
 mod lsp;
 mod server;
 mod status_reporting;
 mod text_documents;
 mod type_path;
+mod utils;
 use common::PerfLogger;
 use error::Result;
 use log::info;
 use lsp_server::Connection;
 use relay_compiler::config::Config;
 use std::sync::Arc;
-mod utils;
 
 pub async fn start_language_server<TPerfLogger>(
     config: Config,

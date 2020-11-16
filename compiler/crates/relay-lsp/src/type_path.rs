@@ -7,8 +7,7 @@
 
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use log::info;
-use schema::{Schema, Type};
+use schema::{Schema, Type, TypeReference};
 
 #[derive(Debug)]
 /// An item in the list of type metadata that we can use to resolve the leaf
@@ -56,11 +55,32 @@ fn resolve_relative_type(
         TypePathItem::LinkedField { name } => {
             let field_id = schema.named_field(parent_type, name)?;
             let field = schema.field(field_id);
-            info!("resolved type for {:?} : {:?}", field.name, field.type_);
             Some(field.type_.inner())
         }
         TypePathItem::ScalarField { .. } => Some(parent_type),
         TypePathItem::InlineFragment { type_name } => schema.get_type(type_name),
+    }
+}
+
+fn resolve_relative_type_for_current_item(
+    parent_type: Type,
+    path_item: TypePathItem,
+    schema: &Schema,
+) -> Option<TypeReference> {
+    match path_item {
+        TypePathItem::Operation(_) | TypePathItem::FragmentDefinition { .. } => None,
+        TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
+            if parent_type.is_abstract_type() || parent_type.is_object() {
+                let field_id = schema.named_field(parent_type, name)?;
+                let field = schema.field(field_id);
+                Some(field.type_.clone())
+            } else {
+                None
+            }
+        }
+        TypePathItem::InlineFragment { type_name } => {
+            schema.get_type(type_name).map(TypeReference::Named)
+        }
     }
 }
 
@@ -80,6 +100,20 @@ impl TypePath {
             resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
         while let Some(path_item) = type_path.pop() {
             type_ = resolve_relative_type(type_, path_item, schema)?;
+        }
+        Some(type_)
+    }
+
+    /// Similar to `resolve_leaf_type` except for ScalarType it will return the type of the field itself
+    pub fn resolve_current_type_reference(self, schema: &Schema) -> Option<TypeReference> {
+        let mut type_path = self.0;
+        type_path.reverse();
+        let mut type_ = TypeReference::Named(resolve_root_type(
+            type_path.pop().expect("path must be non-empty"),
+            schema,
+        )?);
+        while let Some(path_item) = type_path.pop() {
+            type_ = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
         }
         Some(type_)
     }

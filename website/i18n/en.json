@@ -416,6 +416,12 @@
       "version-v10.0.1/version-v10.0.1-testing-relay-components": {
         "title": "Testing Relay Components"
       },
+      "version-v10.1.0/version-v10.1.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-v10.1.0/version-v10.1.0-mutations": {
+        "title": "Mutations"
+      },
       "version-v2.0.0/version-v2.0.0-community-learning-resources": {
         "title": "Community Learning Resources"
       },

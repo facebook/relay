@@ -431,11 +431,6 @@ export type LogEvent =
       +profilerContext: mixed,
     |}
   | {|
-      +name: 'execute.info',
-      +transactionID: number,
-      +info: mixed,
-    |}
-  | {|
       +name: 'execute.start',
       +transactionID: number,
       +params: RequestParameters,
@@ -457,6 +452,35 @@ export type LogEvent =
     |}
   | {|
       +name: 'execute.unsubscribe',
+      +transactionID: number,
+    |}
+  | {|
+      +name: 'network.info',
+      +transactionID: number,
+      +info: mixed,
+    |}
+  | {|
+      +name: 'network.start',
+      +transactionID: number,
+      +params: RequestParameters,
+      +variables: Variables,
+    |}
+  | {|
+      +name: 'network.next',
+      +transactionID: number,
+      +response: GraphQLResponse,
+    |}
+  | {|
+      +name: 'network.error',
+      +transactionID: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'network.complete',
+      +transactionID: number,
+    |}
+  | {|
+      +name: 'network.unsubscribe',
       +transactionID: number,
     |}
   | {|

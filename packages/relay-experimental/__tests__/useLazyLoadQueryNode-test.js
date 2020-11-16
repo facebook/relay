@@ -612,13 +612,25 @@ describe('useLazyLoadQueryNode', () => {
           transactionID: 100000,
         },
         {
+          name: 'network.start',
+          transactionID: 100001,
+        },
+        {
           name: 'queryresource.fetch',
           resourceID: 200000,
           profilerContext: expect.objectContaining({}),
         },
         {
+          name: 'network.next',
+          transactionID: 100001,
+        },
+        {
           name: 'execute.next',
           transactionID: 100000,
+        },
+        {
+          name: 'network.complete',
+          transactionID: 100001,
         },
         {
           name: 'execute.complete',
@@ -710,6 +722,11 @@ describe('useLazyLoadQueryNode', () => {
           variables: variablesOne,
         },
         {
+          name: 'network.start',
+          transactionID: 100001,
+          variables: variablesOne,
+        },
+        {
           // fetch event for variables one
           name: 'queryresource.fetch',
           resourceID: 200001,
@@ -724,7 +741,12 @@ describe('useLazyLoadQueryNode', () => {
         {
           // request for variables two starts
           name: 'execute.start',
-          transactionID: 100001,
+          transactionID: 100002,
+          variables: variablesTwo,
+        },
+        {
+          name: 'network.start',
+          transactionID: 100003,
           variables: variablesTwo,
         },
         {
@@ -742,8 +764,16 @@ describe('useLazyLoadQueryNode', () => {
         // fetch event for variables one is skipped
         // since it's already cached and reused
         {
+          name: 'network.next',
+          transactionID: 100001,
+        },
+        {
           name: 'execute.next',
           transactionID: 100000,
+        },
+        {
+          name: 'network.complete',
+          transactionID: 100001,
         },
         {
           name: 'execute.complete',

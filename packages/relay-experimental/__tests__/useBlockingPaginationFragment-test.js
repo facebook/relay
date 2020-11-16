@@ -685,22 +685,10 @@ describe('useBlockingPaginationFragment', () => {
   });
 
   describe('pagination', () => {
-    let runScheduledCallback = () => {};
     let release;
 
     beforeEach(() => {
       jest.resetModules();
-      jest.doMock('scheduler', () => {
-        const original = jest.requireActual('scheduler/unstable_mock');
-        return {
-          ...original,
-          unstable_next: cb => {
-            runScheduledCallback = () => {
-              original.unstable_next(cb);
-            };
-          },
-        };
-      });
 
       release = jest.fn();
       environment.retain.mockImplementation((...args) => {
@@ -708,10 +696,6 @@ describe('useBlockingPaginationFragment', () => {
           dispose: release,
         };
       });
-    });
-
-    afterEach(() => {
-      jest.dontMock('scheduler');
     });
 
     function expectRequestIsInFlight(expected) {
@@ -838,11 +822,14 @@ describe('useBlockingPaginationFragment', () => {
           gqlPaginationQuery,
         });
 
+        expect(callback).toBeCalledTimes(0);
+
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+
         expect(environment.execute).toBeCalledTimes(1);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 
@@ -870,7 +857,7 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         expect(environment.execute).toBeCalledTimes(0);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 

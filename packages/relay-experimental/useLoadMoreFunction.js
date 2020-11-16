@@ -13,9 +13,6 @@
 
 'use strict';
 
-// flowlint-next-line untyped-import:off
-const Scheduler = require('scheduler');
-
 const getPaginationVariables = require('./getPaginationVariables');
 const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
@@ -175,9 +172,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
         }
 
         if (onComplete) {
-          // We make sure to always call onComplete asynchronously to prevent
-          // accidental loops in product code.
-          Scheduler.unstable_next(() => onComplete(null));
+          onComplete(null);
         }
         return {dispose: () => {}};
       }

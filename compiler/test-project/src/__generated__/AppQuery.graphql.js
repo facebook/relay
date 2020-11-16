@@ -1,5 +1,10 @@
 /**
- * @generated SignedSource<<0fa074a62a100c72778668ccb2f859ba>>
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<7fa2c7555d82e901afff13ec639b5d86>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -11,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-import type { Component_node$ref } from "Component_node.graphql";
+type Component_node$ref = any;
 export type AppQueryVariables = {||};
 export type AppQueryResponse = {|
   +node: ?{|
@@ -22,21 +27,6 @@ export type AppQuery = {|
   variables: AppQueryVariables,
   response: AppQueryResponse,
 |};
-*/
-
-/*
-query AppQuery {
-  node(id: "test") {
-    __typename
-    ...Component_node
-    id
-  }
-}
-
-fragment Component_node on Node {
-  __isNode: __typename
-  id
-}
 */
 
 var node/*: ConcreteRequest*/ = (function(){

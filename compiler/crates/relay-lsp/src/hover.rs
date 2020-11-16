@@ -7,20 +7,20 @@
 
 //! Utilities for providing the hover feature
 use crate::lsp::{
-    Hover, HoverContents, MarkedString, Message, ServerRequestId, ServerResponse,
+    Hover, HoverContents, LanguageString, MarkedString, Message, ServerRequestId, ServerResponse,
     TextDocumentPositionParams, Url,
 };
 use crate::type_path::{TypePath, TypePathItem};
 use crate::utils::extract_executable_document_from_text;
-use crossbeam::Sender;
-
 use common::Span;
+use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_syntax::{
     ExecutableDefinition, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     ScalarField, Selection,
 };
 use graphql_syntax::{ExecutableDocument, GraphQLSource};
+use graphql_text_printer::print_fragment;
 use interner::StringKey;
 use log::info;
 use relay_compiler::FileCategorizer;
@@ -34,7 +34,7 @@ use std::{
 #[derive(Debug, Clone, Copy)]
 pub enum HoverKind {
     FieldName,
-    FragmentSpread,
+    FragmentSpread(StringKey),
 }
 
 #[derive(Debug)]
@@ -102,14 +102,32 @@ pub fn create_hover_request(
 pub fn hover_contents_for_request(
     request: HoverRequest,
     schema: &Schema,
-    _source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<HoverContents> {
     let kind = request.kind;
-    let type_ref = request.type_path.resolve_current_type_reference(schema)?;
-    let type_name = schema.get_type_string(&type_ref);
+
     match kind {
-        HoverKind::FieldName => Some(HoverContents::Scalar(MarkedString::String(type_name))),
-        HoverKind::FragmentSpread => Some(HoverContents::Scalar(MarkedString::String(type_name))),
+        HoverKind::FieldName => {
+            let type_ref = request.type_path.resolve_current_type_reference(schema)?;
+            let type_name = schema.get_type_string(&type_ref);
+
+            Some(HoverContents::Scalar(MarkedString::String(type_name)))
+        }
+        HoverKind::FragmentSpread(fragment_name) => {
+            let project_name = request.project_name;
+            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+                let fragment_text =
+                    print_fragment(&schema, source_program.fragment(fragment_name)?);
+                Some(HoverContents::Scalar(MarkedString::LanguageString(
+                    LanguageString {
+                        language: "graphql".to_string(),
+                        value: fragment_text,
+                    },
+                )))
+            } else {
+                None
+            }
+        }
     }
 }
 
@@ -137,7 +155,7 @@ fn build_request_from_selections(
             Selection::FragmentSpread(spread) => {
                 let FragmentSpread { name, .. } = spread;
                 if name.span.contains(position_span) {
-                    hover_request.kind = HoverKind::FragmentSpread;
+                    hover_request.kind = HoverKind::FragmentSpread(name.value);
                 }
             }
             Selection::InlineFragment(node) => {

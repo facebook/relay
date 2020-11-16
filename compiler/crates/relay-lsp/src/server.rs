@@ -9,7 +9,7 @@ use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
 };
 use crate::error::Result;
-use crate::hover::{get_hover_request, hover_contents_for_request, send_hover_response};
+use crate::hover::{hover_contents_for_request, send_hover_response};
 use crate::lsp::{
     set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, HoverRequest,
@@ -22,6 +22,7 @@ use crate::text_documents::extract_graphql_sources;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
+use crate::utils::get_hover_request;
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;

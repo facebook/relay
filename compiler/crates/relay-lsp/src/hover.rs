@@ -202,15 +202,19 @@ pub fn get_hover_request(
 }
 
 pub fn send_hover_response(
-    hover_contents: HoverContents,
+    hover_contents: Option<HoverContents>,
     request_id: ServerRequestId,
     sender: &Sender<Message>,
 ) {
-    let hover_response = Hover {
-        contents: hover_contents,
-        range: None,
+    let result = if let Some(hover_contents) = hover_contents {
+        serde_json::to_value(Hover {
+            contents: hover_contents,
+            range: None,
+        })
+        .ok()
+    } else {
+        None
     };
-    let result = serde_json::to_value(&hover_response).ok();
     sender
         .send(Message::Response(ServerResponse {
             id: request_id,

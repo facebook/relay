@@ -54,26 +54,26 @@ impl Server {
                 request_id,
                 text_document_position,
             } => {
-                let result = get_hover_request(
-                    text_document_position,
-                    &self.synced_graphql_documents,
-                    &self.file_categorizer,
-                    &self.root_dir,
-                );
-                if let Some(hover_request) = result {
+                let get_hover_contents = || {
+                    let hover_request = get_hover_request(
+                        text_document_position,
+                        &self.synced_graphql_documents,
+                        &self.file_categorizer,
+                        &self.root_dir,
+                    )?;
                     if let Some(schema) = self
                         .schemas
                         .read()
                         .unwrap()
                         .get(&hover_request.project_name)
                     {
-                        if let Some(hover_contents) =
-                            hover_contents_for_request(hover_request, schema, &self.source_programs)
-                        {
-                            send_hover_response(hover_contents, request_id, &self.sender);
-                        }
+                        hover_contents_for_request(hover_request, schema, &self.source_programs)
+                    } else {
+                        None
                     }
-                }
+                };
+
+                send_hover_response(get_hover_contents(), request_id, &self.sender);
             }
             // Completion request
             LSPBridgeMessage::CompletionRequest { request_id, params } => {

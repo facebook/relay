@@ -23,6 +23,10 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub enum LSPBridgeMessage {
+    GotoDefinitionRequest {
+        request_id: ServerRequestId,
+        text_document_position: TextDocumentPositionParams,
+    },
     CompletionRequest {
         request_id: ServerRequestId,
         params: CompletionParams,

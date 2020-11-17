@@ -10,6 +10,7 @@
 mod client;
 mod completion;
 pub mod error;
+mod goto_definition;
 mod hover;
 mod lsp;
 mod server;

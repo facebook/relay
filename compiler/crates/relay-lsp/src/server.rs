@@ -9,13 +9,14 @@ use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
 };
 use crate::error::Result;
+use crate::goto_definition::{get_goto_definition_response, send_goto_definition_response};
 use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
     set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, HoverRequest,
-    InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
-    ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition,
+    HoverRequest, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
+    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
+    Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
@@ -104,6 +105,30 @@ impl Server {
                     }
                 }
             }
+            LSPBridgeMessage::GotoDefinitionRequest {
+                request_id,
+                text_document_position,
+            } => {
+                let get_goto_definition_response = || {
+                    let node_resolution_info = get_node_resolution_info(
+                        text_document_position,
+                        &self.synced_graphql_documents,
+                        &self.file_categorizer,
+                        &self.root_dir,
+                    )?;
+                    get_goto_definition_response(
+                        node_resolution_info,
+                        &self.source_programs,
+                        &self.root_dir,
+                    )
+                };
+
+                send_goto_definition_response(
+                    get_goto_definition_response(),
+                    request_id,
+                    &self.sender,
+                );
+            }
             LSPBridgeMessage::DidOpenTextDocument(params) => {
                 on_did_open_text_document(params, &mut self.synced_graphql_documents);
             }
@@ -150,6 +175,7 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
     });
 
     server_capabilities.hover_provider = Some(true);
+    server_capabilities.definition_provider = Some(true);
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -225,6 +251,16 @@ where
                         // TODO: We should exit when receiving Exit notification according to the protocol,
                         // but the notification is never received.
                         std::process::exit(0);
+                    } else if req.method == GotoDefinition::METHOD {
+                        let (request_id, text_document_position) =
+                            extract_request_params::<GotoDefinition>(req);
+                        lsp_tx
+                            .send(LSPBridgeMessage::GotoDefinitionRequest {
+                                request_id,
+                                text_document_position,
+                            })
+                            .await
+                            .ok();
                     }
                 }
                 Message::Notification(notif) => {

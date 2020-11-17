@@ -56,7 +56,7 @@ impl Server {
                 text_document_position,
             } => {
                 let get_hover_response_contents = || {
-                    let hover_request = get_node_resolution_info(
+                    let node_resolution_info = get_node_resolution_info(
                         text_document_position,
                         &self.synced_graphql_documents,
                         &self.file_categorizer,
@@ -66,9 +66,13 @@ impl Server {
                         .schemas
                         .read()
                         .unwrap()
-                        .get(&hover_request.project_name)
+                        .get(&node_resolution_info.project_name)
                     {
-                        get_hover_response_contents(hover_request, schema, &self.source_programs)
+                        get_hover_response_contents(
+                            node_resolution_info,
+                            schema,
+                            &self.source_programs,
+                        )
                     } else {
                         None
                     }

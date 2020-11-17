@@ -21,21 +21,23 @@ use std::{
 };
 
 pub fn get_hover_response_contents(
-    request: NodeResolutionInfo,
+    node_resolution_info: NodeResolutionInfo,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<HoverContents> {
-    let kind = request.kind;
+    let kind = node_resolution_info.kind;
 
     match kind {
         NodeKind::FieldName => {
-            let type_ref = request.type_path.resolve_current_type_reference(schema)?;
+            let type_ref = node_resolution_info
+                .type_path
+                .resolve_current_type_reference(schema)?;
             let type_name = schema.get_type_string(&type_ref);
 
             Some(HoverContents::Scalar(MarkedString::String(type_name)))
         }
         NodeKind::FragmentSpread(fragment_name) => {
-            let project_name = request.project_name;
+            let project_name = node_resolution_info.project_name;
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
                 let fragment_text =
                     print_fragment(&schema, source_program.fragment(fragment_name)?);

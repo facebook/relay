@@ -347,17 +347,6 @@ impl<'program> MatchTransform<'program> {
             get_normalization_operation_name(&mut normalization_name, spread.fragment.item);
             normalization_name.push_str(".graphql");
 
-            let component_key = format!(
-                "{}{}",
-                MATCH_CONSTANTS.module_component_key_prefix, module_key
-            )
-            .intern();
-            let operation_key = format!(
-                "{}{}",
-                MATCH_CONSTANTS.module_operation_key_prefix, module_key
-            )
-            .intern();
-
             let mut component_field_arguments = vec![build_string_literal_argument(
                 MATCH_CONSTANTS.js_field_module_arg,
                 module_name,
@@ -383,7 +372,7 @@ impl<'program> MatchTransform<'program> {
             let component_field = Selection::ScalarField(Arc::new(ScalarField {
                 alias: Some(WithLocation::new(
                     module_directive.name.location,
-                    component_key,
+                    format!("__module_component_{}", module_key).intern(),
                 )),
                 definition: WithLocation::new(module_directive.name.location, js_field_id),
                 arguments: component_field_arguments,
@@ -393,7 +382,7 @@ impl<'program> MatchTransform<'program> {
             let operation_field = Selection::ScalarField(Arc::new(ScalarField {
                 alias: Some(WithLocation::new(
                     module_directive.name.location,
-                    operation_key,
+                    format!("__module_operation_{}", module_key).intern(),
                 )),
                 definition: WithLocation::new(module_directive.name.location, js_field_id),
                 arguments: operation_field_arguments,

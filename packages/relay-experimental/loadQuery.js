@@ -82,6 +82,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 
   let unsubscribeFromNetworkRequest;
+  let networkError = null;
+
   // makeNetworkRequest will immediately start a raw network request and
   // return an Observable that when subscribing to it, will replay the
   // network events that have occured so far, as well as subsequent events.
@@ -101,6 +103,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     const subject = new ReplaySubject();
     ({unsubscribe: unsubscribeFromNetworkRequest} = sourceObservable.subscribe({
       error(err) {
+        networkError = err;
         subject.error(err);
       },
       next(data) {
@@ -266,6 +269,10 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed;
+    },
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get networkError() {
+      return networkError;
     },
     name: params.name,
     networkCacheConfig,

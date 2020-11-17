@@ -58,9 +58,6 @@ fn get_graphql_source<'a>(
 
     let graphql_sources = graphql_source_cache.get(url)?;
 
-    info!("Current sources: {:#?}", *graphql_sources);
-    info!("position: {:?}", position);
-
     // We have GraphQL documents, now check if the position
     // falls within the range of one of these documents.
     let graphql_source = graphql_sources.iter().find(|graphql_source| {
@@ -164,7 +161,7 @@ fn create_node_resolution_info(
     position_span: Span,
     project_name: StringKey,
 ) -> Option<NodeResolutionInfo> {
-    info!("Building node resolution info for {:#?}", document);
+    info!("Building node resolution info");
     let mut node_resolution_info = NodeResolutionInfo::new(project_name);
 
     for definition in document.definitions {

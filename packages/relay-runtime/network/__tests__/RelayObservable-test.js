@@ -1444,6 +1444,28 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['error', error]);
     });
 
+    it('Converts an AsyncGenerator to an Observable', done => {
+      const value = {key: 'value'};
+
+      async function* generate() {
+        yield value;
+      }
+      const result = generate();
+      const obs = RelayObservable.from(result);
+
+      obs.subscribe({
+        next: val => {
+          expect(val).toEqual(value);
+        },
+        error: err => {
+          done(err);
+        },
+        complete: () => {
+          done();
+        },
+      });
+    });
+
     it('Error in next handler is unhandled', async () => {
       const list = [];
       const error = new Error();

@@ -74,7 +74,11 @@ export interface Subscribable<+T> {
 
 // Note: This should accept Subscribable<T> instead of RelayObservable<T>,
 // however Flow cannot yet distinguish it from T.
-export type ObservableFromValue<+T> = RelayObservable<T> | Promise<T> | T;
+export type ObservableFromValue<+T> =
+  | RelayObservable<T>
+  | Promise<T>
+  | AsyncGenerator<T>
+  | T;
 
 let hostReportError = swallowError;
 
@@ -143,11 +147,16 @@ class RelayObservable<+T> implements Subscribable<T> {
    * useful for accepting the result of a user-provided FetchFunction.
    */
   static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
-    return isObservable(obj)
-      ? fromObservable(obj)
-      : isPromise(obj)
-      ? fromPromise(obj)
-      : fromValue(obj);
+    switch (true) {
+      case isObservable(obj):
+        return fromObservable(obj);
+      case isPromise(obj):
+        return fromPromise(obj);
+      case isAsyncIterator(obj):
+        return fromAsyncIterator(obj);
+      default:
+        return fromValue(obj);
+    }
   }
 
   /**
@@ -454,6 +463,14 @@ function isObservable(obj) {
   );
 }
 
+// Use declarations to teach Flow how to check isAsyncIterable.
+declare function isAsyncIterator(p: mixed): boolean %checks(p instanceof
+  AsyncIterator);
+
+function isAsyncIterator(obj) {
+  return typeof obj[Symbol.asyncIterator] < 'u';
+}
+
 function fromObservable<T>(obj: Subscribable<T>): RelayObservable<T> {
   return obj instanceof RelayObservable
     ? obj
@@ -474,6 +491,17 @@ function fromValue<T>(value: T): RelayObservable<T> {
   return RelayObservable.create(sink => {
     sink.next(value);
     sink.complete();
+  });
+}
+
+function fromAsyncIterator<T>(obj: AsyncIterator<T>): RelayObservable<T> {
+  return RelayObservable.create(sink => {
+    (async () => {
+      for await (const patch of obj) {
+        sink.next(patch);
+      }
+      sink.complete();
+    })().catch(sink.error);
   });
 }
 

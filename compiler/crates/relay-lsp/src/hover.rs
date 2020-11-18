@@ -36,6 +36,22 @@ pub fn get_hover_response_contents(
 
             Some(HoverContents::Scalar(MarkedString::String(type_name)))
         }
+        NodeKind::FieldArgument(field_name, argument_name) => {
+            let type_ref = node_resolution_info
+                .type_path
+                .resolve_current_type_reference(schema)?;
+
+            if type_ref.inner().is_object() || type_ref.inner().is_interface() {
+                let field_id = schema.named_field(type_ref.inner(), field_name)?;
+                let field = schema.field(field_id);
+                let arg = field.arguments.named(argument_name)?;
+                let type_name = schema.get_type_string(&arg.type_);
+
+                Some(HoverContents::Scalar(MarkedString::String(type_name)))
+            } else {
+                None
+            }
+        }
         NodeKind::FragmentSpread(fragment_name) => {
             let project_name = node_resolution_info.project_name;
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {

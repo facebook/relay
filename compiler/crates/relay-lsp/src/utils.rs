@@ -10,8 +10,8 @@ use std::{collections::HashMap, path::PathBuf};
 use crate::type_path::{TypePath, TypePathItem};
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{
-    parse_executable, ExecutableDefinition, ExecutableDocument, FragmentSpread, GraphQLSource,
-    InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
+    parse_executable, Argument, ExecutableDefinition, ExecutableDocument, FragmentSpread,
+    GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
 };
 use interner::StringKey;
 use log::info;
@@ -20,6 +20,7 @@ use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 #[derive(Debug, Clone, Copy)]
 pub enum NodeKind {
     FieldName,
+    FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
 }
 
@@ -201,6 +202,28 @@ fn create_node_resolution_info(
     Some(node_resolution_info)
 }
 
+/// If position_span falls into one of the field arguments,
+/// we need to display resolution info for this field
+fn build_node_resolution_info_for_argument(
+    field_name: StringKey,
+    arguments: &Option<List<Argument>>,
+    position_span: Span,
+    node_resolution_info: &mut NodeResolutionInfo,
+) -> Option<()> {
+    if let Some(arguments) = &arguments {
+        let argument = arguments
+            .items
+            .iter()
+            .find(|item| item.span.contains(position_span))?;
+
+        node_resolution_info.kind = NodeKind::FieldArgument(field_name, argument.name.value);
+
+        Some(())
+    } else {
+        None
+    }
+}
+
 fn build_node_resolution_info_from_selections(
     selections: &List<Selection>,
     position_span: Span,
@@ -217,14 +240,23 @@ fn build_node_resolution_info_from_selections(
                 let LinkedField {
                     name, selections, ..
                 } = node;
-                node_resolution_info
-                    .type_path
-                    .add_type(TypePathItem::LinkedField { name: name.value });
-                build_node_resolution_info_from_selections(
-                    selections,
+                if build_node_resolution_info_for_argument(
+                    name.value,
+                    &node.arguments,
                     position_span,
                     node_resolution_info,
-                );
+                )
+                .is_none()
+                {
+                    node_resolution_info
+                        .type_path
+                        .add_type(TypePathItem::LinkedField { name: name.value });
+                    build_node_resolution_info_from_selections(
+                        selections,
+                        position_span,
+                        node_resolution_info,
+                    );
+                }
             }
             Selection::FragmentSpread(spread) => {
                 let FragmentSpread { name, .. } = spread;
@@ -252,16 +284,26 @@ fn build_node_resolution_info_from_selections(
             }
             Selection::ScalarField(node) => {
                 let ScalarField { name, .. } = node;
-                node_resolution_info.kind = NodeKind::FieldName;
-                node_resolution_info
-                    .type_path
-                    .add_type(TypePathItem::ScalarField { name: name.value });
+
+                if build_node_resolution_info_for_argument(
+                    name.value,
+                    &node.arguments,
+                    position_span,
+                    node_resolution_info,
+                )
+                .is_none()
+                {
+                    node_resolution_info.kind = NodeKind::FieldName;
+                    node_resolution_info
+                        .type_path
+                        .add_type(TypePathItem::ScalarField { name: name.value });
+                }
             }
         }
     }
 }
 
-/// Return a `NodeResolutionInfo` for this request if the request occured
+/// Return a `NodeResolutionInfo` for this request if the request occurred
 /// within a GraphQL document.
 pub fn get_node_resolution_info(
     text_document_position: TextDocumentPositionParams,

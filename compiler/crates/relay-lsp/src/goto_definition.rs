@@ -26,7 +26,6 @@ pub fn get_goto_definition_response(
     root_dir: &PathBuf,
 ) -> Option<GotoDefinitionResponse> {
     match node_resolution_info.kind {
-        NodeKind::FieldName => None,
         NodeKind::FragmentSpread(fragment_name) => {
             let project_name = node_resolution_info.project_name;
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
@@ -40,6 +39,7 @@ pub fn get_goto_definition_response(
                 None
             }
         }
+        _ => None,
     }
 }
 

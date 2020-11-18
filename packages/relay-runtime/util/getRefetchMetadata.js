@@ -15,11 +15,8 @@
 
 const invariant = require('invariant');
 
-import type {
-  ConcreteRequest,
-  ReaderFragment,
-  ReaderRefetchMetadata,
-} from 'relay-runtime';
+import type {ConcreteRequest} from './RelayConcreteNode';
+import type {ReaderFragment, ReaderRefetchMetadata} from './ReaderNode';
 
 function getRefetchMetadata(
   fragmentNode: ReaderFragment,

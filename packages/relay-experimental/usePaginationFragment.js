@@ -13,13 +13,16 @@
 
 'use strict';
 
-const getPaginationMetadata = require('./getPaginationMetadata');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {useCallback, useDebugValue, useState} = require('react');
-const {getFragment, getFragmentIdentifier} = require('relay-runtime');
+const {
+  getFragment,
+  getFragmentIdentifier,
+  getPaginationMetadata,
+} = require('relay-runtime');
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';

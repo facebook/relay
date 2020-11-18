@@ -17,8 +17,6 @@ const ProfilerContext = require('./ProfilerContext');
 // flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
 
-const getRefetchMetadata = require('./getRefetchMetadata');
-const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useFragmentNode = require('./useFragmentNode');
@@ -41,6 +39,8 @@ const {
   createOperationDescriptor,
   getFragmentIdentifier,
   getSelector,
+  getRefetchMetadata,
+  getValueAtPath,
 } = require('relay-runtime');
 
 import type {

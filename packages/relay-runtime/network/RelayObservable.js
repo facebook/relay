@@ -497,8 +497,10 @@ function fromValue<T>(value: T): RelayObservable<T> {
 function fromAsyncIterator<T>(obj: AsyncIterator<T>): RelayObservable<T> {
   return RelayObservable.create(sink => {
     (async () => {
-      for await (const patch of obj) {
-        sink.next(patch);
+      while(true) {
+        const {value, done} = await obj.next();
+        if (done) break;
+        sink.next(value);
       }
       sink.complete();
     })().catch(sink.error);

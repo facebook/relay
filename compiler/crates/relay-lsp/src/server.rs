@@ -12,11 +12,11 @@ use crate::error::Result;
 use crate::goto_definition::{get_goto_definition_response, send_goto_definition_response};
 use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
-    set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition,
-    HoverRequest, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
-    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
-    Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
+    set_initializing_status, Completion, CompletionOptions, Connection, DidChangeTextDocument,
+    DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition, HoverRequest,
+    InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
+    ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
+    TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
@@ -193,7 +193,6 @@ pub async fn run<TPerfLogger>(
 where
     TPerfLogger: PerfLogger + 'static,
 {
-    show_info_message("Relay Language Server Started", &connection)?;
     info!("Running language server");
     let receiver = connection.receiver.clone();
     let sender = connection.sender.clone();

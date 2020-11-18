@@ -129,6 +129,7 @@ fn update_status(
 }
 
 /// Show a notification in the client
+#[allow(dead_code)]
 pub fn show_info_message(message: impl Into<String>, connection: &Connection) -> Result<()> {
     let notif = ServerNotification::new(
         ShowMessage::METHOD.into(),

@@ -17,7 +17,7 @@ use interner::StringKey;
 use log::info;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum NodeKind {
     FieldName,
     FieldArgument(StringKey, StringKey),
@@ -182,6 +182,7 @@ fn create_node_resolution_info(
                         position_span,
                         &mut node_resolution_info,
                     );
+                    return Some(node_resolution_info);
                 }
             }
             ExecutableDefinition::Fragment(fragment) => {
@@ -195,11 +196,12 @@ fn create_node_resolution_info(
                         position_span,
                         &mut node_resolution_info,
                     );
+                    return Some(node_resolution_info);
                 }
             }
         }
     }
-    Some(node_resolution_info)
+    None
 }
 
 /// If position_span falls into one of the field arguments,
@@ -319,4 +321,69 @@ pub fn get_node_resolution_info(
     )?;
 
     create_node_resolution_info(document, position_span, project_name)
+}
+
+#[cfg(test)]
+mod test {
+    use super::create_node_resolution_info;
+    use super::NodeKind;
+    use common::{SourceLocationKey, Span};
+    use graphql_syntax::parse_executable;
+    use interner::Intern;
+    use relay_test_schema::get_test_schema;
+
+    #[test]
+    fn create_node_resolution_info_test() {
+        let document = parse_executable(
+            r#"
+            fragment User_data on User {
+                name
+                profile_picture {
+                    uri
+                }
+            }
+        "#,
+            SourceLocationKey::Standalone {
+                path: "/test/file".intern(),
+            },
+        )
+        .unwrap();
+
+
+        // Select the `id` field
+        let position_span = Span {
+            start: 117,
+            end: 117,
+        };
+
+        let result = create_node_resolution_info(document, position_span, "test_project".intern());
+        let node_resolution_info = result.unwrap();
+        assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
+        assert_eq!(node_resolution_info.project_name.lookup(), "test_project");
+        let schema = get_test_schema();
+        let type_ref = node_resolution_info
+            .type_path
+            .resolve_current_type_reference(&schema)
+            .unwrap();
+        assert_eq!(schema.get_type_string(&type_ref), "String".to_string());
+    }
+
+    #[test]
+    fn create_node_resolution_info_test_position_outside() {
+        let document = parse_executable(
+            r#"
+            fragment User_data on User {
+                name
+            }
+        "#,
+            SourceLocationKey::Standalone {
+                path: "/test/file".intern(),
+            },
+        )
+        .unwrap();
+        // Position is outside of the document
+        let position_span = Span { start: 86, end: 87 };
+        let result = create_node_resolution_info(document, position_span, "test_project".intern());
+        assert!(result.is_none());
+    }
 }

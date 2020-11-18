@@ -40,7 +40,7 @@ pub enum ValidationMessage {
     #[error("Unknown directive '{0}'")]
     UnknownDirective(StringKey),
     #[error(
-        "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead."
+        "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead."
     )]
     UnnecessaryUncheckedArgumentsDirective,
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
@@ -697,4 +697,7 @@ pub enum ValidationMessage {
 
     #[error("Missing required argument `{argument_name}` on this fragment spread.")]
     MissingRequiredFragmentArgument { argument_name: StringKey },
+
+    #[error("Duplicate variable `{name}`")]
+    DuplicateVariable { name: StringKey },
 }

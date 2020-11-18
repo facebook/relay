@@ -205,6 +205,24 @@ describe('when passed a PreloadableConcreteRequest', () => {
           expect(nextCallback).toHaveBeenCalledWith(response);
         });
 
+        it('should mark failed network requests', () => {
+          const preloadedQuery = loadQuery(
+            environment,
+            preloadableConcreteRequest,
+            variables,
+            {
+              fetchPolicy: 'store-or-network',
+            },
+          );
+
+          expect(preloadedQuery.networkError).toBeNull();
+
+          const networkError = new Error('network request failed');
+          sink.error(networkError);
+
+          expect(preloadedQuery.networkError).toBe(networkError);
+        });
+
         it('calling dispose unsubscribes from executeWithSource', () => {
           // This ensures that no data is written to the store
           const preloadedQuery = loadQuery(
@@ -285,6 +303,24 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       sink.next(response);
       expect(nextCallback).toHaveBeenCalledWith(response);
+    });
+
+    it('should mark failed network requests', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
+
+      expect(preloadedQuery.networkError).toBeNull();
+
+      const networkError = new Error('network request failed');
+      sink.error(networkError);
+
+      expect(preloadedQuery.networkError).toBe(networkError);
     });
 
     it('calling dispose after the AST loads unsubscribes from executeWithSource', () => {
@@ -406,6 +442,19 @@ describe('when passed a query AST', () => {
         expect(nextCallback).toHaveBeenCalledWith(response);
       });
 
+      it('should mark failed network requests', () => {
+        const preloadedQuery = loadQuery(environment, query, variables, {
+          fetchPolicy: 'network-only',
+        });
+
+        expect(preloadedQuery.networkError).toBeNull();
+
+        const networkError = new Error('network request failed');
+        sink.error(networkError);
+
+        expect(preloadedQuery.networkError).toBe(networkError);
+      });
+
       it('calling dispose unsubscribes from environment.executeWithSource', () => {
         // This ensures that no data is written to the store
         const preloadedQuery = loadQuery(environment, query, variables, {
@@ -467,6 +516,17 @@ describe('when passed a query AST', () => {
 
       sink.next(response);
       expect(nextCallback).toHaveBeenCalledWith(response);
+    });
+
+    it('should mark failed network requests', () => {
+      const preloadedQuery = loadQuery(environment, query, variables);
+
+      expect(preloadedQuery.networkError).toBeNull();
+
+      const networkError = new Error('network request failed');
+      sink.error(networkError);
+
+      expect(preloadedQuery.networkError).toBe(networkError);
     });
 
     it('calling dispose unsubscribes from environment.executeWithSource', () => {

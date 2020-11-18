@@ -7,24 +7,27 @@
 
 use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
-    GraphQLSourceCache,
 };
 use crate::error::Result;
+use crate::goto_definition::{get_goto_definition_response, send_goto_definition_response};
+use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
     set_initializing_status, show_info_message, Completion, CompletionOptions, Connection,
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, InitializeParams,
-    LSPBridgeMessage, Message, Notification, Request, ServerCapabilities, ServerNotification,
-    ServerRequest, ServerRequestId, ServerResponse, Shutdown, TextDocumentSyncCapability,
-    TextDocumentSyncKind, WorkDoneProgressOptions,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition,
+    HoverRequest, InitializeParams, LSPBridgeMessage, Message, Notification, Request,
+    ServerCapabilities, ServerNotification, ServerRequest, ServerRequestId, ServerResponse,
+    Shutdown, TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
+use crate::utils::get_node_resolution_info;
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
+use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use log::info;
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
@@ -39,7 +42,7 @@ use tokio::sync::{mpsc, mpsc::Receiver, Notify};
 pub struct Server {
     sender: Sender<Message>,
     schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
-    synced_graphql_documents: GraphQLSourceCache,
+    synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     lsp_rx: Receiver<LSPBridgeMessage>,
     file_categorizer: FileCategorizer,
     root_dir: PathBuf,
@@ -49,7 +52,35 @@ pub struct Server {
 impl Server {
     fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
         match message {
-            // Completion request
+            LSPBridgeMessage::HoverRequest {
+                request_id,
+                text_document_position,
+            } => {
+                let get_hover_response_contents = || {
+                    let node_resolution_info = get_node_resolution_info(
+                        text_document_position,
+                        &self.synced_graphql_documents,
+                        &self.file_categorizer,
+                        &self.root_dir,
+                    )?;
+                    if let Some(schema) = self
+                        .schemas
+                        .read()
+                        .unwrap()
+                        .get(&node_resolution_info.project_name)
+                    {
+                        get_hover_response_contents(
+                            node_resolution_info,
+                            schema,
+                            &self.source_programs,
+                        )
+                    } else {
+                        None
+                    }
+                };
+
+                send_hover_response(get_hover_response_contents(), request_id, &self.sender);
+            }
             LSPBridgeMessage::CompletionRequest { request_id, params } => {
                 if let Some(completion_request) = get_completion_request(
                     params,
@@ -73,6 +104,30 @@ impl Server {
                         }
                     }
                 }
+            }
+            LSPBridgeMessage::GotoDefinitionRequest {
+                request_id,
+                text_document_position,
+            } => {
+                let get_goto_definition_response = || {
+                    let node_resolution_info = get_node_resolution_info(
+                        text_document_position,
+                        &self.synced_graphql_documents,
+                        &self.file_categorizer,
+                        &self.root_dir,
+                    )?;
+                    get_goto_definition_response(
+                        node_resolution_info,
+                        &self.source_programs,
+                        &self.root_dir,
+                    )
+                };
+
+                send_goto_definition_response(
+                    get_goto_definition_response(),
+                    request_id,
+                    &self.sender,
+                );
             }
             LSPBridgeMessage::DidOpenTextDocument(params) => {
                 on_did_open_text_document(params, &mut self.synced_graphql_documents);
@@ -118,6 +173,9 @@ pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
             work_done_progress: None,
         },
     });
+
+    server_capabilities.hover_provider = Some(true);
+    server_capabilities.definition_provider = Some(true);
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -168,6 +226,17 @@ where
                             .send(LSPBridgeMessage::CompletionRequest { request_id, params })
                             .await
                             .ok();
+                    } else if req.method == HoverRequest::METHOD {
+                        info!("hover request....");
+                        let (request_id, text_document_position) =
+                            extract_request_params::<HoverRequest>(req);
+                        lsp_tx
+                            .send(LSPBridgeMessage::HoverRequest {
+                                request_id,
+                                text_document_position,
+                            })
+                            .await
+                            .ok();
                     } else if req.method == Shutdown::METHOD {
                         perf_logger_msg_event.string("method", req.method.clone());
                         logger_for_process.complete_event(perf_logger_msg_event);
@@ -182,6 +251,16 @@ where
                         // TODO: We should exit when receiving Exit notification according to the protocol,
                         // but the notification is never received.
                         std::process::exit(0);
+                    } else if req.method == GotoDefinition::METHOD {
+                        let (request_id, text_document_position) =
+                            extract_request_params::<GotoDefinition>(req);
+                        lsp_tx
+                            .send(LSPBridgeMessage::GotoDefinitionRequest {
+                                request_id,
+                                text_document_position,
+                            })
+                            .await
+                            .ok();
                     }
                 }
                 Message::Notification(notif) => {

@@ -740,22 +740,10 @@ describe('usePaginationFragment', () => {
   });
 
   describe('pagination', () => {
-    let runScheduledCallback = () => {};
     let release;
 
     beforeEach(() => {
       jest.resetModules();
-      jest.doMock('scheduler', () => {
-        const original = jest.requireActual('scheduler/unstable_mock');
-        return {
-          ...original,
-          unstable_next: cb => {
-            runScheduledCallback = () => {
-              original.unstable_next(cb);
-            };
-          },
-        };
-      });
 
       release = jest.fn();
       environment.retain.mockImplementation((...args) => {
@@ -763,10 +751,6 @@ describe('usePaginationFragment', () => {
           dispose: release,
         };
       });
-    });
-
-    afterEach(() => {
-      jest.dontMock('scheduler');
     });
 
     function expectRequestIsInFlight(expected) {
@@ -890,6 +874,8 @@ describe('usePaginationFragment', () => {
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+        expect(callback).toBeCalledTimes(0);
+
         const paginationVariables = {
           id: '1',
           after: 'cursor:1',
@@ -912,7 +898,7 @@ describe('usePaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         expect(environment.execute).toBeCalledTimes(1);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 
@@ -943,7 +929,7 @@ describe('usePaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         expect(environment.execute).toBeCalledTimes(0);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 

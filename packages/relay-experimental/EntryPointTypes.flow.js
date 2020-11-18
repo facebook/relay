@@ -89,6 +89,7 @@ export type PreloadedQueryInner<
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
   +isDisposed: boolean,
+  +networkError: ?Error,
   +name: string,
   +networkCacheConfig: ?CacheConfig,
   +source: ?Observable<GraphQLResponse>,

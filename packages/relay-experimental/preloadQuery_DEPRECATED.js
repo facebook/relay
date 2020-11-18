@@ -188,17 +188,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
     }
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
-    const [logObserver, logRequestInfo] = environment.__createLogObserver(
-      params,
-      variables,
-    );
-    const source = network.execute(
-      params,
-      variables,
-      networkCacheConfig,
-      null,
-      logRequestInfo,
-    );
+    const source = network.execute(params, variables, networkCacheConfig, null);
     const subject = new ReplaySubject();
     nextQueryEntry = {
       cacheKey,
@@ -226,7 +216,6 @@ function preloadQueryDeduped<TQuery: OperationType>(
             }
           }, DEFAULT_PREFETCH_TIMEOUT);
         })
-        .do(logObserver)
         .subscribe({
           complete: () => {
             subject.complete();

@@ -284,7 +284,7 @@ fn get_default_value(
     Ok(object
         .items
         .named(*DEFAULT_VALUE)
-        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Loose))
+        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
         .transpose()?)
 }
 

@@ -49,8 +49,12 @@ const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
+const getPaginationMetadata = require('./util/getPaginationMetadata');
+const getPaginationVariables = require('./util/getPaginationVariables');
+const getRefetchMetadata = require('./util/getRefetchMetadata');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
+const getValueAtPath = require('./util/getValueAtPath');
 const isPromise = require('./util/isPromise');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
@@ -193,6 +197,7 @@ export type {
 export type {
   CacheConfig,
   DataID,
+  Direction,
   Disposable,
   FetchPolicy,
   FetchQueryFetchPolicy,
@@ -250,14 +255,18 @@ module.exports = {
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
   getPaginationFragment: GraphQLTag.getPaginationFragment,
+  getPaginationMetadata: getPaginationMetadata,
+  getPaginationVariables: getPaginationVariables,
   getPluralSelector: RelayModernSelector.getPluralSelector,
   getRefetchableFragment: GraphQLTag.getRefetchableFragment,
+  getRefetchMetadata: getRefetchMetadata,
   getRequest: GraphQLTag.getRequest,
   getRequestIdentifier: getRequestIdentifier,
   getSelector: RelayModernSelector.getSelector,
   getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
   getSingularSelector: RelayModernSelector.getSingularSelector,
   getStorageKey: RelayStoreUtils.getStorageKey,
+  getValueAtPath: getValueAtPath,
   getVariablesFromFragment: RelayModernSelector.getVariablesFromFragment,
   getVariablesFromObject: RelayModernSelector.getVariablesFromObject,
   getVariablesFromPluralFragment:

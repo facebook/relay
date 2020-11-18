@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::match_::MATCH_CONSTANTS;
+use crate::DIRECTIVE_SPLIT_OPERATION;
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Transformed, Transformer};
 
@@ -31,7 +31,7 @@ impl Transformer for SkipSplitOperation {
     ) -> Transformed<OperationDefinition> {
         if operation
             .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
             .is_some()
         {
             Transformed::Delete

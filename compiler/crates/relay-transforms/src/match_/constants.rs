@@ -20,8 +20,6 @@ pub struct MatchConstants {
     pub name_arg: StringKey,
     pub custom_module_directive_name: StringKey,
     pub source_document_arg: StringKey,
-    pub parent_sources_arg: StringKey,
-    pub derived_from_arg: StringKey,
 }
 
 lazy_static! {
@@ -37,7 +35,5 @@ lazy_static! {
         name_arg: "name".intern(),
         custom_module_directive_name: "__module".intern(),
         source_document_arg: "sourceDocument".intern(),
-        parent_sources_arg: "parentSources".intern(),
-        derived_from_arg: "derivedFrom".intern(),
     };
 }

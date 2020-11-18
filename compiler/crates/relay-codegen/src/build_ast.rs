@@ -22,8 +22,9 @@ use relay_transforms::{
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
     ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
     ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
-    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_DIRECTIVE_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
+    PATH_METADATA_ARGUMENT, REACT_FLIGHT_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::Schema;
 
@@ -135,10 +136,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
-        match operation
-            .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
-        {
+        match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
                 let selections = self.build_selections(operation.selections.iter());

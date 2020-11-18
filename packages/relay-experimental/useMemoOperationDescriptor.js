@@ -34,14 +34,15 @@ function useMemoOperationDescriptor(
   cacheConfig?: ?CacheConfig,
 ): OperationDescriptor {
   const [memoVariables] = useMemoVariables(variables);
+  const [memoCacheConfig] = useMemoVariables(cacheConfig || {});
   return useMemo(
     () =>
       createOperationDescriptor(
         getRequest(gqlQuery),
         memoVariables,
-        cacheConfig,
+        memoCacheConfig,
       ),
-    [gqlQuery, memoVariables, cacheConfig],
+    [gqlQuery, memoVariables, memoCacheConfig],
   );
 }
 

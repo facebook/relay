@@ -18,19 +18,9 @@ import type {
 } from '../../EntryPointTypes.flow';
 import type {JSResourceReference} from 'JSResourceReference';
 
-const mockJSResource = <TModule>(
+declare function mockJSResource<TModule>(
   module: TModule,
-): JSResourceReference<TModule> => ({
-  getModuleId(): string {
-    return '';
-  },
-  getModuleIfRequired(): ?TModule {
-    return module;
-  },
-  load(): Promise<TModule> {
-    return Promise.resolve(module);
-  },
-});
+): JSResourceReference<TModule>;
 
 type NestedEntrypointComponentProps = EntryPointProps<{}>;
 

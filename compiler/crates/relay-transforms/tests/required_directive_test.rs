@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<41fd637da1e9baf530488c1450a1e282>>
+ * @generated SignedSource<<040f8e0233fcbda05849800798fc1c65>>
  */
 
 mod required_directive;
@@ -80,6 +80,13 @@ fn fragments_are_isolated() {
     let input = include_str!("required_directive/fixtures/fragments-are-isolated.graphql");
     let expected = include_str!("required_directive/fixtures/fragments-are-isolated.expected");
     test_fixture(transform_fixture, "fragments-are-isolated.graphql", "required_directive/fixtures/fragments-are-isolated.expected", input, expected);
+}
+
+#[test]
+fn inline_directive_invalid() {
+    let input = include_str!("required_directive/fixtures/inline-directive.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/inline-directive.invalid.expected");
+    test_fixture(transform_fixture, "inline-directive.invalid.graphql", "required_directive/fixtures/inline-directive.invalid.expected", input, expected);
 }
 
 #[test]

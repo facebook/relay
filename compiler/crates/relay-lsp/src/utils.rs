@@ -10,8 +10,9 @@ use std::{collections::HashMap, path::PathBuf};
 use crate::type_path::{TypePath, TypePathItem};
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{
-    parse_executable, Argument, ExecutableDefinition, ExecutableDocument, FragmentSpread,
-    GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
+    parse_executable, Argument, Directive, ExecutableDefinition, ExecutableDocument,
+    FragmentSpread, GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition,
+    ScalarField, Selection,
 };
 use interner::StringKey;
 use log::info;
@@ -23,6 +24,7 @@ pub enum NodeKind {
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
     Variable(String),
+    Directive(StringKey, Option<StringKey>),
 }
 
 #[derive(Debug)]
@@ -158,6 +160,31 @@ fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> 
     None
 }
 
+fn build_node_resolution_for_directive(
+    directives: &[Directive],
+    position_span: Span,
+    project_name: StringKey,
+) -> Option<NodeResolutionInfo> {
+    let directive = directives
+        .iter()
+        .find(|directive| directive.span.contains(position_span))?;
+
+    let arg_name_opt = if let Some(args) = &directive.arguments {
+        args.items
+            .iter()
+            .find(|arg| arg.span.contains(position_span))
+            .map(|arg| arg.name.value)
+    } else {
+        None
+    };
+
+    Some(NodeResolutionInfo {
+        kind: NodeKind::Directive(directive.name.value, arg_name_opt),
+        type_path: Default::default(),
+        project_name,
+    })
+}
+
 fn create_node_resolution_info(
     document: ExecutableDocument,
     position_span: Span,
@@ -190,6 +217,14 @@ fn create_node_resolution_info(
                     }
                 }
 
+                if let Some(node_resolution_info) = build_node_resolution_for_directive(
+                    &operation.directives,
+                    position_span,
+                    project_name,
+                ) {
+                    return Some(node_resolution_info);
+                }
+
                 let (_, kind) = operation.operation.clone()?;
                 node_resolution_info
                     .type_path
@@ -207,6 +242,14 @@ fn create_node_resolution_info(
         }
         ExecutableDefinition::Fragment(fragment) => {
             if fragment.location.contains(position_span) {
+                if let Some(node_resolution_info) = build_node_resolution_for_directive(
+                    &fragment.directives,
+                    position_span,
+                    project_name,
+                ) {
+                    return Some(node_resolution_info);
+                }
+
                 let type_name = fragment.type_condition.type_.value;
                 node_resolution_info
                     .type_path
@@ -256,6 +299,15 @@ fn build_node_resolution_info_from_selections(
         .iter()
         .find(|item| item.span().contains(position_span))
     {
+        if let Some(directive_resolution_info) = build_node_resolution_for_directive(
+            item.directives(),
+            position_span,
+            node_resolution_info.project_name,
+        ) {
+            node_resolution_info.kind = directive_resolution_info.kind;
+            return;
+        }
+
         match item {
             Selection::LinkedField(node) => {
                 node_resolution_info.kind = NodeKind::FieldName;

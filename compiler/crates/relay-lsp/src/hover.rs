@@ -15,10 +15,18 @@ use graphql_ir::Program;
 use graphql_text_printer::print_fragment;
 use interner::StringKey;
 use schema::Schema;
+use schema_print::print_directive;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
+
+fn hover_content_wrapper(content: String) -> HoverContents {
+    HoverContents::Scalar(MarkedString::LanguageString(LanguageString {
+        language: "graphql".to_string(),
+        value: content,
+    }))
+}
 
 pub fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
@@ -28,8 +36,22 @@ pub fn get_hover_response_contents(
     let kind = node_resolution_info.kind;
 
     match kind {
-        NodeKind::Variable(type_name) => {
-            Some(HoverContents::Scalar(MarkedString::String(type_name)))
+        NodeKind::Variable(type_name) => Some(hover_content_wrapper(type_name)),
+        NodeKind::Directive(directive_name, argument_name) => {
+            let schema_directive = schema.get_directive(directive_name)?;
+
+            if let Some(argument_name) = argument_name {
+                let argument = schema_directive.arguments.named(argument_name)?;
+                let content = format!(
+                    "{}: {}",
+                    argument_name,
+                    schema.get_type_string(&argument.type_)
+                );
+                Some(hover_content_wrapper(content))
+            } else {
+                let directive_text = print_directive(schema, &schema_directive);
+                Some(hover_content_wrapper(directive_text))
+            }
         }
         NodeKind::FieldName => {
             let type_ref = node_resolution_info
@@ -37,7 +59,7 @@ pub fn get_hover_response_contents(
                 .resolve_current_type_reference(schema)?;
             let type_name = schema.get_type_string(&type_ref);
 
-            Some(HoverContents::Scalar(MarkedString::String(type_name)))
+            Some(hover_content_wrapper(type_name))
         }
         NodeKind::FieldArgument(field_name, argument_name) => {
             let type_ref = node_resolution_info
@@ -47,10 +69,13 @@ pub fn get_hover_response_contents(
             if type_ref.inner().is_object() || type_ref.inner().is_interface() {
                 let field_id = schema.named_field(type_ref.inner(), field_name)?;
                 let field = schema.field(field_id);
-                let arg = field.arguments.named(argument_name)?;
-                let type_name = schema.get_type_string(&arg.type_);
-
-                Some(HoverContents::Scalar(MarkedString::String(type_name)))
+                let argument = field.arguments.named(argument_name)?;
+                let content = format!(
+                    "{}: {}",
+                    argument_name,
+                    schema.get_type_string(&argument.type_)
+                );
+                Some(hover_content_wrapper(content))
             } else {
                 None
             }
@@ -60,12 +85,7 @@ pub fn get_hover_response_contents(
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
                 let fragment_text =
                     print_fragment(&schema, source_program.fragment(fragment_name)?);
-                Some(HoverContents::Scalar(MarkedString::LanguageString(
-                    LanguageString {
-                        language: "graphql".to_string(),
-                        value: fragment_text,
-                    },
-                )))
+                Some(hover_content_wrapper(fragment_text))
             } else {
                 None
             }

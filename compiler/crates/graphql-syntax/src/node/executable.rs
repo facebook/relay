@@ -172,6 +172,15 @@ impl Selection {
             Selection::ScalarField(node) => node.span,
         }
     }
+
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            Selection::FragmentSpread(node) => &node.directives,
+            Selection::InlineFragment(node) => &node.directives,
+            Selection::LinkedField(node) => &node.directives,
+            Selection::ScalarField(node) => &node.directives,
+        }
+    }
 }
 
 impl fmt::Debug for Selection {

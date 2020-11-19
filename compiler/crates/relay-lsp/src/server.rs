@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::completion::{
-    completion_items_for_request, get_completion_request, send_completion_response,
-};
 use crate::goto_definition::{get_goto_definition_response, send_goto_definition_response};
 use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
@@ -24,12 +21,17 @@ use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
 use crate::utils::get_node_resolution_info;
+use crate::{
+    completion::{completion_items_for_request, get_completion_request, send_completion_response},
+    lsp_runtime_error::LSPRuntimeResult,
+};
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use log::info;
+use lsp_server::{RequestId, ResponseError};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::Schema;
 use std::{
@@ -39,7 +41,10 @@ use std::{
 };
 use tokio::sync::{mpsc, mpsc::Receiver, Notify};
 
-pub struct Server {
+pub struct Server<TPerfLogger>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
     sender: Sender<Message>,
     schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
@@ -47,10 +52,38 @@ pub struct Server {
     file_categorizer: FileCategorizer,
     root_dir: PathBuf,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+    perf_logger: Arc<TPerfLogger>,
 }
 
-impl Server {
-    fn on_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
+impl<TPerfLogger> Server<TPerfLogger>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
+    async fn watch(&mut self) -> LSPProcessResult<()> {
+        loop {
+            if let Some(message) = self.lsp_rx.recv().await {
+                self.handle_lsp_bridge_message(message);
+            }
+        }
+    }
+
+    fn handle_lsp_bridge_message(&mut self, message: LSPBridgeMessage) {
+        if let Some((id, lsp_response)) = self.get_lsp_bridge_message_response(message) {
+            // TODO handle send error
+            let _ = self
+                .sender
+                .send(Message::Response(create_server_response_and_log(
+                    id,
+                    lsp_response,
+                    &self.perf_logger,
+                )));
+        }
+    }
+
+    fn get_lsp_bridge_message_response(
+        &mut self,
+        message: LSPBridgeMessage,
+    ) -> Option<(RequestId, LSPRuntimeResult<serde_json::Value>)> {
         match message {
             LSPBridgeMessage::HoverRequest {
                 request_id,
@@ -80,6 +113,7 @@ impl Server {
                 };
 
                 send_hover_response(get_hover_response_contents(), request_id, &self.sender);
+                None
             }
             LSPBridgeMessage::CompletionRequest { request_id, params } => {
                 if let Some(completion_request) = get_completion_request(
@@ -104,6 +138,7 @@ impl Server {
                         }
                     }
                 }
+                None
             }
             LSPBridgeMessage::GotoDefinitionRequest {
                 request_id,
@@ -128,15 +163,19 @@ impl Server {
                     request_id,
                     &self.sender,
                 );
+                None
             }
             LSPBridgeMessage::DidOpenTextDocument(params) => {
                 on_did_open_text_document(params, &mut self.synced_graphql_documents);
+                None
             }
             LSPBridgeMessage::DidChangeTextDocument(params) => {
                 on_did_change_text_document(params, &mut self.synced_graphql_documents);
+                None
             }
             LSPBridgeMessage::DidCloseTextDocument(params) => {
                 on_did_close_text_document(params, &mut self.synced_graphql_documents);
+                None
             }
         }
     }
@@ -147,14 +186,6 @@ impl Server {
 
     fn get_source_programs(&self) -> Arc<RwLock<HashMap<StringKey, Program>>> {
         self.source_programs.clone()
-    }
-
-    async fn watch(&mut self) -> LSPProcessResult<()> {
-        loop {
-            if let Some(message) = self.lsp_rx.recv().await {
-                self.on_lsp_bridge_message(message)
-            }
-        }
     }
 }
 
@@ -327,6 +358,7 @@ where
         file_categorizer: FileCategorizer::from_config(&config),
         root_dir: config.root_dir.clone(),
         source_programs: Default::default(),
+        perf_logger: Arc::clone(&perf_logger),
     };
 
     config.status_reporter = Box::new(LSPStatusReporter::new(
@@ -369,4 +401,57 @@ where
     R: Request,
 {
     req.extract(R::METHOD).unwrap()
+}
+
+fn create_server_response_and_log<TPerfLogger>(
+    id: RequestId,
+    lsp_runtime_result: LSPRuntimeResult<serde_json::Value>,
+    perf_logger: &Arc<TPerfLogger>,
+) -> ServerResponse
+where
+    TPerfLogger: PerfLogger + 'static,
+{
+    match lsp_runtime_result {
+        Ok(result) => ServerResponse {
+            id,
+            result: Some(result),
+            error: None,
+        },
+        Err(error) => {
+            let response_error: Option<ResponseError> = error.into();
+            match response_error {
+                Some(error) => {
+                    log_response_error(perf_logger, error.clone());
+                    ServerResponse {
+                        id,
+                        result: None,
+                        error: Some(error),
+                    }
+                }
+                None => {
+                    // This is not correct behavior here. We should cancel the request.
+                    // This will print an error like
+                    // "Error: The received response has neither a result nor an error property."
+                    ServerResponse {
+                        id,
+                        result: None,
+                        error: None,
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn log_response_error<TPerfLogger>(perf_logger: &Arc<TPerfLogger>, error: ResponseError)
+where
+    TPerfLogger: PerfLogger + 'static,
+{
+    let event = perf_logger.create_event("lsp_error");
+    event.string("lsp_error_code", error.code.to_string());
+    event.string("lsp_error_message", error.message);
+    if let Some(data) = error.data {
+        event.string("lsp_error_data", data.to_string());
+    }
+    perf_logger.complete_event(event);
 }

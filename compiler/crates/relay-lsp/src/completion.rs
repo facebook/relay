@@ -135,28 +135,59 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .collect()
 }
 
-/// Finds all the valid fragment names for a given type. Used to complete fragment spreads
-fn get_valid_fragments_for_type(type_: Type, source_program: &Program) -> Vec<StringKey> {
-    let mut valid_fragment_names = vec![];
-    for fragment in source_program.fragments() {
-        if fragment.type_condition == type_ {
-            valid_fragment_names.push(fragment.name.item);
-        }
-    }
-    info!("get_valid_fragments_for_type {:#?}", valid_fragment_names);
-    valid_fragment_names
-}
-
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
     source_program: &Program,
+    schema: &Schema,
 ) -> Vec<CompletionItem> {
-    get_valid_fragments_for_type(type_, source_program)
-        .iter()
-        .map(|fragment_name| {
-            CompletionItem::new_simple(fragment_name.to_string(), String::from(""))
-        })
-        .collect()
+    let mut valid_fragments = vec![];
+    for fragment in source_program.fragments() {
+        if fragment.type_condition == type_ && !fragment.variable_definitions.is_empty() {
+            // Create a snippet if the fragment has required arugmentDefinition with no default values
+            let mut cursor_location = 1;
+            let mut args = vec![];
+            for arg in fragment.variable_definitions.iter() {
+                if arg.default_value.is_none() {
+                    if let TypeReference::NonNull(type_) = &arg.type_ {
+                        let value_snippet = match type_ {
+                            t if t.is_list() => format!("[${}]", cursor_location),
+                            t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
+                            _ => format!("${}", cursor_location),
+                        };
+                        let str = format!("{}: {}", arg.name.item, value_snippet);
+                        args.push(str);
+                        cursor_location += 1;
+                    }
+                }
+            }
+
+            valid_fragments.push(if args.is_empty() {
+                CompletionItem::new_simple(fragment.name.item.to_string(), "".into())
+            } else {
+                let label = fragment.name.item.to_string();
+                let insert_text = format!("{} @arguments({})", label, args.join(", "));
+                CompletionItem {
+                    label,
+                    kind: None,
+                    detail: None,
+                    documentation: None,
+                    deprecated: None,
+                    preselect: None,
+                    sort_text: None,
+                    filter_text: None,
+                    insert_text: Some(insert_text),
+                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                    text_edit: None,
+                    additional_text_edits: None,
+                    command: None,
+                    data: None,
+                    tags: None,
+                }
+            });
+        }
+    }
+    info!("get_valid_fragments_for_type {:#?}", valid_fragments);
+    valid_fragments
 }
 
 pub fn completion_items_for_request(
@@ -172,7 +203,8 @@ pub fn completion_items_for_request(
         CompletionKind::FragmentSpread => {
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
                 info!("has source program");
-                let items = resolve_completion_items_for_fragment_spread(leaf_type, source_program);
+                let items =
+                    resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
                 Some(items)
             } else {
                 None

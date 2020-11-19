@@ -210,25 +210,18 @@ describe('useRefetchableFragmentNode', () => {
     gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
     gqlFragmentWithArgs.metadata.refetch.operation = gqlRefetchQueryWithArgs;
 
-    query = createOperationDescriptor(gqlQuery, variables, {force: true});
+    query = createOperationDescriptor(gqlQuery, variables);
     queryNestedFragment = createOperationDescriptor(
       gqlQueryNestedFragment,
       variablesNestedFragment,
-      {force: true},
     );
     refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables, {
       force: true,
     });
-    queryWithArgs = createOperationDescriptor(gqlQueryWithArgs, variables, {
-      force: true,
+    queryWithArgs = createOperationDescriptor(gqlQueryWithArgs, variables);
+    queryWithLiteralArgs = createOperationDescriptor(gqlQueryWithLiteralArgs, {
+      id: variables.id,
     });
-    queryWithLiteralArgs = createOperationDescriptor(
-      gqlQueryWithLiteralArgs,
-      {
-        id: variables.id,
-      },
-      {force: true},
-    );
     refetchQueryWithArgs = createOperationDescriptor(
       gqlRefetchQueryWithArgs,
       variables,
@@ -441,7 +434,6 @@ describe('useRefetchableFragmentNode', () => {
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
-        {force: true},
       );
       // Commit a payload with name and profile_picture are missing
       TestRenderer.act(() => {
@@ -1234,9 +1226,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Pass new parent fragment ref with different variables
       const newVariables = {...variables, scale: 32};
-      const newQuery = createOperationDescriptor(gqlQuery, newVariables, {
-        force: true,
-      });
+      const newQuery = createOperationDescriptor(gqlQuery, newVariables);
       environment.commitPayload(newQuery, {
         node: {
           __typename: 'User',

@@ -262,25 +262,20 @@ describe('useBlockingPaginationFragment', () => {
     // Manually set the refetchable operation for the test.
     gqlFragment.metadata.refetch.operation = gqlPaginationQuery;
 
-    query = createOperationDescriptor(gqlQuery, variables, {force: true});
+    query = createOperationDescriptor(gqlQuery, variables);
     queryNestedFragment = createOperationDescriptor(
       gqlQueryNestedFragment,
       variablesNestedFragment,
-      {force: true},
     );
     queryWithoutID = createOperationDescriptor(
       gqlQueryWithoutID,
       variablesWithoutID,
-      {force: true},
     );
     queryWithLiteralArgs = createOperationDescriptor(
       gqlQueryWithLiteralArgs,
       variables,
-      {force: true},
     );
-    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
-      force: true,
-    });
+    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables);
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -669,7 +664,6 @@ describe('useBlockingPaginationFragment', () => {
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
-        {force: true},
       );
       // Commit a payload with name and profile_picture are missing
       environment.commitPayload(missingDataQuery, {
@@ -2894,9 +2888,7 @@ describe('useBlockingPaginationFragment', () => {
 
           // Pass new parent fragment ref with different variables
           const newVariables = {...variables, isViewerFriend: true};
-          const newQuery = createOperationDescriptor(gqlQuery, newVariables, {
-            force: true,
-          });
+          const newQuery = createOperationDescriptor(gqlQuery, newVariables);
           environment.commitPayload(newQuery, {
             node: {
               __typename: 'User',

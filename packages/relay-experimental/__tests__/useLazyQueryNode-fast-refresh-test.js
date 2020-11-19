@@ -31,7 +31,7 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }
 
-function expectToHaveFetched(environment, query) {
+function expectToHaveFetched(environment, query, cacheConfig) {
   expect(environment.execute).toBeCalledTimes(1);
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
@@ -42,9 +42,11 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(
+      query.request.node,
+      query.request.variables,
+      cacheConfig,
+    ),
   ).toEqual(true);
 }
 
@@ -83,7 +85,7 @@ describe('useLazyLoadQueryNode', () => {
     `);
     gqlQuery = generated.UserQuery;
     variables = {id: '1'};
-    query = createOperationDescriptor(gqlQuery, variables, {force: true});
+    query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
   });
 
@@ -97,9 +99,7 @@ describe('useLazyLoadQueryNode', () => {
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function(props) {
-      const _query = createOperationDescriptor(gqlQuery, props.variables, {
-        force: true,
-      });
+      const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
         fetchPolicy: 'network-only',
@@ -118,7 +118,7 @@ describe('useLazyLoadQueryNode', () => {
     );
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToHaveFetched(environment, query);
+    expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
@@ -141,9 +141,7 @@ describe('useLazyLoadQueryNode', () => {
     environment.execute.mockClear();
     renderFn.mockClear();
     function V2(props) {
-      const _query = createOperationDescriptor(gqlQuery, props.variables, {
-        force: true,
-      });
+      const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
         fetchPolicy: 'network-only',
@@ -157,7 +155,7 @@ describe('useLazyLoadQueryNode', () => {
       ReactRefreshRuntime.performReactRefresh();
     });
     // It should start a new fetch in fast refresh
-    expectToHaveFetched(environment, query);
+    expectToHaveFetched(environment, query, {});
     expect(renderFn).toBeCalledTimes(1);
     expect(instance.toJSON()).toEqual('Fallback');
     // It should render with the result of the new fetch

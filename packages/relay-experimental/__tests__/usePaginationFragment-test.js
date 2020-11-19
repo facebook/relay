@@ -324,26 +324,22 @@ describe('usePaginationFragment', () => {
     // Manually set the refetchable operation for the test.
     gqlFragmentWithStreaming.metadata.refetch.operation = gqlPaginationQueryWithStreaming;
 
-    query = createOperationDescriptor(gqlQuery, variables, {force: true});
+    query = createOperationDescriptor(gqlQuery, variables);
     queryNestedFragment = createOperationDescriptor(
       gqlQueryNestedFragment,
       variablesNestedFragment,
-      {force: true},
     );
     queryWithoutID = createOperationDescriptor(
       gqlQueryWithoutID,
       variablesWithoutID,
-      {force: true},
     );
     queryWithLiteralArgs = createOperationDescriptor(
       gqlQueryWithLiteralArgs,
       variables,
-      {force: true},
     );
     queryWithStreaming = createOperationDescriptor(
       gqlQueryWithStreaming,
       variables,
-      {force: true},
     );
     paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
       force: true,
@@ -724,7 +720,6 @@ describe('usePaginationFragment', () => {
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
-        {force: true},
       );
       // Commit a payload with name and profile_picture are missing
       environment.commitPayload(missingDataQuery, {
@@ -2371,9 +2366,7 @@ describe('usePaginationFragment', () => {
 
           // Pass new parent fragment ref with different variables
           const newVariables = {...variables, isViewerFriend: true};
-          const newQuery = createOperationDescriptor(gqlQuery, newVariables, {
-            force: true,
-          });
+          const newQuery = createOperationDescriptor(gqlQuery, newVariables);
           environment.commitPayload(newQuery, {
             node: {
               __typename: 'User',
@@ -4044,9 +4037,7 @@ describe('usePaginationFragment', () => {
         // Manually set the refetchable operation for the test.
         gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
 
-        query = createOperationDescriptor(gqlQuery, fetchVariables, {
-          force: true,
-        });
+        query = createOperationDescriptor(gqlQuery, fetchVariables);
 
         environment.commitPayload(query, {
           nonNodeStory: {

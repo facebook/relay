@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::goto_definition::{get_goto_definition_response, send_goto_definition_response};
 use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
     set_initializing_status, Completion, CompletionOptions, Connection, DidChangeTextDocument,
@@ -25,6 +24,7 @@ use crate::{
     completion::{completion_items_for_request, get_completion_request, send_completion_response},
     lsp_runtime_error::LSPRuntimeResult,
 };
+use crate::{goto_definition::get_goto_definition_response, lsp_runtime_error::LSPRuntimeError};
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
@@ -144,26 +144,36 @@ where
                 request_id,
                 text_document_position,
             } => {
-                let get_goto_definition_response = || {
+                let get_goto_definition_result = || {
                     let node_resolution_info = get_node_resolution_info(
                         text_document_position,
                         &self.synced_graphql_documents,
                         &self.file_categorizer,
                         &self.root_dir,
-                    )?;
-                    get_goto_definition_response(
+                    )
+                    .ok_or_else(|| {
+                        LSPRuntimeError::UnexpectedError(
+                            "Unable to get node resolution info".to_string(),
+                        )
+                    })?;
+                    let goto_definition_response = get_goto_definition_response(
                         node_resolution_info,
                         &self.source_programs,
                         &self.root_dir,
                     )
+                    .ok_or_else(|| {
+                        LSPRuntimeError::UnexpectedError(
+                            "Unable to get goto definition response".to_string(),
+                        )
+                    })?;
+                    serde_json::to_value(goto_definition_response).map_err(|_e| {
+                        LSPRuntimeError::UnexpectedError(
+                            "Unable to serialize goto definition response".to_string(),
+                        )
+                    })
                 };
 
-                send_goto_definition_response(
-                    get_goto_definition_response(),
-                    request_id,
-                    &self.sender,
-                );
-                None
+                Some((request_id, get_goto_definition_result()))
             }
             LSPBridgeMessage::DidOpenTextDocument(params) => {
                 on_did_open_text_document(params, &mut self.synced_graphql_documents);

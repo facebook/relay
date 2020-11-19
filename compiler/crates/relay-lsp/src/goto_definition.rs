@@ -7,10 +7,9 @@
 
 //! Utilities for providing the goto definition feature
 
-use crate::lsp::{GotoDefinitionResponse, Message, ServerRequestId, ServerResponse};
+use crate::lsp::GotoDefinitionResponse;
 use crate::utils::{NodeKind, NodeResolutionInfo};
 use common::{Location, SourceLocationKey};
-use crossbeam::Sender;
 use graphql_ir::Program;
 use interner::StringKey;
 use lsp_types::Url;
@@ -41,21 +40,6 @@ pub fn get_goto_definition_response(
         }
         _ => None,
     }
-}
-
-pub fn send_goto_definition_response(
-    goto_definition_response: Option<GotoDefinitionResponse>,
-    request_id: ServerRequestId,
-    sender: &Sender<Message>,
-) {
-    let result = goto_definition_response.and_then(|response| serde_json::to_value(response).ok());
-    sender
-        .send(Message::Response(ServerResponse {
-            id: request_id,
-            result,
-            error: None,
-        }))
-        .ok();
 }
 
 fn to_lsp_location(location: Location, root_dir: &PathBuf) -> Option<lsp_types::Location> {

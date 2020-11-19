@@ -28,6 +28,9 @@ pub fn get_hover_response_contents(
     let kind = node_resolution_info.kind;
 
     match kind {
+        NodeKind::Variable(type_name) => {
+            Some(HoverContents::Scalar(MarkedString::String(type_name)))
+        }
         NodeKind::FieldName => {
             let type_ref = node_resolution_info
                 .type_path

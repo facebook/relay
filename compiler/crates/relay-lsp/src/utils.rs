@@ -17,11 +17,12 @@ use interner::StringKey;
 use log::info;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
     FieldName,
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
+    Variable(String),
 }
 
 #[derive(Debug)]
@@ -162,46 +163,65 @@ fn create_node_resolution_info(
     position_span: Span,
     project_name: StringKey,
 ) -> Option<NodeResolutionInfo> {
-    info!("Building node resolution info");
+    let definition = document
+        .definitions
+        .iter()
+        .find(|definition| definition.location().contains(position_span))?;
+
     let mut node_resolution_info = NodeResolutionInfo::new(project_name);
 
-    for definition in document.definitions {
-        match &definition {
-            ExecutableDefinition::Operation(operation) => {
-                if operation.location.contains(position_span) {
-                    let (_, kind) = operation.operation.clone()?;
-                    node_resolution_info
-                        .type_path
-                        .add_type(TypePathItem::Operation(kind));
+    match definition {
+        ExecutableDefinition::Operation(operation) => {
+            if operation.location.contains(position_span) {
+                let OperationDefinition {
+                    selections,
+                    variable_definitions,
+                    ..
+                } = operation;
 
-                    info!("Node is within operation: {:?}", operation.name);
-                    let OperationDefinition { selections, .. } = operation;
-
-                    build_node_resolution_info_from_selections(
-                        selections,
-                        position_span,
-                        &mut node_resolution_info,
-                    );
-                    return Some(node_resolution_info);
+                if let Some(variable_definitions) = variable_definitions {
+                    if let Some(variable) = variable_definitions
+                        .items
+                        .iter()
+                        .find(|var| var.span.contains(position_span))
+                    {
+                        node_resolution_info.kind = NodeKind::Variable(variable.type_.to_string());
+                        return Some(node_resolution_info);
+                    }
                 }
+
+                let (_, kind) = operation.operation.clone()?;
+                node_resolution_info
+                    .type_path
+                    .add_type(TypePathItem::Operation(kind));
+
+                build_node_resolution_info_from_selections(
+                    selections,
+                    position_span,
+                    &mut node_resolution_info,
+                );
+                Some(node_resolution_info)
+            } else {
+                None
             }
-            ExecutableDefinition::Fragment(fragment) => {
-                if fragment.location.contains(position_span) {
-                    let type_name = fragment.type_condition.type_.value;
-                    node_resolution_info
-                        .type_path
-                        .add_type(TypePathItem::FragmentDefinition { type_name });
-                    build_node_resolution_info_from_selections(
-                        &fragment.selections,
-                        position_span,
-                        &mut node_resolution_info,
-                    );
-                    return Some(node_resolution_info);
-                }
+        }
+        ExecutableDefinition::Fragment(fragment) => {
+            if fragment.location.contains(position_span) {
+                let type_name = fragment.type_condition.type_.value;
+                node_resolution_info
+                    .type_path
+                    .add_type(TypePathItem::FragmentDefinition { type_name });
+                build_node_resolution_info_from_selections(
+                    &fragment.selections,
+                    position_span,
+                    &mut node_resolution_info,
+                );
+                Some(node_resolution_info)
+            } else {
+                None
             }
         }
     }
-    None
 }
 
 /// If position_span falls into one of the field arguments,

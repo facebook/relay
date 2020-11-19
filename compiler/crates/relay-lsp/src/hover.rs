@@ -7,7 +7,8 @@
 
 //! Utilities for providing the hover feature
 use crate::lsp::{
-    Hover, HoverContents, LanguageString, MarkedString, Message, ServerRequestId, ServerResponse,
+    Hover, HoverContents, LanguageString, MarkedString, MarkupContent, MarkupKind, Message,
+    ServerRequestId, ServerResponse,
 };
 use crate::utils::{NodeKind, NodeResolutionInfo};
 use crossbeam::Sender;
@@ -28,6 +29,43 @@ fn hover_content_wrapper(content: String) -> HoverContents {
     }))
 }
 
+/// This will provide a more accurate information about some of the specific Relay directives
+/// that cannot be expressed via SDL
+fn argument_definition_hover_info(directive_name: &str) -> Option<HoverContents> {
+    let content = match directive_name {
+        "argumentDefinitions" => Some(
+            r#"
+`@argumentDefinitions` is a directive used to specify arguments taken by a fragment.
+
+@see: https://relay.dev/docs/en/graphql-in-relay.html#argumentdefinitions
+"#,
+        ),
+        "arguments" => Some(
+            r#"
+`@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
+
+@see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
+"#,
+        ),
+        "uncheckedArguments_DEPRECATED" => Some(
+            r#"
+DEPRECATED version of `@arguments` directive.
+`@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
+
+@see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
+"#,
+        ),
+        _ => None,
+    };
+
+    content.map(|value| {
+        HoverContents::Markup(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value: value.to_string(),
+        })
+    })
+}
+
 pub fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &Schema,
@@ -38,6 +76,12 @@ pub fn get_hover_response_contents(
     match kind {
         NodeKind::Variable(type_name) => Some(hover_content_wrapper(type_name)),
         NodeKind::Directive(directive_name, argument_name) => {
+            if let Some(argument_definition_hover_info) =
+                argument_definition_hover_info(directive_name.lookup())
+            {
+                return Some(argument_definition_hover_info);
+            }
+
             let schema_directive = schema.get_directive(directive_name)?;
 
             if let Some(argument_name) = argument_name {

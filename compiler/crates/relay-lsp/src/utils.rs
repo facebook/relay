@@ -421,7 +421,6 @@ mod test {
         )
         .unwrap();
 
-
         // Select the `id` field
         let position_span = Span {
             start: 117,

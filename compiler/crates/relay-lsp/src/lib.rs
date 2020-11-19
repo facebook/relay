@@ -13,6 +13,7 @@ mod goto_definition;
 mod hover;
 mod lsp;
 pub mod lsp_process_error;
+mod lsp_runtime_error;
 mod server;
 mod status_reporting;
 mod text_documents;

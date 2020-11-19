@@ -8,7 +8,7 @@
 //! Utilities for reading, writing, and transforming data for the LSP service
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
-use crate::error::Result;
+use crate::lsp_process_error::LSPProcessResult;
 use common::Location;
 use crossbeam::crossbeam_channel::Sender;
 pub use lsp_server::{Connection, Message};
@@ -130,7 +130,10 @@ fn update_status(
 
 /// Show a notification in the client
 #[allow(dead_code)]
-pub fn show_info_message(message: impl Into<String>, connection: &Connection) -> Result<()> {
+pub fn show_info_message(
+    message: impl Into<String>,
+    connection: &Connection,
+) -> LSPProcessResult<()> {
     let notif = ServerNotification::new(
         ShowMessage::METHOD.into(),
         ShowMessageParams {
@@ -151,7 +154,7 @@ pub fn show_info_message(message: impl Into<String>, connection: &Connection) ->
 pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
     sender: &Sender<Message>,
-) -> Result<()> {
+) -> LSPProcessResult<()> {
     let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
     sender
         .send(Message::Notification(notif))

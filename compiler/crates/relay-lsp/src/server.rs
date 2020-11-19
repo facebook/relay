@@ -8,7 +8,6 @@
 use crate::completion::{
     completion_items_for_request, get_completion_request, send_completion_response,
 };
-use crate::error::Result;
 use crate::goto_definition::{get_goto_definition_response, send_goto_definition_response};
 use crate::hover::{get_hover_response_contents, send_hover_response};
 use crate::lsp::{
@@ -18,6 +17,7 @@ use crate::lsp::{
     ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
     TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
 };
+use crate::lsp_process_error::LSPProcessResult;
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
 use crate::text_documents::{
@@ -149,7 +149,7 @@ impl Server {
         self.source_programs.clone()
     }
 
-    async fn watch(&mut self) -> Result<()> {
+    async fn watch(&mut self) -> LSPProcessResult<()> {
         loop {
             if let Some(message) = self.lsp_rx.recv().await {
                 self.on_lsp_bridge_message(message)
@@ -160,7 +160,7 @@ impl Server {
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
-pub fn initialize(connection: &Connection) -> Result<InitializeParams> {
+pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
     let mut server_capabilities = ServerCapabilities::default();
     // Enable text document syncing so we can know when files are opened/changed/saved/closed
     server_capabilities.text_document_sync =
@@ -189,7 +189,7 @@ pub async fn run<TPerfLogger>(
     mut config: Config,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
-) -> Result<()>
+) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
 {

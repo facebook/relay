@@ -11,20 +11,20 @@ use serde_json::Error as SerdeError;
 use std::io::Error as IOError;
 use tokio::task::JoinError;
 
-pub type Result<T> = std::result::Result<T, LSPError>;
+pub type LSPProcessResult<T> = std::result::Result<T, LSPProcessError>;
 
 macro_rules! extend_error {
     ($error: ident) => {
-        impl From<$error> for LSPError {
+        impl From<$error> for LSPProcessError {
             fn from(err: $error) -> Self {
-                LSPError::$error(err)
+                LSPProcessError::$error(err)
             }
         }
     };
 }
 
 #[derive(Debug)]
-pub enum LSPError {
+pub enum LSPProcessError {
     ProtocolError(ProtocolError),
     CompilerError(CompilerError),
     IOError(IOError),

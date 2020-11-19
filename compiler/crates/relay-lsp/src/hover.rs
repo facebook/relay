@@ -6,12 +6,9 @@
  */
 
 //! Utilities for providing the hover feature
-use crate::lsp::{
-    Hover, HoverContents, LanguageString, MarkedString, MarkupContent, MarkupKind, Message,
-    ServerRequestId, ServerResponse,
-};
+use crate::lsp::{HoverContents, LanguageString, MarkedString};
+use crate::lsp::{MarkupContent, MarkupKind};
 use crate::utils::{NodeKind, NodeResolutionInfo};
-use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_text_printer::print_fragment;
 use interner::StringKey;
@@ -135,27 +132,4 @@ pub fn get_hover_response_contents(
             }
         }
     }
-}
-
-pub fn send_hover_response(
-    hover_contents: Option<HoverContents>,
-    request_id: ServerRequestId,
-    sender: &Sender<Message>,
-) {
-    let result = if let Some(hover_contents) = hover_contents {
-        serde_json::to_value(Hover {
-            contents: hover_contents,
-            range: None,
-        })
-        .ok()
-    } else {
-        None
-    };
-    sender
-        .send(Message::Response(ServerResponse {
-            id: request_id,
-            result,
-            error: None,
-        }))
-        .ok();
 }

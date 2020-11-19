@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::hover::{get_hover_response_contents, send_hover_response};
+use crate::hover::get_hover_response_contents;
 use crate::lsp::{
     set_initializing_status, Completion, CompletionOptions, Connection, DidChangeTextDocument,
     DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition, HoverRequest,
@@ -32,6 +32,7 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use log::info;
 use lsp_server::{RequestId, ResponseError};
+use lsp_types::Hover;
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::Schema;
 use std::{
@@ -89,7 +90,7 @@ where
                 request_id,
                 text_document_position,
             } => {
-                let get_hover_response_contents = || {
+                let get_hover_result = || {
                     let node_resolution_info = get_node_resolution_info(
                         text_document_position,
                         &self.synced_graphql_documents,
@@ -102,18 +103,35 @@ where
                         .unwrap()
                         .get(&node_resolution_info.project_name)
                     {
-                        get_hover_response_contents(
+                        let contents = get_hover_response_contents(
                             node_resolution_info,
                             schema,
                             &self.source_programs,
                         )
+                        .ok_or_else(|| {
+                            LSPRuntimeError::UnexpectedError(
+                                "Unable to get hover contents".to_string(),
+                            )
+                        })?;
+
+                        serde_json::to_value(Hover {
+                            contents,
+                            range: None,
+                        })
+                        .map_err(|_e| {
+                            LSPRuntimeError::UnexpectedError(
+                                "Unable to serialize hover response".to_string(),
+                            )
+                        })
                     } else {
-                        None
+                        Err(LSPRuntimeError::UnexpectedError(format!(
+                            "Unable to get schema for project {}",
+                            node_resolution_info.project_name
+                        )))
                     }
                 };
 
-                send_hover_response(get_hover_response_contents(), request_id, &self.sender);
-                None
+                Some((request_id, get_hover_result()))
             }
             LSPBridgeMessage::CompletionRequest { request_id, params } => {
                 if let Some(completion_request) = get_completion_request(
@@ -150,22 +168,14 @@ where
                         &self.synced_graphql_documents,
                         &self.file_categorizer,
                         &self.root_dir,
-                    )
-                    .ok_or_else(|| {
-                        LSPRuntimeError::UnexpectedError(
-                            "Unable to get node resolution info".to_string(),
-                        )
-                    })?;
+                    )?;
+
                     let goto_definition_response = get_goto_definition_response(
                         node_resolution_info,
                         &self.source_programs,
                         &self.root_dir,
-                    )
-                    .ok_or_else(|| {
-                        LSPRuntimeError::UnexpectedError(
-                            "Unable to get goto definition response".to_string(),
-                        )
-                    })?;
+                    )?;
+
                     serde_json::to_value(goto_definition_response).map_err(|_e| {
                         LSPRuntimeError::UnexpectedError(
                             "Unable to serialize goto definition response".to_string(),

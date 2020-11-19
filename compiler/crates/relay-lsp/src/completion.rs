@@ -412,7 +412,8 @@ pub fn get_completion_request(
         graphql_source_cache,
         file_categorizer,
         root_dir,
-    )?;
+    )
+    .ok()?;
 
     let completion_request = create_completion_request(document, position_span, project_name);
     info!("Completion request: {:#?}", completion_request);

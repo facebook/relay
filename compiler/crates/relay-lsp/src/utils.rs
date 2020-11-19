@@ -7,7 +7,10 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
-use crate::type_path::{TypePath, TypePathItem};
+use crate::{
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    type_path::{TypePath, TypePathItem},
+};
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{
     parse_executable, Argument, Directive, ExecutableDefinition, ExecutableDocument,
@@ -53,23 +56,28 @@ impl NodeResolutionInfo {
 fn get_graphql_source<'a>(
     text_document_position: &'a TextDocumentPositionParams,
     graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
-) -> Option<&'a GraphQLSource> {
+) -> LSPRuntimeResult<&'a GraphQLSource> {
     let TextDocumentPositionParams {
         text_document,
         position,
     } = text_document_position;
     let url = &text_document.uri;
 
-    let graphql_sources = graphql_source_cache.get(url)?;
+    let graphql_sources = graphql_source_cache.get(url).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("{} not found in source cache", url))
+    })?;
 
     // We have GraphQL documents, now check if the position
     // falls within the range of one of these documents.
-    let graphql_source = graphql_sources.iter().find(|graphql_source| {
-        let range = graphql_source.to_range();
-        position >= &range.start && position <= &range.end
-    })?;
+    let graphql_source = graphql_sources
+        .iter()
+        .find(|graphql_source| {
+            let range = graphql_source.to_range();
+            position >= &range.start && position <= &range.end
+        })
+        .ok_or_else(|| LSPRuntimeError::ExpectedError)?;
 
-    Some(graphql_source)
+    Ok(graphql_source)
 }
 
 /// Return a parsed executable document for this LSP request, only if the request occurs
@@ -79,17 +87,18 @@ pub fn extract_executable_document_from_text(
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
-) -> Option<(ExecutableDocument, Span, StringKey)> {
+) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
     let graphql_source = get_graphql_source(&text_document_position, graphql_source_cache)?;
     let url = &text_document_position.text_document.uri;
     let position = text_document_position.position;
     let absolute_file_path = PathBuf::from(url.path());
-    let file_path = if let Ok(file_path) = absolute_file_path.strip_prefix(root_dir) {
-        file_path
-    } else {
-        info!("Failed to parse file path: {:#?}", &absolute_file_path);
-        return None;
-    };
+    let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Failed to strip prefix {:?} from {:?}",
+            root_dir, absolute_file_path
+        ))
+    })?;
+
     let project_name =
         if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path.into()) {
             match source_set {
@@ -97,37 +106,38 @@ pub fn extract_executable_document_from_text(
                 SourceSet::SourceSetNames(sources) => sources[0],
             }
         } else {
-            return None;
+            return Err(LSPRuntimeError::UnexpectedError(format!(
+                "File path {:?} is not a source set",
+                file_path
+            )));
         };
 
-    match parse_executable(
+    let document = parse_executable(
         &graphql_source.text,
         SourceLocationKey::standalone(&url.to_string()),
-    ) {
-        Ok(document) => {
-            // Now we need to take the `Position` and map that to an offset relative
-            // to this GraphQL document, as the `Span`s in the document are relative.
-            info!("Successfully parsed the definitions for a target GraphQL source");
-            // Map the position to a zero-length span, relative to this GraphQL source.
-            let position_span = match position_to_span(position, &graphql_source) {
-                Some(span) => span,
-                // Exit early if we can't map the position for some reason
-                None => return None,
-            };
-            // Now we need to walk the Document, tracking our path along the way, until
-            // we find the position within the document. Note that the GraphQLSource will
-            // already be updated *with the characters that triggered the completion request*
-            // since the change event fires before completion.
-            info!("position_span: {:?}", position_span);
+    )
+    .map_err(|e| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Failed to parse document {:?}. Errors {:?}",
+            file_path, e
+        ))
+    })?;
 
-            Some((document, position_span, project_name))
-        }
-        Err(err) => {
-            info!("Failed to parse this target!");
-            info!("{:?}", err);
-            None
-        }
-    }
+    // Now we need to take the `Position` and map that to an offset relative
+    // to this GraphQL document, as the `Span`s in the document are relative.
+    info!("Successfully parsed the definitions for a target GraphQL source");
+    // Map the position to a zero-length span, relative to this GraphQL source.
+    let position_span = position_to_span(position, &graphql_source).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
+    })?;
+
+    // Now we need to walk the Document, tracking our path along the way, until
+    // we find the position within the document. Note that the GraphQLSource will
+    // already be updated *with the characters that triggered the completion request*
+    // since the change event fires before completion.
+    info!("position_span: {:?}", position_span);
+
+    Ok((document, position_span, project_name))
 }
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
@@ -189,11 +199,12 @@ fn create_node_resolution_info(
     document: ExecutableDocument,
     position_span: Span,
     project_name: StringKey,
-) -> Option<NodeResolutionInfo> {
+) -> LSPRuntimeResult<NodeResolutionInfo> {
     let definition = document
         .definitions
         .iter()
-        .find(|definition| definition.location().contains(position_span))?;
+        .find(|definition| definition.location().contains(position_span))
+        .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let mut node_resolution_info = NodeResolutionInfo::new(project_name);
 
@@ -213,19 +224,15 @@ fn create_node_resolution_info(
                         .find(|var| var.span.contains(position_span))
                     {
                         node_resolution_info.kind = NodeKind::Variable(variable.type_.to_string());
-                        return Some(node_resolution_info);
+                        return Ok(node_resolution_info);
                     }
                 }
 
-                if let Some(node_resolution_info) = build_node_resolution_for_directive(
-                    &operation.directives,
-                    position_span,
-                    project_name,
-                ) {
-                    return Some(node_resolution_info);
-                }
-
-                let (_, kind) = operation.operation.clone()?;
+                let (_, kind) = operation.operation.clone().ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(
+                        "Expected operation to exist, but it did not".to_string(),
+                    )
+                })?;
                 node_resolution_info
                     .type_path
                     .add_type(TypePathItem::Operation(kind));
@@ -235,9 +242,12 @@ fn create_node_resolution_info(
                     position_span,
                     &mut node_resolution_info,
                 );
-                Some(node_resolution_info)
+                Ok(node_resolution_info)
             } else {
-                None
+                Err(LSPRuntimeError::UnexpectedError(format!(
+                    "Expected operation named {:?} to contain position {:?}, but it did not. Operation span {:?}",
+                    operation.name, operation.location, position_span
+                )))
             }
         }
         ExecutableDefinition::Fragment(fragment) => {
@@ -247,7 +257,7 @@ fn create_node_resolution_info(
                     position_span,
                     project_name,
                 ) {
-                    return Some(node_resolution_info);
+                    return Ok(node_resolution_info);
                 }
 
                 let type_name = fragment.type_condition.type_.value;
@@ -259,9 +269,12 @@ fn create_node_resolution_info(
                     position_span,
                     &mut node_resolution_info,
                 );
-                Some(node_resolution_info)
+                Ok(node_resolution_info)
             } else {
-                None
+                Err(LSPRuntimeError::UnexpectedError(format!(
+                    "Expected fragment named {:?} to contain position {:?}, but it did not. Operation span {:?}",
+                    fragment.name, fragment.location, position_span
+                )))
             }
         }
     }
@@ -384,7 +397,7 @@ pub fn get_node_resolution_info(
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
-) -> Option<NodeResolutionInfo> {
+) -> LSPRuntimeResult<NodeResolutionInfo> {
     let (document, position_span, project_name) = extract_executable_document_from_text(
         text_document_position,
         graphql_source_cache,
@@ -455,6 +468,6 @@ mod test {
         // Position is outside of the document
         let position_span = Span { start: 86, end: 87 };
         let result = create_node_resolution_info(document, position_span, "test_project".intern());
-        assert!(result.is_none());
+        assert!(result.is_err());
     }
 }

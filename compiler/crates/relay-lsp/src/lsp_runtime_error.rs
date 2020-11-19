@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![allow(dead_code)]
-
 use lsp_server::{ErrorCode, ResponseError};
 
 pub type LSPRuntimeResult<T> = std::result::Result<T, LSPRuntimeError>;

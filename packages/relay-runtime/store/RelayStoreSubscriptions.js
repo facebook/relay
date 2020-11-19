@@ -24,17 +24,18 @@ import type {
   RecordSource,
   RequestDescriptor,
   Snapshot,
+  StoreSubscriptions,
   UpdatedRecords,
 } from './RelayStoreTypes';
 
-export type Subscription = {|
+type Subscription = {|
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
   stale: boolean,
   backup: ?Snapshot,
 |};
 
-class RelayStoreSubscriptions {
+class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
 
   constructor() {
@@ -119,8 +120,14 @@ class RelayStoreSubscriptions {
     });
   }
 
-  // Returns the owner (RequestDescriptor) if the subscription was affected by the
-  // latest update, or null if it was not affected.
+  /**
+   * Notifies the callback for the subscription if the data for the associated
+   * snapshot has changed.
+   * Additionally, updates the subscription snapshot with the latest snapshot,
+   * and marks it as not stale.
+   * Returns the owner (RequestDescriptor) if the subscription was affected by the
+   * latest update, or null if it was not affected.
+   */
   _updateSubscription(
     source: RecordSource,
     subscription: Subscription,

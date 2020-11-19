@@ -333,6 +333,40 @@ export interface Store {
   ): Disposable;
 }
 
+export interface StoreSubscriptions {
+  /**
+   * Subscribe to changes to the results of a selector. The callback is called
+   * when `updateSubscriptions()` is called *and* records have been published that affect the
+   * selector results relative to the last update.
+   */
+  subscribe(
+    snapshot: Snapshot,
+    callback: (snapshot: Snapshot) => void,
+  ): Disposable;
+
+  /**
+   * Record a backup/snapshot of the current state of the subscriptions.
+   * This state can be restored with restore().
+   */
+  snapshotSubscriptions(source: RecordSource): void;
+
+  /**
+   * Reset the state of the subscriptions to the point that snapshot() was last called.
+   */
+  restoreSubscriptions(): void;
+
+  /**
+   * Notifies each subscription if the snapshot for the subscription selector has changed.
+   * Mutates the updatedOwners array with any owners (RequestDescriptors) associated
+   * with the subscriptions that were notifed; i.e. the owners affected by the changes.
+   */
+  updateSubscriptions(
+    source: RecordSource,
+    updatedRecordIDs: UpdatedRecords,
+    updatedOwners: Array<RequestDescriptor>,
+  ): void;
+}
+
 /**
  * A type that accepts a callback and schedules it to run at some future time.
  * By convention, implementations should not execute the callback immediately.

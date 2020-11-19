@@ -13,6 +13,7 @@
 'use strict';
 
 const DataChecker = require('./DataChecker');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
@@ -20,13 +21,12 @@ const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
+const RelayStoreSubscriptionsUsingMapByID = require('./RelayStoreSubscriptionsUsingMapByID');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
 const invariant = require('invariant');
-const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
@@ -47,6 +47,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
   Store,
+  StoreSubscriptions,
   UpdatedRecords,
 } from './RelayStoreTypes';
 
@@ -100,7 +101,7 @@ class RelayModernStore implements Store {
     |},
   >;
   _shouldScheduleGC: boolean;
-  _storeSubscriptions: RelayStoreSubscriptions;
+  _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: UpdatedRecords;
 
   constructor(
@@ -143,7 +144,10 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._storeSubscriptions = new RelayStoreSubscriptions();
+    this._storeSubscriptions =
+      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
+        ? new RelayStoreSubscriptionsUsingMapByID()
+        : new RelayStoreSubscriptions();
     this._updatedRecordIDs = {};
 
     initializeRecordSource(this._recordSource);

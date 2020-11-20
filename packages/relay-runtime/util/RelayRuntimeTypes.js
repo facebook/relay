@@ -59,7 +59,6 @@ export type CacheConfig = {|
   liveConfigId?: ?string,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
-  ttl?: number,
 |};
 
 /**

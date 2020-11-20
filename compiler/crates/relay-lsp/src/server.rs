@@ -398,6 +398,7 @@ where
                 .write()
                 .unwrap()
                 .insert(project_name, source_program.clone());
+            info!("Build succeeded for project {}", project_name);
         }));
 
     tokio::spawn(async move {

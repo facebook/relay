@@ -202,7 +202,7 @@ class RelayModernStore implements Store {
       operationAvailability,
       operationLastWrittenAt,
       rootEntry?.fetchTime,
-      operation.request.node.params.metadata?.ttl ??
+      (operation.request.node.params.metadata?.ttl: $FlowFixMe) ??
         this._queryCacheExpirationTime,
     );
   }
@@ -227,7 +227,7 @@ class RelayModernStore implements Store {
 
       if (rootEntry.refCount === 0) {
         const ttl =
-          operation.request.node.params.metadata?.ttl ??
+          (operation.request.node.params.metadata?.ttl: $FlowFixMe) ??
           this._queryCacheExpirationTime;
         const rootEntryIsStale =
           rootEntry.fetchTime != null &&

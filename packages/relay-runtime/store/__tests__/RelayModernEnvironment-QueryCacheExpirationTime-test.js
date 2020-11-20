@@ -28,7 +28,6 @@ const {generateAndCompile} = require('relay-test-utils-internal');
 describe('query cache expiration time', () => {
   let environment;
   let operationDescriptor;
-  let operationCustomTTLDescriptor;
   let ParentQuery;
   let source;
   let store;
@@ -60,11 +59,6 @@ describe('query cache expiration time', () => {
       store,
     });
     operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
-    operationCustomTTLDescriptor = createOperationDescriptor(
-      ParentQuery,
-      {size: 32},
-      {ttl: QUERY_CACHE_EXPIRATION_TIME + 10},
-    );
   });
 
   afterEach(() => {
@@ -189,11 +183,17 @@ describe('query cache expiration time', () => {
   describe('custom ttl in CacheConfig', () => {
     let customTTL = QUERY_CACHE_EXPIRATION_TIME + 10;
     beforeEach(() => {
-      operationDescriptor = createOperationDescriptor(
-        ParentQuery,
-        {size: 32},
-        {ttl: customTTL},
-      );
+      ({ParentQuery} = generateAndCompile(`
+        query ParentQuery @cache(ttl: 1010) {
+          me {
+            id
+            name
+          }
+        }
+      `));
+      operationDescriptor = createOperationDescriptor(ParentQuery, {
+        size: 32,
+      });
     });
 
     it('retains disposed query in release buffer if less time than the query cache expiration time has passed when query is released', () => {

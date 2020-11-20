@@ -244,7 +244,10 @@ pub async fn run<TPerfLogger>(
 where
     TPerfLogger: PerfLogger + 'static,
 {
-    info!("Running language server");
+    info!(
+        "Running language server with config root {:?}",
+        config.root_dir
+    );
     let receiver = connection.receiver.clone();
     let sender = connection.sender.clone();
 

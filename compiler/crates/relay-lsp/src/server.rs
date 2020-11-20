@@ -381,6 +381,10 @@ where
         perf_logger: Arc::clone(&perf_logger),
     };
 
+    // Force to compile everything on the initial compilation
+    // so schemas and programs can be populated
+    config.compile_everything = true;
+
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),

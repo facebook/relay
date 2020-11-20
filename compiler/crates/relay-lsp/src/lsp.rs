@@ -10,7 +10,7 @@
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
 use crate::lsp_process_error::LSPProcessResult;
 use common::Location;
-use crossbeam::crossbeam_channel::Sender;
+use crossbeam::{crossbeam_channel::Sender, SendError};
 pub use lsp_server::{Connection, Message};
 pub use lsp_server::{
     Notification as ServerNotification, ProtocolError, Request as ServerRequest,
@@ -131,9 +131,9 @@ fn update_status(
 /// Show a notification in the client
 #[allow(dead_code)]
 pub fn show_info_message(
+    sender: &Sender<Message>,
     message: impl Into<String>,
-    connection: &Connection,
-) -> LSPProcessResult<()> {
+) -> Result<(), SendError<Message>> {
     let notif = ServerNotification::new(
         ShowMessage::METHOD.into(),
         ShowMessageParams {
@@ -141,13 +141,8 @@ pub fn show_info_message(
             message: message.into(),
         },
     );
-    connection
-        .sender
-        .send(Message::Notification(notif))
-        .unwrap_or_else(|_| {
-            // TODO(brandondail) log here
-        });
-    Ok(())
+
+    sender.send(Message::Notification(notif))
 }
 
 /// Publish diagnostics to the client

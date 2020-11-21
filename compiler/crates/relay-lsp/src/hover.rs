@@ -7,10 +7,9 @@
 
 //! Utilities for providing the hover feature
 use crate::lsp::{HoverContents, LanguageString, MarkedString};
-use crate::lsp::{MarkupContent, MarkupKind};
 use crate::utils::{NodeKind, NodeResolutionInfo};
-use graphql_ir::Program;
-use graphql_text_printer::print_fragment;
+use graphql_ir::{Program, Value};
+use graphql_text_printer::print_value;
 use interner::StringKey;
 use schema::Schema;
 use schema_print::print_directive;
@@ -19,11 +18,15 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-fn hover_content_wrapper(content: String) -> HoverContents {
-    HoverContents::Scalar(MarkedString::LanguageString(LanguageString {
+fn graphql_marked_string(value: String) -> MarkedString {
+    MarkedString::LanguageString(LanguageString {
         language: "graphql".to_string(),
-        value: content,
-    }))
+        value,
+    })
+}
+
+fn hover_content_wrapper(value: String) -> HoverContents {
+    HoverContents::Scalar(graphql_marked_string(value))
 }
 
 /// This will provide a more accurate information about some of the specific Relay directives
@@ -34,6 +37,7 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<HoverContents>
             r#"
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment.
 
+---
 @see: https://relay.dev/docs/en/graphql-in-relay.html#argumentdefinitions
 "#,
         ),
@@ -41,6 +45,7 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<HoverContents>
             r#"
 `@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
 
+---
 @see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
 "#,
         ),
@@ -49,18 +54,14 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<HoverContents>
 DEPRECATED version of `@arguments` directive.
 `@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
 
+---
 @see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
 "#,
         ),
         _ => None,
     };
 
-    content.map(|value| {
-        HoverContents::Markup(MarkupContent {
-            kind: MarkupKind::Markdown,
-            value: value.to_string(),
-        })
-    })
+    content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
 }
 
 pub fn get_hover_response_contents(
@@ -124,9 +125,62 @@ pub fn get_hover_response_contents(
         NodeKind::FragmentSpread(fragment_name) => {
             let project_name = node_resolution_info.project_name;
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
-                let fragment_text =
-                    print_fragment(&schema, source_program.fragment(fragment_name)?);
-                Some(hover_content_wrapper(fragment_text))
+                let fragment = source_program.fragment(fragment_name)?;
+                let mut hover_contents: Vec<MarkedString> = vec![];
+                hover_contents.push(graphql_marked_string(format!(
+                    "fragment {} on {} {{ ... }}",
+                    fragment.name.item,
+                    schema.get_type_name(fragment.type_condition),
+                )));
+
+                if !fragment.variable_definitions.is_empty() {
+                    let mut variables_string: Vec<String> =
+                        vec!["This fragment accepts following arguments:".to_string()];
+                    variables_string.push("```".to_string());
+                    for var in &fragment.variable_definitions {
+                        let default_value = match var.default_value.clone() {
+                            Some(default_value) => {
+                                format!(
+                                    ", default_value = {}",
+                                    print_value(schema, &Value::Constant(default_value))
+                                )
+                            }
+                            None => "".to_string(),
+                        };
+                        variables_string.push(format!(
+                            "- {}: {}{}",
+                            var.name.item,
+                            schema.get_type_string(&var.type_),
+                            default_value,
+                        ));
+                    }
+                    variables_string.push("```".to_string());
+                    hover_contents.push(MarkedString::String(variables_string.join("\n")))
+                }
+
+                let fragment_name_details: Vec<&str> = fragment_name.lookup().split('_').collect();
+                // We expect the fragment name to be `ComponentName_propName`
+                if fragment_name_details.len() == 2 {
+                    hover_contents.push(MarkedString::from_markdown(format!(
+                        r#"
+To consume this fragment spread,
+pass it to the component that defined it.
+
+For example:
+```js
+    <{} {}={{data.{}}} />
+```
+"#,
+                        fragment_name_details[0],
+                        fragment_name_details[1],
+                        fragment_name_details[1],
+                    )));
+                } // We may log an error (later), if that is not the case.
+
+                hover_contents.push(MarkedString::String(
+                    "@see: https://relay.dev/docs/en/thinking-in-relay#data-masking".to_string(),
+                ));
+                Some(HoverContents::Array(hover_contents))
             } else {
                 None
             }

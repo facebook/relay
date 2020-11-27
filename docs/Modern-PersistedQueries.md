@@ -147,3 +147,28 @@ This only makes sense for universal applications i.e. if your client and server 
 and you run them both together on localhost during development. Furthermore, in order for the server to pick up changes
 to the `queryMap.json`, you'll need to have server side hot-reloading set up. The details on how to set this up
 is out of the scope of this document.
+
+## Using `--persist-function`
+It is also possible to customize hash generation by using the `--persist-function` option. Just pass the path to a .js file exporting a function that takes the query text as an argument and returns the resulting id to be used as key in the json file. The function can also return a Promise, which is helpful to access an external database or use a complex custom hashing method.
+
+## Migrating to persistent queries
+
+In order to migrate an app to use persistent queries, the queries of the current and previous client version should be persisted without hashing, so usage of these clients won't break, preventing problems with caching and outdated app versions. It's possible by passing a function that returns the query without changes to `--persist-function`, and running the compiler for every version of the client app you wish to keep support.
+
+```js
+// identityFunction.js
+module.exports = function identityFunction(str) {
+  return str;
+}
+```
+
+```bash
+# generate hashes for current version
+yarn relay-compiler --src ./src --schema schema/schema.graphql --persist-function identityFunction.js;
+
+# checkout to previous version that still needs supporting
+git checkout v1.0.0
+
+# persist queries for this version
+yarn relay-compiler --src ./src --schema schema/schema.graphql --persist-function identityFunction.js;
+```

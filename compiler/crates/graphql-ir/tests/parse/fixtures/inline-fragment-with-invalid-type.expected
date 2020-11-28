@@ -6,6 +6,10 @@ fragment InlineFragment on Node {
   }
 }
 ==================================== ERROR ====================================
-Unknown type 'UnkwnownType':
-inline-fragment-with-invalid-type.graphql:2:10:
-  ... on UnkwnownType {
+✖︎ Unknown type 'UnkwnownType'
+
+  inline-fragment-with-invalid-type.graphql:3:10
+    2 │ fragment InlineFragment on Node {
+    3 │   ... on UnkwnownType {
+      │          ^^^^^^^^^^^^
+    4 │     name

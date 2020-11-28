@@ -23,6 +23,10 @@ fragment ProfilePhoto on User {
   }
 }
 ==================================== ERROR ====================================
-Unknown argument 'size':
-unused-fragment-argdef.invalid.graphql:15:30:
-  ...ProfilePhoto @arguments(size: $size)
+✖︎ Unknown argument 'size'
+
+  unused-fragment-argdef.invalid.graphql:16:30
+   15 │   __typename
+   16 │   ...ProfilePhoto @arguments(size: $size)
+      │                              ^^^^^^^^^^^
+   17 │ }

@@ -9,6 +9,7 @@
 
 const CompLibrary = require('../../core/CompLibrary.js');
 const React = require('react');
+const Code = require(process.cwd() + '/core/Code.js');
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
 
@@ -33,17 +34,19 @@ Button.defaultProps = {
 class HomeSplash extends React.Component {
   render() {
     return (
-      <div className="homeContainer">
-        <div className="homeSplashFade">
-          <div className="logo">
-            <img src={siteConfig.baseUrl + 'img/relay-white.svg'} />
-          </div>
-          <div className="wrapper homeWrapper">
-            <h2 className="projectTitle">
-              {siteConfig.title}
-              <small>{siteConfig.tagline}</small>
-              <small>{siteConfig.subtagline}</small>
-            </h2>
+      <div>
+        <div className="homeContainer">
+          <div className="homeSplashFade">
+            <div className="logo">
+              <img src={siteConfig.baseUrl + 'img/relay-white.svg'} />
+            </div>
+            <div className="wrapper homeWrapper">
+              <h2 className="projectTitle">
+                {siteConfig.title}
+                <small>{siteConfig.tagline}</small>
+                <small>{siteConfig.subtagline}</small>
+              </h2>
+            </div>
           </div>
         </div>
       </div>
@@ -101,7 +104,7 @@ class Index extends React.Component {
                 {
                   title: 'Automatic data consistency',
                   content:
-                    '<p>Relay automatically keeps all of your components up to date whenever data that affects them changes, and efficiently update them only when strictly necessary.</p><p>Relay also support executing GraphQL Mutations, optionally with optimistic updates, and updates to local data, while ensuring that visible data on the screen is always kept up to date.</p>',
+                    '<p>Relay automatically keeps all of your components up to date whenever data that affects them changes, and efficiently update them only when strictly necessary.</p><p>Relay also supports executing GraphQL Mutations, optionally with optimistic updates, and updates to local data, while ensuring that visible data on the screen is always kept up to date.</p>',
                 },
               ]}
             />
@@ -135,14 +138,14 @@ class Index extends React.Component {
 
               <div className="radiusLeft">
                 <pre>
-                  <code>
+                  <Code>
                     {`
 import React from "react"
 import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
 import environment from "./lib/createRelayEnvironment"
-import ArtistHeader from "./ArtistHeader" // Below
+import ArtistHeader from "./ArtistHeader"
 
-// You can usually use one query renderer per page
+// Below you can usually use one query renderer per page
 // and it represents the root of a query
 export default function ArtistRenderer({artistID}) {
   return (
@@ -170,7 +173,7 @@ export default function ArtistRenderer({artistID}) {
   );
 }
                   `}
-                  </code>
+                  </Code>
                 </pre>
               </div>
 
@@ -200,7 +203,7 @@ export default function ArtistRenderer({artistID}) {
               </div>
               <div>
                 <pre>
-                  <code>
+                  <Code>
                     {`
 import React from "react"
 import { createFragmentContainer, graphql } from "react-relay"
@@ -239,7 +242,7 @@ export default createFragmentContainer(ArtistHeader, {
   \`,
 });
                   `}
-                  </code>
+                  </Code>
                 </pre>
               </div>
             </div>
@@ -324,7 +327,7 @@ export default createFragmentContainer(ArtistHeader, {
                 {
                   title: 'Type safety',
                   content:
-                    '<p>Relay generates Flow or Typescript types for each of your React components that use Relay, which represent the data that each component receives, so you can make changes more quickly and safely while knowing that correctness is guaranteed.</p>',
+                    '<p>Relay generates Flow or TypeScript types for each of your React components that use Relay, which represent the data that each component receives, so you can make changes more quickly and safely while knowing that correctness is guaranteed.</p>',
                 },
               ]}
             />

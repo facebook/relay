@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query ViewerQuery @raw_response_type {
+query queryWithRawResponseTypeDirective_ViewerQuery @raw_response_type {
   viewer {
     actor {
       id
@@ -12,7 +12,7 @@ query ViewerQuery @raw_response_type {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ViewerQuery",
+    "name": "queryWithRawResponseTypeDirective_ViewerQuery",
     "selections": [
       {
         "alias": null,
@@ -51,7 +51,7 @@ query ViewerQuery @raw_response_type {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "ViewerQuery",
+    "name": "queryWithRawResponseTypeDirective_ViewerQuery",
     "selections": [
       {
         "alias": null,
@@ -94,7 +94,7 @@ query ViewerQuery @raw_response_type {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "ViewerQuery",
+    "name": "queryWithRawResponseTypeDirective_ViewerQuery",
     "operationKind": "query",
     "text": null
   }
@@ -102,7 +102,7 @@ query ViewerQuery @raw_response_type {
 
 QUERY:
 
-query ViewerQuery {
+query queryWithRawResponseTypeDirective_ViewerQuery {
   viewer {
     actor {
       __typename

@@ -1,27 +1,27 @@
 ==================================== INPUT ====================================
-query NameRendererQuery($id: ID!) {
+query queryWithMatchDirectiveWithExtraArgument_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...NameRendererFragment
+    ...queryWithMatchDirectiveWithExtraArgument_NameRendererFragment
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithMatchDirectiveWithExtraArgument_NameRendererFragment on User {
   id
   nameRendererForContext(context: HEADER) @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name
+    ...queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -30,10 +30,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -76,13 +74,12 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NameRendererQuery",
+    "name": "queryWithMatchDirectiveWithExtraArgument_NameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -101,7 +98,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "NameRendererFragment"
+            "name": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment"
           }
         ],
         "storageKey": null
@@ -116,12 +113,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "NameRendererQuery",
+    "name": "queryWithMatchDirectiveWithExtraArgument_NameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -187,9 +183,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "NameRendererFragment",
-                        "fragmentName": "PlainUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
+                        "fragmentName": "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -200,9 +196,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "NameRendererFragment",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
+                        "fragmentName": "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -224,7 +220,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "NameRendererQuery",
+    "name": "queryWithMatchDirectiveWithExtraArgument_NameRendererQuery",
     "operationKind": "query",
     "text": null
   }
@@ -232,17 +228,17 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query NameRendererQuery(
+query queryWithMatchDirectiveWithExtraArgument_NameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...NameRendererFragment
+    ...queryWithMatchDirectiveWithExtraArgument_NameRendererFragment
     id
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -250,24 +246,24 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithMatchDirectiveWithExtraArgument_NameRendererFragment on User {
   id
   nameRendererForContext(context: HEADER, supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     __typename
     ... on PlainUserNameRenderer {
-      ...PlainUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
-      __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
+      ...queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name
+      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
+      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
     }
     ... on MarkdownUserNameRenderer {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRendererForContext")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRendererForContext")
+      ...queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name
+      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
+      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
     }
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
@@ -278,10 +274,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "PlainUserNameRenderer_name"
-  },
-  "name": "PlainUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -322,7 +316,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -358,7 +352,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NameRendererFragment",
+  "name": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -393,9 +387,9 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "NameRendererFragment",
-              "fragmentName": "PlainUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
+              "fragmentName": "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name",
+              "fragmentPropName": "PlainUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -406,9 +400,9 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "NameRendererFragment",
-              "fragmentName": "MarkdownUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
+              "fragmentName": "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -427,7 +421,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "PlainUserNameRenderer_name",
+  "name": "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

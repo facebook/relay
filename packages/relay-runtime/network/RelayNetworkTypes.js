@@ -121,3 +121,25 @@ export type SubscribeFunction = (
 
 export type Uploadable = File | Blob;
 export type UploadableMap = {[key: string]: Uploadable, ...};
+
+/**
+ * React Flight tree created on the server.
+ */
+export type ReactFlightServerTree = mixed;
+export type ReactFlightPayloadQuery = {|
+  +id: mixed,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
+/**
+ * Data that is returned by a Flight compliant GraphQL server.
+ *
+ * - tree: an array of values that will be iterated and fed into
+ *     ReactFlightDOMRelayClient.
+ * - queries: an array of queries that the server preloaded for the client.
+ */
+export type ReactFlightPayloadData = {|
+  +tree: Array<ReactFlightServerTree>,
+  +queries: Array<ReactFlightPayloadQuery>,
+|};

@@ -7,20 +7,20 @@ fragment TestFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "simple-fragment.graphql":9:22,
+                location: simple-fragment.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "simple-fragment.graphql":31:36,
+                        location: simple-fragment.graphql:34:36,
                         item: FieldID(
-                            449,
+                            460,
                         ),
                     },
                     arguments: [],

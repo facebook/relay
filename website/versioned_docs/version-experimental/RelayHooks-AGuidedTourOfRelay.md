@@ -520,7 +520,7 @@ function App() {
 
 Note that:
 
-* The ***fragment reference*** that `UserComponent` expects is is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
+* The ***fragment reference*** that `UserComponent` expects is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
 * As mentioned previously, ***all fragments must belong to a query when they are rendered,*** which means that all fragment components *must* be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `useLazyLoadQuery`.
 
 ### Variables
@@ -743,7 +743,7 @@ Relay currently does not expose the resolved variables (i.e. after applying argu
 
 As you may have noticed, we mentioned that using `useLazyLoadQuery` will ***fetch*** a query from the server, but we didn't elaborate on how to render a loading UI while the query is being loaded. We will cover that in this section.
 
-To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or *"suspend"* rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't *"ready"* to be rendered yet, and wont be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
+To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or *"suspend"* rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't *"ready"* to be rendered yet, and won't be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
 
 This capability is useful for components to express asynchronous dependencies like data, code, or images that they require in order to render, and lets React coordinate rendering the loading states across a component tree as these asynchronous resources become available. More generally, the use of Suspense give us better control to implement more deliberately designed loading states when our app is loading for the first time or when it's transitioning to different states, and helps prevent accidental flickering of loading elements (such as spinners), which can commonly occur when loading sequences aren't explicitly designed and coordinated.
 
@@ -870,7 +870,10 @@ function App() {
 Whenever we're going to make a transition that might cause new content to suspend, we should use the [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to schedule the update for  transition:
 
 ```javascript
-const {useTransition} = require('React');
+const {
+  useState,
+  useTransition,
+} = require('React');
 
 function TabSwitcher() {
   // We use startTransition to schedule the update
@@ -908,7 +911,10 @@ The ***pending*** stage is the first state in a transition, and is usually rende
 By default, when a suspense transition occurs, if the new content suspends, React will automatically transition to the loading state and show the fallbacks from any `Suspense` boundaries that are in place for the new content.  However, if we want to delay showing the loading state, and show a *pending* state instead, we can also use [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to do so:
 
 ```javascript
-const {useTransition} = require('React');
+const {
+  useState,
+  useTransition,
+} = require('React');
 
 const SUSPENSE_CONFIG = {
   // timeoutMs allows us to delay showing the "loading" state for a while
@@ -949,7 +955,7 @@ function TabSwitcher() {
 Let's take a look at what's happening here:
 
 * In this case, we're passing the **`SUSPENSE_CONFIG`** config object to `useTransition` in order to configure how we want this transition to behave. Specifically, we can pass a **`timeoutMs`** property in the config, which will dictate how long React should wait before transitioning to the *"loading"* state (i.e. transition to showing the fallbacks from the `Suspense` boundaries), in favor of showing a ***pending*** state controlled locally by the component during that time.
-* `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` ***immediately*** when the transition starts, and will become `false` when the transition reaches the fully *"completed"* stage, that is, when all the new content has been fully loaded. As mentioned above, the pending state should be used to give immediate post to the user that they're action has been received, and we can do so by using the `isPending` value to control what we render; for example, we can use that value to render a spinner next to the button, or in this case, disable the button immediately after it is clicked.
+* `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` ***immediately*** when the transition starts, and will become `false` when the transition reaches the fully *"completed"* stage, that is, when all the new content has been fully loaded. As mentioned above, the pending state should be used to give immediate post to the user that the action has been received, and we can do so by using the `isPending` value to control what we render; for example, we can use that value to render a spinner next to the button, or in this case, disable the button immediately after it is clicked.
 
 For more details, check out the [React docs on Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html).
 
@@ -1053,7 +1059,7 @@ const SecondaryContent = require('./SecondaryContent.react');
 function App() {
   return (
     // Render an ErrorSection if an error occurs within
-    // MainContent or Secondary Content
+    // MainContent or SecondaryContent
     <ErrorBoundary fallback={error => <ErrorUI error={error} />}>
       <MainContent />
       <SecondaryContent />
@@ -1278,7 +1284,7 @@ If you need to retain a specific query outside of the components lifecycle, you 
 
 ```javascript
 // Retain query; this will prevent the data for this query and
-// variables from being gabrage collected by Relay
+// variables from being garbage collected by Relay
 const disposable = environment.retain(queryDescriptor);
 
 // Disposing of the disposable will release the data for this query
@@ -1313,7 +1319,7 @@ const store = new Store(source, {gcScheduler});
 
 The Relay Store internally holds a release buffer to keep a specific (configurable) number of queries temporarily retained even after they have been released by their original owner  (i.e., usually when a component rendering that query unmounts). This makes it possible (and more likely) to reuse data when navigating back to a page, tab or piece of content that has been visited before.
 
-In order to configure the size of the release buffer, we can you can **`gcReleaseBufferSize`** option to the Relay Store:
+In order to configure the size of the release buffer, you can provide a **`gcReleaseBufferSize`** option to the Relay Store:
 
 ```javascript
 const store = new Store(source, {gcReleaseBufferSize: 10});
@@ -1365,7 +1371,7 @@ function updater(store) {
 
 #### Subscribing to Data Invalidation
 
-Just marking the store or records as stale will cause queries to be refetched they next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
+Just marking the store or records as stale will cause queries to be refetched the next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
 
 This is useful for a lot of use cases, but there are some times when we’d like to immediately refetch some data upon invalidation, for example:
 
@@ -1957,7 +1963,7 @@ Let's distill what's happening in this example:
 
 ## Rendering List Data and Pagination
 
-There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we wont want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
+There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we won't want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
 
 ### Connections
 
@@ -2049,7 +2055,7 @@ module.exports = FriendsListComponent;
 * `usePaginationFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), so our list of friends is available under **`data.friends.edges.node`**, as declared by the fragment. However, it also has a few additions:
   * It expects a fragment that is a connection field annotated with the `@connection` directive
   * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
-  * It takes to Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
+  * It takes two Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 * Note that we're using `[SuspenseList](https://reactjs.org/docs/concurrent-mode-patterns.html#suspenselist)` to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
 
 ### Pagination
@@ -2488,7 +2494,7 @@ Let's distill what's going on here:
   * In our case, we need to pass the count we want to fetch as the `first` variable, and we can pass different values for our filters, like `orderBy` or `searchTerm`.
 * This will re-render your component and may cause it to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
   * Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
-* Conceptually, when we call refetch, we're fetching the connection *from scratch*. It other words, we're fetching it again from the *beginning* and ***"resetting"*** our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
+* Conceptually, when we call refetch, we're fetching the connection *from scratch*. In other words, we're fetching it again from the *beginning* and ***"resetting"*** our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
 
 ### Adding and Removing Items From a Connection
 
@@ -3376,7 +3382,7 @@ Let's see what's happening here:
 
 * The `optimisticUpdater` has the same signature and behaves the same way as the regular `updater` function, the main difference being that it will be executed immediately, before the mutation response completes.
 * If the mutation succeeds, ***the optimistic update will be rolled back,*** and the server response will be applied.
-  * Note that if we used an `optimisticResponse`, we wouldn't able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
+  * Note that if we used an `optimisticResponse`, we wouldn't be able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
   * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might've incremented by more than 1.
 * If the mutation *fails*, ***the optimistic update will be rolled back,*** and the error will be communicated via the `onError` callback.
 * Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Post` object).
@@ -3402,7 +3408,7 @@ In general, execution of the `updater` and optimistic updates will occur in the 
 
 _**Full Example**_
 
-This means that in more complicated scenarios you can still provide all 3 options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
+This means that in more complicated scenarios you can still provide all 3 options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could be like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
 
 ```javascript
 import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
@@ -3496,7 +3502,7 @@ module.exports = CreateCommentButton;
 Let's distill this example, according to the execution order of the updaters:
 
 * Given that an `optimisticResponse` was provided, it will be executed *first*. This will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
-* Given that an `optimisticResponse` was provided, it will be executed next. Our `optimisticUpdater` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
+* Given that an `optimisticUpdater` was provided, it will be executed next. Our `optimisticUpdater` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
 * When the optimistic updates conclude, components subscribed to this data will be notified.
 * When the mutation succeeds, all of our optimistic updates will be rolled back.
 * The server response will be processed by Relay, and this will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
@@ -3507,7 +3513,7 @@ Let's distill this example, according to the execution order of the updaters:
 
 The recommended approach when executing a mutation is to request ***all*** the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
 
-However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
+However, often times it can be unfeasible to know and specify all the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
 
 For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation apis documented in our [Staleness of Data section](#staleness-of-data).
 
@@ -3758,7 +3764,7 @@ module.exports = {commit: commitCommentCreateLocally};
 * In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
 * Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-#### CommitPayload
+#### commitPayload
 
 **`commitPayload`** takes an `OperationDescriptor` and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query.
 
@@ -3838,7 +3844,7 @@ extend type Item {
 
 #### Reading Client-Only Data
 
-We can read client-only data be selecting it inside[fragments](#fragments) or [queries](#queries) as normal:
+We can read client-only data by selecting it inside [fragments](#fragments) or [queries](#queries) as normal:
 
 ```javascript
 const data = *useFragment*(
@@ -3932,7 +3938,7 @@ fetchQuery<AppQuery>(
 ```
 
 * The returned Promise that resolves to the query data, read out from the store when the first network response is received from the server. If the request fails, the promise will reject
-* Note that we specify the `AppQuery` Flow type; this ensures that the type of the data the the promise will resolve to matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
+* Note that we specify the `AppQuery` Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
 
 > See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
 

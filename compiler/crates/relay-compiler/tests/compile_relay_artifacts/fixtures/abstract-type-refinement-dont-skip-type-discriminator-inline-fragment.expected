@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
   node(id: "4") {
     # After inlining even though `id` will be skipped:
     #  - Printed query should still select __isNode and __isActor
     #  - Normalization ast should include inline fragments with abstractKeys for Node and Actor
-    ...ActorFragment
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment
   }
 }
 
-fragment ActorFragment on Actor {
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment on Actor {
   username
   ... on Node {
     id
@@ -20,7 +20,7 @@ fragment ActorFragment on Actor {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -39,7 +39,7 @@ fragment ActorFragment on Actor {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "ActorFragment"
+            "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment"
           }
         ],
         "storageKey": "node(id:\"4\")"
@@ -52,7 +52,7 @@ fragment ActorFragment on Actor {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -86,10 +86,6 @@ fragment ActorFragment on Actor {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
-              {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
@@ -97,14 +93,7 @@ fragment ActorFragment on Actor {
                 "storageKey": null
               },
               {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "kind": "TypeDiscriminator",
-                    "abstractKey": "__isNode"
-                  }
-                ],
-                "type": "Node",
+                "kind": "TypeDiscriminator",
                 "abstractKey": "__isNode"
               }
             ],
@@ -119,7 +108,7 @@ fragment ActorFragment on Actor {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
     "operationKind": "query",
     "text": null
   }
@@ -127,15 +116,15 @@ fragment ActorFragment on Actor {
 
 QUERY:
 
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
   node(id: "4") {
     __typename
-    ...ActorFragment
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment
     id
   }
 }
 
-fragment ActorFragment on Actor {
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment on Actor {
   __isActor: __typename
   username
   ... on Node {
@@ -149,7 +138,7 @@ fragment ActorFragment on Actor {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ActorFragment",
+  "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment",
   "selections": [
     {
       "alias": null,

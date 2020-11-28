@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+fragment MyFragment on User {
+  address @required(action: LOG) {
+    city
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "kind": "RequiredField",
+      "field": {
+        "alias": null,
+        "args": null,
+        "concreteType": "StreetAddress",
+        "kind": "LinkedField",
+        "name": "address",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "city",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      "action": "LOG",
+      "path": "address"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

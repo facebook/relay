@@ -1,13 +1,13 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on Node
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
   ... on User {
     name
-    ...ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -19,14 +19,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "size"
       }
     ],
     "kind": "Fragment",
@@ -50,7 +48,7 @@ fragment ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableFragment"
+            "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -65,14 +63,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -102,6 +98,13 @@ fragment ProfilePicture on User {
           {
             "kind": "TypeDiscriminator",
             "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           },
           {
             "kind": "InlineFragment",
@@ -140,13 +143,6 @@ fragment ProfilePicture on User {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -170,22 +166,22 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...RefetchableFragment
+    ...refetchableFragmentOnNodeWithMissingId_RefetchableFragment
     id
   }
 }
 
-fragment ProfilePicture on User {
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment on Node {
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
   __isNode: __typename
   ... on User {
     name
-    ...ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
   }
   id
 }
@@ -195,13 +191,12 @@ fragment RefetchableFragment on Node {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -233,7 +228,12 @@ fragment RefetchableFragment on Node {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {
@@ -245,8 +245,15 @@ fragment RefetchableFragment on Node {
       "identifierField": "id"
     }
   },
-  "name": "RefetchableFragment",
+  "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment",
   "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
     {
       "kind": "InlineFragment",
       "selections": [
@@ -260,18 +267,11 @@ fragment RefetchableFragment on Node {
         {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "ProfilePicture"
+          "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture"
         }
       ],
       "type": "User",
       "abstractKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
     }
   ],
   "type": "Node",

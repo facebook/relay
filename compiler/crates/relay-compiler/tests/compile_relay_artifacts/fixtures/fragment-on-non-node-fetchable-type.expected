@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on NonNodeStory
+fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
-    ...ProfilePicture
+    ...fragmentOnNonNodeFetchableType_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -18,14 +18,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "size"
       }
     ],
     "kind": "Fragment",
@@ -49,7 +47,7 @@ fragment ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableFragment"
+            "name": "fragmentOnNonNodeFetchableType_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -64,14 +62,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -107,6 +103,13 @@ fragment ProfilePicture on User {
                 "storageKey": null
               },
               {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
                 "kind": "InlineFragment",
                 "selections": [
                   {
@@ -136,13 +139,6 @@ fragment ProfilePicture on User {
                 ],
                 "type": "User",
                 "abstractKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
               }
             ],
             "storageKey": null
@@ -152,6 +148,13 @@ fragment ProfilePicture on User {
             "args": null,
             "kind": "ScalarField",
             "name": "fetch_id",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__token",
             "storageKey": null
           },
           {
@@ -182,24 +185,25 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) {
   fetch__NonNodeStory(input_fetch_id: $id) {
-    ...RefetchableFragment
+    ...fragmentOnNonNodeFetchableType_RefetchableFragment
     id
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment on NonNodeStory {
+fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory {
   actor {
     __typename
-    ...ProfilePicture
+    ...fragmentOnNonNodeFetchableType_ProfilePicture
     id
   }
   fetch_id
+  __token
 }
 
 
@@ -207,13 +211,12 @@ fragment RefetchableFragment on NonNodeStory {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "fragmentOnNonNodeFetchableType_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -245,7 +248,12 @@ fragment RefetchableFragment on NonNodeStory {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {
@@ -257,7 +265,7 @@ fragment RefetchableFragment on NonNodeStory {
       "identifierField": "fetch_id"
     }
   },
-  "name": "RefetchableFragment",
+  "name": "fragmentOnNonNodeFetchableType_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -270,7 +278,7 @@ fragment RefetchableFragment on NonNodeStory {
         {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "ProfilePicture"
+          "name": "fragmentOnNonNodeFetchableType_ProfilePicture"
         }
       ],
       "storageKey": null
@@ -280,6 +288,13 @@ fragment RefetchableFragment on NonNodeStory {
       "args": null,
       "kind": "ScalarField",
       "name": "fetch_id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__token",
       "storageKey": null
     }
   ],

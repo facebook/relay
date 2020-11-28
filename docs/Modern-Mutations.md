@@ -21,12 +21,13 @@ commitMutation(
   config: {
     mutation: GraphQLTaggedNode,
     variables: {[name: string]: mixed},
-    onCompleted?: ?(response: ?Object, errors: ?Array<Error>) => void,
+    onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
     optimisticResponse?: Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
     updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<DeclarativeMutationConfig>,
+    cacheConfig?: CacheConfig,
   },
 );
 ```
@@ -49,6 +50,7 @@ commitMutation(
   When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and will then execute `updater`.
   This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store.html). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store.html).
   * `configs`:  Array containing objects describing `optimisticUpdater`/`updater` configurations. `configs` provides a convenient way to specify the `updater` behavior without having to write an `updater` function. See our section on [Updater Configs](#updater-configs) for more details.
+  * `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Simple Example
 
@@ -130,7 +132,7 @@ Another way to enable optimistic updates is via the `optimisticUpdater`, which c
 We can give Relay instructions in the form of a `configs` array on how to use the response from each mutation to update the client-side store. We do this by configuring the mutation with one or more of the following config types:
 
 ### NODE_DELETE
-Given a deletedIDFieldName, Relay will remove the node(s) from the store.
+Given a `deletedIDFieldName`, Relay will remove the node(s) from the store.
 
 **Note**: this will not remove it from any connection it might be in. If you want to remove a node from a connection, take a look at [RANGE_DELETE](#RANGE_DELETE).
 
@@ -205,7 +207,7 @@ function commit(environment, factionID, name) {
 ```
 
 ### RANGE_DELETE
-Given a parent, connectionKeys, one or more DataIDs in the response payload, and
+Given a parent, `connectionKeys`, one or more DataIDs in the response payload, and
 a path between the parent and the connection, Relay will remove the node(s)
 from the connection but leave the associated record(s) in the store.
 

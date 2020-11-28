@@ -109,7 +109,6 @@ const SCHEMA_EXTENSION = `
     key: String!
     filters: [String]
     handler: String
-    label: String!
     initial_count: Int!
     if: Boolean = true
     use_customized_batch: Boolean = false
@@ -301,24 +300,14 @@ function buildConnectionArguments(
       arg => arg.name === 'use_customized_batch',
     );
     const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
-    if (label != null && typeof label !== 'string') {
-      const labelArg = connectionDirective.args.find(
-        arg => arg.name === 'label',
-      );
-      throw createUserError(
-        `Expected the 'label' argument to @${connectionDirective.name} to be a string literal for field ${field.name}.`,
-        [labelArg?.value?.loc ?? connectionDirective.loc],
-      );
-    }
     stream = {
       if: ifArg,
       initialCount: initialCountArg,
       useCustomizedBatch: useCustomizedBatchArg,
-      label: label ?? key,
+      label: key,
     };
   }
 
-  // T45504512: new connection model
   const dynamicKeyArg = connectionDirective.args.find(
     arg => arg.name === 'dynamicKey_UNSTABLE',
   );
@@ -615,9 +604,6 @@ function transformConnectionSelections(
       label: `${documentName}$defer$${stream.label}$${PAGE_INFO}`,
       kind: 'Defer',
       loc: derivedFieldLocation,
-      metadata: {
-        fragmentTypeCondition: nullableType,
-      },
       selections: [transformedPageInfoSelection],
     };
   }

@@ -11,15 +11,21 @@ use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use interner::StringKey;
 
+#[derive(Eq, PartialEq, Hash, Debug)]
+pub struct ObjectEntry {
+    pub key: StringKey,
+    pub value: Primitive,
+}
+
 /// An interned codegen AST
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Ast {
-    Object(Vec<(StringKey, Primitive)>),
+    Object(Vec<ObjectEntry>),
     Array(Vec<Primitive>),
 }
 
 impl Ast {
-    pub fn assert_object(&self) -> &[(StringKey, Primitive)] {
+    pub fn assert_object(&self) -> &[ObjectEntry] {
         match self {
             Ast::Object(result) => result,
             Ast::Array(_) => panic!("Expected an object"),

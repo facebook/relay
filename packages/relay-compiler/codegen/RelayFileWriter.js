@@ -146,7 +146,9 @@ function writeAll({
 }: {|
   config: WriterConfig,
   onlyValidate: boolean,
+  // $FlowFixMe[value-as-type]
   baseDocuments: ImmutableMap<string, DocumentNode>,
+  // $FlowFixMe[value-as-type]
   documents: ImmutableMap<string, DocumentNode>,
   schema: Schema,
   reporter: Reporter,
@@ -156,7 +158,6 @@ function writeAll({
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
       artifacts: artifactsWithBase,
-      definitions,
       transformedTypeContext,
       transformedQueryContext,
     } = compileAll({

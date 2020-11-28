@@ -15,14 +15,14 @@ fragment Foo on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "directive-include.graphql":9:22,
+                location: directive-include.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
             used_global_variables: [
                 VariableDefinition {
                     name: WithLocation {
-                        location: "directive-include.graphql":133:138,
+                        location: directive-include.graphql:133:138,
                         item: "Cond",
                     },
                     type_: NonNull(
@@ -34,7 +34,7 @@ fragment Foo on User {
                     directives: [],
                 },
             ],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 Condition {
@@ -42,9 +42,9 @@ fragment Foo on User {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: "directive-include.graphql":31:37,
+                                location: directive-include.graphql:34:36,
                                 item: FieldID(
-                                    449,
+                                    460,
                                 ),
                             },
                             arguments: [],
@@ -54,7 +54,7 @@ fragment Foo on User {
                     value: Variable(
                         Variable {
                             name: WithLocation {
-                                location: "directive-include.graphql":50:55,
+                                location: directive-include.graphql:50:55,
                                 item: "Cond",
                             },
                             type_: NonNull(
@@ -70,16 +70,16 @@ fragment Foo on User {
                     selections: [
                         InlineFragment {
                             type_condition: Some(
-                                Object(65),
+                                Object(67),
                             ),
                             directives: [],
                             selections: [
                                 ScalarField {
                                     alias: None,
                                     definition: WithLocation {
-                                        location: "directive-include.graphql":92:106,
+                                        location: directive-include.graphql:97:106,
                                         item: FieldID(
-                                            446,
+                                            457,
                                         ),
                                     },
                                     arguments: [],
@@ -91,7 +91,7 @@ fragment Foo on User {
                     value: Variable(
                         Variable {
                             name: WithLocation {
-                                location: "directive-include.graphql":84:89,
+                                location: directive-include.graphql:84:89,
                                 item: "Cond",
                             },
                             type_: NonNull(
@@ -107,7 +107,7 @@ fragment Foo on User {
                     selections: [
                         FragmentSpread {
                             fragment: WithLocation {
-                                location: "directive-include.graphql":116:120,
+                                location: directive-include.graphql:116:119,
                                 item: "Foo",
                             },
                             arguments: [],
@@ -117,7 +117,7 @@ fragment Foo on User {
                     value: Variable(
                         Variable {
                             name: WithLocation {
-                                location: "directive-include.graphql":133:138,
+                                location: directive-include.graphql:133:138,
                                 item: "Cond",
                             },
                             type_: NonNull(
@@ -135,20 +135,20 @@ fragment Foo on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "directive-include.graphql":152:156,
+                location: directive-include.graphql:152:155,
                 item: "Foo",
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "directive-include.graphql":165:170,
+                        location: directive-include.graphql:168:170,
                         item: FieldID(
-                            449,
+                            460,
                         ),
                     },
                     arguments: [],

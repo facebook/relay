@@ -24,11 +24,12 @@ import type {
   GraphQLTaggedNode,
   OperationType,
   RenderPolicy,
+  VariablesOf,
 } from 'relay-runtime';
 
 function useLazyLoadQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: {|
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
@@ -40,12 +41,17 @@ function useLazyLoadQuery<TQuery: OperationType>(
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
-  const query = useMemoOperationDescriptor(gqlQuery, variables);
+  const query = useMemoOperationDescriptor(
+    gqlQuery,
+    variables,
+    options && options.networkCacheConfig
+      ? options.networkCacheConfig
+      : {force: true},
+  );
   const data = useLazyLoadQueryNode({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
     fetchPolicy: options?.fetchPolicy,
-    networkCacheConfig: options?.networkCacheConfig,
     query,
     renderPolicy: options?.UNSTABLE_renderPolicy,
   });

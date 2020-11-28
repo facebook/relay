@@ -1,0 +1,27 @@
+[package]
+name = "relay-compiler-neon"
+version = "0.1.0"
+authors = ["Facebook"]
+license = "MIT"
+build = "build.rs"
+edition = "2018"
+exclude = ["artifacts.json", "index.node"]
+
+[lib]
+name = "relay_compiler_neon"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+neon-build = "0.4.0"
+
+[dependencies]
+common = { path = "../../common" }
+graphql-ir = { path = "../../graphql-ir" }
+graphql-syntax = { path = "../../graphql-syntax" }
+graphql-text-printer = { path = "../../graphql-text-printer" }
+relay-transforms = { path = "../../relay-transforms" }
+interner = { path = "../../interner" }
+neon = "0.4.0"
+relay-codegen = { path = "../../relay-codegen" }
+relay-compiler = { path = "../../relay-compiler" }
+schema = { path = "../../schema" }

@@ -7,20 +7,20 @@ fragment TestFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "list-of-enums.graphql":9:22,
+                location: list-of-enums.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "list-of-enums.graphql":31:67,
+                        location: list-of-enums.graphql:34:40,
                         item: FieldID(
-                            471,
+                            482,
                         ),
                     },
                     arguments: [],

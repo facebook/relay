@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment PaginationFragment on Node
+fragment refetchableFragmentWithConnection_PaginationFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery")
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 10}
@@ -25,20 +25,17 @@ fragment PaginationFragment on Node
       {
         "defaultValue": 10,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -73,7 +70,7 @@ fragment PaginationFragment on Node
               }
             ],
             "kind": "FragmentSpread",
-            "name": "PaginationFragment"
+            "name": "refetchableFragmentWithConnection_PaginationFragment"
           }
         ],
         "storageKey": null
@@ -88,20 +85,17 @@ fragment PaginationFragment on Node
       {
         "defaultValue": 10,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -286,12 +280,12 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...PaginationFragment_1G22uz
+    ...refetchableFragmentWithConnection_PaginationFragment_1G22uz
     id
   }
 }
 
-fragment PaginationFragment_1G22uz on Node {
+fragment refetchableFragmentWithConnection_PaginationFragment_1G22uz on Node {
   __isNode: __typename
   id
   ... on User {
@@ -318,14 +312,12 @@ fragment PaginationFragment_1G22uz on Node {
     {
       "defaultValue": 10,
       "kind": "LocalArgument",
-      "name": "count",
-      "type": "Int"
+      "name": "count"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "cursor",
-      "type": "ID"
+      "name": "cursor"
     }
   ],
   "kind": "Fragment",
@@ -358,7 +350,7 @@ fragment PaginationFragment_1G22uz on Node {
       "identifierField": "id"
     }
   },
-  "name": "PaginationFragment",
+  "name": "refetchableFragmentWithConnection_PaginationFragment",
   "selections": [
     {
       "alias": null,

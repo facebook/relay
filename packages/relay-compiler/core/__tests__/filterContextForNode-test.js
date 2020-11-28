@@ -32,7 +32,8 @@ describe('filterContextForNode', () => {
 
     const context = new CompilerContext(TestSchema).addAll(definitions);
     const printerContext = filterContextForNode(
-      // $FlowFixMe - null or undefined is incompatible with union type
+      /* $FlowFixMe[incompatible-call] - null or undefined is incompatible with
+       * union type */
       context.get(MAIN_QUERY_NAME),
       context,
     );

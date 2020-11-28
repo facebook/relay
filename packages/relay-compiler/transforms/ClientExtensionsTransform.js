@@ -83,14 +83,17 @@ function traverseSelections<T: Node>(
   compilerContext: CompilerContext,
   parentType: TypeID,
 ): T {
+  // $FlowFixMe[escaped-generic]
   let nodeCache = cachesByNode.get(node);
   if (nodeCache == null) {
     nodeCache = new Map();
+    // $FlowFixMe[escaped-generic]
     cachesByNode.set(node, nodeCache);
   }
   let result = nodeCache.get(parentType);
   if (result != null) {
-    // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+    /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
+     * changing result type */
     return result;
   }
   const schema = compilerContext.getSchema();
@@ -181,8 +184,10 @@ function traverseSelections<T: Node>(
       ],
     };
   }
+  // $FlowFixMe[escaped-generic]
   nodeCache.set(parentType, result);
-  // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+  /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
+   * changing result type */
   return result;
 }
 

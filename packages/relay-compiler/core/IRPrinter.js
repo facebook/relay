@@ -191,7 +191,8 @@ function printSelection(
     );
     str = subSelections.join('\n' + indent + INDENT);
   } else if (selection.kind === 'Stream') {
-    let streamStr = ` @stream(label: "${selection.label}"`;
+    let streamStr = parentDirectives;
+    streamStr += ` @stream(label: "${selection.label}"`;
     if (selection.if !== null) {
       streamStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
@@ -210,7 +211,6 @@ function printSelection(
       ) ?? 'false'}`;
     }
     streamStr += ')';
-    streamStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>
       printSelection(schema, sel, indent, {
         parentDirectives: streamStr,
@@ -219,12 +219,12 @@ function printSelection(
     );
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'Defer') {
-    let deferStr = ` @defer(label: "${selection.label}"`;
+    let deferStr = parentDirectives;
+    deferStr += ` @defer(label: "${selection.label}"`;
     if (selection.if !== null) {
       deferStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     deferStr += ')';
-    deferStr += parentDirectives;
     if (
       selection.selections.every(
         subSelection =>
@@ -240,17 +240,7 @@ function printSelection(
       );
       str = subSelections.join('\n' + INDENT);
     } else {
-      if (
-        selection.metadata != null &&
-        selection.metadata.fragmentTypeCondition != null
-      ) {
-        str =
-          `... on ${schema.getTypeString(
-            selection.metadata.fragmentTypeCondition,
-          )}` + deferStr;
-      } else {
-        str = '...' + deferStr;
-      }
+      str = '...' + deferStr;
       str += printSelections(schema, selection, indent + INDENT, {
         isClientExtension,
       });
@@ -332,7 +322,11 @@ function printHandles(schema: Schema, field: Field): string {
       handle.filters == null
         ? ''
         : `, filters: ${JSON.stringify(Array.from(handle.filters).sort())}`;
-    return `@__clientField(handle: "${handle.name}"${key}${filters})`;
+    const handleArgs =
+      handle.handleArgs == null
+        ? ''
+        : `, handleArgs: ${printArguments(schema, handle.handleArgs)}`;
+    return `@__clientField(handle: "${handle.name}"${key}${filters}${handleArgs})`;
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
@@ -383,21 +377,16 @@ function printValue(
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
   } else if (value.kind === 'ObjectValue') {
-    invariant(
-      type && schema.isInputObject(type),
-      'GraphQLIRPrinter: Need an InputObject type to print objects.',
-    );
-    const inputType = schema.assertInputObjectType(type);
+    const inputType = type != null ? schema.asInputObjectType(type) : null;
     const pairs = value.fields
       .map(field => {
         const fieldConfig =
-          type != null
+          inputType != null
             ? schema.hasField(inputType, field.name)
               ? schema.getFieldConfig(schema.expectField(inputType, field.name))
               : null
             : null;
-        const innerValue =
-          fieldConfig && printValue(schema, field.value, fieldConfig.type);
+        const innerValue = printValue(schema, field.value, fieldConfig?.type);
         return innerValue == null ? null : field.name + ': ' + innerValue;
       })
       .filter(Boolean);

@@ -15,7 +15,9 @@
     "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
   },
   "dependencies": {
-    "docusaurus": "1.14.4",
+    "docusaurus": "1.14.6",
+    "react": "^16",
+    "react-syntax-highlighter": "15.3.0",
     "spec-md": "^1.1.1"
   },
   "resolutions": {

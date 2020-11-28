@@ -12,8 +12,10 @@
 
 'use strict';
 
+const argumentContainsVariables = require('../util/argumentContainsVariables');
 const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
 const partitionArray = require('../util/partitionArray');
+const sortObjectByKey = require('./sortObjectByKey');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {getStorageKey, stableCopy} = require('relay-runtime');
@@ -44,7 +46,6 @@ import type {
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationOperation,
-  NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
@@ -97,7 +98,7 @@ function generateSplitOperation(
 ): NormalizationSplitOperation {
   return {
     kind: 'SplitOperation',
-    metadata: node.metadata,
+    metadata: sortObjectByKey(node.metadata),
     name: node.name,
     selections: generateSelections(schema, node.selections),
   };
@@ -165,10 +166,9 @@ function generateArgumentDefinitions(
 ): $ReadOnlyArray<NormalizationLocalArgumentDefinition> {
   return nodes.map(node => {
     return {
-      defaultValue: node.defaultValue,
+      defaultValue: stableCopy(node.defaultValue),
       kind: 'LocalArgument',
       name: node.name,
-      type: schema.getTypeString(node.type),
     };
   });
 }
@@ -289,7 +289,6 @@ function generateLinkedField(
           kind: 'LinkedHandle',
           name: node.name,
         };
-        // T45504512: new connection model
         // NOTE: this intentionally adds a dynamic key in order to avoid
         // triggering updates to existing queries that do not use dynamic
         // keys.
@@ -303,6 +302,15 @@ function generateLinkedField(
               variableName: handle.dynamicKey.variableName,
             },
           };
+        }
+        if (handle.handleArgs != null) {
+          const handleArgs = generateArgs(handle.handleArgs);
+          if (handleArgs != null) {
+            handleNode = {
+              ...handleNode,
+              handleArgs,
+            };
+          }
         }
         return handleNode;
       })) ||
@@ -382,7 +390,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
             [handle.dynamicKey.loc],
           );
         }
-        return {
+        const nodeHandle = {
           alias: node.alias === node.name ? null : node.alias,
           args: generateArgs(node.args),
           filters: handle.filters,
@@ -391,9 +399,16 @@ function generateScalarField(node): Array<NormalizationSelection> {
           kind: 'ScalarHandle',
           name: node.name,
         };
+
+        if (handle.handleArgs != null) {
+          // $FlowFixMe handleArgs exists in Handle
+          nodeHandle.handleArgs = generateArgs(handle.handleArgs);
+        }
+
+        return nodeHandle;
       })) ||
     [];
-  let field: NormalizationScalarField = {
+  let field = {
     alias: node.alias === node.name ? null : node.alias,
     args: generateArgs(node.args),
     kind: 'ScalarField',
@@ -404,6 +419,9 @@ function generateScalarField(node): Array<NormalizationSelection> {
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey != null) {
     field = {...field, storageKey};
+  }
+  if (node.metadata?.flight === true) {
+    field = {...field, kind: 'FlightField'};
   }
   return [field].concat(handles);
 }
@@ -429,7 +447,7 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
         : null,
     kind: 'Stream',
     label: node.label,
-    metadata: node.metadata,
+    metadata: sortObjectByKey(node.metadata),
     selections: generateSelections(schema, node.selections),
     useCustomizedBatch:
       node.useCustomizedBatch != null &&
@@ -539,7 +557,7 @@ function getStaticStorageKey(
   if (
     !field.args ||
     field.args.length === 0 ||
-    field.args.some(arg => arg.kind !== 'Literal')
+    field.args.some(argumentContainsVariables)
   ) {
     return null;
   }

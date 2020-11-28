@@ -27,13 +27,18 @@ const {
 } = require('relay-test-utils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let tracker;
   let environment;
   let QueryOperation1;
   let QueryOperation2;
   let MutationOperation;
-  let operationLoader;
+  let operationLoader: {|
+    +get: (reference: mixed) => ?NormalizationRootNode,
+    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+  |};
 
   beforeEach(() => {
     const {Query1, Query2, Mutation1} = generateAndCompile(`

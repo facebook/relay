@@ -68,7 +68,8 @@ describe('IRVisitor', () => {
         },
       };
       const mutatedAst = ast.map(fragment =>
-        // $FlowFixMe: Cannot call `visit` with object literal bound to `visitor`
+        /* $FlowFixMe[incompatible-call] : Cannot call `visit` with object
+         * literal bound to `visitor` */
         visit(fragment, {
           Argument: mutateNameVisitor,
           Directive: mutateNameVisitor,

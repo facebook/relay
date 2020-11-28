@@ -1,9 +1,0 @@
-==================================== INPUT ====================================
-# expected-to-throw
-fragment PluralFragment on User @relay(plural: $plural) {
-  name
-}
-==================================== ERROR ====================================
-Expected the `plural` argument to @relay to be a boolean literal if specified.:
-plural-fragment-variables.invalid.graphql:1:48:
-fragment PluralFragment on User @relay(plural: $plural) {

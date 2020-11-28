@@ -34,7 +34,7 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   // values. Runs in linear time due to hashing in a bottom-up recursion.
   function collectMetadata(value): string {
     if (value == null || typeof value !== 'object') {
-      // $FlowFixMe - JSON.stringify can return undefined
+      // $FlowFixMe[incompatible-return] - JSON.stringify can return undefined
       return JSON.stringify(value);
     }
     let hash;
@@ -95,7 +95,7 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   // Stringify JS, replacing duplicates with variable references.
   function printJSCode(isDupedVar, depth, value): string {
     if (value == null || typeof value !== 'object') {
-      // $FlowFixMe: JSON.stringify can return undefined
+      // $FlowFixMe[incompatible-return] : JSON.stringify can return undefined
       return JSON.stringify(value);
     }
     // Only use variable references at depth beyond the top level.

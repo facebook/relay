@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment RefetchableConnection_feedback on Feedback
+fragment refetchableConnection_RefetchableConnection_feedback on Feedback
   @refetchable(queryName: "RefetchableConnectionQuery") {
   id
   comments(first: $count, after: $cursor)
@@ -23,20 +23,17 @@ fragment RefetchableConnection_feedback on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
@@ -60,7 +57,7 @@ fragment RefetchableConnection_feedback on Feedback
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableConnection_feedback"
+            "name": "refetchableConnection_RefetchableConnection_feedback"
           }
         ],
         "storageKey": null
@@ -75,20 +72,17 @@ fragment RefetchableConnection_feedback on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -262,12 +256,12 @@ query RefetchableConnectionQuery(
 ) {
   node(id: $id) {
     __typename
-    ...RefetchableConnection_feedback
+    ...refetchableConnection_RefetchableConnection_feedback
     id
   }
 }
 
-fragment RefetchableConnection_feedback on Feedback {
+fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
   id
   comments(first: $count, after: $cursor) {
     edges {
@@ -289,13 +283,11 @@ fragment RefetchableConnection_feedback on Feedback {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "count",
-      "type": "Int"
+      "name": "count"
     },
     {
       "kind": "RootArgument",
-      "name": "cursor",
-      "type": "ID"
+      "name": "cursor"
     }
   ],
   "kind": "Fragment",
@@ -328,7 +320,7 @@ fragment RefetchableConnection_feedback on Feedback {
       "identifierField": "id"
     }
   },
-  "name": "RefetchableConnection_feedback",
+  "name": "refetchableConnection_RefetchableConnection_feedback",
   "selections": [
     {
       "alias": null,

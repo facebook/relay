@@ -1,0 +1,13 @@
+# expected-to-throw
+
+fragment TestFragment on User @argumentDefinitions(
+  id: {type: "ID"}
+) {
+  ...Foo @arguments(localId: $id)
+}
+
+fragment Foo on User @argumentDefinitions(
+  localId: {type: "ID!"}
+) {
+  id
+}

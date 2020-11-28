@@ -1,22 +1,22 @@
 ==================================== INPUT ====================================
-query MatchQuery {
+query multipleModulesSameSelections_MatchQuery {
   node(id: "<user-id>") {
     ... on Actor {
       nameRenderer {
-        ...MarkdownUserNameRenderer_name
+        ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
       }
     }
     ... on User {
       nameRenderer {
-        ...MarkdownUserNameRenderer_name
+        ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
       }
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -25,10 +25,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -70,7 +68,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "MatchQuery",
+    "name": "multipleModulesSameSelections_MatchQuery",
     "selections": [
       {
         "alias": null,
@@ -101,9 +99,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesSameSelections_MatchQuery",
+                        "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -132,9 +130,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesSameSelections_MatchQuery",
+                        "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -159,7 +157,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "MatchQuery",
+    "name": "multipleModulesSameSelections_MatchQuery",
     "selections": [
       {
         "alias": null,
@@ -183,12 +181,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
-              {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
               {
                 "alias": null,
                 "args": null,
@@ -208,9 +209,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesSameSelections_MatchQuery",
+                        "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -246,9 +247,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesSameSelections_MatchQuery",
+                        "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -261,13 +262,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
@@ -277,7 +271,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "MatchQuery",
+    "name": "multipleModulesSameSelections_MatchQuery",
     "operationKind": "query",
     "text": null
   }
@@ -285,7 +279,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query MatchQuery {
+query multipleModulesSameSelections_MatchQuery {
   node(id: "<user-id>") {
     __typename
     ... on Actor {
@@ -293,9 +287,9 @@ query MatchQuery {
       nameRenderer {
         __typename
         ... on MarkdownUserNameRenderer {
-          ...MarkdownUserNameRenderer_name
-          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
-          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
+          ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
+          __module_operation_multipleModulesSameSelections_MatchQuery: js(module: "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
+          __module_component_multipleModulesSameSelections_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
         }
       }
     }
@@ -303,9 +297,9 @@ query MatchQuery {
       nameRenderer {
         __typename
         ... on MarkdownUserNameRenderer {
-          ...MarkdownUserNameRenderer_name
-          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
-          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
+          ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
+          __module_operation_multipleModulesSameSelections_MatchQuery: js(module: "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
+          __module_component_multipleModulesSameSelections_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
         }
       }
     }
@@ -313,7 +307,7 @@ query MatchQuery {
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -326,7 +320,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

@@ -320,9 +320,8 @@ function getRequestCacheKey(
   request: RequestParameters,
   variables: Variables,
 ): string {
-  const requestID = request.id || request.text;
   return JSON.stringify({
-    id: String(requestID),
+    id: request.cacheID ? request.cacheID : request.id,
     variables,
   });
 }
@@ -333,11 +332,15 @@ function fetchQueryAndComputeStateFromProps(
   retryCallbacks: RetryCallbacks,
   requestCacheKey: ?string,
 ): $Shape<State> {
-  const {environment, query, variables} = props;
+  const {environment, query, variables, cacheConfig} = props;
   const genericEnvironment = (environment: IEnvironment);
   if (query) {
     const request = getRequest(query);
-    const operation = createOperationDescriptor(request, variables);
+    const operation = createOperationDescriptor(
+      request,
+      variables,
+      cacheConfig,
+    );
     const relayContext: RelayContext = {
       environment: genericEnvironment,
     };
@@ -378,7 +381,6 @@ function fetchQueryAndComputeStateFromProps(
         props.fetchPolicy,
       );
       const querySnapshot = queryFetcher.fetch({
-        cacheConfig: props.cacheConfig,
         environment: genericEnvironment,
         onDataChange: retryCallbacks.handleDataChange,
         operation,

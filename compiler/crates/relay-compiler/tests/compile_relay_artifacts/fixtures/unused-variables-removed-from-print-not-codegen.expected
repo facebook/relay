@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
+query unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
   node(id: $id) {
     id
-    ...ConnectionFragment @arguments(fetchConnection: false)
+    ...unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment @arguments(fetchConnection: false)
   }
 }
 
-fragment ConnectionFragment on User
+fragment unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment on User
   @argumentDefinitions(
     fetchConnection: {type: "Boolean", defaultValue: false}
   ) {
@@ -27,25 +27,22 @@ fragment ConnectionFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedFirst",
-        "type": "Int"
+        "name": "unusedAfter"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedAfter",
-        "type": "ID"
+        "name": "unusedFirst"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithUnusedVariables",
+    "name": "unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery",
     "selections": [
       {
         "alias": null,
@@ -77,7 +74,7 @@ fragment ConnectionFragment on User
               }
             ],
             "kind": "FragmentSpread",
-            "name": "ConnectionFragment"
+            "name": "unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment"
           }
         ],
         "storageKey": null
@@ -92,24 +89,21 @@ fragment ConnectionFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedFirst",
-        "type": "Int"
+        "name": "unusedFirst"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "unusedAfter",
-        "type": "ID"
+        "name": "unusedAfter"
       }
     ],
     "kind": "Operation",
-    "name": "QueryWithUnusedVariables",
+    "name": "unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery",
     "selections": [
       {
         "alias": null,
@@ -147,7 +141,7 @@ fragment ConnectionFragment on User
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithUnusedVariables",
+    "name": "unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery",
     "operationKind": "query",
     "text": null
   }
@@ -155,7 +149,7 @@ fragment ConnectionFragment on User
 
 QUERY:
 
-query QueryWithUnusedVariables(
+query unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery(
   $id: ID!
 ) {
   node(id: $id) {
@@ -170,23 +164,20 @@ query QueryWithUnusedVariables(
     {
       "defaultValue": false,
       "kind": "LocalArgument",
-      "name": "fetchConnection",
-      "type": "Boolean"
+      "name": "fetchConnection"
     },
     {
       "kind": "RootArgument",
-      "name": "unusedAfter",
-      "type": "ID"
+      "name": "unusedAfter"
     },
     {
       "kind": "RootArgument",
-      "name": "unusedFirst",
-      "type": "Int"
+      "name": "unusedFirst"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ConnectionFragment",
+  "name": "unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment",
   "selections": [
     {
       "condition": "fetchConnection",

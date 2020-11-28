@@ -1,0 +1,11 @@
+fragment FragmentWithValidNameAndroid_fragment on User {
+    name
+}
+
+fragment FragmentWithValidNameAndroidFragment on User {
+    name
+}
+
+fragment FragmentWithValidNameAndroid on User {
+    name
+}

@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: 10) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'String'
+
+  connection-invalid-key-type.invalid.graphql:6:44
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: 10) {
+      │                                            ^^
+    7 │         edges {

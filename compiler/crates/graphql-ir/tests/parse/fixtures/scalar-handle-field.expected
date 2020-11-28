@@ -9,37 +9,37 @@ fragment ScalarHandleField on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "scalar-handle-field.graphql":9:27,
+                location: scalar-handle-field.graphql:9:26,
                 item: "ScalarHandleField",
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "scalar-handle-field.graphql":36:43,
+                        location: scalar-handle-field.graphql:39:43,
                         item: FieldID(
-                            455,
+                            466,
                         ),
                     },
                     arguments: [],
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: "scalar-handle-field.graphql":49:62,
+                                location: scalar-handle-field.graphql:49:62,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
-                                        location: "scalar-handle-field.graphql":63:69,
+                                        location: scalar-handle-field.graphql:63:69,
                                         item: "handle",
                                     },
                                     value: WithLocation {
-                                        location: "scalar-handle-field.graphql":71:83,
+                                        location: scalar-handle-field.graphql:71:83,
                                         item: Constant(
                                             String(
                                                 "clientName",
@@ -51,17 +51,17 @@ fragment ScalarHandleField on User {
                         },
                         Directive {
                             name: WithLocation {
-                                location: "scalar-handle-field.graphql":90:103,
+                                location: scalar-handle-field.graphql:90:103,
                                 item: "__clientField",
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
-                                        location: "scalar-handle-field.graphql":104:110,
+                                        location: scalar-handle-field.graphql:104:110,
                                         item: "handle",
                                     },
                                     value: WithLocation {
-                                        location: "scalar-handle-field.graphql":112:125,
+                                        location: scalar-handle-field.graphql:112:125,
                                         item: Constant(
                                             String(
                                                 "clientName2",

@@ -5,127 +5,163 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{PerfLogEvent, PerfLogger};
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
-use graphql_ir::{Program, ValidationResult};
-use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, disallow_id_as_alias, flatten, generate_id_field,
-    generate_live_query_metadata, generate_preloadable_metadata,
-    generate_subscription_name_metadata, generate_typename, handle_field_transform,
-    inline_data_fragment, inline_fragments, mask, relay_early_flush, remove_base_fragments,
-    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
-    skip_unused_variables, split_module_import, transform_connections, transform_defer_stream,
-    transform_match, transform_refetchable_fragment, unwrap_custom_directive_selection,
-    validate_module_conflicts, validate_relay_directives, validate_server_only_directives,
-    validate_unused_variables, ConnectionInterface,
-};
+use graphql_ir::Program;
 use interner::StringKey;
+use relay_transforms::*;
+use std::sync::Arc;
 
-pub struct Programs<'schema> {
-    pub source: Program<'schema>,
-    pub reader: Program<'schema>,
-    pub normalization: Program<'schema>,
-    pub operation_text: Program<'schema>,
-    pub typegen: Program<'schema>,
+#[derive(Debug)]
+pub struct Programs {
+    pub source: Arc<Program>,
+    pub reader: Arc<Program>,
+    pub normalization: Arc<Program>,
+    pub operation_text: Arc<Program>,
+    pub typegen: Arc<Program>,
 }
 
-pub fn apply_transforms<'schema>(
-    project_name: &str,
-    program: Program<'schema>,
-    base_fragment_names: &FnvHashSet<StringKey>,
+pub fn apply_transforms<TPerfLogger>(
+    project_name: StringKey,
+    program: Arc<Program>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: &ConnectionInterface,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Programs<'schema>> {
-    // common
+    feature_flags: Arc<FeatureFlags>,
+    perf_logger: Arc<TPerfLogger>,
+) -> DiagnosticsResult<Programs>
+where
+    TPerfLogger: PerfLogger + 'static,
+{
+    // The execution pipeline is as follows, where items at the same indentation
+    // can be computed independently and therefore in parallel:
+    // |- common
     //  |- reader
     //  |- operation
     //     |- normalization
     //     |- operation_text
-    let common_program = apply_common_transforms(
-        project_name,
-        &program,
-        connection_interface,
-        base_fragment_names,
-        perf_logger,
+    // |- typegen
+    //
+    // NOTE: try_join(f1, f2) prefers the errors from f1 over f2, so process the normalization
+    // program first since it is likely to include more errors (both per-fragment and
+    // whole-operation errors) than the reader_program which just includes per-fragment errors.
+    let (((normalization_program, text_program), reader_program), typegen_program) = try_join(
+        || {
+            let common_program = apply_common_transforms(
+                project_name,
+                Arc::clone(&program),
+                connection_interface,
+                Arc::clone(&feature_flags),
+                Arc::clone(&base_fragment_names),
+                Arc::clone(&perf_logger),
+            )?;
+
+            try_join(
+                || {
+                    let operation_program = apply_operation_transforms(
+                        project_name,
+                        Arc::clone(&common_program),
+                        connection_interface,
+                        Arc::clone(&base_fragment_names),
+                        Arc::clone(&perf_logger),
+                    )?;
+
+                    try_join(
+                        || {
+                            apply_normalization_transforms(
+                                project_name,
+                                Arc::clone(&operation_program),
+                                Arc::clone(&perf_logger),
+                            )
+                        },
+                        || {
+                            apply_operation_text_transforms(
+                                project_name,
+                                Arc::clone(&operation_program),
+                                Arc::clone(&perf_logger),
+                            )
+                        },
+                    )
+                },
+                || {
+                    apply_reader_transforms(
+                        project_name,
+                        Arc::clone(&common_program),
+                        Arc::clone(&feature_flags),
+                        Arc::clone(&base_fragment_names),
+                        Arc::clone(&perf_logger),
+                    )
+                },
+            )
+        },
+        || {
+            apply_typegen_transforms(
+                project_name,
+                Arc::clone(&program),
+                Arc::clone(&feature_flags),
+                Arc::clone(&base_fragment_names),
+                Arc::clone(&perf_logger),
+            )
+        },
     )?;
-    let reader_program = apply_reader_transforms(
-        project_name,
-        &common_program,
-        base_fragment_names,
-        perf_logger,
-    )?;
-    let operation_program = apply_operation_transforms(
-        project_name,
-        &common_program,
-        base_fragment_names,
-        perf_logger,
-    )?;
-    let normalization_program =
-        apply_normalization_transforms(project_name, &operation_program, perf_logger)?;
-    let operation_text_program =
-        apply_operation_text_transforms(project_name, &operation_program, perf_logger)?;
-    let typegen_program =
-        apply_typegen_transforms(project_name, &program, base_fragment_names, perf_logger)?;
 
     Ok(Programs {
         source: program,
         reader: reader_program,
         normalization: normalization_program,
-        operation_text: operation_text_program,
+        operation_text: text_program,
         typegen: typegen_program,
     })
 }
 
 /// Applies transforms that apply to every output.
-fn apply_common_transforms<'schema>(
-    project_name: &str,
-    program: &Program<'schema>,
+fn apply_common_transforms(
+    project_name: StringKey,
+    program: Arc<Program>,
     connection_interface: &ConnectionInterface,
-    base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Program<'schema>> {
+    feature_flags: Arc<FeatureFlags>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger>,
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
-    // + DisallowIdAsAlias
+    // * DisallowIdAsAlias (in validate)
     // + ConnectionTransform
-    // + RelayDirectiveTransform
+    // * RelayDirectiveTransform (in validate)
     // + MaskTransform
     // + MatchTransform
     // + RefetchableFragmentTransform
     // + DeferStreamTransform
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
-
-    log_event.time("disallow_id_as_alias", || disallow_id_as_alias(program))?;
-    log_event.time("validate_unused_variables", || {
-        validate_unused_variables(&program)
-    })?;
-    log_event.time("validate_relay_directives", || {
-        validate_relay_directives(&program)
-    })?;
     let program = log_event.time("transform_connections", || {
-        transform_connections(program, connection_interface)
+        transform_connections(&program, connection_interface)
     });
     let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
+    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
-    });
+    })?;
+    let program = if feature_flags.enable_flight_transform {
+        log_event.time("react_flight", || react_flight(&program))?
+    } else {
+        program
+    };
     perf_logger.complete_event(log_event);
 
-    program
+    Ok(Arc::new(program))
 }
 
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
-fn apply_reader_transforms<'schema>(
-    project_name: &str,
-    program: &Program<'schema>,
-    base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Program<'schema>> {
+fn apply_reader_transforms(
+    project_name: StringKey,
+    program: Arc<Program>,
+    feature_flags: Arc<FeatureFlags>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger>,
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + ClientExtensionsTransform
     // + FieldHandleTransform
@@ -134,6 +170,9 @@ fn apply_reader_transforms<'schema>(
     // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
+    let program = log_event.time("required_directive", || {
+        required_directive(&program, &feature_flags)
+    })?;
 
     let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("handle_field_transform", || {
@@ -143,44 +182,51 @@ fn apply_reader_transforms<'schema>(
     let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    let program = log_event.time("flatten", || flatten(&program, true));
+    let program = log_event.time("flatten", || flatten(&program, true))?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("generate_data_driven_dependency_metadata", || {
+        generate_data_driven_dependency_metadata(&program)
+    });
 
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
-fn apply_operation_transforms<'schema>(
-    project_name: &str,
-    program: &Program<'schema>,
-    base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Program<'schema>> {
+fn apply_operation_transforms(
+    project_name: StringKey,
+    program: Arc<Program>,
+    connection_interface: &ConnectionInterface,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger>,
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SplitModuleImportTransform
     // * ValidateUnusedVariablesTransform (Moved to common_transforms)
     // + ApplyFragmentArgumentTransform
-    // - ValidateGlobalVariablesTransform
+    // + ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // * TestOperationTransform - part of relay_codegen
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("split_module_import", || {
-        split_module_import(&program, base_fragment_names)
+        split_module_import(&program, &base_fragment_names)
     });
     let program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
     })?;
+    log_event.time("validate_global_variables", || {
+        validate_global_variables(&program)
+    })?;
     let program = log_event.time("generate_id_field", || generate_id_field(&program));
+    let program = log_event.time("declarative_connection", || {
+        transform_declarative_connection(&program, connection_interface)
+    })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
-    let program = log_event.time("generate_preloadable_metadata", || {
-        generate_preloadable_metadata(&program)
-    });
     let program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)
     })?;
@@ -190,18 +236,18 @@ fn apply_operation_transforms<'schema>(
 
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 /// After the operation transforms, this applies further transforms that only
 /// apply to the generated normalization code.
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
-fn apply_normalization_transforms<'schema>(
-    project_name: &str,
-    program: &Program<'schema>,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Program<'schema>> {
+fn apply_normalization_transforms(
+    project_name: StringKey,
+    program: Arc<Program>,
+    perf_logger: Arc<impl PerfLogger>,
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
@@ -209,49 +255,45 @@ fn apply_normalization_transforms<'schema>(
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: true
     // + SkipRedundantNodesTransform
-    // + ValidateServerOnlyDirectivesTransform
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
-    log_event.time("validate_server_only_directives", || {
-        validate_server_only_directives(&program)
-    })?;
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
     let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program, true));
-    let program = log_event.time("flatten", || flatten(&program, true));
-    log_event.time("validate_module_conflicts", || {
-        validate_module_conflicts(&program)
-    })?;
+    let program = log_event.time("flatten", || flatten(&program, true))?;
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("generate_test_operation_metadata", || {
+        generate_test_operation_metadata(&program)
+    });
 
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
 /// After the operation transforms, this applies further transforms that only
 /// apply to the printed operation text.
 ///
 /// Corresponds to the "print transforms" in the JS compiler
-fn apply_operation_text_transforms<'schema>(
-    project_name: &str,
-    program: &Program<'schema>,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Program<'schema>> {
+fn apply_operation_text_transforms(
+    project_name: StringKey,
+    program: Arc<Program>,
+    perf_logger: Arc<impl PerfLogger>,
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
-    // - ClientExtensionsTransform
+    // * ClientExtensionsTransform (not necessary in rust)
     // + SkipClientExtensionsTransform
     // + SkipUnreachableNodeTransform
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: false
-    // - SkipHandleFieldTransform
-    // - FilterDirectivesTransform
+    // * SkipHandleFieldTransform (not necessary in rust)
+    // + FilterDirectivesTransform
     // + SkipUnusedVariablesTransform
-    // - ValidateRequiredArgumentsTransform
+    // + ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -262,22 +304,29 @@ fn apply_operation_text_transforms<'schema>(
     });
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program, false));
-    let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("flatten", || flatten(&program, false))?;
     let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
+    let program = log_event.time("skip_client_directives", || {
+        skip_client_directives(&program)
+    });
+    log_event.time("validate_required_arguments", || {
+        validate_required_arguments(&program)
+    })?;
     let program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
 }
 
-fn apply_typegen_transforms<'schema>(
-    project_name: &str,
-    program: &Program<'schema>,
-    base_fragment_names: &FnvHashSet<StringKey>,
-    perf_logger: &impl PerfLogger,
-) -> ValidationResult<Program<'schema>> {
+fn apply_typegen_transforms(
+    project_name: StringKey,
+    program: Arc<Program>,
+    feature_flags: Arc<FeatureFlags>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger>,
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // * RelayDirectiveTransform
     // + MaskTransform
@@ -289,15 +338,29 @@ fn apply_typegen_transforms<'schema>(
 
     let program = log_event.time("mask", || mask(&program));
     let program = log_event.time("transform_match", || transform_match(&program))?;
-    let program = log_event.time("flatten", || flatten(&program, false));
+    let program = log_event.time("required_directive", || {
+        required_directive(&program, &feature_flags)
+    })?;
+    let program = log_event.time("flatten", || flatten(&program, false))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
-            .expect("Expected errors to be validated in common transforms.")
-    });
+    })?;
     let program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
     perf_logger.complete_event(log_event);
 
-    Ok(program)
+    Ok(Arc::new(program))
+}
+
+fn try_join<T1, F1, T2, F2, E>(f1: F1, f2: F2) -> Result<(T1, T2), Vec<E>>
+where
+    F1: FnOnce() -> Result<T1, Vec<E>> + Send,
+    F2: FnOnce() -> Result<T2, Vec<E>> + Send,
+    T1: Send,
+    T2: Send,
+    E: Send,
+{
+    let (v1, v2) = rayon::join(f1, f2);
+    Ok((v1?, v2?))
 }

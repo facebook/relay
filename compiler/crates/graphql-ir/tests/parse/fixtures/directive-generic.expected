@@ -7,37 +7,37 @@ fragment TestFragment on User {
     Fragment(
         FragmentDefinition {
             name: WithLocation {
-                location: "directive-generic.graphql":9:22,
+                location: directive-generic.graphql:9:21,
                 item: "TestFragment",
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
-                        location: "directive-generic.graphql":31:37,
+                        location: directive-generic.graphql:34:36,
                         item: FieldID(
-                            449,
+                            460,
                         ),
                     },
                     arguments: [],
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: "directive-generic.graphql":38:53,
+                                location: directive-generic.graphql:38:53,
                                 item: "customDirective",
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
-                                        location: "directive-generic.graphql":54:59,
+                                        location: directive-generic.graphql:54:59,
                                         item: "level",
                                     },
                                     value: WithLocation {
-                                        location: "directive-generic.graphql":61:63,
+                                        location: directive-generic.graphql:61:63,
                                         item: Constant(
                                             Int(
                                                 11,

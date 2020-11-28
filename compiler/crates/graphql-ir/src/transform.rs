@@ -15,15 +15,12 @@ pub trait Transformer {
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
 
-    fn transform_program<'s>(&mut self, program: &Program<'s>) -> TransformedValue<Program<'s>> {
+    fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
         self.default_transform_program(program)
     }
 
-    fn default_transform_program<'s>(
-        &mut self,
-        program: &Program<'s>,
-    ) -> TransformedValue<Program<'s>> {
-        let mut next_program = Program::new(program.schema());
+    fn default_transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
+        let mut next_program = Program::new(Arc::clone(&program.schema));
         let mut has_changes = false;
         for operation in program.operations() {
             match self.transform_operation(operation) {

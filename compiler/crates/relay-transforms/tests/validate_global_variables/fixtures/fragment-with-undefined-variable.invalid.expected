@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query QueryWithUnusedVariable {
+  node {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  name @include(if: $shouldIncludeName)
+}
+==================================== ERROR ====================================
+✖︎ Operation 'QueryWithUnusedVariable' references undefined variable: '$shouldIncludeName'.
+
+  fragment-with-undefined-variable.invalid.graphql:9:21
+    8 │ fragment UserFragment on User {
+    9 │   name @include(if: $shouldIncludeName)
+      │                     ^^^^^^^^^^^^^^^^^^
+   10 │ }

@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query TestQuery($date: String) {
+query complexArguments_TestQuery($date: String) {
   items(filter: {date: $date}) {
     date
   }
@@ -11,13 +11,12 @@ query TestQuery($date: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "date",
-        "type": "String"
+        "name": "date"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "complexArguments_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -59,12 +58,11 @@ query TestQuery($date: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "date",
-        "type": "String"
+        "name": "date"
       }
     ],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "complexArguments_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -101,7 +99,7 @@ query TestQuery($date: String) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "complexArguments_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -109,7 +107,7 @@ query TestQuery($date: String) {
 
 QUERY:
 
-query TestQuery(
+query complexArguments_TestQuery(
   $date: String
 ) {
   items(filter: {date: $date}) {

@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query Test {
+query explicitNullArgument_TestQuery {
   # The compiler currently strips this null which isn't right.
   node(id: null) {
     __typename
@@ -11,7 +11,7 @@ query Test {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "Test",
+    "name": "explicitNullArgument_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -39,7 +39,7 @@ query Test {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "Test",
+    "name": "explicitNullArgument_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -71,7 +71,7 @@ query Test {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "Test",
+    "name": "explicitNullArgument_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -79,8 +79,8 @@ query Test {
 
 QUERY:
 
-query Test {
-  node(id: null) {
+query explicitNullArgument_TestQuery {
+  node {
     __typename
     id
   }

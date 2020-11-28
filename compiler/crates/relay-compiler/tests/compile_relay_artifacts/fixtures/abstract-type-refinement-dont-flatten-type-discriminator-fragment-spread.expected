@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery {
   node(id: "4") {
     # Fragment will be inlined:
     #  - Printed query should select __isNode
     #  - Normalization ast should include inline fragment with abstractKey
-    ...NodeFragment
+    ...abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFragment
   }
 }
 
-fragment NodeFragment on Node {
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFragment on Node {
   id
 }
 ==================================== OUTPUT ===================================
@@ -17,7 +17,7 @@ fragment NodeFragment on Node {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -36,7 +36,7 @@ fragment NodeFragment on Node {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "NodeFragment"
+            "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFragment"
           }
         ],
         "storageKey": "node(id:\"4\")"
@@ -49,7 +49,7 @@ fragment NodeFragment on Node {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -91,7 +91,7 @@ fragment NodeFragment on Node {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",
     "operationKind": "query",
     "text": null
   }
@@ -99,15 +99,15 @@ fragment NodeFragment on Node {
 
 QUERY:
 
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery {
   node(id: "4") {
     __typename
-    ...NodeFragment
+    ...abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFragment
     id
   }
 }
 
-fragment NodeFragment on Node {
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFragment on Node {
   __isNode: __typename
   id
 }
@@ -117,7 +117,7 @@ fragment NodeFragment on Node {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NodeFragment",
+  "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFragment",
   "selections": [
     {
       "alias": null,

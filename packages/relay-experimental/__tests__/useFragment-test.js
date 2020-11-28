@@ -46,7 +46,7 @@ describe('useFragment', () => {
   let ContextProvider;
 
   function useFragment(fragmentNode, fragmentRef) {
-    // $FlowFixMe non-generated fragmentRef is disallowd
+    // $FlowFixMe[incompatible-call] non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
@@ -212,8 +212,6 @@ describe('useFragment', () => {
     }) => {
       return TestRenderer.create(
         <React.Suspense fallback="Singular Fallback">
-          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-           * type of React$Node */}
           <ContextProvider>
             <SingularContainer owner={singularQuery} {...props} />
           </ContextProvider>
@@ -228,8 +226,6 @@ describe('useFragment', () => {
     }) => {
       return TestRenderer.create(
         <React.Suspense fallback="Plural Fallback">
-          {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-           * type of React$Node */}
           <ContextProvider>
             <PluralContainer owner={pluralQuery} {...props} />
           </ContextProvider>

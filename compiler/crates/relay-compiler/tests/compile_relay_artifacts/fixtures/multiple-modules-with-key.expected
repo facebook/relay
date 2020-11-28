@@ -1,29 +1,29 @@
 ==================================== INPUT ====================================
-query MatchQuery {
+query multipleModulesWithKey_MatchQuery {
   node(id: "<user-id>") {
     ... on Actor {
-      nameRenderer @match(key: "MatchQuery_nameRenderer") {
-        ...PlainUserNameRenderer_name
+      nameRenderer @match(key: "multipleModulesWithKey_MatchQuery_nameRenderer") {
+        ...multipleModulesWithKey_PlainUserNameRenderer_name
           @module(name: "PlainUserNameRenderer.react")
       }
     }
     ... on User {
       nameRenderable {
-        ...MarkdownUserNameRenderer_name
+        ...multipleModulesWithKey_MarkdownUserNameRenderer_name
           @module(name: "MarkdownUserNameRenderer.react")
       }
     }
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment multipleModulesWithKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -32,10 +32,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "multipleModulesWithKey_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -77,7 +75,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "MatchQuery",
+    "name": "multipleModulesWithKey_MatchQuery",
     "selections": [
       {
         "alias": null,
@@ -116,9 +114,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery_nameRenderer",
-                        "fragmentName": "PlainUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
+                        "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -147,9 +145,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesWithKey_MatchQuery",
+                        "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -174,7 +172,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "MatchQuery",
+    "name": "multipleModulesWithKey_MatchQuery",
     "selections": [
       {
         "alias": null,
@@ -198,12 +196,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
-              {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
               {
                 "alias": null,
                 "args": [
@@ -231,9 +232,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery_nameRenderer",
-                        "fragmentName": "PlainUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
+                        "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -269,9 +270,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "MatchQuery",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "multipleModulesWithKey_MatchQuery",
+                        "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -284,13 +285,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
@@ -300,7 +294,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "MatchQuery",
+    "name": "multipleModulesWithKey_MatchQuery",
     "operationKind": "query",
     "text": null
   }
@@ -308,7 +302,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query MatchQuery {
+query multipleModulesWithKey_MatchQuery {
   node(id: "<user-id>") {
     __typename
     ... on Actor {
@@ -316,9 +310,9 @@ query MatchQuery {
       nameRenderer(supported: ["PlainUserNameRenderer"]) {
         __typename
         ... on PlainUserNameRenderer {
-          ...PlainUserNameRenderer_name
-          __module_operation_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderer")
-          __module_component_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer.react", id: "MatchQuery.node.nameRenderer")
+          ...multipleModulesWithKey_PlainUserNameRenderer_name
+          __module_operation_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "multipleModulesWithKey_PlainUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer")
+          __module_component_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer")
         }
       }
     }
@@ -326,9 +320,9 @@ query MatchQuery {
       nameRenderable {
         __typename
         ... on MarkdownUserNameRenderer {
-          ...MarkdownUserNameRenderer_name
-          __module_operation_MatchQuery: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "MatchQuery.node.nameRenderable")
-          __module_component_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "MatchQuery.node.nameRenderable")
+          ...multipleModulesWithKey_MarkdownUserNameRenderer_name
+          __module_operation_multipleModulesWithKey_MatchQuery: js(module: "multipleModulesWithKey_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable")
+          __module_component_multipleModulesWithKey_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable")
         }
       }
     }
@@ -336,7 +330,7 @@ query MatchQuery {
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -344,7 +338,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment multipleModulesWithKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
@@ -355,10 +349,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "PlainUserNameRenderer_name"
-  },
-  "name": "PlainUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "multipleModulesWithKey_PlainUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -399,7 +391,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -435,7 +427,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "PlainUserNameRenderer_name",
+  "name": "multipleModulesWithKey_PlainUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

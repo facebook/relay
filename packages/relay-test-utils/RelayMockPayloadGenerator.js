@@ -27,6 +27,7 @@ const {
   CONDITION,
   CONNECTION,
   DEFER,
+  FLIGHT_FIELD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -184,9 +185,8 @@ class RelayMockPayloadGenerator {
     +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
-    /* $FlowFixMe(>=0.122.0) This comment suppresses an error found when Flow
-     * v0.122.0 was deployed. To see the error, delete this comment and run
-     * Flow. */
+    // $FlowFixMe[cannot-spread-indexer]
+    // $FlowFixMe[cannot-spread-inexact]
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       ...(options.mockResolvers ?? {}),
@@ -264,6 +264,7 @@ class RelayMockPayloadGenerator {
           );
           break;
         }
+        // $FlowFixMe[incompatible-type]
         case CONNECTION: {
           mockData = this._traverseSelections(
             [selection.edges, selection.pageInfo],
@@ -446,9 +447,7 @@ class RelayMockPayloadGenerator {
             if (mockData == null) {
               mockData = {};
             }
-            /* $FlowFixMe(>=0.123.0) This comment suppresses an error
-             * found when Flow v0.123.0 was deployed. To see the error delete
-             * this comment and run Flow. */
+            // $FlowFixMe[cannot-spread-indexer]
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,
@@ -480,6 +479,8 @@ class RelayMockPayloadGenerator {
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         default:
           (selection: empty);
           invariant(
@@ -705,14 +706,11 @@ class RelayMockPayloadGenerator {
         },
         [...path, applicationName],
         typeof data[applicationName] === 'object'
-          ? /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This
-             * comment suppresses an error found when Flow v0.98 was deployed.
-             * To see the error delete this comment and run Flow. */
+          ? // $FlowFixMe[incompatible-variance]
             data[applicationName]
           : null,
-        /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This comment suppresses an
-         * error found when Flow v0.98 was deployed. To see the error delete
-         * this comment and run Flow. */
+        // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-variance]
         fieldDefaultValue,
       );
     };
@@ -766,9 +764,7 @@ class RelayMockPayloadGenerator {
       );
     }
     if (typeof data === 'object') {
-      /* $FlowFixMe(>=0.98.0 site=react_native_fb,oss,www,mobile) This comment suppresses an
-       * error found when Flow v0.98 was deployed. To see the error delete this
-       * comment and run Flow. */
+      // $FlowFixMe[incompatible-variance]
       return data;
     }
   }

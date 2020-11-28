@@ -1,13 +1,13 @@
-fragment RefetchableFragment on Viewer
+fragment fragmentOnViewer_RefetchableFragment on Viewer
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     id
     name
-    ...ProfilePicture
+    ...fragmentOnViewer_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnViewer_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }

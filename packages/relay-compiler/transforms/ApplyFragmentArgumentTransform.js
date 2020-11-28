@@ -116,7 +116,6 @@ function transformNode<T: Node>(
       (node: $FlowIssue).directives,
       errorContext,
     );
-    // $FlowIssue: this is a valid `Node`:
     return ({
       ...node,
       directives,
@@ -152,11 +151,11 @@ function transformDeferStreamNode<T: Defer | Stream>(
       // Skip Defer/Stream wrapper with literal if: false
       return node.selections[0];
     }
-    //$FlowFixMe nextNode is uniquely owned
+    // $FlowFixMe[cannot-write] nextNode is uniquely owned
     nextNode.if = ifVal;
   }
   if (nextNode.useCustomizedBatch) {
-    //$FlowFixMe nextNode is uniquely owned
+    // $FlowFixMe[cannot-write] nextNode is uniquely owned
     nextNode.useCustomizedBatch = transformValue(
       scope,
       nextNode.useCustomizedBatch,
@@ -164,7 +163,7 @@ function transformDeferStreamNode<T: Defer | Stream>(
     );
   }
   if (nextNode.initialCount) {
-    //$FlowFixMe nextNode is uniquely owned
+    // $FlowFixMe[cannot-write] nextNode is uniquely owned
     nextNode.initialCount = transformValue(
       scope,
       nextNode.initialCount,

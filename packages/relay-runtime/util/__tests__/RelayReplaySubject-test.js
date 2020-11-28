@@ -15,13 +15,23 @@
 
 const RelayReplaySubject = require('../RelayReplaySubject');
 
+import type {Subscription} from 'relay-runtime';
+
 let subject;
 
 beforeEach(() => {
   subject = new RelayReplaySubject();
 });
 
-function createObserver() {
+type Observer = {|
+  +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+  +error: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+  +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+  +start: JestMockFn<$ReadOnlyArray<Subscription>, mixed>,
+  +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+|};
+
+function createObserver(): Observer {
   return {
     complete: jest.fn(),
     error: jest.fn(),

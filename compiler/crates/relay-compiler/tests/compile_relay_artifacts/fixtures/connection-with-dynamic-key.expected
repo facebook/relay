@@ -1,22 +1,22 @@
 ==================================== INPUT ====================================
-query FeedbackQuery($id: ID!, $commentsKey: String) {
+query connectionWithDynamicKey_FeedbackQuery($id: ID!, $commentsKey: String) {
   node(id: $id) {
-    ...FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment
   }
 }
 
-query PaginationQuery(
+query connectionWithDynamicKey_PaginationQuery(
   $id: ID!
   $commentsKey: String
   $count: Int!
   $cursor: ID!
 ) {
   node(id: $id) {
-    ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+    ...connectionWithDynamicKey_FeedbackFragment @arguments(count: $count, cursor: $cursor)
   }
 }
 
-fragment FeedbackFragment on Feedback
+fragment connectionWithDynamicKey_FeedbackFragment on Feedback
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 2}
     cursor: {type: "ID"}
@@ -42,19 +42,17 @@ fragment FeedbackFragment on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "commentsKey"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "commentsKey",
-        "type": "String"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FeedbackQuery",
+    "name": "connectionWithDynamicKey_FeedbackQuery",
     "selections": [
       {
         "alias": null,
@@ -73,7 +71,7 @@ fragment FeedbackFragment on Feedback
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "FeedbackFragment"
+            "name": "connectionWithDynamicKey_FeedbackFragment"
           }
         ],
         "storageKey": null
@@ -88,18 +86,16 @@ fragment FeedbackFragment on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "commentsKey",
-        "type": "String"
+        "name": "commentsKey"
       }
     ],
     "kind": "Operation",
-    "name": "FeedbackQuery",
+    "name": "connectionWithDynamicKey_FeedbackQuery",
     "selections": [
       {
         "alias": null,
@@ -236,18 +232,18 @@ fragment FeedbackFragment on Feedback
                     "value": "date"
                   }
                 ],
-                "dynamicKey": {
-                  "kind": "Variable",
-                  "name": "__dynamicKey",
-                  "variableName": "commentsKey"
-                },
                 "filters": [
                   "orderby"
                 ],
                 "handle": "connection",
                 "key": "FeedbackFragment_comments",
                 "kind": "LinkedHandle",
-                "name": "comments"
+                "name": "comments",
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                }
               }
             ],
             "type": "Feedback",
@@ -261,7 +257,7 @@ fragment FeedbackFragment on Feedback
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FeedbackQuery",
+    "name": "connectionWithDynamicKey_FeedbackQuery",
     "operationKind": "query",
     "text": null
   }
@@ -269,19 +265,19 @@ fragment FeedbackFragment on Feedback
 
 QUERY:
 
-query FeedbackQuery(
+query connectionWithDynamicKey_FeedbackQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment
     id
   }
 }
 
-fragment FeedbackFragment on Feedback {
+fragment connectionWithDynamicKey_FeedbackFragment on Feedback {
   id
-  comments(after: null, first: 2, orderby: "date") {
+  comments(first: 2, orderby: "date") {
     edges {
       node {
         id
@@ -303,31 +299,27 @@ fragment FeedbackFragment on Feedback {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "commentsKey"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "commentsKey",
-        "type": "String"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int!"
+        "name": "cursor"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "PaginationQuery",
+    "name": "connectionWithDynamicKey_PaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -357,7 +349,7 @@ fragment FeedbackFragment on Feedback {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "FeedbackFragment"
+            "name": "connectionWithDynamicKey_FeedbackFragment"
           }
         ],
         "storageKey": null
@@ -372,30 +364,26 @@ fragment FeedbackFragment on Feedback {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "commentsKey",
-        "type": "String"
+        "name": "commentsKey"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "count",
-        "type": "Int!"
+        "name": "count"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cursor",
-        "type": "ID!"
+        "name": "cursor"
       }
     ],
     "kind": "Operation",
-    "name": "PaginationQuery",
+    "name": "connectionWithDynamicKey_PaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -542,18 +530,18 @@ fragment FeedbackFragment on Feedback {
                     "value": "date"
                   }
                 ],
-                "dynamicKey": {
-                  "kind": "Variable",
-                  "name": "__dynamicKey",
-                  "variableName": "commentsKey"
-                },
                 "filters": [
                   "orderby"
                 ],
                 "handle": "connection",
                 "key": "FeedbackFragment_comments",
                 "kind": "LinkedHandle",
-                "name": "comments"
+                "name": "comments",
+                "dynamicKey": {
+                  "kind": "Variable",
+                  "name": "__dynamicKey",
+                  "variableName": "commentsKey"
+                }
               }
             ],
             "type": "Feedback",
@@ -567,7 +555,7 @@ fragment FeedbackFragment on Feedback {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "PaginationQuery",
+    "name": "connectionWithDynamicKey_PaginationQuery",
     "operationKind": "query",
     "text": null
   }
@@ -575,19 +563,19 @@ fragment FeedbackFragment on Feedback {
 
 QUERY:
 
-query PaginationQuery(
+query connectionWithDynamicKey_PaginationQuery(
   $id: ID!
   $count: Int!
   $cursor: ID!
 ) {
   node(id: $id) {
     __typename
-    ...FeedbackFragment_1G22uz
+    ...connectionWithDynamicKey_FeedbackFragment_1G22uz
     id
   }
 }
 
-fragment FeedbackFragment_1G22uz on Feedback {
+fragment connectionWithDynamicKey_FeedbackFragment_1G22uz on Feedback {
   id
   comments(after: $cursor, first: $count, orderby: "date") {
     edges {
@@ -608,21 +596,18 @@ fragment FeedbackFragment_1G22uz on Feedback {
 {
   "argumentDefinitions": [
     {
+      "kind": "RootArgument",
+      "name": "commentsKey"
+    },
+    {
       "defaultValue": 2,
       "kind": "LocalArgument",
-      "name": "count",
-      "type": "Int"
+      "name": "count"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "cursor",
-      "type": "ID"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "commentsKey",
-      "type": "String"
+      "name": "cursor"
     }
   ],
   "kind": "Fragment",
@@ -638,7 +623,7 @@ fragment FeedbackFragment_1G22uz on Feedback {
       }
     ]
   },
-  "name": "FeedbackFragment",
+  "name": "connectionWithDynamicKey_FeedbackFragment",
   "selections": [
     {
       "alias": null,

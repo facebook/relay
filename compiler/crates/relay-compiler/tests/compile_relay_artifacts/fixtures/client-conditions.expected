@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientConditions_Foo_user on User {
   id
   name @include(if: $shouldInclude)
 
@@ -50,18 +50,16 @@ interface ClientNamed {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "shouldInclude",
-      "type": "Boolean!"
+      "name": "arg"
     },
     {
       "kind": "RootArgument",
-      "name": "arg",
-      "type": "String"
+      "name": "shouldInclude"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientConditions_Foo_user",
   "selections": [
     {
       "alias": null,

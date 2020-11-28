@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
-use crate::relay_test_operation::build_test_operation_metadata;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -15,44 +14,61 @@ use graphql_ir::{
     Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use graphql_transforms::{
+use interner::{Intern, StringKey};
+use md5::{Digest, Md5};
+use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
     extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
-    ConnectionConstants, DeferDirective, HandleFieldConstants, RelayDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, INLINE_DATA_CONSTANTS,
-    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
+    ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
+    PATH_METADATA_ARGUMENT, REACT_FLIGHT_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
-use interner::{Intern, StringKey};
-use schema::{Schema, TypeReference};
+use schema::Schema;
+
+pub fn build_request_params_ast_key(
+    schema: &Schema,
+    request_parameters: RequestParameters,
+    ast_builder: &mut AstBuilder,
+    operation: &OperationDefinition,
+) -> AstKey {
+    let mut operation_builder =
+        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    operation_builder.build_request_parameters(operation, request_parameters)
+}
 
 pub fn build_request(
     schema: &Schema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
-    request_parameters: RequestParameters,
+    request_parameters: AstKey,
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
-    let test_operation_metadata = operation_builder.build_test_operation_metadata(&operation);
-    let params = operation_builder.build_request_parameters(
-        operation,
-        request_parameters,
-        test_operation_metadata,
-    );
     let operation = Primitive::Key(operation_builder.build_operation(operation));
     let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
-    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment));
+    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
 
     ast_builder.intern(Ast::Object(vec![
-        (CODEGEN_CONSTANTS.fragment, fragment),
-        (
-            CODEGEN_CONSTANTS.kind,
-            Primitive::String(CODEGEN_CONSTANTS.request),
-        ),
-        (CODEGEN_CONSTANTS.operation, operation),
-        (CODEGEN_CONSTANTS.params, params),
+        ObjectEntry {
+            key: CODEGEN_CONSTANTS.fragment,
+            value: fragment,
+        },
+        ObjectEntry {
+            key: CODEGEN_CONSTANTS.kind,
+            value: Primitive::String(CODEGEN_CONSTANTS.request),
+        },
+        ObjectEntry {
+            key: CODEGEN_CONSTANTS.operation,
+            value: operation,
+        },
+        ObjectEntry {
+            key: CODEGEN_CONSTANTS.params,
+            value: Primitive::Key(request_parameters),
+        },
     ]))
 }
 
@@ -81,12 +97,11 @@ pub fn build_fragment(
     fragment: &FragmentDefinition,
 ) -> AstKey {
     let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
-    builder.build_fragment(fragment)
+    builder.build_fragment(fragment, false)
 }
 
 struct CodegenBuilder<'schema, 'builder> {
     connection_constants: ConnectionConstants,
-    handle_field_constants: HandleFieldConstants,
     schema: &'schema Schema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
@@ -106,14 +121,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     ) -> Self {
         Self {
             connection_constants: Default::default(),
-            handle_field_constants: Default::default(),
             schema,
             variant,
             ast_builder,
         }
     }
 
-    fn object(&mut self, object: Vec<(StringKey, Primitive)>) -> AstKey {
+    fn object(&mut self, object: Vec<ObjectEntry>) -> AstKey {
         self.ast_builder.intern(Ast::Object(object))
     }
 
@@ -122,57 +136,56 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
-        match operation
-            .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
-        {
-            Some(split_directive) => {
-                let derived_from = split_directive
-                    .arguments
-                    .named(MATCH_CONSTANTS.derived_from_arg)
-                    .unwrap()
-                    .value
-                    .item
-                    .expect_string_literal();
-                let metadata = Primitive::Key(self.object(vec![(
-                    CODEGEN_CONSTANTS.derived_from,
-                    Primitive::String(derived_from),
-                )]));
-                let selections = self.build_selections(&operation.selections);
+        match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
+            Some(_split_directive) => {
+                let metadata = Primitive::Key(self.object(vec![]));
+                let selections = self.build_selections(operation.selections.iter());
                 self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.split_operation),
-                    ),
-                    (CODEGEN_CONSTANTS.metadata, metadata),
-                    (
-                        CODEGEN_CONSTANTS.name,
-                        Primitive::String(operation.name.item),
-                    ),
-                    (CODEGEN_CONSTANTS.selections, selections),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.split_operation),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.metadata,
+                        value: metadata,
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(operation.name.item),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.selections,
+                        value: selections,
+                    },
                 ])
             }
             None => {
                 let argument_definitions =
                     self.build_operation_variable_definitions(&operation.variable_definitions);
-                let selections = self.build_selections(&operation.selections);
+                let selections = self.build_selections(operation.selections.iter());
                 self.object(vec![
-                    (CODEGEN_CONSTANTS.argument_definitions, argument_definitions),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.operation_value),
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.name,
-                        Primitive::String(operation.name.item),
-                    ),
-                    (CODEGEN_CONSTANTS.selections, selections),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.argument_definitions,
+                        value: argument_definitions,
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.operation_value),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(operation.name.item),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.selections,
+                        value: selections,
+                    },
                 ])
             }
         }
     }
 
-    fn build_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
+    fn build_fragment(&mut self, fragment: &FragmentDefinition, skip_metadata: bool) -> AstKey {
         if fragment
             .directives
             .named(INLINE_DATA_CONSTANTS.directive_name)
@@ -181,45 +194,59 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             return self.build_inline_data_fragment(fragment);
         }
 
+        let object = vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.argument_definitions,
+                value: self.build_fragment_variable_definitions(
+                    &fragment.variable_definitions,
+                    &fragment.used_global_variables,
+                ),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.fragment_value),
+            },
+            // TODO(T63303840) include correct fragment metadata
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.metadata,
+                value: if skip_metadata {
+                    Primitive::Null
+                } else {
+                    self.build_fragment_metadata(fragment)
+                },
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(fragment.name.item),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: self.build_selections(fragment.selections.iter()),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.type_,
+                value: Primitive::String(self.schema.get_type_name(fragment.type_condition)),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.abstract_key,
+                value: if self.schema.is_abstract_type(fragment.type_condition) {
+                    Primitive::String(generate_abstract_type_refinement_key(
+                        self.schema,
+                        fragment.type_condition,
+                    ))
+                } else {
+                    Primitive::Null
+                },
+            },
+        ];
+        self.object(object)
+    }
+
+    fn build_fragment_metadata(&mut self, fragment: &FragmentDefinition) -> Primitive {
         let connection_metadata = extract_connection_metadata_from_directive(
             &fragment.directives,
             self.connection_constants,
         );
-        let codegen_connection_metadata = if let Some(ref metadata_values) = connection_metadata {
-            let array = metadata_values
-                .iter()
-                .map(|metadata| {
-                    let path = match &metadata.path {
-                        None => Primitive::Null,
-                        Some(path) => Primitive::Key(
-                            self.array(path.iter().cloned().map(Primitive::String).collect()),
-                        ),
-                    };
-                    let (count, cursor) = if metadata.direction
-                        == self.connection_constants.direction_forward
-                    {
-                        (metadata.first, metadata.after)
-                    } else if metadata.direction == self.connection_constants.direction_backward {
-                        (metadata.last, metadata.before)
-                    } else {
-                        (None, None)
-                    };
-                    let object = vec![
-                        (CODEGEN_CONSTANTS.count, Primitive::string_or_null(count)),
-                        (CODEGEN_CONSTANTS.cursor, Primitive::string_or_null(cursor)),
-                        (
-                            CODEGEN_CONSTANTS.direction,
-                            Primitive::String(metadata.direction),
-                        ),
-                        (CODEGEN_CONSTANTS.path, path),
-                    ];
-                    Primitive::Key(self.object(object))
-                })
-                .collect::<Vec<_>>();
-            Some(Primitive::Key(self.array(array)))
-        } else {
-            None
-        };
 
         let mut plural = false;
         let mut unmask = false;
@@ -229,14 +256,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
 
         let mut metadata = vec![];
-        if let Some(codegen_connection_metadata) = codegen_connection_metadata {
-            metadata.push((CODEGEN_CONSTANTS.connection, codegen_connection_metadata))
+        if let Some(connection_metadata) = &connection_metadata {
+            metadata.push(self.build_connection_metadata(connection_metadata))
         }
         if unmask {
-            metadata.push((CODEGEN_CONSTANTS.mask, Primitive::Bool(false)))
+            metadata.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.mask,
+                value: Primitive::Bool(false),
+            })
         }
         if plural {
-            metadata.push((CODEGEN_CONSTANTS.plural, Primitive::Bool(true)))
+            metadata.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.plural,
+                value: Primitive::Bool(true),
+            })
         }
         if let Some(refetch_metadata) =
             extract_refetch_metadata_from_directive(&fragment.directives)
@@ -244,37 +277,43 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             let refetch_connection = if let Some(connection_metadata) = connection_metadata {
                 let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
                 let connection_object = vec![
-                    (
-                        CODEGEN_CONSTANTS.forward,
-                        if let Some(first) = metadata.first {
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.forward,
+                        value: if let Some(first) = metadata.first {
                             Primitive::Key(self.object(vec![
-                                (CODEGEN_CONSTANTS.count, Primitive::String(first)),
-                                (
-                                    CODEGEN_CONSTANTS.cursor,
-                                    Primitive::string_or_null(metadata.after),
-                                ),
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.count,
+                                    value: Primitive::String(first),
+                                },
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.cursor,
+                                    value: Primitive::string_or_null(metadata.after),
+                                },
                             ]))
                         } else {
                             Primitive::Null
                         },
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.backward,
-                        if let Some(last) = metadata.last {
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.backward,
+                        value: if let Some(last) = metadata.last {
                             Primitive::Key(self.object(vec![
-                                (CODEGEN_CONSTANTS.count, Primitive::String(last)),
-                                (
-                                    CODEGEN_CONSTANTS.cursor,
-                                    Primitive::string_or_null(metadata.before),
-                                ),
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.count,
+                                    value: Primitive::String(last),
+                                },
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.cursor,
+                                    value: Primitive::string_or_null(metadata.before),
+                                },
                             ]))
                         } else {
                             Primitive::Null
                         },
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.path,
-                        Primitive::Key(
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.path,
+                        value: Primitive::Key(
                             self.array(
                                 metadata
                                     .path
@@ -286,17 +325,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                                     .collect(),
                             ),
                         ),
-                    ),
+                    },
                 ];
                 Primitive::Key(self.object(connection_object))
             } else {
                 Primitive::Null
             };
             let mut refetch_object = vec![
-                (CODEGEN_CONSTANTS.connection, refetch_connection),
-                (
-                    CODEGEN_CONSTANTS.fragment_path_in_result,
-                    Primitive::Key(
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.connection,
+                    value: refetch_connection,
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.fragment_path_in_result,
+                    value: Primitive::Key(
                         self.array(
                             refetch_metadata
                                 .path
@@ -305,90 +347,104 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                                 .collect(),
                         ),
                     ),
-                ),
-                (
-                    CODEGEN_CONSTANTS.operation,
-                    Primitive::ModuleDependency(refetch_metadata.operation_name),
-                ),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.operation,
+                    value: Primitive::ModuleDependency(refetch_metadata.operation_name),
+                },
             ];
             if let Some(identifier_field) = refetch_metadata.identifier_field {
-                refetch_object.push((
-                    CODEGEN_CONSTANTS.identifier_field,
-                    Primitive::String(identifier_field),
-                ));
+                refetch_object.push(ObjectEntry {
+                    key: CODEGEN_CONSTANTS.identifier_field,
+                    value: Primitive::String(identifier_field),
+                });
             }
 
-            metadata.push((
-                CODEGEN_CONSTANTS.refetch,
-                Primitive::Key(self.object(refetch_object)),
-            ))
+            metadata.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.refetch,
+                value: Primitive::Key(self.object(refetch_object)),
+            })
         }
+        if metadata.is_empty() {
+            Primitive::Null
+        } else {
+            Primitive::Key(self.object(metadata))
+        }
+    }
 
-        let object = vec![
-            (
-                CODEGEN_CONSTANTS.argument_definitions,
-                self.build_fragment_variable_definitions(
-                    &fragment.variable_definitions,
-                    &fragment.used_global_variables,
-                ),
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.fragment_value),
-            ),
-            // TODO(T63303840) include correct fragment metadata
-            (
-                CODEGEN_CONSTANTS.metadata,
-                if metadata.is_empty() {
-                    Primitive::Null
-                } else {
-                    Primitive::Key(self.object(metadata))
-                },
-            ),
-            (
-                CODEGEN_CONSTANTS.name,
-                Primitive::String(fragment.name.item),
-            ),
-            (
-                CODEGEN_CONSTANTS.selections,
-                self.build_selections(&fragment.selections),
-            ),
-            (
-                CODEGEN_CONSTANTS.type_,
-                Primitive::String(self.schema.get_type_name(fragment.type_condition)),
-            ),
-            (
-                CODEGEN_CONSTANTS.abstract_key,
-                if self.schema.is_abstract_type(fragment.type_condition) {
-                    Primitive::String(generate_abstract_type_refinement_key(
-                        self.schema,
-                        fragment.type_condition,
-                    ))
-                } else {
-                    Primitive::Null
-                },
-            ),
-        ];
-        self.object(object)
+    fn build_connection_metadata(
+        &mut self,
+        connection_metadata: &[ConnectionMetadata],
+    ) -> ObjectEntry {
+        let array = connection_metadata
+            .iter()
+            .map(|metadata| {
+                let path = match &metadata.path {
+                    None => Primitive::Null,
+                    Some(path) => Primitive::Key(
+                        self.array(path.iter().cloned().map(Primitive::String).collect()),
+                    ),
+                };
+                let (count, cursor) =
+                    if metadata.direction == self.connection_constants.direction_forward {
+                        (metadata.first, metadata.after)
+                    } else if metadata.direction == self.connection_constants.direction_backward {
+                        (metadata.last, metadata.before)
+                    } else {
+                        (None, None)
+                    };
+                let mut object = vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.count,
+                        value: Primitive::string_or_null(count),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.cursor,
+                        value: Primitive::string_or_null(cursor),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.direction,
+                        value: Primitive::String(metadata.direction),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.path,
+                        value: path,
+                    },
+                ];
+                if metadata.is_stream_connection {
+                    object.push(ObjectEntry {
+                        key: DEFER_STREAM_CONSTANTS.stream_name,
+                        value: Primitive::Bool(true),
+                    })
+                }
+                Primitive::Key(self.object(object))
+            })
+            .collect::<Vec<_>>();
+        ObjectEntry {
+            key: CODEGEN_CONSTANTS.connection,
+            value: Primitive::Key(self.array(array)),
+        }
     }
 
     fn build_inline_data_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
         let object = vec![
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment),
-            ),
-            (
-                CODEGEN_CONSTANTS.name,
-                Primitive::String(fragment.name.item),
-            ),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(fragment.name.item),
+            },
         ];
         self.object(object)
     }
 
-    fn build_selections(&mut self, selections: &[Selection]) -> Primitive {
+    fn build_selections<'a, Selections>(&mut self, selections: Selections) -> Primitive
+    where
+        Selections: Iterator<Item = &'a Selection>,
+    {
         let selections = selections
-            .iter()
             .flat_map(|selection| self.build_selections_from_selection(selection))
             .collect();
         Primitive::Key(self.array(selections))
@@ -407,20 +463,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
                     vec![self.build_defer(&inline_frag, defer)]
-                } else {
+                } else if let Some(inline_data_directive) = inline_frag
+                    .directives
+                    .named(INLINE_DATA_CONSTANTS.internal_directive_name)
+                {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    if let Some(inline_data_directive) = inline_frag
-                        .directives
-                        .named(INLINE_DATA_CONSTANTS.internal_directive_name)
-                    {
-                        vec![self.build_inline_data_fragment_spread(
+                    vec![
+                        self.build_inline_data_fragment_spread(
                             &inline_frag,
                             &inline_data_directive,
-                        )]
-                    } else {
-                        vec![self.build_inline_fragment(&inline_frag)]
-                    }
+                        ),
+                    ]
+                } else if let Some(match_directive) = inline_frag
+                    .directives
+                    .named(MATCH_CONSTANTS.custom_module_directive_name)
+                {
+                    self.build_module_import_selections(match_directive)
+                } else {
+                    vec![self.build_inline_fragment(&inline_frag)]
                 }
             }
             Selection::LinkedField(field) => {
@@ -437,7 +498,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 {
                     match self.variant {
                         CodegenVariant::Reader => vec![],
-                        CodegenVariant::Normalization => self.build_type_discriminator(field),
+                        CodegenVariant::Normalization => vec![self.build_type_discriminator(field)],
                     }
                 } else {
                     self.build_scalar_field_and_handles(field)
@@ -446,16 +507,16 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_type_discriminator(&mut self, field: &ScalarField) -> Vec<Primitive> {
-        vec![Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.kind, Primitive::String(CODEGEN_CONSTANTS.type_discriminator)),
-            (
-                CODEGEN_CONSTANTS.abstract_key,
+    fn build_type_discriminator(&mut self, field: &ScalarField) -> Primitive {
+        Primitive::Key(self.object(vec![
+            ObjectEntry{key:CODEGEN_CONSTANTS.kind,value: Primitive::String(CODEGEN_CONSTANTS.type_discriminator)},
+            ObjectEntry{key:
+                CODEGEN_CONSTANTS.abstract_key,value:
                 Primitive::String(field.alias.expect(
                     "Expected the type discriminator field to contain the abstract key alias.",
                 ).item),
-            ),
-        ]))]
+            },
+        ]))
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
@@ -470,28 +531,67 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
+    fn build_required_field(
+        &mut self,
+        required_directive: &Directive,
+        primitive: Primitive,
+    ) -> Primitive {
+        Primitive::Key(self.object(vec![
+            ObjectEntry{key:
+                CODEGEN_CONSTANTS.kind,value:
+                Primitive::String(CODEGEN_CONSTANTS.required_field),
+            },
+            ObjectEntry{key:CODEGEN_CONSTANTS.field,value: primitive},
+            ObjectEntry{key:
+                CODEGEN_CONSTANTS.action,value:
+                Primitive::String(
+                    required_directive
+                    .arguments
+                    .named(*ACTION_ARGUMENT)
+                    .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            },
+            ObjectEntry{key:
+                CODEGEN_CONSTANTS.path,value:
+                Primitive::String(
+                    required_directive
+                        .arguments
+                        .named(*PATH_METADATA_ARGUMENT)
+                        .unwrap().value.item.get_string_literal().unwrap()
+                ),
+            },
+        ]))
+    }
+
     fn build_scalar_field(&mut self, field: &ScalarField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.alias, Primitive::string_or_null(alias)),
-            (
-                CODEGEN_CONSTANTS.args,
-                match args {
+        let kind = match field.directives.named(*REACT_FLIGHT_DIRECTIVE_NAME) {
+            Some(_flight_directive) => Primitive::String(CODEGEN_CONSTANTS.flight_field),
+            None => Primitive::String(CODEGEN_CONSTANTS.scalar_field),
+        };
+        let primitive = Primitive::Key(self.object(vec![
+            build_alias(alias, name),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.args,
+                value: match args {
                     None => Primitive::Null,
                     Some(key) => Primitive::Key(key),
                 },
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.scalar_field),
-            ),
-            (CODEGEN_CONSTANTS.name, Primitive::String(name)),
-            (
-                CODEGEN_CONSTANTS.storage_key,
-                match args {
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: kind,
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.storage_key,
+                value: match args {
                     None => Primitive::Null,
                     Some(key) => {
                         if is_static_storage_key_available(&field.arguments) {
@@ -501,23 +601,22 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         }
                     }
                 },
-            ),
-        ]))
+            },
+        ]));
+
+        match field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(required_directive) => self.build_required_field(required_directive, primitive),
+            None => primitive,
+        }
     }
 
     fn build_scalar_handles(&mut self, result: &mut Vec<Primitive>, field: &ScalarField) {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
-        let handle_field_directives =
-            extract_handle_field_directives(&field.directives, self.handle_field_constants);
+        let handle_field_directives = extract_handle_field_directives(&field.directives);
 
         for directive in handle_field_directives {
-            let values = extract_values_from_handle_field_directive(
-                &directive,
-                self.handle_field_constants,
-                None,
-                None,
-            );
+            let values = extract_values_from_handle_field_directive(&directive);
             let filters = match values.filters {
                 None => Primitive::Null,
                 Some(strs) => {
@@ -528,24 +627,43 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 None => Primitive::Null,
                 Some(key) => Primitive::Key(key),
             };
-            result.push(Primitive::Key(self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.alias,
-                    match field.alias {
-                        None => Primitive::Null,
-                        Some(alias) => Primitive::String(alias.item),
-                    },
-                ),
-                (CODEGEN_CONSTANTS.args, arguments),
-                (CODEGEN_CONSTANTS.filters, filters),
-                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
-                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.scalar_handle),
-                ),
-                (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
-            ])))
+            let mut object = vec![
+                build_alias(field.alias.map(|a| a.item), field_name),
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.args,
+                    value: arguments,
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.filters,
+                    value: filters,
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.handle,
+                    value: Primitive::String(values.handle),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.key,
+                    value: Primitive::String(values.key),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.kind,
+                    value: Primitive::String(CODEGEN_CONSTANTS.scalar_handle),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.name,
+                    value: Primitive::String(field_name),
+                },
+            ];
+            if let Some(handle_args) = values.handle_args {
+                let args = self.build_arguments(&handle_args);
+                if let Some(args) = args {
+                    object.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.handle_args,
+                        value: Primitive::Key(args),
+                    });
+                }
+            };
+            result.push(Primitive::Key(self.object(object)));
         }
     }
 
@@ -565,37 +683,43 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let (name, alias) =
             self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
-        let selections = self.build_selections(&field.selections);
-        Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.alias, Primitive::string_or_null(alias)),
-            (
-                CODEGEN_CONSTANTS.args,
-                match args {
+        let selections = self.build_selections(field.selections.iter());
+        let primitive = Primitive::Key(self.object(vec![
+            build_alias(alias, name),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.args,
+                value: match args {
                     None => Primitive::Null,
                     Some(key) => Primitive::Key(key),
                 },
-            ),
-            (
-                CODEGEN_CONSTANTS.concrete_type,
-                if self.schema.is_abstract_type(schema_field.type_.inner()) {
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.concrete_type,
+                value: if self.schema.is_abstract_type(schema_field.type_.inner()) {
                     Primitive::Null
                 } else {
                     Primitive::String(self.schema.get_type_name(schema_field.type_.inner()))
                 },
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.linked_field),
-            ),
-            (CODEGEN_CONSTANTS.name, Primitive::String(name)),
-            (
-                CODEGEN_CONSTANTS.plural,
-                Primitive::Bool(schema_field.type_.is_list()),
-            ),
-            (CODEGEN_CONSTANTS.selections, selections),
-            (
-                CODEGEN_CONSTANTS.storage_key,
-                match args {
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.linked_field),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.plural,
+                value: Primitive::Bool(schema_field.type_.is_list()),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: selections,
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.storage_key,
+                value: match args {
                     None => Primitive::Null,
                     Some(key) => {
                         if is_static_storage_key_available(&field.arguments) {
@@ -605,22 +729,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         }
                     }
                 },
-            ),
-        ]))
+            },
+        ]));
+
+        match field.directives.named(*REQUIRED_METADATA_KEY) {
+            Some(required_directive) => self.build_required_field(required_directive, primitive),
+            None => primitive,
+        }
     }
 
     fn build_linked_handles(&mut self, result: &mut Vec<Primitive>, field: &LinkedField) {
         let schema_field = self.schema.field(field.definition.item);
         let field_name = schema_field.name;
-        let handle_field_directives =
-            extract_handle_field_directives(&field.directives, self.handle_field_constants);
+        let handle_field_directives = extract_handle_field_directives(&field.directives);
         for directive in handle_field_directives {
-            let values = extract_values_from_handle_field_directive(
-                &directive,
-                self.handle_field_constants,
-                None,
-                None,
-            );
+            let values = extract_values_from_handle_field_directive(&directive);
 
             let dynamic_key = match &values.dynamic_key {
                 Some(val) => self.build_argument(CODEGEN_CONSTANTS.dynamic_key_argument, val),
@@ -628,39 +751,54 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             };
             let filters = match values.filters {
                 None => Primitive::Null,
-                Some(strs) => {
-                    Primitive::Key(self.array(strs.into_iter().map(Primitive::String).collect()))
+                Some(strings) => {
+                    Primitive::Key(self.array(strings.into_iter().map(Primitive::String).collect()))
                 }
             };
             let mut object = vec![
-                (
-                    CODEGEN_CONSTANTS.alias,
-                    match field.alias {
-                        Some(alias) => Primitive::String(alias.item),
-                        None => Primitive::Null,
-                    },
-                ),
-                (
-                    CODEGEN_CONSTANTS.args,
-                    match self.build_arguments(&field.arguments) {
+                build_alias(field.alias.map(|a| a.item), field_name),
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.args,
+                    value: match self.build_arguments(&field.arguments) {
                         None => Primitive::Null,
                         Some(key) => Primitive::Key(key),
                     },
-                ),
-                (CODEGEN_CONSTANTS.filters, filters),
-                (CODEGEN_CONSTANTS.handle, Primitive::String(values.handle)),
-                (CODEGEN_CONSTANTS.key, Primitive::String(values.key)),
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.linked_handle),
-                ),
-                (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.filters,
+                    value: filters,
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.handle,
+                    value: Primitive::String(values.handle),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.key,
+                    value: Primitive::String(values.key),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.kind,
+                    value: Primitive::String(CODEGEN_CONSTANTS.linked_handle),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.name,
+                    value: Primitive::String(field_name),
+                },
             ];
             if let Some(dynamic_key) = dynamic_key {
-                object.insert(
-                    2,
-                    (CODEGEN_CONSTANTS.dynamic_key, Primitive::Key(dynamic_key)),
-                );
+                object.push(ObjectEntry {
+                    key: CODEGEN_CONSTANTS.dynamic_key,
+                    value: Primitive::Key(dynamic_key),
+                });
+            };
+            if let Some(handle_args) = values.handle_args {
+                let args = self.build_arguments(&handle_args);
+                if let Some(args) = args {
+                    object.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.handle_args,
+                        value: Primitive::Key(args),
+                    });
+                }
             };
             result.push(Primitive::Key(self.object(object)))
         }
@@ -674,8 +812,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     ) -> (StringKey, Option<StringKey>) {
         let mut alias = alias.map(|alias| alias.item);
         if self.variant == CodegenVariant::Reader {
-            let mut handle_field_directives =
-                extract_handle_field_directives(directives, self.handle_field_constants);
+            let mut handle_field_directives = extract_handle_field_directives(directives);
             if let Some(handle_field_directive) = handle_field_directives.next() {
                 if let Some(other_handle_field_directive) = handle_field_directives.next() {
                     panic!(
@@ -683,14 +820,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         handle_field_directive, other_handle_field_directive
                     );
                 }
-                let values = extract_values_from_handle_field_directive(
-                    &handle_field_directive,
-                    self.handle_field_constants,
-                    None,
-                    None,
-                );
+                let values = extract_values_from_handle_field_directive(&handle_field_directive);
                 alias = alias.or_else(|| Some(name));
-                name = format!("__{}_{}", values.key, values.handle).intern();
+                name = if values.key == CODEGEN_CONSTANTS.default_handle_key {
+                    format!("__{}_{}", name, values.handle).intern()
+                } else {
+                    format!("__{}_{}", values.key, values.handle).intern()
+                }
             }
         }
         (name, alias)
@@ -699,21 +835,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
         let args = self.build_arguments(&frag_spread.arguments);
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.args,
-                match args {
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.args,
+                value: match args {
                     None => Primitive::Null,
                     Some(key) => Primitive::Key(key),
                 },
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
-            ),
-            (
-                CODEGEN_CONSTANTS.name,
-                Primitive::String(frag_spread.fragment.item),
-            ),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(frag_spread.fragment.item),
+            },
         ]))
     }
 
@@ -725,20 +861,23 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_defer_reader(&mut self, inline_fragment: &InlineFragment) -> Primitive {
-        let frag_spread =
+        let next_selections =
             if let Selection::FragmentSpread(frag_spread) = &inline_fragment.selections[0] {
-                frag_spread
+                let next_selections = vec![self.build_fragment_spread(frag_spread)];
+                Primitive::Key(self.array(next_selections))
             } else {
-                panic!("Expected a fragment spread for defer in the reader.")
+                self.build_selections(inline_fragment.selections.iter())
             };
-        let next_selections = vec![self.build_fragment_spread(frag_spread)];
-        let next_selections = Primitive::Key(self.array(next_selections));
+
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.defer),
-            ),
-            (CODEGEN_CONSTANTS.selections, next_selections),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.defer),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: next_selections,
+            },
         ]))
     }
 
@@ -747,22 +886,28 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         inline_fragment: &InlineFragment,
         defer: &Directive,
     ) -> Primitive {
-        let next_selections = self.build_selections(&inline_fragment.selections);
+        let next_selections = self.build_selections(inline_fragment.selections.iter());
         let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
         let if_variable_name = extract_variable_name(if_arg);
         let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.if_,
-                Primitive::string_or_null(if_variable_name),
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.defer),
-            ),
-            (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
-            (CODEGEN_CONSTANTS.selections, next_selections),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.if_,
+                value: Primitive::string_or_null(if_variable_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.defer),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.label,
+                value: Primitive::String(label_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: next_selections,
+            },
         ]))
     }
 
@@ -777,11 +922,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let next_selections = Primitive::Key(self.array(next_selections));
         Primitive::Key(match self.variant {
             CodegenVariant::Reader => self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.stream),
-                ),
-                (CODEGEN_CONSTANTS.selections, next_selections),
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.kind,
+                    value: Primitive::String(CODEGEN_CONSTANTS.stream),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.selections,
+                    value: next_selections,
+                },
             ]),
             CodegenVariant::Normalization => {
                 let StreamDirective {
@@ -796,21 +944,30 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
                 self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.if_,
-                        Primitive::string_or_null(if_variable_name),
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.stream),
-                    ),
-                    (CODEGEN_CONSTANTS.label, Primitive::String(label_name)),
-                    (CODEGEN_CONSTANTS.metadata, Primitive::Null),
-                    (CODEGEN_CONSTANTS.selections, next_selections),
-                    (
-                        CODEGEN_CONSTANTS.use_customized_batch,
-                        Primitive::string_or_null(use_customized_batch_variable_name),
-                    ),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.if_,
+                        value: Primitive::string_or_null(if_variable_name),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.stream),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.label,
+                        value: Primitive::String(label_name),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.metadata,
+                        value: Primitive::Null,
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.selections,
+                        value: next_selections,
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.use_customized_batch,
+                        value: Primitive::string_or_null(use_customized_batch_variable_name),
+                    },
                 ])
             }
         })
@@ -823,13 +980,16 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 if inline_frag.directives.len() == 1
                     && inline_frag.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME
                 {
-                    let selections = self.build_selections(&inline_frag.selections);
+                    let selections = self.build_selections(inline_frag.selections.iter());
                     Primitive::Key(self.object(vec![
-                        (
-                            CODEGEN_CONSTANTS.kind,
-                            Primitive::String(CODEGEN_CONSTANTS.client_extension),
-                        ),
-                        (CODEGEN_CONSTANTS.selections, selections),
+                        ObjectEntry {
+                            key: CODEGEN_CONSTANTS.kind,
+                            value: Primitive::String(CODEGEN_CONSTANTS.client_extension),
+                        },
+                        ObjectEntry {
+                            key: CODEGEN_CONSTANTS.selections,
+                            value: selections,
+                        },
                     ]))
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
@@ -840,28 +1000,100 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             }
             Some(type_condition) => {
-                let selections = if inline_frag
-                    .directives
-                    .named(MATCH_CONSTANTS.custom_module_directive_name)
-                    .is_some()
-                {
-                    self.build_module_import_selections(&inline_frag.directives[0])
-                } else {
-                    self.build_selections(&inline_frag.selections)
-                };
+                if self.variant == CodegenVariant::Normalization {
+                    let is_abstract_inline_fragment = self.schema.is_abstract_type(type_condition);
+                    if is_abstract_inline_fragment {
+                        // Maintain a few invariants:
+                        // - InlineFragment (and `selections` arrays generally) cannot be empty
+                        // - Don't emit a TypeDiscriminator under an InlineFragment unless it has
+                        //   a different abstractKey
+                        // This means we have to handle two cases:
+                        // - The inline fragment only contains a TypeDiscriminator with the same
+                        //   abstractKey: replace the Fragment w the Discriminator
+                        // - The inline fragment contains other selections: return all the selections
+                        //   minus any Discriminators w the same key
+                        let type_discriminator_index =
+                            inline_frag.selections.iter().position(|selection| {
+                                if let Selection::ScalarField(selection) = selection {
+                                    selection
+                                        .directives
+                                        .named(*TYPE_DISCRIMINATOR_DIRECTIVE_NAME)
+                                        .is_some()
+                                } else {
+                                    false
+                                }
+                            });
+
+                        if let Some(type_discriminator_index) = type_discriminator_index {
+                            if inline_frag.selections.len() == 1 {
+                                return self.build_type_discriminator(
+                                    if let Selection::ScalarField(field) =
+                                        &inline_frag.selections[0]
+                                    {
+                                        field
+                                    } else {
+                                        panic!("Expected a scalar field.")
+                                    },
+                                );
+                            } else {
+                                let selections = self.build_selections(
+                                    inline_frag
+                                        .selections
+                                        .iter()
+                                        .take(type_discriminator_index)
+                                        .chain(
+                                            inline_frag
+                                                .selections
+                                                .iter()
+                                                .skip(type_discriminator_index + 1),
+                                        ),
+                                );
+                                return Primitive::Key(self.object(vec![
+                                    ObjectEntry {
+                                        key: CODEGEN_CONSTANTS.kind,
+                                        value: Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
+                                    },
+                                    ObjectEntry {
+                                        key: CODEGEN_CONSTANTS.selections,
+                                        value: selections,
+                                    },
+                                    ObjectEntry {
+                                        key: CODEGEN_CONSTANTS.type_,
+                                        value: Primitive::String(
+                                            self.schema.get_type_name(type_condition),
+                                        ),
+                                    },
+                                    ObjectEntry {
+                                        key: CODEGEN_CONSTANTS.abstract_key,
+                                        value: Primitive::String(
+                                            generate_abstract_type_refinement_key(
+                                                self.schema,
+                                                type_condition,
+                                            ),
+                                        ),
+                                    },
+                                ]));
+                            }
+                        }
+                    }
+                }
+                let selections = self.build_selections(inline_frag.selections.iter());
                 Primitive::Key(self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
-                    ),
-                    (CODEGEN_CONSTANTS.selections, selections),
-                    (
-                        CODEGEN_CONSTANTS.type_,
-                        Primitive::String(self.schema.get_type_name(type_condition)),
-                    ),
-                    (
-                        CODEGEN_CONSTANTS.abstract_key,
-                        if self.schema.is_abstract_type(type_condition) {
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.selections,
+                        value: selections,
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.type_,
+                        value: Primitive::String(self.schema.get_type_name(type_condition)),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.abstract_key,
+                        value: if self.schema.is_abstract_type(type_condition) {
                             Primitive::String(generate_abstract_type_refinement_key(
                                 self.schema,
                                 type_condition,
@@ -869,41 +1101,37 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         } else {
                             Primitive::Null
                         },
-                    ),
+                    },
                 ]))
             }
         }
     }
 
     fn build_condition(&mut self, condition: &Condition) -> Primitive {
-        let selections = self.build_selections(&condition.selections);
+        let selections = self.build_selections(condition.selections.iter());
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.condition,
-                Primitive::String(match &condition.value {
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.condition,
+                value: Primitive::String(match &condition.value {
                     ConditionValue::Variable(variable) => variable.name.item,
                     ConditionValue::Constant(_) => panic!(
                         "Expected Condition with static value to have been pruned or inlined."
                     ),
                 }),
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.condition_value),
-            ),
-            (
-                CODEGEN_CONSTANTS.passing_value,
-                Primitive::Bool(condition.passing_value),
-            ),
-            (CODEGEN_CONSTANTS.selections, selections),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.condition_value),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.passing_value,
+                value: Primitive::Bool(condition.passing_value),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: selections,
+            },
         ]))
-    }
-
-    fn build_variable_type(&self, type_: &TypeReference) -> Primitive {
-        Primitive::String(match type_ {
-            TypeReference::Named(inner) => self.schema.get_type_name(inner.clone()),
-            _ => self.schema.get_type_string(type_).intern(),
-        })
     }
 
     fn build_operation_variable_definitions(
@@ -919,16 +1147,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Primitive::Null
                 };
                 Primitive::Key(self.object(vec![
-                    (CODEGEN_CONSTANTS.default_value, default_value),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.local_argument),
-                    ),
-                    (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                    (
-                        CODEGEN_CONSTANTS.type_,
-                        self.build_variable_type(&def.type_),
-                    ),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.default_value,
+                        value: default_value,
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.local_argument),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(def.name.item),
+                    },
                 ]))
             })
             .collect::<Vec<_>>();
@@ -947,40 +1177,49 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         );
         for def in local_variable_definitions {
             let object = vec![
-                (
-                    CODEGEN_CONSTANTS.default_value,
-                    if let Some(const_val) = &def.default_value {
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.default_value,
+                    value: if let Some(const_val) = &def.default_value {
                         self.build_constant_value(&const_val)
                     } else {
                         Primitive::Null
                     },
-                ),
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.local_argument),
-                ),
-                (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                (
-                    CODEGEN_CONSTANTS.type_,
-                    self.build_variable_type(&def.type_),
-                ),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.kind,
+                    value: Primitive::String(CODEGEN_CONSTANTS.local_argument),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.name,
+                    value: Primitive::String(def.name.item),
+                },
             ];
-            var_defs.push(Primitive::Key(self.object(object)));
+            var_defs.push((def.name.item, Primitive::Key(self.object(object))));
         }
         for def in global_variable_definitions {
-            var_defs.push(Primitive::Key(self.object(vec![
-                (
-                    CODEGEN_CONSTANTS.kind,
-                    Primitive::String(CODEGEN_CONSTANTS.root_argument),
-                ),
-                (CODEGEN_CONSTANTS.name, Primitive::String(def.name.item)),
-                (
-                    CODEGEN_CONSTANTS.type_,
-                    self.build_variable_type(&def.type_),
-                ),
-            ])));
+            var_defs.push((
+                def.name.item,
+                Primitive::Key(self.object(vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.root_argument),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(def.name.item),
+                    },
+                ])),
+            ));
         }
-        Primitive::Key(self.array(var_defs))
+
+        var_defs.sort_unstable_by(|(name_a, _), (name_b, _)| name_a.cmp(name_b));
+        let mut sorted_var_defs = Vec::with_capacity(var_defs.len());
+
+        for (_, var_def) in var_defs {
+            sorted_var_defs.push(var_def);
+        }
+
+        Primitive::Key(self.array(sorted_var_defs))
     }
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
@@ -988,11 +1227,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         sorted_args.sort_unstable_by_key(|arg| arg.name.item.lookup());
 
         let args = sorted_args
-             .into_iter()
-             // We are filtering out "null" arguments matching JS behavior
-             .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
-             .map(Primitive::Key)
-             .collect::<Vec<_>>();
+            .into_iter()
+            // We are filtering out "null" arguments matching JS behavior
+            .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
+            .map(Primitive::Key)
+            .collect::<Vec<_>>();
         if args.is_empty() {
             None
         } else {
@@ -1014,13 +1253,19 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let name = Primitive::String(arg_name);
                 let variable_name = Primitive::String(variable.name.item);
                 Some(self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.variable),
-                    ),
-                    (CODEGEN_CONSTANTS.name, name),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.variable),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: name,
+                    },
                     // TODO(T63303966) type is always skipped in JS compiler
-                    (CODEGEN_CONSTANTS.variable_name, variable_name),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.variable_name,
+                        value: variable_name,
+                    },
                 ]))
             }
             Value::List(list) => {
@@ -1036,12 +1281,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     })
                     .collect::<Vec<_>>();
                 let object = vec![
-                    (CODEGEN_CONSTANTS.items, Primitive::Key(self.array(items))),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.list_value),
-                    ),
-                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.items,
+                        value: Primitive::Key(self.array(items)),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.list_value),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(arg_name),
+                    },
                 ];
                 Some(self.object(object))
             }
@@ -1059,23 +1310,35 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                             // For object types, we do want to keep the literal argument
                             // for null, instead of filtering it out, matching JS behavior
                             Primitive::Key(self.object(vec![
-                                (
-                                    CODEGEN_CONSTANTS.kind,
-                                    Primitive::String(CODEGEN_CONSTANTS.literal),
-                                ),
-                                (CODEGEN_CONSTANTS.name, Primitive::String(field_name)),
-                                (CODEGEN_CONSTANTS.value, Primitive::Null),
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.kind,
+                                    value: Primitive::String(CODEGEN_CONSTANTS.literal),
+                                },
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.name,
+                                    value: Primitive::String(field_name),
+                                },
+                                ObjectEntry {
+                                    key: CODEGEN_CONSTANTS.value,
+                                    value: Primitive::Null,
+                                },
                             ]))
                         }
                     })
                     .collect::<Vec<_>>();
                 let object = vec![
-                    (CODEGEN_CONSTANTS.fields, Primitive::Key(self.array(fields))),
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.object_value),
-                    ),
-                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.fields,
+                        value: Primitive::Key(self.array(fields)),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.object_value),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(arg_name),
+                    },
                 ];
                 Some(self.object(object))
             }
@@ -1093,12 +1356,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             _ => {
                 let value = self.build_constant_value(arg_value);
                 Some(self.object(vec![
-                    (
-                        CODEGEN_CONSTANTS.kind,
-                        Primitive::String(CODEGEN_CONSTANTS.literal),
-                    ),
-                    (CODEGEN_CONSTANTS.name, Primitive::String(arg_name)),
-                    (CODEGEN_CONSTANTS.value, value),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.literal),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(arg_name),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.value,
+                        value,
+                    },
                 ]))
             }
         }
@@ -1125,14 +1394,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
                 let json_values = sorted_val_object
                     .into_iter()
-                    .map(|arg| (arg.name.item, self.build_constant_value(&arg.value.item)))
+                    .map(|arg| ObjectEntry {
+                        key: arg.name.item,
+                        value: self.build_constant_value(&arg.value.item),
+                    })
                     .collect::<Vec<_>>();
                 Primitive::Key(self.object(json_values))
             }
         }
     }
 
-    fn build_module_import_selections(&mut self, directive: &Directive) -> Primitive {
+    fn build_module_import_selections(&mut self, directive: &Directive) -> Vec<Primitive> {
         let fragment_name = directive
             .arguments
             .named(MATCH_CONSTANTS.name_arg)
@@ -1155,72 +1427,24 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             )
         });
         let selection = Primitive::Key(self.object(vec![
-            (CODEGEN_CONSTANTS.document_name, Primitive::String(key)),
-            (
-                CODEGEN_CONSTANTS.fragment_name,
-                Primitive::String(fragment_name),
-            ),
-            (
-                CODEGEN_CONSTANTS.fragment_prop_name,
-                Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
-            ),
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.module_import),
-            ),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.document_name,
+                value: Primitive::String(key),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment_name,
+                value: Primitive::String(fragment_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment_prop_name,
+                value: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.module_import),
+            },
         ]));
-        Primitive::Key(self.array(vec![selection]))
-    }
-
-    fn build_test_operation_metadata(
-        &mut self,
-        operation: &OperationDefinition,
-    ) -> Option<(StringKey, Primitive)> {
-        build_test_operation_metadata(self.schema, operation).map(|metadata| {
-            let mut selection_type_info_values =
-                Vec::with_capacity(metadata.selection_type_info.len());
-            for (key, value) in metadata.selection_type_info.iter() {
-                let enum_value = value.enum_values.clone().map(|enum_values| {
-                    self.array(
-                        enum_values
-                            .iter()
-                            .map(|enum_value| Primitive::String(enum_value.value))
-                            .collect(),
-                    )
-                });
-
-                selection_type_info_values.push((
-                    *key,
-                    Primitive::Key(self.object(vec![
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_type,
-                            Primitive::String(value.type_),
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_enum_values,
-                            match enum_value {
-                                Some(values) => Primitive::Key(values),
-                                None => Primitive::Null,
-                            },
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_plural,
-                            Primitive::Bool(value.plural),
-                        ),
-                        (
-                            CODEGEN_CONSTANTS.relay_test_operation_nullable,
-                            Primitive::Bool(value.nullable),
-                        ),
-                    ])),
-                ));
-            }
-            let selection_type_info = Primitive::Key(self.object(selection_type_info_values));
-
-            (
-                CODEGEN_CONSTANTS.relay_test_operation_selection_type_info,
-                selection_type_info,
-            )
-        })
+        vec![selection]
     }
 
     /// This method will wrap inline fragment with @__inline directive
@@ -1231,15 +1455,21 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         inline_fragment: &InlineFragment,
         directive: &Directive,
     ) -> Primitive {
-        let selections = self.build_selections(&inline_fragment.selections);
+        let selections = self.build_selections(inline_fragment.selections.iter());
         let fragment_name: StringKey = directive.arguments[0].value.item.expect_string_literal();
         Primitive::Key(self.object(vec![
-            (
-                CODEGEN_CONSTANTS.kind,
-                Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
-            ),
-            (CODEGEN_CONSTANTS.name, Primitive::String(fragment_name)),
-            (CODEGEN_CONSTANTS.selections, selections),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(fragment_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: selections,
+            },
         ]))
     }
 
@@ -1247,10 +1477,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         &mut self,
         operation: &OperationDefinition,
         mut request_parameters: RequestParameters,
-        // We need to move test metadata generation back to transforms
-        deprecated_test_operation_metadata: Option<(StringKey, Primitive)>,
-    ) -> Primitive {
-        let mut metadata_items: Vec<(StringKey, Primitive)> = operation
+    ) -> AstKey {
+        let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
             .iter()
             .filter_map(|directive| {
@@ -1268,61 +1496,90 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         }
                     };
 
-                    Some((key, value))
+                    Some(ObjectEntry { key, value })
                 } else {
                     None
                 }
             })
             .collect();
 
-        // add test_operation metadata
-        if let Some(deprecated_test_operation_metadata) = deprecated_test_operation_metadata {
-            metadata_items.push(deprecated_test_operation_metadata);
+        // add connection metadata
+        let connection_metadata = extract_connection_metadata_from_directive(
+            &operation.directives,
+            self.connection_constants,
+        );
+        if let Some(connection_metadata) = connection_metadata {
+            metadata_items.push(self.build_connection_metadata(&connection_metadata))
         }
 
         // add request parameters metadata
         let metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
         for (key, value) in metadata_values {
-            metadata_items.push((key.intern(), Primitive::RawString(value)));
+            metadata_items.push(ObjectEntry {
+                key: key.intern(),
+                value: Primitive::RawString(value),
+            });
         }
 
         // sort metadata keys
-        metadata_items.sort_unstable_by(|l, r| l.0.cmp(&r.0));
+        metadata_items.sort_unstable_by_key(|entry| entry.key);
 
-        // Construct  metadata object
-        let metadata = Primitive::Key(self.object(metadata_items));
+        // Construct metadata object
+        let metadata_prop = ObjectEntry {
+            key: CODEGEN_CONSTANTS.metadata,
+            value: Primitive::Key(self.object(metadata_items)),
+        };
+        let name_prop = ObjectEntry {
+            key: CODEGEN_CONSTANTS.name,
+            value: Primitive::String(request_parameters.name),
+        };
+        let operation_kind_prop = ObjectEntry {
+            key: CODEGEN_CONSTANTS.operation_kind,
+            value: Primitive::String(match request_parameters.operation_kind {
+                OperationKind::Query => CODEGEN_CONSTANTS.query,
+                OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
+                OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
+            }),
+        };
 
-        let object = vec![
-            (
-                CODEGEN_CONSTANTS.id,
-                match request_parameters.id {
-                    None => Primitive::Null,
-                    Some(str) => Primitive::RawString(str),
+        let id_prop = ObjectEntry {
+            key: CODEGEN_CONSTANTS.id,
+            value: if let Some(id) = request_parameters.id {
+                Primitive::RawString(id)
+            } else {
+                Primitive::Null
+            },
+        };
+
+        let params_object = if let Some(text) = request_parameters.text {
+            vec![
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.cache_id,
+                    value: Primitive::RawString(md5(&text)),
                 },
-            ),
-            (CODEGEN_CONSTANTS.metadata, metadata),
-            (
-                CODEGEN_CONSTANTS.name,
-                Primitive::String(request_parameters.name),
-            ),
-            (
-                CODEGEN_CONSTANTS.operation_kind,
-                Primitive::String(match request_parameters.operation_kind {
-                    OperationKind::Query => CODEGEN_CONSTANTS.query,
-                    OperationKind::Mutation => CODEGEN_CONSTANTS.mutation,
-                    OperationKind::Subscription => CODEGEN_CONSTANTS.subscription,
-                }),
-            ),
-            (
-                CODEGEN_CONSTANTS.text,
-                match request_parameters.text {
-                    None => Primitive::Null,
-                    Some(text) => Primitive::RawString(text),
+                id_prop,
+                metadata_prop,
+                name_prop,
+                operation_kind_prop,
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.text,
+                    value: Primitive::RawString(text),
                 },
-            ),
-        ];
+            ]
+        } else {
+            vec![
+                id_prop,
+                metadata_prop,
+                name_prop,
+                operation_kind_prop,
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.text,
+                    value: Primitive::Null,
+                },
+            ]
+        };
 
-        Primitive::Key(self.object(object))
+        self.object(params_object)
     }
 }
 
@@ -1342,4 +1599,28 @@ fn value_contains_variable(value: &Value) -> bool {
             .iter()
             .any(|arg| value_contains_variable(&arg.value.item)),
     }
+}
+
+fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
+    let alias = match alias {
+        None => Primitive::Null,
+        Some(alias) => {
+            if alias == name {
+                Primitive::Null
+            } else {
+                Primitive::String(alias)
+            }
+        }
+    };
+    ObjectEntry {
+        key: CODEGEN_CONSTANTS.alias,
+        value: alias,
+    }
+}
+
+/// Computes the md5 hash of a string.
+pub fn md5(data: &str) -> String {
+    let mut md5 = Md5::new();
+    md5.input(data);
+    hex::encode(md5.result())
 }

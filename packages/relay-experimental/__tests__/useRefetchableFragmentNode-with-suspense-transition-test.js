@@ -364,7 +364,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               <Container owner={query} {...props} />
             </ContextProvider>
           </React.Suspense>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };
@@ -398,6 +398,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsPendingOnRefetch(renderer, {
           data: initialUser,
@@ -480,6 +481,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           const refetchQuery1 = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables1,
+            {force: true},
           );
 
           // Assert we suspend on intial refetch request
@@ -495,6 +497,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables2,
+            {force: true},
           );
           refetch(
             {id: '4'},
@@ -608,6 +611,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           const refetchQuery1 = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables1,
+            {force: true},
           );
 
           // Assert we suspend on intial refetch request
@@ -623,6 +627,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables2,
+            {force: true},
           );
           refetch(
             {id: '4'},
@@ -747,6 +752,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           const refetchQuery1 = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables1,
+            {force: true},
           );
 
           // Assert we suspend on intial refetch request

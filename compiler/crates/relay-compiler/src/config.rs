@@ -5,15 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::compiler_state::{ProjectName, SourceSetName};
+use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
-use interner::StringKey;
+use crate::rollout::Rollout;
+use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
+use async_trait::async_trait;
+use graphql_ir::Program;
+use persist_query::PersistError;
+use rayon::prelude::*;
 use regex::Regex;
+use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_typegen::TypegenConfig;
+use schema::Schema;
 use serde::Deserialize;
-use std::collections::{HashMap, HashSet};
-use std::fmt;
-use std::path::PathBuf;
+use sha1::{Digest, Sha1};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    path::PathBuf,
+    sync::Arc,
+};
+use watchman_client::pdu::ScmAwareClockData;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -21,60 +36,83 @@ use std::path::PathBuf;
 /// - command line options
 /// - TODO: injected code to produce additional files
 pub struct Config {
+    /// Optional name for this config. This might be used by compiler extension
+    /// code like logging or extra artifact generation.
+    pub name: Option<String>,
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
-    pub sources: HashMap<PathBuf, SourceSetName>,
-    pub blacklist: Vec<String>,
+    pub sources: HashMap<PathBuf, SourceSet>,
+    pub excludes: Vec<String>,
     pub projects: HashMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
-    /// If this is false, the compiler won't write any artifact files.
-    pub write_artifacts: bool,
-    /// If set, the compiler will only compile the given project
-    pub only_project: Option<StringKey>,
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
-    /// Function to genetate extra
+    /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
+    /// Path to which to write the output of the compilation
+    pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
+
+    /// Compile all files. Persist ids are still re-used unless
+    /// `Config::repersist_operations` is also set.
+    pub compile_everything: bool,
+
+    /// Do not reuse persist ids from artifacts even if the text hash matches.
+    pub repersist_operations: bool,
+
+    pub connection_interface: ConnectionInterface,
+    pub feature_flags: FeatureFlags,
+
+    pub saved_state_config: Option<ScmAwareClockData>,
+    pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
+    pub saved_state_version: String,
+
+    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
+    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+
+    pub post_artifacts_write: Option<
+        Box<
+            dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
+                + Send
+                + Sync,
+        >,
+    >,
+
+    pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+
+    pub on_build_project_success: Option<OnBuildProjectSuccess>,
 }
 
 impl Config {
-    /// Call a function for every active project in this Config
-    pub fn for_each_project<F>(&self, mut func: F)
-    where
-        F: FnMut(&ProjectConfig) -> (),
-    {
-        match self.only_project {
-            Some(project_key) => {
-                let project_config = self
-                    .projects
-                    .get(&project_key)
-                    .unwrap_or_else(|| panic!("Expected the project {} to exist", &project_key));
-                func(project_config)
-            }
-            None => {
-                for project in self.projects.values() {
-                    func(project)
-                }
-            }
-        }
+    /// Iterator over projects that are enabled.
+    pub fn enabled_projects(&self) -> impl Iterator<Item = &ProjectConfig> {
+        self.projects
+            .values()
+            .filter(|project_config| project_config.enabled)
     }
 
-    pub fn load(root_dir: PathBuf, config_path: PathBuf) -> Result<Self> {
+    /// Rayon parallel iterator over projects that are enabled.
+    pub fn par_enabled_projects(&self) -> impl ParallelIterator<Item = &ProjectConfig> {
+        self.projects
+            .par_iter()
+            .map(|(_project_name, project_config)| project_config)
+            .filter(|project_config| project_config.enabled)
+    }
+
+    pub fn load(config_path: PathBuf) -> Result<Self> {
         let config_string =
             std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
                 config_path: config_path.clone(),
                 source: err,
             })?;
-        Self::from_string(root_dir, config_path, &config_string, true)
+        Self::from_string(config_path, &config_string, true)
     }
 
     /// Loads a config file without validation for use in tests.
     #[cfg(test)]
     pub fn from_string_for_test(config_string: &str) -> Result<Self> {
         Self::from_string(
-            "/virtual/root".into(),
             "/virtual/root/virtual_config.json".into(),
             config_string,
             false,
@@ -82,12 +120,7 @@ impl Config {
     }
 
     /// `validate_fs` disables all filesystem checks for existence of files
-    fn from_string(
-        root_dir: PathBuf,
-        config_path: PathBuf,
-        config_string: &str,
-        validate_fs: bool,
-    ) -> Result<Self> {
+    fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
         let config_file: ConfigFile =
             serde_json::from_str(&config_string).map_err(|err| Error::ConfigFileParse {
                 config_path: config_path.clone(),
@@ -130,29 +163,56 @@ impl Config {
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
+                    enabled: true,
                     extensions: config_file_project.extensions,
                     output: config_file_project.output,
+                    extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
-                    enum_module_suffix: config_file_project.enum_module_suffix,
-                    optional_input_fields: config_file_project.optional_input_fields,
+                    typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
+                    variable_names_comment: config_file_project.variable_names_comment,
+                    extra: config_file_project.extra,
+                    feature_flags: config_file_project.feature_flags,
+                    rollout: config_file_project.rollout,
                 };
                 Ok((project_name, project_config))
             })
             .collect::<Result<HashMap<_, _>>>()?;
+
+        let config_file_dir = config_path.parent().unwrap();
+        let root_dir = if let Some(config_root) = config_file.root {
+            config_file_dir.join(config_root).canonicalize().unwrap()
+        } else {
+            config_file_dir.to_owned()
+        };
+
+        let mut hash = Sha1::new();
+        hash.input(&config_string);
+
         let config = Self {
+            name: config_file.name,
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
             root_dir,
             sources: config_file.sources,
-            blacklist: config_file.blacklist,
+            excludes: config_file.excludes,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
-            write_artifacts: true,
-            only_project: None,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
+            saved_state_config: config_file.saved_state_config,
+            saved_state_loader: None,
+            saved_state_version: hex::encode(hash.result()),
+            connection_interface: config_file.connection_interface,
+            feature_flags: config_file.feature_flags,
+            operation_persister: None,
+            compile_everything: false,
+            repersist_operations: false,
+            post_artifacts_write: None,
+            on_build_project_success: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -172,7 +232,19 @@ impl Config {
 
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        let source_set_names: HashSet<_> = self.sources.values().collect();
+        let mut source_set_names: HashSet<_> = Default::default();
+        for value in self.sources.values() {
+            match value {
+                SourceSet::SourceSetName(name) => {
+                    source_set_names.insert(*name);
+                }
+                SourceSet::SourceSetNames(names) => {
+                    for name in names {
+                        source_set_names.insert(*name);
+                    }
+                }
+            };
+        }
 
         for (&project_name, project_config) in &self.projects {
             // there should be a source for each project matching the project name
@@ -254,34 +326,62 @@ impl Config {
 impl fmt::Debug for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Config {
+            name,
+            artifact_writer: _,
             root_dir,
             sources,
-            blacklist,
+            excludes,
+            compile_everything,
+            repersist_operations,
             projects,
             header,
             codegen_command,
-            write_artifacts,
-            only_project,
             load_saved_state_file,
             generate_extra_operation_artifacts,
+            saved_state_config,
+            saved_state_loader,
+            connection_interface,
+            feature_flags,
+            saved_state_version,
+            operation_persister,
+            post_artifacts_write,
+            ..
         } = self;
+
+        fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
+            if option.is_some() { "Some(Fn)" } else { "None" }
+        }
+
         f.debug_struct("Config")
+            .field("name", name)
             .field("root_dir", root_dir)
             .field("sources", sources)
-            .field("blacklist", blacklist)
+            .field("excludes", excludes)
+            .field("compile_everything", compile_everything)
+            .field("repersist_operations", repersist_operations)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
-            .field("write_artifacts", write_artifacts)
-            .field("only_project", only_project)
             .field("load_saved_state_file", load_saved_state_file)
+            .field("saved_state_config", saved_state_config)
+            .field(
+                "operation_persister",
+                &option_fn_to_string(operation_persister),
+            )
             .field(
                 "generate_extra_operation_artifacts",
-                if generate_extra_operation_artifacts.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(generate_extra_operation_artifacts),
+            )
+            .field(
+                "saved_state_loader",
+                &option_fn_to_string(saved_state_loader),
+            )
+            .field("connection_interface", connection_interface)
+            .field("feature_flags", feature_flags)
+            .field("saved_state_version", saved_state_version)
+            .field(
+                "post_artifacts_write",
+                &option_fn_to_string(post_artifacts_write),
             )
             .finish()
     }
@@ -292,13 +392,18 @@ pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub output: Option<PathBuf>,
+    pub extra_artifacts_output: Option<PathBuf>,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
     pub extensions: Vec<PathBuf>,
+    pub enabled: bool,
     pub schema_location: SchemaLocation,
-    pub enum_module_suffix: Option<String>,
-    pub optional_input_fields: Vec<StringKey>,
+    pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
+    pub variable_names_comment: bool,
+    pub extra: Option<HashMap<String, String>>,
+    pub feature_flags: Option<FeatureFlags>,
+    pub rollout: Rollout,
 }
 
 #[derive(Clone, Debug)]
@@ -311,6 +416,16 @@ pub enum SchemaLocation {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    /// Optional name for this config, might be used for logging or custom extra
+    /// artifact generator code.
+    #[serde(default)]
+    name: Option<String>,
+
+    /// Root directory relative to the config file. Defaults to the directory
+    /// where the config is located.
+    #[serde(default)]
+    root: Option<PathBuf>,
+
     #[serde(default)]
     header: Vec<String>,
     #[serde(default)]
@@ -319,15 +434,24 @@ struct ConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: HashMap<PathBuf, SourceSetName>,
+    sources: HashMap<PathBuf, SourceSet>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
     #[serde(default)]
-    blacklist: Vec<String>,
+    excludes: Vec<String>,
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,
+
+    #[serde(default)]
+    connection_interface: ConnectionInterface,
+
+    #[serde(default)]
+    feature_flags: FeatureFlags,
+
+    /// Watchman saved state config.
+    saved_state_config: Option<ScmAwareClockData>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -346,6 +470,11 @@ struct ConfigFileProject {
     /// compiler, so that the compiler can cleanup extra files.
     #[serde(default)]
     output: Option<PathBuf>,
+
+    /// Some projects may need to generate extra artifacts. For those, we may
+    /// need to provide an additional directory to put them.
+    /// By default the will use `output` *if available
+    extra_artifacts_output: Option<PathBuf>,
 
     /// If `output` is provided and `shard_output` is `true`, shard the files
     /// by putting them under `{output_dir}/{source_relative_path}`
@@ -370,19 +499,26 @@ struct ConfigFileProject {
     /// config.
     persist: Option<PersistConfig>,
 
-    /// # For Flow type generation
-    /// When set, enum values are imported from a module with this suffix.
-    /// For example, an enum Foo and this property set to ".test" would be
-    /// imported from "Foo.test".
-    /// Note: an empty string is allowed and different from not setting the
-    /// value, in the example above it would just import from "Foo".
-    enum_module_suffix: Option<String>,
+    #[serde(flatten)]
+    typegen_config: TypegenConfig,
 
-    /// # For Flow type generation
-    /// When set, generated input types will have the listed fields optional
-    /// even if the schema defines them as required.
+    /// Generate Query ($Parameters files)
     #[serde(default)]
-    optional_input_fields: Vec<StringKey>,
+    should_generate_parameters_file: bool,
+
+    /// Generates a `// @relayVariables name1 name2` header in generated operation files
+    #[serde(default)]
+    variable_names_comment: bool,
+
+    extra: Option<HashMap<String, String>>,
+
+    #[serde(default)]
+    feature_flags: Option<FeatureFlags>,
+
+    /// A generic rollout state for larger codegen changes. The default is to
+    /// pass, otherwise it should be a number between 0 and 100 as a percentage.
+    #[serde(default)]
+    pub rollout: Rollout,
 }
 
 #[derive(Debug, Deserialize)]
@@ -394,3 +530,18 @@ pub struct PersistConfig {
     /// additional parameters to send.
     pub params: HashMap<String, String>,
 }
+
+type PersistId = String;
+
+#[async_trait]
+pub trait OperationPersister {
+    async fn persist_artifact(
+        &self,
+        artifact_text: String,
+        project_config: &PersistConfig,
+    ) -> std::result::Result<PersistId, PersistError>;
+
+    fn worker_count(&self) -> usize;
+}
+
+type OnBuildProjectSuccess = Box<dyn Fn(ProjectName, &Arc<Schema>, &Program) + Send + Sync>;

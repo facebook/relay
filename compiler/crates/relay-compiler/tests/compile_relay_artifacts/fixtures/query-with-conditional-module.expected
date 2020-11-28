@@ -1,21 +1,21 @@
 ==================================== INPUT ====================================
-query NameRendererQuery($id: ID!, $fetchModule: Boolean!) {
+query queryWithConditionalModule_NameRendererQuery($id: ID!, $fetchModule: Boolean!) {
   node(id: $id) {
-    ...NameRendererFragment
+    ...queryWithConditionalModule_NameRendererFragment
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithConditionalModule_NameRendererFragment on User {
   id
   nameRenderer {
     # note: intentionally no @match here
-    ...MarkdownUserNameRenderer_name
+    ...queryWithConditionalModule_MarkdownUserNameRenderer_name
       @include(if: $fetchModule)
       @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithConditionalModule_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -24,10 +24,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "queryWithConditionalModule_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -70,19 +68,17 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "fetchModule"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "fetchModule",
-        "type": "Boolean!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NameRendererQuery",
+    "name": "queryWithConditionalModule_NameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -101,7 +97,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "NameRendererFragment"
+            "name": "queryWithConditionalModule_NameRendererFragment"
           }
         ],
         "storageKey": null
@@ -116,18 +112,16 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "fetchModule",
-        "type": "Boolean!"
+        "name": "fetchModule"
       }
     ],
     "kind": "Operation",
-    "name": "NameRendererQuery",
+    "name": "queryWithConditionalModule_NameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -184,9 +178,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                         "kind": "InlineFragment",
                         "selections": [
                           {
-                            "documentName": "NameRendererFragment",
-                            "fragmentName": "MarkdownUserNameRenderer_name",
-                            "fragmentPropName": "name",
+                            "documentName": "queryWithConditionalModule_NameRendererFragment",
+                            "fragmentName": "queryWithConditionalModule_MarkdownUserNameRenderer_name",
+                            "fragmentPropName": "MarkdownUserNameRenderer_name",
                             "kind": "ModuleImport"
                           }
                         ],
@@ -210,7 +204,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "NameRendererQuery",
+    "name": "queryWithConditionalModule_NameRendererQuery",
     "operationKind": "query",
     "text": null
   }
@@ -218,18 +212,18 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query NameRendererQuery(
+query queryWithConditionalModule_NameRendererQuery(
   $id: ID!
   $fetchModule: Boolean!
 ) {
   node(id: $id) {
     __typename
-    ...NameRendererFragment
+    ...queryWithConditionalModule_NameRendererFragment
     id
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithConditionalModule_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -237,14 +231,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithConditionalModule_NameRendererFragment on User {
   id
   nameRenderer {
     __typename
     ... on MarkdownUserNameRenderer @include(if: $fetchModule) {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
+      ...queryWithConditionalModule_MarkdownUserNameRenderer_name
+      __module_operation_queryWithConditionalModule_NameRendererFragment: js(module: "queryWithConditionalModule_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithConditionalModule_NameRendererFragment.nameRenderer")
+      __module_component_queryWithConditionalModule_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithConditionalModule_NameRendererFragment.nameRenderer")
     }
   }
 }
@@ -254,7 +248,7 @@ fragment NameRendererFragment on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "queryWithConditionalModule_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -290,13 +284,12 @@ fragment NameRendererFragment on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "fetchModule",
-      "type": "Boolean!"
+      "name": "fetchModule"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NameRendererFragment",
+  "name": "queryWithConditionalModule_NameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -322,9 +315,9 @@ fragment NameRendererFragment on User {
               "kind": "InlineFragment",
               "selections": [
                 {
-                  "documentName": "NameRendererFragment",
-                  "fragmentName": "MarkdownUserNameRenderer_name",
-                  "fragmentPropName": "name",
+                  "documentName": "queryWithConditionalModule_NameRendererFragment",
+                  "fragmentName": "queryWithConditionalModule_MarkdownUserNameRenderer_name",
+                  "fragmentPropName": "MarkdownUserNameRenderer_name",
                   "kind": "ModuleImport"
                 }
               ],

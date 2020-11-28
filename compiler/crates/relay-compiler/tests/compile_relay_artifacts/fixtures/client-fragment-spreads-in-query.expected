@@ -1,18 +1,18 @@
 ==================================== INPUT ====================================
-query FooQuery($id: ID!) {
+query clientFragmentSpreadsInQuery_FooQuery($id: ID!) {
   node(id: $id) {
-    ...Foo_user
+    ...clientFragmentSpreadsInQuery_Foo_user
   }
 }
 
-fragment Foo_user on User {
+fragment clientFragmentSpreadsInQuery_Foo_user on User {
   id
   foo {
-    ...ClientTypeFragment
+    ...clientFragmentSpreadsInQuery_ClientTypeFragment
   }
 }
 
-fragment ClientTypeFragment on ClientType {
+fragment clientFragmentSpreadsInQuery_ClientTypeFragment on ClientType {
   client_field
 }
 
@@ -32,13 +32,12 @@ type ClientType {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FooQuery",
+    "name": "clientFragmentSpreadsInQuery_FooQuery",
     "selections": [
       {
         "alias": null,
@@ -57,7 +56,7 @@ type ClientType {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "Foo_user"
+            "name": "clientFragmentSpreadsInQuery_Foo_user"
           }
         ],
         "storageKey": null
@@ -72,12 +71,11 @@ type ClientType {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "FooQuery",
+    "name": "clientFragmentSpreadsInQuery_FooQuery",
     "selections": [
       {
         "alias": null,
@@ -145,7 +143,7 @@ type ClientType {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FooQuery",
+    "name": "clientFragmentSpreadsInQuery_FooQuery",
     "operationKind": "query",
     "text": null
   }
@@ -153,17 +151,17 @@ type ClientType {
 
 QUERY:
 
-query FooQuery(
+query clientFragmentSpreadsInQuery_FooQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...Foo_user
+    ...clientFragmentSpreadsInQuery_Foo_user
     id
   }
 }
 
-fragment Foo_user on User {
+fragment clientFragmentSpreadsInQuery_Foo_user on User {
   id
 }
 
@@ -172,7 +170,7 @@ fragment Foo_user on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ClientTypeFragment",
+  "name": "clientFragmentSpreadsInQuery_ClientTypeFragment",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -195,7 +193,7 @@ fragment Foo_user on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientFragmentSpreadsInQuery_Foo_user",
   "selections": [
     {
       "alias": null,
@@ -218,7 +216,7 @@ fragment Foo_user on User {
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "ClientTypeFragment"
+              "name": "clientFragmentSpreadsInQuery_ClientTypeFragment"
             }
           ],
           "storageKey": null

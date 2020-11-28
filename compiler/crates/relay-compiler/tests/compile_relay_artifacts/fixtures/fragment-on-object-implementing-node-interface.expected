@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on User
+fragment fragmentOnObjectImplementingNodeInterface_RefetchableFragment on User
   @refetchable(queryName: "RefetchableFragmentQuery") {
   id
   name
-  ...ProfilePicture
+  ...fragmentOnObjectImplementingNodeInterface_ProfilePicture
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnObjectImplementingNodeInterface_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -18,14 +18,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "size"
       }
     ],
     "kind": "Fragment",
@@ -49,7 +47,7 @@ fragment ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableFragment"
+            "name": "fragmentOnObjectImplementingNodeInterface_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -64,14 +62,12 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
@@ -165,21 +161,21 @@ query RefetchableFragmentQuery(
 ) {
   node(id: $id) {
     __typename
-    ...RefetchableFragment
+    ...fragmentOnObjectImplementingNodeInterface_RefetchableFragment
     id
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnObjectImplementingNodeInterface_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment on User {
+fragment fragmentOnObjectImplementingNodeInterface_RefetchableFragment on User {
   id
   name
-  ...ProfilePicture
+  ...fragmentOnObjectImplementingNodeInterface_ProfilePicture
 }
 
 
@@ -187,13 +183,12 @@ fragment RefetchableFragment on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "fragmentOnObjectImplementingNodeInterface_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -225,7 +220,12 @@ fragment RefetchableFragment on User {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {
@@ -237,7 +237,7 @@ fragment RefetchableFragment on User {
       "identifierField": "id"
     }
   },
-  "name": "RefetchableFragment",
+  "name": "fragmentOnObjectImplementingNodeInterface_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -256,7 +256,7 @@ fragment RefetchableFragment on User {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "ProfilePicture"
+      "name": "fragmentOnObjectImplementingNodeInterface_ProfilePicture"
     }
   ],
   "type": "User",

@@ -13,7 +13,13 @@
 
 'use strict';
 
+const ProfilerContext = require('./ProfilerContext');
 const React = require('react');
+
+const useRelayEnvironment = require('./useRelayEnvironment');
+const warning = require('warning');
+
+const {useContext, useEffect} = require('react');
 
 import type {
   EntryPointComponent,
@@ -38,8 +44,30 @@ function EntryPointContainer<
   entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
   props: TRuntimeProps,
 |}>): React.MixedElement {
-  const {getComponent, queries, entryPoints, extraProps} = entryPointReference;
+  warning(
+    entryPointReference.isDisposed === false,
+    '<EntryPointContainer>: Expected entryPointReference to not be disposed ' +
+      'yet. This is because disposing the entrypoint marks it for future garbage ' +
+      'collection, and as such may no longer be present in the Relay store. ' +
+      'In the future, this will become a hard error.',
+  );
+  const {
+    getComponent,
+    queries,
+    entryPoints,
+    extraProps,
+    rootModuleID,
+  } = entryPointReference;
   const Component = getComponent();
+  const profilerContext = useContext(ProfilerContext);
+  const environment = useRelayEnvironment();
+  useEffect(() => {
+    environment.__log({
+      name: 'entrypoint.root.consume',
+      profilerContext,
+      rootModuleID,
+    });
+  }, [environment, profilerContext, rootModuleID]);
   return (
     <Component
       entryPoints={entryPoints}

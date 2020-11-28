@@ -22,8 +22,6 @@ fragment UserFragment on User
     first: {type: "Int", defaultValue: 5}
     size: {type: "[Int]"}
     storyType: {type: "StoryType", defaultValue: DIRECTED}
-    storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"}
-    storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
   ) {
   id
   __typename

@@ -5,52 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::FileKey;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
 use graphql_ir::{build, FragmentDefinition, Program};
-use graphql_syntax::parse;
-use graphql_transforms::{transform_connections, validate_connections, OSS_CONNECTION_INTERFACE};
+use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_codegen::{build_request_params, Printer};
-use test_schema::TEST_SCHEMA;
+use relay_test_schema::get_test_schema;
+use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
+use std::sync::Arc;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
-    let mut printer = Printer::default();
-    let file_key = FileKey::new(fixture.file_name);
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    let mut printer = Printer::with_dedupe();
+    let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    let mut sources = FnvHashMap::default();
-    sources.insert(FileKey::new(fixture.file_name), fixture.content);
+    let schema = get_test_schema();
 
-    let ast = parse(fixture.content, file_key).unwrap();
-    let ir_result = build(&TEST_SCHEMA, &ast.definitions);
-    let ir = match ir_result {
-        Ok(res) => res,
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    };
+    let ast = parse_executable(fixture.content, source_location).unwrap();
+    let ir = build(&schema, &ast.definitions)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let program = Program::from_definitions(&TEST_SCHEMA, ir);
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let validation_result = validate_connections(&program, &*OSS_CONNECTION_INTERFACE);
-    match validation_result {
-        Ok(_) => {}
-        Err(errors) => {
-            let mut errs = errors
-                .into_iter()
-                .map(|err| err.print(&sources))
-                .collect::<Vec<_>>();
-            errs.sort();
-            return Err(errs.join("\n\n"));
-        }
-    }
+    let connection_interface = ConnectionInterface::default();
 
-    let next_program = transform_connections(&program, &*OSS_CONNECTION_INTERFACE);
+    validate_connections(&program, &connection_interface)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
+    let next_program = transform_connections(&program, &connection_interface);
 
     let mut printed = next_program
         .operations()
@@ -64,16 +46,11 @@ pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
                 type_condition: def.type_,
             };
             let request_parameters = build_request_params(&def);
-            printer.print_request_deduped(
-                &TEST_SCHEMA,
-                def,
-                &operation_fragment,
-                request_parameters,
-            )
+            printer.print_request(&schema, def, &operation_fragment, request_parameters)
         })
         .collect::<Vec<_>>();
     for def in next_program.fragments() {
-        printed.push(printer.print_fragment_deduped(&TEST_SCHEMA, def));
+        printed.push(printer.print_fragment(&schema, def));
     }
     printed.sort();
     Ok(printed.join("\n\n"))

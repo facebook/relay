@@ -25,6 +25,16 @@
 .homeContainer .homeWrapper {
   padding: 10em 1em;
 }
+.homeBanner {
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  text-align: center;
+}
+.homeBanner a {
+  color: white;
+  text-decoration: underline;
+}
 .logo {
   position: absolute;
   opacity: 0.1;

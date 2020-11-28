@@ -8,6 +8,6 @@
 use extract_graphql::parse_chunks;
 use fixture_tests::Fixture;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     parse_chunks(fixture.content).map(|chunks| format!("{:#?}", chunks))
 }

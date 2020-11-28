@@ -47,9 +47,7 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(query.request.node, query.request.variables),
   ).toEqual(true);
 }
 
@@ -130,7 +128,7 @@ describe('useLazyLoadQueryNode', () => {
     });
     release = jest.fn();
     const originalRetain = environment.retain.bind(environment);
-    // $FlowFixMe
+    // $FlowFixMe[cannot-write]
     environment.retain = jest.fn((...args) => {
       const originalDisposable = originalRetain(...args);
       return {
@@ -442,9 +440,9 @@ describe('useLazyLoadQueryNode', () => {
     expect(release).toBeCalledTimes(2);
 
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   it('disposes ongoing network request when component unmounts after committing', () => {
@@ -477,9 +475,40 @@ describe('useLazyLoadQueryNode', () => {
     // Assert data is released
     expect(release).toBeCalledTimes(1);
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
+  });
+
+  it('cancels network request when temporarily retained component that never commits is disposed of after timeout', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    ReactTestRenderer.act(() => {
+      instance.unmount();
+    });
+    // Resolve a payload but don't complete the network request
+    environment.mock.nextValue(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    // Trigger releasing of the temporary retain
+    jest.runAllTimers();
+    // Assert data is released
+    expect(release).toBeCalledTimes(1);
+    // Assert request in flight is cancelled
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   describe('partial rendering', () => {
@@ -583,13 +612,25 @@ describe('useLazyLoadQueryNode', () => {
           transactionID: 100000,
         },
         {
+          name: 'network.start',
+          transactionID: 100001,
+        },
+        {
           name: 'queryresource.fetch',
           resourceID: 200000,
           profilerContext: expect.objectContaining({}),
         },
         {
+          name: 'network.next',
+          transactionID: 100001,
+        },
+        {
           name: 'execute.next',
           transactionID: 100000,
+        },
+        {
+          name: 'network.complete',
+          transactionID: 100001,
         },
         {
           name: 'execute.complete',
@@ -681,6 +722,11 @@ describe('useLazyLoadQueryNode', () => {
           variables: variablesOne,
         },
         {
+          name: 'network.start',
+          transactionID: 100001,
+          variables: variablesOne,
+        },
+        {
           // fetch event for variables one
           name: 'queryresource.fetch',
           resourceID: 200001,
@@ -695,7 +741,12 @@ describe('useLazyLoadQueryNode', () => {
         {
           // request for variables two starts
           name: 'execute.start',
-          transactionID: 100001,
+          transactionID: 100002,
+          variables: variablesTwo,
+        },
+        {
+          name: 'network.start',
+          transactionID: 100003,
           variables: variablesTwo,
         },
         {
@@ -713,8 +764,16 @@ describe('useLazyLoadQueryNode', () => {
         // fetch event for variables one is skipped
         // since it's already cached and reused
         {
+          name: 'network.next',
+          transactionID: 100001,
+        },
+        {
           name: 'execute.next',
           transactionID: 100000,
+        },
+        {
+          name: 'network.complete',
+          transactionID: 100001,
         },
         {
           name: 'execute.complete',

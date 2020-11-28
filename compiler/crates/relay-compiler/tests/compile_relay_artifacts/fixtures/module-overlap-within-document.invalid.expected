@@ -1,50 +1,58 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-query MultipleNameRendererQuery($id: ID!) {
+query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...FooNameRendererFragment
-    ...BarNameRendererFragment
+    ...moduleOverlapWithinDocument_FooNameRendererFragment
+    ...moduleOverlapWithinDocument_BarNameRendererFragment
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
   id
   nameRenderer {
-    ...MarkdownUserNameRenderer_name
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
       @module(name: "FooMarkdownUserNameRenderer.react")
-    ...PlainUserNameRenderer_name
+    ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
       @module(name: "FooPlainUserNameRenderer.react")
   }
 }
 
-fragment BarNameRendererFragment on User {
+fragment moduleOverlapWithinDocument_BarNameRendererFragment on User {
   # same field alias as above and using standalone @module, so this should
   # flatten with the above selections even though the supported types are
   # different
   nameRenderer {
-    ...MarkdownUserNameRenderer_name
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
       @module(name: "BarMarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment moduleOverlapWithinDocument_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
   }
 }
 ==================================== ERROR ====================================
-Found conflicting @module selections: use a unique alias on the parent fields:
-module-overlap-within-document.invalid.graphql:24:8:
-      @module(name: "BarMarkdownUserNameRenderer.react")
+✖︎ Found conflicting @module selections: use a unique alias on the parent fields
 
+  module-overlap-within-document.invalid.graphql:25:8
+   24 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+   25 │       @module(name: "BarMarkdownUserNameRenderer.react")
+      │        ^^^^^^
+   26 │   }
 
-module-overlap-within-document.invalid.graphql:12:8:
-      @module(name: "FooMarkdownUserNameRenderer.react")
+  ℹ︎ conflicts with
+
+  module-overlap-within-document.invalid.graphql:13:8
+   12 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+   13 │       @module(name: "FooMarkdownUserNameRenderer.react")
+      │        ^^^^^^
+   14 │     ...moduleOverlapWithinDocument_PlainUserNameRenderer_name

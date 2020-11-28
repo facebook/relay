@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+query EmptyQuery($id: ID!) {
+  node(id: $id) {
+    id @include(if: false)
+    ... on User @include(if: false) {
+      id
+    }
+    ...SkippedFragment
+    ...EmptyFragment
+  }
+}
+
+fragment SkippedFragment on User
+  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
+  id @include(if: $cond)
+}
+
+fragment EmptyFragment on User {
+  id @include(if: false)
+}
+
+query TestQuery {
+  viewer {
+    actor {
+      name
+      id @include(if: false)
+      ... on User @include(if: false) {
+        id
+      }
+      ...SkippedFragment
+      ...EmptyFragment
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query EmptyQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...SkippedFragment
+  }
+}
+
+query TestQuery {
+  viewer {
+    actor {
+      name
+      ...SkippedFragment
+    }
+  }
+}
+
+fragment SkippedFragment on User @argumentDefinitions(
+  cond: {type: "Boolean!", defaultValue: false}
+) {
+  id @include(if: $cond)
+}

@@ -6,30 +6,31 @@
  */
 
 use super::{artifact_content::ArtifactContent, Artifact, ProjectConfig};
-use common::FileKey;
+use common::SourceLocationKey;
 use graphql_ir::OperationDefinition;
 use interner::StringKey;
 use schema::Schema;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct GenerateExtraArtifactArgs<'schema, 'artifact> {
-    pub schema: &'schema Schema,
-    pub project_config: &'artifact ProjectConfig,
-    pub normalization_operation: &'artifact OperationDefinition,
-    pub name: StringKey,
-    pub source_file: FileKey,
-    pub text: &'artifact str,
     pub id: Option<&'artifact String>,
+    pub name: StringKey,
+    pub normalization_operation: Arc<OperationDefinition>,
+    pub project_config: &'artifact ProjectConfig,
+    pub schema: &'schema Schema,
+    pub source_file: SourceLocationKey,
+    pub text: &'artifact str,
 }
 
 pub type GenerateExtraArtifactsFn =
-    Box<dyn for<'schema> Fn(GenerateExtraArtifactArgs<'schema, '_>) -> Vec<Artifact<'static>>>;
+    Box<dyn for<'schema> Fn(GenerateExtraArtifactArgs<'schema, '_>) -> Vec<Artifact> + Send + Sync>;
 
 pub fn generate_extra_artifacts(
     schema: &Schema,
     project_config: &ProjectConfig,
-    artifacts: &mut Vec<Artifact<'_>>,
-    generate_extra_operation_artifacts: &GenerateExtraArtifactsFn,
+    artifacts: &mut Vec<Artifact>,
+    generate_extra_operation_artifacts_fn: &GenerateExtraArtifactsFn,
 ) {
     let mut extra_artifacts = Vec::new();
     for artifact in artifacts.iter() {
@@ -40,15 +41,17 @@ pub fn generate_extra_artifacts(
             ..
         } = &artifact.content
         {
-            extra_artifacts.extend(generate_extra_operation_artifacts(
+            extra_artifacts.extend(generate_extra_operation_artifacts_fn(
                 GenerateExtraArtifactArgs {
-                    schema,
+                    id: id_and_text_hash.as_ref().map(|(id, _)| id),
+                    /// NOTE: Currently only normalization files contain multiple source definition
+                    /// names, and we don't generate extra artifacts for normalization files.
+                    name: artifact.source_definition_names[0],
+                    normalization_operation: Arc::clone(normalization_operation),
                     project_config,
-                    normalization_operation,
-                    name: artifact.name,
+                    schema,
                     source_file: artifact.source_file,
                     text,
-                    id: id_and_text_hash.as_ref().map(|(id, _)| id),
                 },
             ));
         }

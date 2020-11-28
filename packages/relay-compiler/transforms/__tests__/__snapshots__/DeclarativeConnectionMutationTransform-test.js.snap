@@ -1,0 +1,279 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches expected output: append-edge.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    feedbackCommentEdge @appendEdge(connections: $connections) {
+      cursor
+      node {
+        id
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    feedbackCommentEdge @__clientField(handle: "appendEdge", handleArgs: (connections: $connections)) {
+      cursor
+      node {
+        id
+      }
+    }
+  }
+}
+
+`;
+
+exports[`matches expected output: append-edge-unspported.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    viewer @appendEdge(connections: $connections) {
+      __typename
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Unsupported use of @appendEdge on field 'viewer', expected an edge field (a field with 'cursor' and 'node' selection).
+
+Source: GraphQL request (7:12)
+6:   commentCreate(input: $input) {
+7:     viewer @appendEdge(connections: $connections) {
+              ^
+8:       __typename
+
+`;
+
+exports[`matches expected output: append-node.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment @__clientField(handle: "appendNode", handleArgs: (connections: $connections, edgeTypeName: $edgeTypeName)) {
+      id
+    }
+  }
+}
+
+`;
+
+exports[`matches expected output: append-node-edge-literal.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment @__clientField(handle: "appendNode", handleArgs: (connections: $connections, edgeTypeName: "CommentEdge")) {
+      id
+    }
+  }
+}
+
+`;
+
+exports[`matches expected output: append-node-unsupported.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    viewer {
+      __typename
+        @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @appendNode on scalar field '__typename'
+
+Source: GraphQL request (10:9)
+ 9:       __typename
+10:         @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
+            ^
+11:     }
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection-on-unspported-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    __typename @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @deleteEdge on field '__typename'. Expected field to return an ID or list of ID values, got String!.
+
+Source: GraphQL request (7:16)
+6:   commentDelete(input: $input) {
+7:     __typename @deleteEdge(connections: $connections)
+                  ^
+8:   }
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [ID!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [ID!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-from-store.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteRecord
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @__clientField(handle: "deleteRecord")
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-from-store-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation($input: CommentsDeleteInput) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteRecord
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @__clientField(handle: "deleteRecord")
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-on-unspported-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    __typename @deleteRecord
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @deleteRecord on field '__typename'. Expected field to return an ID or list of ID values, got String!.
+
+Source: GraphQL request (4:16)
+3:   commentDelete(input: $input) {
+4:     __typename @deleteRecord
+                  ^
+5:   }
+
+`;

@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -23,6 +24,7 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
 const {
   createMockEnvironment,
   generateAndCompile,
@@ -203,7 +205,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields', () => {
+  it('reads handle fields in fragment', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data = {
       '1': {
@@ -243,6 +245,378 @@ describe('check()', () => {
     );
     expect(status).toEqual({
       status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in fragment and checks missing', () => {
+    const data = {
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        // missing [handleKey] field
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const {Fragment} = generateAndCompile(`
+      fragment Fragment on User {
+        profilePicture(size: 32) @__clientField(handle: "test") {
+          uri
+        }
+      }
+    `);
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(Fragment, '1', {}),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in fragment and checks missing sub field', () => {
+    const handleKey = getRelayHandleKey('test', null, 'profilePicture');
+    const data = {
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        [handleKey]: {__ref: 'client:3'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        // uri field is missing
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    const {Fragment} = generateAndCompile(`
+      fragment Fragment on User {
+        profilePicture(size: 32) @__clientField(handle: "test") {
+          uri
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(Fragment, '1', {}),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in operation', () => {
+    const handleKey = getRelayHandleKey('test', null, 'profilePicture');
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        [handleKey]: {__ref: 'client:3'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // LinkedHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) @__clientField(handle: "test") {
+            uri
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in operation and checks missing', () => {
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        // missing [handleKey] field
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // LinkedHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) @__clientField(handle: "test") {
+            uri
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads handle fields in operation and checks missing sub field', () => {
+    const handleKey = getRelayHandleKey('test', null, 'profilePicture');
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+        [handleKey]: {__ref: 'client:3'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+      },
+      'client:3': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        // uri field is missing
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // LinkedHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) @__clientField(handle: "test") {
+            uri
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads scalar handle fields in operation and checks presence', () => {
+    const handleKey = getRelayHandleKey('test', null, 'uri');
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+        [handleKey]: 'https://...',
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // ScalarHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) {
+            uri @__clientField(handle: "test")
+          }
+        }
+      }
+    `);
+
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'available',
+      mostRecentlyInvalidatedAt: null,
+    });
+    expect(target.size()).toBe(0);
+  });
+
+  it('reads scalar handle fields in operation and checks missing', () => {
+    const data = {
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        'profilePicture(size:32)': {__ref: 'client:1'},
+      },
+      'client:1': {
+        __id: 'client:2',
+        __typename: 'Photo',
+        uri: 'https://...',
+        // [handleKey] field is missing
+      },
+    };
+    const source = RelayRecordSource.create(data);
+    const target = RelayRecordSource.create();
+    // ScalarHandle selectors are only generated for a the normalization
+    // code for a query
+    const {Query: ProfilePictureQuery} = generateAndCompile(`
+      query Query {
+        me {
+          profilePicture(size: 32) {
+            uri @__clientField(handle: "test")
+          }
+        }
+      }
+    `);
+    const status = check(
+      source,
+      target,
+      createNormalizationSelector(
+        ProfilePictureQuery.operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(status).toEqual({
+      status: 'missing',
       mostRecentlyInvalidatedAt: null,
     });
     expect(target.size()).toBe(0);
@@ -1341,8 +1715,11 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
-          updatedHometown: undefined,
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
+          updatedHometown: null,
         },
       ],
       [
@@ -1420,6 +1797,14 @@ describe('check()', () => {
         expect(target.toJSON()).toEqual(
           updatedHometown === undefined
             ? {}
+            : updatedHometown === null
+            ? {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  hometown: null,
+                },
+              }
             : {
                 user1: {
                   __id: 'user1',
@@ -1446,8 +1831,11 @@ describe('check()', () => {
         'null',
         {
           handleReturnValue: null,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
-          updatedScreennames: undefined,
+          expectedStatus: {
+            status: 'available',
+            mostRecentlyInvalidatedAt: null,
+          },
+          updatedScreennames: null,
         },
       ],
       [
@@ -1558,8 +1946,16 @@ describe('check()', () => {
         expect(handle).toBeCalledTimes(1);
         expect(status).toEqual(expectedStatus);
         expect(target.toJSON()).toEqual(
-          updatedScreennames == null
+          updatedScreennames === undefined
             ? {}
+            : updatedScreennames === null
+            ? {
+                user1: {
+                  __id: 'user1',
+                  __typename: 'User',
+                  screennames: null,
+                },
+              }
             : {
                 user1: {
                   __id: 'user1',
@@ -2098,8 +2494,6 @@ describe('check()', () => {
   });
 
   describe('with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
     });
@@ -2149,7 +2543,7 @@ describe('check()', () => {
       });
       expect(target.size()).toBe(0);
     });
-    it('returns `available` when an abstract refinement is only missing the discriminator field', () => {
+    it('returns `missing` when an abstract refinement is only missing the discriminator field', () => {
       const {TestFragment} = generateAndCompile(`
       fragment TestFragment on Query {
         maybeNodeInterface {
@@ -2186,7 +2580,7 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
+        status: 'missing',
         mostRecentlyInvalidatedAt: null,
       });
       expect(target.size()).toBe(0);
@@ -2204,6 +2598,7 @@ describe('check()', () => {
         }
       }
     `);
+      const typeID = generateTypeID('NonNodeNoID');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2213,9 +2608,13 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'NonNodeNoID',
-          __isNode: false,
           // no 'id' bc not a Node
           name: 'Not a Node!',
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          __isNode: false,
         },
       };
       const source = RelayRecordSource.create(data);
@@ -2230,6 +2629,291 @@ describe('check()', () => {
       );
       expect(status).toEqual({
         status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('with feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightQuery;
+    let InnerQuery;
+    let operationLoader;
+
+    const readRoot = () => {
+      return {
+        $$typeof: Symbol.for('react.element'),
+        type: 'div',
+        key: null,
+        ref: null,
+        props: {foo: 1},
+      };
+    };
+
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+
+      ({FlightQuery, InnerQuery} = generateAndCompile(
+        `
+        query FlightQuery($id: ID!, $count: Int!) {
+          node(id: $id) {
+            ... on Story {
+              flightComponent(condition: true, count: $count, id: $id)
+            }
+          }
+        }
+
+        query InnerQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              name
+            }
+          }
+        }
+
+        extend type Story {
+          flightComponent(
+            condition: Boolean!
+            count: Int!
+            id: ID!
+          ): ReactFlightComponent
+            @react_flight_component(name: "FlightComponent.server")
+        }
+        `,
+      ));
+      operationLoader = {
+        get: jest.fn(() => InnerQuery),
+        load: jest.fn(() => Promise.resolve(InnerQuery)),
+      };
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('returns available when the Flight field is fetched', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Lauren',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+          __id:
+            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          __typename: 'ReactFlightComponent',
+          queries: [
+            {
+              module: {
+                __dr: 'RelayFlightExampleQuery.graphql',
+              },
+              variables: {
+                id: '2',
+              },
+            },
+          ],
+          tree: {
+            readRoot,
+          },
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+          'node(id:"2")': {
+            __ref: '2',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the Flight field exists but has not been processed', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+          __id:
+            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          __typename: 'ReactFlightComponent',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the Flight field is null in the store', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the Flight field is undefined in the store', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('returns missing when the linked ReactFlightClientResponseRecord is missing', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        source,
+        target,
+        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        [],
+        operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
         mostRecentlyInvalidatedAt: null,
       });
       expect(target.size()).toBe(0);

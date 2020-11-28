@@ -1,0 +1,121 @@
+==================================== INPUT ====================================
+fragment TestFragment on Actor {
+  id @skip(if: $usedInDirective)
+}
+
+query TestQuery(
+  $unusedFirst: Boolean!
+  $unusedShared: Boolean!
+  $usedInDirective: Boolean!
+  $usedInCall: ID!
+  $usedInTestQuery2: Boolean!
+  $usedInNested: Float!
+) {
+  node(id: $usedInCall) {
+    ...TestFragment
+    ...NestedTwoLevels
+  }
+}
+
+query TestQuery2(
+  $unusedSecond: Boolean!
+  $unusedShared: Boolean!
+  $usedInDirective: Boolean!
+  $usedInCall: ID!
+  $usedInTestQuery2: Boolean!
+) {
+  node(id: 4) {
+    ... on Actor {
+      id @skip(if: $usedInTestQuery2)
+    }
+  }
+}
+
+fragment NestedOneLevel on User {
+  ...NestedTwoLevels
+}
+
+fragment NestedTwoLevels on User {
+  profile_picture(scale: $usedInNested) {
+    uri
+  }
+}
+
+query DeferQuery($RELAY_INCREMENTAL_DELIVERY: Boolean!) {
+  node(id: 4) {
+    id
+    ... on User @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "foo") {
+      name
+    }
+  }
+}
+
+query StreamQuerry($RELAY_INCREMENTAL_DELIVERY: Boolean!) {
+  node(id: 4) {
+    id
+    ... on Feedback {
+      actors @stream(if: $RELAY_INCREMENTAL_DELIVERY, label: "foo", initial_count: 3) {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query DeferQuery(
+  $RELAY_INCREMENTAL_DELIVERY: Boolean!
+) {
+  node(id: 4) {
+    id
+    ... on User @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "foo") {
+      name
+    }
+  }
+}
+
+query StreamQuerry(
+  $RELAY_INCREMENTAL_DELIVERY: Boolean!
+) {
+  node(id: 4) {
+    id
+    ... on Feedback {
+      actors @stream(if: $RELAY_INCREMENTAL_DELIVERY, label: "foo", initial_count: 3) {
+        name
+      }
+    }
+  }
+}
+
+query TestQuery(
+  $usedInDirective: Boolean!
+  $usedInCall: ID!
+  $usedInNested: Float!
+) {
+  node(id: $usedInCall) {
+    ...TestFragment
+    ...NestedTwoLevels
+  }
+}
+
+query TestQuery2(
+  $usedInTestQuery2: Boolean!
+) {
+  node(id: 4) {
+    ... on Actor {
+      id @skip(if: $usedInTestQuery2)
+    }
+  }
+}
+
+fragment NestedOneLevel on User {
+  ...NestedTwoLevels
+}
+
+fragment NestedTwoLevels on User {
+  profile_picture(scale: $usedInNested) {
+    uri
+  }
+}
+
+fragment TestFragment on Actor {
+  id @skip(if: $usedInDirective)
+}

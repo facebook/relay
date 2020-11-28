@@ -1,0 +1,16 @@
+# expected-to-throw
+fragment missingArgumentOnLinkedFieldSomeComment on Comment {
+  commentBody {
+    ... on PlainCommentBody {
+      text {
+        text
+      }
+    }
+  }
+}
+
+query missingArgumentOnLinkedFieldViewerQuery {
+  node {
+    ...missingArgumentOnLinkedFieldSomeComment
+  }
+}

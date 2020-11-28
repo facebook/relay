@@ -1,14 +1,11 @@
-# %TODO%
-
 # expected-to-throw
-
-fragment ParentFragment on Query {
+fragment inlineDataFragmentGlobalVarsFragment on Query {
   me {
-    ...Profile
+    ...inlineDataFragmentGlobalVarsProfile
   }
 }
 
-fragment Profile on User @inline {
+fragment inlineDataFragmentGlobalVarsProfile on User @inline {
   profilePicture(size: $pictureSize) {
     uri
   }

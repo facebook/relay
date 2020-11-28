@@ -51,7 +51,7 @@ function buildFragmentSpread(fragment: Fragment): FragmentSpread {
 function buildOperationArgumentDefinitions(
   argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
 ): $ReadOnlyArray<LocalArgumentDefinition> {
-  return argumentDefinitions.map(argDef => {
+  const localArgumentDefinitions = argumentDefinitions.map(argDef => {
     if (argDef.kind === 'LocalArgumentDefinition') {
       return argDef;
     } else {
@@ -64,6 +64,10 @@ function buildOperationArgumentDefinitions(
       };
     }
   });
+  localArgumentDefinitions.sort((a, b) => {
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+  });
+  return localArgumentDefinitions;
 }
 
 module.exports = {

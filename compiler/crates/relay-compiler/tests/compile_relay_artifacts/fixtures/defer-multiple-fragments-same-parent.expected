@@ -1,13 +1,13 @@
 ==================================== INPUT ====================================
-query QueryWithMultipeDeferredFragmentsOnSameParent($id: ID!) {
+query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery($id: ID!) {
   feedback: node(id: $id) {
     id
-    ...FeedbackComments_feedback @defer
-    ...FeedbackText_feedback @defer
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer
   }
 }
 
-fragment FeedbackComments_feedback on Feedback {
+fragment deferMultipleFragmentsSameParent_FeedbackComments_feedback on Feedback {
   comments(first: 10) {
     edges {
       node {
@@ -20,7 +20,7 @@ fragment FeedbackComments_feedback on Feedback {
   }
 }
 
-fragment FeedbackText_feedback on Feedback {
+fragment deferMultipleFragmentsSameParent_FeedbackText_feedback on Feedback {
   body {
     text
   }
@@ -32,13 +32,12 @@ fragment FeedbackText_feedback on Feedback {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
+    "name": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery",
     "selections": [
       {
         "alias": "feedback",
@@ -67,7 +66,7 @@ fragment FeedbackText_feedback on Feedback {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "FeedbackComments_feedback"
+                "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback"
               }
             ]
           },
@@ -77,7 +76,7 @@ fragment FeedbackText_feedback on Feedback {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "FeedbackText_feedback"
+                "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback"
               }
             ]
           }
@@ -94,12 +93,11 @@ fragment FeedbackText_feedback on Feedback {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
+    "name": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery",
     "selections": [
       {
         "alias": "feedback",
@@ -132,7 +130,7 @@ fragment FeedbackText_feedback on Feedback {
           {
             "if": null,
             "kind": "Defer",
-            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback",
+            "label": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackComments_feedback",
             "selections": [
               {
                 "kind": "InlineFragment",
@@ -210,7 +208,7 @@ fragment FeedbackText_feedback on Feedback {
           {
             "if": null,
             "kind": "Defer",
-            "label": "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback",
+            "label": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackText_feedback",
             "selections": [
               {
                 "kind": "InlineFragment",
@@ -247,7 +245,7 @@ fragment FeedbackText_feedback on Feedback {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithMultipeDeferredFragmentsOnSameParent",
+    "name": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery",
     "operationKind": "query",
     "text": null
   }
@@ -255,18 +253,18 @@ fragment FeedbackText_feedback on Feedback {
 
 QUERY:
 
-query QueryWithMultipeDeferredFragmentsOnSameParent(
+query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery(
   $id: ID!
 ) {
   feedback: node(id: $id) {
     __typename
     id
-    ...FeedbackComments_feedback @defer(label: "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackComments_feedback")
-    ...FeedbackText_feedback @defer(label: "QueryWithMultipeDeferredFragmentsOnSameParent$defer$FeedbackText_feedback")
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer(label: "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackComments_feedback")
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer(label: "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackText_feedback")
   }
 }
 
-fragment FeedbackComments_feedback on Feedback {
+fragment deferMultipleFragmentsSameParent_FeedbackComments_feedback on Feedback {
   comments(first: 10) {
     edges {
       node {
@@ -279,7 +277,7 @@ fragment FeedbackComments_feedback on Feedback {
   }
 }
 
-fragment FeedbackText_feedback on Feedback {
+fragment deferMultipleFragmentsSameParent_FeedbackText_feedback on Feedback {
   body {
     text
   }
@@ -290,7 +288,7 @@ fragment FeedbackText_feedback on Feedback {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "FeedbackComments_feedback",
+  "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback",
   "selections": [
     {
       "alias": null,
@@ -365,7 +363,7 @@ fragment FeedbackText_feedback on Feedback {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "FeedbackText_feedback",
+  "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback",
   "selections": [
     {
       "alias": null,

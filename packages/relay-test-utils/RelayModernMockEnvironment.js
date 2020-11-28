@@ -28,19 +28,14 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-import type {HandlerProvider} from 'relay-runtime/handlers/RelayDefaultHandlerProvider';
 import type {Sink} from 'relay-runtime/network/RelayObservable';
-import type {MissingFieldHandler} from 'relay-runtime/store/RelayStoreTypes';
 import type {
   CacheConfig,
   ConcreteRequest,
   GraphQLSingularResponse,
   GraphQLTaggedNode,
   IEnvironment,
-  LogFunction,
   OperationDescriptor,
-  OperationLoader,
-  OperationTracker,
   RequestParameters,
   Variables,
   EnvironmentConfig,
@@ -435,7 +430,7 @@ function createMockEnvironment(
     return pendingOperation;
   };
 
-  // $FlowExpectedError
+  // $FlowExpectedError[prop-missing]
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
     network: Network.create(execute, execute),
@@ -447,6 +442,7 @@ function createMockEnvironment(
     env: IEnvironment,
     fn:
       | $PropertyType<IEnvironment, 'execute'>
+      | $PropertyType<IEnvironment, 'executeWithSource'>
       | $PropertyType<IEnvironment, 'executeMutation'>,
   ) => {
     return (...argumentsList) => {
@@ -456,9 +452,14 @@ function createMockEnvironment(
     };
   };
 
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.execute = createExecuteProxy(environment, environment.execute);
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
+  environment.executeWithSource = createExecuteProxy(
+    environment,
+    environment.executeWithSource,
+  );
+  // $FlowExpectedError[cannot-write]
   environment.executeMutation = createExecuteProxy(
     environment,
     environment.executeMutation,
@@ -474,6 +475,7 @@ function createMockEnvironment(
     mockDisposableMethod(environment, 'subscribe');
     mockDisposableMethod(environment, 'retain');
     mockObservableMethod(environment, 'execute');
+    mockObservableMethod(environment, 'executeWithSource');
     mockObservableMethod(environment, 'executeMutation');
 
     mockInstanceMethod(store, 'getSource');
@@ -511,10 +513,10 @@ function createMockEnvironment(
     queueOperationResolver,
   };
 
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.mock = mock;
 
-  // $FlowExpectedError
+  // $FlowExpectedError[cannot-write]
   environment.mockClear = () => {
     environment.applyUpdate.mockClear();
     environment.commitPayload.mockClear();

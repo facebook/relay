@@ -1,19 +1,22 @@
-# %TODO%
-
 # expected-to-throw
-query FeedbackQuery($id: ID!) {
+query connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery($id: ID!) {
   node(id: $id) {
-    ...FeedbackFragment
+    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
   }
 }
 
-query PaginationQuery($id: ID!, $count: Int!, $cursor: ID!) {
+query connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery(
+  $id: ID!
+  $count: Int!
+  $cursor: ID!
+) {
   node(id: $id) {
-    ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+      @arguments(count: $count, cursor: $cursor)
   }
 }
 
-fragment FeedbackFragment on Feedback
+fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Feedback
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 2}
     cursor: {type: "ID"}

@@ -10,27 +10,84 @@
 #![deny(clippy::all)]
 #![allow(clippy::large_enum_variant)]
 
-mod char_constants;
 mod lexer;
-mod lexer_position;
+mod node;
 mod parser;
 mod source;
 mod syntax_error;
-mod syntax_node;
-mod token_kind;
+mod utils;
+
+pub use lexer::TokenKind;
+pub use node::*;
+pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
-pub use syntax_error::{SyntaxError, SyntaxErrorKind, SyntaxErrorWithSource};
-pub use syntax_node::*;
+pub use syntax_error::SyntaxError;
+pub use utils::*;
 
 use crate::parser::Parser;
-use common::FileKey;
+use common::{DiagnosticsResult, SourceLocationKey};
 
-pub fn parse(source: &str, file: FileKey) -> SyntaxResult<Document> {
-    let parser = Parser::new(source, file);
+/// Parses a GraphQL document that might contain type system and executable
+/// definitions.
+pub fn parse_document(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<Document> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
     parser.parse_document()
 }
 
-pub fn parse_type(source: &str, file: FileKey) -> SyntaxResult<TypeAnnotation> {
-    let parser = Parser::new(source, file);
+/// Parses a GraphQL document that might contain type system and executable
+/// definitions with custom feature flags passed as `features`.
+pub fn parse_document_with_features(
+    source: &str,
+    source_location: SourceLocationKey,
+    features: ParserFeatures,
+) -> DiagnosticsResult<Document> {
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_document()
+}
+
+/// Parses a GraphQL document that's restricted to executable executable
+/// definitions.
+pub fn parse_executable(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<ExecutableDocument> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document()
+}
+
+/// Parses a GraphQL document that's restricted to executable executable
+/// definitions with custom feature flags passed as `features`.
+pub fn parse_executable_with_features(
+    source: &str,
+    source_location: SourceLocationKey,
+    features: ParserFeatures,
+) -> DiagnosticsResult<ExecutableDocument> {
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document()
+}
+
+/// Parses a GraphQL document that's restricted to type system definitions
+/// including schema definition, type definitions and type system extensions.
+pub fn parse_schema_document(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<SchemaDocument> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_schema_document()
+}
+
+/// Parses a GraphQL type, such as `ID` or `[User!]!`.
+pub fn parse_type(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<TypeAnnotation> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
     parser.parse_type()
 }

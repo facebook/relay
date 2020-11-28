@@ -199,7 +199,6 @@ describe('usePaginationFragment', () => {
           ) @stream_connection(
               initial_count: 1
               key: "UserFragment_friends",
-              label: "friends"
               filters: ["orderby", "isViewerFriend"]
             ) {
             edges {
@@ -342,7 +341,9 @@ describe('usePaginationFragment', () => {
       gqlQueryWithStreaming,
       variables,
     );
-    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables);
+    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
+      force: true,
+    });
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -496,7 +497,7 @@ describe('usePaginationFragment', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });
@@ -734,22 +735,10 @@ describe('usePaginationFragment', () => {
   });
 
   describe('pagination', () => {
-    let runScheduledCallback = () => {};
     let release;
 
     beforeEach(() => {
       jest.resetModules();
-      jest.doMock('scheduler', () => {
-        const original = jest.requireActual('scheduler/unstable_mock');
-        return {
-          ...original,
-          unstable_next: cb => {
-            runScheduledCallback = () => {
-              original.unstable_next(cb);
-            };
-          },
-        };
-      });
 
       release = jest.fn();
       environment.retain.mockImplementation((...args) => {
@@ -757,10 +746,6 @@ describe('usePaginationFragment', () => {
           dispose: release,
         };
       });
-    });
-
-    afterEach(() => {
-      jest.dontMock('scheduler');
     });
 
     function expectRequestIsInFlight(expected) {
@@ -826,8 +811,9 @@ describe('usePaginationFragment', () => {
           },
         ]);
 
-        renderer.unmount();
-
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
         TestRenderer.act(() => {
           loadNext(1);
         });
@@ -883,6 +869,8 @@ describe('usePaginationFragment', () => {
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+        expect(callback).toBeCalledTimes(0);
+
         const paginationVariables = {
           id: '1',
           after: 'cursor:1',
@@ -905,7 +893,7 @@ describe('usePaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         expect(environment.execute).toBeCalledTimes(1);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 
@@ -936,7 +924,7 @@ describe('usePaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         expect(environment.execute).toBeCalledTimes(0);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 
@@ -2492,7 +2480,9 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          renderer.unmount();
+          TestRenderer.act(() => {
+            renderer.unmount();
+          });
 
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);
@@ -2542,7 +2532,7 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-use]
           disposable.dispose();
 
           // Assert request was canceled
@@ -2673,7 +2663,8 @@ describe('usePaginationFragment', () => {
                   hasNextPage: true,
                 },
               },
-              label: 'UserFragmentWithStreaming$defer$friends$pageInfo',
+              label:
+                'UserFragmentWithStreaming$defer$UserFragment_friends$pageInfo',
               path: ['node', 'friends'],
               extensions: {
                 is_final: true,
@@ -3398,6 +3389,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3515,6 +3507,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3694,6 +3687,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3811,6 +3805,7 @@ describe('usePaginationFragment', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,

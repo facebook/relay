@@ -1,0 +1,16 @@
+query MyStory($id: ID!) {
+  node(id: $id) {
+    ... on Story {
+      flightComponent(condition: true, count: 10, id: $id)
+    }
+  }
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}

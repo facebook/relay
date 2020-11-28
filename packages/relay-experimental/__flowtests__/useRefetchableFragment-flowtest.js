@@ -13,8 +13,7 @@
 
 'use strict';
 
-const useRefetchableFragment = require('../useRefetchableFragment');
-
+import useRefetchableFragment from '../useRefetchableFragment';
 import {
   fragmentInput,
   keyAnotherNonNullable,

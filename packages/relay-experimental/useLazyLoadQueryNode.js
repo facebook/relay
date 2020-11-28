@@ -26,7 +26,6 @@ const {
 } = require('relay-runtime');
 
 import type {
-  CacheConfig,
   FetchPolicy,
   GraphQLResponse,
   Observable,
@@ -40,10 +39,9 @@ const {useContext, useEffect, useState, useRef} = React;
 function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   query: OperationDescriptor,
   componentDisplayName: string,
-  fetchObservable?: Observable<GraphQLResponse>,
+  fetchObservable?: ?Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
-  networkCacheConfig?: CacheConfig,
   renderPolicy?: ?RenderPolicy,
 |}): $ElementType<TQuery, 'response'> {
   const environment = useRelayEnvironment();
@@ -58,10 +56,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
     renderPolicy,
   } = args;
   const fetchObservable =
-    args.fetchObservable ??
-    fetchQuery(environment, query, {
-      networkCacheConfig: args.networkCacheConfig ?? {force: true},
-    });
+    args.fetchObservable ?? fetchQuery(environment, query);
   const {startFetch, completeFetch} = useFetchTrackingRef();
 
   const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {
@@ -95,8 +90,8 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
     if (__DEV__) {
       if (_maybeFastRefresh && _maybeFastRefresh.current) {
         /**
-         * This block only runs during fast refresh, the current resource and
-         * it's cache is disposed in the previous cleanup. Stop retaining and
+         * This block only runs during fast refresh, as the current resource and
+         * its cache are disposed in the previous cleanup. Stop retaining and
          * force a re-render to restart fetchObservable and retain correctly.
          */
         _maybeFastRefresh.current = false;

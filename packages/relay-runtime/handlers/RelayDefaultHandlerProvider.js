@@ -13,6 +13,7 @@
 'use strict';
 
 const ConnectionHandler = require('./connection/ConnectionHandler');
+const MutationHandlers = require('./connection/MutationHandlers');
 
 const invariant = require('invariant');
 
@@ -23,6 +24,18 @@ function RelayDefaultHandlerProvider(handle: string): Handler {
   switch (handle) {
     case 'connection':
       return ConnectionHandler;
+    case 'deleteRecord':
+      return MutationHandlers.DeleteRecordHandler;
+    case 'deleteEdge':
+      return MutationHandlers.DeleteEdgeHandler;
+    case 'appendEdge':
+      return MutationHandlers.AppendEdgeHandler;
+    case 'prependEdge':
+      return MutationHandlers.PrependEdgeHandler;
+    case 'appendNode':
+      return MutationHandlers.AppendNodeHandler;
+    case 'prependNode':
+      return MutationHandlers.PrependNodeHandler;
   }
   invariant(
     false,

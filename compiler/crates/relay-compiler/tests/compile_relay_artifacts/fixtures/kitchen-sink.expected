@@ -1,15 +1,15 @@
 ==================================== INPUT ====================================
-query NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
+query kitchenSink_NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
   node(id: $id) {
     id
     ... on User @include(if: $cond) {
       name
     }
-    ...UserFragment @include(if: $cond) @arguments(size: $PictureSize)
+    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize)
   }
 }
 
-fragment UserFragment on User
+fragment kitchenSink_UserFragment on User
   @argumentDefinitions(
     after: {type: "ID"}
     cond: {type: "Boolean!", defaultValue: false}
@@ -43,25 +43,22 @@ fragment UserFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "PictureSize"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "cond"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "PictureSize",
-        "type": "[Int]!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NodeQuery",
+    "name": "kitchenSink_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -112,7 +109,7 @@ fragment UserFragment on User
                   }
                 ],
                 "kind": "FragmentSpread",
-                "name": "UserFragment"
+                "name": "kitchenSink_UserFragment"
               }
             ]
           }
@@ -129,24 +126,21 @@ fragment UserFragment on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "cond"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "PictureSize",
-        "type": "[Int]!"
+        "name": "PictureSize"
       }
     ],
     "kind": "Operation",
-    "name": "NodeQuery",
+    "name": "kitchenSink_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -329,7 +323,7 @@ fragment UserFragment on User
   "params": {
     "id": null,
     "metadata": {},
-    "name": "NodeQuery",
+    "name": "kitchenSink_NodeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -337,7 +331,7 @@ fragment UserFragment on User
 
 QUERY:
 
-query NodeQuery(
+query kitchenSink_NodeQuery(
   $id: ID!
   $cond: Boolean!
   $PictureSize: [Int]!
@@ -347,14 +341,15 @@ query NodeQuery(
     id
     ... on User @include(if: $cond) {
       name
-    }...UserFragment_3M2EvT @include(if: $cond)
+    }
+    ...kitchenSink_UserFragment_3M2EvT @include(if: $cond)
   }
 }
 
-fragment UserFragment_3M2EvT on User {
+fragment kitchenSink_UserFragment_3M2EvT on User {
   id
   __typename
-  friends(after: null, first: 5) {
+  friends(first: 5) {
     count
   }
   thumbnail: profilePicture(size: 32) {
@@ -376,38 +371,33 @@ fragment UserFragment_3M2EvT on User {
 {
   "argumentDefinitions": [
     {
+      "kind": "RootArgument",
+      "name": "PictureSize"
+    },
+    {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "after",
-      "type": "ID"
+      "name": "after"
     },
     {
       "defaultValue": false,
       "kind": "LocalArgument",
-      "name": "cond",
-      "type": "Boolean!"
+      "name": "cond"
     },
     {
       "defaultValue": 5,
       "kind": "LocalArgument",
-      "name": "first",
-      "type": "Int"
+      "name": "first"
     },
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "size",
-      "type": "[Int]"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "PictureSize",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserFragment",
+  "name": "kitchenSink_UserFragment",
   "selections": [
     {
       "alias": null,
@@ -451,20 +441,6 @@ fragment UserFragment_3M2EvT on User {
         }
       ],
       "storageKey": null
-    },
-    {
-      "condition": "cond",
-      "kind": "Condition",
-      "passingValue": true,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        }
-      ]
     },
     {
       "alias": "thumbnail",
@@ -565,6 +541,20 @@ fragment UserFragment_3M2EvT on User {
         }
       ],
       "storageKey": null
+    },
+    {
+      "condition": "cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
     }
   ],
   "type": "User",

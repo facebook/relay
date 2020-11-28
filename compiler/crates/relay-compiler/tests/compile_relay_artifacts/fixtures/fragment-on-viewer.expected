@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
-fragment RefetchableFragment on Viewer
+fragment fragmentOnViewer_RefetchableFragment on Viewer
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     id
     name
-    ...ProfilePicture
+    ...fragmentOnViewer_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnViewer_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -20,8 +20,7 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       }
     ],
     "kind": "Fragment",
@@ -39,7 +38,7 @@ fragment ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RefetchableFragment"
+            "name": "fragmentOnViewer_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -54,8 +53,7 @@ fragment ProfilePicture on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "size",
-        "type": "[Int]"
+        "name": "size"
       }
     ],
     "kind": "Operation",
@@ -152,22 +150,22 @@ query RefetchableFragmentQuery(
   $size: [Int]
 ) {
   viewer {
-    ...RefetchableFragment
+    ...fragmentOnViewer_RefetchableFragment
   }
 }
 
-fragment ProfilePicture on User {
+fragment fragmentOnViewer_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment RefetchableFragment on Viewer {
+fragment fragmentOnViewer_RefetchableFragment on Viewer {
   actor {
     __typename
     id
     name
-    ...ProfilePicture
+    ...fragmentOnViewer_ProfilePicture
   }
 }
 
@@ -176,13 +174,12 @@ fragment RefetchableFragment on Viewer {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "size",
-      "type": "[Int]"
+      "name": "size"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfilePicture",
+  "name": "fragmentOnViewer_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -214,7 +211,12 @@ fragment RefetchableFragment on Viewer {
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "refetch": {
@@ -225,7 +227,7 @@ fragment RefetchableFragment on Viewer {
       "operation": require('RefetchableFragmentQuery.graphql')
     }
   },
-  "name": "RefetchableFragment",
+  "name": "fragmentOnViewer_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -252,7 +254,7 @@ fragment RefetchableFragment on Viewer {
         {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "ProfilePicture"
+          "name": "fragmentOnViewer_ProfilePicture"
         }
       ],
       "storageKey": null

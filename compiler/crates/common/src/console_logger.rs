@@ -7,7 +7,7 @@
 
 use super::perf_logger::{PerfLogEvent, PerfLogger};
 use colored::*;
-use log::info;
+use log::debug;
 use std::time::Instant;
 
 pub struct ConsoleLogEvent;
@@ -17,17 +17,17 @@ pub struct ConsoleLogger;
 impl PerfLogEvent for ConsoleLogEvent {
     type Timer = (String, Instant);
     fn number(&self, name: impl Copy + Into<String>, number: usize) {
-        info!("{}: {}", name.into(), number);
+        debug!("{}: {}", name.into(), number);
     }
     fn string(&self, name: impl Copy + Into<String>, value: String) {
-        info!("{}: {}", name.into(), value);
+        debug!("{}: {}", name.into(), value);
     }
     fn start(&self, name: impl Copy + Into<String>) -> Self::Timer {
         (name.into(), Instant::now())
     }
     fn stop(&self, timer: Self::Timer) {
         let (name, time) = timer;
-        print_time(&name, &time);
+        print_time(&name, time);
     }
 }
 
@@ -40,7 +40,7 @@ impl PerfLogger for ConsoleLogger {
     fn flush(&self) {}
 }
 
-pub fn print_time(name: &str, time: &Instant) {
+pub fn print_time(name: &str, time: Instant) {
     let elapsed_ms = time.elapsed().as_millis();
     let elapsed_str = format!("{:4}ms", elapsed_ms);
     let elapsed_color = if elapsed_ms < 10 {
@@ -52,5 +52,5 @@ pub fn print_time(name: &str, time: &Instant) {
     } else {
         elapsed_str.red()
     };
-    info!("{} {}", elapsed_color, name.dimmed());
+    debug!("{} {}", elapsed_color, name.dimmed());
 }

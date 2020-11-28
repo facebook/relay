@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query ScalarHandleField($id: ID!) {
+query scalarHandleField_ScalarHandleFieldQuery($id: ID!) {
   node(id: $id) {
     ... on User {
       name @__clientField(handle: "clientName")
@@ -13,13 +13,12 @@ query ScalarHandleField($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ScalarHandleField",
+    "name": "scalarHandleField_ScalarHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -42,7 +41,7 @@ query ScalarHandleField($id: ID!) {
                 "alias": "name",
                 "args": null,
                 "kind": "ScalarField",
-                "name": "___clientName",
+                "name": "__name_clientName",
                 "storageKey": null
               }
             ],
@@ -62,12 +61,11 @@ query ScalarHandleField($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "ScalarHandleField",
+    "name": "scalarHandleField_ScalarHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -88,6 +86,13 @@ query ScalarHandleField($id: ID!) {
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
@@ -112,13 +117,6 @@ query ScalarHandleField($id: ID!) {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -128,7 +126,7 @@ query ScalarHandleField($id: ID!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "ScalarHandleField",
+    "name": "scalarHandleField_ScalarHandleFieldQuery",
     "operationKind": "query",
     "text": null
   }
@@ -136,7 +134,7 @@ query ScalarHandleField($id: ID!) {
 
 QUERY:
 
-query ScalarHandleField(
+query scalarHandleField_ScalarHandleFieldQuery(
   $id: ID!
 ) {
   node(id: $id) {

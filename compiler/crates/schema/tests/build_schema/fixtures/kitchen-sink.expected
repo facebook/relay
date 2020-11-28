@@ -41,14 +41,14 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 Schema {
-query_type: Some(
+ query_type: Some(
     ObjectID(
         0,
     ),
 )
-mutation_type: None
-subscription_type: None
-directives: [
+ mutation_type: None
+ subscription_type: None
+ directives: [
     Directive {
         name: "include",
         arguments: [
@@ -67,6 +67,7 @@ directives: [
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -87,10 +88,11 @@ directives: [
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
 ]
-type_map: {
+ type_map: {
     "Actor": Union(0),
     "Boolean": Scalar(3),
     "ClientType": Object(3),
@@ -104,7 +106,7 @@ type_map: {
     "String": Scalar(2),
     "User": Object(1),
 }
-enums: [
+ enums: [
     Enum {
         name: "PageType",
         is_extension: false,
@@ -118,7 +120,13 @@ enums: [
                             ArgumentValue {
                                 name: "reason",
                                 value: String(
-                                    "No longer supported",
+                                    StringNode {
+                                        token: Token {
+                                            span: 268:289,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "No longer supported",
+                                    },
                                 ),
                             },
                         ],
@@ -137,7 +145,7 @@ enums: [
         directives: [],
     },
 ]
-fields: [
+ fields: [
     Field {
         name: "node",
         is_extension: false,
@@ -156,6 +164,9 @@ fields: [
             Interface(0),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "nodes",
@@ -185,6 +196,9 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "id",
@@ -196,6 +210,9 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
     },
     Field {
         name: "id",
@@ -207,6 +224,9 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "name",
@@ -216,6 +236,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "id",
@@ -225,6 +248,9 @@ fields: [
             Scalar(4),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "type",
@@ -234,6 +260,9 @@ fields: [
             Enum(0),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "clientName",
@@ -243,6 +272,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "nickname",
@@ -252,6 +284,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "client",
@@ -261,6 +296,9 @@ fields: [
             Object(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "__typename",
@@ -272,6 +310,19 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__token",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
     },
     Field {
         name: "__id",
@@ -283,14 +334,15 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: None,
     },
 ]
-input_objects: []
-interfaces: [
+ input_objects: []
+ interfaces: [
     Interface {
         name: "Node",
         is_extension: false,
-        implementors: [
+        implementing_objects: [
             ObjectID(
                 1,
             ),
@@ -301,9 +353,10 @@ interfaces: [
             ),
         ],
         directives: [],
+        interfaces: [],
     },
 ]
-objects: [
+ objects: [
     Object {
         name: "Query",
         is_extension: false,
@@ -368,7 +421,7 @@ objects: [
         directives: [],
     },
 ]
-scalars: [
+ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -395,7 +448,7 @@ scalars: [
         directives: [],
     },
 ]
-unions: [
+ unions: [
     Union {
         name: "Actor",
         is_extension: false,
@@ -410,4 +463,4 @@ unions: [
         directives: [],
     },
 ]
-}
+ }

@@ -27,7 +27,6 @@ function getPaginationMetadata(
   componentDisplayName: string,
 ): {|
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
   identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
@@ -35,7 +34,6 @@ function getPaginationMetadata(
 |} {
   const {
     refetchableRequest: paginationRequest,
-    fragmentRefPathInResponse,
     refetchMetadata,
   } = getRefetchMetadata(fragmentNode, componentDisplayName);
 
@@ -66,7 +64,6 @@ function getPaginationMetadata(
   );
   return {
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
     identifierField,
     paginationRequest,
     paginationMetadata,

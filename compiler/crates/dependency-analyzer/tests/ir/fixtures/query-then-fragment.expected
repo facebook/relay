@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# Q2, F1, F2
+query Q1 {
+  me {
+    ...F1
+  }
+}
+query Q2 {
+  me {
+    ...F1
+    ...F2
+  }
+}
+query Q3 {
+  me {
+    ...F2
+  }
+}
+query Q4 {
+  me {
+    ...F2
+  }
+}
+fragment F1 on User {
+  name
+}
+fragment F2 on User {
+  __typename
+}
+==================================== OUTPUT ===================================
+Fragment: F1
+
+Fragment: F2
+
+Operation: Q1
+
+Operation: Q2
+
+Operation: Q3
+
+Operation: Q4

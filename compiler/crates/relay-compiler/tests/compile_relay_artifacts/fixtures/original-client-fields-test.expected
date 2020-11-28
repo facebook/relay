@@ -1,21 +1,21 @@
 ==================================== INPUT ====================================
-query BestFriendsQuery($id: ID!) {
+query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
   node(id: $id) {
-    ...BestFriends
-    ...OnlyClientFields
+    ...originalClientFieldsTest_BestFriends
+    ...originalClientFieldsTest_OnlyClientFields
   }
 }
 
 # This fragment disappears because all selections are removed
-fragment OnlyClientFields on User {
+fragment originalClientFieldsTest_OnlyClientFields on User {
   best_friends {
     __typename
   }
 }
 
-fragment BestFriends on User {
+fragment originalClientFieldsTest_BestFriends on User {
   # this is the only field that is part of the base schema
-  ...NodeFragment
+  ...originalClientFieldsTest_NodeFragment
   # fields defined in type extensions are skipped
   best_friends {
     edges {
@@ -30,18 +30,18 @@ fragment BestFriends on User {
   }
   ... on Named {
     # fragments on extension types are skipped
-    ...FooFragment
+    ...originalClientFieldsTest_FooFragment
     ... on Foo {
       name
     }
   }
 }
 
-fragment NodeFragment on Node {
+fragment originalClientFieldsTest_NodeFragment on Node {
   id
 }
 
-fragment FooFragment on Foo {
+fragment originalClientFieldsTest_FooFragment on Foo {
   name
 }
 
@@ -61,13 +61,12 @@ type Foo implements Named {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "BestFriendsQuery",
+    "name": "originalClientFieldsTest_BestFriendsQuery",
     "selections": [
       {
         "alias": null,
@@ -86,12 +85,12 @@ type Foo implements Named {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "BestFriends"
+            "name": "originalClientFieldsTest_BestFriends"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "OnlyClientFields"
+            "name": "originalClientFieldsTest_OnlyClientFields"
           }
         ],
         "storageKey": null
@@ -106,12 +105,11 @@ type Foo implements Named {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "BestFriendsQuery",
+    "name": "originalClientFieldsTest_BestFriendsQuery",
     "selections": [
       {
         "alias": null,
@@ -145,23 +143,12 @@ type Foo implements Named {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "kind": "TypeDiscriminator",
-                    "abstractKey": "__isNode"
-                  }
-                ],
-                "type": "Node",
+                "kind": "TypeDiscriminator",
                 "abstractKey": "__isNode"
               },
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  {
-                    "kind": "TypeDiscriminator",
-                    "abstractKey": "__isNamed"
-                  },
                   {
                     "kind": "ClientExtension",
                     "selections": [
@@ -274,7 +261,7 @@ type Foo implements Named {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "BestFriendsQuery",
+    "name": "originalClientFieldsTest_BestFriendsQuery",
     "operationKind": "query",
     "text": null
   }
@@ -282,39 +269,36 @@ type Foo implements Named {
 
 QUERY:
 
-query BestFriendsQuery(
+query originalClientFieldsTest_BestFriendsQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...BestFriends
-    ...OnlyClientFields
+    ...originalClientFieldsTest_BestFriends
     id
   }
 }
 
-fragment BestFriends on User {
-  ...NodeFragment
+fragment originalClientFieldsTest_BestFriends on User {
+  ...originalClientFieldsTest_NodeFragment
 }
 
-fragment NodeFragment on Node {
+fragment originalClientFieldsTest_NodeFragment on Node {
   __isNode: __typename
   id
 }
-
-fragment OnlyClientFields on User
 
 
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "BestFriends",
+  "name": "originalClientFieldsTest_BestFriends",
   "selections": [
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "NodeFragment"
+      "name": "originalClientFieldsTest_NodeFragment"
     },
     {
       "kind": "InlineFragment",
@@ -322,7 +306,7 @@ fragment OnlyClientFields on User
         {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "FooFragment"
+          "name": "originalClientFieldsTest_FooFragment"
         },
         {
           "kind": "ClientExtension",
@@ -426,7 +410,7 @@ fragment OnlyClientFields on User
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "FooFragment",
+  "name": "originalClientFieldsTest_FooFragment",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -449,7 +433,7 @@ fragment OnlyClientFields on User
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NodeFragment",
+  "name": "originalClientFieldsTest_NodeFragment",
   "selections": [
     {
       "alias": null,
@@ -467,7 +451,7 @@ fragment OnlyClientFields on User
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "OnlyClientFields",
+  "name": "originalClientFieldsTest_OnlyClientFields",
   "selections": [
     {
       "kind": "ClientExtension",

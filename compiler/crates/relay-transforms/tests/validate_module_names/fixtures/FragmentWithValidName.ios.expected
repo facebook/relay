@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+fragment FragmentWithValidNameIos_fragment on User {
+    name
+}
+
+fragment FragmentWithValidNameIosFragment on User {
+    name
+}
+
+fragment FragmentWithValidNameIos on User {
+    name
+}
+==================================== OUTPUT ===================================
+OK

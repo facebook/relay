@@ -1,0 +1,14 @@
+{
+  "name": "relay-compiler-wasm",
+  "version": "0.0.1",
+  "description": "WASM version of Relay Compiler",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Facebook",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^26.1.0"
+  }
+}

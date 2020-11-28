@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x, 12.x, 14.x, 15.x]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 15.x
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Test dependencies
@@ -46,11 +46,90 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 15.x
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Flow
         run: yarn run typecheck
+
+  check-rust:
+    name: Check Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --manifest-path=compiler/Cargo.toml --locked
+
+  test-rust:
+    name: Test Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --manifest-path=compiler/Cargo.toml --locked
+
+  test-relay-compiler-neon:
+    name: Test Relay Compiler (Neon)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+      - name: npm install
+        working-directory: ./compiler/crates/relay-compiler-neon
+        run: npm install
+      - name: npm test
+        working-directory: ./compiler/crates/relay-compiler-neon
+        run: npm test
+
+  test-relay-compiler-wasm:
+    name: Test Relay Compiler (WASM)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install `wasm-pack`
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Build an extension
+        working-directory: ./compiler/crates/relay-compiler-wasm
+        run: wasm-pack build --target nodejs
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+      - name: npm install
+        working-directory: ./compiler/crates/relay-compiler-wasm
+        run: npm install
+      - name: npm test
+        working-directory: ./compiler/crates/relay-compiler-wasm
+        run: npm test
 
   master-release:
     name: Publish master tag to npm

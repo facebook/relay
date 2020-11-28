@@ -16,18 +16,15 @@ fragment Example on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "friendsFirst",
-      "type": "Int"
+      "name": "friendsAfter"
     },
     {
       "kind": "RootArgument",
-      "name": "friendsAfter",
-      "type": "ID"
+      "name": "friendsFirst"
     },
     {
       "kind": "RootArgument",
-      "name": "preset",
-      "type": "PhotoSize"
+      "name": "preset"
     }
   ],
   "kind": "Fragment",

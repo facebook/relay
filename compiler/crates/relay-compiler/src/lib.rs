@@ -15,13 +15,23 @@ pub mod compiler;
 pub mod compiler_state;
 pub mod config;
 pub mod errors;
-mod parse_sources;
+mod graphql_asts;
+mod red_to_green;
+mod rollout;
+pub mod saved_state;
+pub mod status_reporter;
 mod watchman;
 
 pub use build_project::{
-    apply_transforms, build_schema, check_project,
-    generate_extra_artifacts::GenerateExtraArtifactArgs, validate, Artifact, ArtifactContent,
-    Programs,
+    add_to_mercurial, apply_transforms,
+    artifact_writer::{ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter},
+    build_schema, create_path_for_artifact, generate_artifacts,
+    generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
+    is_operation_preloadable, validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };
-pub use parse_sources::parse_sources;
-pub use watchman::{FileSource, FileSourceResult, FileSourceSubscription};
+pub use config::{OperationPersister, PersistConfig};
+pub use graphql_asts::GraphQLAsts;
+pub use watchman::{
+    source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
+    FileSourceSubscription, FsSourceReader, SourceReader,
+};

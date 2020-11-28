@@ -8,19 +8,20 @@
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use indexmap::IndexMap;
 use interner::StringKey;
+use rayon::{iter::ParallelIterator, prelude::*};
 use schema::Schema;
 use std::sync::Arc;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
-pub struct Program<'s> {
-    schema: &'s Schema,
+pub struct Program {
+    pub schema: Arc<Schema>,
     fragments: IndexMap<StringKey, Arc<FragmentDefinition>>,
     operations: Vec<Arc<OperationDefinition>>,
 }
 
-impl<'s> Program<'s> {
-    pub fn new(schema: &'s Schema) -> Self {
+impl Program {
+    pub fn new(schema: Arc<Schema>) -> Self {
         Self {
             schema,
             fragments: Default::default(),
@@ -28,11 +29,7 @@ impl<'s> Program<'s> {
         }
     }
 
-    pub fn schema(&self) -> &'s Schema {
-        &self.schema
-    }
-
-    pub fn from_definitions(schema: &'s Schema, definitions: Vec<ExecutableDefinition>) -> Self {
+    pub fn from_definitions(schema: Arc<Schema>, definitions: Vec<ExecutableDefinition>) -> Self {
         let mut operations = Vec::new();
         let mut fragments = IndexMap::new();
         for definition in definitions {
@@ -84,8 +81,16 @@ impl<'s> Program<'s> {
         self.operations.iter()
     }
 
+    pub fn par_operations(&self) -> impl ParallelIterator<Item = &Arc<OperationDefinition>> {
+        self.operations.par_iter()
+    }
+
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
+    }
+
+    pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
+        self.fragments.par_values()
     }
 
     pub fn document_count(&self) -> usize {

@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::OperationType;
 use crate::definitions::Type;
+use graphql_syntax::OperationType;
 use interner::StringKey;
 use thiserror::Error;
 
@@ -35,7 +35,13 @@ pub enum SchemaError {
     #[error("Duplicate field definition '{0}' found.")]
     DuplicateField(StringKey),
 
+    #[error("Duplicate definition for type '{0}'.")]
+    DuplicateType(StringKey),
+
+    #[error("Invalid ID '{0}' provided for type '{1}'")]
+    UnknownTypeID(usize, String),
+
     // TODO: These should be replaced with error codes or by unifying the parsers.
-    #[error("Parse Error '{0}'.")]
-    Syntax(String),
+    #[error("Parse Error '{0}' at {1}.\nError line:'{2}'")]
+    Syntax(String, String, String),
 }

@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query TestQueryWithLiteral($latArg: String, $lonArg: String) {
+query complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery($latArg: String, $lonArg: String) {
   route(
     waypoints: [
       {lat: $latArg, lon: $lonArg}
@@ -17,19 +17,17 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "latArg",
-        "type": "String"
+        "name": "latArg"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "lonArg",
-        "type": "String"
+        "name": "lonArg"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQueryWithLiteral",
+    "name": "complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery",
     "selections": [
       {
         "alias": null,
@@ -114,18 +112,16 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "latArg",
-        "type": "String"
+        "name": "latArg"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "lonArg",
-        "type": "String"
+        "name": "lonArg"
       }
     ],
     "kind": "Operation",
-    "name": "TestQueryWithLiteral",
+    "name": "complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery",
     "selections": [
       {
         "alias": null,
@@ -205,7 +201,7 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQueryWithLiteral",
+    "name": "complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery",
     "operationKind": "query",
     "text": null
   }
@@ -213,11 +209,11 @@ query TestQueryWithLiteral($latArg: String, $lonArg: String) {
 
 QUERY:
 
-query TestQueryWithLiteral(
+query complexArgumentsWithMutlipleVariables_TestQueryWithLiteralQuery(
   $latArg: String
   $lonArg: String
 ) {
-  route(waypoints: [{lat: $latArg, lon: $lonArg}, {lat: null, lon: $latArg}, {lat: $lonArg, lon: "1234"}]) {
+  route(waypoints: [{lat: $latArg, lon: $lonArg}, {lon: $latArg}, {lat: $lonArg, lon: "1234"}]) {
     __typename
   }
 }

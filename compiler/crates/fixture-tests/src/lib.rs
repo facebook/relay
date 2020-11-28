@@ -32,7 +32,7 @@
 //! `tests/first_transform/mod.rs` exports the transform to test, for example:
 //!
 //! ```ignore
-//! pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+//! pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 //!   Ok(fixture.to_uppercase())
 //! }
 //! ```
@@ -45,16 +45,22 @@
 //! ```
 //!
 //! *FB-internal: see `scripts/generate_fixture_tests.sh` to generate all.*
+//
+//! *FB-internal: use buck run //relay/oss/crates/fixture-tests:fixture-tests-bin -- <path to tests dir>
+//! *FB-internal: if you don't want to use cargo run. This is useful for development on a dev-server or
+//! *FB-internal: or machines w/o cargo installed.
 
 mod print_diff;
 
-use colored;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
+
+use signedsource as _; // used in main.rs, cargo only
+use structopt as _; // used in main.rs, cargo only
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
@@ -121,7 +127,10 @@ pub fn test_fixture<T, U, V>(
                 Some(err) => format!("{}", err),
                 None => "Unknown error".to_string(),
             };
-            format!("Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected", error_message)
+            format!(
+                "Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected",
+                error_message
+            )
         } else {
             "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected".to_string()
         });

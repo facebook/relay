@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query AbstractTypeRefinement($shouldInclude: Boolean!) {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery($shouldInclude: Boolean!) {
   node(id: "4") {
     ... @include(if: $shouldInclude) {
       #  - Printed query should select __isNode
@@ -17,13 +17,12 @@ query AbstractTypeRefinement($shouldInclude: Boolean!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "shouldInclude",
-        "type": "Boolean!"
+        "name": "shouldInclude"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -66,12 +65,11 @@ query AbstractTypeRefinement($shouldInclude: Boolean!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "shouldInclude",
-        "type": "Boolean!"
+        "name": "shouldInclude"
       }
     ],
     "kind": "Operation",
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -120,7 +118,7 @@ query AbstractTypeRefinement($shouldInclude: Boolean!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery",
     "operationKind": "query",
     "text": null
   }
@@ -128,12 +126,13 @@ query AbstractTypeRefinement($shouldInclude: Boolean!) {
 
 QUERY:
 
-query AbstractTypeRefinement(
+query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery(
   $shouldInclude: Boolean!
 ) {
   node(id: "4") {
     __typename
-    __isNode: __typename @include(if: $shouldInclude)id @include(if: $shouldInclude)
+    __isNode: __typename @include(if: $shouldInclude)
+    id @include(if: $shouldInclude)
     id
   }
 }

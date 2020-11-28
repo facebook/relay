@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment QueryFragment on Query {
+fragment nestedConditions_QueryFragment on Query {
   viewer {
     ... @include(if: $sentinel) {
       account_user {
@@ -18,7 +18,7 @@ fragment QueryFragment on Query {
   }
 }
 
-fragment QueryFragment2 on Query {
+fragment nestedConditions_QueryFragment2 on Query {
   viewer {
     ... @include(if: $sentinel) @skip(if: $foo) {
       account_user @include(if: $bar) {
@@ -32,23 +32,20 @@ fragment QueryFragment2 on Query {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "bar",
-      "type": "Boolean!"
+      "name": "bar"
     },
     {
       "kind": "RootArgument",
-      "name": "foo",
-      "type": "Boolean!"
+      "name": "foo"
     },
     {
       "kind": "RootArgument",
-      "name": "sentinel",
-      "type": "Boolean!"
+      "name": "sentinel"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "QueryFragment",
+  "name": "nestedConditions_QueryFragment",
   "selections": [
     {
       "alias": null,
@@ -148,23 +145,20 @@ fragment QueryFragment2 on Query {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "bar",
-      "type": "Boolean!"
+      "name": "bar"
     },
     {
       "kind": "RootArgument",
-      "name": "sentinel",
-      "type": "Boolean!"
+      "name": "foo"
     },
     {
       "kind": "RootArgument",
-      "name": "foo",
-      "type": "Boolean!"
+      "name": "sentinel"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "QueryFragment2",
+  "name": "nestedConditions_QueryFragment2",
   "selections": [
     {
       "alias": null,
@@ -175,14 +169,14 @@ fragment QueryFragment2 on Query {
       "plural": false,
       "selections": [
         {
-          "condition": "foo",
+          "condition": "sentinel",
           "kind": "Condition",
-          "passingValue": false,
+          "passingValue": true,
           "selections": [
             {
-              "condition": "sentinel",
+              "condition": "foo",
               "kind": "Condition",
-              "passingValue": true,
+              "passingValue": false,
               "selections": [
                 {
                   "condition": "bar",

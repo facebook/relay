@@ -5,32 +5,37 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::is_operation_preloadable;
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_transforms::INLINE_DATA_CONSTANTS;
+use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer};
+use relay_transforms::{
+    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS, REACT_FLIGHT_METADATA_ARG_KEY,
+    REACT_FLIGHT_METADATA_KEY,
+};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};
-use std::fmt::Write;
+use std::fmt::{Result, Write};
+use std::sync::Arc;
 
-pub enum ArtifactContent<'a> {
+pub enum ArtifactContent {
     Operation {
-        normalization_operation: &'a OperationDefinition,
-        reader_operation: &'a OperationDefinition,
-        typegen_operation: &'a OperationDefinition,
+        normalization_operation: Arc<OperationDefinition>,
+        reader_operation: Arc<OperationDefinition>,
+        typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
         text: String,
         id_and_text_hash: Option<(String, String)>,
     },
     Fragment {
-        reader_fragment: &'a FragmentDefinition,
-        typegen_fragment: &'a FragmentDefinition,
+        reader_fragment: Arc<FragmentDefinition>,
+        typegen_fragment: Arc<FragmentDefinition>,
         source_hash: String,
     },
     SplitOperation {
-        normalization_operation: &'a OperationDefinition,
+        normalization_operation: Arc<OperationDefinition>,
         source_hash: String,
     },
     Generic {
@@ -38,7 +43,7 @@ pub enum ArtifactContent<'a> {
     },
 }
 
-impl<'a> ArtifactContent<'a> {
+impl ArtifactContent {
     pub fn as_bytes(
         &self,
         config: &Config,
@@ -94,6 +99,54 @@ impl<'a> ArtifactContent<'a> {
     }
 }
 
+fn write_data_driven_dependency_annotation(
+    content: &mut String,
+    data_driven_dependency_directive: &Directive,
+) -> Result {
+    for arg in &data_driven_dependency_directive.arguments {
+        let value = match arg.value.item {
+            graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
+            _ => panic!("Unexpected argument value for @__dataDrivenDependencyMetadata directive"),
+        };
+        writeln!(
+            content,
+            "// @dataDrivenDependency {} {}",
+            arg.name.item, value
+        )?;
+    }
+
+    Ok(())
+}
+
+fn write_flight_annotation(content: &mut String, flight_directive: &Directive) -> Result {
+    let arg = flight_directive
+        .arguments
+        .named(*REACT_FLIGHT_METADATA_ARG_KEY)
+        .unwrap();
+    match &arg.value.item {
+        graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
+            for item in value {
+                match item {
+                    graphql_ir::ConstantValue::String(value) => {
+                        writeln!(content, "// @ReactFlightServerDependency {}", value)?;
+                    }
+                    _ => panic!(
+                        "Unexpected item value for @__ReactFlightMetadata directive: {:?}",
+                        item
+                    ),
+                }
+            }
+        }
+        _ => panic!(
+            "Unexpected argument value for @__ReactFlightMetadata directive: {:?}",
+            &arg.value.item
+        ),
+    };
+    writeln!(content)?;
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
 fn generate_operation(
     config: &Config,
     project_config: &ProjectConfig,
@@ -137,8 +190,33 @@ fn generate_operation(
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
     if let Some(id) = &request_parameters.id {
-        writeln!(content, "// @relayRequestID {}\n", id).unwrap();
+        writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
+    if project_config.variable_names_comment {
+        write!(content, "// @relayVariables").unwrap();
+        for variable_definition in &normalization_operation.variable_definitions {
+            write!(content, " {}", variable_definition.name.item).unwrap();
+        }
+        writeln!(content).unwrap();
+    }
+    let data_driven_dependency_metadata = operation_fragment
+        .directives
+        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
+        write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
+            .unwrap();
+    }
+    let flight_metadata = operation_fragment
+        .directives
+        .named(*REACT_FLIGHT_METADATA_KEY);
+    if let Some(flight_metadata) = flight_metadata {
+        write_flight_annotation(&mut content, flight_metadata).unwrap();
+    }
+
+    if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
+        writeln!(content).unwrap();
+    }
+
     writeln!(
         content,
         "/*::\nimport type {{ ConcreteRequest }} from 'relay-runtime';\n{}*/\n",
@@ -146,16 +224,14 @@ fn generate_operation(
             typegen_operation,
             normalization_operation,
             schema,
-            &project_config.enum_module_suffix,
-            &project_config.optional_input_fields
+            &project_config.typegen_config,
         )
     )
     .unwrap();
-    writeln!(content, "/*\n{}*/\n", text).unwrap();
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",
-        printer.print_request_deduped(
+        printer.print_request(
             schema,
             normalization_operation,
             &operation_fragment,
@@ -166,6 +242,14 @@ fn generate_operation(
     writeln!(content, "if (__DEV__) {{").unwrap();
     writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
     writeln!(content, "}}\n").unwrap();
+    // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
+    if is_operation_preloadable(normalization_operation) {
+        writeln!(
+              content,
+              "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
+          )
+          .unwrap();
+    }
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
@@ -196,7 +280,7 @@ fn generate_split_operation(
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation_deduped(schema, node)
+        printer.print_operation(schema, node)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
@@ -226,6 +310,20 @@ fn generate_fragment(
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
+    let data_driven_dependency_metadata = reader_fragment
+        .directives
+        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
+        write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
+            .unwrap();
+
+        writeln!(content).unwrap();
+    }
+    let flight_metadata = reader_fragment.directives.named(*REACT_FLIGHT_METADATA_KEY);
+    if let Some(flight_metadata) = flight_metadata {
+        write_flight_annotation(&mut content, flight_metadata).unwrap();
+    }
+
     let reader_node_flow_type = if reader_fragment
         .directives
         .named(INLINE_DATA_CONSTANTS.directive_name)
@@ -239,19 +337,14 @@ fn generate_fragment(
         content,
         "/*::\nimport type {{ {} }} from 'relay-runtime';\n{}*/\n",
         reader_node_flow_type,
-        generate_fragment_type(
-            typegen_fragment,
-            schema,
-            &project_config.enum_module_suffix,
-            &project_config.optional_input_fields
-        )
+        generate_fragment_type(typegen_fragment, schema, &project_config.typegen_config)
     )
     .unwrap();
     writeln!(
         content,
         "var node/*: {}*/ = {};\n",
         reader_node_flow_type,
-        printer.print_fragment_deduped(schema, reader_fragment)
+        printer.print_fragment(schema, reader_fragment)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();

@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+query MyQuery($id: ID) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: 5.0) {
+        count
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query MyQuery($id: ID) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: 5.0) {
+        count
+      }
+    }
+  }
+}

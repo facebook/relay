@@ -17,6 +17,7 @@ const CompilerContext = require('../../../core/CompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -47,12 +48,16 @@ function generate(text, options: TypeGeneratorOptions, context?) {
       doc =>
         `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(
           extendedSchema,
-          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          /* $FlowFixMe[incompatible-call] - `SplitOperation` is incompatible
+           * with union type. */
           doc,
-          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          // $FlowFixMe[prop-missing] - `SplitOperation` is incompatible with union type.
           {
             ...options,
-            // $FlowFixMe - `SplitOperation` is incompatible with union type.
+            /* $FlowFixMe[incompatible-call] - `SplitOperation` is incompatible
+             * with union type. */
+            /* $FlowFixMe[prop-missing] - `SplitOperation` is incompatible with
+             * union type. */
             normalizationIR: context ? context.get(doc.name) : undefined,
           },
         )}`,
@@ -61,6 +66,13 @@ function generate(text, options: TypeGeneratorOptions, context?) {
 }
 
 describe('Snapshot tests', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  });
   function generateContext(text) {
     const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
     const {definitions, schema: extendedSchema} = parseGraphQLText(

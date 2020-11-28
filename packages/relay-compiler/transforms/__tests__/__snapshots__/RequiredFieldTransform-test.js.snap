@@ -1,0 +1,2331 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RequiredFieldTransform matches expected output: action-argument-omitted.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  name @required
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required directive requires an \`action\` argument.
+
+Source: GraphQL request (3:8)
+2: fragment Foo on User {
+3:   name @required
+          ^
+4: }
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: bubble-to-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 90,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 88,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "childrenCanBubbleNull": true,
+      },
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 84,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "LOG",
+              "actionLoc": Source {
+                start: 72,
+                end: 83,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 84,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: bubble-to-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 90,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 88,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "childrenCanBubbleNull": true,
+      },
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 84,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "LOG",
+              "actionLoc": Source {
+                start: 72,
+                end: 83,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 84,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: LOG)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  name
+  ... on User {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "name" is @required in [1] but not in [2].
+
+Source: GraphQL request (5:5)
+4:   ... on User {
+5:     name @required(action: LOG)
+       ^
+6:   }
+
+Source: GraphQL request (3:3)
+2: fragment Foo on User {
+3:   name
+     ^
+4:   ... on User {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-field-different-actions.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  name @required(action: NONE)
+  ... on User {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "name" has a different @required action in [1] than in [2].
+
+Source: GraphQL request (5:20)
+4:   ... on User {
+5:     name @required(action: LOG)
+                      ^
+6:   }
+
+Source: GraphQL request (3:18)
+2: fragment Foo on User {
+3:   name @required(action: NONE)
+                    ^
+4:   ... on User {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-field-include-directive.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  ... on User @include(if: true) {
+    name
+  }
+  ... on User {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "name" is @required in [1] but not in [2].
+
+Source: GraphQL request (7:5)
+6:   ... on User {
+7:     name @required(action: THROW)
+       ^
+8:   }
+
+Source: GraphQL request (4:5)
+3:   ... on User @include(if: true) {
+4:     name
+       ^
+5:   }
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-field-nullable-parent.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Node {
+  actor {
+    # could get nulled out here if name is missing
+    name @required(action: LOG)
+  }
+  ... on User {
+    actor {
+      # but then the value will also get created here, which is bad
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "name" is marked as @required in [1] but is missing in [2].
+
+Source: GraphQL request (5:5)
+4:     # could get nulled out here if name is missing
+5:     name @required(action: LOG)
+       ^
+6:   }
+
+Source: GraphQL request (8:5)
+7:   ... on User {
+8:     actor {
+       ^
+9:       # but then the value will also get created here, which is bad
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-field-nullable-parent-missing-first.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Node {
+  ... on User {
+    actor {
+      # but then the value will also get created here, which is bad
+      id
+    }
+  }
+  actor {
+    # could get nulled out here if name is missing
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "name" is marked as @required in [1] but is missing in [2].
+
+Source: GraphQL request (11:5)
+10:     # could get nulled out here if name is missing
+11:     name @required(action: LOG)
+        ^
+12:   }
+
+Source: GraphQL request (4:5)
+3:   ... on User {
+4:     actor {
+       ^
+5:       # but then the value will also get created here, which is bad
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-field-ussage-alias.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Foo on User {
+  name @required(action: THROW)
+  my_name: name @required(action: LOG)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment Foo on User {
+  name
+  my_name: name
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 95,
+    source: {
+      "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
+  name: "Foo",
+  selections: [
+    ScalarField {
+      alias: "name",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 25,
+        end: 54,
+        source: {
+          "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "THROW",
+          "actionLoc": Source {
+            start: 40,
+            end: 53,
+            source: {
+              "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 30,
+            end: 54,
+            source: {
+              "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "name",
+        },
+      },
+      name: "name",
+      type: "String",
+    },
+    ScalarField {
+      alias: "my_name",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 57,
+        end: 93,
+        source: {
+          "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "LOG",
+          "actionLoc": Source {
+            start: 81,
+            end: 92,
+            source: {
+              "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 71,
+            end: 93,
+            source: {
+              "body": "fragment Foo on User {\\n  name @required(action: THROW)\\n  my_name: name @required(action: LOG)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "my_name",
+        },
+      },
+      name: "name",
+      type: "String",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-linked-field-different-actions.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: NONE) {
+    city
+  }
+  ... on User {
+    address @required(action: LOG) {
+      city
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "address" has a different @required action in [1] than in [2].
+
+Source: GraphQL request (7:23)
+6:   ... on User {
+7:     address @required(action: LOG) {
+                         ^
+8:       city
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: NONE) {
+                       ^
+4:     city
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: duplicate-linked-field-nullable-parent.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  ... on User {
+    hometown {
+      name @required(action: LOG)
+      address {
+        __typename
+      }
+    }
+  }
+  hometown {
+    address {
+      __typename
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The field "name" is marked as @required in [1] but is missing in [2].
+
+Source: GraphQL request (5:7)
+4:     hometown {
+5:       name @required(action: LOG)
+         ^
+6:       address {
+
+Source: GraphQL request (11:3)
+10:   }
+11:   hometown {
+      ^
+12:     address {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: inline-fragment-on-concrete-in-interface.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Node {
+  ... on Actor {
+    ... on User {
+      name @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required directive [1] may not be used anywhere within an inline fragment on an interface type [2].
+
+Source: GraphQL request (5:12)
+4:     ... on User {
+5:       name @required(action: LOG)
+              ^
+6:     }
+
+Source: GraphQL request (3:3)
+2: fragment Foo on Node {
+3:   ... on Actor {
+     ^
+4:     ... on User {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: inline-fragment-on-interface.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Node {
+  ... on Actor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required directive [1] may not be used anywhere within an inline fragment on an interface type [2].
+
+Source: GraphQL request (4:10)
+3:   ... on Actor {
+4:     name @required(action: LOG)
+            ^
+5:   }
+
+Source: GraphQL request (3:3)
+2: fragment Foo on Node {
+3:   ... on Actor {
+     ^
+4:     name @required(action: LOG)
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: inline-fragment-on-interface-in-concrete.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Node {
+  ... on User {
+    ... on Actor {
+      # Theoretically this _could_ be okay becuase User implements Actor,
+      # But there is no reason to write something like this, so it should
+      # be fine to just not allow it.
+      name @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required directive [1] may not be used anywhere within an inline fragment on an interface type [2].
+
+Source: GraphQL request (8:12)
+7:       # be fine to just not allow it.
+8:       name @required(action: LOG)
+              ^
+9:     }
+
+Source: GraphQL request (4:5)
+3:   ... on User {
+4:     ... on Actor {
+       ^
+5:       # Theoretically this _could_ be okay becuase User implements Actor,
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: inline-fragment-on-interface-with-linked-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Node {
+  ... on Actor {
+    address @required(action: LOG) {
+      __typename
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required directive [1] may not be used anywhere within an inline fragment on an interface type [2].
+
+Source: GraphQL request (4:13)
+3:   ... on Actor {
+4:     address @required(action: LOG) {
+               ^
+5:       __typename
+
+Source: GraphQL request (3:3)
+2: fragment Foo on Node {
+3:   ... on Actor {
+     ^
+4:     address @required(action: LOG) {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: inline-fragment-on-interface-within-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Foo on Node {
+  ... on Actor {
+    address {
+      city @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment Foo on Node {
+  ... on Actor {
+    address {
+      city
+    }
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 99,
+    source: {
+      "body": "fragment Foo on Node {\\n  ... on Actor {\\n    address {\\n      city @required(action: LOG)\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "Foo",
+  selections: [
+    InlineFragment {
+      directives: [],
+      loc: Source {
+        start: 25,
+        end: 97,
+        source: {
+          "body": "fragment Foo on Node {\\n  ... on Actor {\\n    address {\\n      city @required(action: LOG)\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      selections: [
+        LinkedField {
+          alias: "address",
+          args: [],
+          connection: false,
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 44,
+            end: 93,
+            source: {
+              "body": "fragment Foo on Node {\\n  ... on Actor {\\n    address {\\n      city @required(action: LOG)\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "childrenCanBubbleNull": true,
+          },
+          name: "address",
+          selections: [
+            ScalarField {
+              alias: "city",
+              args: [],
+              directives: [],
+              handles: null,
+              loc: Source {
+                start: 60,
+                end: 87,
+                source: {
+                  "body": "fragment Foo on Node {\\n  ... on Actor {\\n    address {\\n      city @required(action: LOG)\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              metadata: {
+                "required": {
+                  "action": "LOG",
+                  "actionLoc": Source {
+                    start: 75,
+                    end: 86,
+                    source: {
+                      "body": "fragment Foo on Node {\\n  ... on Actor {\\n    address {\\n      city @required(action: LOG)\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  "directiveLoc": Source {
+                    start: 65,
+                    end: 87,
+                    source: {
+                      "body": "fragment Foo on Node {\\n  ... on Actor {\\n    address {\\n      city @required(action: LOG)\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  "path": "address.city",
+                },
+              },
+              name: "city",
+              type: "String",
+            },
+          ],
+          type: "StreetAddress",
+        },
+      ],
+      typeCondition: "Actor",
+    },
+  ],
+  type: "Node",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: inline-fragment-on-union.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on UserNameRenderer {
+  ... on UserNameRenderer {
+    __typename @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required directive [1] may not be used anywhere within an inline fragment on a union type [2].
+
+Source: GraphQL request (4:16)
+3:   ... on UserNameRenderer {
+4:     __typename @required(action: LOG)
+                  ^
+5:   }
+
+Source: GraphQL request (3:3)
+2: fragment Foo on UserNameRenderer {
+3:   ... on UserNameRenderer {
+     ^
+4:     __typename @required(action: LOG)
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: linked-field-log.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture @required(action: LOG) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture {
+    uri
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 103,
+    source: {
+      "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: LOG) {\\n    uri\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
+  name: "ActorsRendererFragment",
+  selections: [
+    ScalarField {
+      alias: "id",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 44,
+        end: 46,
+        source: {
+          "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: LOG) {\\n    uri\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "id",
+      type: "ID!",
+    },
+    LinkedField {
+      alias: "profile_picture",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 49,
+        end: 101,
+        source: {
+          "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: LOG) {\\n    uri\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "LOG",
+          "actionLoc": Source {
+            start: 75,
+            end: 86,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: LOG) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 65,
+            end: 87,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: LOG) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "profile_picture",
+        },
+      },
+      name: "profile_picture",
+      selections: [
+        ScalarField {
+          alias: "uri",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 94,
+            end: 97,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: LOG) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: null,
+          name: "uri",
+          type: "String",
+        },
+      ],
+      type: "Image",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: linked-field-no-log.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture @required(action: NONE) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture {
+    uri
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 104,
+    source: {
+      "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: NONE) {\\n    uri\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
+  name: "ActorsRendererFragment",
+  selections: [
+    ScalarField {
+      alias: "id",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 44,
+        end: 46,
+        source: {
+          "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: NONE) {\\n    uri\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "id",
+      type: "ID!",
+    },
+    LinkedField {
+      alias: "profile_picture",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 49,
+        end: 102,
+        source: {
+          "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: NONE) {\\n    uri\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "NONE",
+          "actionLoc": Source {
+            start: 75,
+            end: 87,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: NONE) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 65,
+            end: 88,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: NONE) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "profile_picture",
+        },
+      },
+      name: "profile_picture",
+      selections: [
+        ScalarField {
+          alias: "uri",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 95,
+            end: 98,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: NONE) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: null,
+          name: "uri",
+          type: "String",
+        },
+      ],
+      type: "Image",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: linked-field-throw.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture @required(action: THROW) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on User {
+  id
+  profile_picture {
+    uri
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 105,
+    source: {
+      "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: THROW) {\\n    uri\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "ActorsRendererFragment",
+  selections: [
+    ScalarField {
+      alias: "id",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 44,
+        end: 46,
+        source: {
+          "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: THROW) {\\n    uri\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "id",
+      type: "ID!",
+    },
+    LinkedField {
+      alias: "profile_picture",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 49,
+        end: 103,
+        source: {
+          "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: THROW) {\\n    uri\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "THROW",
+          "actionLoc": Source {
+            start: 75,
+            end: 88,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: THROW) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 65,
+            end: 89,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: THROW) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "profile_picture",
+        },
+      },
+      name: "profile_picture",
+      selections: [
+        ScalarField {
+          alias: "uri",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 96,
+            end: 99,
+            source: {
+              "body": "fragment ActorsRendererFragment on User {\\n  id\\n  profile_picture @required(action: THROW) {\\n    uri\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: null,
+          name: "uri",
+          type: "String",
+        },
+      ],
+      type: "Image",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: log-action-bubble-to-throw.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: THROW) {
+    city @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:20)
+3:   address @required(action: THROW) {
+4:     city @required(action: LOG)
+                      ^
+5:   }
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: THROW) {
+                       ^
+4:     city @required(action: LOG)
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: log-action-bubble-to-throw-linked-field.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  author @required(action: THROW) {
+    author @required(action: LOG) {
+      name
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:22)
+3:   author @required(action: THROW) {
+4:     author @required(action: LOG) {
+                        ^
+5:       name
+
+Source: GraphQL request (3:20)
+2: fragment Foo on User {
+3:   author @required(action: THROW) {
+                      ^
+4:     author @required(action: LOG) {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: multiple-required-fields.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query UserQuery {
+  me @required(action: NONE) @required(action: NONE) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Did not expect multiple @required directives.
+
+Source: GraphQL request (3:6)
+2: query UserQuery {
+3:   me @required(action: NONE) @required(action: NONE) {
+        ^
+4:     id
+
+Source: GraphQL request (3:30)
+2: query UserQuery {
+3:   me @required(action: NONE) @required(action: NONE) {
+                                ^
+4:     id
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: none-action-bubble-to-log.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: LOG) {
+    city @required(action: NONE)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: LOG\`.
+
+Source: GraphQL request (4:20)
+3:   address @required(action: LOG) {
+4:     city @required(action: NONE)
+                      ^
+5:   }
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: LOG) {
+                       ^
+4:     city @required(action: NONE)
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: none-action-bubble-to-log-across-inline-fragment.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on Comment {
+  actor @required(action: LOG) {
+    ... on User {
+      name @required(action: NONE)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: LOG\`.
+
+Source: GraphQL request (5:22)
+4:     ... on User {
+5:       name @required(action: NONE)
+                        ^
+6:     }
+
+Source: GraphQL request (3:19)
+2: fragment Foo on Comment {
+3:   actor @required(action: LOG) {
+                     ^
+4:     ... on User {
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: none-action-bubble-to-throw.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+fragment Foo on User {
+  address @required(action: THROW) {
+    city @required(action: NONE)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+The @required field [1] may not have an \`action\` less severe than that of its @required parent [2]. [1] should probably be \`action: THROW\`.
+
+Source: GraphQL request (4:20)
+3:   address @required(action: THROW) {
+4:     city @required(action: NONE)
+                      ^
+5:   }
+
+Source: GraphQL request (3:21)
+2: fragment Foo on User {
+3:   address @required(action: THROW) {
+                       ^
+4:     city @required(action: NONE)
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: required-dynamic-arg.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query UserQuery($action: RequiredFieldAction!) {
+  me @required(action: $action) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Expected @required \`action\` argument to be a literal.
+
+Source: GraphQL request (3:24)
+2: query UserQuery($action: RequiredFieldAction!) {
+3:   me @required(action: $action) {
+                          ^
+4:     id
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: required-paths.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery {
+  viewer @required(action: LOG) {
+    actor @required(action: LOG) {
+      address @required(action: LOG) {
+        country @required(action: LOG)
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query FooQuery {
+  viewer {
+    actor {
+      address {
+        country
+      }
+    }
+  }
+}
+Root {
+  operation: "query",
+  loc: Source {
+    start: 0,
+    end: 183,
+    source: {
+      "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
+  name: "FooQuery",
+  argumentDefinitions: [],
+  directives: [],
+  selections: [
+    LinkedField {
+      alias: "viewer",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 19,
+        end: 181,
+        source: {
+          "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "LOG",
+          "actionLoc": Source {
+            start: 36,
+            end: 47,
+            source: {
+              "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 26,
+            end: 48,
+            source: {
+              "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "viewer",
+        },
+        "childrenCanBubbleNull": true,
+      },
+      name: "viewer",
+      selections: [
+        LinkedField {
+          alias: "actor",
+          args: [],
+          connection: false,
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 55,
+            end: 177,
+            source: {
+              "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "LOG",
+              "actionLoc": Source {
+                start: 71,
+                end: 82,
+                source: {
+                  "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 61,
+                end: 83,
+                source: {
+                  "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "viewer.actor",
+            },
+            "childrenCanBubbleNull": true,
+          },
+          name: "actor",
+          selections: [
+            LinkedField {
+              alias: "address",
+              args: [],
+              connection: false,
+              directives: [],
+              handles: null,
+              loc: Source {
+                start: 92,
+                end: 171,
+                source: {
+                  "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              metadata: {
+                "required": {
+                  "action": "LOG",
+                  "actionLoc": Source {
+                    start: 110,
+                    end: 121,
+                    source: {
+                      "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  "directiveLoc": Source {
+                    start: 100,
+                    end: 122,
+                    source: {
+                      "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  "path": "viewer.actor.address",
+                },
+                "childrenCanBubbleNull": true,
+              },
+              name: "address",
+              selections: [
+                ScalarField {
+                  alias: "country",
+                  args: [],
+                  directives: [],
+                  handles: null,
+                  loc: Source {
+                    start: 133,
+                    end: 163,
+                    source: {
+                      "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                      "name": "GraphQL request",
+                      "locationOffset": {
+                        "line": 1,
+                        "column": 1,
+                      },
+                    },
+                  },
+                  metadata: {
+                    "required": {
+                      "action": "LOG",
+                      "actionLoc": Source {
+                        start: 151,
+                        end: 162,
+                        source: {
+                          "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1,
+                          },
+                        },
+                      },
+                      "directiveLoc": Source {
+                        start: 141,
+                        end: 163,
+                        source: {
+                          "body": "query FooQuery {\\n  viewer @required(action: LOG) {\\n    actor @required(action: LOG) {\\n      address @required(action: LOG) {\\n        country @required(action: LOG)\\n      }\\n    }\\n  }\\n}\\n",
+                          "name": "GraphQL request",
+                          "locationOffset": {
+                            "line": 1,
+                            "column": 1,
+                          },
+                        },
+                      },
+                      "path": "viewer.actor.address.country",
+                    },
+                  },
+                  name: "country",
+                  type: "String",
+                },
+              ],
+              type: "StreetAddress",
+            },
+          ],
+          type: "Actor",
+        },
+      ],
+      type: "Viewer",
+    },
+  ],
+  type: "Query",
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: required-with-different-actions.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+query UserQuery {
+  me @required(action: NONE) @required(action: THROW) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Did not expect multiple @required directives.
+
+Source: GraphQL request (3:6)
+2: query UserQuery {
+3:   me @required(action: NONE) @required(action: THROW) {
+        ^
+4:     id
+
+Source: GraphQL request (3:30)
+2: query UserQuery {
+3:   me @required(action: NONE) @required(action: THROW) {
+                                ^
+4:     id
+
+`;
+
+exports[`RequiredFieldTransform matches expected output: scalar-field-log.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  name @required(action: LOG)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  name
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 78,
+    source: {
+      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: LOG)\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
+  name: "ActorsRendererFragment",
+  selections: [
+    ScalarField {
+      alias: "id",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 44,
+        end: 46,
+        source: {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: LOG)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "id",
+      type: "ID!",
+    },
+    ScalarField {
+      alias: "name",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 49,
+        end: 76,
+        source: {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: LOG)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "LOG",
+          "actionLoc": Source {
+            start: 64,
+            end: 75,
+            source: {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: LOG)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 54,
+            end: 76,
+            source: {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: LOG)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "name",
+        },
+      },
+      name: "name",
+      type: "String",
+    },
+  ],
+  type: "Node",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: scalar-field-no-log.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  name @required(action: NONE)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  name
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 79,
+    source: {
+      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: NONE)\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: {
+    "childrenCanBubbleNull": true,
+  },
+  name: "ActorsRendererFragment",
+  selections: [
+    ScalarField {
+      alias: "id",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 44,
+        end: 46,
+        source: {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: NONE)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "id",
+      type: "ID!",
+    },
+    ScalarField {
+      alias: "name",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 49,
+        end: 77,
+        source: {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: NONE)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "NONE",
+          "actionLoc": Source {
+            start: 64,
+            end: 76,
+            source: {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: NONE)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 54,
+            end: 77,
+            source: {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: NONE)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "name",
+        },
+      },
+      name: "name",
+      type: "String",
+    },
+  ],
+  type: "Node",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: scalar-field-throw.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  name @required(action: THROW)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ActorsRendererFragment on Node {
+  id
+  name
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 80,
+    source: {
+      "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: THROW)\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "ActorsRendererFragment",
+  selections: [
+    ScalarField {
+      alias: "id",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 44,
+        end: 46,
+        source: {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: THROW)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "id",
+      type: "ID!",
+    },
+    ScalarField {
+      alias: "name",
+      args: [],
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 49,
+        end: 78,
+        source: {
+          "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: THROW)\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: {
+        "required": {
+          "action": "THROW",
+          "actionLoc": Source {
+            start: 64,
+            end: 77,
+            source: {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: THROW)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "directiveLoc": Source {
+            start: 54,
+            end: 78,
+            source: {
+              "body": "fragment ActorsRendererFragment on Node {\\n  id\\n  name @required(action: THROW)\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          "path": "name",
+        },
+      },
+      name: "name",
+      type: "String",
+    },
+  ],
+  type: "Node",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: throw-within-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 92,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 90,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 86,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "THROW",
+              "actionLoc": Source {
+                start: 72,
+                end: 85,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 86,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;
+
+exports[`RequiredFieldTransform matches expected output: throw-within-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name
+  }
+}
+Fragment {
+  directives: [],
+  loc: Source {
+    start: 0,
+    end: 92,
+    source: {
+      "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+      "name": "GraphQL request",
+      "locationOffset": {
+        "line": 1,
+        "column": 1,
+      },
+    },
+  },
+  metadata: null,
+  name: "SomeFragment",
+  selections: [
+    LinkedField {
+      alias: "nearest_neighbor",
+      args: [],
+      connection: false,
+      directives: [],
+      handles: null,
+      loc: Source {
+        start: 34,
+        end: 90,
+        source: {
+          "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+          "name": "GraphQL request",
+          "locationOffset": {
+            "line": 1,
+            "column": 1,
+          },
+        },
+      },
+      metadata: null,
+      name: "nearest_neighbor",
+      selections: [
+        ScalarField {
+          alias: "name",
+          args: [],
+          directives: [],
+          handles: null,
+          loc: Source {
+            start: 57,
+            end: 86,
+            source: {
+              "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+              "name": "GraphQL request",
+              "locationOffset": {
+                "line": 1,
+                "column": 1,
+              },
+            },
+          },
+          metadata: {
+            "required": {
+              "action": "THROW",
+              "actionLoc": Source {
+                start: 72,
+                end: 85,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "directiveLoc": Source {
+                start: 62,
+                end: 86,
+                source: {
+                  "body": "fragment SomeFragment on User {\\n  nearest_neighbor {\\n    name @required(action: THROW)\\n  }\\n}\\n",
+                  "name": "GraphQL request",
+                  "locationOffset": {
+                    "line": 1,
+                    "column": 1,
+                  },
+                },
+              },
+              "path": "nearest_neighbor.name",
+            },
+          },
+          name: "name",
+          type: "String",
+        },
+      ],
+      type: "User!",
+    },
+  ],
+  type: "User",
+  argumentDefinitions: [],
+}
+`;

@@ -9,35 +9,60 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod config;
 mod flow;
+mod typescript;
+mod writer;
 
+use crate::flow::FlowPrinter;
+use crate::typescript::TypeScriptPrinter;
+use crate::writer::Writer;
 use common::NamedItem;
-use flow::{print_type, Prop, AST};
+pub use config::{TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
-    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, ScalarField, Selection,
 };
-use graphql_transforms::{RelayDirective, MATCH_CONSTANTS};
-use indexmap::{IndexMap, IndexSet};
+use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use relay_transforms::{
+    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
+    REQUIRED_METADATA_KEY,
+};
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
 use std::fmt::{Result, Write};
 use std::hash::Hash;
+use writer::{Prop, AST, SPREAD_KEY};
 
 lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
+    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
+    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
+    static ref VARIABLES: StringKey = "variables".intern();
+    static ref RESPONSE: StringKey = "response".intern();
+    static ref KEY_DATA: StringKey = "$data".intern();
+    static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref TYPE_ID: StringKey = "ID".intern();
+    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref TYPE_FLOAT: StringKey = "Float".intern();
+    static ref TYPE_INT: StringKey = "Int".intern();
+    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
+    static ref JS_FIELD_NAME: StringKey = "js".intern();
 }
 
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &Schema,
-    enum_module_suffix: &Option<String>,
-    optional_input_fields: &[StringKey],
+    typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    let mut generator = TypeGenerator::new(schema, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
     generator.result
 }
@@ -46,10 +71,9 @@ pub fn generate_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &Schema,
-    enum_module_suffix: &Option<String>,
-    optional_input_fields: &[StringKey],
+    typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, enum_module_suffix, optional_input_fields);
+    let mut generator = TypeGenerator::new(schema, typegen_config);
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -61,6 +85,12 @@ enum GeneratedInputObject {
     Resolved(AST),
 }
 
+#[derive(Default)]
+struct RuntimeImports {
+    local_3d_payload: bool,
+    fragment_reference: bool,
+}
+
 struct TypeGenerator<'schema, 'config> {
     result: String,
     schema: &'schema Schema,
@@ -68,15 +98,13 @@ struct TypeGenerator<'schema, 'config> {
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
-    enum_module_suffix: &'config Option<String>,
-    optional_input_fields: &'config [StringKey],
+    typegen_config: &'config TypegenConfig,
+    runtime_imports: RuntimeImports,
+    match_fields: IndexMap<StringKey, AST>,
+    writer: Box<dyn Writer>,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
-    fn new(
-        schema: &'schema Schema,
-        enum_module_suffix: &'config Option<String>,
-        optional_input_fields: &'config [StringKey],
-    ) -> Self {
+    fn new(schema: &'schema Schema, typegen_config: &'config TypegenConfig) -> Self {
         Self {
             result: String::new(),
             schema,
@@ -84,8 +112,17 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             generated_input_object_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
-            enum_module_suffix,
-            optional_input_fields,
+            typegen_config,
+            match_fields: Default::default(),
+            runtime_imports: RuntimeImports::default(),
+            writer: Self::create_writer(typegen_config),
+        }
+    }
+
+    fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
+        match &typegen_config.language {
+            TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+            TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new()),
         }
     }
 
@@ -101,7 +138,15 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
         let selections = self.visit_selections(&typegen_operation.selections);
-        let response_type = self.selections_to_babel(selections, false, None);
+        let mut response_type = self.selections_to_babel(selections, false, None);
+
+        response_type = match typegen_operation
+            .directives
+            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        {
+            Some(_) => AST::Nullable(response_type.into()),
+            None => response_type,
+        };
 
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
             let raw_response_selections =
@@ -111,62 +156,86 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             None
         };
 
-        self.write_fragment_imports()?;
+        let refetchable_fragment_name =
+            RefetchableDerivedFromMetadata::from_directives(&typegen_operation.directives);
+        if refetchable_fragment_name.is_some() {
+            self.runtime_imports.fragment_reference = true;
+        }
+
+        self.write_runtime_imports()?;
+        if let Some(refetchable_fragment_name) = refetchable_fragment_name {
+            self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
+        } else {
+            self.write_fragment_imports()?;
+        }
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            input_variables_identifier,
-            print_type(&input_variables_type)
+            "{}",
+            self.writer.write_ast(&AST::ExportTypeEquals(
+                input_variables_identifier,
+                Box::from(input_variables_type)
+            ))
         )?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            response_identifier,
-            print_type(&response_type)
+            "{}",
+            self.writer.write_ast(&AST::ExportTypeEquals(
+                response_identifier,
+                Box::from(response_type)
+            )),
         )?;
 
         let mut operation_types = vec![
             Prop {
-                key: "variables".intern(),
+                key: *VARIABLES,
                 read_only: false,
-                other_comment: false,
                 optional: false,
                 value: AST::Identifier(input_variables_identifier),
             },
             Prop {
-                key: "response".intern(),
+                key: *RESPONSE,
                 read_only: false,
-                other_comment: false,
                 optional: false,
                 value: AST::Identifier(response_identifier),
             },
         ];
 
         if let Some(raw_response_type) = raw_response_type {
+            for (key, ast) in self.match_fields.iter() {
+                writeln!(
+                    self.result,
+                    "{}",
+                    self.writer
+                        .write_ast(&AST::ExportTypeEquals(*key, Box::from(ast.clone())))
+                )?;
+            }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
             writeln!(
                 self.result,
-                "export type {} = {};",
-                raw_response_identifier,
-                print_type(&raw_response_type)
+                "{}",
+                self.writer.write_ast(&AST::ExportTypeEquals(
+                    raw_response_identifier,
+                    Box::from(raw_response_type)
+                ))
             )?;
             operation_types.push(Prop {
                 key: *KEY_RAW_RESPONSE,
                 read_only: false,
                 optional: false,
-                other_comment: false,
                 value: AST::Identifier(raw_response_identifier),
             })
         }
 
         writeln!(
             self.result,
-            "export type {} = {};",
-            typegen_operation.name.item,
-            print_type(&AST::ExactObject(operation_types))
+            "{}",
+            self.writer.write_ast(&AST::ExportTypeEquals(
+                typegen_operation.name.item,
+                Box::from(AST::ExactObject(operation_types))
+            ))
         )?;
         Ok(())
     }
@@ -198,19 +267,17 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let ref_type_name = format!("{}$key", node.name.item);
         let ref_type_data_property = Prop {
-            key: "$data".intern(),
+            key: *KEY_DATA,
             optional: true,
             read_only: true,
-            other_comment: false,
             value: AST::Identifier(format!("{}$data", node.name.item).intern()),
         };
         let old_fragment_type_name = format!("{}$ref", node.name.item).intern();
         let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
         let ref_type_fragment_ref_property = Prop {
-            key: "$fragmentRefs".intern(),
+            key: *KEY_FRAGMENT_REFS,
             optional: false,
             read_only: true,
-            other_comment: false,
             value: AST::Identifier(old_fragment_type_name),
         };
         let is_plural_fragment = is_plural(node);
@@ -239,39 +306,74 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             base_type
         };
+
+        let type_ = match node.directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+            Some(_) => AST::Nullable(type_.into()),
+            None => type_,
+        };
+
+        self.runtime_imports.fragment_reference = true;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
-        writeln!(
-            self.result,
-            "import type {{ FragmentReference }} from \"relay-runtime\";"
-        )?;
+        self.write_runtime_imports()?;
 
+        let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
+        if let Some(refetchable_metadata) = refetchable_metadata {
+            writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::ImportType(
+                    vec![old_fragment_type_name, new_fragment_type_name],
+                    format!("{}.graphql", refetchable_metadata.operation_name).intern()
+                ))
+            )?;
+            writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::ExportList(vec![
+                    old_fragment_type_name,
+                    new_fragment_type_name
+                ]))
+            )?;
+        } else {
+            writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::DeclareExportOpaqueType(
+                    old_fragment_type_name,
+                    "FragmentReference".intern()
+                ))
+            )?;
+            writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::DeclareExportOpaqueType(
+                    new_fragment_type_name,
+                    old_fragment_type_name
+                ))
+            )?;
+        }
         writeln!(
             self.result,
-            "declare export opaque type {}: FragmentReference;",
-            old_fragment_type_name
+            "{}",
+            self.writer
+                .write_ast(&AST::ExportTypeEquals(node.name.item, Box::from(type_)))
         )?;
         writeln!(
             self.result,
-            "declare export opaque type {}: {};",
-            new_fragment_type_name, old_fragment_type_name
+            "{}",
+            self.writer.write_ast(&AST::ExportTypeEquals(
+                data_type_name.intern(),
+                Box::from(AST::RawType(data_type.intern()))
+            ))
         )?;
         writeln!(
             self.result,
-            "export type {} = {};",
-            node.name.item,
-            print_type(&type_)
-        )?;
-        writeln!(
-            self.result,
-            "export type {} = {};",
-            data_type_name, data_type
-        )?;
-        writeln!(
-            self.result,
-            "export type {} = {};",
-            ref_type_name,
-            print_type(&ref_type)
+            "{}",
+            self.writer.write_ast(&AST::ExportTypeEquals(
+                ref_type_name.intern(),
+                Box::from(ref_type)
+            ))
         )?;
 
         Ok(())
@@ -320,7 +422,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             ref_: Some(name),
             node_selections: None,
             document_name: None,
-            kind: None,
         });
     }
 
@@ -341,7 +442,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 .item
                 .expect_string_literal();
             type_selections.push(TypeSelection {
-                key: "__fragmentPropName".intern(),
+                key: *FRAGMENT_PROP_NAME,
                 schema_name: None,
                 value: Some(AST::Nullable(Box::new(AST::String))),
                 node_type: None,
@@ -349,11 +450,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             type_selections.push(TypeSelection {
-                key: "__module_component".intern(),
+                key: *MODULE_COMPONENT,
                 schema_name: None,
                 value: Some(AST::Nullable(Box::new(AST::String))),
                 node_type: None,
@@ -361,7 +461,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             self.used_fragments.insert(name);
@@ -374,14 +473,13 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 concrete_type: None,
                 ref_: Some(name),
                 node_selections: None,
-                kind: None,
                 document_name: None,
             });
             return;
         }
         let mut selections = self.visit_selections(&inline_fragment.selections);
         if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in selections.iter_mut() {
+            for selection in &mut selections {
                 if type_condition.is_abstract_type() {
                     selection.conditional = true;
                 } else {
@@ -398,9 +496,81 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         inline_fragment: &InlineFragment,
     ) {
         let mut selections = self.raw_response_visit_selections(&inline_fragment.selections);
-        if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in selections.iter_mut() {
+        if inline_fragment
+            .directives
+            .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
+            .is_some()
+        {
+            for selection in &mut selections {
+                selection.conditional = true;
+            }
+        }
+
+        if let Some(module_directive) = inline_fragment
+            .directives
+            .named(MATCH_CONSTANTS.custom_module_directive_name)
+        {
+            let mut module_selections = selections
+                .iter()
+                .cloned()
+                .filter(|sel| sel.schema_name == Some(*JS_FIELD_NAME))
+                .collect::<Vec<_>>();
+            let directive_arg_name = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.name_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+            let directive_arg_key = module_directive
+                .arguments
+                .named(MATCH_CONSTANTS.key_arg)
+                .unwrap()
+                .value
+                .item
+                .expect_string_literal();
+
+            /* TODO: Enable this after rolling out
+               This causes __typename to be `string`
+            if let Some(type_condition) = inline_fragment.type_condition {
                 if !type_condition.is_abstract_type() {
+                    for selection in &mut selections {
+                        selection.concrete_type = Some(type_condition);
+                    }
+                }
+            }
+            */
+
+            if !self.match_fields.contains_key(&directive_arg_name) {
+                let match_field = self.raw_response_selections_to_babel(
+                    selections
+                        .iter()
+                        .cloned()
+                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .collect(),
+                    None,
+                );
+                self.match_fields.insert(directive_arg_name, match_field);
+            }
+
+            type_selections.append(&mut module_selections);
+
+            type_selections.push(TypeSelection {
+                key: directive_arg_name,
+                schema_name: None,
+                value: None,
+                node_type: None,
+                conditional: false,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                document_name: Some(directive_arg_key),
+            });
+            return;
+        }
+        if let Some(type_condition) = inline_fragment.type_condition {
+            if !type_condition.is_abstract_type() {
+                for selection in &mut selections {
                     selection.concrete_type = Some(type_condition);
                 }
             }
@@ -422,16 +592,19 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             schema_name
         };
         let selections = visit_selections_fn(self, &linked_field.selections);
+
+        let node_type =
+            apply_required_directive_nullability(&field.type_, &linked_field.directives);
+
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
-            node_type: Some(field.type_.clone()),
+            node_type: Some(node_type),
             value: None,
             conditional: false,
             concrete_type: None,
             ref_: None,
-            node_selections: Some(selections_to_map(&self.schema, selections, true)),
-            kind: None,
+            node_selections: Some(selections_to_map(selections, true)),
             document_name: None,
         });
     }
@@ -448,16 +621,17 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             schema_name
         };
+        let field_type =
+            apply_required_directive_nullability(&field.type_, &scalar_field.directives);
         type_selections.push(TypeSelection {
             key,
             schema_name: Some(schema_name),
             node_type: None,
-            value: Some(self.transform_scalar_type(&field.type_, None)),
+            value: Some(self.transform_scalar_type(&field_type, None)),
             conditional: false,
             concrete_type: None,
             ref_: None,
             node_selections: None,
-            kind: None,
             document_name: None,
         });
     }
@@ -486,17 +660,25 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     .or_insert_with(Vec::new)
                     .push(selection);
             } else {
-                let next_sel = if let Some(previous_sel) = base_fields.get(&selection.key) {
-                    merge_selection(Some(selection), previous_sel.clone(), true)
-                } else {
-                    selection
+                let key = TypeSelectionKey {
+                    key: selection.key,
+                    concrete_type: None,
                 };
-                base_fields.insert(next_sel.key, next_sel);
+                match base_fields.entry(key) {
+                    Entry::Occupied(entry) => {
+                        let previous_sel = entry.get().clone();
+                        *entry.into_mut() = merge_selection(Some(selection), previous_sel, true);
+                    }
+                    Entry::Vacant(entry) => {
+                        entry.insert(selection);
+                    }
+                }
             }
         }
 
         let mut types: Vec<Vec<Prop>> = Vec::new();
 
+        #[allow(clippy::ptr_arg)]
         fn has_typename_selection(selections: &Vec<TypeSelection>) -> bool {
             selections.iter().any(TypeSelection::is_typename)
         }
@@ -537,19 +719,16 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         key: *typename_alias,
                         read_only: true,
                         optional: false,
-                        other_comment: true,
-                        value: AST::StringLiteral("%other".intern()),
+                        value: AST::OtherEnumValue,
                     })
                     .collect(),
             );
         } else {
-            let mut selection_map =
-                selections_to_map(&self.schema, hashmap_into_value_vec(base_fields), false);
+            let mut selection_map = selections_to_map(hashmap_into_value_vec(base_fields), false);
             for concrete_type_selections in by_concrete_type.values() {
                 selection_map = merge_selections(
                     selection_map,
                     selections_to_map(
-                        &self.schema,
                         concrete_type_selections
                             .iter()
                             .map(|sel| TypeSelection {
@@ -588,10 +767,9 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 .map(|mut props: Vec<Prop>| {
                     if let Some(fragment_type_name) = fragment_type_name {
                         props.push(Prop {
-                            key: "$refType".intern(),
+                            key: *KEY_REF_TYPE,
                             optional: false,
                             read_only: true,
-                            other_comment: false,
                             value: AST::Identifier(fragment_type_name),
                         });
                     }
@@ -627,36 +805,63 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let mut types: Vec<AST> = Vec::new();
 
         if !by_concrete_type.is_empty() {
-            let base_fields_map = selections_to_map(&self.schema, base_fields.clone(), false);
+            let base_fields_map = selections_to_map(base_fields.clone(), false);
             for (concrete_type, selections) in by_concrete_type {
                 let merged_selections = hashmap_into_value_vec(merge_selections(
                     base_fields_map.clone(),
-                    selections_to_map(&self.schema, selections, false),
+                    selections_to_map(selections, false),
                     false,
                 ));
                 types.push(AST::ExactObject(
                     merged_selections
-                        .into_iter()
+                        .iter()
+                        .cloned()
                         .map(|selection| {
                             self.raw_response_make_prop(selection, Some(concrete_type))
                         })
                         .collect(),
                 ));
-                // appendLocal3DPayload(types, mergedSeletions, schema, state, concreteType);
+                self.append_local_3d_payload(&mut types, &merged_selections, Some(concrete_type));
             }
         }
 
         if !base_fields.is_empty() {
             types.push(AST::ExactObject(
                 base_fields
-                    .into_iter()
+                    .iter()
+                    .cloned()
                     .map(|selection| self.raw_response_make_prop(selection, concrete_type))
                     .collect(),
-            ))
-            // appendLocal3DPayload(types, baseFields, schema, state, nodeTypeName);
+            ));
+            self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
         }
 
         AST::Union(types)
+    }
+
+    fn append_local_3d_payload(
+        &mut self,
+        types: &mut Vec<AST>,
+        type_selections: &[TypeSelection],
+        concrete_type: Option<Type>,
+    ) {
+        if let Some(module_import) = type_selections
+            .iter()
+            .find(|sel| sel.document_name.is_some())
+        {
+            self.runtime_imports.local_3d_payload = true;
+
+            types.push(AST::Local3DPayload(
+                module_import.document_name.unwrap(),
+                Box::new(AST::ExactObject(
+                    type_selections
+                        .iter()
+                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .map(|sel| self.raw_response_make_prop(sel.clone(), concrete_type))
+                        .collect(),
+                )),
+            ));
+        }
     }
 
     fn make_prop(
@@ -681,7 +886,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 None,
             );
             self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some("__typename".intern()) {
+        } else if schema_name == Some(*KEY_TYPENAME) {
             if let Some(concrete_type) = concrete_type {
                 AST::StringLiteral(self.schema.get_type_name(concrete_type))
             } else {
@@ -694,7 +899,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             key,
             read_only: true,
             optional: conditional,
-            other_comment: false,
             value,
         }
     }
@@ -711,14 +915,18 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             conditional,
             node_type,
             node_selections,
-            // kind,
+            document_name,
             ..
         } = type_selection;
-        // if (kind === 'ModuleImport') {
-        //   return t.objectTypeSpreadProperty(
-        //     t.genericTypeAnnotation(t.identifier(key)),
-        //   );
-        // }
+
+        if document_name.is_some() {
+            return Prop {
+                key: *SPREAD_KEY,
+                value: AST::Identifier(key),
+                read_only: false,
+                optional: false,
+            };
+        }
 
         let value = if let Some(node_type) = node_type {
             let inner_concrete_type = if node_type.is_list()
@@ -734,7 +942,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 inner_concrete_type,
             );
             self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some("__typename".intern()) {
+        } else if schema_name == Some(*KEY_TYPENAME) {
             if let Some(concrete_type) = concrete_type {
                 AST::StringLiteral(self.schema.get_type_name(concrete_type))
             } else {
@@ -747,7 +955,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             key,
             read_only: true,
             optional: conditional,
-            other_comment: false,
             value,
         }
     }
@@ -787,35 +994,17 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
-        // const customType = state.customScalars[typeName];
-        // if (typeof customType === 'function') {
-        //   return customType(t);
-        // }
-        // switch (customType ?? typeName) {
-        //   case 'ID':
-        //   case 'String':
-        //     return t.stringTypeAnnotation();
-        //   case 'Float':
-        //   case 'Int':
-        //     return t.numberTypeAnnotation();
-        //   case 'Boolean':
-        //     return t.booleanTypeAnnotation();
-        //   default:
-        //     return customType == null
-        //       ? t.anyTypeAnnotation()
-        //       : t.genericTypeAnnotation(t.identifier(customType));
-        // }
-
         let scalar_name = self.schema.scalar(scalar).name;
-        if scalar_name == "ID".intern() || scalar_name == "String".intern() {
+        if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
-        } else if scalar_name == "Float".intern() || scalar_name == "Int".intern() {
+        } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
             AST::Number
-        } else if scalar_name == "Boolean".intern() {
+        } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if scalar_name == "Url".intern() {
-            // TODO make custom scalars configurable
-            AST::String
+        } else if let Some(&custom_scalar) =
+            self.typegen_config.custom_scalar_types.get(&scalar_name)
+        {
+            AST::RawType(custom_scalar)
         } else {
             AST::Any
         }
@@ -826,29 +1015,90 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         AST::Identifier(self.schema.enum_(enum_id).name)
     }
 
+    fn write_runtime_imports(&mut self) -> Result {
+        match self.runtime_imports {
+            RuntimeImports {
+                local_3d_payload: true,
+                fragment_reference: true,
+            } => writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::ImportType(
+                    vec!["FragmentReference".intern(), "Local3DPayload".intern()],
+                    "relay-runtime".intern()
+                ))
+            ),
+            RuntimeImports {
+                local_3d_payload: true,
+                fragment_reference: false,
+            } => writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::ImportType(
+                    vec!["Local3DPayload".intern()],
+                    "relay-runtime".intern()
+                ))
+            ),
+            RuntimeImports {
+                local_3d_payload: false,
+                fragment_reference: true,
+            } => writeln!(
+                self.result,
+                "{}",
+                self.writer.write_ast(&AST::ImportType(
+                    vec!["FragmentReference".intern()],
+                    "relay-runtime".intern()
+                ))
+            ),
+            RuntimeImports {
+                local_3d_payload: false,
+                fragment_reference: false,
+            } => Ok(()),
+        }
+    }
+
     fn write_fragment_imports(&mut self) -> Result {
         let mut used_fragments: Vec<_> = self.used_fragments.iter().collect();
         used_fragments.sort();
         for used_fragment in used_fragments {
             let fragment_type_name = get_old_fragment_type_name(*used_fragment);
             if !self.generated_fragments.contains(used_fragment) {
-                //   if (state.useHaste) {
-                //     // TODO(T22653277) support non-haste environments when importing
-                //     // fragments
-                writeln!(
-                    self.result,
-                    "import type {{ {} }} from \"{}.graphql\";",
-                    fragment_type_name, used_fragment
-                )?;
-                //   } else if (state.useSingleArtifactDirectory) {
-                //     imports.push(
-                //       importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
-                //     );
-                //   } else {
-                //     imports.push(anyTypeAlias(fragmentTypeName));
-                //   }
+                if self.typegen_config.haste {
+                    // TODO(T22653277) support non-haste environments when importing
+                    // fragments
+                    writeln!(
+                        self.result,
+                        "import type {{ {} }} from \"{}.graphql\";",
+                        fragment_type_name, used_fragment
+                    )?;
+                // } else if (state.useSingleArtifactDirectory) {
+                //   imports.push(
+                //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
+                //   );
+                } else {
+                    writeln!(self.result, "type {} = any;", fragment_type_name)?;
+                }
             }
         }
+        Ok(())
+    }
+
+    fn write_fragment_refs_for_refetchable(
+        &mut self,
+        refetchable_fragment_name: StringKey,
+    ) -> Result {
+        let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
+        let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
+        writeln!(
+            self.result,
+            "declare export opaque type {}: FragmentReference;",
+            old_fragment_type_name
+        )?;
+        writeln!(
+            self.result,
+            "declare export opaque type {}: {};",
+            new_fragment_type_name, old_fragment_type_name
+        )?;
         Ok(())
     }
 
@@ -857,7 +1107,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
-            if let Some(enum_module_suffix) = self.enum_module_suffix {
+            if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 writeln!(
                     self.result,
                     "import type {{ {enum_name} }} from \"{enum_name}{enum_suffix}\";",
@@ -870,12 +1120,12 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     .iter()
                     .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
-                members.push(AST::StringLiteral("%future added value".intern()));
+                members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
                 writeln!(
                     self.result,
                     "export type {} = {};",
                     enum_type.name,
-                    print_type(&AST::Union(members))
+                    self.writer.write_ast(&AST::Union(members))
                 )?;
             }
         }
@@ -890,7 +1140,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     key: var_def.name.item,
                     read_only: false,
                     optional: !var_def.type_.is_non_null(),
-                    other_comment: false,
                     value: self.transform_input_type(&var_def.type_),
                 })
                 .collect(),
@@ -905,7 +1154,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                         self.result,
                         "export type {} = {};",
                         type_identifier,
-                        print_type(&input_object_type)
+                        self.writer.write_ast(&input_object_type)
                     )?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),
@@ -945,8 +1194,10 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                                 key: field.name,
                                 read_only: false,
                                 optional: !field.type_.is_non_null()
-                                    || self.optional_input_fields.contains(&field.name),
-                                other_comment: false,
+                                    || self
+                                        .typegen_config
+                                        .optional_input_fields
+                                        .contains(&field.name),
                                 value: self.transform_input_type(&field.type_),
                             })
                             .collect();
@@ -973,15 +1224,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                     panic!("There should be no fragment spreads in the raw response IR.");
                 }
                 Selection::InlineFragment(inline_fragment) => {
-                    // TODO if has client extension directive, mark as conditional:
-                    //
-                    //   return flattenArray(
-                    //     /* $FlowFixMe: selections have already been transformed */
-                    //     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-                    //   ).map(sel => ({
-                    //     ...sel,
-                    //     conditional: true,
-                    //   }));
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)
                 }
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
@@ -1012,20 +1254,24 @@ struct TypeSelection {
     concrete_type: Option<Type>,
     ref_: Option<StringKey>,
     node_selections: Option<TypeSelectionMap>,
-    kind: Option<StringKey>,
     document_name: Option<StringKey>,
 }
 impl TypeSelection {
     fn is_typename(&self) -> bool {
         if let Some(schema_name) = self.schema_name {
-            schema_name == "__typename".intern()
+            schema_name == *KEY_TYPENAME
         } else {
             false
         }
     }
 }
 
-type TypeSelectionMap = IndexMap<StringKey, TypeSelection>;
+#[derive(Eq, Hash, PartialEq, Clone, Copy, Debug)]
+struct TypeSelectionKey {
+    key: StringKey,
+    concrete_type: Option<Type>,
+}
+type TypeSelectionMap = IndexMap<TypeSelectionKey, TypeSelection>;
 
 fn merge_selection(
     a: Option<TypeSelection>,
@@ -1054,40 +1300,36 @@ fn merge_selection(
 }
 
 fn merge_selections(
-    a: TypeSelectionMap,
+    mut a: TypeSelectionMap,
     b: TypeSelectionMap,
     should_set_conditional: bool,
 ) -> TypeSelectionMap {
-    let mut merged: TypeSelectionMap = Default::default();
-    merged.extend(a);
     for (key, value) in b {
-        merged.insert(
+        a.insert(
             key,
-            merge_selection(merged.get(&key).cloned(), value, should_set_conditional),
+            merge_selection(a.get(&key).cloned(), value, should_set_conditional),
         );
     }
-    merged
+    a
 }
 
 fn is_plural(node: &FragmentDefinition) -> bool {
     RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
 }
 
-fn selections_to_map(
-    schema: &Schema,
-    selections: Vec<TypeSelection>,
-    append_type: bool,
-) -> TypeSelectionMap {
+fn selections_to_map(selections: Vec<TypeSelection>, append_type: bool) -> TypeSelectionMap {
     let mut map: TypeSelectionMap = Default::default();
     for selection in selections {
         let key = if append_type {
-            if let Some(concrete_type) = selection.concrete_type {
-                format!("{}::{}", selection.key, schema.get_type_name(concrete_type)).intern()
-            } else {
-                selection.key
+            TypeSelectionKey {
+                key: selection.key,
+                concrete_type: selection.concrete_type,
             }
         } else {
-            selection.key
+            TypeSelectionKey {
+                key: selection.key,
+                concrete_type: None,
+            }
         };
 
         map.insert(
@@ -1119,7 +1361,7 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
                 .collect(),
         );
         result.push(TypeSelection {
-            key: "$fragmentRefs".intern(),
+            key: *KEY_FRAGMENT_REFS,
             conditional: false,
             value: Some(value),
             schema_name: None,
@@ -1127,7 +1369,6 @@ fn group_refs(props: Vec<TypeSelection>) -> Vec<TypeSelection> {
             concrete_type: None,
             ref_: None,
             node_selections: None,
-            kind: None,
             document_name: None,
         });
     }
@@ -1147,4 +1388,17 @@ fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
         .directives
         .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
         .is_some()
+}
+
+fn apply_required_directive_nullability(
+    field_type: &TypeReference,
+    directives: &[Directive],
+) -> TypeReference {
+    match directives.named(*REQUIRED_METADATA_KEY) {
+        Some(_) => field_type.non_null(),
+        None => match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+            Some(_) => field_type.with_nullable_item_type(),
+            None => field_type.clone(),
+        },
+    }
 }

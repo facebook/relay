@@ -1,4 +1,4 @@
-fragment Foo_user on User {
+fragment clientConditions_Foo_user on User {
   id
   name @include(if: $shouldInclude)
 

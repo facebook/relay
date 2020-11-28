@@ -19,10 +19,10 @@ import type {
 import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
 
 /**
- * Represents a common GraphQL request with `text` (or persisted `id`) can be
- * used to execute it, an `operation` containing information to normalize the
- * results, and a `fragment` derived from that operation to read the response
- * data (masking data from child fragments).
+ * Represents a common GraphQL request that can be executed, an `operation`
+ * containing information to normalize the results, and a `fragment` derived
+ * from that operation to read the response data (masking data from child
+ * fragments).
  */
 export type ConcreteRequest = {|
   +kind: 'Request',
@@ -31,18 +31,34 @@ export type ConcreteRequest = {|
   +params: RequestParameters,
 |};
 
+export type NormalizationRootNode =
+  | ConcreteRequest
+  | NormalizationSplitOperation;
+
 /**
- * Contains the `text` (or persisted `id`) required for executing a common
- * GraphQL request.
+ * Contains the parameters required for executing a GraphQL request.
+ * The operation can either be provided as a persisted `id` or `text`. If given
+ * in `text` format, a `cacheID` as a hash of the text should be set to be used
+ * for local caching.
  */
 export type RequestParameters =
-  | {|...BaseRequestParameters, +text: null, +id: string|}
-  | {|...BaseRequestParameters, +text: string, +id: null|};
-type BaseRequestParameters = {|
-  +name: string,
-  +operationKind: 'mutation' | 'query' | 'subscription',
-  +metadata: {[key: string]: mixed, ...},
-|};
+  | {|
+      +id: string,
+      +text: null,
+      // common fields
+      +name: string,
+      +operationKind: 'mutation' | 'query' | 'subscription',
+      +metadata: {[key: string]: mixed, ...},
+    |}
+  | {|
+      +cacheID: string,
+      +id: null,
+      +text: string,
+      // common fields
+      +name: string,
+      +operationKind: 'mutation' | 'query' | 'subscription',
+      +metadata: {[key: string]: mixed, ...},
+    |};
 
 export type GeneratedNode =
   | ConcreteRequest
@@ -55,6 +71,7 @@ const RelayConcreteNode = {
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
+  FLIGHT_FIELD: 'FlightField',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread',
@@ -66,6 +83,7 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
   REQUEST: 'Request',

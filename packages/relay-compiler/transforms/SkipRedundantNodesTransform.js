@@ -22,7 +22,7 @@ const invariant = require('invariant');
 
 import type {Schema} from '../core/Schema';
 
-import type {Fragment, Node, Root, Selection} from '../core/IR';
+import type {Fragment, Node, Root, SplitOperation, Selection} from '../core/IR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -30,6 +30,7 @@ import type {Fragment, Node, Root, Selection} from '../core/IR';
  * or nested maps for items with subselections (linked fields, inline fragments,
  * etc).
  */
+// $FlowFixMe[value-as-type]
 type SelectionMap = IMap<string, ?SelectionMap>;
 
 /**
@@ -128,12 +129,13 @@ function skipRedundantNodesTransform(
 ): CompilerContext {
   return IRTransformer.transform(context, {
     Root: visitNode,
+    SplitOperation: visitNode,
     Fragment: visitNode,
   });
 }
 
 let cache = new Map();
-function visitNode<T: Fragment | Root>(node: T): ?T {
+function visitNode<T: Fragment | Root | SplitOperation>(node: T): ?T {
   cache = new Map();
   const context: CompilerContext = this.getContext();
   return transformNode(context.getSchema(), node, new IMap()).node;
@@ -167,6 +169,7 @@ function transformNode<T: Node>(
   const isEmptySelectionMap = selectionMap.size === 0;
   let result;
   if (isEmptySelectionMap) {
+    // $FlowFixMe[escaped-generic]
     result = cache.get(node);
     if (result != null) {
       return result;
@@ -228,6 +231,7 @@ function transformNode<T: Node>(
   const nextNode: any = selections.length ? {...node, selections} : null;
   result = {selectionMap, node: nextNode};
   if (isEmptySelectionMap) {
+    // $FlowFixMe[escaped-generic]
     cache.set(node, result);
   }
   return result;

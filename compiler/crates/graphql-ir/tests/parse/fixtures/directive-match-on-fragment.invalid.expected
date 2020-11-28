@@ -12,6 +12,10 @@ fragment Example on User @match(key: "Example") {
   }
 }
 ==================================== ERROR ====================================
-Directive 'match' not supported in this location:
-directive-match-on-fragment.invalid.graphql:1:27:
-fragment Example on User @match(key: "Example") {
+✖︎ Directive 'match' not supported in this location
+
+  directive-match-on-fragment.invalid.graphql:2:27
+    1 │ # expected-to-throw
+    2 │ fragment Example on User @match(key: "Example") {
+      │                           ^^^^^
+    3 │   friends {

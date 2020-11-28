@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
-query AbstractTypeRefinement {
+query abstractTypeRefinement_AbstractTypeRefinementQuery {
   node(id: "4") {
     ... on Named {
       name_from_query: name
     }
-    ...ActorFragment
+    ...abstractTypeRefinement_ActorFragment
   }
 }
 
-fragment ActorFragment on Actor {
+fragment abstractTypeRefinement_ActorFragment on Actor {
   username
   ... on Named {
     name_from_fragment: name
@@ -20,7 +20,7 @@ fragment ActorFragment on Actor {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -53,7 +53,7 @@ fragment ActorFragment on Actor {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "ActorFragment"
+            "name": "abstractTypeRefinement_ActorFragment"
           }
         ],
         "storageKey": "node(id:\"4\")"
@@ -66,7 +66,7 @@ fragment ActorFragment on Actor {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",
     "selections": [
       {
         "alias": null,
@@ -100,10 +100,6 @@ fragment ActorFragment on Actor {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isNamed"
-              },
-              {
                 "alias": "name_from_query",
                 "args": null,
                 "kind": "ScalarField",
@@ -117,10 +113,6 @@ fragment ActorFragment on Actor {
           {
             "kind": "InlineFragment",
             "selections": [
-              {
-                "kind": "TypeDiscriminator",
-                "abstractKey": "__isActor"
-              },
               {
                 "alias": null,
                 "args": null,
@@ -154,7 +146,7 @@ fragment ActorFragment on Actor {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "AbstractTypeRefinement",
+    "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",
     "operationKind": "query",
     "text": null
   }
@@ -162,19 +154,19 @@ fragment ActorFragment on Actor {
 
 QUERY:
 
-query AbstractTypeRefinement {
+query abstractTypeRefinement_AbstractTypeRefinementQuery {
   node(id: "4") {
     __typename
     ... on Named {
       __isNamed: __typename
       name_from_query: name
     }
-    ...ActorFragment
+    ...abstractTypeRefinement_ActorFragment
     id
   }
 }
 
-fragment ActorFragment on Actor {
+fragment abstractTypeRefinement_ActorFragment on Actor {
   __isActor: __typename
   username
   ... on Named {
@@ -188,7 +180,7 @@ fragment ActorFragment on Actor {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ActorFragment",
+  "name": "abstractTypeRefinement_ActorFragment",
   "selections": [
     {
       "alias": null,

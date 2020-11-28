@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query NodeQuery($id: ID!) {
+query connection_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -29,31 +29,12 @@ query NodeQuery($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
-    "metadata": {
-      "connection": [
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": null
-        },
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": [
-            "node",
-            "comments"
-          ]
-        }
-      ]
-    },
-    "name": "NodeQuery",
+    "metadata": null,
+    "name": "connection_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -265,12 +246,11 @@ query NodeQuery($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "NodeQuery",
+    "name": "connection_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -553,8 +533,26 @@ query NodeQuery($id: ID!) {
   },
   "params": {
     "id": null,
-    "metadata": {},
-    "name": "NodeQuery",
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": null
+        },
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ]
+        }
+      ]
+    },
+    "name": "connection_NodeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -562,7 +560,7 @@ query NodeQuery($id: ID!) {
 
 QUERY:
 
-query NodeQuery(
+query connection_NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {

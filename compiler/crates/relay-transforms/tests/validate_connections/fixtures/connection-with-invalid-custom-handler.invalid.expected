@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10)
+                @connection(key: "NodeQuery_friends", handler: false) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'String'
+
+  connection-with-invalid-custom-handler.invalid.graphql:12:64
+   11 │               friends(first: 10)
+   12 │                 @connection(key: "NodeQuery_friends", handler: false) {
+      │                                                                ^^^^^
+   13 │                 edges {
+
+
+✖︎ Expected a value of type 'String'
+
+  connection-with-invalid-custom-handler.invalid.graphql:6:75
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+      │                                                                           ^^
+    7 │         edges {

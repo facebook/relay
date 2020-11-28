@@ -13,13 +13,20 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
+const {generateTypeID} = require('./TypeID');
+
+import type {ReactFlightPayloadQuery} from '../network/RelayNetworkTypes';
 import type {
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -37,6 +44,7 @@ const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -47,7 +55,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
+const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -70,6 +78,7 @@ function mark(
  */
 class RelayReferenceMarker {
   _operationLoader: OperationLoader | null;
+  _operationName: ?string;
   _recordSource: RecordSource;
   _references: Set<DataID>;
   _variables: Variables;
@@ -81,12 +90,16 @@ class RelayReferenceMarker {
     operationLoader: ?OperationLoader,
   ) {
     this._operationLoader = operationLoader ?? null;
+    this._operationName = null;
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
   }
 
   mark(node: NormalizationNode, dataID: DataID): void {
+    if (node.kind === 'Operation' || node.kind === 'SplitOperation') {
+      this._operationName = node.name;
+    }
     this._traverse(node, dataID);
   }
 
@@ -134,10 +147,16 @@ class RelayReferenceMarker {
             if (typeName != null && typeName === selection.type) {
               this._traverseSelections(selection.selections, record);
             }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            this._references.add(typeID);
+            this._traverseSelections(selection.selections, record);
           } else {
             this._traverseSelections(selection.selections, record);
           }
           break;
+        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
           invariant(
             false,
@@ -172,13 +191,27 @@ class RelayReferenceMarker {
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
-        case TYPE_DISCRIMINATOR:
           break;
+        case TYPE_DISCRIMINATOR: {
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const typeName = RelayModernRecord.getType(record);
+            const typeID = generateTypeID(typeName);
+            this._references.add(typeID);
+          }
+          break;
+        }
         case MODULE_IMPORT:
           this._traverseModuleImport(selection, record);
           break;
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
+          break;
+        case FLIGHT_FIELD:
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._traverseFlightField(selection, record);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
           break;
         default:
           (selection: empty);
@@ -198,16 +231,20 @@ class RelayReferenceMarker {
     const operationLoader = this._operationLoader;
     invariant(
       operationLoader !== null,
-      'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`.',
+      'RelayReferenceMarker: Expected an operationLoader to be configured when using `@module`. ' +
+        'Could not load fragment `%s` in operation `%s`.',
+      moduleImport.fragmentName,
+      this._operationName ?? '(unknown)',
     );
     const operationKey = getModuleOperationKey(moduleImport.documentName);
     const operationReference = RelayModernRecord.getValue(record, operationKey);
     if (operationReference == null) {
       return;
     }
-    const operation = operationLoader.get(operationReference);
-    if (operation != null) {
-      this._traverseSelections(operation.selections, record);
+    const normalizationRootNode = operationLoader.get(operationReference);
+    if (normalizationRootNode != null) {
+      const selections = getOperation(normalizationRootNode).selections;
+      this._traverseSelections(selections, record);
     }
     // Otherwise, if the operation is not available, we assume that the data
     // cannot have been processed yet and therefore isn't in the store to
@@ -236,6 +273,51 @@ class RelayReferenceMarker {
         this._traverse(field, linkedID);
       }
     });
+  }
+
+  _traverseFlightField(field: NormalizationFlightField, record: Record): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+    if (linkedID == null) {
+      return;
+    }
+    this._references.add(linkedID);
+
+    const reactFlightClientResponseRecord = this._recordSource.get(linkedID);
+
+    if (reactFlightClientResponseRecord == null) {
+      return;
+    }
+
+    const reachableQueries = RelayModernRecord.getValue(
+      reactFlightClientResponseRecord,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+    );
+
+    if (!Array.isArray(reachableQueries)) {
+      return;
+    }
+
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using ' +
+        'React Flight',
+    );
+    // In Flight, the variables that are in scope for reachable queries aren't
+    // the same as what's in scope for the outer query.
+    const prevVariables = this._variables;
+    // $FlowFixMe[incompatible-cast]
+    for (const query of (reachableQueries: Array<ReactFlightPayloadQuery>)) {
+      this._variables = query.variables;
+      const operationReference = query.module;
+      const normalizationRootNode = operationLoader.get(operationReference);
+      if (normalizationRootNode != null) {
+        const operation = getOperation(normalizationRootNode);
+        this._traverse(operation, ROOT_ID);
+      }
+    }
+    this._variables = prevVariables;
   }
 }
 

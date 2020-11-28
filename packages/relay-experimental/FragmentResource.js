@@ -25,6 +25,7 @@ const {
   getSelector,
   isPromise,
   recycleNodesInto,
+  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 import type {Cache} from './LRUCache';
@@ -38,7 +39,7 @@ import type {
 
 export type FragmentResource = FragmentResourceImpl;
 
-type FragmentResourceCache = Cache<Error | Promise<mixed> | FragmentResult>;
+type FragmentResourceCache = Cache<Promise<mixed> | FragmentResult>;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
@@ -157,10 +158,11 @@ class FragmentResourceImpl {
     // 1. Check if there's a cached value for this fragment
     const cachedValue = this._cache.get(fragmentIdentifier);
     if (cachedValue != null) {
-      if (isPromise(cachedValue) || cachedValue instanceof Error) {
+      if (isPromise(cachedValue)) {
         throw cachedValue;
       }
       if (cachedValue.snapshot) {
+        this._reportMissingRequiredFieldsInSnapshot(cachedValue.snapshot);
         return cachedValue;
       }
     }
@@ -187,10 +189,12 @@ class FragmentResourceImpl {
       fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
       componentDisplayName,
     );
+
     const snapshot =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors.map(s => environment.lookup(s))
         : environment.lookup(fragmentSelector);
+
     const fragmentOwner =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors[0].owner
@@ -199,6 +203,7 @@ class FragmentResourceImpl {
       fragmentOwner.node.params.name ?? 'Unknown Parent Query';
 
     if (!isMissingData(snapshot)) {
+      this._reportMissingRequiredFieldsInSnapshot(snapshot);
       const fragmentResult = getFragmentResult(fragmentIdentifier, snapshot);
       this._cache.set(fragmentIdentifier, fragmentResult);
       return fragmentResult;
@@ -241,7 +246,28 @@ class FragmentResourceImpl {
       parentQueryName,
     );
 
+    this._reportMissingRequiredFieldsInSnapshot(snapshot);
     return getFragmentResult(fragmentIdentifier, snapshot);
+  }
+
+  _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
+    if (Array.isArray(snapshot)) {
+      snapshot.forEach(s => {
+        if (s.missingRequiredFields != null) {
+          reportMissingRequiredFields(
+            this._environment,
+            s.missingRequiredFields,
+          );
+        }
+      });
+    } else {
+      if (snapshot.missingRequiredFields != null) {
+        reportMissingRequiredFields(
+          this._environment,
+          snapshot.missingRequiredFields,
+        );
+      }
+    }
   }
 
   readSpec(
@@ -384,6 +410,7 @@ class FragmentResourceImpl {
       isMissingData: currentSnapshot.isMissingData,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
+      missingRequiredFields: currentSnapshot.missingRequiredFields,
     };
     if (updatedData !== renderData) {
       this._cache.set(cacheKey, getFragmentResult(cacheKey, currentSnapshot));
@@ -420,12 +447,12 @@ class FragmentResourceImpl {
       .then(() => {
         this._cache.delete(cacheKey);
       })
-      .catch(error => {
-        this._cache.set(cacheKey, error);
+      .catch((error: Error) => {
+        this._cache.delete(cacheKey);
       });
     this._cache.set(cacheKey, promise);
 
-    // $FlowExpectedError Expando to annotate Promises.
+    // $FlowExpectedError[prop-missing] Expando to annotate Promises.
     promise.displayName = 'Relay(' + fragmentOwner.node.params.name + ')';
     return promise;
   }
@@ -437,10 +464,7 @@ class FragmentResourceImpl {
     idx: number,
   ): void {
     const currentFragmentResult = this._cache.get(cacheKey);
-    if (
-      isPromise(currentFragmentResult) ||
-      currentFragmentResult instanceof Error
-    ) {
+    if (isPromise(currentFragmentResult)) {
       reportInvalidCachedData(latestSnapshot.selector.node.name);
       return;
     }

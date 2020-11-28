@@ -13,8 +13,7 @@
 
 'use strict';
 
-const useBlockingPaginationFragment = require('../useBlockingPaginationFragment');
-
+import useBlockingPaginationFragment from '../useBlockingPaginationFragment';
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import {
   fragmentData,

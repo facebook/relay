@@ -16,18 +16,20 @@
 const EntryPointContainer = require('./EntryPointContainer.react');
 const LazyLoadEntryPointContainer_DEPRECATED = require('./LazyLoadEntryPointContainer_DEPRECATED.react');
 const MatchContainer = require('./MatchContainer');
-const PreloadableQueryRegistry = require('./PreloadableQueryRegistry');
 const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
 const fetchQuery = require('./fetchQuery');
-const prepareEntryPoint = require('./prepareEntryPoint');
+const loadEntryPoint = require('./loadEntryPoint');
+const prepareEntryPoint_DEPRECATED = require('./prepareEntryPoint_DEPRECATED');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
+const useEntryPointLoader = require('./useEntryPointLoader');
 const useFragment = require('./useFragment');
 const useLazyLoadQuery = require('./useLazyLoadQuery');
 const useMutation = require('./useMutation');
 const usePaginationFragment = require('./usePaginationFragment');
 const usePreloadedQuery = require('./usePreloadedQuery');
+const useQueryLoader = require('./useQueryLoader');
 const useRefetchableFragment = require('./useRefetchableFragment');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./useSubscribeToInvalidationState');
@@ -52,16 +54,19 @@ module.exports = {
   MatchContainer: MatchContainer,
   ProfilerContext: ProfilerContext,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
-  PreloadableQueryRegistry: PreloadableQueryRegistry,
 
   fetchQuery: fetchQuery,
 
-  preloadQuery: loadQuery,
-  prepareEntryPoint: prepareEntryPoint,
+  loadQuery: loadQuery,
+  loadEntryPoint: loadEntryPoint,
+
+  prepareEntryPoint_DEPRECATED: prepareEntryPoint_DEPRECATED,
 
   useBlockingPaginationFragment: useBlockingPaginationFragment,
   useFragment: useFragment,
   useLazyLoadQuery: useLazyLoadQuery,
+  useEntryPointLoader: useEntryPointLoader,
+  useQueryLoader: useQueryLoader,
   useMutation: useMutation,
   usePaginationFragment: usePaginationFragment,
   usePreloadedQuery: usePreloadedQuery,

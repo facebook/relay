@@ -1,4 +1,4 @@
-fragment Foo_user on User {
+fragment clientScalarFields_Foo_user on User {
   id
 
   client_nickname # client field

@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};

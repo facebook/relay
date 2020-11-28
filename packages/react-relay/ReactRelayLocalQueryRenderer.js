@@ -29,7 +29,7 @@ import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 type Props = {
   environment: IEnvironment,
   query: GraphQLTaggedNode,
-  // $FlowFixMe
+  // $FlowFixMe[unclear-type]
   render: ({props: ?Object, ...}) => React.Node,
   variables: Variables,
   ...

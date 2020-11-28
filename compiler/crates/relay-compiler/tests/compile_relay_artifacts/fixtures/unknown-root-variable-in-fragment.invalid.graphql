@@ -1,14 +1,12 @@
-# %TODO% After ApplyFragmentArugmentTransform
-
 # expected-to-throw
-query TestQuery($id: ID!) {
+query unknownRootVariableInFragmentQuery($id: ID!) {
   node(id: $id) {
     id
-    ...Profile @relay(mask: false)
+    ...unknownRootVariableInFragmentProfile @relay(mask: false)
   }
 }
 
-fragment Profile on User {
+fragment unknownRootVariableInFragmentProfile on User {
   id
   name
   # includeFriends is not defined on the referencing query, should error

@@ -13,9 +13,8 @@
 
 'use strict';
 
-const usePaginationFragment = require('../usePaginationFragment');
-
 import type {LoadMoreFn} from '../useLoadMoreFunction';
+import usePaginationFragment from '../usePaginationFragment';
 import {
   fragmentInput,
   fragmentData,

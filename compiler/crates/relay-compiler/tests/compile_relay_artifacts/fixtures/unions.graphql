@@ -1,4 +1,4 @@
-query UnionQuery {
+query unions_UnionQuery {
   maybeNode {
     ... on NonNode {
       name

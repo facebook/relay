@@ -8,10 +8,10 @@ The content is focused mostly on jest unit-tests (testing individual components)
 
 What are the benefits of writing jest tests:
 
-* In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce and fix those regressions, and prevent them in the future.
-* It simplifies refactoring process: when properly written (testing public interface, not implementation) - tests really helps with changing the internal implementation of the components.
+* In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce, and fix those regressions, and prevent them in the future.
+* It simplifies the refactoring process: when properly written (testing public interface, not implementation) - tests really help with changing the internal implementation of the components.
 * It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest —watch mode is really shining in this case.
-* It will simplify the on-boarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.
+* It will simplify the onboarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.
 
 One thing to notice: while jest unit and integration tests will help improve the stability of the system, they should be considered as a part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot, performance tests.
 
@@ -56,7 +56,7 @@ RelayMockEnvironment is a special version of Relay Environment with an additiona
     * `rejectMostRecentOperation(error | operation => error)`  - reject and getMostRecentOperation work together
     * `queueOperationResolver(operation => data | error)` - adds an OperationResolver function to the queue, those methods will be used to resolve/reject operations as they appear
 * Additional utility methods
-    * `isLoading(request | operation)` - will return `true` if operations has not been completed, yet.
+    * `isLoading(request | operation)` - will return `true` if operations have not been completed, yet.
     * `cachePayload(request | operation, variables, payload)` - will add payload to QueryResponse cache
     * `clearCache() `- will clear QueryResponse cache
 
@@ -64,7 +64,7 @@ RelayMockEnvironment is a special version of Relay Environment with an additiona
 
 ## Mock Payload Generator and @relay_test_operation Directive
 
-MockPayloadGenerator may drastically simplify the process of creating and maintaining mock data for your tests. MockPayloadGenerator is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions which will return the default data for the type.
+MockPayloadGenerator may drastically simplify the process of creating and maintaining mock data for your tests. MockPayloadGenerator is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions that will return the default data for the type.
 
 Example of a simple Mock Resolver:
 
@@ -223,7 +223,7 @@ test('Error State', () => {
 
 ### Fragment Container Tests
 
-Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap you fragment container with the QueryRenderer that renders a Query that's spreads fragments from you fragment container.
+Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap your fragment container with the QueryRenderer that renders a Query that's spreads fragments from your fragment container.
 
 ```javascript
 test('Fragment Container', () => {

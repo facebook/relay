@@ -15,6 +15,8 @@
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const GraphQLTag = require('./query/GraphQLTag');
+const MutationHandlers = require('./handlers/connection/MutationHandlers');
+const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
@@ -54,6 +56,7 @@ const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
+const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
@@ -91,6 +94,9 @@ export type {
   LogRequestInfoFunction,
   PayloadData,
   PayloadError,
+  ReactFlightPayloadData,
+  ReactFlightPayloadQuery,
+  ReactFlightServerTree,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -107,7 +113,6 @@ export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   FragmentMap,
-  FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,
@@ -116,6 +121,7 @@ export type {
   LogEvent,
   LogFunction,
   MissingFieldHandler,
+  MissingRequiredFields,
   ModuleImportPointer,
   NormalizationSelector,
   OperationAvailability,
@@ -128,6 +134,8 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
+  ReactFlightClientResponse,
   ReaderSelector,
   ReadOnlyRecordProxy,
   RecordProxy,
@@ -147,6 +155,7 @@ export type {
   NormalizationArgument,
   NormalizationDefer,
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -162,6 +171,7 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -170,8 +180,10 @@ export type {
   ReaderPaginationMetadata,
   ReaderRefetchableFragment,
   ReaderRefetchMetadata,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
@@ -187,6 +199,7 @@ export type {
   OperationType,
   RenderPolicy,
   Variables,
+  VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
 
@@ -231,6 +244,7 @@ module.exports = {
     RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
+  getNode: GraphQLTag.getNode,
   getFragment: GraphQLTag.getFragment,
   getInlineDataFragment: GraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
@@ -250,7 +264,11 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
+  reportMissingRequiredFields,
   graphql: GraphQLTag.graphql,
+  isFragment: GraphQLTag.isFragment,
+  isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isRequest: GraphQLTag.isRequest,
   readInlineData,
 
   // Declarative mutation API
@@ -260,6 +278,7 @@ module.exports = {
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler,
+  MutationHandlers,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 
@@ -275,6 +294,7 @@ module.exports = {
   ConnectionInterface,
 
   // Utilities
+  PreloadableQueryRegistry,
   RelayProfiler: RelayProfiler,
   createPayloadFor3DField: createPayloadFor3DField,
 

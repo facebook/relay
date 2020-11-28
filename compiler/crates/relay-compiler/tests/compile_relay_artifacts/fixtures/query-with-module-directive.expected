@@ -1,20 +1,20 @@
 ==================================== INPUT ====================================
-query NameRendererQuery($id: ID!) {
+query queryWithModuleDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...NameRendererFragment
+    ...queryWithModuleDirective_NameRendererFragment
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithModuleDirective_NameRendererFragment on User {
   id
   nameRenderer {
     # note: intentionally no @match here
-    ...MarkdownUserNameRenderer_name
+    ...queryWithModuleDirective_MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -23,10 +23,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "queryWithModuleDirective_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -69,13 +67,12 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NameRendererQuery",
+    "name": "queryWithModuleDirective_NameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -94,7 +91,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "NameRendererFragment"
+            "name": "queryWithModuleDirective_NameRendererFragment"
           }
         ],
         "storageKey": null
@@ -109,12 +106,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "NameRendererQuery",
+    "name": "queryWithModuleDirective_NameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -166,9 +162,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "NameRendererFragment",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "queryWithModuleDirective_NameRendererFragment",
+                        "fragmentName": "queryWithModuleDirective_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -190,7 +186,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "NameRendererQuery",
+    "name": "queryWithModuleDirective_NameRendererQuery",
     "operationKind": "query",
     "text": null
   }
@@ -198,17 +194,17 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query NameRendererQuery(
+query queryWithModuleDirective_NameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...NameRendererFragment
+    ...queryWithModuleDirective_NameRendererFragment
     id
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment queryWithModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -216,14 +212,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment NameRendererFragment on User {
+fragment queryWithModuleDirective_NameRendererFragment on User {
   id
   nameRenderer {
     __typename
     ... on MarkdownUserNameRenderer {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
-      __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
+      ...queryWithModuleDirective_MarkdownUserNameRenderer_name
+      __module_operation_queryWithModuleDirective_NameRendererFragment: js(module: "queryWithModuleDirective_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithModuleDirective_NameRendererFragment.nameRenderer")
+      __module_component_queryWithModuleDirective_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithModuleDirective_NameRendererFragment.nameRenderer")
     }
   }
 }
@@ -233,7 +229,7 @@ fragment NameRendererFragment on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "queryWithModuleDirective_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -269,7 +265,7 @@ fragment NameRendererFragment on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NameRendererFragment",
+  "name": "queryWithModuleDirective_NameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -290,9 +286,9 @@ fragment NameRendererFragment on User {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "NameRendererFragment",
-              "fragmentName": "MarkdownUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "queryWithModuleDirective_NameRendererFragment",
+              "fragmentName": "queryWithModuleDirective_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],

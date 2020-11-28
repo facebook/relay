@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query NodeQuery($id: ID!) {
+query connectionWithAliasedEdgesPageInfo_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -25,25 +25,12 @@ query NodeQuery($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
-    "metadata": {
-      "connection": [
-        {
-          "count": null,
-          "cursor": null,
-          "direction": "forward",
-          "path": [
-            "node",
-            "comments"
-          ]
-        }
-      ]
-    },
-    "name": "NodeQuery",
+    "metadata": null,
+    "name": "connectionWithAliasedEdgesPageInfo_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -77,6 +64,64 @@ query NodeQuery($id: ID!) {
                 "name": "__NodeQuery_comments_connection",
                 "plural": false,
                 "selections": [
+                  {
+                    "alias": "commentEdges",
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": null,
+                            "kind": "LinkedField",
+                            "name": "actor",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "name",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": "commentPageInfo",
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "kind": "LinkedField",
+                    "name": "pageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "hasNextPage",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
                   {
                     "alias": null,
                     "args": null,
@@ -158,12 +203,11 @@ query NodeQuery($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "NodeQuery",
+    "name": "connectionWithAliasedEdgesPageInfo_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -210,6 +254,85 @@ query NodeQuery($id: ID!) {
                 "name": "comments",
                 "plural": false,
                 "selections": [
+                  {
+                    "alias": "commentEdges",
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": null,
+                            "kind": "LinkedField",
+                            "name": "actor",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "name",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": "commentPageInfo",
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "kind": "LinkedField",
+                    "name": "pageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "hasNextPage",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
                   {
                     "alias": null,
                     "args": null,
@@ -307,8 +430,20 @@ query NodeQuery($id: ID!) {
   },
   "params": {
     "id": null,
-    "metadata": {},
-    "name": "NodeQuery",
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ]
+        }
+      ]
+    },
+    "name": "connectionWithAliasedEdgesPageInfo_NodeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -316,7 +451,7 @@ query NodeQuery($id: ID!) {
 
 QUERY:
 
-query NodeQuery(
+query connectionWithAliasedEdgesPageInfo_NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
@@ -324,6 +459,19 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) {
+        commentEdges: edges {
+          node {
+            actor {
+              __typename
+              name
+              id
+            }
+            id
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
         edges {
           cursor
           node {

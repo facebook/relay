@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query LinkedHandleField($id: ID!) {
+query linkedHandleField_LinkedHandleFieldQuery($id: ID!) {
   node(id: $id) {
     ... on User {
       friends(first: 10) @__clientField(handle: "clientFriends") {
@@ -15,13 +15,12 @@ query LinkedHandleField($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "LinkedHandleField",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -45,7 +44,7 @@ query LinkedHandleField($id: ID!) {
                 "args": null,
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
-                "name": "___clientFriends",
+                "name": "__friends_clientFriends",
                 "plural": false,
                 "selections": [
                   {
@@ -75,12 +74,11 @@ query LinkedHandleField($id: ID!) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "LinkedHandleField",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
     "selections": [
       {
         "alias": null,
@@ -101,6 +99,13 @@ query LinkedHandleField($id: ID!) {
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
@@ -148,13 +153,6 @@ query LinkedHandleField($id: ID!) {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -164,7 +162,7 @@ query LinkedHandleField($id: ID!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "LinkedHandleField",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
     "operationKind": "query",
     "text": null
   }
@@ -172,7 +170,7 @@ query LinkedHandleField($id: ID!) {
 
 QUERY:
 
-query LinkedHandleField(
+query linkedHandleField_LinkedHandleFieldQuery(
   $id: ID!
 ) {
   node(id: $id) {

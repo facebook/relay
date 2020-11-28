@@ -1,43 +1,43 @@
 ==================================== INPUT ====================================
-query FooNameRendererQuery($id: ID!) {
+query moduleOverlapAcrossDocuments_FooNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...FooNameRendererFragment
+    ...moduleOverlapAcrossDocuments_FooNameRendererFragment
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleOverlapAcrossDocuments_FooNameRendererFragment on User {
   id
   nameRenderer {
-    ...MarkdownUserNameRenderer_name
+    ...moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...moduleOverlapAcrossDocuments_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
   }
 }
 
-query BarNameRendererQuery($id: ID!) {
+query moduleOverlapAcrossDocuments_BarNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...BarNameRendererFragment
+    ...moduleOverlapAcrossDocuments_BarNameRendererFragment
   }
 }
 
-fragment BarNameRendererFragment on User {
+fragment moduleOverlapAcrossDocuments_BarNameRendererFragment on User {
   # same field alias as above and using standalone @module, so this should
   # flatten with the above selections even though the supported types are
   # different
   nameRenderer {
-    ...MarkdownUserNameRenderer_name
+    ...moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment moduleOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -50,13 +50,12 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "BarNameRendererQuery",
+    "name": "moduleOverlapAcrossDocuments_BarNameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -75,7 +74,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "BarNameRendererFragment"
+            "name": "moduleOverlapAcrossDocuments_BarNameRendererFragment"
           }
         ],
         "storageKey": null
@@ -90,12 +89,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "BarNameRendererQuery",
+    "name": "moduleOverlapAcrossDocuments_BarNameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -116,6 +114,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           },
           {
@@ -140,9 +145,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "BarNameRendererFragment",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "moduleOverlapAcrossDocuments_BarNameRendererFragment",
+                        "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -155,13 +160,6 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -171,7 +169,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "BarNameRendererQuery",
+    "name": "moduleOverlapAcrossDocuments_BarNameRendererQuery",
     "operationKind": "query",
     "text": null
   }
@@ -179,28 +177,28 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query BarNameRendererQuery(
+query moduleOverlapAcrossDocuments_BarNameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...BarNameRendererFragment
+    ...moduleOverlapAcrossDocuments_BarNameRendererFragment
     id
   }
 }
 
-fragment BarNameRendererFragment on User {
+fragment moduleOverlapAcrossDocuments_BarNameRendererFragment on User {
   nameRenderer {
     __typename
     ... on MarkdownUserNameRenderer {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "BarNameRendererFragment.nameRenderer")
-      __module_component_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "BarNameRendererFragment.nameRenderer")
+      ...moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+      __module_operation_moduleOverlapAcrossDocuments_BarNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer")
+      __module_component_moduleOverlapAcrossDocuments_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer")
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -215,13 +213,12 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FooNameRendererQuery",
+    "name": "moduleOverlapAcrossDocuments_FooNameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -240,7 +237,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "FooNameRendererFragment"
+            "name": "moduleOverlapAcrossDocuments_FooNameRendererFragment"
           }
         ],
         "storageKey": null
@@ -255,12 +252,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       }
     ],
     "kind": "Operation",
-    "name": "FooNameRendererQuery",
+    "name": "moduleOverlapAcrossDocuments_FooNameRendererQuery",
     "selections": [
       {
         "alias": null,
@@ -312,9 +308,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "FooNameRendererFragment",
-                        "fragmentName": "MarkdownUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
+                        "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -325,9 +321,9 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "documentName": "FooNameRendererFragment",
-                        "fragmentName": "PlainUserNameRenderer_name",
-                        "fragmentPropName": "name",
+                        "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
+                        "fragmentName": "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
                         "kind": "ModuleImport"
                       }
                     ],
@@ -349,7 +345,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "FooNameRendererQuery",
+    "name": "moduleOverlapAcrossDocuments_FooNameRendererQuery",
     "operationKind": "query",
     "text": null
   }
@@ -357,34 +353,34 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 QUERY:
 
-query FooNameRendererQuery(
+query moduleOverlapAcrossDocuments_FooNameRendererQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ...FooNameRendererFragment
+    ...moduleOverlapAcrossDocuments_FooNameRendererFragment
     id
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleOverlapAcrossDocuments_FooNameRendererFragment on User {
   id
   nameRenderer {
     __typename
     ... on MarkdownUserNameRenderer {
-      ...MarkdownUserNameRenderer_name
-      __module_operation_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "FooNameRendererFragment.nameRenderer")
-      __module_component_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "FooNameRendererFragment.nameRenderer")
+      ...moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+      __module_operation_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
+      __module_component_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
     }
     ... on PlainUserNameRenderer {
-      ...PlainUserNameRenderer_name
-      __module_operation_FooNameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "FooNameRendererFragment.nameRenderer")
-      __module_component_FooNameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "FooNameRendererFragment.nameRenderer")
+      ...moduleOverlapAcrossDocuments_PlainUserNameRenderer_name
+      __module_operation_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
+      __module_component_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
@@ -392,7 +388,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+fragment moduleOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNameRenderer {
   plaintext
   data {
     text
@@ -403,10 +399,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "MarkdownUserNameRenderer_name"
-  },
-  "name": "MarkdownUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -445,10 +439,8 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 
 {
   "kind": "SplitOperation",
-  "metadata": {
-    "derivedFrom": "PlainUserNameRenderer_name"
-  },
-  "name": "PlainUserNameRenderer_name$normalization",
+  "metadata": {},
+  "name": "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name$normalization",
   "selections": [
     {
       "alias": null,
@@ -489,7 +481,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "BarNameRendererFragment",
+  "name": "moduleOverlapAcrossDocuments_BarNameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -503,9 +495,9 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "BarNameRendererFragment",
-              "fragmentName": "MarkdownUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "moduleOverlapAcrossDocuments_BarNameRendererFragment",
+              "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -524,7 +516,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "FooNameRendererFragment",
+  "name": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
   "selections": [
     {
       "alias": null,
@@ -545,9 +537,9 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "FooNameRendererFragment",
-              "fragmentName": "MarkdownUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
+              "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -558,9 +550,9 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
           "kind": "InlineFragment",
           "selections": [
             {
-              "documentName": "FooNameRendererFragment",
-              "fragmentName": "PlainUserNameRenderer_name",
-              "fragmentPropName": "name",
+              "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
+              "fragmentName": "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name",
+              "fragmentPropName": "PlainUserNameRenderer_name",
               "kind": "ModuleImport"
             }
           ],
@@ -579,7 +571,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "MarkdownUserNameRenderer_name",
+  "name": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
   "selections": [
     {
       "alias": null,
@@ -615,7 +607,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "PlainUserNameRenderer_name",
+  "name": "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name",
   "selections": [
     {
       "alias": null,

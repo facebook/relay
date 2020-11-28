@@ -1,23 +1,23 @@
 ==================================== INPUT ====================================
-query TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
+query queryWithFragmentVariables_TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
     id
-    ...Profile @arguments(pictureSize: $pictureSize)
-    ...ProfileFriends @include(if: $cond)
+    ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize)
+    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond)
   }
 }
 
-fragment ProfileFriends on User {
+fragment queryWithFragmentVariables_ProfileFriends on User {
   friends(first: 10) {
     edges {
       node {
-        ...Profile @arguments(pictureSize: $pictureSize)
+        ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize)
       }
     }
   }
 }
 
-fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+fragment queryWithFragmentVariables_Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }
@@ -29,27 +29,24 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "cond"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "id"
       },
       {
         "defaultValue": [
           128
         ],
         "kind": "LocalArgument",
-        "name": "pictureSize",
-        "type": "[Int]"
+        "name": "pictureSize"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "queryWithFragmentVariables_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -81,7 +78,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "Profile"
+            "name": "queryWithFragmentVariables_Profile"
           },
           {
             "condition": "cond",
@@ -91,7 +88,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "ProfileFriends"
+                "name": "queryWithFragmentVariables_ProfileFriends"
               }
             ]
           }
@@ -108,26 +105,23 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!"
+        "name": "id"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond",
-        "type": "Boolean!"
+        "name": "cond"
       },
       {
         "defaultValue": [
           128
         ],
         "kind": "LocalArgument",
-        "name": "pictureSize",
-        "type": "[Int]"
+        "name": "pictureSize"
       }
     ],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "queryWithFragmentVariables_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -280,7 +274,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "queryWithFragmentVariables_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -288,7 +282,7 @@ fragment Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
 
 QUERY:
 
-query TestQuery(
+query queryWithFragmentVariables_TestQuery(
   $id: ID!
   $cond: Boolean!
   $pictureSize: [Int] = [128]
@@ -296,23 +290,23 @@ query TestQuery(
   node(id: $id) {
     __typename
     id
-    ...Profile_4CNNX6
-    ...ProfileFriends @include(if: $cond)
+    ...queryWithFragmentVariables_Profile_4CNNX6
+    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond)
   }
 }
 
-fragment ProfileFriends on User {
+fragment queryWithFragmentVariables_ProfileFriends on User {
   friends(first: 10) {
     edges {
       node {
-        ...Profile_4CNNX6
+        ...queryWithFragmentVariables_Profile_4CNNX6
         id
       }
     }
   }
 }
 
-fragment Profile_4CNNX6 on User {
+fragment queryWithFragmentVariables_Profile_4CNNX6 on User {
   profilePicture(size: $pictureSize) {
     uri
   }
@@ -324,13 +318,12 @@ fragment Profile_4CNNX6 on User {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
-      "name": "pictureSize",
-      "type": "[Int]"
+      "name": "pictureSize"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Profile",
+  "name": "queryWithFragmentVariables_Profile",
   "selections": [
     {
       "alias": null,
@@ -365,13 +358,12 @@ fragment Profile_4CNNX6 on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "pictureSize",
-      "type": "[Int]"
+      "name": "pictureSize"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ProfileFriends",
+  "name": "queryWithFragmentVariables_ProfileFriends",
   "selections": [
     {
       "alias": null,
@@ -412,7 +404,7 @@ fragment Profile_4CNNX6 on User {
                     }
                   ],
                   "kind": "FragmentSpread",
-                  "name": "Profile"
+                  "name": "queryWithFragmentVariables_Profile"
                 }
               ],
               "storageKey": null

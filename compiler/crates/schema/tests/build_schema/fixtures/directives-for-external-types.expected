@@ -46,14 +46,14 @@ union Address @source(schema: "facebook", name: "Address") =
   | MailingAddress
 ==================================== OUTPUT ===================================
 Schema {
-query_type: Some(
+ query_type: Some(
     ObjectID(
         0,
     ),
 )
-mutation_type: None
-subscription_type: None
-directives: [
+ mutation_type: None
+ subscription_type: None
+ directives: [
     Directive {
         name: "extern_type",
         arguments: [
@@ -75,6 +75,7 @@ directives: [
         locations: [
             Interface,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -91,6 +92,7 @@ directives: [
         locations: [
             Object,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -111,6 +113,7 @@ directives: [
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -134,6 +137,7 @@ directives: [
         locations: [
             FieldDefinition,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -154,6 +158,7 @@ directives: [
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -177,10 +182,11 @@ directives: [
             Scalar,
             Union,
         ],
+        repeatable: false,
         is_extension: false,
     },
 ]
-type_map: {
+ type_map: {
     "Address": Union(0),
     "Boolean": Scalar(3),
     "Country": InputObject(0),
@@ -194,8 +200,8 @@ type_map: {
     "XIGHuman": Interface(0),
     "XIGStory": Object(3),
 }
-enums: []
-fields: [
+ enums: []
+ fields: [
     Field {
         name: "fetch__User",
         is_extension: false,
@@ -212,6 +218,9 @@ fields: [
             Object(1),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "fetch__XIGStory",
@@ -229,6 +238,9 @@ fields: [
             Object(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
     },
     Field {
         name: "name",
@@ -238,6 +250,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
     },
     Field {
         name: "id",
@@ -247,6 +262,9 @@ fields: [
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "story",
@@ -262,18 +280,33 @@ fields: [
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 606:617,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Story",
+                            StringNode {
+                                token: Token {
+                                    span: 625:632,
+                                    kind: StringLiteral,
+                                },
+                                value: "Story",
+                            },
                         ),
                     },
                 ],
             },
         ],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "default_mailing_address",
@@ -291,6 +324,9 @@ fields: [
             Object(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
     Field {
         name: "id",
@@ -300,6 +336,9 @@ fields: [
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "is_default",
@@ -309,6 +348,9 @@ fields: [
             Scalar(3),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "label",
@@ -318,6 +360,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
     },
     Field {
         name: "id",
@@ -327,6 +372,9 @@ fields: [
             Scalar(5),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "name",
@@ -336,6 +384,9 @@ fields: [
             Scalar(2),
         ),
         directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
     },
     Field {
         name: "__typename",
@@ -347,6 +398,19 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__token",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(5),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
     },
     Field {
         name: "__id",
@@ -358,9 +422,10 @@ fields: [
             ),
         ),
         directives: [],
+        parent_type: None,
     },
 ]
-input_objects: [
+ input_objects: [
     InputObject {
         name: "Country",
         fields: [
@@ -381,13 +446,25 @@ input_objects: [
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 799:810,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Country",
+                            StringNode {
+                                token: Token {
+                                    span: 818:827,
+                                    kind: StringLiteral,
+                                },
+                                value: "Country",
+                            },
                         ),
                     },
                 ],
@@ -395,11 +472,11 @@ input_objects: [
         ],
     },
 ]
-interfaces: [
+ interfaces: [
     Interface {
         name: "XIGHuman",
         is_extension: false,
-        implementors: [
+        implementing_objects: [
             ObjectID(
                 1,
             ),
@@ -416,21 +493,34 @@ interfaces: [
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 452:463,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Human",
+                            StringNode {
+                                token: Token {
+                                    span: 471:478,
+                                    kind: StringLiteral,
+                                },
+                                value: "Human",
+                            },
                         ),
                     },
                 ],
             },
         ],
+        interfaces: [],
     },
 ]
-objects: [
+ objects: [
     Object {
         name: "Query",
         is_extension: false,
@@ -471,7 +561,13 @@ objects: [
                     ArgumentValue {
                         name: "field_name",
                         value: String(
-                            "id",
+                            StringNode {
+                                token: Token {
+                                    span: 553:557,
+                                    kind: StringLiteral,
+                                },
+                                value: "id",
+                            },
                         ),
                     },
                 ],
@@ -514,7 +610,13 @@ objects: [
                     ArgumentValue {
                         name: "field_name",
                         value: String(
-                            "id",
+                            StringNode {
+                                token: Token {
+                                    span: 906:910,
+                                    kind: StringLiteral,
+                                },
+                                value: "id",
+                            },
                         ),
                     },
                 ],
@@ -525,13 +627,25 @@ objects: [
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "instagram",
+                            StringNode {
+                                token: Token {
+                                    span: 930:941,
+                                    kind: StringLiteral,
+                                },
+                                value: "instagram",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Story",
+                            StringNode {
+                                token: Token {
+                                    span: 949:956,
+                                    kind: StringLiteral,
+                                },
+                                value: "Story",
+                            },
                         ),
                     },
                 ],
@@ -539,7 +653,7 @@ objects: [
         ],
     },
 ]
-scalars: [
+ scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -575,13 +689,25 @@ scalars: [
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "facebook",
+                            StringNode {
+                                token: Token {
+                                    span: 312:322,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "ID",
+                            StringNode {
+                                token: Token {
+                                    span: 330:334,
+                                    kind: StringLiteral,
+                                },
+                                value: "ID",
+                            },
                         ),
                     },
                 ],
@@ -589,7 +715,7 @@ scalars: [
         ],
     },
 ]
-unions: [
+ unions: [
     Union {
         name: "Address",
         is_extension: false,
@@ -608,13 +734,25 @@ unions: [
                     ArgumentValue {
                         name: "schema",
                         value: String(
-                            "facebook",
+                            StringNode {
+                                token: Token {
+                                    span: 1017:1027,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
                         ),
                     },
                     ArgumentValue {
                         name: "name",
                         value: String(
-                            "Address",
+                            StringNode {
+                                token: Token {
+                                    span: 1035:1044,
+                                    kind: StringLiteral,
+                                },
+                                value: "Address",
+                            },
                         ),
                     },
                 ],
@@ -622,4 +760,4 @@ unions: [
         ],
     },
 ]
-}
+ }

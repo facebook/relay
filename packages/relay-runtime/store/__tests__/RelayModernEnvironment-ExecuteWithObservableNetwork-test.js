@@ -86,7 +86,15 @@ describe('execute() with Observable network', () => {
 
   it('fetches queries with force:true', () => {
     const cacheConfig = {force: true};
-    environment.execute({cacheConfig, operation}).subscribe(callbacks);
+    operation = createOperationDescriptor(
+      query,
+      {
+        ...variables,
+        foo: 'bar', // should be filtered from network fetch
+      },
+      cacheConfig,
+    );
+    environment.execute({operation}).subscribe(callbacks);
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][0]).toEqual(query.params);
     expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});

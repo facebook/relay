@@ -10,11 +10,13 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
 const defaultGetDataID = require('../defaultGetDataID');
+const warning = require('warning');
 
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {normalize} = require('../RelayResponseNormalizer');
@@ -37,6 +39,8 @@ describe('RelayResponseNormalizer', () => {
   });
 
   it('normalizes queries', () => {
+    jest.mock('warning');
+
     const {FooQuery} = generateWithTransforms(
       `
       query FooQuery($id: ID, $size: [Int]) {
@@ -212,6 +216,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: 'pet',
       fieldKey: 'name',
       handle: 'friendsName',
+      handleArgs: {},
       handleKey: '__name_friendsName',
     });
     expect(fieldPayloads[1]).toEqual({
@@ -219,6 +224,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: '4',
       fieldKey: 'friends(first:1)',
       handle: 'bestFriends',
+      handleArgs: {},
       handleKey: '__friends_bestFriends',
     });
   });
@@ -292,6 +298,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: '4',
       fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["last name"])',
       handle: 'bestFriends',
+      handleArgs: {},
       handleKey:
         '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["last name"])',
     });
@@ -330,6 +337,7 @@ describe('RelayResponseNormalizer', () => {
       dataID: '4',
       fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["first name"])',
       handle: 'bestFriends',
+      handleArgs: {},
       handleKey:
         '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["first name"])',
     });
@@ -1542,6 +1550,57 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
+    it('skips client fields not present in the payload but present in the store when treatMissingFieldsAsNull is true', () => {
+      const recordSource = new RelayRecordSourceMapImpl({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      normalize(
+        recordSource,
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
     it('skips client fields not present in the payload or store', () => {
       const recordSource = new RelayRecordSourceMapImpl({
         '1': {
@@ -2434,6 +2493,420 @@ describe('RelayResponseNormalizer', () => {
     ]);
   });
 
+  it('warns in __DEV__ if a single response contains conflicting fields with the same id', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Claire',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains two ' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
+          'If two fields are different but share ' +
+          'the same id, one field will overwrite the other.',
+      ),
+      'a',
+      'firstName',
+      'Bob',
+      'Claire',
+    );
+  });
+
+  it('does not warn if a single response contains the same scalar array value', () => {
+    jest.mock('warning');
+    warning.mockClear();
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  emailAddresses
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                emailAddresses: ['a@example.com'],
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                emailAddresses: ['a@example.com'], // not same object but deeply equal: should not warn
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    // There should be no failing warnings (where the first argument is true)
+    expect(warning.mock.calls.filter(call => call[0] === false)).toEqual([]);
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting fields with multiple same ids', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 4) {
+              edges {
+                node {
+                  id
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+            {
+              node: {
+                id: 'b',
+                firstName: 'Claire',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Carlos',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Shirley',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains two ' +
+          'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
+          'If two fields are different but share ' +
+          'the same id, one field will overwrite the other.',
+      ),
+      'a',
+      'firstName',
+      'Bob',
+      'Carlos',
+    );
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting linked fields', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                  comments(first:1) {
+                    edges {
+                      node {
+                        id
+                        body {
+                          text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '2',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '3',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains ' +
+          'references to the conflicting field, %s and its id values: %s and %s. ' +
+          'We need to make sure that the record the field points ' +
+          'to remains consistent or one field will overwrite the other.',
+      ),
+      'node',
+      '2',
+      '3',
+    );
+  });
+
+  it('warns in __DEV__ if a single response contains conflicting linked fields with null values', () => {
+    jest.mock('warning');
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                  comments(first:1) {
+                    edges {
+                      node {
+                        id
+                        body {
+                          text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`,
+    );
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '2',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            null,
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+                comments: {
+                  edges: [
+                    {
+                      node: {
+                        id: '3',
+                        body: {
+                          text: 'Hello World',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSourceMapImpl();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
+      payload,
+      defaultOptions,
+    );
+    expect(warning).toBeCalledWith(
+      false,
+      expect.stringContaining(
+        'RelayResponseNormalizer: Invalid record. The record contains ' +
+          'references to the conflicting field, %s and its id values: %s and %s. ' +
+          'We need to make sure that the record the field points ' +
+          'to remains consistent or one field will overwrite the other.',
+      ),
+      'node',
+      '2',
+      '3',
+    );
+  });
+
   it('warns in __DEV__ if payload contains inconsistent types for a record', () => {
     jest.mock('warning');
 
@@ -2620,6 +3093,179 @@ describe('RelayResponseNormalizer', () => {
           __ref: '1',
         },
       },
+    });
+  });
+
+  describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightQuery;
+    let recordSource;
+    const dummyReactFlightPayloadDeserializer = () => {
+      return {
+        readRoot() {
+          return {
+            $$typeof: Symbol.for('react.element'),
+            type: 'div',
+            key: null,
+            ref: null,
+            props: {foo: 1},
+          };
+        },
+      };
+    };
+
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+
+      ({FlightQuery} = generateAndCompile(
+        `
+        query FlightQuery($id: ID!, $count: Int!) {
+          node(id: $id) {
+            ... on Story {
+              flightComponent(condition: true, count: $count, id: $id)
+            }
+          }
+        }
+
+        extend type Story {
+          flightComponent(
+            condition: Boolean!
+            count: Int!
+            id: ID!
+          ): ReactFlightComponent
+            @react_flight_component(name: "FlightComponent.server")
+        }
+        `,
+      ));
+      recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('normalizes Flight fields', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Story',
+          flightComponent: {
+            tree: [
+              {
+                type: 'div',
+                key: null,
+                ref: null,
+                props: {foo: 1},
+              },
+            ],
+            queries: [
+              {
+                id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                response: {
+                  data: {
+                    story: {
+                      id: '2',
+                      name: 'Lauren',
+                      __typename: 'User',
+                    },
+                  },
+                  extensions: [],
+                },
+                variables: {
+                  id: '2',
+                },
+              },
+            ],
+          },
+        },
+      };
+      normalize(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+          count: 10,
+          id: '1',
+        }),
+        payload,
+        {
+          ...defaultOptions,
+          reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+        },
+      );
+      expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+        Object {
+          "1": Object {
+            "__id": "1",
+            "__typename": "Story",
+            "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+              "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+            },
+            "id": "1",
+          },
+          "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+            "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+            "__typename": "ReactFlightComponent",
+            "queries": Array [
+              Object {
+                "module": Object {
+                  "__dr": "RelayFlightExampleQuery.graphql",
+                },
+                "variables": Object {
+                  "id": "2",
+                },
+              },
+            ],
+            "tree": Object {
+              "readRoot": [Function],
+            },
+          },
+          "client:root": Object {
+            "__id": "client:root",
+            "__typename": "__Root",
+            "node(id:\\"1\\")": Object {
+              "__ref": "1",
+            },
+          },
+        }
+      `);
+    });
+
+    it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'Story',
+          flightComponent: {
+            tree: [],
+            queries: [],
+          },
+        },
+      };
+
+      expect(() => {
+        normalize(
+          recordSource,
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
+          payload,
+          {
+            ...defaultOptions,
+            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+          },
+        );
+      }).not.toThrow();
+      expect(() => {
+        normalize(
+          recordSource,
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
+          payload,
+          defaultOptions,
+        );
+      }).toThrow();
     });
   });
 });

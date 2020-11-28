@@ -31,7 +31,7 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }
 
-function expectToHaveFetched(environment, query) {
+function expectToHaveFetched(environment, query, cacheConfig) {
   expect(environment.execute).toBeCalledTimes(1);
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
@@ -42,9 +42,11 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(
+      query.request.node,
+      query.request.variables,
+      cacheConfig,
+    ),
   ).toEqual(true);
 }
 
@@ -93,9 +95,7 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   it('force a refetch in fast refresh', () => {
-    /* $FlowFixMe(site=www) We don't have the module on WWW, but also don't run
-     * the test there.
-     */
+    // $FlowFixMe[cannot-resolve-module] This module is not available on www.
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function(props) {
@@ -118,7 +118,7 @@ describe('useLazyLoadQueryNode', () => {
     );
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToHaveFetched(environment, query);
+    expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
@@ -155,7 +155,7 @@ describe('useLazyLoadQueryNode', () => {
       ReactRefreshRuntime.performReactRefresh();
     });
     // It should start a new fetch in fast refresh
-    expectToHaveFetched(environment, query);
+    expectToHaveFetched(environment, query, {});
     expect(renderFn).toBeCalledTimes(1);
     expect(instance.toJSON()).toEqual('Fallback');
     // It should render with the result of the new fetch

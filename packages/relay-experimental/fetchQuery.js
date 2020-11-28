@@ -20,6 +20,7 @@ const {
   createOperationDescriptor,
   getRequest,
   Observable,
+  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 import type {
@@ -29,6 +30,7 @@ import type {
   IEnvironment,
   OperationDescriptor,
   OperationType,
+  VariablesOf,
 } from 'relay-runtime';
 
 /**
@@ -111,7 +113,7 @@ import type {
 function fetchQuery<TQuery: OperationType>(
   environment: IEnvironment,
   query: GraphQLTaggedNode,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: $ReadOnly<{|
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
@@ -122,21 +124,35 @@ function fetchQuery<TQuery: OperationType>(
     queryNode.params.operationKind === 'query',
     'fetchQuery: Expected query operation',
   );
-  const operation = createOperationDescriptor(queryNode, variables);
   const networkCacheConfig = {
     force: true,
     ...options?.networkCacheConfig,
   };
+  const operation = createOperationDescriptor(
+    queryNode,
+    variables,
+    networkCacheConfig,
+  );
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
+
+  function readData(snapshot) {
+    if (snapshot.missingRequiredFields != null) {
+      reportMissingRequiredFields(environment, snapshot.missingRequiredFields);
+    }
+    return snapshot.data;
+  }
+
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation, networkCacheConfig);
+      return getNetworkObservable(environment, operation).map(readData);
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
-        return Observable.from(environment.lookup(operation.fragment).data);
+        return Observable.from(environment.lookup(operation.fragment)).map(
+          readData,
+        );
       }
-      return getNetworkObservable(environment, operation, networkCacheConfig);
+      return getNetworkObservable(environment, operation).map(readData);
     }
     default:
       (fetchPolicy: void);
@@ -147,11 +163,10 @@ function fetchQuery<TQuery: OperationType>(
 function getNetworkObservable<TQuery: OperationType>(
   environment: IEnvironment,
   operation: OperationDescriptor,
-  networkCacheConfig: CacheConfig,
 ): Observable<$ElementType<TQuery, 'response'>> {
-  return RelayRuntimeInternal.fetchQuery(environment, operation, {
-    networkCacheConfig,
-  }).map(() => environment.lookup(operation.fragment).data);
+  return RelayRuntimeInternal.fetchQuery(environment, operation).map(() =>
+    environment.lookup(operation.fragment),
+  );
 }
 
 module.exports = fetchQuery;

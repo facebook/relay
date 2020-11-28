@@ -1,0 +1,11 @@
+mutation MutationWithValidNameMutation {
+    commentCreate(input: null) {
+        clientMutationId
+    }
+}
+
+mutation MutationWithValidNameSecondMutation {
+    commentCreate(input: null) {
+        clientMutationId
+    }
+}

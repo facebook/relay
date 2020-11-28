@@ -1,0 +1,11 @@
+mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
+      id
+    }
+  }
+}

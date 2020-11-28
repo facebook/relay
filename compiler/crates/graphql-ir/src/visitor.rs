@@ -13,11 +13,11 @@ pub trait Visitor {
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
 
-    fn visit_program<'s>(&mut self, program: &Program<'s>) {
+    fn visit_program(&mut self, program: &Program) {
         self.default_visit_program(program)
     }
 
-    fn default_visit_program<'s>(&mut self, program: &Program<'s>) {
+    fn default_visit_program(&mut self, program: &Program) {
         for operation in program.operations() {
             self.visit_operation(operation);
         }
@@ -34,6 +34,8 @@ pub trait Visitor {
     fn default_visit_fragment(&mut self, fragment: &FragmentDefinition) {
         self.visit_selections(&fragment.selections);
         self.visit_directives(&fragment.directives);
+        self.visit_variable_definitions(&fragment.variable_definitions);
+        self.visit_variable_definitions(&fragment.used_global_variables);
     }
 
     // Operation Definition
@@ -44,6 +46,7 @@ pub trait Visitor {
     fn default_visit_operation(&mut self, operation: &OperationDefinition) {
         self.visit_directives(&operation.directives);
         self.visit_selections(&operation.selections);
+        self.visit_variable_definitions(&operation.variable_definitions);
     }
 
     // Selection
@@ -80,9 +83,9 @@ pub trait Visitor {
     }
 
     fn default_visit_linked_field(&mut self, field: &LinkedField) {
-        self.visit_selections(&field.selections);
         self.visit_arguments(&field.arguments);
         self.visit_directives(&field.directives);
+        self.visit_selections(&field.selections);
     }
 
     fn visit_inline_fragment(&mut self, fragment: &InlineFragment) {
@@ -90,8 +93,8 @@ pub trait Visitor {
     }
 
     fn default_visit_inline_fragment(&mut self, fragment: &InlineFragment) {
-        self.visit_selections(&fragment.selections);
         self.visit_directives(&fragment.directives);
+        self.visit_selections(&fragment.selections);
     }
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
@@ -117,7 +120,7 @@ pub trait Visitor {
         if Self::VISIT_ARGUMENTS {
             match condition_value {
                 ConditionValue::Variable(variable) => self.visit_variable(variable),
-                ConditionValue::Constant(_) => (),
+                ConditionValue::Constant(_) => {}
             }
         }
     }
@@ -160,7 +163,7 @@ pub trait Visitor {
     fn default_visit_value(&mut self, value: &Value) {
         match value {
             Value::Variable(variable) => self.visit_variable(variable),
-            Value::Constant(_) => (),
+            Value::Constant(_) => {}
             Value::List(items) => self.visit_list(items, Self::visit_value),
             Value::Object(arguments) => self.visit_arguments(arguments),
         }
@@ -168,6 +171,19 @@ pub trait Visitor {
 
     fn visit_variable(&mut self, value: &Variable) {
         let _ = value;
+    }
+
+    // Variable Definitions
+    fn visit_variable_definitions(&mut self, variable_definitions: &[VariableDefinition]) {
+        self.visit_list(variable_definitions, Self::visit_variable_definition)
+    }
+
+    fn visit_variable_definition(&mut self, variable_definition: &VariableDefinition) {
+        self.default_visit_variable_definition(variable_definition)
+    }
+
+    fn default_visit_variable_definition(&mut self, variable_definition: &VariableDefinition) {
+        self.visit_directives(&variable_definition.directives)
     }
 
     // Helpers

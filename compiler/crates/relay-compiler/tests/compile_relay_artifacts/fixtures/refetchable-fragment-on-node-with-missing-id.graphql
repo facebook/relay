@@ -1,12 +1,12 @@
-fragment RefetchableFragment on Node
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
   ... on User {
     name
-    ...ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
   }
 }
 
-fragment ProfilePicture on User {
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }

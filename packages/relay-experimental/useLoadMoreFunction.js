@@ -13,9 +13,6 @@
 
 'use strict';
 
-// flowlint-next-line untyped-import:off
-const Scheduler = require('scheduler');
-
 const getPaginationVariables = require('./getPaginationVariables');
 const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
@@ -41,6 +38,7 @@ import type {
   OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
+  VariablesOf,
 } from 'relay-runtime';
 
 export type Direction = 'forward' | 'backward';
@@ -49,7 +47,7 @@ export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {|
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<$ElementType<TQuery, 'variables'>>,
+    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
   |},
 ) => Disposable;
 
@@ -60,7 +58,6 @@ export type UseLoadMoreFunctionArgs = {|
   fragmentIdentifier: string,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
   identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
@@ -79,7 +76,6 @@ function useLoadMoreFunction<TQuery: OperationType>(
     fragmentIdentifier,
     fragmentData,
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
     paginationRequest,
     paginationMetadata,
     componentDisplayName,
@@ -176,9 +172,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
         }
 
         if (onComplete) {
-          // We make sure to always call onComplete asynchronously to prevent
-          // accidental loops in product code.
-          Scheduler.unstable_next(() => onComplete(null));
+          onComplete(null);
         }
         return {dispose: () => {}};
       }
@@ -230,10 +224,9 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const paginationQuery = createOperationDescriptor(
         paginationRequest,
         paginationVariables,
+        {force: true},
       );
-      fetchQuery(environment, paginationQuery, {
-        networkCacheConfig: {force: true},
-      }).subscribe({
+      fetchQuery(environment, paginationQuery).subscribe({
         ...observer,
         start: subscription => {
           startFetch(subscription);

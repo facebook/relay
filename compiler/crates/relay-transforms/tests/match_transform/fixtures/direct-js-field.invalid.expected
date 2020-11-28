@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ... on PlainUserNameRenderer {
+      js(module: "PlainUserNameRenderer.react")
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Direct use of the 'js' field is not allowed, use '@match/@module instead.
+
+  direct-js-field.invalid.graphql:6:7
+    5 │     ... on PlainUserNameRenderer {
+    6 │       js(module: "PlainUserNameRenderer.react")
+      │       ^^
+    7 │     }

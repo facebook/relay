@@ -28,6 +28,62 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
+import type { Local3DPayload } from "relay-runtime";
+import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
+export type TestVariables = {||};
+export type TestResponse = {|
+  +node: ?{|
+    +$fragmentRefs: NameRendererFragment$ref
+  |}
+|};
+export type PlainUserNameRenderer_name = {|
+  +plaintext: ?string,
+  +data: ?{|
+    +text: ?string,
+    +id: ?string,
+  |},
+|};
+export type MarkdownUserNameRenderer_name = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string,
+    +id: ?string,
+  |},
+|};
+export type TestRawResponse = {|
+  +node: ?({|
+    +__typename: "User",
+    +id: string,
+    +nameRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
+      ...PlainUserNameRenderer_name,
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |}> | {|
+      +__typename: "MarkdownUserNameRenderer",
+      +__module_operation_NameRendererFragment: ?any,
+      +__module_component_NameRendererFragment: ?any,
+      ...MarkdownUserNameRenderer_name,
+    |} | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | {|
+      +__typename: string
+    |}),
+  |} | {|
+    +__typename: string,
+    +id: string,
+  |})
+|};
+export type Test = {|
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+|};
+-------------------------------------------------------------------------------
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownUserNameRenderer_name$ref;
@@ -82,59 +138,3 @@ export type PlainUserNameRenderer_name$key = {
   +$fragmentRefs: PlainUserNameRenderer_name$ref,
   ...
 };
--------------------------------------------------------------------------------
-import type { Local3DPayload } from "relay-runtime";
-import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
-export type TestVariables = {||};
-export type TestResponse = {|
-  +node: ?{|
-    +$fragmentRefs: NameRendererFragment$ref
-  |}
-|};
-export type PlainUserNameRenderer_name = {|
-  +plaintext: ?string,
-  +data: ?{|
-    +text: ?string,
-    +id: ?string,
-  |},
-|};
-export type MarkdownUserNameRenderer_name = {|
-  +markdown: ?string,
-  +data: ?{|
-    +markup: ?string,
-    +id: ?string,
-  |},
-|};
-export type TestRawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: ?string,
-    +nameRenderer: ?({|
-      +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?any,
-      +__module_component_NameRendererFragment: ?any,
-      ...PlainUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
-      +__typename: "PlainUserNameRenderer",
-      ...PlainUserNameRenderer_name,
-    |}> | {|
-      +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?any,
-      +__module_component_NameRendererFragment: ?any,
-      ...MarkdownUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
-      +__typename: "MarkdownUserNameRenderer",
-      ...MarkdownUserNameRenderer_name,
-    |}> | {|
-      +__typename: ?string
-    |}),
-  |} | {|
-    +__typename: ?string,
-    +id: ?string,
-  |})
-|};
-export type Test = {|
-  variables: TestVariables,
-  response: TestResponse,
-  rawResponse: TestRawResponse,
-|};

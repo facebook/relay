@@ -83,10 +83,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       const [startTransition, isPendingNext] = useTransition(
         PAGINATION_SUSPENSE_CONFIG,
       );
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-call]
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         fragmentRef,
       );
       loadNext = (...args) => {
@@ -97,7 +97,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return disposable;
       };
       refetch = result.refetch;
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       result.isPendingNext = isPendingNext;
 
       useEffect(() => {
@@ -405,7 +405,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: userData,
         } = useBlockingPaginationFragmentWithSuspenseTransition(
           fragment,
-          // $FlowFixMe
+          // $FlowFixMe[prop-missing]
           userRef,
         );
         return <Renderer user={userData} />;
@@ -443,14 +443,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return TestRenderer.create(
           <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
             <React.Suspense fallback={<Fallback />}>
-              {/* $FlowFixMe(site=www,mobile) this comment suppresses an error found improving the
-               * type of React$Node */}
               <ContextProvider>
                 <Container owner={query} {...props} />
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };
@@ -1038,6 +1036,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
         |},
+        flushFallback: boolean = true,
       ) {
         assertYieldsWereCleared();
 
@@ -1046,12 +1045,20 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           jest.runAllImmediates();
         });
 
-        // Assert component suspended
         Scheduler.unstable_flushNumberOfYields(1);
         const actualYields = Scheduler.unstable_clearYields();
-        expect(actualYields.length).toEqual(1);
-        expect(actualYields[0]).toEqual('Fallback');
-        expect(renderer.toJSON()).toEqual('Fallback');
+
+        if (flushFallback) {
+          // Flushing fallbacks by running a timer could cause other side-effects
+          // such as releasing retained queries. Until React has a better way to flush
+          // fallbacks, we can't test fallbacks and other timeout based effects at the same time.
+          jest.runOnlyPendingTimers(); // Tigger fallbacks.
+
+          // Assert component suspendeds
+          expect(actualYields.length).toEqual(1);
+          expect(actualYields[0]).toEqual('Fallback');
+          expect(renderer.toJSON()).toEqual('Fallback');
+        }
 
         // Assert refetch query was fetched
         expectRefetchRequestIsInFlight({
@@ -1094,14 +1101,19 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
-        expectFragmentSuspendedOnRefetch(renderer, {
-          data: initialUser,
-          hasNext: true,
-          hasPrevious: false,
-          refetchVariables,
-          refetchQuery: paginationQuery,
-        });
+        expectFragmentSuspendedOnRefetch(
+          renderer,
+          {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            refetchVariables,
+            refetchQuery: paginationQuery,
+          },
+          false,
+        );
 
         // Mock network response
         environment.mock.resolve(gqlPaginationQuery, {

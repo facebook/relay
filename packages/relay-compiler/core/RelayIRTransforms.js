@@ -15,10 +15,12 @@
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const ConnectionTransform = require('../transforms/ConnectionTransform');
+const DeclarativeConnectionMutationTransform = require('../transforms/DeclarativeConnectionMutationTransform');
 const DeferStreamTransform = require('../transforms/DeferStreamTransform');
 const DisallowIdAsAlias = require('../transforms/DisallowIdAsAlias');
 const DisallowTypenameOnRoot = require('../transforms/DisallowTypenameOnRoot');
 const FieldHandleTransform = require('../transforms/FieldHandleTransform');
+const FilterCompilerDirectivesTransform = require('../transforms/FilterCompilerDirectivesTransform');
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const GenerateIDFieldTransform = require('../transforms/GenerateIDFieldTransform');
@@ -27,9 +29,11 @@ const InlineDataFragmentTransform = require('../transforms/InlineDataFragmentTra
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
 const MaskTransform = require('../transforms/MaskTransform');
 const MatchTransform = require('../transforms/MatchTransform');
+const ReactFlightComponentTransform = require('../transforms/ReactFlightComponentTransform');
 const RefetchableFragmentTransform = require('../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../transforms/RelayDirectiveTransform');
 const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
+const RequiredFieldTransform = require('../transforms/RequiredFieldTransform');
 const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
 const SkipHandleFieldTransform = require('../transforms/SkipHandleFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
@@ -40,7 +44,6 @@ const SplitModuleImportTransform = require('../transforms/SplitModuleImportTrans
 const TestOperationTransform = require('../transforms/TestOperationTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
 const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequiredArgumentsTransform');
-const ValidateServerOnlyDirectivesTransform = require('../transforms/ValidateServerOnlyDirectivesTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
 
 import type {IRTransform} from './CompilerContext';
@@ -48,12 +51,14 @@ import type {IRTransform} from './CompilerContext';
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: $ReadOnlyArray<string> = [
   ConnectionTransform.SCHEMA_EXTENSION,
-  MatchTransform.SCHEMA_EXTENSION,
-  RelayDirectiveTransform.SCHEMA_EXTENSION,
-  RefetchableFragmentTransform.SCHEMA_EXTENSION,
-  TestOperationTransform.SCHEMA_EXTENSION,
+  DeclarativeConnectionMutationTransform.SCHEMA_EXTENSION,
   InlineDataFragmentTransform.SCHEMA_EXTENSION,
+  MatchTransform.SCHEMA_EXTENSION,
+  RequiredFieldTransform.SCHEMA_EXTENSION,
+  RefetchableFragmentTransform.SCHEMA_EXTENSION,
+  RelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayFlowGenerator.SCHEMA_EXTENSION,
+  TestOperationTransform.SCHEMA_EXTENSION,
   ValidateUnusedVariablesTransform.SCHEMA_EXTENSION,
 ];
 
@@ -67,6 +72,7 @@ const relayCommonTransforms: $ReadOnlyArray<IRTransform> = [
   MatchTransform.transform,
   RefetchableFragmentTransform.transform,
   DeferStreamTransform.transform,
+  ReactFlightComponentTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store
@@ -75,6 +81,7 @@ const relayFragmentTransforms: $ReadOnlyArray<IRTransform> = [
   FieldHandleTransform.transform,
   InlineDataFragmentTransform.transform,
   FlattenTransform.transformWithOptions({isForCodegen: true}),
+  RequiredFieldTransform.transform,
   SkipRedundantNodesTransform.transform,
 ];
 
@@ -87,10 +94,12 @@ const relayQueryTransforms: $ReadOnlyArray<IRTransform> = [
   ApplyFragmentArgumentTransform.transform,
   ValidateGlobalVariablesTransform.transform,
   GenerateIDFieldTransform.transform,
+  DeclarativeConnectionMutationTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
+  FilterCompilerDirectivesTransform.transform,
   SkipUnreachableNodeTransform.transform,
   InlineFragmentsTransform.transform,
   // NOTE: For the codegen context, we make sure to run ClientExtensions
@@ -101,7 +110,6 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
   TestOperationTransform.transform,
-  ValidateServerOnlyDirectivesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.

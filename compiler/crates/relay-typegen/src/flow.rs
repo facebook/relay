@@ -6,11 +6,11 @@
  */
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use std::fmt::{Result, Write};
 
 pub struct FlowPrinter {
-    indentation: u32,
+    indentation: usize,
 }
 
 impl Writer for FlowPrinter {
@@ -30,41 +30,54 @@ impl FlowPrinter {
 
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
         match ast {
-            AST::Any => write!(writer, "any")?,
-            AST::String => write!(writer, "string")?,
-            AST::StringLiteral(literal) => self.write_string_literal(writer, *literal)?,
-            AST::OtherEnumValue => self.write_other_string(writer)?,
-            AST::Number => write!(writer, "number")?,
-            AST::Boolean => write!(writer, "boolean")?,
-            AST::Identifier(identifier) => write!(writer, "{}", identifier)?,
-            AST::RawType(raw) => write!(writer, "{}", raw)?,
-            AST::Union(members) => self.write_union(writer, members)?,
-            AST::Intersection(members) => self.write_intersection(writer, members)?,
-            AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type)?,
-            AST::Nullable(of_type) => self.write_nullable(writer, of_type)?,
-            AST::ExactObject(props) => self.write_object(writer, props, true)?,
-            AST::InexactObject(props) => self.write_object(writer, props, false)?,
+            AST::Any => write!(writer, "any"),
+            AST::String => write!(writer, "string"),
+            AST::StringLiteral(literal) => self.write_string_literal(writer, *literal),
+            AST::OtherTypename => self.write_other_string(writer),
+            AST::Number => write!(writer, "number"),
+            AST::Boolean => write!(writer, "boolean"),
+            AST::Identifier(identifier) => write!(writer, "{}", identifier),
+            AST::RawType(raw) => write!(writer, "{}", raw),
+            AST::Union(members) => self.write_union(writer, members),
+            AST::Intersection(members) => self.write_intersection(writer, members),
+            AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type),
+            AST::Nullable(of_type) => self.write_nullable(writer, of_type),
+            AST::ExactObject(props) => self.write_object(writer, props, true),
+            AST::InexactObject(props) => self.write_object(writer, props, false),
             AST::Local3DPayload(document_name, selections) => {
-                self.write_local_3d_payload(writer, *document_name, selections)?
+                self.write_local_3d_payload(writer, *document_name, selections)
             }
-            AST::ImportType(types, from) => self.write_import_type(writer, types, from)?,
-            AST::DeclareExportOpaqueType(alias, value) => {
-                self.write_declare_export_opaque_type(writer, alias, value)?
+            AST::DefineType(name, value) => self.write_type_definition(writer, name, value),
+            AST::ImportType(types, from) => self.write_import_type(writer, types, from),
+            AST::DeclareExportFragment(alias, value) => {
+                let default_value = "FragmentReference".intern();
+                self.write_declare_export_opaque_type(
+                    writer,
+                    alias,
+                    match value {
+                        Some(type_name) => type_name,
+                        None => &default_value,
+                    },
+                )
             }
             AST::ExportTypeEquals(name, value) => {
-                self.write_export_type_equals(writer, name, value)?
+                self.write_export_type_equals(writer, name, value)
             }
-            AST::ExportList(names) => self.write_export_list(writer, names)?,
+            AST::ExportFragmentList(names) => self.write_export_list(writer, names),
+            AST::ImportFragmentType(types, from) => self.write_import_type(writer, types, from),
+            AST::FragmentReference(fragments) => self.write_intersection(
+                writer,
+                fragments
+                    .iter()
+                    .map(|fragment| AST::Identifier(format!("{}$ref", fragment).intern()))
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+            ),
         }
-
-        Ok(())
     }
 
     fn write_indentation(&mut self, writer: &mut dyn Write) -> Result {
-        for _ in 0..self.indentation {
-            write!(writer, "  ")?;
-        }
-        Ok(())
+        writer.write_str(&"  ".repeat(self.indentation))
     }
 
     fn write_string_literal(&mut self, writer: &mut dyn Write, literal: StringKey) -> Result {
@@ -155,7 +168,7 @@ impl FlowPrinter {
                 writeln!(writer, ",")?;
                 continue;
             }
-            if let AST::OtherEnumValue = prop.value {
+            if let AST::OtherTypename = prop.value {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
                 writeln!(
@@ -240,6 +253,15 @@ impl FlowPrinter {
         value: &AST,
     ) -> Result {
         write!(writer, "export type {} = {};", name, self.write_ast(value))
+    }
+
+    fn write_type_definition(
+        &mut self,
+        writer: &mut dyn Write,
+        name: &StringKey,
+        value: &AST,
+    ) -> Result {
+        write!(writer, "type {} = {};", name, self.write_ast(value))
     }
 
     fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
@@ -441,7 +463,7 @@ mod tests {
                 key: "with_comment".intern(),
                 optional: false,
                 read_only: false,
-                value: AST::OtherEnumValue,
+                value: AST::OtherTypename,
             },])),
             r#"{|
   // This will never be '%other', but we need some

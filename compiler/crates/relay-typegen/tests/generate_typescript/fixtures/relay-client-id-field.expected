@@ -32,12 +32,12 @@ export type RelayClientIDFieldQueryVariables = {
 };
 export type RelayClientIDFieldQueryResponse = {
   readonly __id: string,
-  readonly me?: {
+  readonly me: {
     readonly __id: string,
     readonly __typename: string,
     readonly id: string,
-  },
-  readonly node?: {
+  } | null,
+  readonly node: {
     readonly __id: string,
     readonly __typename: string,
     readonly id: string,
@@ -47,10 +47,10 @@ export type RelayClientIDFieldQueryResponse = {
       readonly text?: {
         readonly __id: string,
         readonly __typename: string,
-        readonly text?: string,
-      },
-    },
-  },
+        readonly text: string | null,
+      } | null,
+    } | null,
+  } | null,
 };
 export type RelayClientIDFieldQuery = {
   variables: RelayClientIDFieldQueryVariables,

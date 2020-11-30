@@ -20,7 +20,7 @@ pub struct TokenKindExtras {
 #[derive(Logos, Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[logos(extras = TokenKindExtras)]
 pub enum TokenKind {
-    #[regex(r"[ \t\n\f,]+|#[^\n\r]*", logos::skip)]
+    #[regex(r"[ \t\r\n\f,]+|#[^\n\r]*", logos::skip)]
     #[error]
     Error,
 

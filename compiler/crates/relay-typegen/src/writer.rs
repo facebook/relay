@@ -11,6 +11,7 @@ use lazy_static::lazy_static;
 #[derive(Debug, Clone)]
 pub enum AST {
     Union(Vec<AST>),
+    #[allow(dead_code)]
     Intersection(Vec<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
@@ -20,16 +21,19 @@ pub enum AST {
     String,
     StringLiteral(StringKey),
     /// Prints as `"%other" with a comment explaining open enums.
-    OtherEnumValue,
+    OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
     ExactObject(Vec<Prop>),
     InexactObject(Vec<Prop>),
     Number,
     Boolean,
     Any,
+    DefineType(StringKey, Box<AST>),
+    FragmentReference(Vec<StringKey>),
     ImportType(Vec<StringKey>, StringKey),
-    DeclareExportOpaqueType(StringKey, StringKey),
-    ExportList(Vec<StringKey>),
+    ImportFragmentType(Vec<StringKey>, StringKey),
+    DeclareExportFragment(StringKey, Option<StringKey>),
+    ExportFragmentList(Vec<StringKey>),
     ExportTypeEquals(StringKey, Box<AST>),
 }
 
@@ -47,5 +51,9 @@ lazy_static! {
 }
 
 pub trait Writer {
+    fn get_runtime_fragment_import(&self) -> StringKey {
+        "FragmentReference".intern()
+    }
+
     fn write_ast(&mut self, ast: &AST) -> String;
 }

@@ -47,10 +47,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let typegen_config = TypegenConfig {
         language: TypegenLanguage::TypeScript,
-        enum_module_suffix: None,
-        optional_input_fields: Default::default(),
-        custom_scalar_types: Default::default(),
         haste: true,
+        ..Default::default()
     };
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();

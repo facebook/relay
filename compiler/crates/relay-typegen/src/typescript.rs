@@ -6,14 +6,21 @@
  */
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
+use crate::TypegenConfig;
+use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_REF_TYPE};
 use interner::{Intern, StringKey};
 use std::fmt::{Result, Write};
 
 pub struct TypeScriptPrinter {
-    indentation: u32,
+    use_import_type_syntax: bool,
+    indentation: usize,
 }
 
 impl Writer for TypeScriptPrinter {
+    fn get_runtime_fragment_import(&self) -> StringKey {
+        "FragmentRefs".intern()
+    }
+
     fn write_ast(&mut self, ast: &AST) -> String {
         let mut writer = String::new();
         self.write(&mut writer, ast)
@@ -24,47 +31,48 @@ impl Writer for TypeScriptPrinter {
 }
 
 impl TypeScriptPrinter {
-    pub fn new() -> Self {
-        Self { indentation: 0 }
+    pub fn new(config: &TypegenConfig) -> Self {
+        Self {
+            indentation: 0,
+            use_import_type_syntax: config.use_import_type_syntax,
+        }
     }
 
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
         match ast {
-            AST::Any => write!(writer, "any")?,
-            AST::String => write!(writer, "string")?,
-            AST::StringLiteral(literal) => self.write_string_literal(writer, *literal)?,
-            AST::OtherEnumValue => self.write_other_string(writer)?,
-            AST::Number => write!(writer, "number")?,
-            AST::Boolean => write!(writer, "boolean")?,
-            AST::Identifier(identifier) => write!(writer, "{}", identifier)?,
-            AST::RawType(raw) => write!(writer, "{}", raw)?,
-            AST::Union(members) => self.write_union(writer, members)?,
-            AST::Intersection(members) => self.write_intersection(writer, members)?,
-            AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type)?,
-            AST::Nullable(of_type) => self.write_nullable(writer, of_type)?,
-            AST::ExactObject(props) => self.write_object(writer, props, true)?,
-            AST::InexactObject(props) => self.write_object(writer, props, false)?,
+            AST::Any => write!(writer, "any"),
+            AST::String => write!(writer, "string"),
+            AST::StringLiteral(literal) => self.write_string_literal(writer, *literal),
+            AST::OtherTypename => self.write_other_string(writer),
+            AST::Number => write!(writer, "number"),
+            AST::Boolean => write!(writer, "boolean"),
+            AST::Identifier(identifier) => write!(writer, "{}", identifier),
+            AST::RawType(raw) => write!(writer, "{}", raw),
+            AST::Union(members) => self.write_union(writer, members),
+            AST::Intersection(members) => self.write_intersection(writer, members),
+            AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type),
+            AST::Nullable(of_type) => self.write_nullable(writer, of_type),
+            AST::ExactObject(props) => self.write_object(writer, props, true),
+            AST::InexactObject(props) => self.write_object(writer, props, false),
             AST::Local3DPayload(document_name, selections) => {
-                self.write_local_3d_payload(writer, *document_name, selections)?
+                self.write_local_3d_payload(writer, *document_name, selections)
             }
-            AST::ImportType(types, from) => self.write_import_type(writer, types, from)?,
-            AST::DeclareExportOpaqueType(alias, value) => {
-                self.write_declare_export_opaque_type(writer, alias, value)?
-            }
+            AST::DefineType(name, value) => self.write_type_definition(writer, name, value),
+            AST::ImportType(types, from) => self.write_import_type(writer, types, from),
             AST::ExportTypeEquals(name, value) => {
-                self.write_export_type_equals(writer, name, value)?
+                self.write_export_type_equals(writer, name, value)
             }
-            AST::ExportList(names) => self.write_export_list(writer, names)?,
-        }
+            AST::FragmentReference(fragments) => self.write_fragment_references(writer, fragments),
 
-        Ok(())
+            // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
+            AST::ExportFragmentList(_) => Ok(()),
+            AST::DeclareExportFragment(_, _) => Ok(()),
+            AST::ImportFragmentType(_, _) => Ok(()),
+        }
     }
 
     fn write_indentation(&mut self, writer: &mut dyn Write) -> Result {
-        for _ in 0..self.indentation {
-            write!(writer, "  ")?;
-        }
-        Ok(())
+        writer.write_str(&"  ".repeat(self.indentation))
     }
 
     fn write_string_literal(&mut self, writer: &mut dyn Write, literal: StringKey) -> Result {
@@ -159,7 +167,7 @@ impl TypeScriptPrinter {
             }
 
             self.write_indentation(writer)?;
-            if let AST::OtherEnumValue = prop.value {
+            if let AST::OtherTypename = prop.value {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
                 writeln!(
@@ -171,22 +179,24 @@ impl TypeScriptPrinter {
             if prop.read_only {
                 write!(writer, "readonly ")?;
             }
-            write!(writer, "{}", prop.key)?;
-            if match &prop.value {
-                AST::Nullable(_) => true,
-                _ => prop.optional,
-            } {
+            write!(
+                writer,
+                "{}",
+                if prop.key == *KEY_FRAGMENT_REFS {
+                    format!("\" {}\"", *KEY_FRAGMENT_REFS).intern()
+                } else if prop.key == *KEY_REF_TYPE {
+                    format!("\" {}\"", *KEY_REF_TYPE).intern()
+                } else if prop.key == *KEY_DATA {
+                    format!("\" {}\"", *KEY_DATA).intern()
+                } else {
+                    prop.key
+                }
+            )?;
+            if prop.optional {
                 write!(writer, "?")?;
             }
             write!(writer, ": ")?;
-            self.write(
-                writer,
-                if let AST::Nullable(value) = &prop.value {
-                    value
-                } else {
-                    &prop.value
-                },
-            )?;
+            self.write(writer, &prop.value)?;
             if first && props.len() == 1 && exact {
                 writeln!(writer)?;
             } else {
@@ -212,6 +222,24 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
+    fn write_fragment_references(
+        &mut self,
+        writer: &mut dyn Write,
+        fragments: &[StringKey],
+    ) -> Result {
+        write!(writer, "FragmentRefs<")?;
+        self.write(
+            writer,
+            &AST::Union(
+                fragments
+                    .iter()
+                    .map(|key| AST::StringLiteral(*key))
+                    .collect(),
+            ),
+        )?;
+        write!(writer, ">")
+    }
+
     fn write_import_type(
         &mut self,
         writer: &mut dyn Write,
@@ -220,7 +248,12 @@ impl TypeScriptPrinter {
     ) -> Result {
         write!(
             writer,
-            "import {{ {} }} from \"{}\";",
+            "import {}{{ {} }} from \"{}\";",
+            if self.use_import_type_syntax {
+                "type "
+            } else {
+                ""
+            },
             types
                 .iter()
                 .map(|t| format!("{}", t))
@@ -230,17 +263,13 @@ impl TypeScriptPrinter {
         )
     }
 
-    fn write_declare_export_opaque_type(
+    fn write_type_definition(
         &mut self,
         writer: &mut dyn Write,
-        alias: &StringKey,
-        value: &StringKey,
+        name: &StringKey,
+        value: &AST,
     ) -> Result {
-        write!(
-            writer,
-            "export type {} = {} & {{ _: \"{}\" }};",
-            alias, value, alias
-        )
+        write!(writer, "type {} = {};", name, self.write_ast(value))
     }
 
     fn write_export_type_equals(
@@ -251,18 +280,6 @@ impl TypeScriptPrinter {
     ) -> Result {
         write!(writer, "export type {} = {};", name, self.write_ast(value))
     }
-
-    fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
-        write!(
-            writer,
-            "export {{ {} }};",
-            names
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
-        )
-    }
 }
 
 #[cfg(test)]
@@ -271,7 +288,7 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        TypeScriptPrinter::new().write_ast(ast)
+        TypeScriptPrinter::new(&Default::default()).write_ast(ast)
     }
 
     #[test]
@@ -500,7 +517,7 @@ mod tests {
                 key: "with_comment".intern(),
                 optional: false,
                 read_only: false,
-                value: AST::OtherEnumValue,
+                value: AST::OtherTypename,
             },])),
             r#"{
   // This will never be '%other', but we need some
@@ -508,6 +525,26 @@ mod tests {
   with_comment: "%other"
 }"#
             .to_string()
+        );
+    }
+
+    #[test]
+    fn import_type() {
+        assert_eq!(
+            print_type(&AST::ImportType(
+                vec!["A".intern(), "B".intern()],
+                "module".intern()
+            )),
+            "import { A, B } from \"module\";"
+        );
+
+        assert_eq!(
+            TypeScriptPrinter::new(&TypegenConfig {
+                use_import_type_syntax: true,
+                ..Default::default()
+            })
+            .write_ast(&AST::ImportType(vec!["C".intern()], "./foo".intern())),
+            "import type { C } from \"./foo\";"
         );
     }
 }

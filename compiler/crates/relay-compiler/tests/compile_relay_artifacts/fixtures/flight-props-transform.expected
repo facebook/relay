@@ -1,13 +1,62 @@
 ==================================== INPUT ====================================
-query flightPropsTransform_FlightPropsTransformQuery(
-  $cond: Boolean!
+query flightPropsTransform_StoryQuery(
+  $condition: Boolean!
+  $count: Int!
+  $id: ID!
+) {
+  node(id: $id) {
+    ...flightPropsTransform_story
+  }
+}
+
+fragment flightPropsTransform_story on Story {
+  ...flightPropsTransform_storyHeader
+  StoryAttachments
+  StoryComments(condition: $condition, count: $count)
+  ...flightPropsTransform_storyFooter
+}
+
+query flightPropsTransform_StoryHeaderQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...flightPropsTransform_storyHeader
+  }
+}
+
+fragment flightPropsTransform_storyHeader on Story {
+  ...flightPropsTransform_storyTitle
+  ...flightPropsTransform_storyAuthor
+}
+
+query flightPropsTransform_StoryTitleQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...flightPropsTransform_storyTitle
+  }
+}
+
+fragment flightPropsTransform_storyTitle on Story {
+  StoryTitle
+}
+
+fragment flightPropsTransform_storyAuthor on Story {
+  StoryAuthor
+}
+
+fragment flightPropsTransform_storyFooter on Story {
+  StoryFooter
+}
+
+query flightPropsTransform_StoryCommentsQuery(
+  $condition: Boolean!
   $count: Int!
   $id: ID!
 ) {
   node(id: $id) {
     ... on Story {
-      id
-      extension_field(condition: $cond, count: $count, id: $id)
+      StoryComments(condition: $condition, count: $count)
     }
   }
 }
@@ -16,11 +65,18 @@ query flightPropsTransform_FlightPropsTransformQuery(
 directive @react_flight_component(name: String!) on FIELD_DEFINITION
 
 extend type Story {
-  extension_field(
+  StoryComments(
     condition: Boolean!
     count: Int!
-    id: ID!
-  ): ReactFlightComponent @react_flight_component(name: "ExtensionField.server")
+  ): ReactFlightComponent @react_flight_component(name: "StoryComments.server")
+
+  StoryTitle: ReactFlightComponent @react_flight_component(name: "StoryTitle.server")
+
+  StoryAuthor: ReactFlightComponent @react_flight_component(name: "StoryAuthor.server")
+
+  StoryFooter: ReactFlightComponent @react_flight_component(name: "StoryFooter.server")
+
+  StoryAttachments: ReactFlightComponent @react_flight_component(name: "StoryAttachments.server")
 }
 ==================================== OUTPUT ===================================
 {
@@ -29,7 +85,7 @@ extend type Story {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond"
+        "name": "condition"
       },
       {
         "defaultValue": null,
@@ -44,7 +100,7 @@ extend type Story {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "flightPropsTransform_FlightPropsTransformQuery",
+    "name": "flightPropsTransform_StoryCommentsQuery",
     "selections": [
       {
         "alias": null,
@@ -64,36 +120,24 @@ extend type Story {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              },
-              {
-                "alias": "extension_field",
+                "alias": "StoryComments",
                 "args": [
                   {
                     "kind": "Literal",
                     "name": "component",
-                    "value": "ExtensionField.server"
+                    "value": "StoryComments.server"
                   },
                   {
                     "fields": [
                       {
                         "kind": "Variable",
                         "name": "condition",
-                        "variableName": "cond"
+                        "variableName": "condition"
                       },
                       {
                         "kind": "Variable",
                         "name": "count",
                         "variableName": "count"
-                      },
-                      {
-                        "kind": "Variable",
-                        "name": "id",
-                        "variableName": "id"
                       }
                     ],
                     "kind": "ObjectValue",
@@ -121,7 +165,7 @@ extend type Story {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "cond"
+        "name": "condition"
       },
       {
         "defaultValue": null,
@@ -135,7 +179,7 @@ extend type Story {
       }
     ],
     "kind": "Operation",
-    "name": "flightPropsTransform_FlightPropsTransformQuery",
+    "name": "flightPropsTransform_StoryCommentsQuery",
     "selections": [
       {
         "alias": null,
@@ -169,29 +213,24 @@ extend type Story {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": "extension_field",
+                "alias": "StoryComments",
                 "args": [
                   {
                     "kind": "Literal",
                     "name": "component",
-                    "value": "ExtensionField.server"
+                    "value": "StoryComments.server"
                   },
                   {
                     "fields": [
                       {
                         "kind": "Variable",
                         "name": "condition",
-                        "variableName": "cond"
+                        "variableName": "condition"
                       },
                       {
                         "kind": "Variable",
                         "name": "count",
                         "variableName": "count"
-                      },
-                      {
-                        "kind": "Variable",
-                        "name": "id",
-                        "variableName": "id"
                       }
                     ],
                     "kind": "ObjectValue",
@@ -214,7 +253,7 @@ extend type Story {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "flightPropsTransform_FlightPropsTransformQuery",
+    "name": "flightPropsTransform_StoryCommentsQuery",
     "operationKind": "query",
     "text": null
   }
@@ -222,17 +261,759 @@ extend type Story {
 
 QUERY:
 
-query flightPropsTransform_FlightPropsTransformQuery(
-  $cond: Boolean!
+query flightPropsTransform_StoryCommentsQuery(
+  $condition: Boolean!
   $count: Int!
+  $id: ID!
+) @react_flight(components: ["StoryComments.server"]) {
+  node(id: $id) {
+    __typename
+    ... on Story {
+      StoryComments: flight(component: "StoryComments.server", props: {condition: $condition, count: $count})
+    }
+    id
+  }
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "flightPropsTransform_StoryHeaderQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "flightPropsTransform_storyHeader"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "flightPropsTransform_StoryHeaderQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "StoryTitle",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryTitle.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryTitle.server\",props:{})"
+              },
+              {
+                "alias": "StoryAuthor",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryAuthor.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryAuthor.server\",props:{})"
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "flightPropsTransform_StoryHeaderQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query flightPropsTransform_StoryHeaderQuery(
+  $id: ID!
+) @react_flight(components: ["StoryAuthor.server", "StoryTitle.server"]) {
+  node(id: $id) {
+    __typename
+    ...flightPropsTransform_storyHeader
+    id
+  }
+}
+
+fragment flightPropsTransform_storyAuthor on Story {
+  StoryAuthor: flight(component: "StoryAuthor.server", props: {})
+}
+
+fragment flightPropsTransform_storyHeader on Story {
+  ...flightPropsTransform_storyTitle
+  ...flightPropsTransform_storyAuthor
+}
+
+fragment flightPropsTransform_storyTitle on Story {
+  StoryTitle: flight(component: "StoryTitle.server", props: {})
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "condition"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "count"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "flightPropsTransform_StoryQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "flightPropsTransform_story"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "condition"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "count"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "flightPropsTransform_StoryQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "StoryTitle",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryTitle.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryTitle.server\",props:{})"
+              },
+              {
+                "alias": "StoryAuthor",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryAuthor.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryAuthor.server\",props:{})"
+              },
+              {
+                "alias": "StoryAttachments",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryAttachments.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryAttachments.server\",props:{})"
+              },
+              {
+                "alias": "StoryComments",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryComments.server"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "kind": "Variable",
+                        "name": "condition",
+                        "variableName": "condition"
+                      },
+                      {
+                        "kind": "Variable",
+                        "name": "count",
+                        "variableName": "count"
+                      }
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": null
+              },
+              {
+                "alias": "StoryFooter",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryFooter.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryFooter.server\",props:{})"
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "flightPropsTransform_StoryQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query flightPropsTransform_StoryQuery(
+  $condition: Boolean!
+  $count: Int!
+  $id: ID!
+) @react_flight(components: ["StoryAttachments.server", "StoryAuthor.server", "StoryComments.server", "StoryFooter.server", "StoryTitle.server"]) {
+  node(id: $id) {
+    __typename
+    ...flightPropsTransform_story
+    id
+  }
+}
+
+fragment flightPropsTransform_story on Story {
+  ...flightPropsTransform_storyHeader
+  StoryAttachments: flight(component: "StoryAttachments.server", props: {})
+  StoryComments: flight(component: "StoryComments.server", props: {condition: $condition, count: $count})
+  ...flightPropsTransform_storyFooter
+}
+
+fragment flightPropsTransform_storyAuthor on Story {
+  StoryAuthor: flight(component: "StoryAuthor.server", props: {})
+}
+
+fragment flightPropsTransform_storyFooter on Story {
+  StoryFooter: flight(component: "StoryFooter.server", props: {})
+}
+
+fragment flightPropsTransform_storyHeader on Story {
+  ...flightPropsTransform_storyTitle
+  ...flightPropsTransform_storyAuthor
+}
+
+fragment flightPropsTransform_storyTitle on Story {
+  StoryTitle: flight(component: "StoryTitle.server", props: {})
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "flightPropsTransform_StoryTitleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "flightPropsTransform_storyTitle"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "flightPropsTransform_StoryTitleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "StoryTitle",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "component",
+                    "value": "StoryTitle.server"
+                  },
+                  {
+                    "fields": [],
+                    "kind": "ObjectValue",
+                    "name": "props"
+                  }
+                ],
+                "kind": "FlightField",
+                "name": "flight",
+                "storageKey": "flight(component:\"StoryTitle.server\",props:{})"
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "flightPropsTransform_StoryTitleQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query flightPropsTransform_StoryTitleQuery(
   $id: ID!
 ) {
   node(id: $id) {
     __typename
-    ... on Story {
-      id
-      extension_field: flight(component: "ExtensionField.server", props: {condition: $cond, count: $count, id: $id})
-    }
+    ...flightPropsTransform_storyTitle
     id
   }
+}
+
+fragment flightPropsTransform_storyTitle on Story {
+  StoryTitle: flight(component: "StoryTitle.server", props: {})
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "condition"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "count"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "flightPropsTransform_story",
+  "selections": [
+    {
+      "alias": "StoryAttachments",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "component",
+          "value": "StoryAttachments.server"
+        },
+        {
+          "fields": [],
+          "kind": "ObjectValue",
+          "name": "props"
+        }
+      ],
+      "kind": "FlightField",
+      "name": "flight",
+      "storageKey": "flight(component:\"StoryAttachments.server\",props:{})"
+    },
+    {
+      "alias": "StoryComments",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "component",
+          "value": "StoryComments.server"
+        },
+        {
+          "fields": [
+            {
+              "kind": "Variable",
+              "name": "condition",
+              "variableName": "condition"
+            },
+            {
+              "kind": "Variable",
+              "name": "count",
+              "variableName": "count"
+            }
+          ],
+          "kind": "ObjectValue",
+          "name": "props"
+        }
+      ],
+      "kind": "FlightField",
+      "name": "flight",
+      "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "flightPropsTransform_storyHeader"
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "flightPropsTransform_storyFooter"
+    }
+  ],
+  "type": "Story",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "flightPropsTransform_storyAuthor",
+  "selections": [
+    {
+      "alias": "StoryAuthor",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "component",
+          "value": "StoryAuthor.server"
+        },
+        {
+          "fields": [],
+          "kind": "ObjectValue",
+          "name": "props"
+        }
+      ],
+      "kind": "FlightField",
+      "name": "flight",
+      "storageKey": "flight(component:\"StoryAuthor.server\",props:{})"
+    }
+  ],
+  "type": "Story",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "flightPropsTransform_storyFooter",
+  "selections": [
+    {
+      "alias": "StoryFooter",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "component",
+          "value": "StoryFooter.server"
+        },
+        {
+          "fields": [],
+          "kind": "ObjectValue",
+          "name": "props"
+        }
+      ],
+      "kind": "FlightField",
+      "name": "flight",
+      "storageKey": "flight(component:\"StoryFooter.server\",props:{})"
+    }
+  ],
+  "type": "Story",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "flightPropsTransform_storyHeader",
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "flightPropsTransform_storyTitle"
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "flightPropsTransform_storyAuthor"
+    }
+  ],
+  "type": "Story",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "flightPropsTransform_storyTitle",
+  "selections": [
+    {
+      "alias": "StoryTitle",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "component",
+          "value": "StoryTitle.server"
+        },
+        {
+          "fields": [],
+          "kind": "ObjectValue",
+          "name": "props"
+        }
+      ],
+      "kind": "FlightField",
+      "name": "flight",
+      "storageKey": "flight(component:\"StoryTitle.server\",props:{})"
+    }
+  ],
+  "type": "Story",
+  "abstractKey": null
 }

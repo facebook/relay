@@ -11,8 +11,8 @@ use common::NamedItem;
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer};
 use relay_transforms::{
-    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS, REACT_FLIGHT_METADATA_ARG_KEY,
-    REACT_FLIGHT_METADATA_KEY,
+    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
+    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
 };
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
@@ -121,7 +121,7 @@ fn write_data_driven_dependency_annotation(
 fn write_flight_annotation(content: &mut String, flight_directive: &Directive) -> Result {
     let arg = flight_directive
         .arguments
-        .named(*REACT_FLIGHT_METADATA_ARG_KEY)
+        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY)
         .unwrap();
     match &arg.value.item {
         graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
@@ -208,7 +208,7 @@ fn generate_operation(
     }
     let flight_metadata = operation_fragment
         .directives
-        .named(*REACT_FLIGHT_METADATA_KEY);
+        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
     if let Some(flight_metadata) = flight_metadata {
         write_flight_annotation(&mut content, flight_metadata).unwrap();
     }
@@ -319,7 +319,9 @@ fn generate_fragment(
 
         writeln!(content).unwrap();
     }
-    let flight_metadata = reader_fragment.directives.named(*REACT_FLIGHT_METADATA_KEY);
+    let flight_metadata = reader_fragment
+        .directives
+        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
     if let Some(flight_metadata) = flight_metadata {
         write_flight_annotation(&mut content, flight_metadata).unwrap();
     }

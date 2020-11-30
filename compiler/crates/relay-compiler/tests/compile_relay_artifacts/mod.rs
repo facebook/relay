@@ -35,7 +35,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
-    let ast = parse_executable(base, source_location).unwrap();
+    let ast = parse_executable(base, source_location)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let ir = build(&schema, &ast.definitions)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);

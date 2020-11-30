@@ -58,6 +58,10 @@ interface MaybeNodeInterface {
 
 scalar JSON
 
+directive @react_flight(
+  components: [String!]!
+) on QUERY | MUTATION | SUBSCRIPTION
+
 scalar ReactFlightComponent
 
 scalar ReactFlightProps

@@ -94,8 +94,8 @@ pub use match_::{
 };
 pub use node_identifier::NodeIdentifier;
 pub use react_flight::{
-    react_flight, REACT_FLIGHT_DIRECTIVE_NAME, REACT_FLIGHT_METADATA_ARG_KEY,
-    REACT_FLIGHT_METADATA_KEY,
+    react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
+    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,

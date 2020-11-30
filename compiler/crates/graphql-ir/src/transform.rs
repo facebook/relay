@@ -455,6 +455,16 @@ impl<T> Transformed<T> {
             Transformed::Replace(replacement) => Transformed::Replace(f(replacement)),
         }
     }
+
+    pub fn unwrap_or_else<F>(self, f: F) -> T
+    where
+        F: FnOnce() -> T,
+    {
+        match self {
+            Transformed::Replace(replacement) => replacement,
+            _ => f(),
+        }
+    }
 }
 
 /// An extension of Transformed that has the additional value `ReplaceMultiple`

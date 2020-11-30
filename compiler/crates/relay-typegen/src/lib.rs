@@ -33,7 +33,7 @@ use relay_transforms::{
     REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
-use std::fmt::{Result, Write};
+use std::fmt::Result;
 use std::hash::Hash;
 use writer::{Prop, AST, SPREAD_KEY};
 
@@ -58,14 +58,7 @@ lazy_static! {
 }
 
 macro_rules! write_ast {
-    ($self:ident, $ast:expr) => {{
-        let output = $self.writer.write_ast(&$ast);
-        if output.is_empty() {
-            Ok(())
-        } else {
-            ::std::writeln!($self.result, "{}", output)
-        }
-    }};
+    ($self:ident, $ast:expr) => {{ $self.writer.write(&mut $self.result, &$ast) }};
 }
 
 pub fn generate_fragment_type(

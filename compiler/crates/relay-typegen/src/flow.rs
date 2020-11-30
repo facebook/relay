@@ -14,20 +14,6 @@ pub struct FlowPrinter {
 }
 
 impl Writer for FlowPrinter {
-    fn write_ast(&mut self, ast: &AST) -> String {
-        let mut writer = String::new();
-        self.write(&mut writer, ast)
-            .expect("Expected Ok result from writing Flow code");
-
-        writer
-    }
-}
-
-impl FlowPrinter {
-    pub fn new() -> Self {
-        Self { indentation: 0 }
-    }
-
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
         match ast {
             AST::Any => write!(writer, "any"),
@@ -74,6 +60,12 @@ impl FlowPrinter {
                     .as_slice(),
             ),
         }
+    }
+}
+
+impl FlowPrinter {
+    pub fn new() -> Self {
+        Self { indentation: 0 }
     }
 
     fn write_indentation(&mut self, writer: &mut dyn Write) -> Result {
@@ -225,7 +217,7 @@ impl FlowPrinter {
         types: &Vec<StringKey>,
         from: &StringKey,
     ) -> Result {
-        write!(
+        writeln!(
             writer,
             "import type {{ {} }} from \"{}\";",
             types
@@ -243,7 +235,7 @@ impl FlowPrinter {
         alias: &StringKey,
         value: &StringKey,
     ) -> Result {
-        write!(writer, "declare export opaque type {}: {};", alias, value)
+        writeln!(writer, "declare export opaque type {}: {};", alias, value)
     }
 
     fn write_export_type_equals(
@@ -252,7 +244,9 @@ impl FlowPrinter {
         name: &StringKey,
         value: &AST,
     ) -> Result {
-        write!(writer, "export type {} = {};", name, self.write_ast(value))
+        write!(writer, "export type {} = ", name)?;
+        self.write(writer, value)?;
+        writeln!(writer, ";")
     }
 
     fn write_type_definition(
@@ -261,11 +255,13 @@ impl FlowPrinter {
         name: &StringKey,
         value: &AST,
     ) -> Result {
-        write!(writer, "type {} = {};", name, self.write_ast(value))
+        write!(writer, "type {} = ", name)?;
+        self.write(writer, value)?;
+        writeln!(writer, ";")
     }
 
     fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
-        write!(
+        writeln!(
             writer,
             "export type {{ {} }};",
             names
@@ -283,7 +279,9 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        FlowPrinter::new().write_ast(ast)
+        let mut result = String::new();
+        FlowPrinter::new().write(&mut result, ast).unwrap();
+        result
     }
 
     #[test]

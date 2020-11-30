@@ -185,5 +185,7 @@ For example:
                 None
             }
         }
+        NodeKind::OperationDefinition => None,
+        NodeKind::FragmentDefinition => None,
     }
 }

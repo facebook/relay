@@ -23,6 +23,8 @@ use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
+    OperationDefinition,
+    FragmentDefinition,
     FieldName,
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
@@ -42,9 +44,9 @@ pub struct NodeResolutionInfo {
 }
 
 impl NodeResolutionInfo {
-    fn new(project_name: StringKey) -> Self {
+    fn new(project_name: StringKey, kind: NodeKind) -> Self {
         Self {
-            kind: NodeKind::FieldName,
+            kind,
             type_path: Default::default(),
             project_name,
         }
@@ -206,11 +208,11 @@ fn create_node_resolution_info(
         .find(|definition| definition.location().contains(position_span))
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let mut node_resolution_info = NodeResolutionInfo::new(project_name);
-
     match definition {
         ExecutableDefinition::Operation(operation) => {
             if operation.location.contains(position_span) {
+                let mut node_resolution_info =
+                    NodeResolutionInfo::new(project_name, NodeKind::OperationDefinition);
                 let OperationDefinition {
                     selections,
                     variable_definitions,
@@ -252,6 +254,8 @@ fn create_node_resolution_info(
         }
         ExecutableDefinition::Fragment(fragment) => {
             if fragment.location.contains(position_span) {
+                let mut node_resolution_info =
+                    NodeResolutionInfo::new(project_name, NodeKind::FragmentDefinition);
                 if let Some(node_resolution_info) = build_node_resolution_for_directive(
                     &fragment.directives,
                     position_span,

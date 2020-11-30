@@ -11,6 +11,7 @@ mod client;
 mod completion;
 mod goto_definition;
 mod hover;
+mod location;
 mod lsp;
 pub mod lsp_process_error;
 mod lsp_runtime_error;

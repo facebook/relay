@@ -65,9 +65,11 @@ fn get_graphql_source<'a>(
     } = text_document_position;
     let url = &text_document.uri;
 
-    let graphql_sources = graphql_source_cache.get(url).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("{} not found in source cache", url))
-    })?;
+    let graphql_sources = graphql_source_cache
+        .get(url)
+        // If the source isn't present in the source cache, then that means that
+        // the source has no graphql documents.
+        .ok_or(LSPRuntimeError::ExpectedError)?;
 
     // We have GraphQL documents, now check if the position
     // falls within the range of one of these documents.

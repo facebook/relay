@@ -86,6 +86,7 @@ pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
                 Some(chunks)
             }
         }
+        // TODO T80565215 handle these errors
         Err(_) => None,
     }
 }

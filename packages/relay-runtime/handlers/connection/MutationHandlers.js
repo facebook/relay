@@ -183,6 +183,7 @@ function nodeUpdater(
           clientEdge != null,
           'MutationHandlers: Failed to build the edge.',
         );
+        clientEdge.setValue(null, 'cursor');
         insertFn(connection, clientEdge);
       }
     }

@@ -15,6 +15,7 @@ mod location;
 mod lsp;
 pub mod lsp_process_error;
 mod lsp_runtime_error;
+mod references;
 mod server;
 mod status_reporting;
 mod text_documents;

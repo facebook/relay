@@ -23,10 +23,6 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub enum LSPBridgeMessage {
-    GotoDefinitionRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
     CompletionRequest {
         request_id: ServerRequestId,
         params: CompletionParams,
@@ -34,6 +30,14 @@ pub enum LSPBridgeMessage {
     HoverRequest {
         request_id: ServerRequestId,
         text_document_position: TextDocumentPositionParams,
+    },
+    GotoDefinitionRequest {
+        request_id: ServerRequestId,
+        text_document_position: TextDocumentPositionParams,
+    },
+    ReferencesRequest {
+        request_id: ServerRequestId,
+        reference_params: ReferenceParams,
     },
     DidOpenTextDocument(DidOpenTextDocumentParams),
     DidChangeTextDocument(DidChangeTextDocumentParams),

@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::hover::get_hover_response_contents;
 use crate::lsp::{
     set_initializing_status, Completion, CompletionOptions, Connection, DidChangeTextDocument,
     DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition, HoverRequest,
@@ -25,6 +24,7 @@ use crate::{
     lsp_runtime_error::LSPRuntimeResult,
 };
 use crate::{goto_definition::get_goto_definition_response, lsp_runtime_error::LSPRuntimeError};
+use crate::{hover::get_hover_response_contents, references::get_references_response};
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
@@ -32,7 +32,7 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use log::info;
 use lsp_server::{RequestId, ResponseError};
-use lsp_types::Hover;
+use lsp_types::{request::References, Hover};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::Schema;
 use std::{
@@ -185,6 +185,31 @@ where
 
                 Some((request_id, get_goto_definition_result()))
             }
+            LSPBridgeMessage::ReferencesRequest {
+                request_id,
+                reference_params,
+            } => {
+                let get_goto_references_result = || {
+                    let node_resolution_info = get_node_resolution_info(
+                        reference_params.text_document_position,
+                        &self.synced_graphql_documents,
+                        &self.file_categorizer,
+                        &self.root_dir,
+                    )?;
+                    let references_response = get_references_response(
+                        node_resolution_info,
+                        &self.source_programs,
+                        &self.root_dir,
+                    )?;
+                    serde_json::to_value(references_response).map_err(|_e| {
+                        LSPRuntimeError::UnexpectedError(
+                            "Unable to serialize references response".to_string(),
+                        )
+                    })
+                };
+
+                Some((request_id, get_goto_references_result()))
+            }
             LSPBridgeMessage::DidOpenTextDocument(params) => {
                 on_did_open_text_document(params, &mut self.synced_graphql_documents);
                 None
@@ -227,6 +252,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 
     server_capabilities.hover_provider = Some(true);
     server_capabilities.definition_provider = Some(true);
+    server_capabilities.references_provider = Some(true);
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -311,6 +337,16 @@ where
                             .send(LSPBridgeMessage::GotoDefinitionRequest {
                                 request_id,
                                 text_document_position,
+                            })
+                            .await
+                            .ok();
+                    } else if req.method == References::METHOD {
+                        let (request_id, reference_params) =
+                            extract_request_params::<References>(req);
+                        lsp_tx
+                            .send(LSPBridgeMessage::ReferencesRequest {
+                                request_id,
+                                reference_params,
                             })
                             .await
                             .ok();

@@ -16,30 +16,27 @@ pub fn to_lsp_location_of_graphql_literal(
     location: Location,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<lsp_types::Location> {
+    Ok(to_contents_and_lsp_location_of_graphql_literal(location, root_dir)?.1)
+}
+
+pub fn to_contents_and_lsp_location_of_graphql_literal(
+    location: Location,
+    root_dir: &PathBuf,
+) -> LSPRuntimeResult<(String, lsp_types::Location)> {
     match location.source_location() {
         SourceLocationKey::Embedded { path, index } => {
             let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
             let uri = get_uri(&path_to_fragment)?;
-            let range = read_file_and_get_range(&path_to_fragment, index)?;
+            let (file_contents, range) = read_file_and_get_range(&path_to_fragment, index)?;
 
-            Ok(lsp_types::Location { uri, range })
+            Ok((file_contents, lsp_types::Location { uri, range }))
         }
         SourceLocationKey::Standalone { path } => {
             let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
             let uri = get_uri(&path_to_fragment)?;
-            Ok(lsp_types::Location {
-                uri,
-                range: lsp_types::Range {
-                    start: lsp_types::Position {
-                        line: 0,
-                        character: 0,
-                    },
-                    end: lsp_types::Position {
-                        line: 0,
-                        character: 0,
-                    },
-                },
-            })
+            let (file_contents, range) = read_file_and_get_range(&path_to_fragment, 0)?;
+
+            Ok((file_contents, lsp_types::Location { uri, range }))
         }
         SourceLocationKey::Generated => Err(LSPRuntimeError::UnexpectedError(
             "Cannot get location of a generated artifact".to_string(),
@@ -50,7 +47,7 @@ pub fn to_lsp_location_of_graphql_literal(
 fn read_file_and_get_range(
     path_to_fragment: &PathBuf,
     index: usize,
-) -> LSPRuntimeResult<lsp_types::Range> {
+) -> LSPRuntimeResult<(String, lsp_types::Range)> {
     let file = std::fs::read(path_to_fragment)
         .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
     let file_contents =
@@ -75,16 +72,19 @@ fn read_file_and_get_range(
         ))
     })?;
 
-    Ok(lsp_types::Range {
-        start: lsp_types::Position {
-            line: source.line_index as u64,
-            character: source.column_index as u64,
+    Ok((
+        source.text.to_string(),
+        lsp_types::Range {
+            start: lsp_types::Position {
+                line: source.line_index as u64,
+                character: source.column_index as u64,
+            },
+            end: lsp_types::Position {
+                line: (source.line_index + line_count) as u64,
+                character: last_line.len() as u64,
+            },
         },
-        end: lsp_types::Position {
-            line: (source.line_index + line_count) as u64,
-            character: last_line.len() as u64,
-        },
-    })
+    ))
 }
 
 fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Url> {

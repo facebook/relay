@@ -24,7 +24,7 @@ use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
     OperationDefinition,
-    FragmentDefinition,
+    FragmentDefinition(StringKey),
     FieldName,
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
@@ -172,6 +172,107 @@ fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> 
     None
 }
 
+#[derive(Debug)]
+pub(crate) struct SameLineOffset {
+    character_offset: u64,
+}
+
+#[derive(Debug)]
+pub(crate) struct DifferentLineOffset {
+    line_offset: u64,
+    character: u64,
+}
+
+/// Represents the offset from a given position to another position.
+/// The SameLineOffset variant represents moving to a later character
+/// position on the same line. The NewPositionOffset represents moving to
+/// a later line, and an arbitrary character position.
+#[derive(Debug)]
+pub(crate) enum PositionOffset {
+    SameLineOffset(SameLineOffset),
+    DifferentLineOffset(DifferentLineOffset),
+}
+
+impl std::ops::Add<PositionOffset> for Position {
+    type Output = Self;
+
+    fn add(self, offset: PositionOffset) -> Self::Output {
+        match offset {
+            PositionOffset::SameLineOffset(SameLineOffset { character_offset }) => Position {
+                line: self.line,
+                character: self.character + character_offset,
+            },
+            PositionOffset::DifferentLineOffset(DifferentLineOffset {
+                line_offset,
+                character,
+            }) => Position {
+                line: self.line + line_offset,
+                character,
+            },
+        }
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct RangeOffset {
+    pub start: PositionOffset,
+    pub end: PositionOffset,
+}
+
+/// Returns a RangeOffset that represents the offset from the start
+/// of the source to the contents of the span.
+pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset> {
+    if text.len() < span.end as usize {
+        return None;
+    }
+
+    let mut start_position_offset = None;
+    let mut end_position_offset = None;
+    let Span { start, end } = span;
+    let span_start = start as u64;
+    let span_end = end as u64;
+    let mut characters_iterated: u64 = 0;
+
+    // For each line, determine whether the start and end of the span
+    // occur on that line.
+    for (line_index, line) in text.lines().enumerate() {
+        let line_length = line.len() as u64;
+        if start_position_offset.is_none() && characters_iterated + line_length >= span_start {
+            start_position_offset = Some(if line_index == 0 {
+                PositionOffset::SameLineOffset(SameLineOffset {
+                    character_offset: span_start,
+                })
+            } else {
+                PositionOffset::DifferentLineOffset(DifferentLineOffset {
+                    line_offset: line_index as u64,
+                    character: span_start - characters_iterated,
+                })
+            });
+        }
+        if end_position_offset.is_none() && characters_iterated + line_length >= span_end {
+            end_position_offset = Some(if line_index == 0 {
+                PositionOffset::SameLineOffset(SameLineOffset {
+                    character_offset: span_end,
+                })
+            } else {
+                PositionOffset::DifferentLineOffset(DifferentLineOffset {
+                    line_offset: line_index as u64,
+                    character: span_end - characters_iterated,
+                })
+            });
+            break;
+        }
+        characters_iterated += line_length;
+        // we also need to advance characters_iterated by 1 to account for the line break
+        characters_iterated += 1;
+    }
+
+    Some(RangeOffset {
+        start: start_position_offset?,
+        end: end_position_offset?,
+    })
+}
+
 fn build_node_resolution_for_directive(
     directives: &[Directive],
     position_span: Span,
@@ -254,8 +355,10 @@ fn create_node_resolution_info(
         }
         ExecutableDefinition::Fragment(fragment) => {
             if fragment.location.contains(position_span) {
-                let mut node_resolution_info =
-                    NodeResolutionInfo::new(project_name, NodeKind::FragmentDefinition);
+                let mut node_resolution_info = NodeResolutionInfo::new(
+                    project_name,
+                    NodeKind::FragmentDefinition(fragment.name.value),
+                );
                 if let Some(node_resolution_info) = build_node_resolution_for_directive(
                     &fragment.directives,
                     position_span,

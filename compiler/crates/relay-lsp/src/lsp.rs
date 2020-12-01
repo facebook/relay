@@ -50,6 +50,7 @@ impl LSPBridgeMessage {
             LSPBridgeMessage::GotoDefinitionRequest { .. } => "GotoDefinitionRequest",
             LSPBridgeMessage::CompletionRequest { .. } => "CompletionRequest",
             LSPBridgeMessage::HoverRequest { .. } => "HoverRequest",
+            LSPBridgeMessage::ReferencesRequest { .. } => "ReferencesRequest",
             LSPBridgeMessage::DidOpenTextDocument(_) => "DidOpenTextDocument",
             LSPBridgeMessage::DidChangeTextDocument(_) => "DidChangeTextDocument",
             LSPBridgeMessage::DidCloseTextDocument(_) => "DidCloseTextDocument",

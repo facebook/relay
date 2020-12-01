@@ -15,7 +15,7 @@ import type {
   EntryPoint,
   EntryPointProps,
   EntryPointElementConfig,
-} from '../EntryPointTypes.flow';
+} from '../../EntryPointTypes.flow';
 
 type MyComponentOtherProps = $ReadOnly<{|
   foo: string,

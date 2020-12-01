@@ -64,8 +64,11 @@ pub fn on_did_change_text_document(
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = match extract_graphql_sources(&content_change.text) {
         Some(sources) => sources,
-        // Exit early if there are no sources
-        None => return,
+        // Remove the item from the cache and exit early if there are no longer any sources
+        None => {
+            graphql_source_cache.remove(&uri);
+            return;
+        }
     };
 
     // Update the GraphQL sources for this document
@@ -83,6 +86,7 @@ pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
                 Some(chunks)
             }
         }
+        // TODO T80565215 handle these errors
         Err(_) => None,
     }
 }

@@ -15,6 +15,7 @@
 
 const validateMutation = require('../validateMutation');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 jest.mock('warning', () => {
@@ -551,7 +552,7 @@ describe('validateOptimisticResponse', () => {
         },
       },
       variables: null,
-      shouldWarn: true,
+      shouldWarn: false,
     },
     {
       name: 'Does not log a warning for client-side schema extensions',
@@ -615,6 +616,34 @@ describe('validateOptimisticResponse', () => {
       variables: null,
       shouldWarn: true,
     },
+    {
+      name: 'Does not log a warning for ModuleImport sub selections',
+      mutation: generateAndCompile(
+        `
+          mutation FeedbackLikeMutation(
+            $input: FeedbackLikeInput
+          ) {
+            feedbackLike(input: $input) {
+              feedback {
+                ...TheGrooviestReactModule_groovygroovy @module(name: "GroovyModule.react")
+              }
+            }
+          }
+          fragment TheGrooviestReactModule_groovygroovy on Feedback {
+            doesViewerLike
+          }
+      `,
+      ).FeedbackLikeMutation,
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
     it(name, () => {
       jest.clearAllMocks();
@@ -627,6 +656,135 @@ describe('validateOptimisticResponse', () => {
           validateMutation(optimisticResponse, mutation, variables),
         ).not.toThrow();
       }
+    });
+  });
+
+  describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+    });
+
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('Throws an error when optimistic responses contain Flight fields', () => {
+      const {FlightMutation} = generateAndCompile(`
+        mutation FlightMutation(
+            $input: StoryUpdateInput!,
+            $count: Int!
+          ) {
+            storyUpdate(input: $input) {
+              story {
+                id
+                body {
+                  text
+                }
+                flightComponent(condition: true, count: $count)
+              }
+            }
+          }
+
+          extend type Story {
+            flightComponent(
+              condition: Boolean!
+              count: Int!
+            ): ReactFlightComponent
+              @react_flight_component(name: "FlightComponent.server")
+          }
+      `);
+      const optimisticResponse = {
+        storyUpdate: {
+          story: {
+            id: 1,
+            body: {
+              text: 'Hello world',
+            },
+            flightComponent: {
+              tree: [
+                {
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                },
+              ],
+              queries: [],
+            },
+          },
+        },
+      };
+      const variables = null;
+
+      expect(() => {
+        validateMutation(optimisticResponse, FlightMutation, variables);
+      }).toThrowError(/validateMutation: Flight fields are not compatible/);
+    });
+
+    it('Does not error when optimistic responses contain null or undefined Flight fields', () => {
+      const {FlightMutation} = generateAndCompile(`
+        mutation FlightMutation(
+            $input: StoryUpdateInput!,
+            $count: Int!
+          ) {
+            storyUpdate(input: $input) {
+              story {
+                id
+                body {
+                  text
+                }
+                flightComponent(condition: true, count: $count)
+              }
+            }
+          }
+
+          extend type Story {
+            flightComponent(
+              condition: Boolean!
+              count: Int!
+            ): ReactFlightComponent
+              @react_flight_component(name: "FlightComponent.server")
+          }
+      `);
+      const optimisticResponseWithUndefinedFlightField = {
+        storyUpdate: {
+          story: {
+            id: 1,
+            body: {
+              text: 'Hello world',
+            },
+            flightComponent: undefined,
+          },
+        },
+      };
+      const optimisticResponseWithNullFlightField = {
+        storyUpdate: {
+          story: {
+            id: 1,
+            body: {
+              text: 'Hello world',
+            },
+            flightComponent: null,
+          },
+        },
+      };
+      const variables = null;
+
+      expect(() => {
+        validateMutation(
+          optimisticResponseWithUndefinedFlightField,
+          FlightMutation,
+          variables,
+        );
+      }).not.toThrow();
+      expect(() => {
+        validateMutation(
+          optimisticResponseWithNullFlightField,
+          FlightMutation,
+          variables,
+        );
+      }).not.toThrow();
     });
   });
 });

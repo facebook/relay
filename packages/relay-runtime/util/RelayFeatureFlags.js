@@ -21,6 +21,7 @@ type FeatureFlags = {|
   ENABLE_REQUIRED_DIRECTIVES: boolean | string,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean,
+  ENABLE_STORE_SUBSCRIPTIONS_REFACTOR: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -32,6 +33,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_REQUIRED_DIRECTIVES: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: false,
+  ENABLE_STORE_SUBSCRIPTIONS_REFACTOR: false,
 };
 
 module.exports = RelayFeatureFlags;

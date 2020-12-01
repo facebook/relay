@@ -1030,5 +1030,205 @@ describe('usePreloadedQuery', () => {
         );
       });
     });
+
+    describe('refetching', () => {
+      it('renders updated data correctly when refetching same query and variables', () => {
+        const loadedFirst = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        let data;
+        function Component(props) {
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node.name;
+        }
+        const renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedFirst} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next(response);
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(data).toEqual({
+          node: {
+            id: '4',
+            name: 'Zuck',
+          },
+        });
+
+        // Refetch
+        data = undefined;
+        dataSource = undefined;
+        const loadedSecond = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        renderer.update(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedSecond} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next({
+            data: {
+              node: {
+                __typename: 'User',
+                id: '4',
+                name: 'Zuck Refetched',
+              },
+            },
+            extensions: {
+              is_final: true,
+            },
+          });
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck Refetched');
+        expect(data).toEqual({
+          node: {
+            id: '4',
+            name: 'Zuck Refetched',
+          },
+        });
+      });
+
+      it('renders updated data correctly when refetching different variables', () => {
+        const loadedFirst = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        let data;
+        function Component(props) {
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node.name;
+        }
+        const renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedFirst} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next(response);
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(data).toEqual({
+          node: {
+            id: '4',
+            name: 'Zuck',
+          },
+        });
+
+        // Refetch
+        data = undefined;
+        dataSource = undefined;
+        const loadedSecond = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '5',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        renderer.update(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedSecond} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next({
+            data: {
+              node: {
+                __typename: 'User',
+                id: '5',
+                name: 'User 5',
+              },
+            },
+            extensions: {
+              is_final: true,
+            },
+          });
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('User 5');
+        expect(data).toEqual({
+          node: {
+            id: '5',
+            name: 'User 5',
+          },
+        });
+      });
+    });
   });
 });

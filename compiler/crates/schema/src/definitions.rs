@@ -31,9 +31,11 @@ pub struct Schema {
 
     clientid_field: FieldID,
     typename_field: FieldID,
+    fetch_token_field: FieldID,
 
     clientid_field_name: StringKey,
     typename_field_name: StringKey,
+    fetch_token_field_name: StringKey,
 
     string_type: Option<Type>,
     id_type: Option<Type>,
@@ -70,6 +72,10 @@ impl Schema {
 
     pub fn typename_field(&self) -> FieldID {
         self.typename_field
+    }
+
+    pub fn fetch_token_field(&self) -> FieldID {
+        self.fetch_token_field
     }
 
     pub fn get_type(&self, type_name: StringKey) -> Option<Type> {
@@ -259,6 +265,10 @@ impl Schema {
         self.directives.get(&name)
     }
 
+    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+        self.directives.get_mut(&name)
+    }
+
     pub fn is_extension_directive(&self, name: StringKey) -> bool {
         if let Some(directive) = self.get_directive(name) {
             directive.is_extension
@@ -274,6 +284,10 @@ impl Schema {
         if can_have_typename {
             if name == self.typename_field_name {
                 return Some(self.typename_field);
+            }
+            // TODO(inanc): Also check if the parent type is fetchable?
+            if name == self.fetch_token_field_name {
+                return Some(self.fetch_token_field);
             }
             if name == self.clientid_field_name {
                 return Some(self.clientid_field);
@@ -647,8 +661,10 @@ impl Schema {
             type_map: HashMap::new(),
             clientid_field: FieldID(0),
             typename_field: FieldID(0),
+            fetch_token_field: FieldID(0),
             clientid_field_name: "__id".intern(),
             typename_field_name: "__typename".intern(),
+            fetch_token_field_name: "__token".intern(),
             string_type: None,
             id_type: None,
             unchecked_argument_type_sentinel: None,
@@ -753,8 +769,10 @@ impl Schema {
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
+            fetch_token_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             typename_field_name: "__typename".intern(),
+            fetch_token_field_name: "__token".intern(),
             string_type: Some(string_type),
             id_type: Some(id_type),
             unchecked_argument_type_sentinel,
@@ -808,6 +826,7 @@ impl Schema {
     pub fn load_defaults(&mut self) {
         self.load_default_root_types();
         self.load_default_typename_field();
+        self.load_default_fetch_token_field();
         self.load_default_clientid_field();
     }
 
@@ -843,6 +862,20 @@ impl Schema {
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
+            directives: Vec::new(),
+            parent_type: None,
+        });
+    }
+
+    fn load_default_fetch_token_field(&mut self) {
+        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let fetch_token_field_id = self.fields.len();
+        self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: self.fetch_token_field_name,
+            is_extension: false,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
         });
@@ -1312,8 +1345,10 @@ impl Schema {
             directives,
             clientid_field: _clientid_field,
             typename_field: _typename_field,
+            fetch_token_field: _fetch_token_field,
             clientid_field_name: _clientid_field_name,
             typename_field_name: _typename_field_name,
+            fetch_token_field_name: _fetch_token_field_name,
             string_type: _string_type,
             id_type: _id_type,
             unchecked_argument_type_sentinel: _unchecked_argument_type_sentinel,

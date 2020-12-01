@@ -9,14 +9,21 @@
 
 mod client;
 mod completion;
-pub mod error;
-mod error_reporting;
+mod goto_definition;
+mod hover;
+mod location;
 mod lsp;
+pub mod lsp_process_error;
+mod lsp_runtime_error;
+mod references;
 mod server;
+mod status_reporting;
 mod text_documents;
+mod type_path;
+mod utils;
 use common::PerfLogger;
-use error::Result;
 use log::info;
+use lsp_process_error::LSPProcessResult;
 use lsp_server::Connection;
 use relay_compiler::config::Config;
 use std::sync::Arc;
@@ -24,7 +31,7 @@ use std::sync::Arc;
 pub async fn start_language_server<TPerfLogger>(
     config: Config,
     perf_logger: Arc<TPerfLogger>,
-) -> Result<()>
+) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
 {
@@ -40,12 +47,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::client;
-    use super::error::Result;
+    use super::lsp_process_error::LSPProcessResult;
     use super::server;
     use lsp_server::Connection;
     use lsp_types::{ClientCapabilities, InitializeParams};
     #[test]
-    fn initialize() -> Result<()> {
+    fn initialize() -> LSPProcessResult<()> {
         // Test with an in-memory connection pair
         let (connection, client) = Connection::memory();
         // Mock set of client parameters. The `root_path` field is deprecated, but

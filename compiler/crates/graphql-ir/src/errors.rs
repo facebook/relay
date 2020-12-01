@@ -40,7 +40,7 @@ pub enum ValidationMessage {
     #[error("Unknown directive '{0}'")]
     UnknownDirective(StringKey),
     #[error(
-        "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead."
+        "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead."
     )]
     UnnecessaryUncheckedArgumentsDirective,
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
@@ -144,6 +144,9 @@ pub enum ValidationMessage {
 
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
+
+    #[error("Unexpected arguments on '__token' field")]
+    InvalidArgumentsOnFetchTokenField(),
 
     #[error(
         "Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`."
@@ -630,6 +633,9 @@ pub enum ValidationMessage {
     )]
     RequiredWithinAbstractInlineFragment,
 
+    #[error("@required is not supported within @inline fragments.")]
+    RequiredWithinInlineDirective,
+
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,
 
@@ -669,6 +675,19 @@ pub enum ValidationMessage {
     )]
     LocalGlobalVariableConflict { name: StringKey },
 
+    #[error("Missing required {}: `{}`",
+        if missing_arg_names.len() > 1 { "arguments" } else { "argument" },
+        missing_arg_names
+            .iter()
+            .map(|arg| arg.lookup())
+            .collect::<Vec<_>>()
+            .join("`, `"))
+    ]
+    MissingRequiredArguments { missing_arg_names: Vec<StringKey> },
+
+    #[error("Duplicate argument `{name}`")]
+    DuplicateArgument { name: StringKey },
+
     #[error(
         "Required argument '{argument_name}: {type_string}' is missing on '{node_name}' in '{root_name}'."
     )]
@@ -681,4 +700,7 @@ pub enum ValidationMessage {
 
     #[error("Missing required argument `{argument_name}` on this fragment spread.")]
     MissingRequiredFragmentArgument { argument_name: StringKey },
+
+    #[error("Duplicate variable `{name}`")]
+    DuplicateVariable { name: StringKey },
 }

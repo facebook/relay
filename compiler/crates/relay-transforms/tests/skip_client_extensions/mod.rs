@@ -10,9 +10,9 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation};
+use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::skip_client_extensions;
 use std::sync::Arc;
-use test_schema::get_test_schema_with_extensions;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();

@@ -11,9 +11,9 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
+use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::validate_global_variables;
 use std::sync::Arc;
-use test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);

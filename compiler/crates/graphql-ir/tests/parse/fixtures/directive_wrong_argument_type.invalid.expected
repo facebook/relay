@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  me {
+    name @customDirective(level: "not an Int!")
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'Int'
+
+  directive_wrong_argument_type.invalid.graphql:4:34
+    3 │   me {
+    4 │     name @customDirective(level: "not an Int!")
+      │                                  ^^^^^^^^^^^^^
+    5 │   }

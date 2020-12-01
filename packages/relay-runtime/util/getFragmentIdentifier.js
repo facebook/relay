@@ -24,7 +24,6 @@ const {
   getSelector,
 } = require('../store/RelayModernSelector');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
 import type {ReaderFragment} from './ReaderNode';
 
 function getFragmentIdentifier(

@@ -5,22 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, commit_project};
+use crate::build_project::{build_project, build_schema, commit_project, BuildProjectFailure};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
-use crate::errors::{BuildProjectError, Error, Result};
+use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use log::{error, info};
+use log::info;
 use rayon::prelude::*;
 use schema::Schema;
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
@@ -39,7 +36,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
-    pub async fn compile(self) -> Result<CompilerState> {
+    pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
@@ -62,7 +59,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         let mut schemas = HashMap::new();
         for project_config in self.config.enabled_projects() {
             let schema = build_schema(compiler_state, project_config)?;
-            schemas.insert(project_config.name, Arc::new(schema));
+            schemas.insert(project_config.name, schema);
         }
         setup_event.stop(timer);
         Ok(schemas)
@@ -92,15 +89,14 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         self.perf_logger.complete_event(setup_event);
         info!("Waiting for changes...");
 
-        let existing_file_source_changes_source = Arc::new(Mutex::new(vec![]));
-        let existing_file_source_changes = existing_file_source_changes_source.clone();
+        let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
         task::spawn(async move {
             loop {
                 if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
-                    existing_file_source_changes_source
-                        .lock()
+                    pending_file_source_changes
+                        .write()
                         .unwrap()
                         .push(file_source_changes);
                     notify_sender.notify();
@@ -110,27 +106,21 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
         loop {
             notify_receiver.notified().await;
-            let mut existing_file_source_changes = existing_file_source_changes.lock().unwrap();
-            if !existing_file_source_changes.is_empty() {
+            // Single change to file sometimes produces 2 watchman change events for the same file
+            // wait for 50ms in case there is a subsequent request
+            tokio::time::delay_for(std::time::Duration::from_millis(50)).await;
+            if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
-                // TODO Single change to file in VSCode sometimes produces
-                // 2 watchman change events for the same file
-                let mut had_new_changes = false;
-                for file_source_changes in existing_file_source_changes.drain(..) {
-                    had_new_changes = had_new_changes
-                        || compiler_state.merge_file_source_changes(
-                            &self.config,
-                            &file_source_changes,
-                            &incremental_build_event,
-                            self.perf_logger.as_ref(),
-                            false,
-                        )?;
-                }
-                std::mem::drop(existing_file_source_changes);
+                let had_new_changes = compiler_state.merge_file_source_changes(
+                    &self.config,
+                    &incremental_build_event,
+                    self.perf_logger.as_ref(),
+                    false,
+                )?;
 
                 if had_new_changes {
                     info!("Change detected, start compiling...");
@@ -163,7 +153,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        self.config.error_reporter.build_starts();
+        self.config.status_reporter.build_starts();
         let result = build_projects(
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
@@ -171,58 +161,25 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
-        self.config.error_reporter.build_finishes();
-        match result {
+        let result = match result {
             Ok(()) => {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
                 if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
                     if let Err(error) = post_artifacts_write(&self.config) {
                         let error = Error::PostArtifactsError { error };
-                        error!("{}", error);
-                        return Err(error);
+                        Err(error)
+                    } else {
+                        Ok(())
                     }
-                }
-                Ok(())
-            }
-            Err(error) => {
-                match &error {
-                    Error::DiagnosticsError { errors } => {
-                        for diagnostic in errors {
-                            self.config.error_reporter.report_diagnostic(diagnostic);
-                        }
-                    }
-                    Error::BuildProjectsErrors { errors } => {
-                        for error in errors {
-                            self.print_project_error(error);
-                        }
-                    }
-                    error => {
-                        error!("{}", error);
-                    }
-                }
-                error!("Compilation failed.");
-                Err(error)
-            }
-        }
-    }
-
-    fn print_project_error(&self, error: &BuildProjectError) {
-        match error {
-            BuildProjectError::ValidationErrors { errors } => {
-                for diagnostic in errors {
-                    self.config.error_reporter.report_diagnostic(diagnostic);
+                } else {
+                    Ok(())
                 }
             }
-            BuildProjectError::PersistErrors { errors } => {
-                for error in errors {
-                    error!("{}", error);
-                }
-            }
-            _ => {
-                error!("{}", error);
-            }
-        }
+            Err(error) => Err(error),
+        };
+        self.config.status_reporter.build_finishes(&result);
+        result
     }
 }
 
@@ -235,9 +192,13 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
-            &compiler_state.get_dirty_defintions(&config),
+            &compiler_state.get_dirty_definitions(&config),
         )
     })?;
+
+    if compiler_state.has_pending_file_source_changes() {
+        return Err(Error::Cancelled);
+    }
 
     let build_results: Vec<_> = config
         .par_enabled_projects()
@@ -264,7 +225,12 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     for result in build_results {
         match result {
             Ok(result) => results.push(result),
-            Err(error) => errors.push(error),
+            Err(error) => match error {
+                BuildProjectFailure::Error(error) => errors.push(error),
+                BuildProjectFailure::Cancelled => {
+                    return Err(Error::Cancelled);
+                }
+            },
         }
     }
 
@@ -273,6 +239,9 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);
             let perf_logger = Arc::clone(&perf_logger);
+            if let Some(on_build_project_success) = &config.on_build_project_success {
+                on_build_project_success(project_name, &schema, &programs.source);
+            }
             let artifact_map = compiler_state
                 .artifacts
                 .get(&project_name)
@@ -303,6 +272,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         dirty_artifact_paths,
                     )
                     .await?,
+                    schema,
                 ))
             }));
         }
@@ -312,18 +282,19 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 error: e.to_string(),
             })?;
             match inner_result {
-                Ok((project_name, next_artifact_map)) => {
+                Ok((project_name, next_artifact_map, schema)) => {
                     let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                     compiler_state
                         .artifacts
                         .insert(project_name, next_artifact_map);
+                    compiler_state.schema_cache.insert(project_name, schema);
                 }
                 Err(error) => {
                     errors.push(error);
                 }
             }
         }
-    };
+    }
 
     if errors.is_empty() {
         Ok(())

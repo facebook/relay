@@ -12,7 +12,7 @@ use fnv::FnvHashSet;
 use graphql_ir::*;
 use graphql_syntax::parse_executable;
 use interner::Intern;
-use test_schema::TEST_SCHEMA;
+use relay_test_schema::TEST_SCHEMA;
 
 fn format_definition(def: ExecutableDefinition) -> String {
     match def {

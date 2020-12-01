@@ -19,6 +19,14 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         Self { sources }
     }
 
+    pub fn diagnostics_to_string(&self, diagnostics: &[Diagnostic]) -> String {
+        diagnostics
+            .iter()
+            .map(|d| self.diagnostic_to_string(d))
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
+
     pub fn diagnostic_to_string(&self, diagnostic: &Diagnostic) -> String {
         let mut printed = String::new();
         self.write_diagnostic(&mut printed, diagnostic).unwrap();

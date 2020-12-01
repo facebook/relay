@@ -1,4 +1,11 @@
-// @generated SignedSource<<6a8d9c1935896c5e5b2769f50ba08d60>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<03fd90926d9a9b40e06babac122def45>>
+ */
 
 mod skip_client_extensions;
 

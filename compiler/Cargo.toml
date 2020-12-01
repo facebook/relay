@@ -16,10 +16,10 @@ members = [
     "crates/relay-compiler-wasm",
     "crates/relay-compiler",
     "crates/relay-lsp",
+    "crates/relay-test-schema",
     "crates/relay-transforms",
     "crates/relay-typegen",
     "crates/schema-print",
     "crates/schema",
     "crates/signedsource",
-    "crates/test-schema",
 ]

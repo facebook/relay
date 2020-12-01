@@ -1,4 +1,11 @@
-// @generated SignedSource<<e2a04eac3388fd3eb1fe5a0a98046a94>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<88e4f70c7cddc83e027abd8a24cf0fa9>>
+ */
 
 mod refetchable_fragment;
 

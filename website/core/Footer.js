@@ -46,15 +46,11 @@ class Footer extends React.Component {
           <div>
             <h5>More</h5>
             <a href="https://github.com/facebook/relay">GitHub</a>
-            <a
-              className="github-button"
-              href="https://github.com/facebook/relay"
-              data-icon="octicon-star"
-              data-count-href="/facebook/relay/stargazers"
-              data-count-api="/repos/facebook/relay#stargazers_count"
-              data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
-              Star
+            <a href="https://opensource.facebook.com/legal/terms">
+              Terms of Use
+            </a>
+            <a href="https://opensource.facebook.com/legal/privacy">
+              Privacy Policy
             </a>
           </div>
         </section>

@@ -527,7 +527,7 @@ describe('executeMutation() with @match', () => {
           id: commentID,
           actor: {
             id: '4',
-            name: 'optimisitc-actor-name',
+            name: 'optimistic-actor-name',
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
@@ -564,7 +564,7 @@ describe('executeMutation() with @match', () => {
         commentCreate: {
           comment: {
             actor: {
-              name: 'optimisitc-actor-name',
+              name: 'optimistic-actor-name',
               nameRenderer: {
                 __id:
                   'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
@@ -623,7 +623,7 @@ describe('executeMutation() with @match', () => {
         commentCreate: {
           comment: {
             actor: {
-              name: 'optimisitc-actor-name',
+              name: 'optimistic-actor-name',
               nameRenderer: {
                 __id:
                   'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
@@ -780,7 +780,7 @@ describe('executeMutation() with @match', () => {
       expect(matchSnapshot.data).toEqual(undefined);
     });
 
-    it('catches error when opeartionLoader.load fails synchoronously', () => {
+    it('catches error when opeartionLoader.load fails synchronously', () => {
       operationLoader.load.mockImplementationOnce(() => {
         throw new Error('<user-error>');
       });

@@ -8,21 +8,26 @@
 use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
-use crate::error_reporter::{ConsoleErrorReporter, ErrorReporter};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
+use graphql_ir::Program;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
+use schema::Schema;
 use serde::Deserialize;
 use sha1::{Digest, Sha1};
-use std::collections::{HashMap, HashSet};
-use std::fmt;
-use std::path::PathBuf;
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    path::PathBuf,
+    sync::Arc,
+};
 use watchman_client::pdu::ScmAwareClockData;
 
 /// The full compiler config. This is a combination of:
@@ -74,7 +79,9 @@ pub struct Config {
         >,
     >,
 
-    pub error_reporter: Box<dyn ErrorReporter + Send + Sync>,
+    pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+
+    pub on_build_project_success: Option<OnBuildProjectSuccess>,
 }
 
 impl Config {
@@ -187,7 +194,7 @@ impl Config {
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
-            error_reporter: Box::new(ConsoleErrorReporter::new(root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -205,6 +212,7 @@ impl Config {
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
+            on_build_project_success: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -533,7 +541,7 @@ pub trait OperationPersister {
         project_config: &PersistConfig,
     ) -> std::result::Result<PersistId, PersistError>;
 
-    fn worker_count(&self) -> usize {
-        1
-    }
+    fn worker_count(&self) -> usize;
 }
+
+type OnBuildProjectSuccess = Box<dyn Fn(ProjectName, &Arc<Schema>, &Program) + Send + Sync>;

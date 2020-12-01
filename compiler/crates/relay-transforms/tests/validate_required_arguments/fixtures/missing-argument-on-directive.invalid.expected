@@ -9,18 +9,10 @@ query missingArgumentOnDirectiveViewerQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Required argument 'level: Int!' is missing on 'customDirective' in 'missingArgumentOnDirectiveViewerQuery'.
+✖︎ Missing required argument: `level`
 
   missing-argument-on-directive.invalid.graphql:5:11
     4 │   node {
     5 │     body @customDirective {
       │           ^^^^^^^^^^^^^^^
     6 │       text
-
-  ℹ︎ Root definition:
-
-  missing-argument-on-directive.invalid.graphql:3:7
-    2 │ 
-    3 │ query missingArgumentOnDirectiveViewerQuery {
-      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    4 │   node {

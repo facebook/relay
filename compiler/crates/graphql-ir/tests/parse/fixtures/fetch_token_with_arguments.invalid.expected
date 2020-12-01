@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on User {
+  __token(arg: 1)
+}
+==================================== ERROR ====================================
+✖︎ Unexpected arguments on '__token' field
+
+  fetch_token_with_arguments.invalid.graphql:3:10
+    2 │ fragment Foo on User {
+    3 │   __token(arg: 1)
+      │          ^^^^^^^^
+    4 │ }

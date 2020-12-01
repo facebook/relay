@@ -30,6 +30,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
 persist-query = { path = "../persist-query" }
 relay-codegen = { path = "../relay-codegen" }
+relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
@@ -56,4 +57,4 @@ watchman_client = "0.5.1"
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
-test-schema = { path = "../test-schema" }
+relay-test-schema = { path = "../relay-test-schema" }

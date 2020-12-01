@@ -85,9 +85,11 @@ export type PreloadedQueryInner<
   +dispose: () => void,
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
+  +fetchKey: string | number,
   +fetchPolicy: PreloadFetchPolicy,
   +id: ?string,
   +isDisposed: boolean,
+  +networkError: ?Error,
   +name: string,
   +networkCacheConfig: ?CacheConfig,
   +source: ?Observable<GraphQLResponse>,
@@ -184,10 +186,7 @@ export type PreloadProps<
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{|
-  entryPoints?: $ObjMap<
-    TPreloadedEntryPoints,
-    ExtractEntryPointTypeHelper<TPreloadParams>,
-  >,
+  entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
   extraProps?: TExtraProps,
   queries?: $ObjMap<
     TPreloadedQueries,
@@ -246,7 +245,8 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-export type ExtractEntryPointTypeHelper<TEntryPointParams> = <
+export type ExtractEntryPointTypeHelper = <
+  TEntryPointParams,
   TEntryPointComponent,
 >(
   ?PreloadedEntryPoint<TEntryPointComponent>,

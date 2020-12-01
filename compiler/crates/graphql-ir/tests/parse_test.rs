@@ -1,4 +1,11 @@
-// @generated SignedSource<<571e38e288c7fd293b329ce551743dcd>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<5e66518bd5787f41788b165885ced829>>
+ */
 
 mod parse;
 
@@ -48,6 +55,13 @@ fn directive_match_on_fragment_invalid() {
 }
 
 #[test]
+fn directive_missing_required_argument_invalid() {
+    let input = include_str!("parse/fixtures/directive_missing_required_argument.invalid.graphql");
+    let expected = include_str!("parse/fixtures/directive_missing_required_argument.invalid.expected");
+    test_fixture(transform_fixture, "directive_missing_required_argument.invalid.graphql", "parse/fixtures/directive_missing_required_argument.invalid.expected", input, expected);
+}
+
+#[test]
 fn directive_module_match_on_query_invalid() {
     let input = include_str!("parse/fixtures/directive-module-match-on-query.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive-module-match-on-query.invalid.expected");
@@ -69,6 +83,27 @@ fn directive_unknown_argument_invalid() {
 }
 
 #[test]
+fn directive_wrong_argument_type_invalid() {
+    let input = include_str!("parse/fixtures/directive_wrong_argument_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/directive_wrong_argument_type.invalid.expected");
+    test_fixture(transform_fixture, "directive_wrong_argument_type.invalid.graphql", "parse/fixtures/directive_wrong_argument_type.invalid.expected", input, expected);
+}
+
+#[test]
+fn duplicate_arguments_invalid() {
+    let input = include_str!("parse/fixtures/duplicate_arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/duplicate_arguments.invalid.expected");
+    test_fixture(transform_fixture, "duplicate_arguments.invalid.graphql", "parse/fixtures/duplicate_arguments.invalid.expected", input, expected);
+}
+
+#[test]
+fn duplicate_variables_invalid() {
+    let input = include_str!("parse/fixtures/duplicate_variables_invalid.graphql");
+    let expected = include_str!("parse/fixtures/duplicate_variables_invalid.expected");
+    test_fixture(transform_fixture, "duplicate_variables_invalid.graphql", "parse/fixtures/duplicate_variables_invalid.expected", input, expected);
+}
+
+#[test]
 fn enum_values() {
     let input = include_str!("parse/fixtures/enum-values.graphql");
     let expected = include_str!("parse/fixtures/enum-values.expected");
@@ -83,17 +118,38 @@ fn enum_values_invalid() {
 }
 
 #[test]
+fn fetch_token_with_arguments_invalid() {
+    let input = include_str!("parse/fixtures/fetch_token_with_arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fetch_token_with_arguments.invalid.expected");
+    test_fixture(transform_fixture, "fetch_token_with_arguments.invalid.graphql", "parse/fixtures/fetch_token_with_arguments.invalid.expected", input, expected);
+}
+
+#[test]
+fn field_argument_missing_required_invalid() {
+    let input = include_str!("parse/fixtures/field_argument_missing_required.invalid.graphql");
+    let expected = include_str!("parse/fixtures/field_argument_missing_required.invalid.expected");
+    test_fixture(transform_fixture, "field_argument_missing_required.invalid.graphql", "parse/fixtures/field_argument_missing_required.invalid.expected", input, expected);
+}
+
+#[test]
+fn field_argument_unknown_invalid() {
+    let input = include_str!("parse/fixtures/field_argument_unknown.invalid.graphql");
+    let expected = include_str!("parse/fixtures/field_argument_unknown.invalid.expected");
+    test_fixture(transform_fixture, "field_argument_unknown.invalid.graphql", "parse/fixtures/field_argument_unknown.invalid.expected", input, expected);
+}
+
+#[test]
+fn field_argument_wrong_type_invalid() {
+    let input = include_str!("parse/fixtures/field_argument_wrong_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/field_argument_wrong_type.invalid.expected");
+    test_fixture(transform_fixture, "field_argument_wrong_type.invalid.graphql", "parse/fixtures/field_argument_wrong_type.invalid.expected", input, expected);
+}
+
+#[test]
 fn field_arguments() {
     let input = include_str!("parse/fixtures/field-arguments.graphql");
     let expected = include_str!("parse/fixtures/field-arguments.expected");
     test_fixture(transform_fixture, "field-arguments.graphql", "parse/fixtures/field-arguments.expected", input, expected);
-}
-
-#[test]
-fn field_unknown_argument_invalid() {
-    let input = include_str!("parse/fixtures/field-unknown-argument.invalid.graphql");
-    let expected = include_str!("parse/fixtures/field-unknown-argument.invalid.expected");
-    test_fixture(transform_fixture, "field-unknown-argument.invalid.graphql", "parse/fixtures/field-unknown-argument.invalid.expected", input, expected);
 }
 
 #[test]
@@ -139,10 +195,24 @@ fn fragment_with_arguments() {
 }
 
 #[test]
+fn fragment_with_arguments_defaulting() {
+    let input = include_str!("parse/fixtures/fragment_with_arguments_defaulting.graphql");
+    let expected = include_str!("parse/fixtures/fragment_with_arguments_defaulting.expected");
+    test_fixture(transform_fixture, "fragment_with_arguments_defaulting.graphql", "parse/fixtures/fragment_with_arguments_defaulting.expected", input, expected);
+}
+
+#[test]
 fn fragment_with_arguments_duplicate_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.expected");
     test_fixture(transform_fixture, "fragment-with-arguments-duplicate.invalid.graphql", "parse/fixtures/fragment-with-arguments-duplicate.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_arguments_incorrect_nullability_invalid() {
+    let input = include_str!("parse/fixtures/fragment_with_arguments_incorrect_nullability.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment_with_arguments_incorrect_nullability.invalid.expected");
+    test_fixture(transform_fixture, "fragment_with_arguments_incorrect_nullability.invalid.graphql", "parse/fixtures/fragment_with_arguments_incorrect_nullability.invalid.expected", input, expected);
 }
 
 #[test]

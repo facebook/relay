@@ -1,4 +1,11 @@
-// @generated SignedSource<<743d91247f699ec0ed83aaf2a59c7cae>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<95b79a4986f3411203abd6b9984ce4c3>>
+ */
 
 mod compile_relay_artifacts;
 

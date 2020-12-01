@@ -1101,7 +1101,7 @@ describe('RelayPublishQueue', () => {
           },
         }),
       });
-      // Run both the optimisitc and server update
+      // Run both the optimistic and server update
       queue.run();
       expect(store.getSource().toJSON()).toEqual({
         [ROOT_ID]: {

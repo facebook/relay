@@ -28,6 +28,7 @@ suppress_type=$FlowFixMeState
 well_formed_exports=true
 types_first=true
 experimental.abstract_locations=true
+generate_tests=false
 
 [lints]
 untyped-type-import=error
@@ -42,4 +43,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.137.0
+^0.138.0

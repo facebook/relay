@@ -10,7 +10,10 @@ use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer};
-use relay_transforms::{DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS};
+use relay_transforms::{
+    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
+    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+};
 use relay_typegen::generate_fragment_type;
 use schema::Schema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -115,6 +118,34 @@ fn write_data_driven_dependency_annotation(
     Ok(())
 }
 
+fn write_flight_annotation(content: &mut String, flight_directive: &Directive) -> Result {
+    let arg = flight_directive
+        .arguments
+        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY)
+        .unwrap();
+    match &arg.value.item {
+        graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
+            for item in value {
+                match item {
+                    graphql_ir::ConstantValue::String(value) => {
+                        writeln!(content, "// @ReactFlightServerDependency {}", value)?;
+                    }
+                    _ => panic!(
+                        "Unexpected item value for @__ReactFlightMetadata directive: {:?}",
+                        item
+                    ),
+                }
+            }
+        }
+        _ => panic!(
+            "Unexpected argument value for @__ReactFlightMetadata directive: {:?}",
+            &arg.value.item
+        ),
+    };
+    writeln!(content)?;
+    Ok(())
+}
+
 #[allow(clippy::too_many_arguments)]
 fn generate_operation(
     config: &Config,
@@ -174,6 +205,12 @@ fn generate_operation(
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
             .unwrap();
+    }
+    let flight_metadata = operation_fragment
+        .directives
+        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
+    if let Some(flight_metadata) = flight_metadata {
+        write_flight_annotation(&mut content, flight_metadata).unwrap();
     }
 
     if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
@@ -281,6 +318,12 @@ fn generate_fragment(
             .unwrap();
 
         writeln!(content).unwrap();
+    }
+    let flight_metadata = reader_fragment
+        .directives
+        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
+    if let Some(flight_metadata) = flight_metadata {
+        write_flight_annotation(&mut content, flight_metadata).unwrap();
     }
 
     let reader_node_flow_type = if reader_fragment

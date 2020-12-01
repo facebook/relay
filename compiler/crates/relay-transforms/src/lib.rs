@@ -88,9 +88,15 @@ pub use hash_arguments::hash_arguments;
 pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
-pub use match_::{split_module_import, transform_match, SplitOperationMetaData, MATCH_CONSTANTS};
+pub use match_::{
+    split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
+    MATCH_CONSTANTS,
+};
 pub use node_identifier::NodeIdentifier;
-pub use react_flight::{react_flight, REACT_FLIGHT_DIRECTIVE_NAME};
+pub use react_flight::{
+    react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
+    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+};
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,

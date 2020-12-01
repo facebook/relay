@@ -23,9 +23,7 @@ pub use definitions::{
 pub use errors::{Result, SchemaError};
 pub use graphql_syntax::DirectiveLocation;
 
-pub const BUILTINS: &str = include_str!("./builtins.graphql");
-
-pub const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
+const BUILTINS: &str = include_str!("./builtins.graphql");
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<Schema> {
     build_schema_with_extensions::<_, &str>(&[sdl], &[])
@@ -63,8 +61,4 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     }
 
     Schema::build(&server_definitions, &extension_definitions)
-}
-
-pub fn parse_schema_document(input: &str) -> DiagnosticsResult<graphql_syntax::SchemaDocument> {
-    graphql_syntax::parse_schema_document(input, SourceLocationKey::generated())
 }

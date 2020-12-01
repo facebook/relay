@@ -283,7 +283,9 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        FlowPrinter::new().write_ast(ast)
+        let mut result = String::new();
+        FlowPrinter::new().write(&mut result, ast).unwrap();
+        result
     }
 
     #[test]

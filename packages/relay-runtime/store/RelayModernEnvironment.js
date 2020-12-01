@@ -147,7 +147,7 @@ class RelayModernEnvironment implements IEnvironment {
         : 'full';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
-    this._network = config.network;
+    this._network = this.__wrapNetworkWithLogObserver(config.network);
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
@@ -159,7 +159,8 @@ class RelayModernEnvironment implements IEnvironment {
     this.options = config.options;
     this._isServer = config.isServer ?? false;
 
-    (this: any).__setNet = newNet => (this._network = newNet);
+    (this: any).__setNet = newNet =>
+      (this._network = this.__wrapNetworkWithLogObserver(newNet));
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');
@@ -361,27 +362,22 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
-    cacheConfig,
     updater,
   }: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
-    const [logObserver, logRequestInfo] = this.__createLogObserver(
+    const logObserver = this.__createExecuteLogObserver(
       operation.request.node.params,
       operation.request.variables,
     );
     return RelayObservable.create(sink => {
-      const source = this._network
-        .execute(
-          operation.request.node.params,
-          operation.request.variables,
-          cacheConfig || {},
-          null,
-          logRequestInfo,
-        )
-        .do(logObserver);
+      const source = this._network.execute(
+        operation.request.node.params,
+        operation.request.variables,
+        operation.request.cacheConfig || {},
+        null,
+      );
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
@@ -399,7 +395,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    });
+    }).do(logObserver);
   }
 
   /**
@@ -413,21 +409,19 @@ class RelayModernEnvironment implements IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({
-    cacheConfig,
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
   }: {|
-    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
-    const [logObserver, logRequestInfo] = this.__createLogObserver(
+    const logObserver = this.__createExecuteLogObserver(
       operation.request.node.params,
       operation.request.variables,
     );
@@ -440,18 +434,15 @@ class RelayModernEnvironment implements IEnvironment {
           updater: optimisticUpdater,
         };
       }
-      const source = this._network
-        .execute(
-          operation.request.node.params,
-          operation.request.variables,
-          {
-            ...cacheConfig,
-            force: true,
-          },
-          uploadables,
-          logRequestInfo,
-        )
-        .do(logObserver);
+      const source = this._network.execute(
+        operation.request.node.params,
+        operation.request.variables,
+        {
+          ...operation.request.cacheConfig,
+          force: true,
+        },
+        uploadables,
+      );
       const executor = RelayModernQueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
@@ -469,7 +460,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    });
+    }).do(logObserver);
   }
 
   /**
@@ -488,6 +479,10 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse> {
+    const logObserver = this.__createExecuteLogObserver(
+      operation.request.node.params,
+      operation.request.variables,
+    );
     return RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -505,20 +500,20 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    });
+    }).do(logObserver);
   }
 
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 
-  __createLogObserver(
+  __createExecuteLogObserver(
     params: RequestParameters,
     variables: Variables,
-  ): [Observer<GraphQLResponse>, LogRequestInfoFunction] {
+  ): Observer<GraphQLResponse> {
     const transactionID = generateID();
     const log = this.__log;
-    const logObserver = {
+    return {
       start: subscription => {
         log({
           name: 'execute.start',
@@ -554,14 +549,72 @@ class RelayModernEnvironment implements IEnvironment {
         });
       },
     };
-    const logRequestInfo = info => {
-      log({
-        name: 'execute.info',
-        transactionID,
-        info,
-      });
+  }
+
+  /**
+   * Wraps the network with logging to ensure that network requests are
+   * always logged. Relying on each network callsite to be wrapped is
+   * untenable and will eventually lead to holes in the logging.
+   */
+  __wrapNetworkWithLogObserver(network: INetwork): INetwork {
+    const that = this;
+    return {
+      execute(
+        params: RequestParameters,
+        variables: Variables,
+        cacheConfig: CacheConfig,
+        uploadables?: ?UploadableMap,
+      ): RelayObservable<GraphQLResponse> {
+        const transactionID = generateID();
+        const log = that.__log;
+        const logObserver = {
+          start: subscription => {
+            log({
+              name: 'network.start',
+              transactionID,
+              params,
+              variables,
+            });
+          },
+          next: response => {
+            log({
+              name: 'network.next',
+              transactionID,
+              response,
+            });
+          },
+          error: error => {
+            log({
+              name: 'network.error',
+              transactionID,
+              error,
+            });
+          },
+          complete: () => {
+            log({
+              name: 'network.complete',
+              transactionID,
+            });
+          },
+          unsubscribe: () => {
+            log({
+              name: 'network.unsubscribe',
+              transactionID,
+            });
+          },
+        };
+        const logRequestInfo = info => {
+          log({
+            name: 'network.info',
+            transactionID,
+            info,
+          });
+        };
+        return network
+          .execute(params, variables, cacheConfig, uploadables, logRequestInfo)
+          .do(logObserver);
+      },
     };
-    return [logObserver, logRequestInfo];
   }
 }
 

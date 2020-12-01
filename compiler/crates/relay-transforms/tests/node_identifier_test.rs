@@ -8,8 +8,8 @@
 use common::SourceLocationKey;
 use graphql_ir::{build, ExecutableDefinition, Selection};
 use graphql_syntax::parse_executable;
+use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::NodeIdentifier;
-use test_schema::TEST_SCHEMA;
 
 fn get_selection(def: &ExecutableDefinition) -> &Selection {
     if let ExecutableDefinition::Fragment(frag) = def {

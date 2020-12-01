@@ -184,6 +184,7 @@ function traverseSelections<T: Node>(
       ],
     };
   }
+  // $FlowFixMe[escaped-generic]
   nodeCache.set(parentType, result);
   /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
    * changing result type */

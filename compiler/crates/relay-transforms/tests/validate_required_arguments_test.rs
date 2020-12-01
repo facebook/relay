@@ -1,4 +1,11 @@
-// @generated SignedSource<<ffb6a7e8a49b7dc08c75b44278797366>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<d38be64acdaa74124c63c98b51418a54>>
+ */
 
 mod validate_required_arguments;
 
@@ -55,8 +62,8 @@ fn missing_argument_on_linked_field_invalid() {
 }
 
 #[test]
-fn missing_argument_on_linked_field_on_abstract_type() {
-    let input = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.graphql");
-    let expected = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.expected");
-    test_fixture(transform_fixture, "missing-argument-on-linked-field-on-abstract-type.graphql", "validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.expected", input, expected);
+fn missing_argument_on_linked_field_on_abstract_type_invalid() {
+    let input = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.invalid.graphql");
+    let expected = include_str!("validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.invalid.expected");
+    test_fixture(transform_fixture, "missing-argument-on-linked-field-on-abstract-type.invalid.graphql", "validate_required_arguments/fixtures/missing-argument-on-linked-field-on-abstract-type.invalid.expected", input, expected);
 }

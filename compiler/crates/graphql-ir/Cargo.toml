@@ -33,4 +33,4 @@ thiserror = "1.0"
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
-test-schema = { path = "../test-schema" }
+relay-test-schema = { path = "../relay-test-schema" }

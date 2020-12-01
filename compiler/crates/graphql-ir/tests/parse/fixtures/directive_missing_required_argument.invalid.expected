@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  me {
+    name @customDirective # directive missing level argument
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `level`
+
+  directive_missing_required_argument.invalid.graphql:4:11
+    3 │   me {
+    4 │     name @customDirective # directive missing level argument
+      │           ^^^^^^^^^^^^^^^
+    5 │   }

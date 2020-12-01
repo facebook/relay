@@ -63,7 +63,16 @@ where
     async fn watch(&mut self) -> LSPProcessResult<()> {
         loop {
             if let Some(message) = self.lsp_rx.recv().await {
-                self.handle_lsp_bridge_message(message);
+                let log_event = self.perf_logger.create_event("lsp_bridge_message");
+                log_event.string(
+                    "lsp_bridge_message_type",
+                    message.get_message_type_for_logging().to_string(),
+                );
+                log_event.time("lsp_bridge_message_processing_time", || {
+                    self.handle_lsp_bridge_message(message)
+                });
+                self.perf_logger.complete_event(log_event);
+                self.perf_logger.flush();
             }
         }
     }
@@ -298,6 +307,10 @@ where
             info!("Received LSP message\n{:?}", msg);
             match msg {
                 Message::Request(req) => {
+                    perf_logger_msg_event.string("lsp_request_method", req.method.clone());
+                    let lsp_request_processing_time =
+                        perf_logger_msg_event.start("lsp_request_processing_time");
+
                     // Auto-complete request
                     if req.method == Completion::METHOD {
                         let (request_id, params) = extract_request_params::<Completion>(req);
@@ -317,7 +330,6 @@ where
                             .await
                             .ok();
                     } else if req.method == Shutdown::METHOD {
-                        perf_logger_msg_event.string("method", req.method.clone());
                         logger_for_process.complete_event(perf_logger_msg_event);
                         logger_for_process.flush();
                         let (request_id, _) = extract_request_params::<Shutdown>(req);
@@ -351,6 +363,10 @@ where
                             .await
                             .ok();
                     }
+
+                    perf_logger_msg_event.stop(lsp_request_processing_time);
+                    logger_for_process.complete_event(perf_logger_msg_event);
+                    logger_for_process.flush();
                 }
                 Message::Notification(notif) => {
                     let mut should_flush_perf_log_event = true;

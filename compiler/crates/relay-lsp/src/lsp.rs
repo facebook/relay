@@ -44,6 +44,19 @@ pub enum LSPBridgeMessage {
     DidCloseTextDocument(DidCloseTextDocumentParams),
 }
 
+impl LSPBridgeMessage {
+    pub(crate) fn get_message_type_for_logging(&self) -> &str {
+        match self {
+            LSPBridgeMessage::GotoDefinitionRequest { .. } => "GotoDefinitionRequest",
+            LSPBridgeMessage::CompletionRequest { .. } => "CompletionRequest",
+            LSPBridgeMessage::HoverRequest { .. } => "HoverRequest",
+            LSPBridgeMessage::DidOpenTextDocument(_) => "DidOpenTextDocument",
+            LSPBridgeMessage::DidChangeTextDocument(_) => "DidChangeTextDocument",
+            LSPBridgeMessage::DidCloseTextDocument(_) => "DidCloseTextDocument",
+        }
+    }
+}
+
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
 pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {

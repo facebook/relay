@@ -19,6 +19,122 @@ type Foo {
   bar: String
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+export type UpdateAllSeenStateInput = {
+  clientMutationId?: string | null,
+  storyIds?: ReadonlyArray<string | null> | null,
+};
+export type TestVariables = {
+  input?: UpdateAllSeenStateInput | null
+};
+export type TestResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly foos: ReadonlyArray<{
+        readonly bar: string | null
+      } | null> | null
+    } | null> | null
+  } | null
+};
+export type TestRawResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly id: string,
+      readonly foos?: ReadonlyArray<{
+        readonly bar: string | null
+      } | null> | null,
+    } | null> | null
+  } | null
+};
+export type Test = {
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+export type UpdateAllSeenStateInput = {
+  clientMutationId?: string | null,
+  storyIds?: ReadonlyArray<string | null> | null,
+};
+export type TestVariables = {
+  input?: UpdateAllSeenStateInput | null
+};
+export type TestResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly foos: ReadonlyArray<{
+        readonly bar: string | null
+      } | null> | null
+    } | null> | null
+  } | null
+};
+export type TestRawResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly id: string,
+      readonly foos?: ReadonlyArray<{
+        readonly bar: string | null
+      } | null> | null,
+    } | null> | null
+  } | null
+};
+export type Test = {
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+export type UpdateAllSeenStateInput = {
+  clientMutationId?: string | null,
+  storyIds?: ReadonlyArray<string | null> | null,
+};
+export type TestVariables = {
+  input?: UpdateAllSeenStateInput | null
+};
+export type TestResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly foos: ReadonlyArray<{
+        readonly bar: string | null
+      } | null> | null
+    } | null> | null
+  } | null
+};
+export type TestRawResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly id: string,
+      readonly foos?: ReadonlyArray<{
+        readonly bar: string | null
+      } | null> | null,
+    } | null> | null
+  } | null
+};
+export type Test = {
+  variables: TestVariables,
+  response: TestResponse,
+  rawResponse: TestRawResponse,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 export type UpdateAllSeenStateInput = {
   clientMutationId?: string | null,
   storyIds?: ReadonlyArray<string | null> | null,

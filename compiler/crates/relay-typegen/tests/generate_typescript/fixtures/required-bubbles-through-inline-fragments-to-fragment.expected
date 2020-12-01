@@ -8,16 +8,83 @@ fragment Foo on Node {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
 import { FragmentRefs } from "relay-runtime";
-export type Foo = {
+export type Foo = ({
   readonly __typename: "User",
   readonly name: string,
-  readonly " $refType": FragmentRefs<"Foo">,
+} | {
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
+}) & {
+  readonly " $refType": FragmentRefs<"Foo">
+} | null;
+export type Foo$data = Foo;
+export type Foo$key = {
+  readonly " $data"?: Foo$data,
+  readonly " $fragmentRefs": FragmentRefs<"Foo">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type Foo = ({
+  readonly __typename: "User",
+  readonly name: string,
+} | {
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
+}) & {
+  readonly " $refType": FragmentRefs<"Foo">
+} | null;
+export type Foo$data = Foo;
+export type Foo$key = {
+  readonly " $data"?: Foo$data,
+  readonly " $fragmentRefs": FragmentRefs<"Foo">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type Foo = ({
+  readonly __typename: "User",
+  readonly name: string,
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "%other",
-  readonly " $refType": FragmentRefs<"Foo">,
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
+}) & {
+  readonly " $refType": FragmentRefs<"Foo">
+} | null;
+export type Foo$data = Foo;
+export type Foo$key = {
+  readonly " $data"?: Foo$data,
+  readonly " $fragmentRefs": FragmentRefs<"Foo">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type Foo = ({
+  readonly __typename: "User",
+  readonly name: string,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
+}) & {
+  readonly " $refType": FragmentRefs<"Foo">
 } | null;
 export type Foo$data = Foo;
 export type Foo$key = {

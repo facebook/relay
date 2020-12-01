@@ -7,6 +7,71 @@ fragment NonNullFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type NonNullFragment = {
+  readonly firstName: string | null,
+  readonly screennames: ReadonlyArray<{
+    readonly name: string | null,
+    readonly service: string,
+  } | null> | null,
+  readonly " $refType": FragmentRefs<"NonNullFragment">,
+};
+export type NonNullFragment$data = NonNullFragment;
+export type NonNullFragment$key = {
+  readonly " $data"?: NonNullFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"NonNullFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type NonNullFragment = {
+  readonly firstName: string | null,
+  readonly screennames: ReadonlyArray<{
+    readonly name: string | null,
+    readonly service: string,
+  } | null> | null,
+  readonly " $refType": FragmentRefs<"NonNullFragment">,
+};
+export type NonNullFragment$data = NonNullFragment;
+export type NonNullFragment$key = {
+  readonly " $data"?: NonNullFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"NonNullFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type NonNullFragment = {
+  readonly firstName: string | null,
+  readonly screennames: ReadonlyArray<{
+    readonly name: string | null,
+    readonly service: string,
+  } | null> | null,
+  readonly " $refType": FragmentRefs<"NonNullFragment">,
+};
+export type NonNullFragment$data = NonNullFragment;
+export type NonNullFragment$key = {
+  readonly " $data"?: NonNullFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"NonNullFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 import { FragmentRefs } from "relay-runtime";
 export type NonNullFragment = {
   readonly firstName: string | null,

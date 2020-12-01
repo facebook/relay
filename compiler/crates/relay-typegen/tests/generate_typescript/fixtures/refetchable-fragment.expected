@@ -7,6 +7,110 @@ fragment RefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragmentQueryVariables = {
+  id: string
+};
+export type RefetchableFragmentQueryResponse = {
+  readonly node: {
+    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">
+  } | null
+};
+export type RefetchableFragmentQuery = {
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragment = {
+  readonly id: string,
+  readonly fragAndField: {
+    readonly uri: string | null
+  } | null,
+  readonly " $refType": FragmentRefs<"RefetchableFragment">,
+};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  readonly " $data"?: RefetchableFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragmentQueryVariables = {
+  id: string
+};
+export type RefetchableFragmentQueryResponse = {
+  readonly node: {
+    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">
+  } | null
+};
+export type RefetchableFragmentQuery = {
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragment = {
+  readonly id: string,
+  readonly fragAndField: {
+    readonly uri: string | null
+  } | null,
+  readonly " $refType": FragmentRefs<"RefetchableFragment">,
+};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  readonly " $data"?: RefetchableFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragmentQueryVariables = {
+  id: string
+};
+export type RefetchableFragmentQueryResponse = {
+  readonly node: {
+    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">
+  } | null
+};
+export type RefetchableFragmentQuery = {
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragment = {
+  readonly id: string,
+  readonly fragAndField: {
+    readonly uri: string | null
+  } | null,
+  readonly " $refType": FragmentRefs<"RefetchableFragment">,
+};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  readonly " $data"?: RefetchableFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragmentQueryVariables = {
   id: string

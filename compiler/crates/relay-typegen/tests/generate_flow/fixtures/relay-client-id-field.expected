@@ -27,6 +27,11 @@ query RelayClientIDFieldQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
 export type RelayClientIDFieldQueryVariables = {|
   id: string
 |};
@@ -38,18 +43,159 @@ export type RelayClientIDFieldQueryResponse = {|
     +id: string,
   |},
   +node: ?{|
-    +__id: string,
-    +__typename: string,
-    +id: string,
-    +commentBody?: ?{|
+    +__typename: "Comment",
+    +commentBody: ?{|
+      +__typename: "PlainCommentBody",
       +__id: string,
-      +__typename: string,
-      +text?: ?{|
+      +text: ?{|
         +__id: string,
         +__typename: string,
         +text: ?string,
       |},
+    |} | {|
+      +__typename: "MarkdownCommentBody"
+    |} & {|
+      +__id: string
     |},
+  |} | {|
+    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User"
+  |} & {|
+    +__id: string,
+    +id: string,
+  |},
+|};
+export type RelayClientIDFieldQuery = {|
+  variables: RelayClientIDFieldQueryVariables,
+  response: RelayClientIDFieldQueryResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+export type RelayClientIDFieldQueryVariables = {|
+  id: string
+|};
+export type RelayClientIDFieldQueryResponse = {|
+  +__id: string,
+  +me: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+  |},
+  +node: ?{|
+    +__typename: "Comment",
+    +commentBody: ?{|
+      +__typename: "PlainCommentBody",
+      +__id: string,
+      +text: ?{|
+        +__id: string,
+        +__typename: string,
+        +text: ?string,
+      |},
+    |} | {|
+      +__typename: "MarkdownCommentBody"
+    |} & {|
+      +__id: string
+    |},
+  |} | {|
+    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User"
+  |} & {|
+    +__id: string,
+    +id: string,
+  |},
+|};
+export type RelayClientIDFieldQuery = {|
+  variables: RelayClientIDFieldQueryVariables,
+  response: RelayClientIDFieldQueryResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+export type RelayClientIDFieldQueryVariables = {|
+  id: string
+|};
+export type RelayClientIDFieldQueryResponse = {|
+  +__id: string,
+  +me: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+  |},
+  +node: ?{|
+    +__typename: "Comment",
+    +commentBody: ?{|
+      +__typename: "PlainCommentBody",
+      +__id: string,
+      +text: ?{|
+        +__id: string,
+        +__typename: string,
+        +text: ?string,
+      |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "MarkdownCommentBody" | "%other"
+    |} & {|
+      +__id: string
+    |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User" | "%other"
+  |} & {|
+    +__id: string,
+    +id: string,
+  |},
+|};
+export type RelayClientIDFieldQuery = {|
+  variables: RelayClientIDFieldQueryVariables,
+  response: RelayClientIDFieldQueryResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
+export type RelayClientIDFieldQueryVariables = {|
+  id: string
+|};
+export type RelayClientIDFieldQueryResponse = {|
+  +__id: string,
+  +me: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+  |},
+  +node: ?{|
+    +__typename: "Comment",
+    +commentBody: ?{|
+      +__typename: "PlainCommentBody",
+      +__id: string,
+      +text: ?{|
+        +__id: string,
+        +__typename: string,
+        +text: ?string,
+      |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "MarkdownCommentBody" | "%other"
+    |} & {|
+      +__id: string
+    |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User" | "%other"
+  |} & {|
+    +__id: string,
+    +id: string,
   |},
 |};
 export type RelayClientIDFieldQuery = {|

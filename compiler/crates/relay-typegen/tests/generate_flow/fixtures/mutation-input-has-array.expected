@@ -7,6 +7,110 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+export type UpdateAllSeenStateInput = {|
+  clientMutationId?: ?string,
+  storyIds?: ?$ReadOnlyArray<?string>,
+|};
+export type InputHasArrayVariables = {|
+  input?: ?UpdateAllSeenStateInput
+|};
+export type InputHasArrayResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number
+    |}>
+  |}
+|};
+export type InputHasArrayRawResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number,
+      +id: string,
+    |}>
+  |}
+|};
+export type InputHasArray = {|
+  variables: InputHasArrayVariables,
+  response: InputHasArrayResponse,
+  rawResponse: InputHasArrayRawResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+export type UpdateAllSeenStateInput = {|
+  clientMutationId?: ?string,
+  storyIds?: ?$ReadOnlyArray<?string>,
+|};
+export type InputHasArrayVariables = {|
+  input?: ?UpdateAllSeenStateInput
+|};
+export type InputHasArrayResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number
+    |}>
+  |}
+|};
+export type InputHasArrayRawResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number,
+      +id: string,
+    |}>
+  |}
+|};
+export type InputHasArray = {|
+  variables: InputHasArrayVariables,
+  response: InputHasArrayResponse,
+  rawResponse: InputHasArrayRawResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+export type UpdateAllSeenStateInput = {|
+  clientMutationId?: ?string,
+  storyIds?: ?$ReadOnlyArray<?string>,
+|};
+export type InputHasArrayVariables = {|
+  input?: ?UpdateAllSeenStateInput
+|};
+export type InputHasArrayResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number
+    |}>
+  |}
+|};
+export type InputHasArrayRawResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number,
+      +id: string,
+    |}>
+  |}
+|};
+export type InputHasArray = {|
+  variables: InputHasArrayVariables,
+  response: InputHasArrayResponse,
+  rawResponse: InputHasArrayRawResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,

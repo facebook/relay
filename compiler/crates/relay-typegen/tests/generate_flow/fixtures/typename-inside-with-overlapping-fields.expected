@@ -16,6 +16,105 @@ fragment TypenameInsideWithOverlappingFields on Viewer {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type TypenameInsideWithOverlappingFields$ref: FragmentReference;
+declare export opaque type TypenameInsideWithOverlappingFields$fragmentType: TypenameInsideWithOverlappingFields$ref;
+export type TypenameInsideWithOverlappingFields = {|
+  +actor: ?({|
+    +__typename: "Page",
+    +id: string,
+    +name: ?string,
+  |} | {|
+    +__typename: "User",
+    +id: string,
+    +name: ?string,
+    +profile_picture: ?{|
+      +uri: ?string
+    |},
+  |}),
+  +$refType: TypenameInsideWithOverlappingFields$ref,
+|};
+export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;
+export type TypenameInsideWithOverlappingFields$key = {
+  +$data?: TypenameInsideWithOverlappingFields$data,
+  +$fragmentRefs: TypenameInsideWithOverlappingFields$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type TypenameInsideWithOverlappingFields$ref: FragmentReference;
+declare export opaque type TypenameInsideWithOverlappingFields$fragmentType: TypenameInsideWithOverlappingFields$ref;
+export type TypenameInsideWithOverlappingFields = {|
+  +actor: ?({|
+    +__typename: "Page",
+    +id: string,
+    +name: ?string,
+  |} | {|
+    +__typename: "User",
+    +id: string,
+    +name: ?string,
+    +profile_picture: ?{|
+      +uri: ?string
+    |},
+  |}),
+  +$refType: TypenameInsideWithOverlappingFields$ref,
+|};
+export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;
+export type TypenameInsideWithOverlappingFields$key = {
+  +$data?: TypenameInsideWithOverlappingFields$data,
+  +$fragmentRefs: TypenameInsideWithOverlappingFields$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type TypenameInsideWithOverlappingFields$ref: FragmentReference;
+declare export opaque type TypenameInsideWithOverlappingFields$fragmentType: TypenameInsideWithOverlappingFields$ref;
+export type TypenameInsideWithOverlappingFields = {|
+  +actor: ?({|
+    +__typename: "Page",
+    +id: string,
+    +name: ?string,
+  |} | {|
+    +__typename: "User",
+    +id: string,
+    +name: ?string,
+    +profile_picture: ?{|
+      +uri: ?string
+    |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other"
+  |}),
+  +$refType: TypenameInsideWithOverlappingFields$ref,
+|};
+export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;
+export type TypenameInsideWithOverlappingFields$key = {
+  +$data?: TypenameInsideWithOverlappingFields$data,
+  +$fragmentRefs: TypenameInsideWithOverlappingFields$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameInsideWithOverlappingFields$ref: FragmentReference;
 declare export opaque type TypenameInsideWithOverlappingFields$fragmentType: TypenameInsideWithOverlappingFields$ref;

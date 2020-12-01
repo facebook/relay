@@ -25,6 +25,233 @@ subscription TestSubscription($input: FeedbackLikeInput) {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+export type ExampleQueryVariables = {
+  id: string
+};
+export type ExampleQueryResponse = {
+  readonly node: {
+    readonly id: string
+  } | null
+};
+export type ExampleQuery = {
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+};
+-------------------------------------------------------------------------------
+export type CommentCreateInput = {
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+  feedback?: CommentfeedbackFeedback | null,
+};
+export type CommentfeedbackFeedback = {
+  comment?: FeedbackcommentComment | null
+};
+export type FeedbackcommentComment = {
+  feedback?: CommentfeedbackFeedback | null
+};
+export type TestMutationVariables = {
+  input: CommentCreateInput
+};
+export type TestMutationResponse = {
+  readonly commentCreate: {
+    readonly comment: {
+      readonly id: string
+    } | null
+  } | null
+};
+export type TestMutation = {
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+};
+-------------------------------------------------------------------------------
+export type FeedbackLikeInput = {
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+};
+export type TestSubscriptionVariables = {
+  input?: FeedbackLikeInput | null
+};
+export type TestSubscriptionResponse = {
+  readonly feedbackLikeSubscribe: {
+    readonly feedback: {
+      readonly id: string
+    } | null
+  } | null
+};
+export type TestSubscription = {
+  variables: TestSubscriptionVariables,
+  response: TestSubscriptionResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type ExampleFragment = {
+  readonly id: string,
+  readonly " $refType": FragmentRefs<"ExampleFragment">,
+};
+export type ExampleFragment$data = ExampleFragment;
+export type ExampleFragment$key = {
+  readonly " $data"?: ExampleFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+export type ExampleQueryVariables = {
+  id: string
+};
+export type ExampleQueryResponse = {
+  readonly node: {
+    readonly id: string
+  } | null
+};
+export type ExampleQuery = {
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+};
+-------------------------------------------------------------------------------
+export type CommentCreateInput = {
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+  feedback?: CommentfeedbackFeedback | null,
+};
+export type CommentfeedbackFeedback = {
+  comment?: FeedbackcommentComment | null
+};
+export type FeedbackcommentComment = {
+  feedback?: CommentfeedbackFeedback | null
+};
+export type TestMutationVariables = {
+  input: CommentCreateInput
+};
+export type TestMutationResponse = {
+  readonly commentCreate: {
+    readonly comment: {
+      readonly id: string
+    } | null
+  } | null
+};
+export type TestMutation = {
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+};
+-------------------------------------------------------------------------------
+export type FeedbackLikeInput = {
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+};
+export type TestSubscriptionVariables = {
+  input?: FeedbackLikeInput | null
+};
+export type TestSubscriptionResponse = {
+  readonly feedbackLikeSubscribe: {
+    readonly feedback: {
+      readonly id: string
+    } | null
+  } | null
+};
+export type TestSubscription = {
+  variables: TestSubscriptionVariables,
+  response: TestSubscriptionResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type ExampleFragment = {
+  readonly id: string,
+  readonly " $refType": FragmentRefs<"ExampleFragment">,
+};
+export type ExampleFragment$data = ExampleFragment;
+export type ExampleFragment$key = {
+  readonly " $data"?: ExampleFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+export type ExampleQueryVariables = {
+  id: string
+};
+export type ExampleQueryResponse = {
+  readonly node: {
+    readonly id: string
+  } | null
+};
+export type ExampleQuery = {
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+};
+-------------------------------------------------------------------------------
+export type CommentCreateInput = {
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+  feedback?: CommentfeedbackFeedback | null,
+};
+export type CommentfeedbackFeedback = {
+  comment?: FeedbackcommentComment | null
+};
+export type FeedbackcommentComment = {
+  feedback?: CommentfeedbackFeedback | null
+};
+export type TestMutationVariables = {
+  input: CommentCreateInput
+};
+export type TestMutationResponse = {
+  readonly commentCreate: {
+    readonly comment: {
+      readonly id: string
+    } | null
+  } | null
+};
+export type TestMutation = {
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+};
+-------------------------------------------------------------------------------
+export type FeedbackLikeInput = {
+  clientMutationId?: string | null,
+  feedbackId?: string | null,
+};
+export type TestSubscriptionVariables = {
+  input?: FeedbackLikeInput | null
+};
+export type TestSubscriptionResponse = {
+  readonly feedbackLikeSubscribe: {
+    readonly feedback: {
+      readonly id: string
+    } | null
+  } | null
+};
+export type TestSubscription = {
+  variables: TestSubscriptionVariables,
+  response: TestSubscriptionResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type ExampleFragment = {
+  readonly id: string,
+  readonly " $refType": FragmentRefs<"ExampleFragment">,
+};
+export type ExampleFragment$data = ExampleFragment;
+export type ExampleFragment$key = {
+  readonly " $data"?: ExampleFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 export type ExampleQueryVariables = {
   id: string
 };

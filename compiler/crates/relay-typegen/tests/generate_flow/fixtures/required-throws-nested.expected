@@ -6,6 +6,62 @@ query FooQuery {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName: string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName: string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName: string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 export type FooQueryVariables = {||};
 export type FooQueryResponse = {|
   +me: ?{|

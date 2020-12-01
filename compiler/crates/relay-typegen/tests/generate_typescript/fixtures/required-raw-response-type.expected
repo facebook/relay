@@ -6,6 +6,83 @@ query MyQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+export type MyQueryVariables = {};
+export type MyQueryResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string,
+  }
+} | null;
+export type MyQueryRawResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string | null,
+  } | null
+};
+export type MyQuery = {
+  variables: MyQueryVariables,
+  response: MyQueryResponse,
+  rawResponse: MyQueryRawResponse,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+export type MyQueryVariables = {};
+export type MyQueryResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string,
+  }
+} | null;
+export type MyQueryRawResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string | null,
+  } | null
+};
+export type MyQuery = {
+  variables: MyQueryVariables,
+  response: MyQueryResponse,
+  rawResponse: MyQueryRawResponse,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+export type MyQueryVariables = {};
+export type MyQueryResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string,
+  }
+} | null;
+export type MyQueryRawResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string | null,
+  } | null
+};
+export type MyQuery = {
+  variables: MyQueryVariables,
+  response: MyQueryResponse,
+  rawResponse: MyQueryRawResponse,
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 export type MyQueryVariables = {};
 export type MyQueryResponse = {
   readonly me: {

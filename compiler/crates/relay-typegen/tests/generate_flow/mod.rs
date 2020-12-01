@@ -45,35 +45,51 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     )
     .unwrap();
 
-    let typegen_config = TypegenConfig {
-        language: TypegenLanguage::Flow,
-        haste: true,
-        ..Default::default()
-    };
+    let separator =
+        "-------------------------------------------------------------------------------\n";
+    Ok(vec![false, false, true, false, false, true, true, true]
+        .chunks(2)
+        .map(|bools| (bools[0], bools[1]))
+        .map(|(future_proof_enums, future_proof_abstract_types)| {
+            let typegen_config = TypegenConfig {
+                language: TypegenLanguage::Flow,
+                haste: true,
+                future_proof_abstract_types,
+                future_proof_enums,
+                ..Default::default()
+            };
 
-    let mut operations: Vec<_> = programs.typegen.operations().collect();
-    operations.sort_by_key(|op| op.name.item);
-    let operation_strings = operations.into_iter().map(|typegen_operation| {
-        let normalization_operation = programs
-            .normalization
-            .operation(typegen_operation.name.item)
-            .unwrap();
-        relay_typegen::generate_operation_type(
-            typegen_operation,
-            normalization_operation,
-            &schema,
-            &typegen_config,
-        )
-    });
+            let mut operations: Vec<_> = programs.typegen.operations().collect();
+            operations.sort_by_key(|op| op.name.item);
+            let operation_strings = operations.into_iter().map(|typegen_operation| {
+                let normalization_operation = programs
+                    .normalization
+                    .operation(typegen_operation.name.item)
+                    .unwrap();
+                relay_typegen::generate_operation_type(
+                    typegen_operation,
+                    normalization_operation,
+                    &schema,
+                    &typegen_config,
+                )
+            });
 
-    let mut fragments: Vec<_> = programs.typegen.fragments().collect();
-    fragments.sort_by_key(|frag| frag.name.item);
-    let fragment_strings = fragments
-        .into_iter()
-        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &typegen_config));
+            let mut fragments: Vec<_> = programs.typegen.fragments().collect();
+            fragments.sort_by_key(|frag| frag.name.item);
+            let fragment_strings = fragments
+                .into_iter()
+                .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &typegen_config));
 
-    let mut result: Vec<String> = operation_strings.collect();
-    result.extend(fragment_strings);
-    Ok(result
-        .join("-------------------------------------------------------------------------------\n"))
+            let mut result: Vec<String> = operation_strings.collect();
+            result.extend(fragment_strings);
+
+            format!(
+                "/*\n * future proof enums: {}\n * future proof abstract types: {}\n */\n\n{}",
+                future_proof_enums,
+                future_proof_abstract_types,
+                result.join(separator)
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(separator))
 }

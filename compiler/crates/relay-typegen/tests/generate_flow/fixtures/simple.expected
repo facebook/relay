@@ -8,6 +8,83 @@ fragment LinkedField on User {
   }
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type LinkedField$ref: FragmentReference;
+declare export opaque type LinkedField$fragmentType: LinkedField$ref;
+export type LinkedField = {|
+  +name: ?string,
+  +profilePicture: ?{|
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
+  +$refType: LinkedField$ref,
+|};
+export type LinkedField$data = LinkedField;
+export type LinkedField$key = {
+  +$data?: LinkedField$data,
+  +$fragmentRefs: LinkedField$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type LinkedField$ref: FragmentReference;
+declare export opaque type LinkedField$fragmentType: LinkedField$ref;
+export type LinkedField = {|
+  +name: ?string,
+  +profilePicture: ?{|
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
+  +$refType: LinkedField$ref,
+|};
+export type LinkedField$data = LinkedField;
+export type LinkedField$key = {
+  +$data?: LinkedField$data,
+  +$fragmentRefs: LinkedField$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type LinkedField$ref: FragmentReference;
+declare export opaque type LinkedField$fragmentType: LinkedField$ref;
+export type LinkedField = {|
+  +name: ?string,
+  +profilePicture: ?{|
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
+  +$refType: LinkedField$ref,
+|};
+export type LinkedField$data = LinkedField;
+export type LinkedField$key = {
+  +$data?: LinkedField$data,
+  +$fragmentRefs: LinkedField$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type LinkedField$ref: FragmentReference;
 declare export opaque type LinkedField$fragmentType: LinkedField$ref;

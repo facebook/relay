@@ -3,6 +3,59 @@ fragment PluralFragment on Node @relay(plural: true) {
   id
 }
 ==================================== OUTPUT ===================================
+/*
+ * future proof enums: false
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type PluralFragment = ReadonlyArray<{
+  readonly id: string,
+  readonly " $refType": FragmentRefs<"PluralFragment">,
+}>;
+export type PluralFragment$data = PluralFragment;
+export type PluralFragment$key = ReadonlyArray<{
+  readonly " $data"?: PluralFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"PluralFragment">,
+}>;
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: false
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type PluralFragment = ReadonlyArray<{
+  readonly id: string,
+  readonly " $refType": FragmentRefs<"PluralFragment">,
+}>;
+export type PluralFragment$data = PluralFragment;
+export type PluralFragment$key = ReadonlyArray<{
+  readonly " $data"?: PluralFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"PluralFragment">,
+}>;
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: false
+ * future proof abstract types: true
+ */
+
+import { FragmentRefs } from "relay-runtime";
+export type PluralFragment = ReadonlyArray<{
+  readonly id: string,
+  readonly " $refType": FragmentRefs<"PluralFragment">,
+}>;
+export type PluralFragment$data = PluralFragment;
+export type PluralFragment$key = ReadonlyArray<{
+  readonly " $data"?: PluralFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"PluralFragment">,
+}>;
+-------------------------------------------------------------------------------
+/*
+ * future proof enums: true
+ * future proof abstract types: true
+ */
+
 import { FragmentRefs } from "relay-runtime";
 export type PluralFragment = ReadonlyArray<{
   readonly id: string,

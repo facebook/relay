@@ -23,7 +23,9 @@ use graphql_syntax::{ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
 use relay_compiler::FileCategorizer;
-use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
+use schema::{
+    ArgumentDefinitions, Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields,
+};
 use std::{
     collections::HashMap,
     path::PathBuf,
@@ -130,27 +132,39 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .map(|field_id| {
             let field = schema.field(*field_id);
             let name = field.name.to_string();
-            if field.type_.inner().is_scalar() {
-                CompletionItem::new_simple(name, "".into())
+            let args = create_arguments_snippets(&field.arguments, schema);
+            let insert_text = match (field.type_.inner().is_scalar(), args.is_empty()) {
+                (true, true) => None,
+                (true, false) => Some(format!("{}({})", name, args.join(", "))),
+                (false, true) => Some(format!("{} {{\n\t$1\n}}", name)),
+                (false, false) => Some(format!(
+                    "{}({}) {{\n\t${}\n}}",
+                    name,
+                    args.join(", "),
+                    args.len() + 1
+                )),
+            };
+            let insert_text_format = if insert_text.is_some() {
+                Some(lsp_types::InsertTextFormat::Snippet)
             } else {
-                let insert_text = format!("{} {{\n\t$1\n}}", name);
-                CompletionItem {
-                    label: name,
-                    kind: None,
-                    detail: None,
-                    documentation: None,
-                    deprecated: None,
-                    preselect: None,
-                    sort_text: None,
-                    filter_text: None,
-                    insert_text: Some(insert_text),
-                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
-                    text_edit: None,
-                    additional_text_edits: None,
-                    command: None,
-                    data: None,
-                    tags: None,
-                }
+                None
+            };
+            CompletionItem {
+                label: name,
+                kind: None,
+                detail: None,
+                documentation: None,
+                deprecated: None,
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text,
+                insert_text_format,
+                text_edit: None,
+                additional_text_edits: None,
+                command: None,
+                data: None,
+                tags: None,
             }
         })
         .collect()
@@ -385,22 +399,7 @@ fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) 
     let (insert_text, insert_text_format) = if arguments.is_empty() {
         (label.clone(), InsertTextFormat::PlainText)
     } else {
-        let mut cursor_location = 1;
-        let mut args = vec![];
-
-        for arg in arguments.iter() {
-            if let TypeReference::NonNull(type_) = &arg.type_ {
-                let value_snippet = match type_ {
-                    t if t.is_list() => format!("[${}]", cursor_location),
-                    t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
-                    _ => format!("${}", cursor_location),
-                };
-                let str = format!("{} : {}", arg.name, value_snippet);
-                args.push(str);
-                cursor_location += 1;
-            }
-        }
-
+        let args = create_arguments_snippets(&arguments, schema);
         if args.is_empty() {
             (label.clone(), InsertTextFormat::PlainText)
         } else {
@@ -426,6 +425,25 @@ fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) 
         data: None,
         tags: None,
     }
+}
+
+fn create_arguments_snippets(arguments: &ArgumentDefinitions, schema: &Schema) -> Vec<String> {
+    let mut cursor_location = 1;
+    let mut args = vec![];
+
+    for arg in arguments.iter() {
+        if let TypeReference::NonNull(type_) = &arg.type_ {
+            let value_snippet = match type_ {
+                t if t.is_list() => format!("[${}]", cursor_location),
+                t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
+                _ => format!("${}", cursor_location),
+            };
+            let str = format!("{}: {}", arg.name, value_snippet);
+            args.push(str);
+            cursor_location += 1;
+        }
+    }
+    args
 }
 
 pub fn send_completion_response(

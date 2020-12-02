@@ -8,7 +8,7 @@ title: Installation and Setup
 Install React and Relay using `yarn` or `npm`:
 
 ```sh
-yarn add react react-dom react-relay
+yarn add react react-dom react-relay relay-runtime
 ```
 
 ## Set up Relay with a single config file

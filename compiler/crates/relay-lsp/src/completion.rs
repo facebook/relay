@@ -130,7 +130,28 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .map(|field_id| {
             let field = schema.field(*field_id);
             let name = field.name.to_string();
-            CompletionItem::new_simple(name, String::from(""))
+            if field.type_.inner().is_scalar() {
+                CompletionItem::new_simple(name, "".into())
+            } else {
+                let insert_text = format!("{} {{\n\t$1\n}}", name);
+                CompletionItem {
+                    label: name,
+                    kind: None,
+                    detail: None,
+                    documentation: None,
+                    deprecated: None,
+                    preselect: None,
+                    sort_text: None,
+                    filter_text: None,
+                    insert_text: Some(insert_text),
+                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                    text_edit: None,
+                    additional_text_edits: None,
+                    command: None,
+                    data: None,
+                    tags: None,
+                }
+            }
         })
         .collect()
 }

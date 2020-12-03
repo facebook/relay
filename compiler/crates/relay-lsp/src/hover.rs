@@ -96,12 +96,37 @@ pub fn get_hover_response_contents(
             }
         }
         NodeKind::FieldName => {
-            let type_ref = node_resolution_info
+            let field = node_resolution_info
                 .type_path
-                .resolve_current_type_reference(schema)?;
-            let type_name = schema.get_type_string(&type_ref);
+                .resolve_current_field(schema)?;
 
-            Some(hover_content_wrapper(type_name))
+            let type_name = schema.get_type_string(&field.type_);
+            let mut hover_contents: Vec<MarkedString> = vec![graphql_marked_string(format!(
+                "{}: {}",
+                field.name, type_name
+            ))];
+
+            if !field.arguments.is_empty() {
+                let mut args_string: Vec<String> =
+                    vec!["This field accepts following arguments:".to_string()];
+                args_string.push("```".to_string());
+                for arg in field.arguments.iter() {
+                    let default_value = match &arg.default_value {
+                        Some(default_value) => format!(" = {}", default_value),
+                        None => "".to_string(),
+                    };
+
+                    args_string.push(format!(
+                        "- {}: {}{}",
+                        arg.name,
+                        schema.get_type_string(&arg.type_),
+                        default_value,
+                    ));
+                }
+                args_string.push("```".to_string());
+                hover_contents.push(MarkedString::String(args_string.join("\n")))
+            }
+            Some(HoverContents::Array(hover_contents))
         }
         NodeKind::FieldArgument(field_name, argument_name) => {
             let type_ref = node_resolution_info

@@ -7,7 +7,7 @@
 
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Schema, Type, TypeReference};
+use schema::{Field, Schema, Type, TypeReference};
 
 #[derive(Debug)]
 /// An item in the list of type metadata that we can use to resolve the leaf
@@ -66,21 +66,21 @@ fn resolve_relative_type_for_current_item(
     parent_type: Type,
     path_item: TypePathItem,
     schema: &Schema,
-) -> Option<TypeReference> {
+) -> Option<(TypeReference, Option<Field>)> {
     match path_item {
         TypePathItem::Operation(_) | TypePathItem::FragmentDefinition { .. } => None,
         TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
             if parent_type.is_abstract_type() || parent_type.is_object() {
                 let field_id = schema.named_field(parent_type, name)?;
                 let field = schema.field(field_id);
-                Some(field.type_.clone())
+                Some((field.type_.clone(), Some(field.clone())))
             } else {
                 None
             }
         }
-        TypePathItem::InlineFragment { type_name } => {
-            schema.get_type(type_name).map(TypeReference::Named)
-        }
+        TypePathItem::InlineFragment { type_name } => schema
+            .get_type(type_name)
+            .map(|type_| (TypeReference::Named(type_), None)),
     }
 }
 
@@ -113,8 +113,25 @@ impl TypePath {
             schema,
         )?);
         while let Some(path_item) = type_path.pop() {
-            type_ = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
+            let result = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
+            type_ = result.0;
         }
         Some(type_)
+    }
+
+    pub fn resolve_current_field(self, schema: &Schema) -> Option<Field> {
+        let mut type_path = self.0;
+        type_path.reverse();
+        let mut type_ = TypeReference::Named(resolve_root_type(
+            type_path.pop().expect("path must be non-empty"),
+            schema,
+        )?);
+        let mut field: Option<Field> = None;
+        while let Some(path_item) = type_path.pop() {
+            let result = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
+            type_ = result.0;
+            field = result.1;
+        }
+        field
     }
 }

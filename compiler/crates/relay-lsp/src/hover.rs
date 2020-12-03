@@ -211,6 +211,30 @@ For example:
             }
         }
         NodeKind::OperationDefinition => None,
-        NodeKind::FragmentDefinition(_) => None,
+        NodeKind::FragmentDefinition(name) => {
+            let type_ = node_resolution_info
+                .type_path
+                .resolve_current_type_reference(schema)?;
+            let title = graphql_marked_string(format!(
+                "fragment {} on {} {{ .. }}",
+                name,
+                schema.get_type_name(type_.inner())
+            ));
+
+            let hover_contents = vec![
+                title,
+                MarkedString::String(
+                    r#"Fragments let you construct sets of fields,
+and then include them in queries where you need to.
+
+---
+@see: https://graphql.org/learn/queries/#fragments
+"#
+                    .to_string(),
+                ),
+            ];
+
+            Some(HoverContents::Array(hover_contents))
+        }
     }
 }

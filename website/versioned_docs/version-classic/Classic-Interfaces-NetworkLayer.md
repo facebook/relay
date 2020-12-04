@@ -55,7 +55,7 @@ sendMutation(mutationRequest) {
 }
 ```
 
-See [RelayMutationRequest](interfaces-relay-mutation-request.html) for methods available on the argument object.
+See [RelayMutationRequest](classic-interfaces-relay-mutation-request.html) for methods available on the argument object.
 
 ### sendQueries
 
@@ -85,7 +85,7 @@ sendQueries(queryRequests) {
 }
 ```
 
-See [RelayQueryRequest](interfaces-relay-query-request.html) for methods available on the argument objects.
+See [RelayQueryRequest](classic-interfaces-relay-query-request.html) for methods available on the argument objects.
 
 ### supports
 

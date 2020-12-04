@@ -92,7 +92,7 @@ See the [Network Layer Guide](guides-network-layer.html).
 
 ### Mutation
 
-See the [Mutations Guide](guides-mutations.html).
+See the [Mutations Guide](classic-guides-mutations.html).
 
 ### QL
 
@@ -104,7 +104,7 @@ See the [PropTypes API reference](api-reference-relay-proptypes.html).
 
 ### RootContainer
 
-See the [RootContainer Guide](guides-root-container.html).
+See the [RootContainer Guide](classic-guides-root-container.html).
 
 ### Route
 
@@ -126,7 +126,7 @@ var Container = Relay.createContainer(Component, {
 });
 ```
 
-Creates a new Relay Container - see the [Container Guide](guides-containers.html) for more details and examples.
+Creates a new Relay Container - see the [Container Guide](classic-guides-containers.html) for more details and examples.
 
 ### injectNetworkLayer (static method)
 

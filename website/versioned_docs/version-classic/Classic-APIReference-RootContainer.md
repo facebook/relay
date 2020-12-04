@@ -64,7 +64,7 @@ Component: RelayContainer
 
 Must be a valid `RelayContainer`. Relay will attempt to fulfill its data requirements before rendering it.
 
-See also: [Root Container > Component and Route](guides-root-container.html#component-and-route)
+See also: [Root Container > Component and Route](classic-guides-root-container.html#component-and-route)
 
 ### route
 
@@ -74,7 +74,7 @@ route: RelayRoute
 
 Either an instance of `Relay.Route` or an object with the `name`, `queries`, and optionally the `params` properties.
 
-See also: [Root Container > Component and Route](guides-root-container.html#component-and-route)
+See also: [Root Container > Component and Route](classic-guides-root-container.html#component-and-route)
 
 ### forceFetch
 
@@ -84,7 +84,7 @@ forceFetch: boolean
 
 If supplied and set to true, a request for data will always be made to the server regardless of whether data on the client is available to immediately fulfill the data requirements.
 
-See also: [Root Container > Force Fetching](guides-root-container.html#force-fetching)
+See also: [Root Container > Force Fetching](classic-guides-root-container.html#force-fetching)
 
 ### renderLoading
 
@@ -106,7 +106,7 @@ When data requirements have yet to be fulfilled, `renderLoading` is called to re
 />
 ```
 
-See also: [Root Container > renderLoading](guides-root-container.html#renderloading)
+See also: [Root Container > renderLoading](classic-guides-root-container.html#renderloading)
 
 ### renderFetched
 
@@ -135,7 +135,7 @@ When all data requirements are fulfilled, `renderFetched` is called to render th
 />
 ```
 
-See also: [Root Container > renderFetched](guides-root-container.html#renderfetched)
+See also: [Root Container > renderFetched](classic-guides-root-container.html#renderfetched)
 
 ### renderFailure
 
@@ -162,7 +162,7 @@ When data requirements failed to be fulfilled, `renderFailure` is called to rend
 />
 ```
 
-See also: [Root Container > renderFailure](guides-root-container.html#renderfailure)
+See also: [Root Container > renderFailure](classic-guides-root-container.html#renderfailure)
 
 ### onReadyStateChange
 
@@ -181,4 +181,4 @@ onReadyStateChange(
 
 This callback prop is called as the various events of data resolution occurs.
 
-See also: [Ready State](guides-ready-state.html)
+See also: [Ready State](classic-guides-ready-state.html)

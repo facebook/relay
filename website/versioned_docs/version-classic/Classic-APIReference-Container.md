@@ -133,7 +133,7 @@ module.exports = Relay.createContainer(StarWarsShip, {
 ```
 In this example, the fields associated with the `ship` fragment will be made available on `this.props.ship`.
 
-See also: [Containers > Relay Containers](guides-containers.html#relay-containers)
+See also: [Containers > Relay Containers](classic-guides-containers.html#relay-containers)
 
 ### initialVariables
 
@@ -229,7 +229,7 @@ if (name === 'SuperAwesomeRoute') {
 }
 ```
 
-See also: [Routes](guides-routes.html)
+See also: [Routes](classic-guides-routes.html)
 
 ### variables
 
@@ -384,7 +384,7 @@ module.exports = Relay.createContainer(Feed, {
 >
 > `setVariables` does not immediately mutate `variables`, but creates a  pending state transition. `variables` will continue returning the previous values until `this.props` has been populated with data that fulfills the new variable values.
 
-See also: [Containers > Requesting Different Data](guides-containers.html#requesting-different-data), [Ready State](guides-ready-state.html)
+See also: [Containers > Requesting Different Data](classic-guides-containers.html#requesting-different-data), [Ready State](classic-guides-ready-state.html)
 
 ### forceFetch
 
@@ -402,7 +402,7 @@ An optional `onReadyStateChange` callback can be supplied to respond to the even
 >
 > `forceFetch` can be called with an empty set of partial variables, meaning it can trigger a refresh of the currently rendered set of data.
 
-See also: [Ready State](guides-ready-state.html)
+See also: [Ready State](classic-guides-ready-state.html)
 
 ### hasOptimisticUpdate
 
@@ -466,7 +466,7 @@ module.exports = Relay.createContainer(Feed, {
 
 ```
 
-See also: [Mutations > Optimistic Updates](guides-mutations.html#optimistic-updates)
+See also: [Mutations > Optimistic Updates](classic-guides-mutations.html#optimistic-updates)
 
 ### getPendingTransactions
 

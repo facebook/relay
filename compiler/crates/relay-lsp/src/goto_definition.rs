@@ -9,12 +9,9 @@
 
 use crate::{
     location::to_lsp_location_of_graphql_literal, lsp::GotoDefinitionResponse,
-    lsp_runtime_error::LSPRuntimeResult,
+    lsp_runtime_error::LSPRuntimeResult, node_resolution_info::NodeKind,
 };
-use crate::{
-    lsp_runtime_error::LSPRuntimeError,
-    utils::{NodeKind, NodeResolutionInfo},
-};
+use crate::{lsp_runtime_error::LSPRuntimeError, node_resolution_info::NodeResolutionInfo};
 use graphql_ir::Program;
 use interner::StringKey;
 use std::{

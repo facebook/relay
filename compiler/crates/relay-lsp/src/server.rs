@@ -5,26 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp::{
-    set_initializing_status, Completion, CompletionOptions, Connection, DidChangeTextDocument,
-    DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition, HoverRequest,
-    InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
-    ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
-};
 use crate::lsp_process_error::LSPProcessResult;
 use crate::status_reporting::LSPStatusReporter;
 use crate::text_documents::extract_graphql_sources;
 use crate::text_documents::{
     on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
 };
-use crate::utils::get_node_resolution_info;
 use crate::{
     completion::{completion_items_for_request, get_completion_request, send_completion_response},
     lsp_runtime_error::LSPRuntimeResult,
 };
 use crate::{goto_definition::get_goto_definition_response, lsp_runtime_error::LSPRuntimeError};
 use crate::{hover::get_hover_response_contents, references::get_references_response};
+use crate::{
+    lsp::{
+        set_initializing_status, Completion, CompletionOptions, Connection, DidChangeTextDocument,
+        DidCloseTextDocument, DidOpenTextDocument, Exit, GotoDefinition, HoverRequest,
+        InitializeParams, LSPBridgeMessage, Message, Notification, Request, ServerCapabilities,
+        ServerNotification, ServerRequest, ServerRequestId, ServerResponse, Shutdown,
+        TextDocumentSyncCapability, TextDocumentSyncKind, Url, WorkDoneProgressOptions,
+    },
+    node_resolution_info::get_node_resolution_info,
+};
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;

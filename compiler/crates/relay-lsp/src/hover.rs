@@ -6,8 +6,10 @@
  */
 
 //! Utilities for providing the hover feature
-use crate::lsp::{HoverContents, LanguageString, MarkedString};
-use crate::utils::{NodeKind, NodeResolutionInfo};
+use crate::{
+    lsp::{HoverContents, LanguageString, MarkedString},
+    node_resolution_info::{NodeKind, NodeResolutionInfo},
+};
 use graphql_ir::{Program, Value};
 use graphql_text_printer::print_value;
 use interner::StringKey;
@@ -164,12 +166,10 @@ pub fn get_hover_response_contents(
                     variables_string.push("```".to_string());
                     for var in &fragment.variable_definitions {
                         let default_value = match var.default_value.clone() {
-                            Some(default_value) => {
-                                format!(
-                                    ", default_value = {}",
-                                    print_value(schema, &Value::Constant(default_value))
-                                )
-                            }
+                            Some(default_value) => format!(
+                                ", default_value = {}",
+                                print_value(schema, &Value::Constant(default_value))
+                            ),
                             None => "".to_string(),
                         };
                         variables_string.push(format!(

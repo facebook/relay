@@ -8,11 +8,10 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::to_contents_and_lsp_location_of_graphql_literal,
-    lsp_runtime_error::LSPRuntimeError,
-    utils::{span_to_range_offset, NodeResolutionInfo},
+    location::to_contents_and_lsp_location_of_graphql_literal, lsp_runtime_error::LSPRuntimeError,
+    node_resolution_info::NodeKind, utils::span_to_range_offset,
 };
-use crate::{lsp_runtime_error::LSPRuntimeResult, utils::NodeKind};
+use crate::{lsp_runtime_error::LSPRuntimeResult, node_resolution_info::NodeResolutionInfo};
 use common::Location;
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use interner::StringKey;

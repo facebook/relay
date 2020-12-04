@@ -10,7 +10,7 @@ use crate::lsp::{
     CompletionItem, CompletionParams, CompletionResponse, Message, ServerRequestId, ServerResponse,
     Url,
 };
-use crate::type_path::{TypePath, TypePathItem};
+use crate::node_resolution_info::{TypePath, TypePathItem};
 use crate::utils::extract_executable_document_from_text;
 use common::Span;
 use crossbeam::Sender;
